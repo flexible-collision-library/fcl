@@ -337,10 +337,9 @@ TEST_F(TestCollisionSpaceFCL, TestACM) {
     ASSERT_TRUE(coll_space_->isCollision());
 
     //now we get the full set of collisions in the default state
-    std::vector<collision_space_fcl::EnvironmentModel::AllowedContact> ac;
     std::vector<collision_space_fcl::EnvironmentModel::Contact> contacts;
       
-    coll_space_->getAllCollisionContacts(ac, contacts, 1);
+    coll_space_->getAllCollisionContacts(contacts, 1);
 
     ASSERT_TRUE(contacts.size() > 1);
     //now we change all these pairwise to true
@@ -377,10 +376,9 @@ TEST_F(TestCollisionSpaceFCL, TestAttachedObjects)
     coll_space_->updateRobotModel(&state);
 
     //now we get the full set of collisions in the default state
-    std::vector<collision_space_fcl::EnvironmentModel::AllowedContact> ac;
     std::vector<collision_space_fcl::EnvironmentModel::Contact> contacts;
       
-    coll_space_->getAllCollisionContacts(ac, contacts, 1);
+    coll_space_->getAllCollisionContacts(contacts, 1);
 
     //now we change all these pairwise to true
     for(unsigned int i = 0; i < contacts.size(); i++) {
@@ -568,10 +566,9 @@ TEST_F(TestCollisionSpaceFCL, TestStaticObjects)
   ASSERT_TRUE(coll_space_->isEnvironmentCollision());
 
   //now we get the full set of collisions in the default state
-  std::vector<collision_space_fcl::EnvironmentModel::AllowedContact> ac;
   std::vector<collision_space_fcl::EnvironmentModel::Contact> contacts;
   
-  coll_space_->getAllCollisionContacts(ac, contacts, 1);
+  coll_space_->getAllCollisionContacts(contacts, 1);
 
   //now we change all these pairwise to true
   for(unsigned int i = 0; i < contacts.size(); i++) {
@@ -625,7 +622,7 @@ TEST_F(TestCollisionSpaceFCL, TestStaticObjects)
   EXPECT_FALSE(coll_space_->isEnvironmentCollision());
   contacts.clear();
 
-  coll_space_->getAllCollisionContacts(ac, contacts, 1);
+  coll_space_->getAllCollisionContacts(contacts, 1);
 
   //now we change all these pairwise to true
   for(unsigned int i = 0; i < contacts.size(); i++) {

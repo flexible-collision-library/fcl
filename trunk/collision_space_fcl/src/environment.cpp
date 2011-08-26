@@ -36,6 +36,7 @@
 
 #include "collision_space_fcl/environment.h"
 #include <ros/console.h>
+#include <iomanip>
 
 collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::AllowedCollisionMatrix(const std::vector<std::string>& names,
                                                                                   bool allowed) 
@@ -94,7 +95,7 @@ collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::AllowedCollisionM
   allowed_entries_bimap_ = acm.allowed_entries_bimap_;
 }
 
-bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::getAllowedCollision(const std::string& name1,
+bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::getAllowedCollision(const std::string& name1, 
                                                                                     const std::string& name2,
                                                                                     bool& allowed_collision) const
 {
@@ -245,7 +246,7 @@ bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::changeEntry(
   allowed_entries_[j][i] = allowed;
   return true;
 }
-bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::changeEntry(const std::string& name,
+bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::changeEntry(const std::string& name, 
                                                                             bool allowed)
 {
   if(allowed_entries_bimap_.left.find(name) == allowed_entries_bimap_.left.end()) {
@@ -259,7 +260,7 @@ bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::changeEntry(
   return true;
 }
 
-bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::changeEntry(const std::string& name,
+bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::changeEntry(const std::string& name, 
                                                                             const std::vector<std::string>& change_names,
                                                                             bool allowed)
 {
@@ -306,10 +307,15 @@ bool collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::changeEntry(
   return ok;
 }
 
-bool collision_space_fcl::EnvironmentModel::getCollisionContacts(std::vector<Contact> &contacts, unsigned int max_count) const
-{
-  std::vector<AllowedContact> allowed;
-  return getCollisionContacts(allowed, contacts, max_count);
+void collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix::print(std::ostream& out) const {
+  for(entry_type::right_const_iterator it = allowed_entries_bimap_.right.begin(); it != allowed_entries_bimap_.right.end(); it++) {
+    out << std::setw(40) << it->second;
+    out << " | ";
+    for(entry_type::right_const_iterator it2 = allowed_entries_bimap_.right.begin(); it2 != allowed_entries_bimap_.right.end(); it2++) {
+      out << std::setw(3) << allowed_entries_[it->first][it2->first];
+    }
+    out << std::endl;
+  }
 }
 
 bool collision_space_fcl::EnvironmentModel::getVerbose(void) const
@@ -342,7 +348,7 @@ double collision_space_fcl::EnvironmentModel::getRobotPadding(void) const
   return default_robot_padding_;
 }
 	
-void collision_space_fcl::EnvironmentModel::setRobotModel(const planning_models::KinematicModel* model,
+void collision_space_fcl::EnvironmentModel::setRobotModel(const planning_models::KinematicModel* model, 
                                                       const AllowedCollisionMatrix& acm,
                                                       const std::map<std::string, double>& link_padding_map,
                                                       double default_padding,
@@ -365,13 +371,13 @@ void collision_space_fcl::EnvironmentModel::unlock(void) const
   lock_.unlock();
 }
 
-const collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix&
+const collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix& 
 collision_space_fcl::EnvironmentModel::getDefaultAllowedCollisionMatrix() const
 {
   return default_collision_matrix_;
 }
 
-const collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix&
+const collision_space_fcl::EnvironmentModel::AllowedCollisionMatrix& 
 collision_space_fcl::EnvironmentModel::getCurrentAllowedCollisionMatrix() const {
   if(use_altered_collision_matrix_) {
     return altered_collision_matrix_;
@@ -431,4 +437,18 @@ double collision_space_fcl::EnvironmentModel::getCurrentLinkPadding(std::string 
     return default_link_padding_map_.find(name)->second;
   }
   return 0.0;
+}
+
+void collision_space_fcl::EnvironmentModel::setAllowedContacts(const std::vector<AllowedContact>& allowed_contacts)
+{
+  allowed_contact_map_.clear();
+  allowed_contacts_ = allowed_contacts;
+  for(unsigned int i = 0; i < allowed_contacts.size(); i++) {
+    allowed_contact_map_[allowed_contacts_[i].body_name_1][allowed_contacts_[i].body_name_2].push_back(allowed_contacts_[i]);
+    allowed_contact_map_[allowed_contacts_[i].body_name_2][allowed_contacts_[i].body_name_1].push_back(allowed_contacts_[i]);
+  }
+}
+
+const std::vector<collision_space_fcl::EnvironmentModel::AllowedContact>& collision_space_fcl::EnvironmentModel::getAllowedContacts() const {
+  return allowed_contacts_;
 }

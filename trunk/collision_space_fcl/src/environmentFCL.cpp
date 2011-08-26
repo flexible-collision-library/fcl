@@ -351,14 +351,26 @@ void EnvironmentModelFCL::addAttachedBody(LinkGeom* lg, const planning_models::K
   {
     ROS_WARN_STREAM("Must already have an entry in allowed collision matrix for " << attm->getName());
   } 
+  else
+  {
+      ROS_DEBUG_STREAM("Adding entry for " << attm->getName());
+  }
+
   attached_bodies_in_collision_matrix_[attm->getName()] = true;
   default_collision_matrix_.getEntryIndex(attm->getName(), attg->index);
   //setting touch links
   for(unsigned int i = 0; i < attm->getTouchLinks().size(); i++)
   {
-    if(!default_collision_matrix_.changeEntry(attm->getName(), attm->getTouchLinks()[i], true))
+    if(default_collision_matrix_.hasEntry(attm->getTouchLinks()[i]))
     {
-      ROS_WARN_STREAM("No entry in allowed collision matrix for " << attm->getName() << " and " << attm->getTouchLinks()[i]);
+      if(!default_collision_matrix_.changeEntry(attm->getName(), attm->getTouchLinks()[i], true))
+      {
+        ROS_WARN_STREAM("No entry in allowed collision matrix for " << attm->getName() << " and " << attm->getTouchLinks()[i]);
+      }
+      else
+      {
+        ROS_DEBUG_STREAM("Adding touch link for " << attm->getName() << " and " << attm->getTouchLinks()[i]);
+      }
     }
   }
   for(unsigned int i = 0; i < attm->getShapes().size(); i++)
@@ -556,45 +568,55 @@ void EnvironmentModelFCL::revertAlteredLinkPadding()
 } 
 
 
-bool EnvironmentModelFCL::getCollisionContacts(const std::vector<AllowedContact>& allowedContacts, std::vector<Contact>& contacts, unsigned int max_count) const
+bool EnvironmentModelFCL::getCollisionContacts(std::vector<Contact> &contacts, unsigned int max_total, unsigned int max_per_pair) const
 {
   contacts.clear();
   CollisionData cdata;
   cdata.allowed_collision_matrix = &getCurrentAllowedCollisionMatrix();
   cdata.geom_lookup_map = &geom_lookup_map_;
   cdata.contacts = &contacts;
-  cdata.max_contacts = max_count;
-  if (!allowedContacts.empty())
-    cdata.allowed = &allowedContacts;
+  cdata.max_contacts_total = max_total;
+  cdata.max_contacts_pair = max_per_pair;
+  if (!allowed_contacts_.empty())
+    cdata.allowed = &allowed_contact_map_;
   contacts.clear();
   testCollision(&cdata);
   return cdata.collides;
 }
 
 
-bool EnvironmentModelFCL::getAllCollisionContacts(const std::vector<AllowedContact>& allowedContacts, std::vector<Contact>& contacts, unsigned int num_contacts_per_pair) const
+bool EnvironmentModelFCL::getAllCollisionContacts(std::vector<Contact> &contacts, unsigned int num_contacts_per_pair) const
 {
   contacts.clear();
   CollisionData cdata;
   cdata.geom_lookup_map = &geom_lookup_map_;
   cdata.allowed_collision_matrix = &getCurrentAllowedCollisionMatrix();
   cdata.contacts = &contacts;
-  cdata.max_contacts = num_contacts_per_pair;
-  if (!allowedContacts.empty())
-    cdata.allowed = &allowedContacts;
+  cdata.max_contacts_total = UINT_MAX;
+  cdata.max_contacts_pair = num_contacts_per_pair;
   cdata.exhaustive = true;
+  if (!allowed_contacts_.empty())
+    cdata.allowed = &allowed_contact_map_;
   contacts.clear();
   testCollision(&cdata);
   return cdata.collides;
 }
-
-
 
 bool EnvironmentModelFCL::isCollision(void) const
 {
   CollisionData cdata;
   cdata.allowed_collision_matrix = &getCurrentAllowedCollisionMatrix();
   cdata.geom_lookup_map = &geom_lookup_map_;
+  if(!allowed_contacts_.empty())
+  {
+    cdata.allowed = &allowed_contact_map_;
+    ROS_DEBUG_STREAM("Got contacts size " << cdata.allowed->size());
+  }
+  else
+  {
+    ROS_DEBUG_STREAM("No allowed contacts");
+  }
+
   testCollision(&cdata);
   return cdata.collides;
 }
@@ -605,6 +627,8 @@ bool EnvironmentModelFCL::isSelfCollision(void) const
   CollisionData cdata; 
   cdata.geom_lookup_map = &geom_lookup_map_;
   cdata.allowed_collision_matrix = &getCurrentAllowedCollisionMatrix();
+  if (!allowed_contacts_.empty())
+    cdata.allowed = &allowed_contact_map_;
   testSelfCollision(&cdata);
   return cdata.collides;
 }
@@ -615,6 +639,8 @@ bool EnvironmentModelFCL::isEnvironmentCollision(void) const
   CollisionData cdata; 
   cdata.geom_lookup_map = &geom_lookup_map_;
   cdata.allowed_collision_matrix = &getCurrentAllowedCollisionMatrix();
+  if (!allowed_contacts_.empty())
+    cdata.allowed = &allowed_contact_map_;
   testEnvironmentCollision(&cdata);
   return cdata.collides;
 }
@@ -629,6 +655,8 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
   // first figure out what check is happening
   bool check_in_allowed_collision_matrix = true;
 
+  std::string object_name;
+
   std::map<fcl::CollisionObject*, std::pair<std::string, EnvironmentModelFCL::BodyType> >::const_iterator it1 = cdata->geom_lookup_map->find(o1);
   std::map<fcl::CollisionObject*, std::pair<std::string, EnvironmentModelFCL::BodyType> >::const_iterator it2 = cdata->geom_lookup_map->find(o2);
 
@@ -639,6 +667,7 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
   }
   else
   {
+    //ROS_WARN_STREAM("Object to be added does not have entry in geometry lookup map");
     cdata->body_name_1 = "";
     cdata->body_type_1 = EnvironmentModelFCL::OBJECT;
     check_in_allowed_collision_matrix = false;
@@ -651,6 +680,7 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
   }
   else
   {
+    //ROS_WARN_STREAM("Object to be added does not have entry in geometry lookup map");
     cdata->body_name_2 = "";
     cdata->body_type_2 = EnvironmentModelFCL::OBJECT;
     check_in_allowed_collision_matrix = false;
@@ -668,18 +698,19 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
     }
     if(allowed)
     {
-      ROS_DEBUG_STREAM("Collision but allowed touch between " << cdata->body_name_1 << " and " << cdata->body_name_2);
+      ROS_DEBUG_STREAM("Will not test for collision between " << cdata->body_name_1 << " and " << cdata->body_name_2);
       return cdata->done;
     }
     else
     {
-      ROS_DEBUG_STREAM("Collision and no allowed touch between " << cdata->body_name_1 << " and " << cdata->body_name_2);
+      ROS_DEBUG_STREAM("Will test for collision between " << cdata->body_name_1 << " and " << cdata->body_name_2);
     }
+
   }
 
   // do the actual collision check to get the desired number of contacts
 
-  if(!cdata->contacts)
+  if(!cdata->contacts && !cdata->allowed)
   {
     bool enable_contact = false;
     bool exhaustive = false;
@@ -694,15 +725,16 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
   }
   else
   {
+    unsigned int num_not_allowed = 0;
     // here is quite subtle: the exhaustive is high level one in collision space
     // if exhaustive, then each pair will report at most cdata->max_contacts contacts
     // else, then we report at most cdata->max_contacts in whole.
     // so both cases correspond to the exhaustive = false in low level FCL collision.
     int num_max_contacts;
     if(cdata->exhaustive)
-      num_max_contacts = cdata->max_contacts;
+      num_max_contacts = cdata->max_contacts_pair;
     else
-      num_max_contacts = cdata->max_contacts - cdata->contacts->size();
+      num_max_contacts = cdata->max_contacts_total - cdata->contacts->size();
 
 
     bool enable_contact = true;
@@ -712,7 +744,7 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
     for(int i = 0; i < num_contacts; ++i)
     {
       //already enough contacts, so just quit
-      if(!cdata->exhaustive && cdata->max_contacts > 0 && cdata->contacts->size() >= cdata->max_contacts)
+      if(!cdata->exhaustive && cdata->max_contacts_total > 0 && cdata->contacts->size() >= cdata->max_contacts_total)
       {
         break;
       }
@@ -722,58 +754,73 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
       fcl::BVH_REAL depth = contacts[i].penetration_depth;
 
       btVector3 pos(contact_p[0], contact_p[1], contact_p[2]);
+
       //figure out whether the contact is allowed
       //allowed contacts only allowed with objects for now
-
-      if(cdata->allowed && (cdata->body_type_1 == EnvironmentModelFCL::OBJECT || cdata->body_type_2 == EnvironmentModelFCL::OBJECT))
+      bool allowed = false;
+      if(cdata->allowed)
       {
-        std::string body_name;
-        if(cdata->body_type_1 != EnvironmentModelFCL::OBJECT)
+        EnvironmentModel::AllowedContactMap::const_iterator it1 = cdata->allowed->find(cdata->body_name_1);
+        if(it1 != cdata->allowed->end())
         {
-          body_name = cdata->body_name_1;
-        }
-        else
-        {
-          body_name = cdata->body_name_2;
-        }
-
-        bool allow = false;
-        for(unsigned int j = 0; !allow && j < cdata->allowed->size(); ++j)
-        {
-          if(cdata->allowed->at(j).bound->containsPoint(pos) && cdata->allowed->at(j).depth > fabs(depth))
+          std::map<std::string, std::vector<EnvironmentModel::AllowedContact> >::const_iterator it2 = it1->second.find(cdata->body_name_2);
+          if(it2 != it1->second.end())
           {
-            for(unsigned int k = 0; k < cdata->allowed->at(j).links.size(); ++k)
+            ROS_DEBUG_STREAM("Testing allowed contact for " << cdata->body_name_1 << " and " << cdata->body_name_2 << " num " << i);
+            ROS_DEBUG_STREAM("Contact at " << pos[0] << " " << pos[1] << " " << pos[2]);
+
+            const std::vector<EnvironmentModel::AllowedContact>& av = it2->second;
+            for(unsigned int j = 0; j < av.size(); j++)
             {
-              if(cdata->allowed->at(j).links[k] == body_name)
+              if(av[j].bound->containsPoint(pos))
               {
-                allow = true;
-                break;
+                if(av[j].depth >= fabs(depth))
+                {
+                  allowed = true;
+                  ROS_DEBUG_STREAM("Contact allowed by allowed collision region");
+                  break;
+                }
+                else
+                {
+                  ROS_DEBUG_STREAM("Depth check failing " << av[j].depth << " detected " << depth);
+                }
               }
             }
           }
         }
-
-        if(allow) continue;
       }
 
-      cdata->collides = true;
+      if(!allowed)
+      {
+        cdata->collides = true;
+        num_not_allowed++;
 
-      EnvironmentModelFCL::Contact add;
-      add.pos = pos;
-      add.normal = btVector3(normal[0], normal[1], normal[2]);
-      add.depth = depth;
-      add.body_name_1 = cdata->body_name_1;
-      add.body_name_2 = cdata->body_name_2;
-      add.body_type_1 = cdata->body_type_1;
-      add.body_type_2 = cdata->body_type_2;
+        if(cdata->contacts != NULL)
+        {
+          if(num_not_allowed <= cdata->max_contacts_pair)
+          {
+            EnvironmentModelFCL::Contact add;
+            add.pos = pos;
+            add.normal = btVector3(normal[0], normal[1], normal[2]);
+            add.depth = depth;
 
-      cdata->contacts->push_back(add);
+            add.body_name_1 = cdata->body_name_1;
+            add.body_name_2 = cdata->body_name_2;
+            add.body_type_1 = cdata->body_type_1;
+            add.body_type_2 = cdata->body_type_2;
+
+            cdata->contacts->push_back(add);
+            if(!cdata->exhaustive && cdata->contacts->size() >= cdata->max_contacts_total)
+              cdata->done = true;
+          }
+        }
+      }
+      else
+      {
+        cdata->done = true;
+      }
     }
-
-    if (!cdata->exhaustive && cdata->collides && cdata->contacts->size() >= cdata->max_contacts)
-      cdata->done = true;
   }
-
 
   return cdata->done;
 }
@@ -781,6 +828,12 @@ bool collisionCallBack(fcl::CollisionObject* o1, fcl::CollisionObject* o2, void*
 
 void EnvironmentModelFCL::testObjectCollision(CollisionNamespace *cn, CollisionData *cdata) const
 { 
+  if(cn->env_geom_manager->empty())
+  {
+    ROS_WARN_STREAM("Problem - collide2 required for body collision for " << cn->name);
+    return;
+  }
+
   cn->env_geom_manager->setup();
   for(int i = model_geom_.link_geom.size() - 1; i >= 0; --i)
   {
@@ -799,6 +852,7 @@ void EnvironmentModelFCL::testObjectCollision(CollisionNamespace *cn, CollisionD
     //have to test collisions with link
     if(!allowed)
     {
+      ROS_DEBUG_STREAM("Will test for collision between object " << cn->name << " and link " << lg->link->getName());
       for(unsigned int j = 0; j < lg->padded_geom.size(); j++)
       {
         //have to figure
@@ -836,6 +890,11 @@ void EnvironmentModelFCL::testObjectCollision(CollisionNamespace *cn, CollisionD
         }
       }
     }
+    else
+    {
+      ROS_DEBUG_STREAM("Will not test for allowed collision between object " << cn->name << " and link " << lg->link->getName());
+    }
+
     //now we need to do the attached bodies
     for(unsigned int j = 0; j < lg->att_bodies.size(); j++)
     {
@@ -851,6 +910,7 @@ void EnvironmentModelFCL::testObjectCollision(CollisionNamespace *cn, CollisionD
       }
       if(!allowed)
       {
+        ROS_DEBUG_STREAM("Will test for collision between object " << cn->name << " and attached object " << att_name);
         for(unsigned int k = 0; k < lg->att_bodies[j]->padded_geom.size(); k++)
         {
           //have to figure
@@ -887,7 +947,11 @@ void EnvironmentModelFCL::testObjectCollision(CollisionNamespace *cn, CollisionD
             return;
           }
         }
-      } 
+      }
+      else
+      {
+        ROS_DEBUG_STREAM("Will not test for allowed collision between object " << cn->name << " and attached object " << att_name);
+      }
     }
   }
 }

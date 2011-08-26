@@ -34,8 +34,8 @@
 
 /** \author Ioan Sucan */
 
-#ifndef COLLISION_SPACE_FCL_ENVIRONMENT_MODEL_
-#define COLLISION_SPACE_FCL_ENVIRONMENT_MODEL_
+#ifndef COLLISION_SPACE_FCL_ENVIRONMENT_MODEL_H
+#define COLLISION_SPACE_FCL_ENVIRONMENT_MODEL_H
 
 #include "collision_space_fcl/environment_objects.h"
 #include <planning_models/kinematic_model.h>
@@ -92,13 +92,15 @@ public:
   {
     /// the bound where the contact is allowed 
     boost::shared_ptr<bodies::Body> bound;
-	    
-    /// the set of link names that are allowed to make contact
-    std::vector<std::string> links;
+    
+    std::string body_name_1;
+    std::string body_name_2;
 
     /// tha maximum depth for the contact
     double depth;
   };
+
+  typedef std::map<std::string, std::map<std::string, std::vector<AllowedContact> > > AllowedContactMap;
 
   /** \brief Definition of a structure for the allowed collision matrix */
   /* False means that no collisions are allowed, true means ok */
@@ -169,6 +171,8 @@ public:
     const entry_type& getEntriesBimap() const {
       return allowed_entries_bimap_;
     }
+
+    void print(std::ostream& out) const;
     
   private:
 
@@ -236,14 +240,12 @@ public:
   /** \brief Check whether the model is in collision with the environment.  Self collisions are not checked */
   virtual bool isEnvironmentCollision(void) const = 0;
 	
-  /** \brief Get the list of contacts (collisions). The maximum number of contacts to be returned can be specified. If the value is 0, all found contacts are returned. */
-  virtual bool getCollisionContacts(const std::vector<AllowedContact> &allowedContacts, std::vector<Contact> &contacts, unsigned int max_count = 1) const = 0;
+  /** \brief Get the list of contacts (collisions). The maximum total number of contacts to be returned can be specified, and the max per pair of objects that are in collision*/
+  virtual bool getCollisionContacts(std::vector<Contact> &contacts, unsigned int max_total = 1, unsigned int max_per_pair = 1) const = 0;
 
   /** \brief This function will get the complete list of contacts between any two potentially colliding bodies.  The num per contacts specifies the number of contacts per pair that will be returned */
-  virtual bool getAllCollisionContacts(const std::vector<AllowedContact> &allowedContacts, std::vector<Contact> &contacts, unsigned int num_per_contact = 1) const = 0;
+  virtual bool getAllCollisionContacts(std::vector<Contact> &contacts, unsigned int num_per_contact = 1) const = 0;
 
-  bool getCollisionContacts(std::vector<Contact> &contacts, unsigned int max_count = 1) const;
-	
   /**********************************************************************/
   /* Collision Bodies                                                   */
   /**********************************************************************/
@@ -293,6 +295,18 @@ public:
   /** \brief reverts to using default settings for allowed collisions */  
   virtual void revertAlteredCollisionMatrix();
 
+  /** \brief sets the allowed contacts that will be used in collision checking */
+  virtual void setAllowedContacts(const std::vector<AllowedContact>& allowed_contacts);
+
+  /** \brief gets the allowed contacts that will be used in collision checking */
+  const std::vector<AllowedContact>& getAllowedContacts() const;
+  
+  /** \brief clear out all allowed contacts */
+  void clearAllowedContacts() {
+    allowed_contact_map_.clear();
+    allowed_contacts_.clear();
+  }
+
   /**********************************************************************/
   /* Miscellaneous Routines                                             */
   /**********************************************************************/
@@ -341,6 +355,9 @@ protected:
   std::map<std::string, double> altered_link_padding_map_;
 
   bool use_altered_link_padding_map_;
+
+  AllowedContactMap allowed_contact_map_;
+  std::vector<AllowedContact> allowed_contacts_;
 	
 };
 }
