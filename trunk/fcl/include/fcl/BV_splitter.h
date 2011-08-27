@@ -49,16 +49,21 @@
 namespace fcl
 {
 
+/** \brief Base class for BV splitting operation */
 template<typename BV>
 class BVSplitterBase
 {
 public:
+  /** \brief Set the geometry data needed by the split rule */
   virtual void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
+  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
   virtual void computeRule(const BV& bv, unsigned int* primitive_indices, int num_primitives) = 0;
 
+  /** \brief Apply the split rule on a given point */
   virtual bool apply(const Vec3f& q) const = 0;
 
+  /** \brief Clear the geometry data set before */
   virtual void clear() = 0;
 };
 
@@ -85,7 +90,7 @@ public:
     type = type_;
   }
 
-  /** \brief Compute the split rule according to a subset of geometry and the the corresponding BV node */
+  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
   void computeRule(const BV& bv, unsigned int* primitive_indices, int num_primitives)
   {
     switch(split_method)
@@ -239,7 +244,7 @@ public:
     type = type_;
   }
 
-  /** \brief Compute the split rule according to a subset of geometry and the the corresponding BV node */
+  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
   void computeRule(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
   {
     Vec3f center = bv.center();

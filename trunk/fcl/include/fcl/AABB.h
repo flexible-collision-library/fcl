@@ -54,12 +54,15 @@ public:
   /** \brief The max point in the AABB */
   Vec3f max_;
 
+  /** \brief Constructor creating an AABB with infinite size */
   AABB();
 
+  /** \brief Constructor creating an AABB at position v with zero size */
   AABB(const Vec3f& v) : min_(v), max_(v)
   {
   }
 
+  /** \brief Constructor creating an AABB with two endpoints a and b */
   AABB(const Vec3f& a, const Vec3f&b)
   {
     min_ = min(a, b);

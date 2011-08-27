@@ -50,6 +50,7 @@ namespace fcl
 class ShapeBase : public CollisionObject
 {
 public:
+  /** \brief Default Constructor */
   ShapeBase()
   {
     Rloc[0][0] = 1;
@@ -57,6 +58,7 @@ public:
     Rloc[2][2] = 1;
   }
 
+  /** \brief Set the local frame of the shape */
   void setLocalTransform(const Vec3f R_[3], const Vec3f& T_)
   {
     Rloc[0] = R_[0];
@@ -65,6 +67,7 @@ public:
     Tloc = T_;
   }
 
+  /** \brief Set the local orientation of the shape */
   void setLocalRotation(const Vec3f R[3])
   {
     Rloc[0] = R[0];
@@ -72,12 +75,14 @@ public:
     Rloc[2] = R[2];
   }
 
+  /** \brief Set the local position of the shape */
   void setLocalTranslation(const Vec3f& T)
   {
     Tloc = T;
   }
 
-  void advanceLocalTransform(const Vec3f R[3], const Vec3f& T)
+  /** \brief Append additional transform to the local transform */
+  void appendLocalTransform(const Vec3f R[3], const Vec3f& T)
   {
     Vec3f R0[3];
     for(int i = 0; i < 3; ++i)
@@ -86,6 +91,7 @@ public:
     Tloc = MxV(R, Tloc) + T;
   }
 
+  /** \brief Get local transform */
   void getLocalTransfrom(Vec3f R[3], Vec3f& T) const
   {
     T = Tloc;
@@ -94,16 +100,19 @@ public:
     R[2] = Rloc[2];
   }
 
+  /** \brief Get local position */
   inline const Vec3f& getLocalPosition() const
   {
     return Tloc;
   }
 
+  /** \brief Get local orientation */
   inline const Vec3f* getLocalRotation() const
   {
     return Rloc;
   }
 
+  /** \brief Get object type: a geometric shape */
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
 
 protected:
@@ -122,8 +131,10 @@ public:
   /** box side length */
   Vec3f side;
 
+  /** \brief Compute AABB */
   void computeAABB();
 
+  /** \brief Get node type: a box */
   NODE_TYPE getNodeType() const { return GEOM_BOX; }
 };
 
@@ -132,10 +143,14 @@ class Sphere : public ShapeBase
 {
 public:
   Sphere(BVH_REAL radius_) : ShapeBase(), radius(radius_) {}
+  
+  /** \brief Radius of the sphere */
   BVH_REAL radius;
 
+  /** \brief Compute AABB */
   void computeAABB();
 
+  /** \brief Get node type: a sphere */
   NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
 };
 
@@ -144,11 +159,17 @@ class Capsule : public ShapeBase
 {
 public:
   Capsule(BVH_REAL radius_, BVH_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
-  BVH_REAL radius;
-  BVH_REAL lz; // length along z axis
 
+  /** \brief Radius of capsule */
+  BVH_REAL radius;
+
+  /** \brief Length along z axis */
+  BVH_REAL lz;
+
+  /** \brief Compute AABB */
   void computeAABB();
 
+  /** \brief Get node type: a capsule */
   NODE_TYPE getNodeType() const { return GEOM_CAPSULE; }
 };
 
@@ -157,11 +178,17 @@ class Cone : public ShapeBase
 {
 public:
   Cone(BVH_REAL radius_, BVH_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
+  
+  /** \brief Radius of the cone */
   BVH_REAL radius;
-  BVH_REAL lz; // length along z axis
 
+  /** \brief Length along z axis */
+  BVH_REAL lz;
+
+  /** \brief Compute AABB */
   void computeAABB();
 
+  /** \brief Get node type: a cone */
   NODE_TYPE getNodeType() const { return GEOM_CONE; }
 };
 
@@ -170,11 +197,17 @@ class Cylinder : public ShapeBase
 {
 public:
   Cylinder(BVH_REAL radius_, BVH_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
+  
+  /** \brief Radius of the cylinder */
   BVH_REAL radius;
-  BVH_REAL lz; // length along z axis
 
+  /** \brief Length along z axis */
+  BVH_REAL lz;
+
+  /** \brief Compute AABB */
   void computeAABB();
 
+  /** \brief Get node type: a cylinder */
   NODE_TYPE getNodeType() const { return GEOM_CYLINDER; }
 };
 
@@ -182,6 +215,7 @@ public:
 class Convex : public ShapeBase
 {
 public:
+  /** Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information */
   Convex(Vec3f* plane_normals_,
          BVH_REAL* plane_dis_,
          int num_planes_,
@@ -207,6 +241,7 @@ public:
     fillEdges();
   }
 
+  /** Copy constructor */
   Convex(const Convex& other) : ShapeBase(other)
   {
     plane_normals = other.plane_normals;
@@ -223,10 +258,13 @@ public:
     delete [] edges;
   }
 
+  /** Compute AABB */
   void computeAABB();
 
+  /** Get node type: a conex polytope */
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
+  
   Vec3f* plane_normals;
   BVH_REAL* plane_dis;
 
@@ -247,9 +285,11 @@ public:
 
   Edge* edges;
 
+  /** \brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) */
   Vec3f center;
 
 protected:
+  /** \brief Get edge information */
   void fillEdges();
 };
 
@@ -257,7 +297,10 @@ protected:
 class Plane : public ShapeBase
 {
 public:
+  /** \brief Construct a plane with normal direction and offset */
   Plane(const Vec3f& n_, BVH_REAL d_) : ShapeBase(), n(n_), d(d_) { unitNormalTest(); }
+  
+  /** \brief Construct a plane with normal direction and offset */
   Plane(BVH_REAL a, BVH_REAL b, BVH_REAL c, BVH_REAL d_)
   {
     n = Vec3f(a, b, c);
@@ -265,15 +308,21 @@ public:
     unitNormalTest();
   }
 
+  /** \brief Compute AABB */
   void computeAABB();
 
+  /** \brief Get node type: a plane */
   NODE_TYPE getNodeType() const { return GEOM_PLANE; }
 
+  /** \brief Plane normal */
   Vec3f n;
+
+  /** \brief Plane offset */
   BVH_REAL d;
 
 protected:
-
+  
+  /** \brief Turn non-unit normal into unit */
   void unitNormalTest();
 };
 

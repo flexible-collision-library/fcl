@@ -42,10 +42,11 @@
 #include "fcl/BVH_model.h"
 #include <boost/math/constants/constants.hpp>
 
+/** \brief Main namespace */
 namespace fcl
 {
 
-
+/** \brief Generate BVH model from box */
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box& shape)
 {
@@ -89,6 +90,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape)
   model.computeAABB();
 }
 
+/** Generate BVH model from sphere */
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg = 16, unsigned int ring = 16)
 {
@@ -155,6 +157,8 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg
   model.computeAABB();
 }
 
+
+/** \brief Generate BVH model from cylinder */
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int tot = 16)
 {

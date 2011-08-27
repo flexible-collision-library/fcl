@@ -43,10 +43,11 @@
 #include "fcl/traversal_node_bvh_shape.h"
 #include "fcl/BVH_utility.h"
 
+/** \brief Main namespace */
 namespace fcl
 {
 
-
+/** \brief Initialize traversal node for collision between two geometric shapes */
 template<typename S1, typename S2>
 bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1, const S2& shape2, bool enable_contact = false)
 {
@@ -54,6 +55,7 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1, con
   return true;
 }
 
+/** \brief Initialize traversal node for collision between two geometric shapes, given the current transforms of the two shapes */
 template<typename S1, typename S2>
 bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1, const S2& shape2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
@@ -71,7 +73,7 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1, con
   return true;
 }
 
-
+/** \brief Initialize traversal node for collision between one mesh and one shape */
 template<typename BV, typename S>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, const BVHModel<BV>& model1, const S& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
@@ -90,7 +92,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, const BVHModel<BV>
   return true;
 }
 
-
+/** \brief Initialize traversal node for collision between one mesh and one shape, given current object transform */
 template<typename BV, typename S>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, BVHModel<BV>& model1, S& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
@@ -115,7 +117,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, BVHModel<BV>& mode
   model1.replaceSubModel(vertices_transformed1);
   model1.endReplaceModel(use_refit, refit_bottomup);
 
-  model2.advanceLocalTransform(R2, T2);
+  model2.appendLocalTransform(R2, T2);
 
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
@@ -127,7 +129,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, BVHModel<BV>& mode
 }
 
 
-
+/** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type */
 template<typename S>
 bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>& model1, const S& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
@@ -146,7 +148,7 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>
   return true;
 }
 
-
+/** \brief Initialize traversal node for collision between one mesh and one shape, given the current transform, specialized for OBB type */
 template<typename S>
 bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>& model1, S& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
@@ -158,7 +160,7 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>
   node.model1 = &model1;
   node.model2 = &model2;
 
-  model2.advanceLocalTransform(R2, T2);
+  model2.appendLocalTransform(R2, T2);
 
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
@@ -171,7 +173,7 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>
   return true;
 }
 
-
+/** \brief Initialize traversal node for collision between two meshes */
 template<typename BV>
 bool initialize(MeshCollisionTraversalNode<BV>& node, const BVHModel<BV>& model1, const BVHModel<BV>& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
@@ -194,7 +196,7 @@ bool initialize(MeshCollisionTraversalNode<BV>& node, const BVHModel<BV>& model1
   return true;
 }
 
-
+/** \brief Initialize traversal node for collision between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false,
@@ -243,14 +245,18 @@ bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHM
   return true;
 }
 
+
+/** \brief Initialize traversal node for collision between two meshes, specialized for OBB type */
 bool initialize(MeshCollisionTraversalNodeOBB& node, const BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
 
 bool initialize(MeshCollisionTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
 
+
 #if USE_SVMLIGHT
 
+/** \brief Initialize traversal node for collision between two point clouds */
 template<typename BV>
 bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
                 BVH_REAL collision_prob_threshold = 0.5,
@@ -290,6 +296,7 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
   return true;
 }
 
+/** \brief Initialize traversal node for collision between two point clouds, given current transforms */
 template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
@@ -353,7 +360,7 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
   return true;
 }
 
-
+/** \brief Initialize traversal node for collision between two point clouds, given current transforms, specialized for OBB type */ 
 bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, BVHModel<OBB>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
@@ -363,6 +370,7 @@ bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1
                 bool enable_contact = false,
                 BVH_REAL expand_r = 1);
 
+/** \brief Initialize traversal node for collision between two point clouds, given current transforms, specialized for RSS type */
 bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, BVHModel<RSS>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
@@ -372,6 +380,7 @@ bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1
                 bool enable_contact = false,
                 BVH_REAL expand_r = 1);
 
+/** \brief Initialize traversal node for collision between one point cloud and one mesh */
 template<typename BV>
 bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, const BVHModel<BV>& model2,
                 BVH_REAL collision_prob_threshold = 0.5,
@@ -406,6 +415,7 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
   return true;
 }
 
+/** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms */
 template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
@@ -467,7 +477,7 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
 }
 
 
-
+/** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms, specialized for OBB type */
 bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
@@ -477,7 +487,7 @@ bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& mo
                 bool enable_contact = false,
                 BVH_REAL expand_r = 1);
 
-
+/** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms, specialized for RSS type */
 bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
@@ -489,6 +499,7 @@ bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& mo
 
 #endif
 
+/** \brief Initialize traversal node for continuous collision detection between two meshes */
 template<typename BV>
 bool initialize(MeshContinuousCollisionTraversalNode<BV>& node, const BVHModel<BV>& model1, const BVHModel<BV>& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
@@ -514,6 +525,7 @@ bool initialize(MeshContinuousCollisionTraversalNode<BV>& node, const BVHModel<B
   return true;
 }
 
+/** \brief Initialize traversal node for continuous collision detection between one mesh and one point cloud */
 template<typename BV>
 bool initialize(MeshPointCloudContinuousCollisionTraversalNode<BV>& node, const BVHModel<BV>& model1, const BVHModel<BV>& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
@@ -537,6 +549,7 @@ bool initialize(MeshPointCloudContinuousCollisionTraversalNode<BV>& node, const 
   return true;
 }
 
+/** \brief Initialize traversal node for continuous collision detection between one point cloud and one mesh */
 template<typename BV>
 bool initialize(PointCloudMeshContinuousCollisionTraversalNode<BV>& node, const BVHModel<BV>& model1, const BVHModel<BV>& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
@@ -560,6 +573,7 @@ bool initialize(PointCloudMeshContinuousCollisionTraversalNode<BV>& node, const 
   return true;
 }
 
+/** \brief Initialize traversal node for distance computation between two meshes */
 template<typename BV>
 bool initialize(MeshDistanceTraversalNode<BV>& node, const BVHModel<BV>& model1, const BVHModel<BV>& model2)
 {
@@ -578,6 +592,8 @@ bool initialize(MeshDistanceTraversalNode<BV>& node, const BVHModel<BV>& model1,
   return true;
 }
 
+
+/** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
@@ -623,9 +639,12 @@ bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHMo
   return true;
 }
 
+
+/** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
 bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2);
 
+/** \brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, BVH_REAL w = 1,
@@ -678,6 +697,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>
 }
 
 
+/** \brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms, specialized for RSS */
 inline bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, BVH_REAL w = 1)
 {

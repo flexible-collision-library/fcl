@@ -85,6 +85,7 @@ public:
       return BVH_MODEL_UNKNOWN;
   }
 
+  /** \brief Constructing an empty BVH */
   BVHModel()
   {
     vertices = NULL;
@@ -122,25 +123,34 @@ public:
     delete [] primitive_indices;
   }
 
+  /** \brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so
+      we must provide some flexibility here */
+  
+  /** \brief Get the BV of index id */
   const BVNode<BV>& getBV(int id) const
   {
     return bvs[id];
   }
 
+  /** \brief Get the BV of index id */
   BVNode<BV>& getBV(int id)
   {
     return bvs[id];
   }
 
+  /** \brief Get the number of BVs */
   int getNumBVs() const
   {
     return num_bvs;
   }
 
+  /** \brief Get the object type: it is a BVH */
   OBJECT_TYPE getObjectType() const { return OT_BVH; }
 
+  /** \brief Get the BV type */
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
+  /** \brief Compute the AABB for the BVH, used for broad-phase collision */
   void computeAABB();
 
   /** \brief Geometry point data */
@@ -241,6 +251,8 @@ private:
 
 };
 
+
+/** Specialization of getNodeType() for BVHModel with different BV types */
 template<>
 NODE_TYPE BVHModel<AABB>::getNodeType() const;
 

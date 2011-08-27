@@ -76,6 +76,8 @@ public:
   virtual void collide(void* cdata, CollisionCallBack callback) const = 0;
 
   virtual bool empty() const = 0;
+  
+  virtual size_t size() const = 0;
 };
 
 class NaiveCollisionManager : public BroadPhaseCollisionManager
@@ -100,6 +102,8 @@ public:
   void collide(void* cdata, CollisionCallBack callback) const;
 
   bool empty() const;
+  
+  inline size_t size() const { return objs.size(); }
 
 protected:
 
@@ -139,6 +143,8 @@ public:
   void collide(void* cdata, CollisionCallBack callback) const;
 
   bool empty() const;
+  
+  inline size_t size() const { return AABB_arr.size(); }
 
 protected:
 
@@ -249,6 +255,8 @@ public:
   void collide(void* cdata, CollisionCallBack callback) const;
 
   bool empty() const;
+  
+  inline size_t size() const { return objs_x.size(); }
 
 protected:
 
@@ -335,6 +343,8 @@ public:
   void collide(void* cdata, CollisionCallBack callback) const;
 
   bool empty() const;
+  
+  inline size_t size() const { return endpoints[0].size() / 2; }
 
 protected:
 

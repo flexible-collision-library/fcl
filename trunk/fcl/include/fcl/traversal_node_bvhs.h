@@ -50,9 +50,11 @@
 #include <limits>
 #include <vector>
 
+/** \brief Main namespace */
 namespace fcl
 {
 
+/** \brief Traversal node for collision between BVH models */
 template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -67,16 +69,19 @@ public:
     query_time_seconds = 0.0;
   }
 
+  /** \brief Whether the BV node in the first BVH tree is leaf */
   bool isFirstNodeLeaf(int b) const
   {
     return model1->getBV(b).isLeaf();
   }
 
+  /** \brief Whether the BV node in the second BVH tree is leaf */
   bool isSecondNodeLeaf(int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
+  /** \brief Determine the traversal order, is the first BVTT subtree better */
   bool firstOverSecond(int b1, int b2) const
   {
     BVH_REAL sz1 = model1->getBV(b1).bv.size();
@@ -90,35 +95,43 @@ public:
     return false;
   }
 
+  /** \brief Obtain the left child of BV node in the first BVH */
   int getFirstLeftChild(int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
+  /** \brief Obtain the right child of BV node in the first BVH */
   int getFirstRightChild(int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
+  /** \brief Obtain the left child of BV node in the second BVH */
   int getSecondLeftChild(int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
+  /** \brief Obtain the right child of BV node in the second BVH */
   int getSecondRightChild(int b) const
   {
     return model2->getBV(b).rightChild();
   }
 
+  /** \brief BV culling test in one BVTT node */
   bool BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     return !model1->getBV(b1).overlap(model2->getBV(b2));
   }
-
+  
+  /** \brief The first BVH model */
   const BVHModel<BV>* model1;
+  /** \brief The second BVH model */
   const BVHModel<BV>* model2;
 
+  /** \brief statistical information */
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable BVH_REAL query_time_seconds;
@@ -126,7 +139,7 @@ public:
 };
 
 
-/** \brief The indices of in-collision primitives of objects */
+/** \brief The collision/contact information between two primitives */
 struct BVHCollisionPair
 {
   BVHCollisionPair() {}
@@ -152,6 +165,7 @@ struct BVHCollisionPair
   BVH_REAL penetration_depth;
 };
 
+/** \brief Sorting rule between two BVHCollisionPair, for testing */
 struct BVHCollisionPairComp
 {
   bool operator()(const BVHCollisionPair& a, const BVHCollisionPair& b)
@@ -162,7 +176,7 @@ struct BVHCollisionPairComp
   }
 };
 
-
+/** \brief Traversal node for collision between two meshes */
 template<typename BV>
 class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
@@ -179,6 +193,7 @@ public:
     enable_contact = false;
   }
 
+  /** \brief Intersection testing between leaves (two triangles) */
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -229,6 +244,7 @@ public:
     }
   }
 
+  /** \brief Whether the traversal process can stop early */
   bool canStop() const
   {
     return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
