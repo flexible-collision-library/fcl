@@ -58,8 +58,8 @@ void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, BVH_REAL r = 1.0)
 
       for(int k = 0; k < 3; ++k)
       {
-        vs[6 * j + 2 * k] = v + uc.axis[i] * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis[i] * (r * uc.sigma[k]);
+        vs[6 * j + 2 * k] = v + uc.axis[k] * (r * uc.sigma[k]);
+        vs[6 * j + 2 * k + 1] = v - uc.axis[k] * (r * uc.sigma[k]);
       }
     }
 
@@ -89,8 +89,8 @@ void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, BVH_REAL r = 1.0)
 
       for(int k = 0; k < 3; ++k)
       {
-        vs[6 * j + 2 * k] = v + uc.axis[i] * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis[i] * (r * uc.sigma[k]);
+        vs[6 * j + 2 * k] = v + uc.axis[k] * (r * uc.sigma[k]);
+        vs[6 * j + 2 * k + 1] = v - uc.axis[k] * (r * uc.sigma[k]);
       }
     }
 
