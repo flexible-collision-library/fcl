@@ -1,0 +1,21 @@
+<package>
+  <description brief="fcl">
+
+     fcl
+
+  </description>
+  <author>Jia Pan</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/fcl</url>
+  <depend package="libccd"/>
+  <depend package="ann"/>
+  <!-- <depend package="PQP"/> -->
+  <!-- <depend package="svm_light"/> -->
+  <export>
+    <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lfcl"/>
+  </export>
+
+</package>
+
+

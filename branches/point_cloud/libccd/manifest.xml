@@ -1,0 +1,15 @@
+<package>
+  <description brief="libccd">
+    This package is a wrapper on the libccd library available from <a href="http://libccd.danfis.cz/">here</a>. This package does not modify the contents of the original library in any manner and only wraps it for easy distribution with the ROS packaging system.
+  </description>
+  <author>Maintained by Jia Pan and Sachin Chitta</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/libccd</url>
+  <export>
+    <cpp cflags="-I${prefix}/libccd/include" lflags="-L${prefix}/libccd/lib -Wl,-rpath,${prefix}/libccd/lib -lccd"/>
+  </export>
+
+</package>
+
+

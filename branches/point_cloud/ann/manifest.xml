@@ -1,0 +1,15 @@
+<package>
+  <description brief="ann">
+    This package is a wrapper on the ann library available from <a href="http://www.cs.umd.edu/~mount/ANN/">ANN library</a>. This package does not modify the contents of the original library in any manner and only wraps it for easy distribution with the ROS packaging system.
+  </description>
+  <author>Maintained by Jia Pan, Sachin Chitta</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ann</url>
+  <export>
+    <cpp cflags="-I${prefix}/ann/include" lflags="-L${prefix}/ann/lib -Wl,-rpath,${prefix}/ann/lib -lANN"/>
+  </export>
+
+</package>
+
+
