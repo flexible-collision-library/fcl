@@ -37,6 +37,8 @@
 #include "collision_space_fcl/environmentFCL.h"
 #include "fcl/geometric_shape_to_BVH_model.h"
 #include "fcl/collision.h"
+#include "fcl/primitive.h"
+#include "fcl/BVH_utility.h"
 #include <geometric_shapes/shape_operations.h>
 #include <ros/console.h>
 #include <cassert>
@@ -197,19 +199,31 @@ fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::Shape *shape
   {
     case shapes::SPHERE:
     {
-      generateBVHModel(*g, fcl::Sphere(static_cast<const shapes::Sphere*>(shape)->radius * scale + padding));
+      fcl::generateBVHModelPointCloud(*g, fcl::Sphere(static_cast<const shapes::Sphere*>(shape)->radius * scale + padding));
+      fcl::Uncertainty* uc = new fcl::Uncertainty[g->num_vertices];
+      fcl::estimateSamplingUncertainty(g->vertices, g->num_vertices, uc);
+      fcl::BVHExpand(*g, uc, 1);
+      g->uc = uc;
     }
     break;
     case shapes::BOX:
     {
       const double *size = static_cast<const shapes::Box*>(shape)->size;
-      generateBVHModel(*g, fcl::Box(size[0] * scale + padding * 2.0, size[1] * scale + padding * 2.0, size[2] * scale + padding * 2.0));
+      fcl::generateBVHModelPointCloud(*g, fcl::Box(size[0] * scale + padding * 2.0, size[1] * scale + padding * 2.0, size[2] * scale + padding * 2.0));
+      fcl::Uncertainty* uc = new fcl::Uncertainty[g->num_vertices];
+      fcl::estimateSamplingUncertainty(g->vertices, g->num_vertices, uc);
+      fcl::BVHExpand(*g, uc, 1);
+      g->uc = uc;
     }
     break;
     case shapes::CYLINDER:
     {
-      generateBVHModel(*g, fcl::Cylinder(static_cast<const shapes::Cylinder*>(shape)->radius * scale + padding,
+      fcl::generateBVHModelPointCloud(*g, fcl::Cylinder(static_cast<const shapes::Cylinder*>(shape)->radius * scale + padding,
                        static_cast<const shapes::Cylinder*>(shape)->length * scale + padding * 2.0));
+      fcl::Uncertainty* uc = new fcl::Uncertainty[g->num_vertices];
+      fcl::estimateSamplingUncertainty(g->vertices, g->num_vertices, uc);
+      fcl::BVHExpand(*g, uc, 1);
+      g->uc = uc;
     }
     break;
     case shapes::MESH:
@@ -256,9 +270,14 @@ fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::Shape *shape
         }
 
         g->beginModel();
-        g->addSubModel(points, tri_indices);
+        g->addSubModel(points);
         g->endModel();
         g->computeAABB();
+
+        fcl::Uncertainty* uc = new fcl::Uncertainty[g->num_vertices];
+        fcl::estimateSamplingUncertainty(g->vertices, g->num_vertices, uc);
+        fcl::BVHExpand(*g, uc, 1);
+        g->uc = uc;
       }
     }
     break;

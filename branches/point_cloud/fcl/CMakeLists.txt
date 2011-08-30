@@ -29,8 +29,8 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_add_executable(example examples/example.cpp)
 #target_link_libraries(example ${PROJECT_NAME})
 
-add_definitions(-DUSE_PQP=0)
-add_definitions(-DUSE_SVMLIGHT=0)
+add_definitions(-DUSE_PQP=1)
+add_definitions(-DUSE_SVMLIGHT=1)
 
 rosbuild_add_library(${PROJECT_NAME} src/AABB.cpp src/OBB.cpp src/RSS.cpp src/vec_3f.cpp src/traversal_node_base.cpp src/traversal_node_bvhs.cpp src/intersect.cpp src/motion.cpp src/BV_fitter.cpp src/BV_splitter.cpp src/BVH_model.cpp src/BVH_utility.cpp src/transform.cpp src/simple_setup.cpp src/geometric_shapes.cpp src/geometric_shapes_utility.cpp src/geometric_shapes_intersect.cpp src/collision_node.cpp src/traversal_recurse.cpp src/broad_phase_collision.cpp src/collision.cpp src/collision_func_matrix.cpp src/interval_tree.cpp)
 

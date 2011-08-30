@@ -76,6 +76,7 @@ void BVHExpand(BVHModel<BV>& model, const Uncertainty* ucs, BVH_REAL r)
 /** \brief Expand the BVH bounding boxes according to uncertainty, for OBB */
 void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, BVH_REAL r);
 
+
 /** \brief Expand the BVH bounding boxes according to uncertainty, for RSS */
 void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, BVH_REAL r);
 

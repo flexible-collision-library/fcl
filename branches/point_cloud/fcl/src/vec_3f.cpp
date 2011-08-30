@@ -173,7 +173,7 @@ void Meigen(Vec3f a[3], BVH_REAL dout[3], Vec3f vout[3])
     }
   }
 
-  std::cerr << "eigen: too many iterations in Jacobi transform." << std::endl;
+  //std::cerr << "eigen: too many iterations in Jacobi transform." << std::endl;
 
   return;
 }

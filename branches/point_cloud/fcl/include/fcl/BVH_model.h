@@ -107,6 +107,8 @@ public:
 
     bv_splitter.reset(new BVSplitter<BV>(SPLIT_METHOD_MEAN));
     bv_fitter.reset(new BVFitter<BV>());
+
+    uc = NULL;
   }
 
   BVHModel(const BVHModel& other);
@@ -121,6 +123,8 @@ public:
     delete [] prev_vertices;
 
     delete [] primitive_indices;
+
+    delete [] uc;
   }
 
   /** \brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so
@@ -167,6 +171,8 @@ public:
 
   /** \brief Number of points */
   int num_vertices;
+
+  Uncertainty* uc;
 
   /** \brief Begin a new BVH model */
   int beginModel(int num_tris = 0, int num_vertices = 0);

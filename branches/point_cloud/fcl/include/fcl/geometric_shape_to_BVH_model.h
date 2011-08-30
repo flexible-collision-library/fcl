@@ -227,6 +227,121 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int t
   model.computeAABB();
 }
 
+
+
+/** \brief Generate BVH model from box */
+template<typename BV>
+void generateBVHModelPointCloud(BVHModel<BV>& model, const Box& shape)
+{
+  double a = shape.side[0];
+  double b = shape.side[1];
+  double c = shape.side[2];
+  std::vector<Vec3f> points(8);
+  points[0] = Vec3f(0.5 * a, -0.5 * b, 0.5 * c);
+  points[1] = Vec3f(0.5 * a, 0.5 * b, 0.5 * c);
+  points[2] = Vec3f(-0.5 * a, 0.5 * b, 0.5 * c);
+  points[3] = Vec3f(-0.5 * a, -0.5 * b, 0.5 * c);
+  points[4] = Vec3f(0.5 * a, -0.5 * b, -0.5 * c);
+  points[5] = Vec3f(0.5 * a, 0.5 * b, -0.5 * c);
+  points[6] = Vec3f(-0.5 * a, 0.5 * b, -0.5 * c);
+  points[7] = Vec3f(-0.5 * a, -0.5 * b, -0.5 * c);
+
+  for(unsigned int i = 0; i < points.size(); ++i)
+  {
+    Vec3f v = MxV(shape.getLocalRotation(), points[i]) + shape.getLocalPosition();
+    v = MxV(shape.getRotation(), v) + shape.getTranslation();
+    points[i] = v;
+  }
+
+  model.beginModel();
+  model.addSubModel(points);
+  model.endModel();
+  model.computeAABB();
+}
+
+/** Generate BVH model from sphere */
+template<typename BV>
+void generateBVHModelPointCloud(BVHModel<BV>& model, const Sphere& shape, unsigned int seg = 16, unsigned int ring = 16)
+{
+  std::vector<Vec3f> points;
+
+  double r = shape.radius;
+  double phi, phid;
+  const double pi = boost::math::constants::pi<double>();
+  phid = pi * 2 / seg;
+  phi = 0;
+
+  double theta, thetad;
+  thetad = pi / (ring + 1);
+  theta = 0;
+
+  for(unsigned int i = 0; i < ring; ++i)
+  {
+    double theta_ = theta + thetad * (i + 1);
+    for(unsigned int j = 0; j < seg; ++j)
+    {
+      points.push_back(Vec3f(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_)));
+    }
+  }
+  points.push_back(Vec3f(0, 0, r));
+  points.push_back(Vec3f(0, 0, -r));
+
+  for(unsigned int i = 0; i < points.size(); ++i)
+  {
+    Vec3f v = MxV(shape.getLocalRotation(), points[i]) + shape.getLocalPosition();
+    v = MxV(shape.getRotation(), v) + shape.getTranslation();
+    points[i] = v;
+  }
+
+  model.beginModel();
+  model.addSubModel(points);
+  model.endModel();
+  model.computeAABB();
+}
+
+
+/** \brief Generate BVH model from cylinder */
+template<typename BV>
+void generateBVHModelPointCloud(BVHModel<BV>& model, const Cylinder& shape, unsigned int tot = 16)
+{
+  std::vector<Vec3f> points;
+
+  double r = shape.radius;
+  double h = shape.lz;
+  double phi, phid;
+  const double pi = boost::math::constants::pi<double>();
+  phid = pi * 2 / tot;
+  phi = 0;
+
+  double circle_edge = phid * r;
+  unsigned int h_num = ceil(h / circle_edge);
+  double hd = h / h_num;
+
+  for(unsigned int i = 0; i < tot; ++i)
+    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2));
+
+  for(unsigned int i = 0; i < h_num - 1; ++i)
+  {
+    for(unsigned int j = 0; j < tot; ++j)
+    {
+      points.push_back(Vec3f(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd));
+    }
+  }
+
+  for(unsigned int i = 0; i < tot; ++i)
+    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+
+  points.push_back(Vec3f(0, 0, h / 2));
+  points.push_back(Vec3f(0, 0, -h / 2));
+
+  model.beginModel();
+  model.addSubModel(points);
+  model.endModel();
+  model.computeAABB();
+}
+
+
+
 }
 
 #endif

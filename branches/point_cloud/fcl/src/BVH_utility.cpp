@@ -65,7 +65,6 @@ void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, BVH_REAL r = 1.0)
 
     OBB bv;
     fit(vs, bvnode.num_primitives * 6, bv);
-
     delete [] vs;
 
     bvnode.bv = bv;
@@ -154,6 +153,7 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
     double r = dists[knn_k - 1];
     double sigma = scale * r;
 
+
     double weight_sum = 0;
     for(int j = 1; j < knn_k; ++j)
     {
@@ -182,6 +182,21 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
 
     ucs[i].preprocess();
     ucs[i].sqrt();
+
+    /*
+    sigma = dists[0] * 2 * r;
+    ucs[i].axis[0] = Vec3f(1, 0, 0);
+    ucs[i].axis[1] = Vec3f(0, 1, 0);
+    ucs[i].axis[2] = Vec3f(0, 0, 1);
+    ucs[i].sigma[0] = sigma;
+    ucs[i].sigma[1] = sigma;
+    ucs[i].sigma[2] = sigma;
+
+    ucs[i].Sigma[0] = Vec3f(sigma, 0, 0);
+    ucs[i].Sigma[1] = Vec3f(0, sigma, 0);
+    ucs[i].Sigma[2] = Vec3f(0, 0, sigma);
+    */
+
   }
 
   delete [] nnIdx;

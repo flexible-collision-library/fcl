@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-
+/*
 #include "fcl/collision.h"
 #include "fcl/collision_func_matrix.h"
 
@@ -42,7 +42,6 @@
 
 namespace fcl
 {
-
 
 static CollisionFunctionMatrix CollisionFunctionLookTable;
 
@@ -84,6 +83,66 @@ int collide(const CollisionObject* o1, const CollisionObject* o2,
   }
 
   return 0;
+}
+
+}
+
+*/
+
+#include "fcl/collision.h"
+#include "fcl/simple_setup.h"
+#include "fcl/geometric_shapes.h"
+#include "fcl/BVH_model.h"
+#include "fcl/collision_node.h"
+#include "fcl/geometric_shapes_intersect.h"
+
+namespace fcl
+{
+
+int collide(const CollisionObject* o1, const CollisionObject* o2,
+             int num_max_contacts, bool exhaustive, bool enable_contact,
+             std::vector<Contact>& contacts)
+{
+  const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+
+  PointCloudCollisionTraversalNodeOBB node;
+
+  node.model1 = obj1;
+  node.model2 = obj2;
+  node.vertices1 = obj1->vertices;
+  node.vertices2 = obj2->vertices;
+
+
+
+  Uncertainty* uc1 = new Uncertainty[obj1->num_vertices];
+  Uncertainty* uc2 = new Uncertainty[obj2->num_vertices];
+  memcpy(uc1, obj1->uc, sizeof(Uncertainty) * obj1->num_vertices);
+  memcpy(uc2, obj2->uc, sizeof(Uncertainty) * obj2->num_vertices);
+
+  node.uc1.reset(uc1);
+  node.uc2.reset(uc2);
+
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+  node.collision_prob_threshold = 0.6;
+  node.leaf_size_threshold = 20;
+
+  relativeTransform(obj1->getRotation(), obj1->getTranslation(), obj2->getRotation(), obj2->getTranslation(), node.R, node.T);
+
+  collide(&node);
+  int num_contacts = node.pairs.size();
+  if(num_contacts > 0)
+  {
+    if((!exhaustive) && (num_contacts > num_max_contacts)) num_contacts = num_max_contacts;
+    contacts.resize(num_contacts);
+    for(int i = 0; i < num_contacts; ++i)
+    {
+      contacts[i] = Contact(obj1, obj2, node.pairs[i].id1_start, node.pairs[i].id2_start);
+    }
+  }
+  return num_contacts;
 }
 
 }
