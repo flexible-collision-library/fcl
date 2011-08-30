@@ -1,0 +1,24 @@
+diff -purN ann_1.1.2/include/ANN/ANN.h ann_1.1.2_modified/include/ANN/ANN.h
+--- include/ANN/ANN.h	2010-01-27 20:40:01.000000000 -0800
++++ include/ANN/ANN.h	2011-08-30 12:13:26.629632052 -0700
+@@ -232,7 +232,7 @@ const ANNdist	ANN_DIST_INF = ANN_DBL_MAX
+ //	strictly positive.
+ //----------------------------------------------------------------------
+ 
+-const ANNbool	ANN_ALLOW_SELF_MATCH	= ANNtrue;
++const ANNbool	ANN_ALLOW_SELF_MATCH	= ANNfalse;
+ 
+ //----------------------------------------------------------------------
+ //	Norms and metrics:
+diff -purN ann_1.1.2/Make-config ann_1.1.2_modified/Make-config
+--- Make-config	2010-01-27 20:40:01.000000000 -0800
++++ Make-config	2011-08-30 12:12:42.916876291 -0700
+@@ -72,7 +72,7 @@ linux-g++:
+ 	$(MAKE) targets \
+ 	"ANNLIB = libANN.a" \
+ 	"C++ = g++" \
+-	"CFLAGS = -O3" \
++	"CFLAGS = -O3 -fPIC" \
+ 	"MAKELIB = ar ruv" \
+ 	"RANLIB = true"
+ 

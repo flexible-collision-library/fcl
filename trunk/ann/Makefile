@@ -5,7 +5,7 @@ all: installed
 #
 TARBALL = build/ann_1.1.2.tar.gz
 TARBALL_URL = http://www.cs.umd.edu/~mount/ANN/Files/1.1.2/ann_1.1.2.tar.gz
-TARBALL_PATCH = fPIC.diff
+TARBALL_PATCH = fANN.diff
 INITIAL_DIR = build/ann_1.1.2
 SOURCE_DIR = build/ann-tar
 include $(shell rospack find mk)/download_unpack_build.mk
