@@ -126,6 +126,7 @@ TEST(test_core, broad_phase_collision)
     ASSERT_TRUE(query_res1 == query_res4);
   }
 
+
   for(unsigned int i = 0; i < env.size(); ++i)
     delete env[i];
   for(unsigned int i = 0; i < query.size(); ++i)

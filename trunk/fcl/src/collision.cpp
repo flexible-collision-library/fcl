@@ -43,7 +43,6 @@
 namespace fcl
 {
 
-
 static CollisionFunctionMatrix CollisionFunctionLookTable;
 
 int collide(const CollisionObject* o1, const CollisionObject* o2,
@@ -61,6 +60,12 @@ int collide(const CollisionObject* o1, const CollisionObject* o2,
 
   const OBJECT_TYPE object_type2 = o2->getObjectType();
   const NODE_TYPE node_type2 = o2->getNodeType();
+
+  if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
+  {
+    std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+    return 0;
+  }
 
 
   if(object_type1 == OT_GEOM && object_type2 == OT_GEOM)
