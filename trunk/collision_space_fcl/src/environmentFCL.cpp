@@ -1043,6 +1043,7 @@ void EnvironmentModelFCL::addObject(const std::string& ns, shapes::Shape* shape,
 
   updateGeom(g, pose);
   cn->geoms.push_back(g);
+  cn->env_geom_manager->registerObject(g);
   objects_->addObject(ns, shape, pose);
 }
 
@@ -1063,6 +1064,7 @@ void EnvironmentModelFCL::addObject(const std::string& ns, shapes::StaticShape* 
   fcl::CollisionObject* g = createGeom(shape);
   assert(g);
   cn->geoms.push_back(g);
+  cn->env_geom_manager->registerObject(g);
   objects_->addObject(ns, shape);
 }
 
@@ -1094,14 +1096,14 @@ void EnvironmentModelFCL::clearObjects(const std::string &ns)
 
 fcl::CollisionObject* EnvironmentModelFCL::copyGeom(fcl::CollisionObject* geom) const
 {
-  // TODO
+  ROS_WARN_STREAM("EnvironmentModelFCL::copyGeom not implemented yet");
   return NULL;
 }
 
 
 EnvironmentModel* EnvironmentModelFCL::clone(void) const
 {
-  // TODO
+  ROS_WARN_STREAM("EnvironmentModelFCL::clone not implemented yet");
   return NULL;
 }
 
