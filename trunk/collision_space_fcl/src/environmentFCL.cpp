@@ -179,7 +179,7 @@ fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::StaticShape 
   case shapes::PLANE:
   {
     // TODO: plane implementation
-    ROS_WARN_STREAM("Plane is not fully implemented using FCL yet");
+    ROS_FATAL_STREAM("Plane is not supported using FCL yet");
   }
   break;
   default:
@@ -263,7 +263,7 @@ fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::Shape *shape
     }
     break;
     default:
-      ;
+      ROS_FATAL_STREAM("This shape type is not supported using FCL yet");
   }
 
   return g;
