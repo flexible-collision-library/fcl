@@ -88,6 +88,91 @@ inline std::string getNumberedString(const std::string &object, unsigned int num
   return my_string.str();
 }
 
+
+inline shapes::Mesh* createMeshFromBinaryStlData(const char *data, unsigned int size)
+{
+  const char* pos = data;
+  pos += 80; // skip the 80 byte header
+
+  unsigned int numTriangles = *(unsigned int*)pos;
+  pos += 4;
+
+  // make sure we have read enough data
+  if ((long)(50 * numTriangles + 84) <= size)
+  {
+    std::vector<btVector3> vertices;
+
+    for (unsigned int currentTriangle = 0 ; currentTriangle < numTriangles ; ++currentTriangle)
+    {
+      // skip the normal
+      pos += 12;
+
+      // read vertices
+      btVector3 v1(0,0,0);
+      btVector3 v2(0,0,0);
+      btVector3 v3(0,0,0);
+
+      v1.setX(*(float*)pos);
+      pos += 4;
+      v1.setY(*(float*)pos);
+      pos += 4;
+      v1.setZ(*(float*)pos);
+      pos += 4;
+
+      v2.setX(*(float*)pos);
+      pos += 4;
+      v2.setY(*(float*)pos);
+      pos += 4;
+      v2.setZ(*(float*)pos);
+      pos += 4;
+
+      v3.setX(*(float*)pos);
+      pos += 4;
+      v3.setY(*(float*)pos);
+      pos += 4;
+      v3.setZ(*(float*)pos);
+      pos += 4;
+
+      // skip attribute
+      pos += 2;
+
+      vertices.push_back(v1);
+      vertices.push_back(v2);
+      vertices.push_back(v3);
+    }
+
+    return shapes::createMeshFromVertices(vertices);
+  }
+
+  return NULL;
+}
+
+
+inline shapes::Mesh* createMeshFromBinaryStl(const char *filename)
+{
+  FILE* input = fopen(filename, "r");
+  if (!input)
+    return NULL;
+
+  fseek(input, 0, SEEK_END);
+  long fileSize = ftell(input);
+  fseek(input, 0, SEEK_SET);
+
+  char* buffer = new char[fileSize];
+  size_t rd = fread(buffer, fileSize, 1, input);
+
+  fclose(input);
+
+  shapes::Mesh *result = NULL;
+
+  if (rd == 1)
+    result = createMeshFromBinaryStlData(buffer, fileSize);
+
+  delete[] buffer;
+
+  return result;
+}
+
 class TestCollisionSpaceFCL : public testing::Test {
 public:
 
@@ -724,7 +809,7 @@ TEST_F(TestCollisionSpaceFCL, TestODEvsFCLMesh)
   std::string full_path = ros::package::getPath("collision_space_fcl_test")+"/objects/meshes/9300.stl";
   for(unsigned int i=0; i < NUM_MESH_OBJECTS; i++)
   {
-    shapes::Mesh* mesh = shapes::createMeshFromBinaryStl(full_path.c_str());
+    shapes::Mesh* mesh = createMeshFromBinaryStl(full_path.c_str());
     ASSERT_TRUE(mesh);
     btTransform pose;
     geometry_msgs::Pose pose_msg = generateRandomPoseInWorkspace();
