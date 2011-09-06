@@ -1038,6 +1038,7 @@ void EnvironmentModelFCL::addObject(const std::string& ns, shapes::Shape* shape,
 
   fcl::CollisionObject* g = createGeom(shape, 1.0, 0.0);
   assert(g);
+  cn->env_geom_manager->registerObject(g);
 
   default_collision_matrix_.addEntry(ns, false);
 
@@ -1063,6 +1064,8 @@ void EnvironmentModelFCL::addObject(const std::string& ns, shapes::StaticShape* 
 
   fcl::CollisionObject* g = createGeom(shape);
   assert(g);
+  cn->env_geom_manager->registerObject(g);
+
   cn->geoms.push_back(g);
   cn->env_geom_manager->registerObject(g);
   objects_->addObject(ns, shape);
