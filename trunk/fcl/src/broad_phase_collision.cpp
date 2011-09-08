@@ -41,6 +41,8 @@
 #include <set>
 #include <deque>
 
+#include <iostream>
+
 namespace fcl
 {
 
@@ -139,7 +141,6 @@ void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
 
   DummyCollisionObject dummyHigh(AABB(obj->getCachedAABB().max_));
 
-  CollisionObject* found = NULL;
   std::vector<CollisionObject*>::iterator pos_start1 = objs_x.begin();
   std::vector<CollisionObject*>::iterator pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
 
@@ -147,7 +148,6 @@ void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
   {
     if(*pos_start1 == obj)
     {
-      found = *pos_start1;
       objs_x.erase(pos_start1);
       break;
     }
@@ -156,6 +156,7 @@ void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
 
   std::vector<CollisionObject*>::iterator pos_start2 = objs_y.begin();
   std::vector<CollisionObject*>::iterator pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow());
+
   while(pos_start2 < pos_end2)
   {
     if(*pos_start2 == obj)
@@ -168,6 +169,7 @@ void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
 
   std::vector<CollisionObject*>::iterator pos_start3 = objs_z.begin();
   std::vector<CollisionObject*>::iterator pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow());
+
   while(pos_start3 < pos_end3)
   {
     if(*pos_start3 == obj)
@@ -201,6 +203,7 @@ void SSaPCollisionManager::setup()
 
 void SSaPCollisionManager::update()
 {
+  setup_ = false;
   setup();
 }
 
