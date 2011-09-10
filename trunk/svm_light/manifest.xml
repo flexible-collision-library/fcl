@@ -1,0 +1,15 @@
+<package>
+  <description brief="svm_light">
+    This package is a wrapper on the svm_light library available from <a href="http://svmlight.joachims.org/">here</a>. This package does not modify the contents of the original library in any manner and only wraps it for easy distribution with the ROS packaging system. svm_light is not under BSD license and is optional for FCL. Users can choose to use it by setting flag USE_SVM_LIGHT=1 in FCL.
+  </description>
+  <author>Maintained by Jia Pan and Sachin Chitta</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/svm_light</url>
+  <export>
+    <cpp cflags="-I${prefix}/svm_light/include" lflags="-L${prefix}/svm_light/lib -Wl,-rpath,${prefix}/svm_light/lib -lsvmlight"/>
+  </export>
+
+</package>
+
+
