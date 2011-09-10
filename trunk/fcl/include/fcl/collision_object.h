@@ -104,6 +104,16 @@ public:
     t.setQuatRotation(q);
   }
 
+  void setTransform(const Vec3f R[3], const Vec3f& T)
+  {
+    t.setTransform(R, T);
+  }
+
+  void setTransform(const SimpleQuaternion& q, const Vec3f& T)
+  {
+    t.setTransform(q, T);
+  }
+
 protected:
 
   /** AABB in global coordinate */

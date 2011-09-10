@@ -175,6 +175,13 @@ public:
     q.fromRotation(R_);
   }
 
+  inline void setTransform(const SimpleQuaternion& q_, const Vec3f& T_)
+  {
+    q = q_;
+    T = T_;
+    q.toRotation(R);
+  }
+
   inline void setRotation(const Vec3f R_[3])
   {
     for(int i = 0; i < 3; ++i)

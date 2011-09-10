@@ -56,60 +56,84 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
 /** \brief return value is whether can stop now */
 typedef bool (*CollisionCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
+/** \brief Base class for broad phase collision */
 class BroadPhaseCollisionManager
 {
 public:
+  /** \brief add one object to the manager */
   virtual void registerObject(CollisionObject* obj) = 0;
 
+  /** \brief remove one object from the manager */
   virtual void unregisterObject(CollisionObject* obj) = 0;
 
+  /** \brief initialize the manager, related with the specific type of manager */
   virtual void setup() = 0;
 
+  /** \brief update the condition of manager */
   virtual void update() = 0;
 
+  /** \brief clear the manager */
   virtual void clear() = 0;
 
+  /** \brief return the objects managed by the manager */
   virtual void getObjects(std::vector<CollisionObject*>& objs) const = 0;
 
+  /** \brief perform collision test between one object and all the objects belonging to the manager */
   virtual void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const = 0;
 
+  /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   virtual void collide(void* cdata, CollisionCallBack callback) const = 0;
 
+  /** \brief whether the manager is empty */
   virtual bool empty() const = 0;
   
+  /** \brief the number of objects managed by the manager */
   virtual size_t size() const = 0;
 };
 
+/** \brief Brute force N-body collision manager */
 class NaiveCollisionManager : public BroadPhaseCollisionManager
 {
 public:
   NaiveCollisionManager() {}
 
-  void unregisterObject(CollisionObject* obj);
-
+  /** \brief remove one object from the manager */
   void registerObject(CollisionObject* obj);
 
+  /** \brief add one object to the manager */
+  void unregisterObject(CollisionObject* obj);
+
+  /** \brief initialize the manager, related with the specific type of manager */
   void setup();
 
+  /** \brief update the condition of manager */
   void update();
 
+  /** \brief clear the manager */
   void clear();
 
+  /** \brief return the objects managed by the manager */
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
+  /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
+  /** \brief whether the manager is empty */
   bool empty() const;
   
+  /** \brief the number of objects managed by the manager */
   inline size_t size() const { return objs.size(); }
 
 protected:
 
+  /** \brief objects belonging to the manager are stored in a list structure */
   std::list<CollisionObject*> objs;
 };
 
+/** Rigorous SAP collision manager */
 class SaPCollisionManager : public BroadPhaseCollisionManager
 {
 public:
@@ -126,50 +150,78 @@ public:
     clear();
   }
 
-  void unregisterObject(CollisionObject* obj);
-
+  /** \brief remove one object from the manager */
   void registerObject(CollisionObject* obj);
 
+  /** \brief add one object to the manager */
+  void unregisterObject(CollisionObject* obj);
+
+  /** \brief initialize the manager, related with the specific type of manager */
   void setup();
 
+  /** \brief update the condition of manager */
   void update();
 
+  /** \brief clear the manager */
   void clear();
 
+  /** \brief return the objects managed by the manager */
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
+  /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
+  /** \brief whether the manager is empty */
   bool empty() const;
   
+  /** \brief the number of objects managed by the manager */
   inline size_t size() const { return AABB_arr.size(); }
 
 protected:
 
   struct EndPoint;
 
+  /** \brief SAP interval for one object */
   struct SaPAABB
   {
+    /** \brief object */
     CollisionObject* obj;
+
+    /** \brief lower bound end point of the interval */
     EndPoint* lo;
+
+    /** \brief higher bound end point of the interval */
     EndPoint* hi;
+
+    /** \brief cached AABB value */
     AABB cached;
   };
 
+  /** \brief End point for an interval */
   struct EndPoint
   {
+    /** \brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi */
     char minmax;
+
+    /** \brief back pointer to SAP interval */
     SaPAABB* aabb;
+
+    /** \brief the previous end point in the end point list */
     EndPoint* prev[3];
+    /** \brief the next end point in the end point list */
     EndPoint* next[3];
+
+    /** \brief get the value of the end point */
     const Vec3f& getVal() const
     {
       if(minmax == 0) return aabb->cached.min_;
       else return aabb->cached.max_;
     }
 
+    /** \brief set the value of the end point */
     Vec3f& getVal()
     {
       if(minmax == 0) return aabb->cached.min_;
@@ -177,6 +229,7 @@ protected:
     }
   };
 
+  /** \brief A pair of objects that are not culling away and should further check collision */
   struct SaPPair
   {
     SaPPair(CollisionObject* a, CollisionObject* b)
@@ -189,6 +242,7 @@ protected:
     CollisionObject* obj2;
   };
 
+  /** Functor to help unregister one object */
   class isUnregistered
   {
     CollisionObject* obj;
@@ -205,6 +259,7 @@ protected:
     }
   };
 
+  /** Functor to help remove collision pairs no longer valid (i.e., should be culled away) */
   class isNotValidPair
   {
     CollisionObject* obj1;
@@ -223,13 +278,17 @@ protected:
     }
   };
 
-
+  /** \brief End point list for x, y, z coordinates */
   EndPoint* elist[3];
+
+  /** \brief SAP interval list */
   std::list<SaPAABB*> AABB_arr;
 
+  /** \brief The pair of objects that should further check for collision */
   std::list<SaPPair> overlap_pairs;
 };
 
+/** Simple SAP collision manager */
 class SSaPCollisionManager : public BroadPhaseCollisionManager
 {
 public:
@@ -238,28 +297,39 @@ public:
     setup_ = false;
   }
 
-  void unregisterObject(CollisionObject* obj);
-
+  /** \brief remove one object from the manager */
   void registerObject(CollisionObject* obj);
 
+  /** \brief add one object to the manager */
+  void unregisterObject(CollisionObject* obj);
+
+  /** \brief initialize the manager, related with the specific type of manager */
   void setup();
 
+  /** \brief update the condition of manager */
   void update();
 
+  /** \brief clear the manager */
   void clear();
 
+  /** \brief return the objects managed by the manager */
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
+  /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
+  /** \brief whether the manager is empty */
   bool empty() const;
   
+  /** \brief the number of objects managed by the manager */
   inline size_t size() const { return objs_x.size(); }
 
 protected:
 
+  /** \brief Functor sorting objects according to the AABB lower x bound */
   struct SortByXLow
   {
     bool operator()(const CollisionObject* a, const CollisionObject* b) const
@@ -270,6 +340,7 @@ protected:
     }
   };
 
+  /** \brief Functor sorting objects according to the AABB lower y bound */
   struct SortByYLow
    {
      bool operator()(const CollisionObject* a, const CollisionObject* b) const
@@ -280,6 +351,7 @@ protected:
      }
    };
 
+  /** \brief Functor sorting objects according to the AABB lower z bound */
    struct SortByZLow
    {
      bool operator()(const CollisionObject* a, const CollisionObject* b) const
@@ -290,6 +362,7 @@ protected:
      }
    };
 
+   /** \brief Dummy collision object with a point AABB */
    class DummyCollisionObject : public CollisionObject
    {
    public:
@@ -301,18 +374,25 @@ protected:
      void computeAABB() {}
    };
 
+   /** \brief check collision between one object and a list of objects */
    void checkColl(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
                   CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
 
+   /** \brief Objects sorted according to lower x value */
    std::vector<CollisionObject*> objs_x;
+
+   /** \brief Objects sorted according to lower y value */
    std::vector<CollisionObject*> objs_y;
+
+   /** \brief Objects sorted according to lower z value */
    std::vector<CollisionObject*> objs_z;
 
+   /** \brief tag about whether the environment is maintained suitably (i.e., the objs_x, objs_y, objs_z are sorted correctly */
    bool setup_;
 };
 
-
+/** Collision manager based on interval tree */
 class IntervalTreeCollisionManager : public BroadPhaseCollisionManager
 {
 public:
@@ -323,39 +403,57 @@ public:
       interval_trees[i] = NULL;
   }
 
-  void unregisterObject(CollisionObject* obj);
-
+  /** \brief remove one object from the manager */
   void registerObject(CollisionObject* obj);
 
+  /** \brief add one object to the manager */
+  void unregisterObject(CollisionObject* obj);
+
+  /** \brief initialize the manager, related with the specific type of manager */
   void setup();
 
+  /** \brief update the condition of manager */
   void update();
 
+  /** \brief clear the manager */
   void clear();
 
+  /** \brief return the objects managed by the manager */
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
-  void checkColl(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
-                 CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
-
+  /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
+  /** \brief whether the manager is empty */
   bool empty() const;
   
+  /** \brief the number of objects managed by the manager */
   inline size_t size() const { return endpoints[0].size() / 2; }
 
 protected:
 
+  /** \brief check collision between one object and a list of objects */
+  void checkColl(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
+                 CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+
+  /** \brief SAP end point */
   struct EndPoint
   {
-    CollisionObject* obj; // pointer to endpoint geometry;
-    BVH_REAL value; // endpoint value
-    char minmax; // '0' if interval min, '1' if interval max
+    /** \brief object related with the end point */
+    CollisionObject* obj;
+
+    /** \brief end point value */
+    BVH_REAL value;
+
+    /** \brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi */
+    char minmax;
   };
 
+  /** \brief Functor for sorting end points */
   struct SortByValue
   {
     bool operator()(const EndPoint& a, const EndPoint& b) const
@@ -366,6 +464,7 @@ protected:
     }
   };
 
+  /** \brief Extention interval tree's interval to SAP interval, adding more information */
   struct SAPInterval : public Interval
   {
     CollisionObject* obj;
@@ -377,11 +476,13 @@ protected:
     }
   };
 
-
+  /** \brief vector stores all the end points */
   std::vector<EndPoint> endpoints[3];
 
+  /** \brief  interval tree manages the intervals */
   IntervalTree* interval_trees[3];
 
+  /** \brief tag for whether the interval tree is maintained suitably */
   bool setup_;
 
 };
