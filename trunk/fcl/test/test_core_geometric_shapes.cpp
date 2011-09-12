@@ -36,14 +36,21 @@
 
 
 #include "fcl/geometric_shapes_intersect.h"
+#include "test_core_utility.h"
 #include <gtest/gtest.h>
 
 using namespace fcl;
+
+BVH_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 
 TEST(shapeIntersection, spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
+
+  Transform transform;
+  generateRandomTransform(extents, transform);
+  Transform identity;
 
   bool res;
 
@@ -51,25 +58,68 @@ TEST(shapeIntersection, spheresphere)
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(30, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(29.9, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(0, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(-29.9, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(-30, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
 }
 
 TEST(shapeIntersection, boxbox)
@@ -77,14 +127,33 @@ TEST(shapeIntersection, boxbox)
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
+  Transform transform;
+  generateRandomTransform(extents, transform);
+  Transform identity;
+
   bool res;
 
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(15, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
 
   SimpleQuaternion q;
   q.fromAxisAngle(Vec3f(0, 0, 1), (BVH_REAL)3.140 / 6);
@@ -93,6 +162,14 @@ TEST(shapeIntersection, boxbox)
   s2.setLocalRotation(R);
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
 }
 
 TEST(shapeIntersection, spherebox)
@@ -100,18 +177,46 @@ TEST(shapeIntersection, spherebox)
   Sphere s1(20);
   Box s2(5, 5, 5);
 
+  Transform transform;
+  generateRandomTransform(extents, transform);
+  Transform identity;
+
+
   bool res;
 
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
+
   s2.setLocalTranslation(Vec3f(22.5, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(22.4, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
 }
 
 TEST(shapeIntersection, cylindercylinder)
@@ -119,18 +224,44 @@ TEST(shapeIntersection, cylindercylinder)
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
+  Transform transform;
+  generateRandomTransform(extents, transform);
+  Transform identity;
+
+
   bool res;
 
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(9.9, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(10, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
 }
 
 TEST(shapeIntersection, conecone)
@@ -138,26 +269,65 @@ TEST(shapeIntersection, conecone)
   Cone s1(5, 10);
   Cone s2(5, 10);
 
+  Transform transform;
+  generateRandomTransform(extents, transform);
+  Transform identity;
+
   bool res;
 
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(9.9, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
-  s2.setLocalTranslation(Vec3f(10, 0, 0));
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
+  s2.setLocalTranslation(Vec3f(10.001, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(0, 0, 9.9));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(0, 0, 10));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
 }
 
 TEST(shapeIntersection, conecylinder)
@@ -165,26 +335,66 @@ TEST(shapeIntersection, conecylinder)
   Cylinder s1(5, 10);
   Cone s2(5, 10);
 
+  Transform transform;
+  generateRandomTransform(extents, transform);
+  Transform identity;
+
+
   bool res;
 
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(9.9, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(10, 0, 0));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(0, 0, 9.9));
   res = shapeIntersect(s1, s2);
   ASSERT_TRUE(res);
 
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_TRUE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
+
   s2.setLocalTranslation(Vec3f(0, 0, 10));
   res = shapeIntersect(s1, s2);
   ASSERT_FALSE(res);
+
+  s1.setTransform(transform.R, transform.T);
+  s2.setTransform(transform.R, transform.T);
+  res = shapeIntersect(s1, s2);
+  ASSERT_FALSE(res);
+  s1.setTransform(identity.R, identity.T);
+  s2.setTransform(identity.R, identity.T);
 }
 
 TEST(shapeIntersection, spheretriangle)
@@ -195,10 +405,19 @@ TEST(shapeIntersection, spheretriangle)
   t[1] = Vec3f(-20, 0, 0);
   t[2] = Vec3f(0, 20, 0);
 
+  Transform transform;
+  generateRandomTransform(extents, transform);
+  Transform identity;
+
   bool res;
 
   res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
   ASSERT_TRUE(res);
+
+  s.setTransform(transform.R, transform.T);
+  res =  shapeTriangleIntersect(s, t[0], t[1], t[2], transform.R, transform.T);
+  ASSERT_TRUE(res);
+  s.setTransform(identity.R, identity.T);
 
   t[0] = Vec3f(30, 0, 0);
   t[1] = Vec3f(10, -20, 0);
@@ -206,11 +425,21 @@ TEST(shapeIntersection, spheretriangle)
   res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
   ASSERT_FALSE(res);
 
+  s.setTransform(transform.R, transform.T);
+  res =  shapeTriangleIntersect(s, t[0], t[1], t[2], transform.R, transform.T);
+  ASSERT_FALSE(res);
+  s.setTransform(identity.R, identity.T);
+
   t[0] = Vec3f(30, 0, 0);
   t[1] = Vec3f(9.9, -20, 0);
   t[2] = Vec3f(9.9, 20, 0);
   res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
   ASSERT_TRUE(res);
+
+  s.setTransform(transform.R, transform.T);
+  res =  shapeTriangleIntersect(s, t[0], t[1], t[2], transform.R, transform.T);
+  ASSERT_TRUE(res);
+  s.setTransform(identity.R, identity.T);
 
 }
 

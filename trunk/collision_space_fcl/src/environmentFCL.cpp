@@ -258,7 +258,7 @@ fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::Shape *shape
         g->beginModel();
         g->addSubModel(points, tri_indices);
         g->endModel();
-        g->computeAABB();
+        g->computeLocalAABB();
       }
     }
     break;
@@ -276,7 +276,7 @@ void EnvironmentModelFCL::updateGeom(fcl::CollisionObject* geom,  const btTransf
   const btVector3& o = pose.getOrigin();
   geom->setQuatRotation(fcl::SimpleQuaternion(q.getW(), q.getX(), q.getY(), q.getZ()));
   geom->setTranslation(fcl::Vec3f(o.getX(), o.getY(), o.getZ()));
-  geom->computeCachedAABB(); // update AABB
+  geom->computeAABB(); // update AABB
 }
 
 

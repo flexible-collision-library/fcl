@@ -59,19 +59,19 @@ public:
 
   virtual NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
-  virtual void computeAABB() = 0;
+  virtual void computeLocalAABB() = 0;
 
-  inline const AABB& getCachedAABB() const
+  inline const AABB& getAABB() const
   {
-    return aabb_cache;
+    return aabb;
   }
 
-  inline void computeCachedAABB()
+  inline void computeAABB()
   {
     Vec3f center = t.transform(aabb_center);
     Vec3f delta(aabb_radius, aabb_radius, aabb_radius);
-    aabb_cache.min_ = center - delta;
-    aabb_cache.max_ = center + delta;
+    aabb.min_ = center - delta;
+    aabb.max_ = center + delta;
   }
 
   inline const Vec3f& getTranslation() const
@@ -117,10 +117,10 @@ public:
 protected:
 
   /** AABB in global coordinate */
-  mutable AABB aabb_cache;
+  mutable AABB aabb;
 
   /** AABB in local coordinate */
-  AABB aabb;
+  AABB aabb_local;
 
   /** AABB center in local coordinate */
   Vec3f aabb_center;

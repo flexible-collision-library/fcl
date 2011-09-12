@@ -151,7 +151,7 @@ public:
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
   /** \brief Compute the AABB for the BVH, used for broad-phase collision */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** \brief Geometry point data */
   Vec3f* vertices;

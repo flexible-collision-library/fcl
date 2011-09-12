@@ -453,25 +453,25 @@ namespace fcl
 #endif
 
   /** \brief M * v */
-  Vec3f MxV(const Vec3f M[3], const Vec3f& v);
+  Vec3f matMulVec(const Vec3f M[3], const Vec3f& v);
 
   /** \brief M' * v */
-  Vec3f MTxV(const Vec3f M[3], const Vec3f& v);
+  Vec3f matTransMulVec(const Vec3f M[3], const Vec3f& v);
 
   /** \brief v' * M * v */
-  BVH_REAL vTMv(const Vec3f M[3], const Vec3f& v);
+  BVH_REAL quadraticForm(const Vec3f M[3], const Vec3f& v);
 
   /** \brief S * M * S' */
-  void SMST(const Vec3f M[3], const Vec3f S[3], Vec3f newM[3]);
+  void tensorTransform(const Vec3f M[3], const Vec3f S[3], Vec3f newM[3]);
 
   /** \brief A * B */
-  void MxM(const Vec3f M1[3], const Vec3f M2[3], Vec3f newM[3]);
+  void matMulMat(const Vec3f M1[3], const Vec3f M2[3], Vec3f newM[3]);
 
   /** \brief The relative transform from (R1, T1) to (R2, T2) */
   void relativeTransform(const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, Vec3f R[3], Vec3f& T);
 
   /** \brief compute eigen values and vectors */
-  void Meigen(Vec3f a[3], BVH_REAL dout[3], Vec3f vout[3]);
+  void matEigen(Vec3f a[3], BVH_REAL dout[3], Vec3f vout[3]);
 
 
 }

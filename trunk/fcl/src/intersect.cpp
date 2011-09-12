@@ -1463,14 +1463,14 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 
       if (i < nPositiveExamples)
       {
-        double sigma = MxV(uc1[i].Sigma, fgrad).dot(fgrad);
+        double sigma = matMulVec(uc1[i].Sigma, fgrad).dot(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
       else
       {
-        double sigma = MxV(uc2[i - nPositiveExamples].Sigma, fgrad).dot(fgrad);
+        double sigma = matMulVec(uc2[i - nPositiveExamples].Sigma, fgrad).dot(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1576,7 +1576,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
     coord0[0] = cloud2[i][0];
     coord0[1] = cloud2[i][1];
     coord0[2] = cloud2[i][2];
-    coord1 = MxV(R, coord0) + T; // rotate the coordinate
+    coord1 = matMulVec(R, coord0) + T; // rotate the coordinate
 
     words[0].wnum = 1;
     words[0].weight = coord1[0];
@@ -1651,7 +1651,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 
       if (i < nPositiveExamples)
       {
-        double sigma = MxV(uc1[i].Sigma, fgrad).dot(fgrad);
+        double sigma = matMulVec(uc1[i].Sigma, fgrad).dot(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1660,7 +1660,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
       {
         Vec3f rotatedSigma[3];
         SMST(uc2[i - nPositiveExamples].Sigma, R, rotatedSigma);
-        double sigma = MxV(rotatedSigma, fgrad).dot(fgrad);
+        double sigma = matMulVec(rotatedSigma, fgrad).dot(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1738,7 +1738,7 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
    BVH_REAL max_prob = 0;
    for(int i = 0; i < size_cloud1; ++i)
    {
-     Vec3f projected_p = MxV(P, cloud1[i]) + delta;
+     Vec3f projected_p = matMulVec(P, cloud1[i]) + delta;
 
      // compute the projected uncertainty by P * S * P'
      const Vec3f* S = uc1[i].Sigma;
@@ -2177,9 +2177,9 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
                                        Vec3f& P, Vec3f& Q)
 {
   Vec3f T_transformed[3];
-  T_transformed[0] = MxV(R, T[0]) + Tl;
-  T_transformed[1] = MxV(R, T[1]) + Tl;
-  T_transformed[2] = MxV(R, T[2]) + Tl;
+  T_transformed[0] = matMulVec(R, T[0]) + Tl;
+  T_transformed[1] = matMulVec(R, T[1]) + Tl;
+  T_transformed[2] = matMulVec(R, T[2]) + Tl;
 
   return triDistance(S, T_transformed, P, Q);
 }
@@ -2189,9 +2189,9 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const V
                                        const Vec3f R[3], const Vec3f& Tl,
                                        Vec3f& P, Vec3f& Q)
 {
-  Vec3f T1_transformed = MxV(R, T1) + Tl;
-  Vec3f T2_transformed = MxV(R, T2) + Tl;
-  Vec3f T3_transformed = MxV(R, T3) + Tl;
+  Vec3f T1_transformed = matMulVec(R, T1) + Tl;
+  Vec3f T2_transformed = matMulVec(R, T2) + Tl;
+  Vec3f T3_transformed = matMulVec(R, T3) + Tl;
   return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
 

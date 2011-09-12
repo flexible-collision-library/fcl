@@ -45,23 +45,23 @@ const float Vec3f::EPSILON = 1e-11;
 const BVH_REAL Vec3f::EPSILON = 1e-11;
 #endif
 
-Vec3f MxV(const Vec3f M[3], const Vec3f& v)
+Vec3f matMulVec(const Vec3f M[3], const Vec3f& v)
 {
   return Vec3f(M[0].dot(v), M[1].dot(v), M[2].dot(v));
 }
 
-Vec3f MTxV(const Vec3f M[3], const Vec3f& v)
+Vec3f matTransMulVec(const Vec3f M[3], const Vec3f& v)
 {
   return M[0] * v[0] + M[1] * v[1] + M[2] * v[2];
 }
 
-BVH_REAL vTMv(const Vec3f M[3], const Vec3f& v)
+BVH_REAL quadraticForm(const Vec3f M[3], const Vec3f& v)
 {
   return v.dot(Vec3f(M[0].dot(v), M[1].dot(v), M[2].dot(v)));
 }
 
 
-void SMST(const Vec3f M[3], const Vec3f S[3], Vec3f newM[3])
+void tensorTransform(const Vec3f M[3], const Vec3f S[3], Vec3f newM[3])
 {
   Vec3f SMT_col[3] = {Vec3f(M[0].dot(S[0]), M[1].dot(S[0]), M[2].dot(S[0])),
                       Vec3f(M[0].dot(S[1]), M[1].dot(S[1]), M[2].dot(S[1])),
@@ -91,7 +91,7 @@ void relativeTransform(const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], co
             R1[0][2] * temp[0] + R1[1][2] * temp[1] + R1[2][2] * temp[2]);
 }
 
-void Meigen(Vec3f a[3], BVH_REAL dout[3], Vec3f vout[3])
+void matEigen(Vec3f a[3], BVH_REAL dout[3], Vec3f vout[3])
 {
   int n = 3;
   int j, iq, ip, i;
@@ -179,7 +179,7 @@ void Meigen(Vec3f a[3], BVH_REAL dout[3], Vec3f vout[3])
 }
 
 
-void MxM(const Vec3f M1[3], const Vec3f M2[3], Vec3f newM[3])
+void matMulMat(const Vec3f M1[3], const Vec3f M2[3], Vec3f newM[3])
 {
   for(int i = 0; i < 3; ++i)
   {

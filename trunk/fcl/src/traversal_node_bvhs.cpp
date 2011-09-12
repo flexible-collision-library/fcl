@@ -565,7 +565,7 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
   /** turn n into the global frame */
   Vec3f R[3];
   motion1->getCurrentRotation(R);
-  Vec3f n_transformed = MxV(R, n);
+  Vec3f n_transformed = matMulVec(R, n);
   n_transformed.normalize();
   BVH_REAL bound1 = motion1->computeMotionBound(t11, t12, t13, n_transformed);
   BVH_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, n_transformed);
@@ -608,7 +608,7 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[2] + model1->getBV(c1).bv.axis[2] * n[2];
     Vec3f R[3];
     motion1->getCurrentRotation(R);
-    n_transformed = MxV(R, n_transformed);
+    n_transformed = matMulVec(R, n_transformed);
     n_transformed.normalize();
 
     BVH_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);

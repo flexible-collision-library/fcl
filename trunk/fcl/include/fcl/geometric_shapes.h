@@ -87,12 +87,12 @@ public:
     Vec3f R0[3];
     for(int i = 0; i < 3; ++i)
       R0[i] = Rloc[i];
-    MxM(R, R0, Rloc);
-    Tloc = MxV(R, Tloc) + T;
+    matMulMat(R, R0, Rloc);
+    Tloc = matMulVec(R, Tloc) + T;
   }
 
   /** \brief Get local transform */
-  void getLocalTransfrom(Vec3f R[3], Vec3f& T) const
+  void getLocalTransform(Vec3f R[3], Vec3f& T) const
   {
     T = Tloc;
     R[0] = Rloc[0];
@@ -101,7 +101,7 @@ public:
   }
 
   /** \brief Get local position */
-  inline const Vec3f& getLocalPosition() const
+  inline const Vec3f& getLocalTranslation() const
   {
     return Tloc;
   }
@@ -132,7 +132,7 @@ public:
   Vec3f side;
 
   /** \brief Compute AABB */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** \brief Get node type: a box */
   NODE_TYPE getNodeType() const { return GEOM_BOX; }
@@ -148,7 +148,7 @@ public:
   BVH_REAL radius;
 
   /** \brief Compute AABB */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** \brief Get node type: a sphere */
   NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
@@ -167,7 +167,7 @@ public:
   BVH_REAL lz;
 
   /** \brief Compute AABB */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** \brief Get node type: a capsule */
   NODE_TYPE getNodeType() const { return GEOM_CAPSULE; }
@@ -186,7 +186,7 @@ public:
   BVH_REAL lz;
 
   /** \brief Compute AABB */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** \brief Get node type: a cone */
   NODE_TYPE getNodeType() const { return GEOM_CONE; }
@@ -205,7 +205,7 @@ public:
   BVH_REAL lz;
 
   /** \brief Compute AABB */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** \brief Get node type: a cylinder */
   NODE_TYPE getNodeType() const { return GEOM_CYLINDER; }
@@ -259,7 +259,7 @@ public:
   }
 
   /** Compute AABB */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** Get node type: a conex polytope */
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
@@ -309,7 +309,7 @@ public:
   }
 
   /** \brief Compute AABB */
-  void computeAABB();
+  void computeLocalAABB();
 
   /** \brief Get node type: a plane */
   NODE_TYPE getNodeType() const { return GEOM_PLANE; }

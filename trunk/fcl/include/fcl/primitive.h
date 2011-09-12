@@ -59,7 +59,7 @@ struct Uncertainty
   /** preprocess performs the eigen decomposition on the Sigma matrix */
   void preprocess()
   {
-    Meigen(Sigma, sigma, axis);
+    matEigen(Sigma, sigma, axis);
   }
 
   /** sqrt performs the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized

@@ -97,7 +97,7 @@ void distance(MeshDistanceTraversalNodeRSS* node, BVHFrontList* front_list, int 
                                                      last_tri2_points[0], last_tri2_points[1], last_tri2_points[2],
                                                      node->R, node->T, last_tri_P, last_tri_Q);
   node->p1 = last_tri_P;
-  node->p2 = MTxV(node->R, last_tri_Q - node->T);
+  node->p2 = matTransMulVec(node->R, last_tri_Q - node->T);
 
 
   if(qsize <= 2)
@@ -106,7 +106,7 @@ void distance(MeshDistanceTraversalNodeRSS* node, BVHFrontList* front_list, int 
     distanceQueueRecurse(node, 0, 0, front_list, qsize);
 
   Vec3f u = node->p2 - node->T;
-  node->p2 = MTxV(node->R, u);
+  node->p2 = matTransMulVec(node->R, u);
 }
 
 

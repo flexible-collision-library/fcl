@@ -61,13 +61,6 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1, con
                 const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 bool enable_contact = false)
 {
-  for(int i = 0; i < 3; ++i)
-  {
-    node.R1[i] = R1[i];
-    node.R2[i] = R2[i];
-  }
-  node.T1 = T1;
-  node.T2 = T2;
   node.enable_contact = enable_contact;
 
   return true;
@@ -109,7 +102,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, BVHModel<BV>& mode
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = MxV(R1, p) + T1;
+    Vec3f new_v = matMulVec(R1, p) + T1;
     vertices_transformed1[i] = new_v;
   }
 
@@ -209,7 +202,7 @@ bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHM
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = MxV(R1, p) + T1;
+    Vec3f new_v = matMulVec(R1, p) + T1;
     vertices_transformed1[i] = new_v;
   }
 
@@ -218,7 +211,7 @@ bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHM
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = MxV(R2, p) + T2;
+    Vec3f new_v = matMulVec(R2, p) + T2;
     vertices_transformed2[i] = new_v;
   }
 
@@ -315,7 +308,7 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = MxV(R1, p) + T1;
+    Vec3f new_v = matMulVec(R1, p) + T1;
     vertices_transformed1[i] = new_v;
   }
 
@@ -324,7 +317,7 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = MxV(R2, p) + T2;
+    Vec3f new_v = matMulVec(R2, p) + T2;
     vertices_transformed2[i] = new_v;
   }
 
@@ -433,7 +426,7 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = MxV(R1, p) + T1;
+    Vec3f new_v = matMulVec(R1, p) + T1;
     vertices_transformed1[i] = new_v;
   }
 
@@ -442,7 +435,7 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = MxV(R2, p) + T2;
+    Vec3f new_v = matMulVec(R2, p) + T2;
     vertices_transformed2[i] = new_v;
   }
 
@@ -606,7 +599,7 @@ bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHMo
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = MxV(R1, p) + T1;
+    Vec3f new_v = matMulVec(R1, p) + T1;
     vertices_transformed1[i] = new_v;
   }
 
@@ -615,7 +608,7 @@ bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHMo
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = MxV(R2, p) + T2;
+    Vec3f new_v = matMulVec(R2, p) + T2;
     vertices_transformed2[i] = new_v;
   }
 
@@ -657,7 +650,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = MxV(R1, p) + T1;
+    Vec3f new_v = matMulVec(R1, p) + T1;
     vertices_transformed1[i] = new_v;
   }
 
@@ -666,7 +659,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = MxV(R2, p) + T2;
+    Vec3f new_v = matMulVec(R2, p) + T2;
     vertices_transformed2[i] = new_v;
   }
 

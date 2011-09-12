@@ -82,15 +82,47 @@ struct ccd_triangle_t : public ccd_obj_t
   ccd_vec3_t c;
 };
 
+void transformGJKObject(void* obj, const Vec3f R[3], const Vec3f& T)
+{
+  ccd_obj_t* o = (ccd_obj_t*)obj;
+  SimpleQuaternion q_;
+  q_.fromRotation(R);
+
+  ccd_vec3_t t;
+  ccd_quat_t q;
+  ccdVec3Set(&t, T[0], T[1], T[2]);
+  ccdQuatSet(&q, q_.getX(), q_.getY(), q_.getZ(), q_.getW());
+
+  ccd_quat_t tmp;
+  ccdQuatMul2(&tmp, &q, &o->rot); // make sure it is correct here!!
+  ccdQuatCopy(&o->rot, &tmp);
+  ccdQuatRotVec(&o->pos, &q);
+  ccdVec3Add(&o->pos, &t);
+  ccdQuatInvert2(&o->rot_inv, &o->rot);
+}
 
 /** Basic shape to ccd shape */
 static void shapeToGJK(const ShapeBase& s, ccd_obj_t* o)
 {
+
   SimpleQuaternion q;
-  q.fromRotation(s.getLocalRotation());
-  ccdVec3Set(&o->pos, s.getLocalPosition()[0], s.getLocalPosition()[1], s.getLocalPosition()[2]);
+  Vec3f R[3];
+  matMulMat(s.getRotation(), s.getLocalRotation(), R);
+  q.fromRotation(R);
+  Vec3f T = matMulVec(s.getRotation(), s.getLocalTranslation()) + s.getTranslation();
+  ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
+/*
+  SimpleQuaternion q;
+  q.fromRotation(s.getLocalRotation());
+  Vec3f T = s.getLocalTranslation();
+  ccdVec3Set(&o->pos, T[0], T[1], T[2]);
+  ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
+  ccdQuatInvert2(&o->rot_inv, &o->rot);
+
+  transformGJKObject(o, s.getRotation(), s.getTranslation());
+*/
 }
 
 static void boxToGJK(const Box& s, ccd_box_t* box)
@@ -578,25 +610,6 @@ void triDeleteGJKObject(void* o_)
 {
   ccd_triangle_t* o = (ccd_triangle_t*)o_;
   delete o;
-}
-
-void transformGJKObject(void* obj, const Vec3f R[3], const Vec3f& T)
-{
-  ccd_obj_t* o = (ccd_obj_t*)obj;
-  SimpleQuaternion q_;
-  q_.fromRotation(R);
-
-  ccd_vec3_t t;
-  ccd_quat_t q;
-  ccdVec3Set(&t, T[0], T[1], T[2]);
-  ccdQuatSet(&q, q_.getX(), q_.getY(), q_.getZ(), q_.getW());
-
-  ccd_quat_t tmp;
-  ccdQuatMul2(&tmp, &q, &o->rot); // make sure it is correct here!!
-  ccdQuatCopy(&o->rot, &tmp);
-  ccdQuatRotVec(&o->pos, &q);
-  ccdVec3Add(&o->pos, &t);
-  ccdQuatInvert2(&o->rot_inv, &o->rot);
 }
 
 }

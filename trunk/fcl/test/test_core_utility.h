@@ -39,7 +39,10 @@
 #define FCL_TEST_CORE_UTILITY_H
 
 #include "fcl/vec_3f.h"
+#include "fcl/primitive.h"
 #include <cstdio>
+#include <vector>
+#include <iostream>
 using namespace fcl;
 
 #if USE_PQP
@@ -50,6 +53,13 @@ struct Transform
 {
   Vec3f R[3];
   Vec3f T;
+
+  Transform()
+  {
+    R[0][0] = 1;
+    R[1][1] = 1;
+    R[2][2] = 1;
+  }
 };
 
 
@@ -555,6 +565,21 @@ inline void eulerToMatrix(BVH_REAL a, BVH_REAL b, BVH_REAL c, Vec3f R[3])
   R[0] = Vec3f(c1 * c2, - c2 * s1, s2);
   R[1] = Vec3f(c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3);
   R[2] = Vec3f(s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3);
+}
+
+inline void generateRandomTransform(BVH_REAL extents[6], Transform& transform)
+{
+  BVH_REAL x = rand_interval(extents[0], extents[3]);
+  BVH_REAL y = rand_interval(extents[1], extents[4]);
+  BVH_REAL z = rand_interval(extents[2], extents[5]);
+
+  const BVH_REAL pi = 3.1415926;
+  BVH_REAL a = rand_interval(0, 2 * pi);
+  BVH_REAL b = rand_interval(0, 2 * pi);
+  BVH_REAL c = rand_interval(0, 2 * pi);
+
+  eulerToMatrix(a, b, c, transform.R);
+  transform.T = Vec3f(x, y, z);
 }
 
 inline void generateRandomTransform(BVH_REAL extents[6], std::vector<Transform>& transforms, std::vector<Transform>& transforms2, BVH_REAL delta_trans[3], BVH_REAL delta_rot, int n)

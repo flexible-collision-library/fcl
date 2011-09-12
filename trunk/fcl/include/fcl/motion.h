@@ -83,8 +83,8 @@ public:
                const Vec3f R2[3], const Vec3f& T2,
                const Vec3f& O)
   {
-    t1 = SimpleTransform(R1, T1 - MxV(R1, O));
-    t2 = SimpleTransform(R2, T2 - MxV(R2, O));
+    t1 = SimpleTransform(R1, T1 - matMulVec(R1, O));
+    t2 = SimpleTransform(R2, T2 - matMulVec(R2, O));
     t = t1;
 
     /** Compute the velocities for the motion */

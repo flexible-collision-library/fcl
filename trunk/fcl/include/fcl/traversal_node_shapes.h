@@ -53,13 +53,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    R1[0] = Vec3f(1, 0, 0);
-    R1[1] = Vec3f(0, 1, 0);
-    R1[2] = Vec3f(0, 0, 1);
-    R2[0] = Vec3f(1, 0, 0);
-    R2[1] = Vec3f(0, 1, 0);
-    R2[2] = Vec3f(0, 0, 1);
-
     enable_contact = false;
   }
 
@@ -71,9 +64,9 @@ public:
   void leafTesting(int, int) const
   {
     if(enable_contact)
-      is_collision = shapeIntersect(*model1, *model2, R1, T1, R2, T2, &contact_point, &penetration_depth, &normal);
+      is_collision = shapeIntersect(*model1, *model2, &contact_point, &penetration_depth, &normal);
     else
-      is_collision = shapeIntersect(*model1, *model2, R1, T1, R2, T2);
+      is_collision = shapeIntersect(*model1, *model2);
   }
 
   const S1* model1;
@@ -88,10 +81,6 @@ public:
   bool enable_contact;
 
   mutable bool is_collision;
-
-  Vec3f R1[3];
-  Vec3f R2[3];
-  Vec3f T1, T2;
  };
 }
 

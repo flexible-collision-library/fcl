@@ -48,15 +48,15 @@ void computeBV<AABB>(const Box& s, AABB& bv)
   BVH_REAL y_range = 0.5 * (fabs(s.getLocalRotation()[1][0] * s.side[0]) + fabs(s.getLocalRotation()[1][1] * s.side[1]) + fabs(s.getLocalRotation()[1][2] * s.side[2]));
   BVH_REAL z_range = 0.5 * (fabs(s.getLocalRotation()[2][0] * s.side[0]) + fabs(s.getLocalRotation()[2][1] * s.side[1]) + fabs(s.getLocalRotation()[2][2] * s.side[2]));
 
-  bv.max_ = s.getLocalPosition() + Vec3f(x_range, y_range, z_range);
-  bv.min_ = s.getLocalPosition() + Vec3f(-x_range, -y_range, -z_range);
+  bv.max_ = s.getLocalTranslation() + Vec3f(x_range, y_range, z_range);
+  bv.min_ = s.getLocalTranslation() + Vec3f(-x_range, -y_range, -z_range);
 }
 
 template<>
 void computeBV<AABB>(const Sphere& s, AABB& bv)
 {
-  bv.max_ = s.getLocalPosition() + Vec3f(s.radius, s.radius, s.radius);
-  bv.min_ = s.getLocalPosition() + Vec3f(-s.radius, -s.radius, -s.radius);
+  bv.max_ = s.getLocalTranslation() + Vec3f(s.radius, s.radius, s.radius);
+  bv.min_ = s.getLocalTranslation() + Vec3f(-s.radius, -s.radius, -s.radius);
 }
 
 template<>
@@ -66,8 +66,8 @@ void computeBV<AABB>(const Capsule& s, AABB& bv)
   BVH_REAL y_range = 0.5 * fabs(s.getLocalRotation()[1][2] * s.lz) + s.radius;
   BVH_REAL z_range = 0.5 * fabs(s.getLocalRotation()[2][2] * s.lz) + s.radius;
 
-  bv.max_ = s.getLocalPosition() + Vec3f(x_range, y_range, z_range);
-  bv.min_ = s.getLocalPosition() + Vec3f(-x_range, -y_range, -z_range);
+  bv.max_ = s.getLocalTranslation() + Vec3f(x_range, y_range, z_range);
+  bv.min_ = s.getLocalTranslation() + Vec3f(-x_range, -y_range, -z_range);
 }
 
 template<>
@@ -77,8 +77,8 @@ void computeBV<AABB>(const Cone& s, AABB& bv)
   BVH_REAL y_range = fabs(s.getLocalRotation()[1][0] * s.radius) + fabs(s.getLocalRotation()[1][1] * s.radius) + 0.5 * fabs(s.getLocalRotation()[1][2] * s.lz);
   BVH_REAL z_range = fabs(s.getLocalRotation()[2][0] * s.radius) + fabs(s.getLocalRotation()[2][1] * s.radius) + 0.5 * fabs(s.getLocalRotation()[2][2] * s.lz);
 
-  bv.max_ = s.getLocalPosition() + Vec3f(x_range, y_range, z_range);
-  bv.min_ = s.getLocalPosition() + Vec3f(-x_range, -y_range, -z_range);
+  bv.max_ = s.getLocalTranslation() + Vec3f(x_range, y_range, z_range);
+  bv.min_ = s.getLocalTranslation() + Vec3f(-x_range, -y_range, -z_range);
 }
 
 template<>
@@ -88,8 +88,8 @@ void computeBV<AABB>(const Cylinder& s, AABB& bv)
   BVH_REAL y_range = fabs(s.getLocalRotation()[1][0] * s.radius) + fabs(s.getLocalRotation()[1][1] * s.radius) + 0.5 * fabs(s.getLocalRotation()[1][2] * s.lz);
   BVH_REAL z_range = fabs(s.getLocalRotation()[2][0] * s.radius) + fabs(s.getLocalRotation()[2][1] * s.radius) + 0.5 * fabs(s.getLocalRotation()[2][2] * s.lz);
 
-  bv.max_ = s.getLocalPosition() + Vec3f(x_range, y_range, z_range);
-  bv.min_ = s.getLocalPosition() + Vec3f(-x_range, -y_range, -z_range);
+  bv.max_ = s.getLocalTranslation() + Vec3f(x_range, y_range, z_range);
+  bv.min_ = s.getLocalTranslation() + Vec3f(-x_range, -y_range, -z_range);
 }
 
 template<>
@@ -98,7 +98,7 @@ void computeBV<AABB>(const Convex& s, AABB& bv)
   AABB bv_;
   for(int i = 0; i < s.num_points; ++i)
   {
-    Vec3f new_p = MxV(s.getLocalRotation(), s.points[i]) + s.getLocalPosition();
+    Vec3f new_p = matMulVec(s.getLocalRotation(), s.points[i]) + s.getLocalTranslation();
     bv_ += new_p;
   }
 
@@ -135,7 +135,7 @@ void computeBV<AABB>(const Plane& s, AABB& bv)
 template<>
 void computeBV<OBB>(const Box& s, OBB& bv)
 {
-  bv.To = s.getLocalPosition();
+  bv.To = s.getLocalTranslation();
   bv.axis[0] = Vec3f(s.getLocalRotation()[0][0], s.getLocalRotation()[1][0], s.getLocalRotation()[2][0]);
   bv.axis[1] = Vec3f(s.getLocalRotation()[0][1], s.getLocalRotation()[1][1], s.getLocalRotation()[2][1]);
   bv.axis[2] = Vec3f(s.getLocalRotation()[0][2], s.getLocalRotation()[1][2], s.getLocalRotation()[2][2]);
@@ -145,7 +145,7 @@ void computeBV<OBB>(const Box& s, OBB& bv)
 template<>
 void computeBV<OBB>(const Sphere& s, OBB& bv)
 {
-  bv.To = s.getLocalPosition();
+  bv.To = s.getLocalTranslation();
   bv.axis[0] = Vec3f(1, 0, 0);
   bv.axis[1] = Vec3f(0, 1, 0);
   bv.axis[2] = Vec3f(0, 0, 1);
@@ -155,7 +155,7 @@ void computeBV<OBB>(const Sphere& s, OBB& bv)
 template<>
 void computeBV<OBB>(const Capsule& s, OBB& bv)
 {
-  bv.To = s.getLocalPosition();
+  bv.To = s.getLocalTranslation();
   bv.axis[0] = Vec3f(s.getLocalRotation()[0][0], s.getLocalRotation()[1][0], s.getLocalRotation()[2][0]);
   bv.axis[1] = Vec3f(s.getLocalRotation()[0][1], s.getLocalRotation()[1][1], s.getLocalRotation()[2][1]);
   bv.axis[2] = Vec3f(s.getLocalRotation()[0][2], s.getLocalRotation()[1][2], s.getLocalRotation()[2][2]);
@@ -165,7 +165,7 @@ void computeBV<OBB>(const Capsule& s, OBB& bv)
 template<>
 void computeBV<OBB>(const Cone& s, OBB& bv)
 {
-  bv.To = s.getLocalPosition();
+  bv.To = s.getLocalTranslation();
   bv.axis[0] = Vec3f(s.getLocalRotation()[0][0], s.getLocalRotation()[1][0], s.getLocalRotation()[2][0]);
   bv.axis[1] = Vec3f(s.getLocalRotation()[0][1], s.getLocalRotation()[1][1], s.getLocalRotation()[2][1]);
   bv.axis[2] = Vec3f(s.getLocalRotation()[0][2], s.getLocalRotation()[1][2], s.getLocalRotation()[2][2]);
@@ -175,7 +175,7 @@ void computeBV<OBB>(const Cone& s, OBB& bv)
 template<>
 void computeBV<OBB>(const Cylinder& s, OBB& bv)
 {
-  bv.To = s.getLocalPosition();
+  bv.To = s.getLocalTranslation();
   bv.axis[0] = Vec3f(s.getLocalRotation()[0][0], s.getLocalRotation()[1][0], s.getLocalRotation()[2][0]);
   bv.axis[1] = Vec3f(s.getLocalRotation()[0][1], s.getLocalRotation()[1][1], s.getLocalRotation()[2][1]);
   bv.axis[2] = Vec3f(s.getLocalRotation()[0][2], s.getLocalRotation()[1][2], s.getLocalRotation()[2][2]);
@@ -188,15 +188,15 @@ void computeBV<OBB>(const Convex& s, OBB& bv)
   fit(s.points, s.num_points, bv);
 
   Vec3f axis[3];
-  axis[0] = MxV(s.getLocalRotation(), bv.axis[0]);
-  axis[1] = MxV(s.getLocalRotation(), bv.axis[1]);
-  axis[2] = MxV(s.getLocalRotation(), bv.axis[2]);
+  axis[0] = matMulVec(s.getLocalRotation(), bv.axis[0]);
+  axis[1] = matMulVec(s.getLocalRotation(), bv.axis[1]);
+  axis[2] = matMulVec(s.getLocalRotation(), bv.axis[2]);
 
   bv.axis[0] = axis[0];
   bv.axis[1] = axis[1];
   bv.axis[2] = axis[2];
 
-  bv.To = MxV(s.getLocalRotation(), bv.To) + s.getLocalPosition();
+  bv.To = matMulVec(s.getLocalRotation(), bv.To) + s.getLocalTranslation();
 
 }
 
@@ -235,63 +235,63 @@ void computeBV<OBB>(const Plane& s, OBB& bv)
   bv.extent = Vec3f(0, std::numeric_limits<BVH_REAL>::max(), std::numeric_limits<BVH_REAL>::max());
 
   Vec3f p = s.n * s.d;
-  bv.To = MxV(s.getLocalRotation(), p) + s.getLocalPosition();
+  bv.To = matMulVec(s.getLocalRotation(), p) + s.getLocalTranslation();
 }
 
-void Box::computeAABB()
+void Box::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb);
-  aabb_cache = aabb;
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb_local);
+  aabb = aabb_local;
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
 }
 
-void Sphere::computeAABB()
+void Sphere::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb);
-  aabb_cache = aabb;
-  aabb_center = aabb.center();
+  computeBV<AABB>(*this, aabb_local);
+  aabb = aabb_local;
+  aabb_center = aabb_local.center();
   aabb_radius = radius;
 }
 
-void Capsule::computeAABB()
+void Capsule::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb);
-  aabb_cache = aabb;
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb_local);
+  aabb = aabb_local;
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
 }
 
-void Cone::computeAABB()
+void Cone::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb);
-  aabb_cache = aabb;
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb_local);
+  aabb = aabb_local;
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
 }
 
-void Cylinder::computeAABB()
+void Cylinder::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb);
-  aabb_cache = aabb;
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb_local);
+  aabb = aabb_local;
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
 }
 
-void Convex::computeAABB()
+void Convex::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb);
-  aabb_cache = aabb;
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb_local);
+  aabb = aabb_local;
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
 }
 
-void Plane::computeAABB()
+void Plane::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb);
-  aabb_cache = aabb;
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb_local);
+  aabb = aabb_local;
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
 }
 
 

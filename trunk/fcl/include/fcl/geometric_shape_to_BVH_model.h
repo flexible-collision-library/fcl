@@ -79,15 +79,15 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape)
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = MxV(shape.getLocalRotation(), points[i]) + shape.getLocalPosition();
-    v = MxV(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
+    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
     points[i] = v;
   }
 
   model.beginModel();
   model.addSubModel(points, tri_indices);
   model.endModel();
-  model.computeAABB();
+  model.computeLocalAABB();
 }
 
 /** Generate BVH model from sphere */
@@ -146,15 +146,15 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = MxV(shape.getLocalRotation(), points[i]) + shape.getLocalPosition();
-    v = MxV(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
+    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
     points[i] = v;
   }
 
   model.beginModel();
   model.addSubModel(points, tri_indices);
   model.endModel();
-  model.computeAABB();
+  model.computeLocalAABB();
 }
 
 
@@ -224,7 +224,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int t
   model.beginModel();
   model.addSubModel(points, tri_indices);
   model.endModel();
-  model.computeAABB();
+  model.computeLocalAABB();
 }
 
 }

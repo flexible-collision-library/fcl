@@ -214,8 +214,8 @@ void distance_Test(const Transform& tf,
   distance(&node, NULL, qsize);
 
   // points are in local coordinate, to global coordinate
-  Vec3f p1 = MxV(tf.R, node.p1) + tf.T;
-  Vec3f p2 = MxV(R2, node.p2) + T2;
+  Vec3f p1 = matMulVec(tf.R, node.p1) + tf.T;
+  Vec3f p2 = matMulVec(R2, node.p2) + T2;
 
 
   distance_result.distance = node.min_distance;

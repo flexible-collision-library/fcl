@@ -139,7 +139,7 @@ void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
 {
   setup();
 
-  DummyCollisionObject dummyHigh(AABB(obj->getCachedAABB().max_));
+  DummyCollisionObject dummyHigh(AABB(obj->getAABB().max_));
 
   std::vector<CollisionObject*>::iterator pos_start1 = objs_x.begin();
   std::vector<CollisionObject*>::iterator pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
@@ -227,7 +227,7 @@ void SSaPCollisionManager::checkColl(std::vector<CollisionObject*>::const_iterat
 {
   while(pos_start < pos_end)
   {
-    if((*pos_start)->getCachedAABB().overlap(obj->getCachedAABB()))
+    if((*pos_start)->getAABB().overlap(obj->getAABB()))
     {
       if(callback(*pos_start, obj, cdata))
         return;
@@ -241,7 +241,7 @@ void SSaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionC
 {
   static const unsigned int CUTOFF = 100;
 
-  DummyCollisionObject dummyHigh(AABB(obj->getCachedAABB().max_));
+  DummyCollisionObject dummyHigh(AABB(obj->getAABB().max_));
 
   std::vector<CollisionObject*>::const_iterator pos_start1 = objs_x.begin();
   std::vector<CollisionObject*>::const_iterator pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
@@ -286,9 +286,9 @@ void SSaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionC
 void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
   // simple sweep and prune method
-  double delta_x = (objs_x[objs_x.size() - 1])->getCachedAABB().min_[0] - (objs_x[0])->getCachedAABB().min_[0];
-  double delta_y = (objs_x[objs_y.size() - 1])->getCachedAABB().min_[1] - (objs_y[0])->getCachedAABB().min_[1];
-  double delta_z = (objs_z[objs_z.size() - 1])->getCachedAABB().min_[2] - (objs_z[0])->getCachedAABB().min_[2];
+  double delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
+  double delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
+  double delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
 
   int axis = 0;
   if(delta_y > delta_x && delta_y > delta_z)
@@ -324,7 +324,7 @@ void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) cons
 
     while(1)
     {
-      if((*run_pos)->getCachedAABB().min_[axis] < obj->getCachedAABB().min_[axis])
+      if((*run_pos)->getAABB().min_[axis] < obj->getAABB().min_[axis])
       {
         run_pos++;
         if(run_pos == pos_end) break;
@@ -341,14 +341,14 @@ void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) cons
     {
       std::vector<CollisionObject*>::const_iterator run_pos2 = run_pos;
 
-      while((*run_pos2)->getCachedAABB().min_[axis] <= obj->getCachedAABB().max_[axis])
+      while((*run_pos2)->getAABB().min_[axis] <= obj->getAABB().max_[axis])
       {
         CollisionObject* obj2 = *run_pos2;
         run_pos2++;
 
-        if((obj->getCachedAABB().max_[axis2] >= obj2->getCachedAABB().min_[axis2]) && (obj2->getCachedAABB().max_[axis2] >= obj->getCachedAABB().min_[axis2]))
+        if((obj->getAABB().max_[axis2] >= obj2->getAABB().min_[axis2]) && (obj2->getAABB().max_[axis2] >= obj->getAABB().min_[axis2]))
         {
-          if((obj->getCachedAABB().max_[axis3] >= obj2->getCachedAABB().min_[axis3]) && (obj2->getCachedAABB().max_[axis3] >= obj->getCachedAABB().min_[axis3]))
+          if((obj->getAABB().max_[axis3] >= obj2->getAABB().min_[axis3]) && (obj2->getAABB().max_[axis3] >= obj->getAABB().min_[axis3]))
           {
             if(callback(obj, obj2, cdata))
               return;
@@ -414,7 +414,7 @@ void SaPCollisionManager::unregisterObject(CollisionObject* obj)
 void SaPCollisionManager::registerObject(CollisionObject* obj)
 {
   SaPAABB* curr = new SaPAABB;
-  curr->cached = obj->getCachedAABB();
+  curr->cached = obj->getAABB();
   curr->obj = obj;
   curr->lo = new EndPoint;
   curr->lo->minmax = 0;
@@ -502,11 +502,11 @@ void SaPCollisionManager::update()
   {
     SaPAABB* current = *it;
 
-    Vec3f new_min = current->obj->getCachedAABB().min_;
-    Vec3f new_max = current->obj->getCachedAABB().max_;
+    Vec3f new_min = current->obj->getAABB().min_;
+    Vec3f new_max = current->obj->getAABB().max_;
 
     SaPAABB dummy;
-    dummy.cached = current->obj->getCachedAABB();
+    dummy.cached = current->obj->getAABB();
 
     EndPoint lo, hi;
     dummy.lo = &lo;
@@ -683,7 +683,7 @@ void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCa
 {
   for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
   {
-    if((*it)->obj->getCachedAABB().overlap(obj->getCachedAABB()))
+    if((*it)->obj->getAABB().overlap(obj->getAABB()))
     {
       if(callback(obj, (*it)->obj, cdata))
         return;
@@ -716,9 +716,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
   setup();
 
   EndPoint p;
-  p.value = obj->getCachedAABB().min_[0];
+  p.value = obj->getAABB().min_[0];
   std::vector<EndPoint>::iterator start1 = std::lower_bound(endpoints[0].begin(), endpoints[0].end(), p, SortByValue());
-  p.value = obj->getCachedAABB().max_[0];
+  p.value = obj->getAABB().max_[0];
   std::vector<EndPoint>::iterator end1 = std::upper_bound(start1, endpoints[0].end(), p, SortByValue());
 
   if(start1 < end1)
@@ -742,9 +742,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
       endpoints[0].resize(endpoints[0].size() - 2);
   }
 
-  p.value = obj->getCachedAABB().min_[1];
+  p.value = obj->getAABB().min_[1];
   std::vector<EndPoint>::iterator start2 = std::lower_bound(endpoints[1].begin(), endpoints[1].end(), p, SortByValue());
-  p.value = obj->getCachedAABB().max_[1];
+  p.value = obj->getAABB().max_[1];
   std::vector<EndPoint>::iterator end2 = std::upper_bound(start2, endpoints[1].end(), p, SortByValue());
 
   if(start2 < end2)
@@ -769,9 +769,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
   }
 
 
-  p.value = obj->getCachedAABB().min_[2];
+  p.value = obj->getAABB().min_[2];
   std::vector<EndPoint>::iterator start3 = std::lower_bound(endpoints[2].begin(), endpoints[2].end(), p, SortByValue());
-  p.value = obj->getCachedAABB().max_[2];
+  p.value = obj->getAABB().max_[2];
   std::vector<EndPoint>::iterator end3 = std::upper_bound(start3, endpoints[2].end(), p, SortByValue());
 
   if(start3 < end3)
@@ -804,18 +804,18 @@ void IntervalTreeCollisionManager::registerObject(CollisionObject* obj)
   q.obj = obj;
   p.minmax = 0;
   q.minmax = 1;
-  p.value = obj->getCachedAABB().min_[0];
-  q.value = obj->getCachedAABB().max_[0];
+  p.value = obj->getAABB().min_[0];
+  q.value = obj->getAABB().max_[0];
   endpoints[0].push_back(p);
   endpoints[0].push_back(q);
 
-  p.value = obj->getCachedAABB().min_[1];
-  q.value = obj->getCachedAABB().max_[1];
+  p.value = obj->getAABB().min_[1];
+  q.value = obj->getAABB().max_[1];
   endpoints[1].push_back(p);
   endpoints[1].push_back(q);
 
-  p.value = obj->getCachedAABB().min_[2];
-  q.value = obj->getCachedAABB().max_[2];
+  p.value = obj->getAABB().min_[2];
+  q.value = obj->getAABB().max_[2];
   endpoints[2].push_back(p);
   endpoints[2].push_back(q);
   setup_ = false;
@@ -841,9 +841,9 @@ void IntervalTreeCollisionManager::setup()
       CollisionObject* obj = p.obj;
       if(p.minmax == 0)
       {
-        SAPInterval* ivl1 = new SAPInterval(obj->getCachedAABB().min_[0], obj->getCachedAABB().max_[0], obj);
-        SAPInterval* ivl2 = new SAPInterval(obj->getCachedAABB().min_[1], obj->getCachedAABB().max_[1], obj);
-        SAPInterval* ivl3 = new SAPInterval(obj->getCachedAABB().min_[2], obj->getCachedAABB().max_[2], obj);
+        SAPInterval* ivl1 = new SAPInterval(obj->getAABB().min_[0], obj->getAABB().max_[0], obj);
+        SAPInterval* ivl2 = new SAPInterval(obj->getAABB().min_[1], obj->getAABB().max_[1], obj);
+        SAPInterval* ivl3 = new SAPInterval(obj->getAABB().min_[2], obj->getAABB().max_[2], obj);
         interval_trees[0]->insert(ivl1);
         interval_trees[1]->insert(ivl2);
         interval_trees[2]->insert(ivl3);
@@ -861,25 +861,25 @@ void IntervalTreeCollisionManager::update()
   for(unsigned int i = 0; i < endpoints[0].size(); ++i)
   {
     if(endpoints[0][i].minmax == 0)
-      endpoints[0][i].value = endpoints[0][i].obj->getCachedAABB().min_[0];
+      endpoints[0][i].value = endpoints[0][i].obj->getAABB().min_[0];
     else
-      endpoints[0][i].value = endpoints[0][i].obj->getCachedAABB().max_[0];
+      endpoints[0][i].value = endpoints[0][i].obj->getAABB().max_[0];
   }
 
   for(unsigned int i = 0; i < endpoints[1].size(); ++i)
   {
     if(endpoints[1][i].minmax == 0)
-      endpoints[1][i].value = endpoints[1][i].obj->getCachedAABB().min_[1];
+      endpoints[1][i].value = endpoints[1][i].obj->getAABB().min_[1];
     else
-      endpoints[1][i].value = endpoints[1][i].obj->getCachedAABB().max_[1];
+      endpoints[1][i].value = endpoints[1][i].obj->getAABB().max_[1];
   }
 
   for(unsigned int i = 0; i < endpoints[2].size(); ++i)
   {
     if(endpoints[2][i].minmax == 0)
-      endpoints[2][i].value = endpoints[2][i].obj->getCachedAABB().min_[2];
+      endpoints[2][i].value = endpoints[2][i].obj->getAABB().min_[2];
     else
-      endpoints[2][i].value = endpoints[2][i].obj->getCachedAABB().max_[2];
+      endpoints[2][i].value = endpoints[2][i].obj->getAABB().max_[2];
   }
 
   setup();
@@ -919,13 +919,13 @@ void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, Co
 
   std::deque<Interval*> results0, results1, results2;
 
-  results0 = interval_trees[0]->query(obj->getCachedAABB().min_[0], obj->getCachedAABB().max_[0]);
+  results0 = interval_trees[0]->query(obj->getAABB().min_[0], obj->getAABB().max_[0]);
   if(results0.size() > CUTOFF)
   {
-    results1 = interval_trees[1]->query(obj->getCachedAABB().min_[1], obj->getCachedAABB().max_[1]);
+    results1 = interval_trees[1]->query(obj->getAABB().min_[1], obj->getAABB().max_[1]);
     if(results1.size() > CUTOFF)
     {
-      results2 = interval_trees[2]->query(obj->getCachedAABB().min_[2], obj->getCachedAABB().max_[2]);
+      results2 = interval_trees[2]->query(obj->getAABB().min_[2], obj->getAABB().max_[2]);
       if(results2.size() > CUTOFF)
       {
         int d1 = results0.size();
@@ -1021,8 +1021,8 @@ void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callba
       for(; iter != end; ++iter)
       {
         CollisionObject* active_index = *iter;
-        const AABB& b0 = active_index->getCachedAABB();
-        const AABB& b1 = index->getCachedAABB();
+        const AABB& b0 = active_index->getAABB();
+        const AABB& b1 = index->getAABB();
 
         int axis2 = (axis + 1) % 3;
         int axis3 = (axis + 2) % 3;

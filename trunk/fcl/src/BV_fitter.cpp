@@ -144,7 +144,7 @@ void fitn(Vec3f* ps, int n, OBB& bv)
   BVH_REAL s[3] = {0, 0, 0}; // three eigen values
 
   getCovariance(ps, NULL, NULL, n, M);
-  Meigen(M, s, E);
+  matEigen(M, s, E);
 
   int min, mid, max;
   if(s[0] > s[1]) { max = 0; min = 1; }
@@ -279,7 +279,7 @@ void fitn(Vec3f* ps, int n, RSS& bv)
   BVH_REAL s[3] = {0, 0, 0};
 
   getCovariance(ps, NULL, NULL, n, M);
-  Meigen(M, s, E);
+  matEigen(M, s, E);
 
   int min, mid, max;
   if(s[0] > s[1]) { max = 0; min = 1; }
@@ -360,12 +360,12 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
   if(type == BVH_MODEL_TRIANGLES)
   {
     getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-    Meigen(M, s, E);
+    matEigen(M, s, E);
   }
   else if(type == BVH_MODEL_POINTCLOUD)
   {
     getCovariance(vertices, prev_vertices, primitive_indices, num_primitives, M);
-    Meigen(M, s, E);
+    matEigen(M, s, E);
   }
 
   int min, mid, max;
@@ -417,12 +417,12 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   if(type == BVH_MODEL_TRIANGLES)
   {
     getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-    Meigen(M, s, E);
+    matEigen(M, s, E);
   }
   else if(type == BVH_MODEL_POINTCLOUD)
   {
     getCovariance(vertices, prev_vertices, primitive_indices, num_primitives, M);
-    Meigen(M, s, E);
+    matEigen(M, s, E);
   }
 
   int min, mid, max;

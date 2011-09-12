@@ -288,7 +288,7 @@ OBB OBB::merge_largedist(const OBB& b1, const OBB& b2)
     vertex_proj[i] = vertex[i] - R[0] * vertex[i].dot(R[0]);
 
   getCovariance(vertex_proj, NULL, NULL, 16, M);
-  Meigen(M, s, E);
+  matEigen(M, s, E);
 
   int min, mid, max;
   if (s[0] > s[1]) { max = 0; min = 1; }

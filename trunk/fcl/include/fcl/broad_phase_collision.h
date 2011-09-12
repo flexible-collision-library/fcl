@@ -334,7 +334,7 @@ protected:
   {
     bool operator()(const CollisionObject* a, const CollisionObject* b) const
     {
-      if(a->getCachedAABB().min_[0] < b->getCachedAABB().min_[0])
+      if(a->getAABB().min_[0] < b->getAABB().min_[0])
         return true;
       return false;
     }
@@ -345,7 +345,7 @@ protected:
    {
      bool operator()(const CollisionObject* a, const CollisionObject* b) const
      {
-       if(a->getCachedAABB().min_[1] < b->getCachedAABB().min_[1])
+       if(a->getAABB().min_[1] < b->getAABB().min_[1])
          return true;
        return false;
      }
@@ -356,7 +356,7 @@ protected:
    {
      bool operator()(const CollisionObject* a, const CollisionObject* b) const
      {
-       if(a->getCachedAABB().min_[2] < b->getCachedAABB().min_[2])
+       if(a->getAABB().min_[2] < b->getAABB().min_[2])
          return true;
        return false;
      }
@@ -366,12 +366,12 @@ protected:
    class DummyCollisionObject : public CollisionObject
    {
    public:
-     DummyCollisionObject(const AABB& aabb)
+     DummyCollisionObject(const AABB& aabb_)
      {
-       aabb_cache = aabb;
+       aabb = aabb_;
      }
 
-     void computeAABB() {}
+     void computeLocalAABB() {}
    };
 
    /** \brief check collision between one object and a list of objects */

@@ -334,7 +334,7 @@ RSS RSS::operator + (const RSS& other) const
   BVH_REAL s[3] = {0, 0, 0};
 
   getCovariance(v, NULL, NULL, 16, M);
-  Meigen(M, s, E);
+  matEigen(M, s, E);
 
   int min, mid, max;
   if(s[0] > s[1]) { max = 0; min = 1; }
@@ -423,7 +423,7 @@ BVH_REAL RSS::rectDistance(const Vec3f Rab[3], Vec3f const& Tab, const BVH_REAL 
   bA0_dot_B1 = b[1] * A0_dot_B1;
   bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vec3f Tba = MTxV(Rab, Tab);
+  Vec3f Tba = matTransMulVec(Rab, Tab);
 
   Vec3f S;
   BVH_REAL t, u;

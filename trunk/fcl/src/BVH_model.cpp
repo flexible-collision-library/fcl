@@ -853,7 +853,7 @@ int BVHModel<BV>::refitTree_topdown()
 }
 
 template<typename BV>
-void BVHModel<BV>::computeAABB()
+void BVHModel<BV>::computeLocalAABB()
 {
   AABB aabb_;
   for(int i = 0; i < num_vertices; ++i)
@@ -861,11 +861,11 @@ void BVHModel<BV>::computeAABB()
     aabb_ += vertices[i];
   }
 
-  aabb = aabb_;
+  aabb_local = aabb_;
 
-  aabb_cache = aabb;
+  aabb = aabb_local;
 
-  aabb_center = aabb.center();
+  aabb_center = aabb_local.center();
 
   aabb_radius = 0;
   for(int i = 0; i < num_vertices; ++i)

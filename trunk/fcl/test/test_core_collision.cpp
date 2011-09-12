@@ -552,7 +552,7 @@ bool collide_Test2(const Transform& tf,
   std::vector<Vec3f> vertices1_new(vertices1.size());
   for(unsigned int i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = MxV(tf.R, vertices1[i]) + tf.T;
+    vertices1_new[i] = matMulVec(tf.R, vertices1[i]) + tf.T;
   }
 
 
