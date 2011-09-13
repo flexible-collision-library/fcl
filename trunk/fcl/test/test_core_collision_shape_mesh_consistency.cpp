@@ -45,55 +45,237 @@ TEST(consistency_shapemesh, spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
+  BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
+  BVHModel<OBB> s1_obb;
   BVHModel<OBB> s2_obb;
+
+  generateBVHModel(s1_aabb, s1);
+  generateBVHModel(s2_aabb, s2);
+  generateBVHModel(s1_obb, s1);
+  generateBVHModel(s2_obb, s2);
+
+  std::vector<Contact> contacts;
+  bool res;
+
+  // s2 is within s1
+  // both are shapes --> collision
+  // s1 is shape, s2 is mesh --> in collision
+  // s1 is mesh, s2 is shape --> collision free
+  // all are reasonable
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+
+
+  s2.setTranslation(Vec3f(40, 0, 0));
+  s2_aabb.setTranslation(Vec3f(40, 0, 0));
+  s2_obb.setTranslation(Vec3f(40, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+
+  s2.setTranslation(Vec3f(30, 0, 0));
+  s2_aabb.setTranslation(Vec3f(30, 0, 0));
+  s2_obb.setTranslation(Vec3f(30, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+
+  s2.setTranslation(Vec3f(29.9, 0, 0));
+  s2_aabb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  s2_obb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+
+
+  s2.setTranslation(Vec3f(-29.9, 0, 0));
+  s2_aabb.setTranslation(Vec3f(-29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  s2_obb.setTranslation(Vec3f(-29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+
+  s2.setTranslation(Vec3f(-30, 0, 0));
+  s2_aabb.setTranslation(Vec3f(-30, 0, 0));
+  s2_obb.setTranslation(Vec3f(-30, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+}
+
+TEST(consistency_shapemesh, boxbox)
+{
+  Box s1(20, 40, 50);
+  Box s2(10, 10, 10);
+
+  BVHModel<AABB> s1_aabb;
+  BVHModel<AABB> s2_aabb;
+  BVHModel<OBB> s1_obb;
+  BVHModel<OBB> s2_obb;
+  BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
+  generateBVHModel(s1_aabb, s1);
   generateBVHModel(s2_aabb, s2);
+  generateBVHModel(s1_obb, s1);
   generateBVHModel(s2_obb, s2);
+  generateBVHModel(s1_rss, s1);
   generateBVHModel(s2_rss, s2);
 
   std::vector<Contact> contacts;
   bool res;
 
-  s2.setTranslation(Vec3f(40, 0, 0));
-  s2_aabb.setTranslation(Vec3f(40, 0, 0));
-  s2_obb.setTranslation(Vec3f(40, 0, 0));
-  s2_rss.setTranslation(Vec3f(40, 0, 0));
-  contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
-  ASSERT_FALSE(res);
-  contacts.clear();
-  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
-  ASSERT_FALSE(res);
-  contacts.clear();
-  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
-  ASSERT_FALSE(res);
-  //contacts.clear();
-  //res = (collide(&s2_rss, &s1, 1, false, false, contacts) > 0);
-  //ASSERT_FALSE(res);
-
-  s2.setTranslation(Vec3f(30, 0, 0));
-  s2_aabb.setTranslation(Vec3f(30, 0, 0));
-  s2_obb.setTranslation(Vec3f(30, 0, 0));
-  s2_rss.setTranslation(Vec3f(30, 0, 0));
-  contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
-  ASSERT_FALSE(res);
-  contacts.clear();
-  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
-  ASSERT_FALSE(res);
-  contacts.clear();
-  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
-  ASSERT_FALSE(res);
-  //contacts.clear();
-  //res = (collide(&s2_rss, &s1, 1, false, false, contacts) > 0);
-  //ASSERT_FALSE(res);
-
-  s2.setTranslation(Vec3f(29.9, 0, 0));
-  s2_aabb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
-  s2_obb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
-  s2_rss.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
+  // s2 is within s1
+  // both are shapes --> collision
+  // s1 is shape, s2 is mesh --> in collision
+  // s1 is mesh, s2 is shape --> collision free
+  // all are reasonable
   contacts.clear();
   res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
@@ -103,10 +285,437 @@ TEST(consistency_shapemesh, spheresphere)
   contacts.clear();
   res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  //contacts.clear();
-  //res = (collide(&s1, &s2_rss, 1, false, false, contacts) > 0);
-  //ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
 
+
+  s2.setTranslation(Vec3f(15.01, 0, 0));
+  s2_aabb.setTranslation(Vec3f(15.01, 0, 0));
+  s2_obb.setTranslation(Vec3f(15.01, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+
+  s2.setTranslation(Vec3f(14.99, 0, 0));
+  s2_aabb.setTranslation(Vec3f(14.99, 0, 0));
+  s2_obb.setTranslation(Vec3f(14.99, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+}
+
+TEST(consistency_shapemesh, spherebox)
+{
+  Sphere s1(20);
+  Box s2(5, 5, 5);
+
+  BVHModel<AABB> s1_aabb;
+  BVHModel<AABB> s2_aabb;
+  BVHModel<OBB> s1_obb;
+  BVHModel<OBB> s2_obb;
+  BVHModel<RSS> s1_rss;
+  BVHModel<RSS> s2_rss;
+
+  generateBVHModel(s1_aabb, s1);
+  generateBVHModel(s2_aabb, s2);
+  generateBVHModel(s1_obb, s1);
+  generateBVHModel(s2_obb, s2);
+  generateBVHModel(s1_rss, s1);
+  generateBVHModel(s2_rss, s2);
+
+  std::vector<Contact> contacts;
+  bool res;
+
+  // s2 is within s1
+  // both are shapes --> collision
+  // s1 is shape, s2 is mesh --> in collision
+  // s1 is mesh, s2 is shape --> collision free
+  // all are reasonable
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+
+  s2.setTranslation(Vec3f(22.4, 0, 0));
+  s2_aabb.setTranslation(Vec3f(22.4, 0, 0));
+  s2_obb.setTranslation(Vec3f(22.4, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+
+  s2.setTranslation(Vec3f(22.51, 0, 0));
+  s2_aabb.setTranslation(Vec3f(22.51, 0, 0));
+  s2_obb.setTranslation(Vec3f(22.51, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+}
+
+TEST(consistency_shapemesh, cylindercylinder)
+{
+  Cylinder s1(5, 10);
+  Cylinder s2(5, 10);
+
+  BVHModel<AABB> s1_aabb;
+  BVHModel<AABB> s2_aabb;
+  BVHModel<OBB> s1_obb;
+  BVHModel<OBB> s2_obb;
+  BVHModel<RSS> s1_rss;
+  BVHModel<RSS> s2_rss;
+
+  generateBVHModel(s1_aabb, s1);
+  generateBVHModel(s2_aabb, s2);
+  generateBVHModel(s1_obb, s1);
+  generateBVHModel(s2_obb, s2);
+  generateBVHModel(s1_rss, s1);
+  generateBVHModel(s2_rss, s2);
+
+  std::vector<Contact> contacts;
+  bool res;
+
+  s2.setTranslation(Vec3f(9.99, 0, 0));
+  s2_aabb.setTranslation(Vec3f(9.99, 0, 0));
+  s2_obb.setTranslation(Vec3f(9.99, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+
+  s2.setTranslation(Vec3f(10.01, 0, 0));
+  s2_aabb.setTranslation(Vec3f(10.01, 0, 0));
+  s2_obb.setTranslation(Vec3f(10.01, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+}
+
+TEST(consistency_shapemesh, conecone)
+{
+  Cone s1(5, 10);
+  Cone s2(5, 10);
+
+  BVHModel<AABB> s1_aabb;
+  BVHModel<AABB> s2_aabb;
+  BVHModel<OBB> s1_obb;
+  BVHModel<OBB> s2_obb;
+  BVHModel<RSS> s1_rss;
+  BVHModel<RSS> s2_rss;
+
+  generateBVHModel(s1_aabb, s1);
+  generateBVHModel(s2_aabb, s2);
+  generateBVHModel(s1_obb, s1);
+  generateBVHModel(s2_obb, s2);
+  generateBVHModel(s1_rss, s1);
+  generateBVHModel(s2_rss, s2);
+
+  std::vector<Contact> contacts;
+  bool res;
+
+  s2.setTranslation(Vec3f(9.9, 0, 0));
+  s2_aabb.setTranslation(Vec3f(9.9, 0, 0));
+  s2_obb.setTranslation(Vec3f(9.9, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+
+  s2.setTranslation(Vec3f(10.1, 0, 0));
+  s2_aabb.setTranslation(Vec3f(10.1, 0, 0));
+  s2_obb.setTranslation(Vec3f(10.1, 0, 0));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+
+  s2.setTranslation(Vec3f(0, 0, 9.9));
+  s2_aabb.setTranslation(Vec3f(0, 0, 9.9));
+  s2_obb.setTranslation(Vec3f(0, 0, 9.9));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_TRUE(res);
+
+  s2.setTranslation(Vec3f(0, 0, 10.1));
+  s2_aabb.setTranslation(Vec3f(0, 0, 10.1));
+  s2_obb.setTranslation(Vec3f(0, 0, 10.1));
+  contacts.clear();
+  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_aabb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2_obb, &s1, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1, &s2_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_aabb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s2, &s1_obb, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
+  contacts.clear();
+  res = (collide(&s1_aabb, &s2, 1, false, false, contacts) > 0);
+  ASSERT_FALSE(res);
 }
 
 TEST(consistency, spheresphere)

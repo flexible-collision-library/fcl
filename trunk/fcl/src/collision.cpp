@@ -61,27 +61,46 @@ int collide(const CollisionObject* o1, const CollisionObject* o2,
   const OBJECT_TYPE object_type2 = o2->getObjectType();
   const NODE_TYPE node_type2 = o2->getNodeType();
 
-  if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
-  {
-    std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-    return 0;
-  }
-
 
   if(object_type1 == OT_GEOM && object_type2 == OT_GEOM)
   {
+    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
+    {
+      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+      return 0;
+    }
+
     return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1, o2, num_max_contacts, exhaustive, enable_contact, contacts);
   }
   else if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
+    if(!CollisionFunctionLookTable.collision_matrix[node_type2][node_type1])
+    {
+      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+      return 0;
+    }
+
+    //return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1, o2, num_max_contacts, exhaustive, enable_contact, contacts);
     return CollisionFunctionLookTable.collision_matrix[node_type2][node_type1](o2, o1, num_max_contacts, exhaustive, enable_contact, contacts);
   }
   else if(object_type1 == OT_BVH && object_type2 == OT_GEOM)
   {
+    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
+    {
+      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+      return 0;
+    }
+
     return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1, o2, num_max_contacts, exhaustive, enable_contact, contacts);
   }
   else if(object_type1 == OT_BVH && object_type2 == OT_BVH)
   {
+    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
+    {
+      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
+      return 0;
+    }
+
     if(node_type1 == node_type2)
     {
       return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1, o2, num_max_contacts, exhaustive, enable_contact, contacts);

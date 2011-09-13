@@ -109,6 +109,8 @@ namespace fcl
 
   template<>
   void computeBV<OBB>(const Plane& s, OBB& bv);
+
+  // TODO: implement computeBV for RSS and KDOP
 }
 
 #endif

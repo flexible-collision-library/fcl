@@ -62,7 +62,7 @@ namespace fcl
 
 
 #define MESHSHAPE_COMMON_CODE() do{ \
-                                    initialize(node, *obj1_tmp, *obj2_tmp, num_max_contacts, exhaustive, enable_contact); \
+                                    initialize(node, *obj1_tmp, *obj2, num_max_contacts, exhaustive, enable_contact); \
                                     collide(&node); \
                                     int num_contacts = node.pairs.size(); \
                                     if(num_contacts > 0) \
@@ -82,12 +82,11 @@ namespace fcl
                                     } \
                                     delete obj1_tmp; \
                                     obj1_tmp = NULL; \
-                                    delete obj2_tmp; \
-                                    obj2_tmp = NULL; \
                                     return num_contacts; \
                                    } while(0)
 
-#define MESHSHAPEOBBRSS_COMMON_CODE() do{ \
+
+#define SHAPEMESH_COMMON_CODE() do{ \
                                     initialize(node, *obj1, *obj2_tmp, num_max_contacts, exhaustive, enable_contact); \
                                     collide(&node); \
                                     int num_contacts = node.pairs.size(); \
@@ -111,7 +110,27 @@ namespace fcl
                                     return num_contacts; \
                                    } while(0)
 
-
+#define MESHSHAPEOBBRSS_COMMON_CODE() do{ \
+                                    initialize(node, *obj1, *obj2, num_max_contacts, exhaustive, enable_contact); \
+                                    collide(&node); \
+                                    int num_contacts = node.pairs.size(); \
+                                    if(num_contacts > 0) \
+                                    { \
+                                      if((!exhaustive) && (num_contacts > num_max_contacts)) num_contacts = num_max_contacts; \
+                                      contacts.resize(num_contacts); \
+                                      if(!enable_contact) \
+                                      { \
+                                        for(int i = 0; i < num_contacts; ++i) \
+                                          contacts[i] = Contact(obj1, obj2, node.pairs[i].id, 0); \
+                                      } \
+                                      else \
+                                      { \
+                                        for(int i = 0; i < num_contacts; ++i) \
+                                          contacts[i] = Contact(obj1, obj2, node.pairs[i].id, 0, node.pairs[i].contact_point, node.pairs[i].normal, node.pairs[i].penetration_depth); \
+                                      } \
+                                    } \
+                                    return num_contacts; \
+                                   } while(0)
 
 #define MESHMESH_COMMON_CODE() do{ \
                                     initialize(node, *obj1_tmp, *obj2_tmp, num_max_contacts, exhaustive, enable_contact); \
@@ -566,7 +585,6 @@ int AABBBoxCollide(const CollisionObject* o1, const CollisionObject* o2, int num
   const BVHModel<AABB>* obj1 = (BVHModel<AABB>*)o1;
   BVHModel<AABB>* obj1_tmp = new BVHModel<AABB>(*obj1);
   const Box* obj2 = (Box*)o2;
-  Box* obj2_tmp = new Box(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -576,7 +594,6 @@ int AABBSphereCollide(const CollisionObject* o1, const CollisionObject* o2, int 
   const BVHModel<AABB>* obj1 = (BVHModel<AABB>*)o1;
   BVHModel<AABB>* obj1_tmp = new BVHModel<AABB>(*obj1);
   const Sphere* obj2 = (Sphere*)o2;
-  Sphere* obj2_tmp = new Sphere(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -586,7 +603,6 @@ int AABBCapCollide(const CollisionObject* o1, const CollisionObject* o2, int num
   const BVHModel<AABB>* obj1 = (BVHModel<AABB>*)o1;
   BVHModel<AABB>* obj1_tmp = new BVHModel<AABB>(*obj1);
   const Capsule* obj2 = (Capsule*)o2;
-  Capsule* obj2_tmp = new Capsule(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -596,7 +612,6 @@ int AABBConeCollide(const CollisionObject* o1, const CollisionObject* o2, int nu
   const BVHModel<AABB>* obj1 = (BVHModel<AABB>*)o1;
   BVHModel<AABB>* obj1_tmp = new BVHModel<AABB>(*obj1);
   const Cone* obj2 = (Cone*)o2;
-  Cone* obj2_tmp = new Cone(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -606,7 +621,6 @@ int AABBCylinderCollide(const CollisionObject* o1, const CollisionObject* o2, in
   const BVHModel<AABB>* obj1 = (BVHModel<AABB>*)o1;
   BVHModel<AABB>* obj1_tmp = new BVHModel<AABB>(*obj1);
   const Cylinder* obj2 = (Cylinder*)o2;
-  Cylinder* obj2_tmp = new Cylinder(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -616,7 +630,6 @@ int AABBConvexCollide(const CollisionObject* o1, const CollisionObject* o2, int 
   const BVHModel<AABB>* obj1 = (BVHModel<AABB>*)o1;
   BVHModel<AABB>* obj1_tmp = new BVHModel<AABB>(*obj1);
   const Convex* obj2 = (Convex*)o2;
-  Convex* obj2_tmp = new Convex(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -626,7 +639,6 @@ int AABBPlaneCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<AABB>* obj1 = (BVHModel<AABB>*)o1;
   BVHModel<AABB>* obj1_tmp = new BVHModel<AABB>(*obj1);
   const Plane* obj2 = (Plane*)o2;
-  Plane* obj2_tmp = new Plane(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -635,7 +647,6 @@ int OBBBoxCollide(const CollisionObject* o1, const CollisionObject* o2, int num_
   MeshShapeCollisionTraversalNodeOBB<Box> node;
   const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
   const Box* obj2 = (Box*)o2;
-  Box* obj2_tmp = new Box(*obj2);
   MESHSHAPEOBBRSS_COMMON_CODE();
 }
 
@@ -644,7 +655,6 @@ int OBBSphereCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   MeshShapeCollisionTraversalNodeOBB<Sphere> node;
   const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
   const Sphere* obj2 = (Sphere*)o2;
-  Sphere* obj2_tmp = new Sphere(*obj2);
   MESHSHAPEOBBRSS_COMMON_CODE();
 }
 
@@ -653,7 +663,6 @@ int OBBCapCollide(const CollisionObject* o1, const CollisionObject* o2, int num_
   MeshShapeCollisionTraversalNodeOBB<Capsule> node;
   const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
   const Capsule* obj2 = (Capsule*)o2;
-  Capsule* obj2_tmp = new Capsule(*obj2);
   MESHSHAPEOBBRSS_COMMON_CODE();
 }
 
@@ -662,7 +671,6 @@ int OBBConeCollide(const CollisionObject* o1, const CollisionObject* o2, int num
   MeshShapeCollisionTraversalNodeOBB<Cone> node;
   const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
   const Cone* obj2 = (Cone*)o2;
-  Cone* obj2_tmp = new Cone(*obj2);
   MESHSHAPEOBBRSS_COMMON_CODE();
 }
 
@@ -671,7 +679,6 @@ int OBBCylinderCollide(const CollisionObject* o1, const CollisionObject* o2, int
   MeshShapeCollisionTraversalNodeOBB<Cylinder> node;
   const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
   const Cylinder* obj2 = (Cylinder*)o2;
-  Cylinder* obj2_tmp = new Cylinder(*obj2);
   MESHSHAPEOBBRSS_COMMON_CODE();
 }
 
@@ -680,7 +687,6 @@ int OBBConvexCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   MeshShapeCollisionTraversalNodeOBB<Convex> node;
   const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
   const Convex* obj2 = (Convex*)o2;
-  Convex* obj2_tmp = new Convex(*obj2);
   MESHSHAPEOBBRSS_COMMON_CODE();
 }
 
@@ -689,7 +695,6 @@ int OBBPlaneCollide(const CollisionObject* o1, const CollisionObject* o2, int nu
   MeshShapeCollisionTraversalNodeOBB<Plane> node;
   const BVHModel<OBB>* obj1 = (BVHModel<OBB>*)o1;
   const Plane* obj2 = (Plane*)o2;
-  Plane* obj2_tmp = new Plane(*obj2);
   MESHSHAPEOBBRSS_COMMON_CODE();
 }
 
@@ -699,7 +704,6 @@ int RSSBoxCollide(const CollisionObject* o1, const CollisionObject* o2, int num_
   const BVHModel<RSS>* obj1 = (BVHModel<RSS>*)o1;
   BVHModel<RSS>* obj1_tmp = new BVHModel<RSS>(*obj1);
   const Box* obj2 = (Box*)o2;
-  Box* obj2_tmp = new Box(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -709,7 +713,6 @@ int RSSSphereCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<RSS>* obj1 = (BVHModel<RSS>*)o1;
   BVHModel<RSS>* obj1_tmp = new BVHModel<RSS>(*obj1);
   const Sphere* obj2 = (Sphere*)o2;
-  Sphere* obj2_tmp = new Sphere(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -719,7 +722,6 @@ int RSSCapCollide(const CollisionObject* o1, const CollisionObject* o2, int num_
   const BVHModel<RSS>* obj1 = (BVHModel<RSS>*)o1;
   BVHModel<RSS>* obj1_tmp = new BVHModel<RSS>(*obj1);
   const Capsule* obj2 = (Capsule*)o2;
-  Capsule* obj2_tmp = new Capsule(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -729,7 +731,6 @@ int RSSConeCollide(const CollisionObject* o1, const CollisionObject* o2, int num
   const BVHModel<RSS>* obj1 = (BVHModel<RSS>*)o1;
   BVHModel<RSS>* obj1_tmp = new BVHModel<RSS>(*obj1);
   const Cone* obj2 = (Cone*)o2;
-  Cone* obj2_tmp = new Cone(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -739,7 +740,6 @@ int RSSCylinderCollide(const CollisionObject* o1, const CollisionObject* o2, int
   const BVHModel<RSS>* obj1 = (BVHModel<RSS>*)o1;
   BVHModel<RSS>* obj1_tmp = new BVHModel<RSS>(*obj1);
   const Cylinder* obj2 = (Cylinder*)o2;
-  Cylinder* obj2_tmp = new Cylinder(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -749,7 +749,6 @@ int RSSConvexCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<RSS>* obj1 = (BVHModel<RSS>*)o1;
   BVHModel<RSS>* obj1_tmp = new BVHModel<RSS>(*obj1);
   const Convex* obj2 = (Convex*)o2;
-  Convex* obj2_tmp = new Convex(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -759,7 +758,6 @@ int RSSPlaneCollide(const CollisionObject* o1, const CollisionObject* o2, int nu
   const BVHModel<RSS>* obj1 = (BVHModel<RSS>*)o1;
   BVHModel<RSS>* obj1_tmp = new BVHModel<RSS>(*obj1);
   const Plane* obj2 = (Plane*)o2;
-  Plane* obj2_tmp = new Plane(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -769,7 +767,6 @@ int KDOP16BoxCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<KDOP<16> >* obj1 = (BVHModel<KDOP<16> >*)o1;
   BVHModel<KDOP<16> >* obj1_tmp = new BVHModel<KDOP<16> >(*obj1);
   const Box* obj2 = (Box*)o2;
-  Box* obj2_tmp = new Box(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -779,7 +776,6 @@ int KDOP16SphereCollide(const CollisionObject* o1, const CollisionObject* o2, in
   const BVHModel<KDOP<16> >* obj1 = (BVHModel<KDOP<16> >*)o1;
   BVHModel<KDOP<16> >* obj1_tmp = new BVHModel<KDOP<16> >(*obj1);
   const Sphere* obj2 = (Sphere*)o2;
-  Sphere* obj2_tmp = new Sphere(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -789,7 +785,6 @@ int KDOP16CapCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<KDOP<16> >* obj1 = (BVHModel<KDOP<16> >*)o1;
   BVHModel<KDOP<16> >* obj1_tmp = new BVHModel<KDOP<16> >(*obj1);
   const Capsule* obj2 = (Capsule*)o2;
-  Capsule* obj2_tmp = new Capsule(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -799,7 +794,6 @@ int KDOP16ConeCollide(const CollisionObject* o1, const CollisionObject* o2, int 
   const BVHModel<KDOP<16> >* obj1 = (BVHModel<KDOP<16> >*)o1;
   BVHModel<KDOP<16> >* obj1_tmp = new BVHModel<KDOP<16> >(*obj1);
   const Cone* obj2 = (Cone*)o2;
-  Cone* obj2_tmp = new Cone(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -809,7 +803,6 @@ int KDOP16CylinderCollide(const CollisionObject* o1, const CollisionObject* o2, 
   const BVHModel<KDOP<16> >* obj1 = (BVHModel<KDOP<16> >*)o1;
   BVHModel<KDOP<16> >* obj1_tmp = new BVHModel<KDOP<16> >(*obj1);
   const Cylinder* obj2 = (Cylinder*)o2;
-  Cylinder* obj2_tmp = new Cylinder(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -819,7 +812,6 @@ int KDOP16ConvexCollide(const CollisionObject* o1, const CollisionObject* o2, in
   const BVHModel<KDOP<16> >* obj1 = (BVHModel<KDOP<16> >*)o1;
   BVHModel<KDOP<16> >* obj1_tmp = new BVHModel<KDOP<16> >(*obj1);
   const Convex* obj2 = (Convex*)o2;
-  Convex* obj2_tmp = new Convex(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -829,7 +821,6 @@ int KDOP16PlaneCollide(const CollisionObject* o1, const CollisionObject* o2, int
   const BVHModel<KDOP<16> >* obj1 = (BVHModel<KDOP<16> >*)o1;
   BVHModel<KDOP<16> >* obj1_tmp = new BVHModel<KDOP<16> >(*obj1);
   const Plane* obj2 = (Plane*)o2;
-  Plane* obj2_tmp = new Plane(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -839,7 +830,6 @@ int KDOP18BoxCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<KDOP<18> >* obj1 = (BVHModel<KDOP<18> >*)o1;
   BVHModel<KDOP<18> >* obj1_tmp = new BVHModel<KDOP<18> >(*obj1);
   const Box* obj2 = (Box*)o2;
-  Box* obj2_tmp = new Box(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -849,7 +839,6 @@ int KDOP18SphereCollide(const CollisionObject* o1, const CollisionObject* o2, in
   const BVHModel<KDOP<18> >* obj1 = (BVHModel<KDOP<18> >*)o1;
   BVHModel<KDOP<18> >* obj1_tmp = new BVHModel<KDOP<18> >(*obj1);
   const Sphere* obj2 = (Sphere*)o2;
-  Sphere* obj2_tmp = new Sphere(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -859,7 +848,6 @@ int KDOP18CapCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<KDOP<18> >* obj1 = (BVHModel<KDOP<18> >*)o1;
   BVHModel<KDOP<18> >* obj1_tmp = new BVHModel<KDOP<18> >(*obj1);
   const Capsule* obj2 = (Capsule*)o2;
-  Capsule* obj2_tmp = new Capsule(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -869,7 +857,6 @@ int KDOP18ConeCollide(const CollisionObject* o1, const CollisionObject* o2, int 
   const BVHModel<KDOP<18> >* obj1 = (BVHModel<KDOP<18> >*)o1;
   BVHModel<KDOP<18> >* obj1_tmp = new BVHModel<KDOP<18> >(*obj1);
   const Cone* obj2 = (Cone*)o2;
-  Cone* obj2_tmp = new Cone(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -879,7 +866,6 @@ int KDOP18CylinderCollide(const CollisionObject* o1, const CollisionObject* o2, 
   const BVHModel<KDOP<18> >* obj1 = (BVHModel<KDOP<18> >*)o1;
   BVHModel<KDOP<18> >* obj1_tmp = new BVHModel<KDOP<18> >(*obj1);
   const Cylinder* obj2 = (Cylinder*)o2;
-  Cylinder* obj2_tmp = new Cylinder(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -889,7 +875,6 @@ int KDOP18ConvexCollide(const CollisionObject* o1, const CollisionObject* o2, in
   const BVHModel<KDOP<18> >* obj1 = (BVHModel<KDOP<18> >*)o1;
   BVHModel<KDOP<18> >* obj1_tmp = new BVHModel<KDOP<18> >(*obj1);
   const Convex* obj2 = (Convex*)o2;
-  Convex* obj2_tmp = new Convex(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -899,7 +884,6 @@ int KDOP18PlaneCollide(const CollisionObject* o1, const CollisionObject* o2, int
   const BVHModel<KDOP<18> >* obj1 = (BVHModel<KDOP<18> >*)o1;
   BVHModel<KDOP<18> >* obj1_tmp = new BVHModel<KDOP<18> >(*obj1);
   const Plane* obj2 = (Plane*)o2;
-  Plane* obj2_tmp = new Plane(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -909,7 +893,6 @@ int KDOP24BoxCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<KDOP<24> >* obj1 = (BVHModel<KDOP<24> >*)o1;
   BVHModel<KDOP<24> >* obj1_tmp = new BVHModel<KDOP<24> >(*obj1);
   const Box* obj2 = (Box*)o2;
-  Box* obj2_tmp = new Box(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -919,7 +902,6 @@ int KDOP24SphereCollide(const CollisionObject* o1, const CollisionObject* o2, in
   const BVHModel<KDOP<24> >* obj1 = (BVHModel<KDOP<24> >*)o1;
   BVHModel<KDOP<24> >* obj1_tmp = new BVHModel<KDOP<24> >(*obj1);
   const Sphere* obj2 = (Sphere*)o2;
-  Sphere* obj2_tmp = new Sphere(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -929,7 +911,6 @@ int KDOP24CapCollide(const CollisionObject* o1, const CollisionObject* o2, int n
   const BVHModel<KDOP<24> >* obj1 = (BVHModel<KDOP<24> >*)o1;
   BVHModel<KDOP<24> >* obj1_tmp = new BVHModel<KDOP<24> >(*obj1);
   const Capsule* obj2 = (Capsule*)o2;
-  Capsule* obj2_tmp = new Capsule(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -939,7 +920,6 @@ int KDOP24ConeCollide(const CollisionObject* o1, const CollisionObject* o2, int 
   const BVHModel<KDOP<24> >* obj1 = (BVHModel<KDOP<24> >*)o1;
   BVHModel<KDOP<24> >* obj1_tmp = new BVHModel<KDOP<24> >(*obj1);
   const Cone* obj2 = (Cone*)o2;
-  Cone* obj2_tmp = new Cone(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -949,7 +929,6 @@ int KDOP24CylinderCollide(const CollisionObject* o1, const CollisionObject* o2, 
   const BVHModel<KDOP<24> >* obj1 = (BVHModel<KDOP<24> >*)o1;
   BVHModel<KDOP<24> >* obj1_tmp = new BVHModel<KDOP<24> >(*obj1);
   const Cylinder* obj2 = (Cylinder*)o2;
-  Cylinder* obj2_tmp = new Cylinder(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -959,7 +938,6 @@ int KDOP24ConvexCollide(const CollisionObject* o1, const CollisionObject* o2, in
   const BVHModel<KDOP<24> >* obj1 = (BVHModel<KDOP<24> >*)o1;
   BVHModel<KDOP<24> >* obj1_tmp = new BVHModel<KDOP<24> >(*obj1);
   const Convex* obj2 = (Convex*)o2;
-  Convex* obj2_tmp = new Convex(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
 
@@ -969,9 +947,383 @@ int KDOP24PlaneCollide(const CollisionObject* o1, const CollisionObject* o2, int
   const BVHModel<KDOP<24> >* obj1 = (BVHModel<KDOP<24> >*)o1;
   BVHModel<KDOP<24> >* obj1_tmp = new BVHModel<KDOP<24> >(*obj1);
   const Plane* obj2 = (Plane*)o2;
-  Plane* obj2_tmp = new Plane(*obj2);
   MESHSHAPE_COMMON_CODE();
 }
+
+
+/*
+int BoxAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Box, AABB> node;
+  const Box* obj1 = (Box*)o1;
+  const BVHModel<AABB>* obj2 = (BVHModel<AABB>*)o2;
+  BVHModel<AABB>* obj2_tmp = new BVHModel<AABB>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int SphereAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Sphere, AABB> node;
+  const Sphere* obj1 = (Sphere*)o1;
+  const BVHModel<AABB>* obj2 = (BVHModel<AABB>*)o2;
+  BVHModel<AABB>* obj2_tmp = new BVHModel<AABB>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CapAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Capsule, AABB> node;
+  const Capsule* obj1 = (Capsule*)o1;
+  const BVHModel<AABB>* obj2 = (BVHModel<AABB>*)o2;
+  BVHModel<AABB>* obj2_tmp = new BVHModel<AABB>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConeAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cone, AABB> node;
+  const Cone* obj1 = (Cone*)o1;
+  const BVHModel<AABB>* obj2 = (BVHModel<AABB>*)o2;
+  BVHModel<AABB>* obj2_tmp = new BVHModel<AABB>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CylinderAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cylinder, AABB> node;
+  const Cylinder* obj1 = (Cylinder*)o1;
+  const BVHModel<AABB>* obj2 = (BVHModel<AABB>*)o2;
+  BVHModel<AABB>* obj2_tmp = new BVHModel<AABB>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConvexAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Convex, AABB> node;
+  const Convex* obj1 = (Convex*)o1;
+  const BVHModel<AABB>* obj2 = (BVHModel<AABB>*)o2;
+  BVHModel<AABB>* obj2_tmp = new BVHModel<AABB>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int PlaneAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Plane, AABB> node;
+  const Plane* obj1 = (Plane*)o1;
+  const BVHModel<AABB>* obj2 = (BVHModel<AABB>*)o2;
+  BVHModel<AABB>* obj2_tmp = new BVHModel<AABB>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int BoxOBBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNodeOBB<Box> node;
+  const Box* obj1 = (Box*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+  MESHSHAPEOBBRSS_COMMON_CODE();
+}
+
+int SphereOBBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNodeOBB<Sphere> node;
+  const Sphere* obj1 = (Sphere*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+  MESHSHAPEOBBRSS_COMMON_CODE();
+}
+
+int CapOBBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNodeOBB<Capsule> node;
+  const Capsule* obj1 = (Capsule*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+  MESHSHAPEOBBRSS_COMMON_CODE();
+}
+
+int ConeOBBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNodeOBB<Cone> node;
+  const Cone* obj1 = (Cone*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+  MESHSHAPEOBBRSS_COMMON_CODE();
+}
+
+int CylinderOBBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNodeOBB<Cylinder> node;
+  const Cylinder* obj1 = (Cylinder*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+  MESHSHAPEOBBRSS_COMMON_CODE();
+}
+
+int ConvexOBBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNodeOBB<Convex> node;
+  const Convex* obj1 = (Convex*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+  MESHSHAPEOBBRSS_COMMON_CODE();
+}
+
+int PlaneOBBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNodeOBB<Plane> node;
+  const Plane* obj1 = (Plane*)o1;
+  const BVHModel<OBB>* obj2 = (BVHModel<OBB>*)o2;
+  MESHSHAPEOBBRSS_COMMON_CODE();
+}
+
+int BoxRSSCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Box, RSS> node;
+  const Box* obj1 = (Box*)o1;
+  const BVHModel<RSS>* obj2 = (BVHModel<RSS>*)o2;
+  BVHModel<RSS>* obj2_tmp = new BVHModel<RSS>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int SphereRSSCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Sphere, RSS> node;
+  const Sphere* obj1 = (Sphere*)o1;
+  const BVHModel<RSS>* obj2 = (BVHModel<RSS>*)o2;
+  BVHModel<RSS>* obj2_tmp = new BVHModel<RSS>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CapRSSCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Capsule, RSS> node;
+  const Capsule* obj1 = (Capsule*)o1;
+  const BVHModel<RSS>* obj2 = (BVHModel<RSS>*)o2;
+  BVHModel<RSS>* obj2_tmp = new BVHModel<RSS>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConeRSSCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cone, RSS> node;
+  const Cone* obj1 = (Cone*)o1;
+  const BVHModel<RSS>* obj2 = (BVHModel<RSS>*)o2;
+  BVHModel<RSS>* obj2_tmp = new BVHModel<RSS>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CylinderRSSCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cylinder, RSS> node;
+  const Cylinder* obj1 = (Cylinder*)o1;
+  const BVHModel<RSS>* obj2 = (BVHModel<RSS>*)o2;
+  BVHModel<RSS>* obj2_tmp = new BVHModel<RSS>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConvexRSSCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Convex, RSS> node;
+  const Convex* obj1 = (Convex*)o1;
+  const BVHModel<RSS>* obj2 = (BVHModel<RSS>*)o2;
+  BVHModel<RSS>* obj2_tmp = new BVHModel<RSS>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int PlaneRSSCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Plane, RSS> node;
+  const Plane* obj1 = (Plane*)o1;
+  const BVHModel<RSS>* obj2 = (BVHModel<RSS>*)o2;
+  BVHModel<RSS>* obj2_tmp = new BVHModel<RSS>(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int BoxKDOP16Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Box, KDOP<16> > node;
+  const Box* obj1 = (Box*)o1;
+  const BVHModel<KDOP<16> >* obj2 = (BVHModel<KDOP<16> >*)o2;
+  BVHModel<KDOP<16> >* obj2_tmp = new BVHModel<KDOP<16> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int SphereKDOP16Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Sphere, KDOP<16> > node;
+  const Sphere* obj1 = (Sphere*)o1;
+  const BVHModel<KDOP<16> >* obj2 = (BVHModel<KDOP<16> >*)o2;
+  BVHModel<KDOP<16> >* obj2_tmp = new BVHModel<KDOP<16> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CapKDOP16Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Capsule, KDOP<16> > node;
+  const Capsule* obj1 = (Capsule*)o1;
+  const BVHModel<KDOP<16> >* obj2 = (BVHModel<KDOP<16> >*)o2;
+  BVHModel<KDOP<16> >* obj2_tmp = new BVHModel<KDOP<16> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConeKDOP16Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cone, KDOP<16> > node;
+  const Cone* obj1 = (Cone*)o1;
+  const BVHModel<KDOP<16> >* obj2 = (BVHModel<KDOP<16> >*)o2;
+  BVHModel<KDOP<16> >* obj2_tmp = new BVHModel<KDOP<16> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CylinderKDOP16Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cylinder, KDOP<16> > node;
+  const Cylinder* obj1 = (Cylinder*)o1;
+  const BVHModel<KDOP<16> >* obj2 = (BVHModel<KDOP<16> >*)o2;
+  BVHModel<KDOP<16> >* obj2_tmp = new BVHModel<KDOP<16> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConvexKDOP16Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Convex, KDOP<16> > node;
+  const Convex* obj1 = (Convex*)o1;
+  const BVHModel<KDOP<16> >* obj2 = (BVHModel<KDOP<16> >*)o2;
+  BVHModel<KDOP<16> >* obj2_tmp = new BVHModel<KDOP<16> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int PlaneKDOP16Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Plane, KDOP<16> > node;
+  const Plane* obj1 = (Plane*)o1;
+  const BVHModel<KDOP<16> >* obj2 = (BVHModel<KDOP<16> >*)o2;
+  BVHModel<KDOP<16> >* obj2_tmp = new BVHModel<KDOP<16> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int BoxKDOP18Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Box, KDOP<18> > node;
+  const Box* obj1 = (Box*)o1;
+  const BVHModel<KDOP<18> >* obj2 = (BVHModel<KDOP<18> >*)o2;
+  BVHModel<KDOP<18> >* obj2_tmp = new BVHModel<KDOP<18> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int SphereKDOP18Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Sphere, KDOP<18> > node;
+  const Sphere* obj1 = (Sphere*)o1;
+  const BVHModel<KDOP<18> >* obj2 = (BVHModel<KDOP<18> >*)o2;
+  BVHModel<KDOP<18> >* obj2_tmp = new BVHModel<KDOP<18> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CapKDOP18Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Capsule, KDOP<18> > node;
+  const Capsule* obj1 = (Capsule*)o1;
+  const BVHModel<KDOP<18> >* obj2 = (BVHModel<KDOP<18> >*)o2;
+  BVHModel<KDOP<18> >* obj2_tmp = new BVHModel<KDOP<18> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConeKDOP18Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cone, KDOP<18> > node;
+  const Cone* obj1 = (Cone*)o1;
+  const BVHModel<KDOP<18> >* obj2 = (BVHModel<KDOP<18> >*)o2;
+  BVHModel<KDOP<18> >* obj2_tmp = new BVHModel<KDOP<18> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CylinderKDOP18Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cylinder, KDOP<18> > node;
+  const Cylinder* obj1 = (Cylinder*)o1;
+  const BVHModel<KDOP<18> >* obj2 = (BVHModel<KDOP<18> >*)o2;
+  BVHModel<KDOP<18> >* obj2_tmp = new BVHModel<KDOP<18> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConvexKDOP18Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Convex, KDOP<18> > node;
+  const Convex* obj1 = (Convex*)o1;
+  const BVHModel<KDOP<18> >* obj2 = (BVHModel<KDOP<18> >*)o2;
+  BVHModel<KDOP<18> >* obj2_tmp = new BVHModel<KDOP<18> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int PlaneKDOP18Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Plane, KDOP<18> > node;
+  const Plane* obj1 = (Plane*)o1;
+  const BVHModel<KDOP<18> >* obj2 = (BVHModel<KDOP<18> >*)o2;
+  BVHModel<KDOP<18> >* obj2_tmp = new BVHModel<KDOP<18> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int BoxKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Box, KDOP<24> > node;
+  const Box* obj1 = (Box*)o1;
+  const BVHModel<KDOP<24> >* obj2 = (BVHModel<KDOP<24> >*)o2;
+  BVHModel<KDOP<24> >* obj2_tmp = new BVHModel<KDOP<24> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int SphereKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Sphere, KDOP<24> > node;
+  const Sphere* obj1 = (Sphere*)o1;
+  const BVHModel<KDOP<24> >* obj2 = (BVHModel<KDOP<24> >*)o2;
+  BVHModel<KDOP<24> >* obj2_tmp = new BVHModel<KDOP<24> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CapKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Capsule, KDOP<24> > node;
+  const Capsule* obj1 = (Capsule*)o1;
+  const BVHModel<KDOP<24> >* obj2 = (BVHModel<KDOP<24> >*)o2;
+  BVHModel<KDOP<24> >* obj2_tmp = new BVHModel<KDOP<24> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConeKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cone, KDOP<24> > node;
+  const Cone* obj1 = (Cone*)o1;
+  const BVHModel<KDOP<24> >* obj2 = (BVHModel<KDOP<24> >*)o2;
+  BVHModel<KDOP<24> >* obj2_tmp = new BVHModel<KDOP<24> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int CylinderKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Cylinder, KDOP<24> > node;
+  const Cylinder* obj1 = (Cylinder*)o1;
+  const BVHModel<KDOP<24> >* obj2 = (BVHModel<KDOP<24> >*)o2;
+  BVHModel<KDOP<24> >* obj2_tmp = new BVHModel<KDOP<24> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int ConvexKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Convex, KDOP<24> > node;
+  const Convex* obj1 = (Convex*)o1;
+  const BVHModel<KDOP<24> >* obj2 = (BVHModel<KDOP<24> >*)o2;
+  BVHModel<KDOP<24> >* obj2_tmp = new BVHModel<KDOP<24> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+int PlaneKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  ShapeMeshCollisionTraversalNode<Plane, KDOP<24> > node;
+  const Plane* obj1 = (Plane*)o1;
+  const BVHModel<KDOP<24> >* obj2 = (BVHModel<KDOP<24> >*)o2;
+  BVHModel<KDOP<24> >* obj2_tmp = new BVHModel<KDOP<24> >(*obj2);
+  SHAPEMESH_COMMON_CODE();
+}
+
+*/
 
 int AABBAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
@@ -1141,7 +1493,55 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_KDOP24][GEOM_CYLINDER] = KDOP24CylinderCollide;
   collision_matrix[BV_KDOP24][GEOM_CONVEX] = KDOP24ConvexCollide;
   collision_matrix[BV_KDOP24][GEOM_PLANE] = KDOP24PlaneCollide;
+/*
+  collision_matrix[GEOM_BOX][BV_AABB] = BoxAABBCollide;
+  collision_matrix[GEOM_SPHERE][BV_AABB] = SphereAABBCollide;
+  collision_matrix[GEOM_CAPSULE][BV_AABB] = CapAABBCollide;
+  collision_matrix[GEOM_CONE][BV_AABB] = ConeAABBCollide;
+  collision_matrix[GEOM_CYLINDER][BV_AABB] = CylinderAABBCollide;
+  collision_matrix[GEOM_CONVEX][BV_AABB] = ConvexAABBCollide;
+  collision_matrix[GEOM_PLANE][BV_AABB] = PlaneAABBCollide;
 
+  collision_matrix[GEOM_BOX][BV_OBB] = BoxOBBCollide;
+  collision_matrix[GEOM_SPHERE][BV_OBB] = SphereOBBCollide;
+  collision_matrix[GEOM_CAPSULE][BV_OBB] = CapOBBCollide;
+  collision_matrix[GEOM_CONE][BV_OBB] = ConeOBBCollide;
+  collision_matrix[GEOM_CYLINDER][BV_OBB] = CylinderOBBCollide;
+  collision_matrix[GEOM_CONVEX][BV_OBB] = ConvexOBBCollide;
+  collision_matrix[GEOM_PLANE][BV_OBB] = PlaneOBBCollide;
+
+  collision_matrix[GEOM_BOX][BV_RSS] = BoxRSSCollide;
+  collision_matrix[GEOM_SPHERE][BV_RSS] = SphereRSSCollide;
+  collision_matrix[GEOM_CAPSULE][BV_RSS] = CapRSSCollide;
+  collision_matrix[GEOM_CONE][BV_RSS] = ConeRSSCollide;
+  collision_matrix[GEOM_CYLINDER][BV_RSS] = CylinderRSSCollide;
+  collision_matrix[GEOM_CONVEX][BV_RSS] = ConvexRSSCollide;
+  collision_matrix[GEOM_PLANE][BV_RSS] = PlaneRSSCollide;
+
+  collision_matrix[GEOM_BOX][BV_KDOP16] = BoxKDOP16Collide;
+  collision_matrix[GEOM_SPHERE][BV_KDOP16] = SphereKDOP16Collide;
+  collision_matrix[GEOM_CAPSULE][BV_KDOP16] = CapKDOP16Collide;
+  collision_matrix[GEOM_CONE][BV_KDOP16] = ConeKDOP16Collide;
+  collision_matrix[GEOM_CYLINDER][BV_KDOP16] = CylinderKDOP16Collide;
+  collision_matrix[GEOM_CONVEX][BV_KDOP16] = ConvexKDOP16Collide;
+  collision_matrix[GEOM_PLANE][BV_KDOP16] = PlaneKDOP16Collide;
+
+  collision_matrix[GEOM_BOX][BV_KDOP18] = BoxKDOP18Collide;
+  collision_matrix[GEOM_SPHERE][BV_KDOP18] = SphereKDOP18Collide;
+  collision_matrix[GEOM_CAPSULE][BV_KDOP18] = CapKDOP18Collide;
+  collision_matrix[GEOM_CONE][BV_KDOP18] = ConeKDOP18Collide;
+  collision_matrix[GEOM_CYLINDER][BV_KDOP18] = CylinderKDOP18Collide;
+  collision_matrix[GEOM_CONVEX][BV_KDOP18] = ConvexKDOP18Collide;
+  collision_matrix[GEOM_PLANE][BV_KDOP18] = PlaneKDOP18Collide;
+
+  collision_matrix[GEOM_BOX][BV_KDOP24] = BoxKDOP24Collide;
+  collision_matrix[GEOM_SPHERE][BV_KDOP24] = SphereKDOP24Collide;
+  collision_matrix[GEOM_CAPSULE][BV_KDOP24] = CapKDOP24Collide;
+  collision_matrix[GEOM_CONE][BV_KDOP24] = ConeKDOP24Collide;
+  collision_matrix[GEOM_CYLINDER][BV_KDOP24] = CylinderKDOP24Collide;
+  collision_matrix[GEOM_CONVEX][BV_KDOP24] = ConvexKDOP24Collide;
+  collision_matrix[GEOM_PLANE][BV_KDOP24] = PlaneKDOP24Collide;
+*/
   collision_matrix[BV_AABB][BV_AABB] = AABBAABBCollide;
   collision_matrix[BV_OBB][BV_OBB] = OBBOBBCollide;
   collision_matrix[BV_RSS][BV_RSS] = RSSRSSCollide;

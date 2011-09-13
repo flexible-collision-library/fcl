@@ -131,7 +131,7 @@ public:
     if(this->enable_statistics) num_bv_tests++;
     BV bv_shape;
     computeBV(*model1, bv_shape);
-    return !model2->getBV(b2).overlap(bv_shape);
+    return !model2->getBV(b2).bv.overlap(bv_shape);
   }
 
   const S* model1;
@@ -294,6 +294,127 @@ public:
   Vec3f R[3];
   Vec3f T;
 };
+
+
+template<typename S, typename BV>
+class ShapeMeshCollisionTraversalNode : public ShapeBVHCollisionTraversalNode<S, BV>
+{
+public:
+  ShapeMeshCollisionTraversalNode() : ShapeBVHCollisionTraversalNode<S, BV>()
+  {
+    vertices = NULL;
+    tri_indices = NULL;
+
+    num_max_contacts = 1;
+    exhaustive = false;
+    enable_contact = false;
+  }
+
+  void leafTesting(int b1, int b2) const
+  {
+    if(this->enable_statistics) this->num_leaf_tests++;
+    const BVNode<BV>& node = this->model2->getBV(b2);
+
+    int primitive_id = node.primitiveId();
+
+    const Triangle& tri_id = tri_indices[primitive_id];
+
+    const Vec3f& p1 = vertices[tri_id[0]];
+    const Vec3f& p2 = vertices[tri_id[1]];
+    const Vec3f& p3 = vertices[tri_id[2]];
+
+    BVH_REAL penetration;
+    Vec3f normal;
+    Vec3f contactp;
+
+    if(!enable_contact) // only interested in collision or not
+    {
+      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3))
+      {
+        pairs.push_back(BVHShapeCollisionPair(primitive_id));
+      }
+    }
+    else
+    {
+      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3, &contactp, &penetration, &normal))
+      {
+        pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
+      }
+    }
+  }
+
+  bool canStop() const
+  {
+    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+  }
+
+  Vec3f* vertices;
+  Triangle* tri_indices;
+
+  int num_max_contacts;
+  bool exhaustive;
+  bool enable_contact;
+
+  mutable std::vector<BVHShapeCollisionPair> pairs;
+};
+
+template<typename S>
+class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB>
+{
+public:
+  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB>()
+  {
+    R[0] = Vec3f(1, 0, 0);
+    R[1] = Vec3f(0, 1, 0);
+    R[2] = Vec3f(0, 0, 1);
+  }
+
+  bool BVTesting(int b1, int b2) const
+  {
+    if(this->enable_statistics) this->num_bv_tests++;
+    OBB bv_shape;
+    computeBV(*this->model1, bv_shape);
+    return !overlap(R, T, bv_shape, this->model2->getBV(b2).bv);
+  }
+
+  void leafTesting(int b1, int b2) const
+  {
+    if(this->enable_statistics) this->num_leaf_tests++;
+    const BVNode<OBB>& node = this->model2->getBV(b2);
+
+    int primitive_id = node.primitiveId();
+
+    const Triangle& tri_id = this->tri_indices[primitive_id];
+
+    const Vec3f& p1 = this->vertices[tri_id[0]];
+    const Vec3f& p2 = this->vertices[tri_id[1]];
+    const Vec3f& p3 = this->vertices[tri_id[2]];
+
+    BVH_REAL penetration;
+    Vec3f normal;
+    Vec3f contactp;
+
+    if(!this->enable_contact) // only interested in collision or not
+    {
+      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3, R, T))
+      {
+        this->pairs.push_back(BVHShapeCollisionPair(primitive_id));
+      }
+    }
+    else
+    {
+      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3, R, T, &contactp, &penetration, &normal))
+      {
+        this->pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
+      }
+    }
+  }
+
+  // R, T is the transformation of bvh model
+  Vec3f R[3];
+  Vec3f T;
+};
+
 
 
 
