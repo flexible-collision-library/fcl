@@ -114,6 +114,16 @@ public:
     t.setTransform(q, T);
   }
 
+  bool isIdentityTransform() const
+  {
+    return t.isIdentity();
+  }
+
+  void setIdentityTransform()
+  {
+    t.setIdentity();
+  }
+
 protected:
 
   /** AABB in global coordinate */

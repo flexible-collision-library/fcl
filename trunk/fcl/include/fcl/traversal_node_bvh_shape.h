@@ -207,18 +207,18 @@ public:
     Vec3f normal;
     Vec3f contactp;
 
-    if(enable_contact) // only interested in collision or not
+    if(!enable_contact) // only interested in collision or not
     {
-      if(shapeTriangleIntersect(this->model2, p1, p2, p3))
+      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3))
       {
         pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
-      else
+    }
+    else
+    {
+      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3, &contactp, &penetration, &normal))
       {
-        if(shapeTriangleIntersect(this->model2, p1, p2, p3, &contactp, &penetration, &normal))
-        {
-          pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
-        }
+        pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }
     }
   }
@@ -274,18 +274,18 @@ public:
     Vec3f normal;
     Vec3f contactp;
 
-    if(this->enable_contact == 0) // only interested in collision or not
+    if(!this->enable_contact) // only interested in collision or not
     {
-      if(shapeTriangleIntersect(this->model2, p1, p2, p3, R, T))
+      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3, R, T))
       {
         this->pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
-      else
+    }
+    else
+    {
+      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3, R, T, &contactp, &penetration, &normal))
       {
-        if(shapeTriangleIntersect(this->model2, p1, p2, p3, R, T, &contactp, &penetration, &normal))
-        {
-          this->pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
-        }
+        this->pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }
     }
   }

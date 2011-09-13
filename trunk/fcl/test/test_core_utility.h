@@ -103,9 +103,9 @@ inline bool collide_PQP(const Transform& tf,
     const Vec3f& p2_ = vertices1[t[1]];
     const Vec3f& p3_ = vertices1[t[2]];
 
-    Vec3f p1 = MxV(tf.R, p1_) + tf.T;
-    Vec3f p2 = MxV(tf.R, p2_) + tf.T;
-    Vec3f p3 = MxV(tf.R, p3_) + tf.T;
+    Vec3f p1 = matMulVec(tf.R, p1_) + tf.T;
+    Vec3f p2 = matMulVec(tf.R, p2_) + tf.T;
+    Vec3f p3 = matMulVec(tf.R, p3_) + tf.T;
 
     PQP_REAL q1[3];
     PQP_REAL q2[3];
@@ -291,9 +291,9 @@ inline bool distance_PQP(const Transform& tf,
     const Vec3f& p2_ = vertices1[t[1]];
     const Vec3f& p3_ = vertices1[t[2]];
 
-    Vec3f p1 = MxV(tf.R, p1_) + tf.T;
-    Vec3f p2 = MxV(tf.R, p2_) + tf.T;
-    Vec3f p3 = MxV(tf.R, p3_) + tf.T;
+    Vec3f p1 = matMulVec(tf.R, p1_) + tf.T;
+    Vec3f p2 = matMulVec(tf.R, p2_) + tf.T;
+    Vec3f p3 = matMulVec(tf.R, p3_) + tf.T;
 
     PQP_REAL q1[3];
     PQP_REAL q2[3];
@@ -430,7 +430,7 @@ inline bool distance_PQP2(const Transform& tf,
   Vec3f p1_temp(res.p1[0], res.p1[1], res.p1[2]);
   Vec3f p2_temp(res.p2[0], res.p2[1], res.p2[2]);
 
-  Vec3f p1 = MxV(tf.R, p1_temp) + tf.T;
+  Vec3f p1 = matMulVec(tf.R, p1_temp) + tf.T;
   Vec3f p2 = p2_temp;
 
 

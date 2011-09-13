@@ -1659,7 +1659,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
       else
       {
         Vec3f rotatedSigma[3];
-        SMST(uc2[i - nPositiveExamples].Sigma, R, rotatedSigma);
+        tensorTransform(uc2[i - nPositiveExamples].Sigma, R, rotatedSigma);
         double sigma = matMulVec(rotatedSigma, fgrad).dot(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
@@ -1743,7 +1743,7 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
      // compute the projected uncertainty by P * S * P'
      const Vec3f* S = uc1[i].Sigma;
      Vec3f newS[3];
-     SMST(S, P, newS);
+     tensorTransform(S, P, newS);
 
      // check whether the point is inside or outside the triangle
 
@@ -1751,9 +1751,9 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 
      if(b_inside)
      {
-       BVH_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(vTMv(newS, edge_n[0])));
-       BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(vTMv(newS, edge_n[1])));
-       BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(vTMv(newS, edge_n[2])));
+       BVH_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(quadraticForm(newS, edge_n[0])));
+       BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(quadraticForm(newS, edge_n[1])));
+       BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(quadraticForm(newS, edge_n[2])));
        BVH_REAL prob = 1.0 - prob1 - prob2 - prob3;
        if(prob > max_prob) max_prob = prob;
      }
@@ -1772,12 +1772,12 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
        if(pos_plane.size() == 1)
        {
          int pos_id = pos_plane[0];
-         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(vTMv(newS, edge_n[pos_id])));
+         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(quadraticForm(newS, edge_n[pos_id])));
 
          int neg_id1 = neg_plane[0];
          int neg_id2 = neg_plane[1];
-         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(vTMv(newS, edge_n[neg_id2])));
-         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(vTMv(newS, edge_n[neg_id2])));
+         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
+         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
 
          BVH_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;
@@ -1786,13 +1786,13 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
        else if(pos_plane.size() == 2)
        {
          int neg_id = neg_plane[0];
-         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(vTMv(newS, edge_n[neg_id])));
+         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(quadraticForm(newS, edge_n[neg_id])));
 
          int pos_id1 = pos_plane[0];
          int pos_id2 = pos_plane[1];
 
-         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(vTMv(newS, edge_n[pos_id1])));
-         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(vTMv(newS, edge_n[pos_id2])));
+         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(quadraticForm(newS, edge_n[pos_id1])));
+         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(quadraticForm(newS, edge_n[pos_id2])));
 
          BVH_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;

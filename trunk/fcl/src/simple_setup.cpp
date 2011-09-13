@@ -41,7 +41,7 @@ namespace fcl
 {
 
 bool initialize(MeshCollisionTraversalNodeOBB& node, const BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts, bool exhaustive, bool enable_contact)
+                int num_max_contacts, bool exhaustive, bool enable_contact)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -59,14 +59,14 @@ bool initialize(MeshCollisionTraversalNodeOBB& node, const BVHModel<OBB>& model1
   node.exhaustive = exhaustive;
   node.enable_contact = enable_contact;
 
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
+  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 
 bool initialize(MeshCollisionTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts, bool exhaustive, bool enable_contact)
+                int num_max_contacts, bool exhaustive, bool enable_contact)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -84,7 +84,7 @@ bool initialize(MeshCollisionTraversalNodeRSS& node, const BVHModel<RSS>& model1
   node.exhaustive = exhaustive;
   node.enable_contact = enable_contact;
 
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
+  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
 
   return true;
 }
@@ -92,7 +92,6 @@ bool initialize(MeshCollisionTraversalNodeRSS& node, const BVHModel<RSS>& model1
 #if USE_SVMLIGHT
 
 bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, BVHModel<OBB>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -125,14 +124,13 @@ bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
+  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 
 bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -165,13 +163,12 @@ bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
+  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -201,14 +198,13 @@ bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& mo
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
+  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 
 bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -238,15 +234,14 @@ bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& mo
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
+  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 #endif
 
-bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2)
+bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -260,7 +255,7 @@ bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1,
   node.tri_indices1 = model1.tri_indices;
   node.tri_indices2 = model2.tri_indices;
 
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
+  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
 
   return true;
 }

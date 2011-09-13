@@ -203,10 +203,12 @@ void distance_Test(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
 
   MeshDistanceTraversalNodeRSS node;
 
-  if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2, tf.R, tf.T, R2, T2))
+  if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -260,9 +262,12 @@ void distance_Test2(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
   MeshDistanceTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, m2, tf.R, tf.T, R2, T2))
+  if(!initialize<BV>(node, m1, m2))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;

@@ -205,6 +205,21 @@ public:
     return q.transform(v) + T;
   }
 
+  bool isIdentity() const
+  {
+    return (R[0][0] == 1) && (R[0][1] == 0) && (R[0][2] == 0) && (R[1][0] == 0) && (R[1][1] == 1) && (R[1][2] == 1) && (R[2][0] == 0) && (R[2][1] == 0) && (R[2][2] == 1)
+        && (T[0] == 0) && (T[1] == 0) && (T[2] == 0);
+  }
+
+  void setIdentity()
+  {
+    R[0] = Vec3f(1, 0, 0);
+    R[1] = Vec3f(0, 1, 0);
+    R[2] = Vec3f(0, 0, 1);
+    T = Vec3f();
+    q = SimpleQuaternion();
+  }
+
 };
 
 

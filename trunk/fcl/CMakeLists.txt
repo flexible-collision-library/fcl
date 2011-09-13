@@ -46,5 +46,8 @@ target_link_libraries(test_core_collision_point fcl)
 rosbuild_add_gtest(test_core_geometric_shapes test/test_core_geometric_shapes.cpp)
 target_link_libraries(test_core_geometric_shapes fcl)
 
+rosbuild_add_gtest(test_core_collision_shape_mesh_consistency test/test_core_collision_shape_mesh_consistency.cpp)
+target_link_libraries(test_core_collision_shape_mesh_consistency fcl)
+
 rosbuild_add_gtest(test_core_broad_phase test/test_core_broad_phase.cpp)
 target_link_libraries(test_core_broad_phase fcl)

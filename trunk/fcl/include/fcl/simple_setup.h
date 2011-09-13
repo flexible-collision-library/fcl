@@ -52,43 +52,14 @@ template<typename S1, typename S2>
 bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1, const S2& shape2, bool enable_contact = false)
 {
   node.enable_contact = enable_contact;
-  return true;
-}
-
-/** \brief Initialize traversal node for collision between two geometric shapes, given the current transforms of the two shapes */
-template<typename S1, typename S2>
-bool initialize(ShapeCollisionTraversalNode<S1, S2>& node, const S1& shape1, const S2& shape2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
-                bool enable_contact = false)
-{
-  node.enable_contact = enable_contact;
-
-  return true;
-}
-
-/** \brief Initialize traversal node for collision between one mesh and one shape */
-template<typename BV, typename S>
-bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, const BVHModel<BV>& model1, const S& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.vertices = model1.vertices;
-  node.tri_indices = model1.tri_indices;
-  node.num_max_contacts = num_max_contacts;
-  node.exhaustive = exhaustive;
-  node.enable_contact = enable_contact;
-
+  node.model1 = &shape1;
+  node.model2 = &shape2;
   return true;
 }
 
 /** \brief Initialize traversal node for collision between one mesh and one shape, given current object transform */
 template<typename BV, typename S>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, BVHModel<BV>& model1, S& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false,
                 bool use_refit = false, bool refit_bottomup = false)
 {
@@ -98,19 +69,22 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, BVHModel<BV>& mode
   node.model1 = &model1;
   node.model2 = &model2;
 
-  std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-  for(int i = 0; i < model1.num_vertices; ++i)
+  if(!model1.isIdentityTransform())
   {
-    Vec3f& p = model1.vertices[i];
-    Vec3f new_v = matMulVec(R1, p) + T1;
-    vertices_transformed1[i] = new_v;
+    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    for(int i = 0; i < model1.num_vertices; ++i)
+    {
+      Vec3f& p = model1.vertices[i];
+      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      vertices_transformed1[i] = new_v;
+    }
+
+    model1.beginReplaceModel();
+    model1.replaceSubModel(vertices_transformed1);
+    model1.endReplaceModel(use_refit, refit_bottomup);
+
+    model1.setIdentityTransform();
   }
-
-  model1.beginReplaceModel();
-  model1.replaceSubModel(vertices_transformed1);
-  model1.endReplaceModel(use_refit, refit_bottomup);
-
-  model2.appendLocalTransform(R2, T2);
 
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
@@ -138,89 +112,56 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>
   node.exhaustive = exhaustive;
   node.enable_contact = enable_contact;
 
-  return true;
-}
-
-/** \brief Initialize traversal node for collision between one mesh and one shape, given the current transform, specialized for OBB type */
-template<typename S>
-bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>& model1, S& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
-                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  model2.appendLocalTransform(R2, T2);
-
-  node.vertices = model1.vertices;
-  node.tri_indices = model1.tri_indices;
-  node.num_max_contacts = num_max_contacts;
-  node.exhaustive = exhaustive;
-  node.enable_contact = enable_contact;
-  node.R[0] = R1[0]; node.R[1] = R1[1]; node.R[2] = R1[2];
-  node.T = T1;
+  for(int i = 0; i < 3; ++i)
+    node.R[i] = model1.getRotation()[i];
+  node.T = model1.getTranslation();
 
   return true;
 }
 
-/** \brief Initialize traversal node for collision between two meshes */
-template<typename BV>
-bool initialize(MeshCollisionTraversalNode<BV>& node, const BVHModel<BV>& model1, const BVHModel<BV>& model2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.tri_indices1 = model1.tri_indices;
-  node.tri_indices2 = model2.tri_indices;
-
-  node.enable_contact = enable_contact;
-  node.exhaustive = exhaustive;
-  node.num_max_contacts = num_max_contacts;
-
-  return true;
-}
 
 /** \brief Initialize traversal node for collision between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
-  std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-  for(int i = 0; i < model1.num_vertices; ++i)
+  if(!model1.isIdentityTransform())
   {
-    Vec3f& p = model1.vertices[i];
-    Vec3f new_v = matMulVec(R1, p) + T1;
-    vertices_transformed1[i] = new_v;
+    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    for(int i = 0; i < model1.num_vertices; ++i)
+    {
+      Vec3f& p = model1.vertices[i];
+      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      vertices_transformed1[i] = new_v;
+    }
+
+    model1.beginReplaceModel();
+    model1.replaceSubModel(vertices_transformed1);
+    model1.endReplaceModel(use_refit, refit_bottomup);
+
+    model1.setIdentityTransform();
   }
 
-
-  std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-  for(int i = 0; i < model2.num_vertices; ++i)
+  if(!model2.isIdentityTransform())
   {
-    Vec3f& p = model2.vertices[i];
-    Vec3f new_v = matMulVec(R2, p) + T2;
-    vertices_transformed2[i] = new_v;
-  }
+    std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
+    for(int i = 0; i < model2.num_vertices; ++i)
+    {
+      Vec3f& p = model2.vertices[i];
+      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      vertices_transformed2[i] = new_v;
+    }
 
-  model1.beginReplaceModel();
-  model1.replaceSubModel(vertices_transformed1);
-  model1.endReplaceModel(use_refit, refit_bottomup);
-  model2.beginReplaceModel();
-  model2.replaceSubModel(vertices_transformed2);
-  model2.endReplaceModel(use_refit, refit_bottomup);
+    model2.beginReplaceModel();
+    model2.replaceSubModel(vertices_transformed2);
+    model2.endReplaceModel(use_refit, refit_bottomup);
+
+    model2.setIdentityTransform();
+  }
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -241,58 +182,17 @@ bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHM
 
 /** \brief Initialize traversal node for collision between two meshes, specialized for OBB type */
 bool initialize(MeshCollisionTraversalNodeOBB& node, const BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
 
 bool initialize(MeshCollisionTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
 
 
 #if USE_SVMLIGHT
 
-/** \brief Initialize traversal node for collision between two point clouds */
-template<typename BV>
-bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
-                BVH_REAL collision_prob_threshold = 0.5,
-                BVH_REAL max_collision_prob = 0,
-                int leaf_size_threshold = 1,
-                int num_max_contacts = 1,
-                bool exhaustive = false,
-                bool enable_contact = false,
-                BVH_REAL expand_r = 1)
-{
-  if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD)
-      || !(model2.getModelType() == BVH_MODEL_TRIANGLES || model2.getModelType() == BVH_MODEL_POINTCLOUD))
-    return false;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.uc1.reset(new Uncertainty[model1.num_vertices]);
-  node.uc2.reset(new Uncertainty[model2.num_vertices]);
-
-  estimateSamplingUncertainty(model1.vertices, model1.num_vertices, node.uc1);
-  estimateSamplingUncertainty(model2.vertices, model2.num_vertices, node.uc2);
-
-  BVHExpand(model1, node.uc1.get(), expand_r);
-  BVHExpand(model2, node.uc2.get(), expand_r);
-
-  node.num_max_contacts = num_max_contacts;
-  node.exhaustive = exhaustive;
-  node.enable_contact = enable_contact;
-  node.collision_prob_threshold = collision_prob_threshold;
-  node.max_collision_prob = max_collision_prob;
-  node.leaf_size_threshold = leaf_size_threshold;
-
-  return true;
-}
-
 /** \brief Initialize traversal node for collision between two point clouds, given current transforms */
 template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
@@ -304,30 +204,39 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
       || !(model2.getModelType() == BVH_MODEL_TRIANGLES || model2.getModelType() == BVH_MODEL_POINTCLOUD))
     return false;
 
-  std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-  for(int i = 0; i < model1.num_vertices; ++i)
+  if(!model1.isIdentityTransform())
   {
-    Vec3f& p = model1.vertices[i];
-    Vec3f new_v = matMulVec(R1, p) + T1;
-    vertices_transformed1[i] = new_v;
+    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    for(int i = 0; i < model1.num_vertices; ++i)
+    {
+      Vec3f& p = model1.vertices[i];
+      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      vertices_transformed1[i] = new_v;
+    }
+
+    model1.beginReplaceModel();
+    model1.replaceSubModel(vertices_transformed1);
+    model1.endReplaceModel(use_refit, refit_bottomup);
+
+    model1.setIdentityTransform();
   }
 
-
-  std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-  for(int i = 0; i < model2.num_vertices; ++i)
+  if(!model2.isIdentityTransform())
   {
-    Vec3f& p = model2.vertices[i];
-    Vec3f new_v = matMulVec(R2, p) + T2;
-    vertices_transformed2[i] = new_v;
+    std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
+    for(int i = 0; i < model2.num_vertices; ++i)
+    {
+      Vec3f& p = model2.vertices[i];
+      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      vertices_transformed2[i] = new_v;
+    }
+
+    model2.beginReplaceModel();
+    model2.replaceSubModel(vertices_transformed2);
+    model2.endReplaceModel(use_refit, refit_bottomup);
+
+    model2.setIdentityTransform();
   }
-
-  model1.beginReplaceModel();
-  model1.replaceSubModel(vertices_transformed1);
-  model1.endReplaceModel(use_refit, refit_bottomup);
-
-  model2.beginReplaceModel();
-  model2.replaceSubModel(vertices_transformed2);
-  model2.endReplaceModel(use_refit, refit_bottomup);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -355,7 +264,6 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
 
 /** \brief Initialize traversal node for collision between two point clouds, given current transforms, specialized for OBB type */ 
 bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, BVHModel<OBB>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
@@ -365,7 +273,6 @@ bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1
 
 /** \brief Initialize traversal node for collision between two point clouds, given current transforms, specialized for RSS type */
 bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
@@ -373,45 +280,9 @@ bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1
                 bool enable_contact = false,
                 BVH_REAL expand_r = 1);
 
-/** \brief Initialize traversal node for collision between one point cloud and one mesh */
-template<typename BV>
-bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, const BVHModel<BV>& model2,
-                BVH_REAL collision_prob_threshold = 0.5,
-                int leaf_size_threshold = 1,
-                int num_max_contacts = 1,
-                bool exhaustive = false,
-                bool enable_contact = false,
-                BVH_REAL expand_r = 1)
-{
-  if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD) || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.tri_indices2 = model2.tri_indices;
-  node.uc1.reset(new Uncertainty[model1.num_vertices]);
-
-  estimateSamplingUncertainty(model1.vertices, model1.num_vertices, node.uc1.get());
-
-  BVHExpand(model1, node.uc1.get(), expand_r);
-
-  node.num_max_contacts = num_max_contacts;
-  node.exhaustive = exhaustive;
-  node.enable_contact = enable_contact;
-  node.collision_prob_threshold = collision_prob_threshold;
-  node.leaf_size_threshold = leaf_size_threshold;
-
-  return true;
-}
-
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms */
 template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
@@ -422,30 +293,39 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD) || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
-  std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-  for(int i = 0; i < model1.num_vertices; ++i)
+  if(!model1.isIdentityTransform())
   {
-    Vec3f& p = model1.vertices[i];
-    Vec3f new_v = matMulVec(R1, p) + T1;
-    vertices_transformed1[i] = new_v;
+    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    for(int i = 0; i < model1.num_vertices; ++i)
+    {
+      Vec3f& p = model1.vertices[i];
+      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      vertices_transformed1[i] = new_v;
+    }
+
+    model1.beginReplaceModel();
+    model1.replaceSubModel(vertices_transformed1);
+    model1.endReplaceModel(use_refit, refit_bottomup);
+
+    model1.setIdentityTransform();
   }
 
-
-  std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-  for(int i = 0; i < model2.num_vertices; ++i)
+  if(!model2.isIdentityTransform())
   {
-    Vec3f& p = model2.vertices[i];
-    Vec3f new_v = matMulVec(R2, p) + T2;
-    vertices_transformed2[i] = new_v;
+    std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
+    for(int i = 0; i < model2.num_vertices; ++i)
+    {
+      Vec3f& p = model2.vertices[i];
+      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      vertices_transformed2[i] = new_v;
+    }
+
+    model2.beginReplaceModel();
+    model2.replaceSubModel(vertices_transformed2);
+    model2.endReplaceModel(use_refit, refit_bottomup);
+
+    model2.setIdentityTransform();
   }
-
-  model1.beginReplaceModel();
-  model1.replaceSubModel(vertices_transformed1);
-  model1.endReplaceModel(use_refit, refit_bottomup);
-
-  model2.beginReplaceModel();
-  model2.replaceSubModel(vertices_transformed2);
-  model2.endReplaceModel(use_refit, refit_bottomup);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -472,7 +352,6 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
 
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms, specialized for OBB type */
 bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
@@ -482,7 +361,6 @@ bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& mo
 
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms, specialized for RSS type */
 bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
                 BVH_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
@@ -491,6 +369,67 @@ bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& mo
                 BVH_REAL expand_r = 1);
 
 #endif
+
+
+/** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
+template<typename BV>
+bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
+                bool use_refit = false, bool refit_bottomup = false)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  if(!model1.isIdentityTransform())
+  {
+    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    for(int i = 0; i < model1.num_vertices; ++i)
+    {
+      Vec3f& p = model1.vertices[i];
+      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      vertices_transformed1[i] = new_v;
+    }
+
+    model1.beginReplaceModel();
+    model1.replaceSubModel(vertices_transformed1);
+    model1.endReplaceModel(use_refit, refit_bottomup);
+
+    model1.setIdentityTransform();
+  }
+
+  if(!model2.isIdentityTransform())
+  {
+    std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
+    for(int i = 0; i < model2.num_vertices; ++i)
+    {
+      Vec3f& p = model2.vertices[i];
+      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      vertices_transformed2[i] = new_v;
+    }
+
+    model2.beginReplaceModel();
+    model2.replaceSubModel(vertices_transformed2);
+    model2.endReplaceModel(use_refit, refit_bottomup);
+
+    model2.setIdentityTransform();
+  }
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.vertices1 = model1.vertices;
+  node.vertices2 = model2.vertices;
+
+  node.tri_indices1 = model1.tri_indices;
+  node.tri_indices2 = model2.tri_indices;
+
+  return true;
+}
+
+
+/** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
+bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2);
+
+
 
 /** \brief Initialize traversal node for continuous collision detection between two meshes */
 template<typename BV>
@@ -566,76 +505,8 @@ bool initialize(PointCloudMeshContinuousCollisionTraversalNode<BV>& node, const 
   return true;
 }
 
-/** \brief Initialize traversal node for distance computation between two meshes */
-template<typename BV>
-bool initialize(MeshDistanceTraversalNode<BV>& node, const BVHModel<BV>& model1, const BVHModel<BV>& model2)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.tri_indices1 = model1.tri_indices;
-  node.tri_indices2 = model2.tri_indices;
-
-  return true;
-}
 
 
-/** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
-template<typename BV>
-bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2,
-                bool use_refit = false, bool refit_bottomup = false)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
-  for(int i = 0; i < model1.num_vertices; ++i)
-  {
-    Vec3f& p = model1.vertices[i];
-    Vec3f new_v = matMulVec(R1, p) + T1;
-    vertices_transformed1[i] = new_v;
-  }
-
-
-  std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
-  for(int i = 0; i < model2.num_vertices; ++i)
-  {
-    Vec3f& p = model2.vertices[i];
-    Vec3f new_v = matMulVec(R2, p) + T2;
-    vertices_transformed2[i] = new_v;
-  }
-
-  model1.beginReplaceModel();
-  model1.replaceSubModel(vertices_transformed1);
-  model1.endReplaceModel(use_refit, refit_bottomup);
-
-  model2.beginReplaceModel();
-  model2.replaceSubModel(vertices_transformed2);
-  model2.endReplaceModel(use_refit, refit_bottomup);
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.tri_indices1 = model1.tri_indices;
-  node.tri_indices2 = model2.tri_indices;
-
-  return true;
-}
-
-
-/** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
-bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2);
 
 /** \brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms */
 template<typename BV>

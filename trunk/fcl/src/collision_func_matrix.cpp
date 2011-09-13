@@ -51,7 +51,7 @@ namespace fcl
 /** \brief Hey, I know it is ugly... but it is the best way I can find now... */
 
 #define SHAPESHAPE_COMMON_CODE() do{ \
-                                     initialize(node, *obj1, *obj2, obj1->getRotation(), obj1->getTranslation(), obj2->getRotation(), obj2->getTranslation(), enable_contact); \
+                                     initialize(node, *obj1, *obj2, enable_contact); \
                                      collide(&node); \
                                      if(!node.is_collision) return 0; \
                                      contacts.resize(1); \
@@ -62,7 +62,7 @@ namespace fcl
 
 
 #define MESHSHAPE_COMMON_CODE() do{ \
-                                    initialize(node, *obj1_tmp, *obj2_tmp, obj1_tmp->getRotation(), obj1_tmp->getTranslation(), obj2_tmp->getRotation(), obj2_tmp->getTranslation(), num_max_contacts, exhaustive, enable_contact); \
+                                    initialize(node, *obj1_tmp, *obj2_tmp, num_max_contacts, exhaustive, enable_contact); \
                                     collide(&node); \
                                     int num_contacts = node.pairs.size(); \
                                     if(num_contacts > 0) \
@@ -88,7 +88,7 @@ namespace fcl
                                    } while(0)
 
 #define MESHSHAPEOBBRSS_COMMON_CODE() do{ \
-                                    initialize(node, *obj1, *obj2_tmp, obj1->getRotation(), obj1->getTranslation(), obj2_tmp->getRotation(), obj2_tmp->getTranslation(), num_max_contacts, exhaustive, enable_contact); \
+                                    initialize(node, *obj1, *obj2_tmp, num_max_contacts, exhaustive, enable_contact); \
                                     collide(&node); \
                                     int num_contacts = node.pairs.size(); \
                                     if(num_contacts > 0) \
@@ -114,7 +114,7 @@ namespace fcl
 
 
 #define MESHMESH_COMMON_CODE() do{ \
-                                    initialize(node, *obj1_tmp, *obj2_tmp, obj1_tmp->getRotation(), obj1_tmp->getTranslation(), obj2_tmp->getRotation(), obj2_tmp->getTranslation(), num_max_contacts, exhaustive, enable_contact); \
+                                    initialize(node, *obj1_tmp, *obj2_tmp, num_max_contacts, exhaustive, enable_contact); \
                                     collide(&node); \
                                     int num_contacts = node.pairs.size(); \
                                     if(num_contacts > 0) \
@@ -141,7 +141,7 @@ namespace fcl
 
 
 #define MESHMESHOBBRSS_COMMON_CODE() do{ \
-                                         initialize(node, *obj1, *obj2, obj1->getRotation(), obj1->getTranslation(), obj2->getRotation(), obj2->getTranslation(), num_max_contacts, exhaustive, enable_contact); \
+                                         initialize(node, *obj1, *obj2, num_max_contacts, exhaustive, enable_contact); \
                                          collide(&node); \
                                          int num_contacts = node.pairs.size(); \
                                          if(num_contacts > 0) \

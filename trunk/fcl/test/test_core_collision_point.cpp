@@ -167,9 +167,12 @@ bool collide_Test_PP(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
   PointCloudCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV, false, false>(node, m1, m2, tf.R, tf.T, R2, T2, 0.6, 20))
+  if(!initialize<BV, false, false>(node, m1, m2, 0.6, 20))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -229,9 +232,12 @@ bool collide_Test_PP_OBB(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
   PointCloudCollisionTraversalNodeOBB node;
 
-  if(!initialize(node, m1, m2, tf.R, tf.T, R2, T2, 0.6, 20))
+  if(!initialize(node, m1, m2, 0.6, 20))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -295,9 +301,12 @@ bool collide_Test_MP(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
   PointCloudMeshCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV, false, false>(node, m2, m1, R2, T2, tf.R, tf.T, 0.6, 20))
+  if(!initialize<BV, false, false>(node, m2, m1, 0.6, 20))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -360,9 +369,12 @@ bool collide_Test_MP_OBB(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
   PointCloudMeshCollisionTraversalNodeOBB node;
 
-  if(!initialize(node, m2, m1, R2, T2, tf.R, tf.T, 0.6, 20))
+  if(!initialize(node, m2, m1, 0.6, 20))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -426,9 +438,12 @@ bool collide_Test_PM(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
   PointCloudMeshCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV, false, false>(node, m1, m2, tf.R, tf.T, R2, T2, 0.6, 20))
+  if(!initialize<BV, false, false>(node, m1, m2, 0.6, 20))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -490,9 +505,12 @@ bool collide_Test_PM_OBB(const Transform& tf,
   R2[2] = Vec3f(0, 0, 1);
   Vec3f T2;
 
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
   PointCloudMeshCollisionTraversalNodeOBB node;
 
-  if(!initialize(node, m1, m2, tf.R, tf.T, R2, T2, 0.6, 20))
+  if(!initialize(node, m1, m2, 0.6, 20))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;

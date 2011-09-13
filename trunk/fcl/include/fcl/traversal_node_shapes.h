@@ -54,6 +54,7 @@ public:
     model2 = NULL;
 
     enable_contact = false;
+    is_collision = false;
   }
 
   bool BVTesting(int, int) const
