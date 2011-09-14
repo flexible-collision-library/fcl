@@ -950,7 +950,7 @@ int KDOP24PlaneCollide(const CollisionObject* o1, const CollisionObject* o2, int
   MESHSHAPE_COMMON_CODE();
 }
 
-
+// use MESH SHAPE
 /*
 int BoxAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
@@ -1325,6 +1325,7 @@ int PlaneKDOP24Collide(const CollisionObject* o1, const CollisionObject* o2, int
 
 */
 
+
 int AABBAABBCollide(const CollisionObject* o1, const CollisionObject* o2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
   MeshCollisionTraversalNode<AABB> node;
@@ -1493,7 +1494,8 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_KDOP24][GEOM_CYLINDER] = KDOP24CylinderCollide;
   collision_matrix[BV_KDOP24][GEOM_CONVEX] = KDOP24ConvexCollide;
   collision_matrix[BV_KDOP24][GEOM_PLANE] = KDOP24PlaneCollide;
-/*
+
+  /*
   collision_matrix[GEOM_BOX][BV_AABB] = BoxAABBCollide;
   collision_matrix[GEOM_SPHERE][BV_AABB] = SphereAABBCollide;
   collision_matrix[GEOM_CAPSULE][BV_AABB] = CapAABBCollide;
@@ -1541,7 +1543,8 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[GEOM_CYLINDER][BV_KDOP24] = CylinderKDOP24Collide;
   collision_matrix[GEOM_CONVEX][BV_KDOP24] = ConvexKDOP24Collide;
   collision_matrix[GEOM_PLANE][BV_KDOP24] = PlaneKDOP24Collide;
-*/
+  */
+
   collision_matrix[BV_AABB][BV_AABB] = AABBAABBCollide;
   collision_matrix[BV_OBB][BV_OBB] = OBBOBBCollide;
   collision_matrix[BV_RSS][BV_RSS] = RSSRSSCollide;

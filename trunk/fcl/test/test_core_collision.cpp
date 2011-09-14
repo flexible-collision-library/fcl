@@ -89,8 +89,6 @@ TEST(collision_test, mesh_mesh)
 
   std::vector<Transform> transforms; // t0
   std::vector<Transform> transforms2; // t1
-  std::vector<Transform> transforms_ccd; // t0
-  std::vector<Transform> transforms_ccd2; // t1
   BVH_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   BVH_REAL delta_trans[] = {1, 1, 1};
   int n = 10;

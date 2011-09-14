@@ -74,6 +74,7 @@ int collide(const CollisionObject* o1, const CollisionObject* o2,
   }
   else if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
+    //if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
     if(!CollisionFunctionLookTable.collision_matrix[node_type2][node_type1])
     {
       std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
