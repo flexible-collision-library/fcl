@@ -54,3 +54,6 @@ target_link_libraries(test_core_broad_phase fcl)
 
 rosbuild_add_gtest(test_core_front_list test/test_core_front_list.cpp)
 target_link_libraries(test_core_front_list fcl)
+
+rosbuild_add_gtest(test_core_continuous_collision test/test_core_continuous_collision.cpp)
+target_link_libraries(test_core_continuous_collision fcl)
