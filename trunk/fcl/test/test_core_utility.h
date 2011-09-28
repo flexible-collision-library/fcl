@@ -43,6 +43,7 @@
 #include <cstdio>
 #include <vector>
 #include <iostream>
+#include <string.h>
 using namespace fcl;
 
 #if USE_PQP

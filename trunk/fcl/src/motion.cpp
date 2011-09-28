@@ -43,13 +43,13 @@ namespace fcl
 template<>
 BVH_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const
 {
-  BVH_REAL c_proj_max = (bv.Tr.cross(angular_axis)).sqrLength();
+  BVH_REAL c_proj_max = ((bv.Tr - reference_p).cross(angular_axis)).sqrLength();
   BVH_REAL tmp;
-  tmp = ((bv.Tr + bv.axis[0] * bv.l[0]).cross(angular_axis)).sqrLength();
+  tmp = ((bv.Tr + bv.axis[0] * bv.l[0] - reference_p).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((bv.Tr + bv.axis[1] * bv.l[1]).cross(angular_axis)).sqrLength();
+  tmp = ((bv.Tr + bv.axis[1] * bv.l[1] - reference_p).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1]).cross(angular_axis)).sqrLength();
+  tmp = ((bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = sqrt(c_proj_max);

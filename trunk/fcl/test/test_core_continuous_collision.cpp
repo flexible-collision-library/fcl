@@ -39,6 +39,7 @@
 #include "fcl/simple_setup.h"
 #include "test_core_utility.h"
 #include <gtest/gtest.h>
+#include <boost/timer.hpp>
 
 using namespace fcl;
 
@@ -62,8 +63,13 @@ bool exhaustive = true;
 bool enable_contact = true;
 unsigned int n_dcd_samples = 10;
 
-TEST(ccd_test, mesh_mesh)
+
+
+TEST(ccd_test, mesh_mesh_bottomup)
 {
+  double t_ccd = 0;
+  double t_dcd = 0;
+
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
   loadOBJFile("test/env.obj", p1, t1);
@@ -73,7 +79,7 @@ TEST(ccd_test, mesh_mesh)
   std::vector<Transform> transforms2; // t1
   BVH_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   BVH_REAL delta_trans[] = {10, 10, 10};
-  int n = 1000;
+  int n = 100;
   bool verbose = false;
 
   generateRandomTransform(extents, transforms, transforms2, delta_trans, 0.005 * 2 * 3.1415, n);
@@ -82,8 +88,13 @@ TEST(ccd_test, mesh_mesh)
 
   for(unsigned int i = 0; i < transforms.size(); ++i)
   {
+    boost::timer timer1;
     res = discrete_continuous_collide_Test<AABB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, verbose);
+    t_dcd += timer1.elapsed();
+
+    boost::timer timer2;
     res2 = continuous_collide_Test<AABB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, true, verbose);
+    t_ccd += timer2.elapsed();
     if(res)
       ASSERT_TRUE(res == res2);
     else
@@ -93,7 +104,53 @@ TEST(ccd_test, mesh_mesh)
     }
   }
 
+  std::cout << "dcd timing: " << t_dcd << " sec" << std::endl;
+  std::cout << "ccd timing: " << t_ccd << " sec" << std::endl;
 }
+
+
+TEST(ccd_test, mesh_mesh_topdown)
+{
+  double t_ccd = 0;
+  double t_dcd = 0;
+
+  std::vector<Vec3f> p1, p2;
+  std::vector<Triangle> t1, t2;
+  loadOBJFile("test/env.obj", p1, t1);
+  loadOBJFile("test/rob.obj", p2, t2);
+
+  std::vector<Transform> transforms; // t0
+  std::vector<Transform> transforms2; // t1
+  BVH_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+  BVH_REAL delta_trans[] = {10, 10, 10};
+  int n = 100;
+  bool verbose = false;
+
+  generateRandomTransform(extents, transforms, transforms2, delta_trans, 0.005 * 2 * 3.1415, n);
+
+  bool res, res2;
+
+  for(unsigned int i = 0; i < transforms.size(); ++i)
+  {
+    boost::timer timer1;
+    res = discrete_continuous_collide_Test<AABB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, verbose);
+    t_dcd += timer1.elapsed();
+
+    boost::timer timer2;
+    res2 = continuous_collide_Test<AABB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
+    t_ccd += timer2.elapsed();
+    if(res)
+      ASSERT_TRUE(res == res2);
+    else
+    {
+      if(res2)
+        std::cout << "CCD detects collision missed in DCD" << std::endl;
+    }
+  }
+  std::cout << "dcd timing: " << t_dcd << " sec" << std::endl;
+  std::cout << "ccd timing: " << t_ccd << " sec" << std::endl;
+}
+
 
 int main(int argc, char **argv)
 {

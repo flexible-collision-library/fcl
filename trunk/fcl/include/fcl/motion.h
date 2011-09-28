@@ -48,6 +48,10 @@ namespace fcl
 
 /** \brief Linear interpolation motion
  * Each Motion is assumed to have constant linear velocity and angular velocity
+ * The motion is R(t)(p - p_ref) + p_ref + T(t)
+ * Therefore, R(0) = R0, R(1) = R1
+ *            T(0) = T0 + R0 p_ref - p_ref
+ *            T(1) = T1 + R1 p_ref - p_ref
  */
 template<typename BV>
 class InterpMotion : public MotionBase<BV>
@@ -59,6 +63,8 @@ public:
     /** Default angular velocity is zero */
     angular_axis = Vec3f(1, 0, 0);
     angular_vel = 0;
+
+    /** Default reference point is local zero point */
 
     /** Default linear velocity is zero */
   }
@@ -72,6 +78,8 @@ public:
 
     /** Current time is zero, so the transformation is t1 */
     t = t1;
+
+    /** Default reference point is local zero point */
 
     /** Compute the velocities for the motion */
     computeVelocity();
@@ -87,6 +95,8 @@ public:
     t2 = SimpleTransform(R2, T2 - matMulVec(R2, O));
     t = t1;
 
+    reference_p = O;
+
     /** Compute the velocities for the motion */
     computeVelocity();
   }
@@ -99,33 +109,29 @@ public:
   {
     if(dt > 1) dt = 1;
 
-    t.T = t1.T + linear_vel * dt;
-
-    t.q = absoluteRotation(dt);
-    t.q.toRotation(t.R);
+    t.setQuatRotation(absoluteRotation(dt));
+    t.setTranslation(linear_vel * dt + t1.transform(reference_p) - t.getQuatRotation().transform(reference_p));
 
     return true;
   }
 
-  /** \brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects
-   * according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||ci x w||. w is the angular axis (normalized)
-   * and ci are the endpoints of the generator primitives of RSS.
-   * Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
+  /** \brief Compute the motion bound for a bounding volume along a given direction n
+   * For general BV, not implemented so return trivial 0
    */
   BVH_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
 
-  /** \brief Compute the motion bound for a triangle, given the closest direction n between two query objects
-   * according to mu < |v * | + ||w x n||(max||ci*||) where ||ci*|| = ||ci x w||. w is the angular axis (normalized)
+  /** \brief Compute the motion bound for a triangle along a given direction n
+   * according to mu < |v * n| + ||w x n||(max||ci*||) where ||ci*|| = ||ci x w||. w is the angular axis (normalized)
    * and ci are the triangle vertex coordinates.
    * Notice that the triangle is in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
    */
   BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
   {
-    BVH_REAL c_proj_max = (a.cross(angular_axis)).sqrLength();
+    BVH_REAL c_proj_max = ((a - reference_p).cross(angular_axis)).sqrLength();
     BVH_REAL tmp;
-    tmp = (b.cross(angular_axis)).sqrLength();
+    tmp = ((b - reference_p).cross(angular_axis)).sqrLength();
     if(tmp > c_proj_max) c_proj_max = tmp;
-    tmp = (c.cross(angular_axis)).sqrLength();
+    tmp = ((c - reference_p).cross(angular_axis)).sqrLength();
     if(tmp > c_proj_max) c_proj_max = tmp;
 
     c_proj_max = sqrt(c_proj_max);
@@ -138,33 +144,33 @@ public:
   }
 
   /** \brief Get the rotation and translation in current step */
-  void getCurrentTransformation(Vec3f R[3], Vec3f& T) const
+  void getCurrentTransform(Vec3f R[3], Vec3f& T) const
   {
     for(int i = 0; i < 3; ++i)
     {
-      R[i] = t.R[i];
+      R[i] = t.getRotation()[i];
     }
 
-    T = t.T;
+    T = t.getTranslation();
   }
 
   void getCurrentRotation(Vec3f R[3]) const
   {
     for(int i = 0; i < 3; ++i)
-      R[i] = t.R[i];
+      R[i] = t.getRotation()[i];
   }
 
   void getCurrentTranslation(Vec3f& T) const
   {
-    T = t.T;
+    T = t.getTranslation();
   }
 
 protected:
 
   void computeVelocity()
   {
-    linear_vel = t2.T - t1.T;
-    SimpleQuaternion deltaq = t2.q * t1.q.inverse();
+    linear_vel = t2.transform(reference_p) - t1.transform(reference_p);
+    SimpleQuaternion deltaq = t2.getQuatRotation() * t1.getQuatRotation().inverse();
     deltaq.toAxisAngle(angular_axis, angular_vel);
   }
 
@@ -179,7 +185,7 @@ protected:
   SimpleQuaternion absoluteRotation(BVH_REAL t) const
   {
     SimpleQuaternion delta_t = deltaRotation(t);
-    return delta_t * t1.q;
+    return delta_t * t1.getQuatRotation();
   }
 
   /** \brief The transformation at time 0 */
@@ -199,8 +205,17 @@ protected:
 
   /** \brief Angular velocity axis */
   Vec3f angular_axis;
+
+  /** \brief Reference point for the motion (in the object's local frame) */
+  Vec3f reference_p;
 };
 
+
+/** \brief Compute the motion bound for a bounding volume along a given direction n
+ * according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||ci x w||. w is the angular axis (normalized)
+ * and ci are the endpoints of the generator primitives of RSS.
+ * Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
+ */
 template<>
 BVH_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const;
 

@@ -40,6 +40,7 @@
 #include "fcl/simple_setup.h"
 #include "test_core_utility.h"
 #include <gtest/gtest.h>
+#include <boost/timer.hpp>
 
 
 #if USE_PQP
@@ -63,6 +64,11 @@ void distance_Test2(const Transform& tf,
                     int qsize,
                     DistanceRes& distance_result,
                     bool verbose = true);
+
+bool collide_Test_OBB(const Transform& tf,
+                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
+                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
+
 
 bool verbose = false;
 BVH_REAL DELTA = 0.001;
@@ -92,9 +98,16 @@ TEST(collision_core, mesh_distance)
 
   generateRandomTransform(extents, transforms, transforms2, delta_trans, 0.005 * 2 * 3.1415, n);
 
+  double dis_time = 0;
+  double col_time = 0;
+
   DistanceRes res, res_now;
   for(unsigned int i = 0; i < transforms.size(); ++i)
   {
+    boost::timer timer_col;
+    collide_Test_OBB(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    col_time += timer_col.elapsed();
+
 #if USE_PQP
     distance_PQP(transforms[i], p1, t1, p2, t2, res, verbose);
 
@@ -104,6 +117,7 @@ TEST(collision_core, mesh_distance)
     ASSERT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 #endif
 
+    boost::timer timer_dist;
 #if USE_PQP
     distance_Test(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
     ASSERT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
@@ -111,6 +125,7 @@ TEST(collision_core, mesh_distance)
 #else
     distance_Test(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res, verbose);
 #endif
+    dis_time += timer_dist.elapsed();
 
     distance_Test(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
@@ -167,11 +182,16 @@ TEST(collision_core, mesh_distance)
     ASSERT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
     ASSERT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
   }
+
+  std::cout << "distance timing: " << dis_time << " sec" << std::endl;
+  std::cout << "collision timing: " << col_time << " sec" << std::endl;
+
 }
 
 
 int main(int argc, char **argv)
 {
+  srand(time(NULL));
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
@@ -287,3 +307,48 @@ void distance_Test2(const Transform& tf,
     std::cout << node.num_bv_tests << " " << node.num_leaf_tests << std::endl;
   }
 }
+
+
+bool collide_Test_OBB(const Transform& tf,
+                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
+                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+{
+  BVHModel<OBB> m1;
+  BVHModel<OBB> m2;
+  m1.bv_splitter.reset(new BVSplitter<OBB>(split_method));
+  m2.bv_splitter.reset(new BVSplitter<OBB>(split_method));
+
+  m1.beginModel();
+  m1.addSubModel(vertices1, triangles1);
+  m1.endModel();
+
+  m2.beginModel();
+  m2.addSubModel(vertices2, triangles2);
+  m2.endModel();
+
+  Vec3f R2[3];
+  R2[0] = Vec3f(1, 0, 0);
+  R2[1] = Vec3f(0, 1, 0);
+  R2[2] = Vec3f(0, 0, 1);
+  Vec3f T2;
+
+  m1.setTransform(tf.R, tf.T);
+  m2.setTransform(R2, T2);
+
+  MeshCollisionTraversalNodeOBB node;
+  if(!initialize(node, (const BVHModel<OBB>&)m1, (const BVHModel<OBB>&)m2))
+    std::cout << "initialize error" << std::endl;
+
+  node.enable_statistics = verbose;
+  node.num_max_contacts = 1;
+  node.exhaustive = false;
+  node.enable_contact = false;
+
+  collide(&node);
+
+  if(node.pairs.size() > 0)
+    return true;
+  else
+    return false;
+}
+

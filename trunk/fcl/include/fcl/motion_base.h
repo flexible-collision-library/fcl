@@ -59,7 +59,7 @@ public:
   virtual BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const = 0;
 
   /** \brief Get the rotation and translation in current step */
-  virtual void getCurrentTransformation(Vec3f R[3], Vec3f& T) const = 0;
+  virtual void getCurrentTransform(Vec3f R[3], Vec3f& T) const = 0;
 
   virtual void getCurrentRotation(Vec3f R[3]) const = 0;
 

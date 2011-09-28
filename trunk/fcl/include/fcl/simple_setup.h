@@ -616,10 +616,6 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>
 
   node.w = w;
 
-  //HOW?
-  //node.motion1 = new InterpMotion<BV>
-  //node.motion2 = new InterpMotion<BV>
-
   return true;
 }
 
@@ -643,8 +639,6 @@ inline bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node, const 
   node.w = w;
 
   relativeTransform(R1, T1, R2, T2, node.R, node.T);
-
-
 
   return true;
 }

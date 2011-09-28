@@ -1038,6 +1038,19 @@ public:
   Vec3f T;
 };
 
+
+
+struct ConservativeAdvancementStackData
+{
+  ConservativeAdvancementStackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, BVH_REAL d_) : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
+
+  Vec3f P1;
+  Vec3f P2;
+  int c1;
+  int c2;
+  BVH_REAL d;
+};
+
 // when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
 template<typename BV>
 class MeshConservativeAdvancementTraversalNode : public MeshDistanceTraversalNode<BV>
@@ -1061,7 +1074,7 @@ public:
     Vec3f P1, P2;
     BVH_REAL d = this->model1->getBV(b1).distance(this->model2->getBV(b2), &P1, &P2);
 
-    stack.push_back(StackData(P1, P2, b1, b2, d));
+    stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
     return d;
   }
@@ -1105,11 +1118,9 @@ public:
     }
 
 
-    /** n is the local frame of object 1 */
+    // n is the local frame of object 1
     Vec3f n = P2 - P1;
-    /** turn n into the global frame
-     * nothing is done here because in this case we assume the body is in original configuration (I, 0)
-     */
+    // here n is already in global frame as we assume the body is in original configuration (I, 0) for general BVH
     BVH_REAL bound1 = motion1->computeMotionBound(p1, p2, p3, n);
     BVH_REAL bound2 = motion2->computeMotionBound(q1, q2, q3, n);
 
@@ -1124,14 +1135,14 @@ public:
   {
     if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
     {
-      const StackData& data = stack.back();
+      const ConservativeAdvancementStackData& data = stack.back();
       BVH_REAL d = data.d;
       Vec3f n;
       int c1, c2;
 
       if(d > c)
       {
-        const StackData& data2 = stack[stack.size() - 2];
+        const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
         d = data2.d;
         n = data2.P2 - data2.P1;
         c1 = data2.c1;
@@ -1147,9 +1158,6 @@ public:
 
       if(c != d) std::cout << "there is some problem here" << std::endl;
 
-
-      // (this->tree1 + c1)->bv.axis[0] * n[0] + (this->tree1 + c1)->bv.axis[1] * n[1] + (this->tree1 + c1)->bv.axis[2] * n[2];
-
       BVH_REAL bound1 = motion1->computeMotionBound((this->tree1 + c1)->bv, n);
       BVH_REAL bound2 = motion2->computeMotionBound((this->tree2 + c2)->bv, n);
 
@@ -1163,7 +1171,7 @@ public:
     }
     else
     {
-      const StackData& data = stack.back();
+      const ConservativeAdvancementStackData& data = stack.back();
       BVH_REAL d = data.d;
 
       if(d > c)
@@ -1190,18 +1198,7 @@ public:
   MotionBase<BV>* motion1;
   MotionBase<BV>* motion2;
 
-  struct StackData
-  {
-    StackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, BVH_REAL d_) : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
-
-    Vec3f P1;
-    Vec3f P2;
-    int c1;
-    int c2;
-    BVH_REAL d;
-  };
-
-  mutable std::vector<StackData> stack;
+  mutable std::vector<ConservativeAdvancementStackData> stack;
 };
 
 

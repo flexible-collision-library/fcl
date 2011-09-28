@@ -393,14 +393,14 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
 {
   if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
   {
-    const StackData& data = stack.back();
+    const ConservativeAdvancementStackData& data = stack.back();
     BVH_REAL d = data.d;
     Vec3f n;
     int c1, c2;
 
     if(d > c)
     {
-      const StackData& data2 = stack[stack.size() - 2];
+      const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
       d = data2.d;
       n = data2.P2 - data2.P1;
       c1 = data2.c1;
@@ -431,7 +431,7 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
   }
   else
   {
-    const StackData& data = stack.back();
+    const ConservativeAdvancementStackData& data = stack.back();
     BVH_REAL d = data.d;
 
     if(d > c)
@@ -448,14 +448,14 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
 {
   if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
   {
-    const StackData& data = stack.back();
+    const ConservativeAdvancementStackData& data = stack.back();
     BVH_REAL d = data.d;
     Vec3f n;
     int c1, c2;
 
     if(d > c)
     {
-      const StackData& data2 = stack[stack.size() - 2];
+      const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
       d = data2.d;
       n = data2.P2 - data2.P1;
       c1 = data2.c1;
@@ -486,7 +486,7 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
   }
   else
   {
-    const StackData& data = stack.back();
+    const ConservativeAdvancementStackData& data = stack.back();
     BVH_REAL d = data.d;
 
     if(d > c)
@@ -514,7 +514,7 @@ BVH_REAL MeshConservativeAdvancementTraversalNodeRSS::BVTesting(int b1, int b2) 
   Vec3f P1, P2;
   BVH_REAL d = distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv, &P1, &P2);
 
-  stack.push_back(StackData(P1, P2, b1, b2, d));
+  stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
   return d;
 }
@@ -560,17 +560,20 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
   }
 
 
-  /** n is the local frame of object 1 */
+  /** n is the local frame of object 1, pointing from object 1 to object2 */
   Vec3f n = P2 - P1;
-  /** turn n into the global frame */
-  Vec3f R[3];
-  motion1->getCurrentRotation(R);
-  Vec3f n_transformed = matMulVec(R, n);
+  /** turn n into the global frame, pointing from object 1 to object 2 */
+  Vec3f R0[3];
+  motion1->getCurrentRotation(R0);
+  Vec3f n_transformed = matMulVec(R0, n);
   n_transformed.normalize();
   BVH_REAL bound1 = motion1->computeMotionBound(t11, t12, t13, n_transformed);
-  BVH_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, n_transformed);
+  BVH_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, -n_transformed);
 
-  BVH_REAL cur_delta_t = d / (bound1 + bound2);
+  BVH_REAL bound = bound1 + bound2;
+  if(bound < d) bound = d;
+
+  BVH_REAL cur_delta_t = d / bound;
 
   if(cur_delta_t < delta_t)
     delta_t = cur_delta_t;
@@ -580,14 +583,14 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
 {
   if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
   {
-    const StackData& data = stack.back();
+    const ConservativeAdvancementStackData& data = stack.back();
     BVH_REAL d = data.d;
     Vec3f n;
     int c1, c2;
 
     if(d > c)
     {
-      const StackData& data2 = stack[stack.size() - 2];
+      const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
       d = data2.d;
       n = data2.P2 - data2.P1;
       c1 = data2.c1;
@@ -603,16 +606,15 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
 
     if(c != d) std::cout << "there is some problem here" << std::endl;
 
-    /** n is in local frame of RSS c1 */
-    /** turn n into the global frame */
+    // n is in local frame of RSS c1, so we need to turn n into the global frame
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[2] + model1->getBV(c1).bv.axis[2] * n[2];
-    Vec3f R[3];
-    motion1->getCurrentRotation(R);
-    n_transformed = matMulVec(R, n_transformed);
+    Vec3f R0[3];
+    motion1->getCurrentRotation(R0);
+    n_transformed = matMulVec(R0, n_transformed);
     n_transformed.normalize();
 
     BVH_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
-    BVH_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, n_transformed);
+    BVH_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
 
     BVH_REAL cur_delta_t = c / (bound1 + bound2);
     if(cur_delta_t < delta_t)
@@ -624,7 +626,7 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
   }
   else
   {
-    const StackData& data = stack.back();
+    const ConservativeAdvancementStackData& data = stack.back();
     BVH_REAL d = data.d;
 
     if(d > c)
