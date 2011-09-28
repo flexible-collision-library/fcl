@@ -49,9 +49,11 @@ namespace fcl
 int conservativeAdvancement(const CollisionObject* o1,
                             const Vec3f R1_1[3], const Vec3f& T1_1,
                             const Vec3f R1_2[3], const Vec3f& T1_2,
+                            const Vec3f& O1,
                             const CollisionObject* o2,
                             const Vec3f R2_1[3], const Vec3f& T2_1,
                             const Vec3f R2_2[3], const Vec3f& T2_2,
+                            const Vec3f& O2,
                             int num_max_contacts, bool exhaustive, bool enable_contact,
                             std::vector<Contact>& contacts,
                             BVH_REAL& toc)
@@ -74,26 +76,49 @@ int conservativeAdvancement(const CollisionObject* o1,
   if(node_type1 != BV_RSS || node_type2 != BV_RSS)
     return 0;
 
-  MeshConservativeAdvancementTraversalNodeRSS node;
 
   const BVHModel<RSS>* model1 = (const BVHModel<RSS>*)o1;
   const BVHModel<RSS>* model2 = (const BVHModel<RSS>*)o2;
 
-  initialize(node, *model1, *model2, R1_1, T1_1, R2_1, T2_1);
+  // whether the first start configuration is in collision
+  MeshCollisionTraversalNodeRSS cnode;
+  if(!initialize(cnode, *model1, *model2))
+    std::cout << "initialize error" << std::endl;
 
-  node.motion1 = new InterpMotion<RSS>(R1_1, T1_1, R1_2, T1_2);
-  node.motion2 = new InterpMotion<RSS>(R2_1, T2_1, R2_2, T2_2);
+  relativeTransform(R1_1, T1_1, R2_1, T2_1, cnode.R, cnode.T);
 
-  int b = collide(o1, o2, num_max_contacts, exhaustive, enable_contact, contacts);
+  cnode.enable_statistics = false;
+  cnode.num_max_contacts = num_max_contacts;
+  cnode.exhaustive = exhaustive;
+  cnode.enable_contact = enable_contact;
+
+  collide(&cnode);
+
+  int b = cnode.pairs.size();
 
   if(b > 0)
   {
     toc = 0;
+    // std::cout << "zero collide" << std::endl;
     return b;
   }
 
+
+  MeshConservativeAdvancementTraversalNodeRSS node;
+
+  initialize(node, *model1, *model2, R1_1, T1_1, R2_1, T2_1);
+
+  InterpMotion<RSS> motion1(R1_1, T1_1, R1_2, T1_2, O1);
+  InterpMotion<RSS> motion2(R2_1, T2_1, R2_2, T2_2, O2);
+
+  node.motion1 = &motion1;
+  node.motion2 = &motion2;
+
+  int iter = 0;
+
   do
   {
+    iter++;
     Vec3f R1_t[3];
     Vec3f R2_t[3];
     Vec3f T1_t;
@@ -111,7 +136,10 @@ int conservativeAdvancement(const CollisionObject* o1,
     distanceRecurse(&node, 0, 0, NULL);
 
     if(node.delta_t < node.t_err)
+    {
+      // std::cout << node.delta_t << " " << node.t_err << std::endl;
       break;
+    }
 
     node.toc += node.delta_t;
 
@@ -125,6 +153,10 @@ int conservativeAdvancement(const CollisionObject* o1,
     node.motion2->integrate(node.toc);
   }
   while(1);
+
+  std::cout << iter << std::endl;
+
+  toc = node.toc;
 
   if(node.toc < 1)
     return 1;

@@ -1124,7 +1124,10 @@ public:
     BVH_REAL bound1 = motion1->computeMotionBound(p1, p2, p3, n);
     BVH_REAL bound2 = motion2->computeMotionBound(q1, q2, q3, n);
 
-    BVH_REAL cur_delta_t = d / (bound1 + bound2);
+    BVH_REAL bound = bound1 + bound2;
+    if(bound < d) bound = d;
+
+    BVH_REAL cur_delta_t = d / bound;
 
     if(cur_delta_t < delta_t)
       delta_t = cur_delta_t;
@@ -1161,7 +1164,10 @@ public:
       BVH_REAL bound1 = motion1->computeMotionBound((this->tree1 + c1)->bv, n);
       BVH_REAL bound2 = motion2->computeMotionBound((this->tree2 + c2)->bv, n);
 
-      BVH_REAL cur_delta_t = c / (bound1 + bound2);
+      BVH_REAL bound = bound1 + bound2;
+      if(bound < c) bound = c;
+
+      BVH_REAL cur_delta_t = c / bound;
       if(cur_delta_t < delta_t)
         delta_t = cur_delta_t;
 

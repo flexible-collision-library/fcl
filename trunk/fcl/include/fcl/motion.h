@@ -172,6 +172,11 @@ protected:
     linear_vel = t2.transform(reference_p) - t1.transform(reference_p);
     SimpleQuaternion deltaq = t2.getQuatRotation() * t1.getQuatRotation().inverse();
     deltaq.toAxisAngle(angular_axis, angular_vel);
+    if(angular_vel < 0)
+    {
+      angular_vel = -angular_vel;
+      angular_axis = -angular_axis;
+    }
   }
 
 

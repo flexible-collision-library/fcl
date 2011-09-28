@@ -54,8 +54,7 @@ bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
                      SplitMethodType split_method,
                      unsigned int nsamples);
 
-
-void computeInterpTransform(const Transform& tf1, const Transform& tf2, BVH_REAL t, Transform& tf);
+unsigned int n_dcd_samples = 10;
 
 int main()
 {
@@ -74,7 +73,18 @@ int main()
 
   for(unsigned int i = 0; i < transforms.size(); ++i)
   {
-    CA_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
+    std::cout << i << std::endl;
+    bool res = CA_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
+    if(res) std::cout << "yes"; else std::cout << "no";
+    std::cout << std::endl;
+
+    std::cout << "-----------" << std::endl;
+    bool res2 = interp_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples);
+
+    if(res2) std::cout << "yes"; else std::cout << "no";
+    std::cout << std::endl;
+
+    std::cout << std::endl;
   }
 
   return 1;
@@ -110,8 +120,8 @@ bool CA_ccd_Test(const Transform& tf1, const Transform& tf2,
   std::vector<Contact> contacts;
   BVH_REAL toc;
 
-  int b = conservativeAdvancement(&m1, tf1.R, tf1.T, tf2.R, tf2.T,
-                          &m2, R2, T2, R2, T2,
+  int b = conservativeAdvancement(&m1, tf1.R, tf1.T, tf2.R, tf2.T, Vec3f(),
+                          &m2, R2, T2, R2, T2, Vec3f(),
                           1, false, false, contacts, toc);
 
   std::cout << "t " << toc << std::endl;
@@ -119,69 +129,6 @@ bool CA_ccd_Test(const Transform& tf1, const Transform& tf2,
   return (b > 0);
 }
 
-void computeInterpTransform(const Transform& tf1, const Transform& tf2, BVH_REAL t, Transform& tf)
-{
-  Vec3f T_t = tf1.T + (tf2.T - tf1.T) * t;
-  Vec3f R_t[3];
-
-  Vec3f M[3];
-  for(int i = 0; i < 3; ++i)
-  {
-    for(int j = 0; j < 3; ++j)
-      for(int k = 0; k < 3; ++k)
-        M[i][j] += tf2.R[i][k] * tf1.R[j][k];
-  }
-
-  SimpleQuaternion q;
-  q.fromRotation(M);
-
-  Vec3f axis;
-  BVH_REAL angle;
-  q.toAxisAngle(axis, angle);
-
-  Vec3f A[3];
-  Vec3f B[3];
-  Vec3f C[3];
-
-  Vec3f tmp[3];
-  for(int i = 0; i < 3; ++i)
-  {
-    for(int j = 0; j < 3; ++j)
-    {
-      if(i == j)
-        tmp[i][j] = 1 - axis[i] * axis[j];
-      else
-        tmp[i][j] = 0 - axis[i] * axis[j];
-    }
-  }
-
-  matMulMat(tmp, tf1.R, A);
-
-  tmp[0][0] = 0; tmp[0][1] = -axis[2]; tmp[0][2] = axis[1];
-  tmp[1][0] = axis[2]; tmp[1][1] = 0; tmp[1][2] = -axis[0];
-  tmp[2][0] = -axis[1]; tmp[2][1] = axis[0]; tmp[2][2] = 0;
-
-  matMulMat(tmp, tf1.R, B);
-
-  for(int i = 0; i < 3; ++i)
-  {
-    for(int j = 0; j < 3; ++j)
-    {
-        tmp[i][j] = axis[i] * axis[j];
-    }
-  }
-
-  matMulMat(tmp, tf1.R, C);
-
-  for(int i = 0; i < 3; ++i)
-  {
-    R_t[i] = A[i] * cos(angle * t) + B[i] * sin(angle * t) + C[i];
-  }
-
-  tf.T = T_t;
-  for(int i = 0; i < 3; ++i)
-    tf.R[i] = R_t[i];
-}
 
 bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
@@ -210,15 +157,23 @@ bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
   R2[1] = Vec3f(0, 1, 0);
   R2[2] = Vec3f(0, 0, 1);
 
+
+  InterpMotion<RSS> motion1(tf1.R, tf1.T, tf2.R, tf2.T, Vec3f());
+
   for(unsigned int i = 0; i <= nsamples; ++i)
   {
-    BVH_REAL delta = i / (BVH_REAL)nsamples;
+    BVH_REAL curt = i / (BVH_REAL)nsamples;
 
-    Transform tf;
-    computeInterpTransform(tf1, tf2, delta, tf);
+    Vec3f R[3];
+    Vec3f T;
+    motion1.integrate(curt);
+    motion1.getCurrentTransform(R, T);
 
-    MeshCollisionTraversalNode<RSS> node;
-    if(!initialize(node, m1, m2))
+    m1.setTransform(R, T);
+    m2.setTransform(R2, T2);
+
+    MeshCollisionTraversalNodeRSS node;
+    if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
       std::cout << "initialize error" << std::endl;
 
     node.enable_statistics = false;
@@ -228,7 +183,11 @@ bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
 
     collide(&node);
 
-    if(node.pairs.size() > 0) return true;
+    if(node.pairs.size() > 0)
+    {
+      std::cout << "t " << curt << std::endl;
+      return true;
+    }
   }
 
   return false;

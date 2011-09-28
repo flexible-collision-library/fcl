@@ -421,7 +421,10 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
     BVH_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
     BVH_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
 
-    BVH_REAL cur_delta_t = c / (bound1 + bound2);
+    BVH_REAL bound = bound1 + bound2;
+    if(bound < c) bound = c;
+
+    BVH_REAL cur_delta_t = c / bound;
     if(cur_delta_t < delta_t)
       delta_t = cur_delta_t;
 
@@ -476,7 +479,10 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
     BVH_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
     BVH_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
 
-    BVH_REAL cur_delta_t = c / (bound1 + bound2);
+    BVH_REAL bound = bound1 + bound2;
+    if(bound < c) bound = c;
+
+    BVH_REAL cur_delta_t = c / bound;
     if(cur_delta_t < delta_t)
       delta_t = cur_delta_t;
 
@@ -616,7 +622,10 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
     BVH_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
     BVH_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
 
-    BVH_REAL cur_delta_t = c / (bound1 + bound2);
+    BVH_REAL bound = bound1 + bound2;
+    if(bound < d) bound = d;
+
+    BVH_REAL cur_delta_t = c / bound;
     if(cur_delta_t < delta_t)
       delta_t = cur_delta_t;
 

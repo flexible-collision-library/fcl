@@ -50,9 +50,11 @@ namespace fcl
 int conservativeAdvancement(const CollisionObject* o1,
                             const Vec3f R1_1[3], const Vec3f& T1_1,
                             const Vec3f R1_2[3], const Vec3f& T1_2,
+                            const Vec3f& O1,
                             const CollisionObject* o2,
                             const Vec3f R2_1[3], const Vec3f& T2_1,
                             const Vec3f R2_2[3], const Vec3f& T2_2,
+                            const Vec3f& O2,
                             int num_max_contacts, bool exhaustive, bool enable_contact,
                             std::vector<Contact>& contacts,
                             BVH_REAL& toc);
