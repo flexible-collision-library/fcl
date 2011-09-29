@@ -49,6 +49,7 @@
 #include <boost/shared_ptr.hpp>
 #include <limits>
 #include <vector>
+#include <cassert>
 
 /** \brief Main namespace */
 namespace fcl
@@ -1159,7 +1160,7 @@ public:
         c2 = data.c2;
       }
 
-      if(c != d) std::cout << "there is some problem here" << std::endl;
+      assert(c == d);
 
       BVH_REAL bound1 = motion1->computeMotionBound((this->tree1 + c1)->bv, n);
       BVH_REAL bound2 = motion2->computeMotionBound((this->tree2 + c2)->bv, n);

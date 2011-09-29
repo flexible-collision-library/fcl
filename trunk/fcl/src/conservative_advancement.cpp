@@ -114,11 +114,9 @@ int conservativeAdvancement(const CollisionObject* o1,
   node.motion1 = &motion1;
   node.motion2 = &motion2;
 
-  int iter = 0;
 
   do
   {
-    iter++;
     Vec3f R1_t[3];
     Vec3f R2_t[3];
     Vec3f T1_t;
@@ -153,8 +151,6 @@ int conservativeAdvancement(const CollisionObject* o1,
     node.motion2->integrate(node.toc);
   }
   while(1);
-
-  std::cout << iter << std::endl;
 
   toc = node.toc;
 

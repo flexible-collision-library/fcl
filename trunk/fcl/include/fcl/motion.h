@@ -42,7 +42,7 @@
 #include "fcl/RSS.h"
 #include "fcl/transform.h"
 #include "fcl/motion_base.h"
-
+#include <iostream>
 namespace fcl
 {
 
@@ -91,8 +91,8 @@ public:
                const Vec3f R2[3], const Vec3f& T2,
                const Vec3f& O)
   {
-    t1 = SimpleTransform(R1, T1 - matMulVec(R1, O));
-    t2 = SimpleTransform(R2, T2 - matMulVec(R2, O));
+    t1 = SimpleTransform(R1, T1);
+    t2 = SimpleTransform(R2, T2);
     t = t1;
 
     reference_p = O;

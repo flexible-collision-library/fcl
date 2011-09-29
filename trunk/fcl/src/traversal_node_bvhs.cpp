@@ -414,7 +414,7 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
       c2 = data.c2;
     }
 
-    if(c != d) std::cout << "there is some problem here" << std::endl;
+    assert(c == d);
 
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[1] +  model1->getBV(c1).bv.axis[2] * n[2];
 
@@ -472,7 +472,7 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
       c2 = data.c2;
     }
 
-    if(c != d) std::cout << "there is some problem here" << std::endl;
+    assert(c == d);
 
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[1] +  model1->getBV(c1).bv.axis[2] * n[2];
 
@@ -577,9 +577,10 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
   BVH_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, -n_transformed);
 
   BVH_REAL bound = bound1 + bound2;
-  if(bound < d) bound = d;
 
-  BVH_REAL cur_delta_t = d / bound;
+  BVH_REAL cur_delta_t;
+  if(bound <= d) cur_delta_t = 1;
+  else cur_delta_t = d / bound;
 
   if(cur_delta_t < delta_t)
     delta_t = cur_delta_t;
@@ -610,7 +611,7 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
       c2 = data.c2;
     }
 
-    if(c != d) std::cout << "there is some problem here" << std::endl;
+    assert(c == d);
 
     // n is in local frame of RSS c1, so we need to turn n into the global frame
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[2] + model1->getBV(c1).bv.axis[2] * n[2];
@@ -623,9 +624,11 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
     BVH_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
 
     BVH_REAL bound = bound1 + bound2;
-    if(bound < d) bound = d;
 
-    BVH_REAL cur_delta_t = c / bound;
+    BVH_REAL cur_delta_t;
+    if(bound <= c) cur_delta_t = 1;
+    else cur_delta_t = c / bound;
+
     if(cur_delta_t < delta_t)
       delta_t = cur_delta_t;
 

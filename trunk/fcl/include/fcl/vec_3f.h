@@ -145,6 +145,12 @@ namespace fcl
       return *this;
     }
 
+    inline Vec3f& operator *= (BVH_REAL t)
+    {
+      v4 = _mm_mul_ps(_mm_set1_ps(t), v4);
+      return *this;
+    }
+
     /** \brief Negate the vector */
     inline void negate()
     {
@@ -328,6 +334,14 @@ namespace fcl
       v_[0] -= other.v_[0];
       v_[1] -= other.v_[1];
       v_[2] -= other.v_[2];
+      return *this;
+    }
+
+    inline Vec3f& operator *= (BVH_REAL t)
+    {
+      v_[0] *= t;
+      v_[1] *= t;
+      v_[2] *= t;
       return *this;
     }
 

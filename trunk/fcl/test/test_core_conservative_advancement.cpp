@@ -46,13 +46,17 @@ using namespace fcl;
 bool CA_ccd_Test(const Transform& tf1, const Transform& tf2,
                  const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                  const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
-                 SplitMethodType split_method);
+                 SplitMethodType split_method,
+                 bool use_COM,
+                 BVH_REAL& toc);
 
 bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
                      SplitMethodType split_method,
-                     unsigned int nsamples);
+                     unsigned int nsamples,
+                     bool use_COM,
+                     BVH_REAL& toc);
 
 unsigned int n_dcd_samples = 10;
 
@@ -74,16 +78,26 @@ int main()
   for(unsigned int i = 0; i < transforms.size(); ++i)
   {
     std::cout << i << std::endl;
-    bool res = CA_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    if(res) std::cout << "yes"; else std::cout << "no";
+    BVH_REAL toc;
+    bool res = CA_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, toc);
+
+    BVH_REAL toc2;
+    bool res2 = CA_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, true, toc2);
+
+    BVH_REAL toc3;
+    bool res3 = interp_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, false, toc3);
+
+    BVH_REAL toc4;
+    bool res4 = interp_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, true, toc4);
+
+
+    if(res) std::cout << "yes "; else std::cout << "no ";
+    if(res2) std::cout << "yes "; else std::cout << "no ";
+    if(res3) std::cout << "yes "; else std::cout << "no ";
+    if(res4) std::cout << "yes "; else std::cout << "no ";
     std::cout << std::endl;
 
-    std::cout << "-----------" << std::endl;
-    bool res2 = interp_ccd_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples);
-
-    if(res2) std::cout << "yes"; else std::cout << "no";
-    std::cout << std::endl;
-
+    std::cout << toc << " " << toc2 << " " << toc3 << " " << toc4 << std::endl;
     std::cout << std::endl;
   }
 
@@ -95,7 +109,9 @@ int main()
 bool CA_ccd_Test(const Transform& tf1, const Transform& tf2,
                  const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                  const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
-                 SplitMethodType split_method)
+                 SplitMethodType split_method,
+                 bool use_COM,
+                 BVH_REAL& toc)
 {
   BVHModel<RSS> m1;
   BVHModel<RSS> m2;
@@ -118,13 +134,24 @@ bool CA_ccd_Test(const Transform& tf1, const Transform& tf2,
   R2[2] = Vec3f(0, 0, 1);
 
   std::vector<Contact> contacts;
-  BVH_REAL toc;
 
-  int b = conservativeAdvancement(&m1, tf1.R, tf1.T, tf2.R, tf2.T, Vec3f(),
-                          &m2, R2, T2, R2, T2, Vec3f(),
+  Vec3f m1_ref;
+  Vec3f m2_ref;
+
+  if(use_COM)
+  {
+    for(unsigned int i = 0; i < vertices1.size(); ++i)
+      m1_ref += vertices1[i];
+    m1_ref *= (1.0 / vertices1.size());
+
+    for(unsigned int i = 0; i < vertices2.size(); ++i)
+      m2_ref += vertices2[i];
+    m2_ref *= (1.0 / vertices2.size());
+  }
+
+  int b = conservativeAdvancement(&m1, tf1.R, tf1.T, tf2.R, tf2.T, m1_ref,
+                          &m2, R2, T2, R2, T2, m2_ref,
                           1, false, false, contacts, toc);
-
-  std::cout << "t " << toc << std::endl;
 
   return (b > 0);
 }
@@ -134,7 +161,9 @@ bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
                      SplitMethodType split_method,
-                     unsigned int nsamples)
+                     unsigned int nsamples,
+                     bool use_COM,
+                     BVH_REAL& toc)
 {
 
   BVHModel<RSS> m1;
@@ -157,8 +186,21 @@ bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
   R2[1] = Vec3f(0, 1, 0);
   R2[2] = Vec3f(0, 0, 1);
 
+  Vec3f m1_ref;
+  Vec3f m2_ref;
 
-  InterpMotion<RSS> motion1(tf1.R, tf1.T, tf2.R, tf2.T, Vec3f());
+  if(use_COM)
+  {
+    for(unsigned int i = 0; i < vertices1.size(); ++i)
+      m1_ref += vertices1[i];
+    m1_ref *= (1.0 / vertices1.size());
+
+    for(unsigned int i = 0; i < vertices2.size(); ++i)
+      m2_ref += vertices2[i];
+    m2_ref *= (1.0 / vertices2.size());
+  }
+
+  InterpMotion<RSS> motion1(tf1.R, tf1.T, tf2.R, tf2.T, m1_ref);
 
   for(unsigned int i = 0; i <= nsamples; ++i)
   {
@@ -185,7 +227,7 @@ bool interp_ccd_Test(const Transform& tf1, const Transform& tf2,
 
     if(node.pairs.size() > 0)
     {
-      std::cout << "t " << curt << std::endl;
+      toc = curt;
       return true;
     }
   }
