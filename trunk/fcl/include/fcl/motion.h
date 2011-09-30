@@ -84,7 +84,9 @@ public:
     if(dt > 1) dt = 1;
 
     t.setQuatRotation(absoluteRotation(dt));
-    t.setTranslation(p + axis * (dt * linear_vel) - t.getQuatRotation().transform(p));
+
+    SimpleQuaternion delta_rot = deltaRotation(dt);
+    t.setTranslation(p + axis * (dt * linear_vel) + delta_rot.transform(t1.getTranslation() - p));
 
     return true;
   }
