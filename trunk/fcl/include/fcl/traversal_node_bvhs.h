@@ -951,8 +951,8 @@ public:
     last_tri_id1 = 0;
     last_tri_id2 = 0;
 
-    rel_err = 0.01;
-    abs_err = 0.01;
+    rel_err = 0;
+    abs_err = 0;
 
     min_distance = std::numeric_limits<BVH_REAL>::max();
   }
@@ -1061,7 +1061,7 @@ public:
   {
     delta_t = 1;
     toc = 0;
-    t_err = (BVH_REAL)0.001;
+    t_err = (BVH_REAL)0;
 
     w = w_;
 
@@ -1126,9 +1126,10 @@ public:
     BVH_REAL bound2 = motion2->computeMotionBound(q1, q2, q3, n);
 
     BVH_REAL bound = bound1 + bound2;
-    if(bound < d) bound = d;
 
-    BVH_REAL cur_delta_t = d / bound;
+    BVH_REAL cur_delta_t;
+    if(bound <= d) cur_delta_t = 1;
+    else cur_delta_t = d / bound;
 
     if(cur_delta_t < delta_t)
       delta_t = cur_delta_t;
@@ -1166,9 +1167,11 @@ public:
       BVH_REAL bound2 = motion2->computeMotionBound((this->tree2 + c2)->bv, n);
 
       BVH_REAL bound = bound1 + bound2;
-      if(bound < c) bound = c;
 
-      BVH_REAL cur_delta_t = c / bound;
+      BVH_REAL cur_delta_t;
+      if(bound <= c) cur_delta_t = 1;
+      else cur_delta_t = c / bound;
+
       if(cur_delta_t < delta_t)
         delta_t = cur_delta_t;
 

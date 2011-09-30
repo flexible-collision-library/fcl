@@ -46,6 +46,165 @@
 namespace fcl
 {
 
+template<typename BV>
+class ScrewMotion : public MotionBase<BV>
+{
+public:
+  /** Default transformations are all identities */
+  ScrewMotion()
+  {
+    /** Default angular velocity is zero */
+    axis = Vec3f(1, 0, 0);
+    angular_vel = 0;
+
+    /** Default reference point is local zero point */
+
+    /** Default linear velocity is zero */
+    linear_vel = 0;
+  }
+
+  /** \brief Construct motion from the initial rotation/translation and goal rotation/translation */
+  ScrewMotion(const Vec3f R1[3], const Vec3f& T1,
+              const Vec3f R2[3], const Vec3f& T2)
+  {
+    t1 = SimpleTransform(R1, T1);
+    t2 = SimpleTransform(R2, T2);
+
+    /** Current time is zero, so the transformation is t1 */
+    t = t1;
+
+    computeScrewParameter();
+  }
+
+  /** \brief Integrate the motion from 0 to dt
+   * We compute the current transformation from zero point instead of from last integrate time, for precision.
+   */
+  bool integrate(double dt)
+  {
+    if(dt > 1) dt = 1;
+
+    t.setQuatRotation(absoluteRotation(dt));
+    t.setTranslation(p + axis * (dt * linear_vel) - t.getQuatRotation().transform(p));
+
+    return true;
+  }
+
+  /** \brief Compute the motion bound for a bounding volume along a given direction n
+   * For general BV, not implemented so return trivial 0
+   */
+  BVH_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
+
+  BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
+  {
+    BVH_REAL proj_max = ((t1.getQuatRotation().transform(a) + t1.getTranslation() - p).cross(axis)).sqrLength();
+    BVH_REAL tmp;
+    tmp = ((t1.getQuatRotation().transform(b) + t1.getTranslation() - p).cross(axis)).sqrLength();
+    if(tmp > proj_max) proj_max = tmp;
+    tmp = ((t1.getQuatRotation().transform(c) + t1.getTranslation() - p).cross(axis)).sqrLength();
+    if(tmp > proj_max) proj_max = tmp;
+
+    proj_max = sqrt(proj_max);
+
+    BVH_REAL v_dot_n = axis.dot(n) * linear_vel;
+    BVH_REAL w_cross_n = (axis.cross(n)).length() * angular_vel;
+    BVH_REAL mu = v_dot_n + w_cross_n * proj_max;
+
+    return mu;
+  }
+
+  /** \brief Get the rotation and translation in current step */
+  void getCurrentTransform(Vec3f R[3], Vec3f& T) const
+  {
+    for(int i = 0; i < 3; ++i)
+    {
+      R[i] = t.getRotation()[i];
+    }
+
+    T = t.getTranslation();
+  }
+
+  void getCurrentRotation(Vec3f R[3]) const
+  {
+    for(int i = 0; i < 3; ++i)
+      R[i] = t.getRotation()[i];
+  }
+
+  void getCurrentTranslation(Vec3f& T) const
+  {
+    T = t.getTranslation();
+  }
+
+protected:
+  void computeScrewParameter()
+  {
+    SimpleQuaternion deltaq = t2.getQuatRotation() * t1.getQuatRotation().inverse();
+    deltaq.toAxisAngle(axis, angular_vel);
+    if(angular_vel < 0)
+    {
+      angular_vel = -angular_vel;
+      axis = -axis;
+    }
+
+    if(angular_vel < 1e-10)
+    {
+      angular_vel = 0;
+      axis = t2.getTranslation() - t1.getTranslation();
+      linear_vel = axis.length();
+      p = t1.getTranslation();
+    }
+    else
+    {
+      Vec3f o = t2.getTranslation() - t1.getTranslation();
+      p = (t1.getTranslation() + t2.getTranslation() + axis.cross(o) * (1.0 / tan(angular_vel / 2.0))) * 0.5;
+      linear_vel = o.dot(axis);
+    }
+  }
+
+  SimpleQuaternion deltaRotation(BVH_REAL dt) const
+  {
+    SimpleQuaternion res;
+    res.fromAxisAngle(axis, (BVH_REAL)(dt * angular_vel));
+    return res;
+  }
+
+  SimpleQuaternion absoluteRotation(BVH_REAL dt) const
+  {
+    SimpleQuaternion delta_t = deltaRotation(dt);
+    return delta_t * t1.getQuatRotation();
+  }
+
+  /** \brief The transformation at time 0 */
+  SimpleTransform t1;
+
+  /** \brief The transformation at time 1 */
+  SimpleTransform t2;
+
+  /** \brief The transformation at current time t */
+  SimpleTransform t;
+
+  /** \brief screw axis */
+  Vec3f axis;
+
+  /** \brief A point on the axis S */
+  Vec3f p;
+
+  /** \brief linear velocity along the axis */
+  BVH_REAL linear_vel;
+
+  /** \brief angular velocity */
+  BVH_REAL angular_vel;
+};
+
+
+/** \brief Compute the motion bound for a bounding volume along a given direction n
+ * according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||R0(ci) x w||. w is the angular axis (normalized)
+ * and ci are the endpoints of the generator primitives of RSS.
+ * Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
+ */
+template<>
+BVH_REAL ScrewMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const;
+
+
 /** \brief Linear interpolation motion
  * Each Motion is assumed to have constant linear velocity and angular velocity
  * The motion is R(t)(p - p_ref) + p_ref + T(t)
@@ -57,7 +216,7 @@ template<typename BV>
 class InterpMotion : public MotionBase<BV>
 {
 public:
-  /** Default transformations are all identities */
+  /** \brief Default transformations are all identities */
   InterpMotion()
   {
     /** Default angular velocity is zero */
@@ -121,24 +280,24 @@ public:
   BVH_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
 
   /** \brief Compute the motion bound for a triangle along a given direction n
-   * according to mu < |v * n| + ||w x n||(max||ci*||) where ||ci*|| = ||ci x w||. w is the angular axis (normalized)
+   * according to mu < |v * n| + ||w x n||(max||ci*||) where ||ci*|| = ||R0(ci) x w|| / \|w\|. w is the angular velocity
    * and ci are the triangle vertex coordinates.
    * Notice that the triangle is in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
    */
   BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
   {
-    BVH_REAL c_proj_max = ((a - reference_p).cross(angular_axis)).sqrLength();
+    BVH_REAL proj_max = ((t1.getQuatRotation().transform(a - reference_p)).cross(angular_axis)).sqrLength();
     BVH_REAL tmp;
-    tmp = ((b - reference_p).cross(angular_axis)).sqrLength();
-    if(tmp > c_proj_max) c_proj_max = tmp;
-    tmp = ((c - reference_p).cross(angular_axis)).sqrLength();
-    if(tmp > c_proj_max) c_proj_max = tmp;
+    tmp = ((t1.getQuatRotation().transform(b - reference_p)).cross(angular_axis)).sqrLength();
+    if(tmp > proj_max) proj_max = tmp;
+    tmp = ((t1.getQuatRotation().transform(c - reference_p)).cross(angular_axis)).sqrLength();
+    if(tmp > proj_max) proj_max = tmp;
 
-    c_proj_max = sqrt(c_proj_max);
+    proj_max = sqrt(proj_max);
 
     BVH_REAL v_dot_n = linear_vel.dot(n);
     BVH_REAL w_cross_n = (angular_axis.cross(n)).length() * angular_vel;
-    BVH_REAL mu = v_dot_n + w_cross_n * c_proj_max;
+    BVH_REAL mu = v_dot_n + w_cross_n * proj_max;
 
     return mu;
   }
@@ -180,16 +339,16 @@ protected:
   }
 
 
-  SimpleQuaternion deltaRotation(BVH_REAL t) const
+  SimpleQuaternion deltaRotation(BVH_REAL dt) const
   {
     SimpleQuaternion res;
-    res.fromAxisAngle(angular_axis, (BVH_REAL)(t * angular_vel));
+    res.fromAxisAngle(angular_axis, (BVH_REAL)(dt * angular_vel));
     return res;
   }
 
-  SimpleQuaternion absoluteRotation(BVH_REAL t) const
+  SimpleQuaternion absoluteRotation(BVH_REAL dt) const
   {
-    SimpleQuaternion delta_t = deltaRotation(t);
+    SimpleQuaternion delta_t = deltaRotation(dt);
     return delta_t * t1.getQuatRotation();
   }
 
@@ -217,7 +376,7 @@ protected:
 
 
 /** \brief Compute the motion bound for a bounding volume along a given direction n
- * according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||ci x w||. w is the angular axis (normalized)
+ * according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||R0(ci) x w||. w is the angular axis (normalized)
  * and ci are the endpoints of the generator primitives of RSS.
  * Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
  */

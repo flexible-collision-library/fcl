@@ -43,13 +43,13 @@ namespace fcl
 template<>
 BVH_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const
 {
-  BVH_REAL c_proj_max = ((bv.Tr - reference_p).cross(angular_axis)).sqrLength();
+  BVH_REAL c_proj_max = ((t1.getQuatRotation().transform(bv.Tr - reference_p)).cross(angular_axis)).sqrLength();
   BVH_REAL tmp;
-  tmp = ((bv.Tr + bv.axis[0] * bv.l[0] - reference_p).cross(angular_axis)).sqrLength();
+  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] - reference_p)).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((bv.Tr + bv.axis[1] * bv.l[1] - reference_p).cross(angular_axis)).sqrLength();
+  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p).cross(angular_axis)).sqrLength();
+  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = sqrt(c_proj_max);
@@ -57,6 +57,29 @@ BVH_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) co
   BVH_REAL v_dot_n = linear_vel.dot(n);
   BVH_REAL w_cross_n = (angular_axis.cross(n)).length() * angular_vel;
   BVH_REAL mu = v_dot_n + w_cross_n * (bv.r + c_proj_max);
+
+  return mu;
+}
+
+template<>
+BVH_REAL ScrewMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const
+{
+  BVH_REAL c_proj_max = ((t1.getQuatRotation().transform(bv.Tr)).cross(axis)).sqrLength();
+  BVH_REAL tmp;
+  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0])).cross(axis)).sqrLength();
+  if(tmp > c_proj_max) c_proj_max = tmp;
+  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
+  if(tmp > c_proj_max) c_proj_max = tmp;
+  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
+  if(tmp > c_proj_max) c_proj_max = tmp;
+
+  c_proj_max = sqrt(c_proj_max);
+
+  BVH_REAL v_dot_n = axis.dot(n) * linear_vel;
+  BVH_REAL w_cross_n = (axis.cross(n)).length() * angular_vel;
+  BVH_REAL origin_proj = ((t1.getTranslation() - p).cross(axis)).length();
+
+  BVH_REAL mu = v_dot_n + w_cross_n * (c_proj_max + bv.r + origin_proj);
 
   return mu;
 }

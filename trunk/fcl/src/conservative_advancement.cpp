@@ -46,14 +46,11 @@
 namespace fcl
 {
 
+template<typename BV>
 int conservativeAdvancement(const CollisionObject* o1,
-                            const Vec3f R1_1[3], const Vec3f& T1_1,
-                            const Vec3f R1_2[3], const Vec3f& T1_2,
-                            const Vec3f& O1,
+                            MotionBase<BV>* motion1,
                             const CollisionObject* o2,
-                            const Vec3f R2_1[3], const Vec3f& T2_1,
-                            const Vec3f R2_2[3], const Vec3f& T2_2,
-                            const Vec3f& O2,
+                            MotionBase<BV>* motion2,
                             int num_max_contacts, bool exhaustive, bool enable_contact,
                             std::vector<Contact>& contacts,
                             BVH_REAL& toc)
@@ -85,7 +82,16 @@ int conservativeAdvancement(const CollisionObject* o1,
   if(!initialize(cnode, *model1, *model2))
     std::cout << "initialize error" << std::endl;
 
-  relativeTransform(R1_1, T1_1, R2_1, T2_1, cnode.R, cnode.T);
+
+  Vec3f R1_0[3];
+  Vec3f R2_0[3];
+  Vec3f T1_0;
+  Vec3f T2_0;
+
+  motion1->getCurrentTransform(R1_0, T1_0);
+  motion2->getCurrentTransform(R2_0, T2_0);
+
+  relativeTransform(R1_0, T1_0, R2_0, T2_0, cnode.R, cnode.T);
 
   cnode.enable_statistics = false;
   cnode.num_max_contacts = num_max_contacts;
@@ -106,13 +112,10 @@ int conservativeAdvancement(const CollisionObject* o1,
 
   MeshConservativeAdvancementTraversalNodeRSS node;
 
-  initialize(node, *model1, *model2, R1_1, T1_1, R2_1, T2_1);
+  initialize(node, *model1, *model2, R1_0, T1_0, R2_0, T2_0);
 
-  InterpMotion<RSS> motion1(R1_1, T1_1, R1_2, T1_2, O1);
-  InterpMotion<RSS> motion2(R2_1, T2_1, R2_2, T2_2, O2);
-
-  node.motion1 = &motion1;
-  node.motion2 = &motion2;
+  node.motion1 = motion1;
+  node.motion2 = motion2;
 
 
   do
@@ -133,7 +136,7 @@ int conservativeAdvancement(const CollisionObject* o1,
 
     distanceRecurse(&node, 0, 0, NULL);
 
-    if(node.delta_t < node.t_err)
+    if(node.delta_t <= node.t_err)
     {
       // std::cout << node.delta_t << " " << node.t_err << std::endl;
       break;
@@ -159,5 +162,15 @@ int conservativeAdvancement(const CollisionObject* o1,
 
   return 0;
 }
+
+
+template int conservativeAdvancement<RSS>(const CollisionObject* o1,
+                                          MotionBase<RSS>* motion1,
+                                          const CollisionObject* o2,
+                                          MotionBase<RSS>* motion2,
+                                          int num_max_contacts, bool exhaustive, bool enable_contact,
+                                          std::vector<Contact>& contacts,
+                                          BVH_REAL& toc);
+
 
 }
