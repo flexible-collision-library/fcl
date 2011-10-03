@@ -1061,7 +1061,7 @@ public:
   {
     delta_t = 1;
     toc = 0;
-    t_err = (BVH_REAL)0;
+    t_err = (BVH_REAL)0.00001;
 
     w = w_;
 

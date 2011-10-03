@@ -43,13 +43,13 @@ namespace fcl
 template<>
 BVH_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const
 {
-  BVH_REAL c_proj_max = ((t1.getQuatRotation().transform(bv.Tr - reference_p)).cross(angular_axis)).sqrLength();
+  BVH_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr - reference_p)).cross(angular_axis)).sqrLength();
   BVH_REAL tmp;
-  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] - reference_p)).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = sqrt(c_proj_max);
@@ -64,24 +64,75 @@ BVH_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) co
 template<>
 BVH_REAL ScrewMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const
 {
-  BVH_REAL c_proj_max = ((t1.getQuatRotation().transform(bv.Tr)).cross(axis)).sqrLength();
+  BVH_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr)).cross(axis)).sqrLength();
   BVH_REAL tmp;
-  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0])).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0])).cross(axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((t1.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = sqrt(c_proj_max);
 
   BVH_REAL v_dot_n = axis.dot(n) * linear_vel;
   BVH_REAL w_cross_n = (axis.cross(n)).length() * angular_vel;
-  BVH_REAL origin_proj = ((t1.getTranslation() - p).cross(axis)).length();
+  BVH_REAL origin_proj = ((tf.getTranslation() - p).cross(axis)).length();
 
   BVH_REAL mu = v_dot_n + w_cross_n * (c_proj_max + bv.r + origin_proj);
 
   return mu;
+}
+
+template<>
+BVH_REAL SplineMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const
+{
+  BVH_REAL T_bound = computeTBound(n);
+
+  Vec3f c1 = bv.Tr;
+  Vec3f c2 = bv.Tr + bv.axis[0] * bv.l[0];
+  Vec3f c3 = bv.Tr + bv.axis[1] * bv.l[1];
+  Vec3f c4 = bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1];
+
+  BVH_REAL tmp;
+  // max_i |c_i * n|
+  BVH_REAL cn_max = fabs(c1.dot(n));
+  tmp = fabs(c2.dot(n));
+  if(tmp > cn_max) cn_max = tmp;
+  tmp = fabs(c3.dot(n));
+  if(tmp > cn_max) cn_max = tmp;
+  tmp = fabs(c4.dot(n));
+  if(tmp > cn_max) cn_max = tmp;
+
+  // max_i ||c_i||
+  BVH_REAL cmax = c1.sqrLength();
+  tmp = c2.sqrLength();
+  if(tmp > cmax) cmax = tmp;
+  tmp = c3.sqrLength();
+  if(tmp > cmax) cmax = tmp;
+  tmp = c4.sqrLength();
+  if(tmp > cmax) cmax = tmp;
+  cmax = sqrt(cmax);
+
+  // max_i ||c_i x n||
+  BVH_REAL cxn_max = (c1.cross(n)).sqrLength();
+  tmp = (c2.cross(n)).sqrLength();
+  if(tmp > cxn_max) cxn_max = tmp;
+  tmp = (c3.cross(n)).sqrLength();
+  if(tmp > cxn_max) cxn_max = tmp;
+  tmp = (c4.cross(n)).sqrLength();
+  if(tmp > cxn_max) cxn_max = tmp;
+  cxn_max = sqrt(cxn_max);
+
+  BVH_REAL dWdW_max = computeDWMax();
+  BVH_REAL ratio = std::min(1 - tf_t, dWdW_max);
+
+  BVH_REAL R_bound = 2 * (cn_max + cmax + cxn_max + 3 * bv.r) * ratio;
+
+
+  // std::cout << R_bound << " " << T_bound << std::endl;
+
+  return R_bound + T_bound;
 }
 
 }

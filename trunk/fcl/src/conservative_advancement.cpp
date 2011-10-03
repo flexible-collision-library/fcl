@@ -143,7 +143,6 @@ int conservativeAdvancement(const CollisionObject* o1,
     }
 
     node.toc += node.delta_t;
-
     if(node.toc > 1)
     {
       node.toc = 1;

@@ -50,12 +50,6 @@ bool CA_linear_Test(const Transform& tf1, const Transform& tf2,
                     bool use_COM,
                     BVH_REAL& toc);
 
-bool CA_screw_Test(const Transform& tf1, const Transform& tf2,
-                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
-                   SplitMethodType split_method,
-                   BVH_REAL& toc);
-
 bool linear_interp_Test(const Transform& tf1, const Transform& tf2,
                         const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                         const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
@@ -64,6 +58,13 @@ bool linear_interp_Test(const Transform& tf1, const Transform& tf2,
                         bool use_COM,
                         BVH_REAL& toc);
 
+bool CA_screw_Test(const Transform& tf1, const Transform& tf2,
+                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
+                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+                   SplitMethodType split_method,
+                   BVH_REAL& toc);
+
+
 bool screw_interp_Test(const Transform& tf1, const Transform& tf2,
                        const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                        const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
@@ -71,7 +72,23 @@ bool screw_interp_Test(const Transform& tf1, const Transform& tf2,
                        unsigned int nsamples,
                        BVH_REAL& toc);
 
-unsigned int n_dcd_samples = 100;
+// for spline test: the deBoor points are generated with screw motion, so will not pass tf1 and tf2 exactly
+bool CA_spline_Test(const Transform& tf1, const Transform& tf2,
+                    const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
+                    const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+                    SplitMethodType split_method,
+                    BVH_REAL& toc);
+
+
+bool spline_interp_Test(const Transform& tf1, const Transform& tf2,
+                        const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
+                        const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+                        SplitMethodType split_method,
+                        unsigned int nsamples,
+                        BVH_REAL& toc);
+
+
+unsigned int n_dcd_samples = 1000;
 
 int main()
 {
@@ -95,10 +112,10 @@ int main()
     bool res = CA_linear_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, toc);
 
     BVH_REAL toc2;
-    bool res2 = CA_linear_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, true, toc2);
+    bool res2 = linear_interp_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, false, toc2);
 
     BVH_REAL toc3;
-    bool res3 = linear_interp_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, false, toc3);
+    bool res3 = CA_linear_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, true, toc3);
 
     BVH_REAL toc4;
     bool res4 = linear_interp_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, true, toc4);
@@ -109,6 +126,13 @@ int main()
     BVH_REAL toc6;
     bool res6 = screw_interp_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, toc6);
 
+    BVH_REAL toc7;
+    bool res7 = CA_spline_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, toc7);
+
+    BVH_REAL toc8;
+    bool res8 = spline_interp_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, toc8);
+
+
 
     if(res) std::cout << "yes "; else std::cout << "no ";
     if(res2) std::cout << "yes "; else std::cout << "no ";
@@ -116,9 +140,12 @@ int main()
     if(res4) std::cout << "yes "; else std::cout << "no ";
     if(res5) std::cout << "yes "; else std::cout << "no ";
     if(res6) std::cout << "yes "; else std::cout << "no ";
+    if(res7) std::cout << "yes "; else std::cout << "no ";
+    if(res8) std::cout << "yes "; else std::cout << "no ";
+
     std::cout << std::endl;
 
-    std::cout << toc << " " << toc2 << " " << toc3 << " " << toc4 << " " << toc5 << " " << toc6 << std::endl;
+    std::cout << toc << " " << toc2 << " " << toc3 << " " << toc4 << " " << toc5 << " " << toc6 << " " << toc7 << " " << toc8 << std::endl;
     std::cout << std::endl;
   }
 
@@ -345,6 +372,164 @@ bool screw_interp_Test(const Transform& tf1, const Transform& tf2,
 
     m1.setTransform(R, T);
     m2.setTransform(R2, T2);
+
+    MeshCollisionTraversalNodeRSS node;
+    if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
+      std::cout << "initialize error" << std::endl;
+
+    node.enable_statistics = false;
+    node.num_max_contacts = 1;
+    node.exhaustive = false;
+    node.enable_contact = false;
+
+    collide(&node);
+
+    if(node.pairs.size() > 0)
+    {
+      toc = curt;
+      return true;
+    }
+  }
+
+  toc = 1;
+  return false;
+}
+
+
+bool CA_spline_Test(const Transform& tf1, const Transform& tf2,
+                    const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
+                    const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+                    SplitMethodType split_method,
+                    BVH_REAL& toc)
+{
+  BVHModel<RSS> m1;
+  BVHModel<RSS> m2;
+
+  m1.bv_splitter.reset(new BVSplitter<RSS>(split_method));
+  m2.bv_splitter.reset(new BVSplitter<RSS>(split_method));
+
+  m1.beginModel();
+  m1.addSubModel(vertices1, triangles1);
+  m1.endModel();
+
+  m2.beginModel();
+  m2.addSubModel(vertices2, triangles2);
+  m2.endModel();
+
+  ScrewMotion<RSS> motion(tf1.R, tf1.T, tf2.R, tf2.T);
+  Vec3f Td_1[4];
+  Vec3f Rd_1[4];
+  Vec3f Td_2[4];
+  Vec3f Rd_2[4];
+
+  for(int i = 0; i < 4; ++i)
+  {
+    motion.integrate(i / 4.0);
+    Vec3f R[3];
+    Vec3f T;
+    motion.getCurrentTransform(R, T);
+    SimpleQuaternion q;
+    q.fromRotation(R);
+    Vec3f axis;
+    BVH_REAL angle;
+    q.toAxisAngle(axis, angle);
+    Td_1[i] = T;
+    Rd_1[i] = axis * angle;
+  }
+
+  for(int i = 0; i < 4; ++i)
+  {
+    Td_2[i] = Vec3f();
+    Rd_2[i] = Vec3f(0, 0, 0);
+  }
+
+  SplineMotion<RSS> motion1(Td_1[0], Td_1[1], Td_1[2], Td_1[3],
+                            Rd_1[0], Rd_1[1], Rd_1[2], Rd_1[3]);
+
+  SplineMotion<RSS> motion2(Td_2[0], Td_2[1], Td_2[2], Td_2[3],
+                            Rd_2[0], Rd_2[1], Rd_2[2], Rd_2[3]);
+
+  std::vector<Contact> contacts;
+
+  int b = conservativeAdvancement(&m1, &motion1,
+                                  &m2, &motion2,
+                                  1, false, false, contacts, toc);
+
+
+  return (b > 0);
+
+}
+
+bool spline_interp_Test(const Transform& tf1, const Transform& tf2,
+                        const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
+                        const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+                        SplitMethodType split_method,
+                        unsigned int nsamples,
+                        BVH_REAL& toc)
+{
+  BVHModel<RSS> m1;
+  BVHModel<RSS> m2;
+
+  m1.bv_splitter.reset(new BVSplitter<RSS>(split_method));
+  m2.bv_splitter.reset(new BVSplitter<RSS>(split_method));
+
+  m1.beginModel();
+  m1.addSubModel(vertices1, triangles1);
+  m1.endModel();
+
+  m2.beginModel();
+  m2.addSubModel(vertices2, triangles2);
+  m2.endModel();
+
+
+  ScrewMotion<RSS> motion(tf1.R, tf1.T, tf2.R, tf2.T);
+  Vec3f Td_1[4];
+  Vec3f Rd_1[4];
+  Vec3f Td_2[4];
+  Vec3f Rd_2[4];
+
+  for(int i = 0; i < 4; ++i)
+  {
+    motion.integrate(i / 4.0);
+    Vec3f R[3];
+    Vec3f T;
+    motion.getCurrentTransform(R, T);
+    SimpleQuaternion q;
+    q.fromRotation(R);
+    Vec3f axis;
+    BVH_REAL angle;
+    q.toAxisAngle(axis, angle);
+    Td_1[i] = T;
+    Rd_1[i] = axis * angle;
+  }
+
+  for(int i = 0; i < 4; ++i)
+  {
+    Td_2[i] = Vec3f();
+    Rd_2[i] = Vec3f(0, 0, 0);
+  }
+
+  SplineMotion<RSS> motion1(Td_1[0], Td_1[1], Td_1[2], Td_1[3],
+                            Rd_1[0], Rd_1[1], Rd_1[2], Rd_1[3]);
+
+  SplineMotion<RSS> motion2(Td_2[0], Td_2[1], Td_2[2], Td_2[3],
+                            Rd_2[0], Rd_2[1], Rd_2[2], Rd_2[3]);
+
+
+  for(unsigned int i = 0; i < nsamples; ++i)
+  {
+    BVH_REAL curt = i / (BVH_REAL)nsamples;
+
+    Vec3f R[3];
+    Vec3f T;
+    motion1.integrate(curt);
+    motion2.integrate(curt);
+
+    motion1.getCurrentTransform(R, T);
+    m1.setTransform(R, T);
+
+    motion2.getCurrentTransform(R, T);
+    m2.setTransform(R, T);
 
     MeshCollisionTraversalNodeRSS node;
     if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
