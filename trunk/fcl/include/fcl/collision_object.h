@@ -74,6 +74,16 @@ public:
     aabb.max_ = center + delta;
   }
 
+  void* getUserData() const
+  {
+    return user_data;
+  }
+
+  void setUserData(void *data)
+  {
+    user_data = data;
+  }
+    
   inline const Vec3f& getTranslation() const
   {
     return t.getTranslation();
@@ -139,6 +149,10 @@ protected:
   BVH_REAL aabb_radius;
 
   SimpleTransform t;
+
+  /** pointer to user defined data specific to this object */
+  void *user_data;
+    
 };
 
 
