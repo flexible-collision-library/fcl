@@ -19,8 +19,8 @@ MAKE = make
 installed: wiped $(SOURCE_DIR)/unpacked
 	cd $(SOURCE_DIR) && make $(ROS_PARALLEL_JOBS) $(MAKE_ARGS)
 	mkdir -p $(INSTALL_DIR)/include
-	mkdir -p $(INSTALL_DIR)/include/ann
-	cp -r $(SOURCE_DIR)/include/ANN/*.h $(INSTALL_DIR)/include/ann
+	mkdir -p $(INSTALL_DIR)/include/ANN
+	cp -r $(SOURCE_DIR)/include/ANN/*.h $(INSTALL_DIR)/include/ANN
 	cp -r $(SOURCE_DIR)/bin $(INSTALL_DIR)
 	cp -r $(SOURCE_DIR)/lib $(INSTALL_DIR)
 	touch installed

@@ -36,7 +36,7 @@
 
 
 #include "fcl/BVH_utility.h"
-#include <ann/ANN.h>
+#include <ANN/ANN.h>
 
 namespace fcl
 {
