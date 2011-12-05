@@ -861,11 +861,9 @@ void BVHModel<BV>::computeLocalAABB()
     aabb_ += vertices[i];
   }
 
-  aabb_local = aabb_;
+  aabb = aabb_;
 
-  aabb = aabb_local;
-
-  aabb_center = aabb_local.center();
+  aabb_center = aabb.center();
 
   aabb_radius = 0;
   for(int i = 0; i < num_vertices; ++i)

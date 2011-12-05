@@ -84,6 +84,9 @@ template<typename BV>
 class BVFitter : public BVFitterBase<BV>
 {
 public:
+  /** \brief default deconstructor */
+  virtual ~BVFitter() {}
+
   /** \brief Prepare the geometry primitive data for fitting */
   void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {

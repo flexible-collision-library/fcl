@@ -82,6 +82,9 @@ public:
     split_method = method;
   }
 
+  /** \brief Default deconstructor */
+  virtual ~BVSplitter() {}
+
   /** \brief Set the geometry data needed by the split rule */
   void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {

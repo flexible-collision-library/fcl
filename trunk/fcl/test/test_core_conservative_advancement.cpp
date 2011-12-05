@@ -88,7 +88,7 @@ bool spline_interp_Test(const Transform& tf1, const Transform& tf2,
                         BVH_REAL& toc);
 
 
-unsigned int n_dcd_samples = 1000;
+unsigned int n_dcd_samples = 1000000;
 
 int main()
 {
@@ -107,7 +107,7 @@ int main()
 
   for(unsigned int i = 0; i < transforms.size(); ++i)
   {
-    std::cout << i << std::endl;
+    //std::cout << i << std::endl;
     BVH_REAL toc;
     bool res = CA_linear_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, toc);
 
@@ -132,6 +132,9 @@ int main()
     BVH_REAL toc8;
     bool res8 = spline_interp_Test(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, n_dcd_samples, toc8);
 
+
+    if(!(i == 2 || i == 44 || i == 53))
+      continue;
 
 
     if(res) std::cout << "yes "; else std::cout << "no ";

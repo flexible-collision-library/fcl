@@ -157,6 +157,81 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg
   model.computeLocalAABB();
 }
 
+/** \brief Generate BVH model from sphere
+ * The difference between generateBVHModel is that it gives the number of triangles faces N for a sphere with unit radius. For sphere of radius r,
+ * then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
+ */
+template<typename BV>
+void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, unsigned int n_faces_for_unit_sphere)
+{
+  std::vector<Vec3f> points;
+  std::vector<Triangle> tri_indices;
+
+  double r = shape.radius;
+
+  double n_low_bound = sqrtf(n_faces_for_unit_sphere / 2.0) * r * r;
+  unsigned int ring = ceil(n_low_bound);
+  unsigned int seg = ceil(n_low_bound);
+
+  double phi, phid;
+  const double pi = boost::math::constants::pi<double>();
+  phid = pi * 2 / seg;
+  phi = 0;
+
+  double theta, thetad;
+  thetad = pi / (ring + 1);
+  theta = 0;
+
+  for(unsigned int i = 0; i < ring; ++i)
+  {
+    double theta_ = theta + thetad * (i + 1);
+    for(unsigned int j = 0; j < seg; ++j)
+    {
+      points.push_back(Vec3f(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_)));
+    }
+  }
+  points.push_back(Vec3f(0, 0, r));
+  points.push_back(Vec3f(0, 0, -r));
+
+  for(unsigned int i = 0; i < ring - 1; ++i)
+  {
+    for(unsigned int j = 0; j < seg; ++j)
+    {
+       unsigned int a, b, c, d;
+       a = i * seg + j;
+       b = (j == seg - 1) ? (i * seg) : (i * seg + j + 1);
+       c = (i + 1) * seg + j;
+       d = (j == seg - 1) ? ((i + 1) * seg) : ((i + 1) * seg + j + 1);
+       tri_indices.push_back(Triangle(a, c, b));
+       tri_indices.push_back(Triangle(b, c, d));
+    }
+  }
+
+  for(unsigned int j = 0; j < seg; ++j)
+  {
+    unsigned int a, b;
+    a = j;
+    b = (j == seg - 1) ? 0 : (j + 1);
+    tri_indices.push_back(Triangle(ring * seg, a, b));
+
+    a = (ring - 1) * seg + j;
+    b = (j == seg - 1) ? (ring - 1) * seg : ((ring - 1) * seg + j + 1);
+    tri_indices.push_back(Triangle(a, ring * seg + 1, b));
+  }
+
+  for(unsigned int i = 0; i < points.size(); ++i)
+  {
+    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
+    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    points[i] = v;
+  }
+
+  model.beginModel();
+  model.addSubModel(points, tri_indices);
+  model.endModel();
+  model.computeLocalAABB();
+}
+
 
 /** \brief Generate BVH model from cylinder */
 template<typename BV>
@@ -169,6 +244,86 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int t
   double h = shape.lz;
   double phi, phid;
   const double pi = boost::math::constants::pi<double>();
+  phid = pi * 2 / tot;
+  phi = 0;
+
+  double circle_edge = phid * r;
+  unsigned int h_num = ceil(h / circle_edge);
+  double hd = h / h_num;
+
+  for(unsigned int i = 0; i < tot; ++i)
+    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2));
+
+  for(unsigned int i = 0; i < h_num - 1; ++i)
+  {
+    for(unsigned int j = 0; j < tot; ++j)
+    {
+      points.push_back(Vec3f(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd));
+    }
+  }
+
+  for(unsigned int i = 0; i < tot; ++i)
+    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+
+  points.push_back(Vec3f(0, 0, h / 2));
+  points.push_back(Vec3f(0, 0, -h / 2));
+
+  for(unsigned int i = 0; i < tot; ++i)
+  {
+    Triangle tmp((h_num + 1) * tot, i, ((i == tot - 1) ? 0 : (i + 1)));
+    tri_indices.push_back(tmp);
+  }
+
+  for(unsigned int i = 0; i < tot; ++i)
+  {
+    Triangle tmp((h_num + 1) * tot + 1, h_num * tot + ((i == tot - 1) ? 0 : (i + 1)), h_num * tot + i);
+    tri_indices.push_back(tmp);
+  }
+
+  for(unsigned int i = 0; i < h_num; ++i)
+  {
+    for(unsigned int j = 0; j < tot; ++j)
+    {
+      int a, b, c, d;
+      a = j;
+      b = (j == tot - 1) ? 0 : (j + 1);
+      c = j + tot;
+      d = (j == tot - 1) ? tot : (j + 1 + tot);
+
+      int start = i * tot;
+      tri_indices.push_back(Triangle(start + b, start + a, start + c));
+      tri_indices.push_back(Triangle(start + b, start + c, start + d));
+    }
+  }
+
+  for(unsigned int i = 0; i < points.size(); ++i)
+  {
+    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
+    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    points[i] = v;
+  }
+
+  model.beginModel();
+  model.addSubModel(points, tri_indices);
+  model.endModel();
+  model.computeLocalAABB();
+}
+
+/** \brief Generate BVH model from cylinder
+ * Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cylinder with
+ * larger radius, the number of circle split number is r * tot.
+ */
+template<typename BV>
+void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, unsigned int tot_for_unit_cylinder)
+{
+  std::vector<Vec3f> points;
+  std::vector<Triangle> tri_indices;
+
+  double r = shape.radius;
+  double h = shape.lz;
+  double phi, phid;
+  const double pi = boost::math::constants::pi<double>();
+  unsigned int tot = tot_for_unit_cylinder * r;
   phid = pi * 2 / tot;
   phi = 0;
 

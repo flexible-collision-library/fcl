@@ -139,9 +139,6 @@ protected:
   /** AABB in global coordinate */
   mutable AABB aabb;
 
-  /** AABB in local coordinate */
-  AABB aabb_local;
-
   /** AABB center in local coordinate */
   Vec3f aabb_center;
 

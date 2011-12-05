@@ -293,58 +293,51 @@ void computeBV<OBB>(const Plane& s, OBB& bv)
 
 void Box::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb_local);
-  aabb = aabb_local;
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb);
+  aabb_center = aabb.center();
+  aabb_radius = (aabb.min_ - aabb_center).length();
 }
 
 void Sphere::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb_local);
-  aabb = aabb_local;
-  aabb_center = aabb_local.center();
+  computeBV<AABB>(*this, aabb);
+  aabb_center = aabb.center();
   aabb_radius = radius;
 }
 
 void Capsule::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb_local);
-  aabb = aabb_local;
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb);
+  aabb_center = aabb.center();
+  aabb_radius = (aabb.min_ - aabb_center).length();
 }
 
 void Cone::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb_local);
-  aabb = aabb_local;
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb);
+  aabb_center = aabb.center();
+  aabb_radius = (aabb.min_ - aabb_center).length();
 }
 
 void Cylinder::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb_local);
-  aabb = aabb_local;
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb);
+  aabb_center = aabb.center();
+  aabb_radius = (aabb.min_ - aabb_center).length();
 }
 
 void Convex::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb_local);
-  aabb = aabb_local;
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb);
+  aabb_center = aabb.center();
+  aabb_radius = (aabb.min_ - aabb_center).length();
 }
 
 void Plane::computeLocalAABB()
 {
-  computeBV<AABB>(*this, aabb_local);
-  aabb = aabb_local;
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  computeBV<AABB>(*this, aabb);
+  aabb_center = aabb.center();
+  aabb_radius = (aabb.min_ - aabb_center).length();
 }
 
 
