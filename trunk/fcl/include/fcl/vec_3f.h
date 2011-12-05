@@ -247,6 +247,13 @@ namespace fcl
              (v_[2] - other.v_[2] > -EPSILON));
     }
 
+    inline BVH_REAL triple(const Vec3f& v1, const Vec3f& v2) const
+    {
+      return v_[0] * (v1.v_[1] * v2.v_[2] - v1.v_[2] * v2.v_[1]) +
+          v_[1] * (v1.v_[2] * v2.v_[0] - v1.v_[0] * v2.v_[2]) +
+          v_[2] * (v1.v_[0] * v2.v_[1] - v1.v_[1] * v2.v_[0]);
+    }
+
   private:
     /** \brief Tolerance for comparision */
     static const float EPSILON;
@@ -283,13 +290,6 @@ namespace fcl
     BVH_REAL v_[3];
 
     Vec3f() { v_[0] = 0; v_[1] = 0; v_[2] = 0; }
-
-    Vec3f(const Vec3f& other)
-    {
-      v_[0] = other.v_[0];
-      v_[1] = other.v_[1];
-      v_[2] = other.v_[2];
-    }
 
     Vec3f(const BVH_REAL* v)
     {
@@ -346,11 +346,12 @@ namespace fcl
     }
 
     /** \brief Negate the vector */
-    inline void negate()
+    inline Vec3f& negate()
     {
       v_[0] = - v_[0];
       v_[1] = - v_[1];
       v_[2] = - v_[2];
+      return *this;
     }
 
     /** \brief Return a negated vector */
@@ -436,6 +437,13 @@ namespace fcl
              (v_[2] - other.v_[2] > -EPSILON));
     }
 
+    inline BVH_REAL triple(const Vec3f& v1, const Vec3f& v2) const
+    {
+      return v_[0] * (v1.v_[1] * v2.v_[2] - v1.v_[2] * v2.v_[1]) +
+          v_[1] * (v1.v_[2] * v2.v_[0] - v1.v_[0] * v2.v_[2]) +
+          v_[2] * (v1.v_[0] * v2.v_[1] - v1.v_[1] * v2.v_[0]);
+    }
+
   private:
     /** \brief Tolerance for comparision */
     static const BVH_REAL EPSILON;
@@ -464,7 +472,13 @@ namespace fcl
 
     return Vec3f(x, y, z);
   }
+
 #endif
+
+  inline BVH_REAL triple(const Vec3f& a, const Vec3f& b, const Vec3f& c)
+  {
+    return a.triple(b, c);
+  }
 
   /** \brief M * v */
   Vec3f matMulVec(const Vec3f M[3], const Vec3f& v);
