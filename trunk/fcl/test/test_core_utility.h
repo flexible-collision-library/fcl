@@ -341,8 +341,8 @@ inline bool distance_PQP(const Transform& tf,
 
 
   distance_result.distance = res.distance;
-  distance_result.p1 = Vec3f(res.p1[0], res.p1[1], res.p1[2]);
-  distance_result.p2 = Vec3f(res.p2[0], res.p2[1], res.p2[2]);
+  distance_result.p1.setValue(res.p1[0], res.p1[1], res.p1[2]);
+  distance_result.p2.setValue(res.p2[0], res.p2[1], res.p2[2]);
 
 
   if(verbose)

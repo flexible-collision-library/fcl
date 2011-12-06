@@ -435,8 +435,8 @@ bool CA_spline_Test(const Transform& tf1, const Transform& tf2,
 
   for(int i = 0; i < 4; ++i)
   {
-    Td_2[i] = Vec3f();
-    Rd_2[i] = Vec3f(0, 0, 0);
+    Td_2[i].setValue(0);
+    Rd_2[i].setValue(0);
   }
 
   SplineMotion<RSS> motion1(Td_1[0], Td_1[1], Td_1[2], Td_1[3],
@@ -501,8 +501,8 @@ bool spline_interp_Test(const Transform& tf1, const Transform& tf2,
 
   for(int i = 0; i < 4; ++i)
   {
-    Td_2[i] = Vec3f();
-    Rd_2[i] = Vec3f(0, 0, 0);
+    Td_2[i].setValue(0);
+    Rd_2[i].setValue(0);
   }
 
   SplineMotion<RSS> motion1(Td_1[0], Td_1[1], Td_1[2], Td_1[3],

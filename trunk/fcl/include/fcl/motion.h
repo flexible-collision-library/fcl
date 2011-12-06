@@ -319,7 +319,7 @@ public:
   ScrewMotion()
   {
     /** Default angular velocity is zero */
-    axis = Vec3f(1, 0, 0);
+    axis.setValue(1, 0, 0);
     angular_vel = 0;
 
     /** Default reference point is local zero point */

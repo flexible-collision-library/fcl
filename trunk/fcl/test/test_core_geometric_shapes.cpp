@@ -560,9 +560,9 @@ TEST(shapeIntersection, spheretriangle)
 {
   Sphere s(10);
   Vec3f t[3];
-  t[0] = Vec3f(20, 0, 0);
-  t[1] = Vec3f(-20, 0, 0);
-  t[2] = Vec3f(0, 20, 0);
+  t[0].setValue(20, 0, 0);
+  t[1].setValue(-20, 0, 0);
+  t[2].setValue(0, 20, 0);
 
   Transform transform;
   generateRandomTransform(extents, transform);
@@ -578,9 +578,9 @@ TEST(shapeIntersection, spheretriangle)
   ASSERT_TRUE(res);
   s.setTransform(identity.R, identity.T);
 
-  t[0] = Vec3f(30, 0, 0);
-  t[1] = Vec3f(10, -20, 0);
-  t[2] = Vec3f(10, 20, 0);
+  t[0].setValue(30, 0, 0);
+  t[1].setValue(10, -20, 0);
+  t[2].setValue(10, 20, 0);
   res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
   ASSERT_FALSE(res);
 
@@ -589,9 +589,9 @@ TEST(shapeIntersection, spheretriangle)
   ASSERT_FALSE(res);
   s.setTransform(identity.R, identity.T);
 
-  t[0] = Vec3f(30, 0, 0);
-  t[1] = Vec3f(9.9, -20, 0);
-  t[2] = Vec3f(9.9, 20, 0);
+  t[0].setValue(30, 0, 0);
+  t[1].setValue(9.9, -20, 0);
+  t[2].setValue(9.9, 20, 0);
   res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
   ASSERT_TRUE(res);
 

@@ -67,7 +67,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
              R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vec3f T = Vec3f(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
   BVH_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l);
   if(dist <= (b1.r + b2.r)) return true;
@@ -349,7 +349,7 @@ BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS&
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
 
-  Vec3f T = Vec3f(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
   BVH_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);
@@ -451,7 +451,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(a[0], t, 0);
+        P->setValue(a[0], t, 0);
         *Q = S + (*P);
       }
 
@@ -480,7 +480,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(a[0], t, 0);
+        P->setValue(a[0], t, 0);
         *Q = S + (*P);
       }
 
@@ -508,7 +508,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(0, t, 0);
+        P->setValue(0, t, 0);
         *Q = S + (*P);
       }
 
@@ -536,7 +536,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(0, t, 0);
+        P->setValue(0, t, 0);
         *Q = S + (*P);
       }
 
@@ -604,7 +604,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(a[0], t, 0);
+        P->setValue(a[0], t, 0);
         *Q = S + (*P);
       }
 
@@ -632,7 +632,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(a[0], t, 0);
+        P->setValue(a[0], t, 0);
         *Q = S + (*P);
       }
 
@@ -661,7 +661,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(0, t, 0);
+        P->setValue(0, t, 0);
         *Q = S + (*P);
       }
 
@@ -690,7 +690,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P&& Q)
       {
-        *P = Vec3f(0, t, 0);
+        P->setValue(0, t, 0);
         *Q = S + (*P);
       }
 
@@ -758,7 +758,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(t, a[1], 0);
+        P->setValue(t, a[1], 0);
         *Q = S + (*P);
       }
 
@@ -786,7 +786,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(t, a[1], 0);
+        P->setValue(t, a[1], 0);
         *Q = S + (*P);
       }
 
@@ -814,7 +814,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(t, 0, 0);
+        P->setValue(t, 0, 0);
         *Q = S + (*P);
       }
 
@@ -842,7 +842,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(t, 0, 0);
+        P->setValue(t, 0, 0);
         *Q = S + (*P);
       }
 
@@ -903,7 +903,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(t, a[1], 0);
+        P->setValue(t, a[1], 0);
         *Q = S + (*P);
       }
 
@@ -931,7 +931,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(t, a[1], 0);
+        P->setValue(t, a[1], 0);
         *Q = S + (*P);
       }
 
@@ -960,7 +960,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
        if(P && Q)
        {
-         *P = Vec3f(t, 0, 0);
+         P->setValue(t, 0, 0);
          *Q = S + (*P);
        }
 
@@ -988,7 +988,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
       if(P && Q)
       {
-        *P = Vec3f(t, 0, 0);
+        P->setValue(t, 0, 0);
         *Q = S + (*P);
       }
 
@@ -1029,14 +1029,14 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
   if(sep1 >= sep2 && sep1 >= 0)
   {
     if(Tab[2] > 0)
-      S = Vec3f(0, 0, sep1);
+      S.setValue(0, 0, sep1);
     else
-      S = Vec3f(0, 0, -sep1);
+      S.setValue(0, 0, -sep1);
 
     if(P && Q)
     {
       *Q = S;
-      *P = Vec3f(0, 0, 0);
+      P->setValue(0);
     }
   }
 

@@ -1292,7 +1292,7 @@ void Intersect::singleKernelGradient(KERNEL_PARM *kernel_parm, SVECTOR *a, SVECT
 
 void Intersect::kernelGradient(KERNEL_PARM *kernel_parm, DOC *a, DOC *b, Vec3f& g)
 {
-  g = Vec3f(0, 0, 0);
+  g.setValue(0, 0, 0);
   SVECTOR *fa, *fb;
   Vec3f tmp;
 

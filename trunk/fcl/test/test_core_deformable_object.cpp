@@ -335,15 +335,15 @@ bool loadPLYFile(const std::string& fileName, float scalarFactor, std::vector<Ve
 
     for(int j = 0 ; j < mesh->mNumVertices; ++j)
     {
-      vert_list[v_index + j] = Vec3f(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
+      vert_list[v_index + j].setValue(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
     }
 
 
     for(int j = 0; j < mesh->mNumFaces; ++j)
     {
-      tri_list[t_index + j] = Triangle(mesh->mFaces[j].mIndices[0] + v_index,
-                                       mesh->mFaces[j].mIndices[1] + v_index,
-                                       mesh->mFaces[j].mIndices[2] + v_index);
+      tri_list[t_index + j].set(mesh->mFaces[j].mIndices[0] + v_index,
+                                mesh->mFaces[j].mIndices[1] + v_index,
+                                mesh->mFaces[j].mIndices[2] + v_index);
     }
     v_index += mesh->mNumVertices;
     t_index += mesh->mNumFaces;

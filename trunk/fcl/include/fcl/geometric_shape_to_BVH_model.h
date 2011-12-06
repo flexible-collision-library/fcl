@@ -55,27 +55,27 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape)
   double c = shape.side[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0] = Vec3f(0.5 * a, -0.5 * b, 0.5 * c);
-  points[1] = Vec3f(0.5 * a, 0.5 * b, 0.5 * c);
-  points[2] = Vec3f(-0.5 * a, 0.5 * b, 0.5 * c);
-  points[3] = Vec3f(-0.5 * a, -0.5 * b, 0.5 * c);
-  points[4] = Vec3f(0.5 * a, -0.5 * b, -0.5 * c);
-  points[5] = Vec3f(0.5 * a, 0.5 * b, -0.5 * c);
-  points[6] = Vec3f(-0.5 * a, 0.5 * b, -0.5 * c);
-  points[7] = Vec3f(-0.5 * a, -0.5 * b, -0.5 * c);
+  points[0].setValue(0.5 * a, -0.5 * b, 0.5 * c);
+  points[1].setValue(0.5 * a, 0.5 * b, 0.5 * c);
+  points[2].setValue(-0.5 * a, 0.5 * b, 0.5 * c);
+  points[3].setValue(-0.5 * a, -0.5 * b, 0.5 * c);
+  points[4].setValue(0.5 * a, -0.5 * b, -0.5 * c);
+  points[5].setValue(0.5 * a, 0.5 * b, -0.5 * c);
+  points[6].setValue(-0.5 * a, 0.5 * b, -0.5 * c);
+  points[7].setValue(-0.5 * a, -0.5 * b, -0.5 * c);
 
-  tri_indices[0] = Triangle(0, 4, 1);
-  tri_indices[1] = Triangle(1, 4, 5);
-  tri_indices[2] = Triangle(2, 6, 3);
-  tri_indices[3] = Triangle(3, 6, 7);
-  tri_indices[4] = Triangle(3, 0, 2);
-  tri_indices[5] = Triangle(2, 0, 1);
-  tri_indices[6] = Triangle(6, 5, 7);
-  tri_indices[7] = Triangle(7, 5, 4);
-  tri_indices[8] = Triangle(1, 5, 2);
-  tri_indices[9] = Triangle(2, 5, 6);
-  tri_indices[10] = Triangle(3, 7, 0);
-  tri_indices[11] = Triangle(0, 7, 4);
+  tri_indices[0].set(0, 4, 1);
+  tri_indices[1].set(1, 4, 5);
+  tri_indices[2].set(2, 6, 3);
+  tri_indices[3].set(3, 6, 7);
+  tri_indices[4].set(3, 0, 2);
+  tri_indices[5].set(2, 0, 1);
+  tri_indices[6].set(6, 5, 7);
+  tri_indices[7].set(7, 5, 4);
+  tri_indices[8].set(1, 5, 2);
+  tri_indices[9].set(2, 5, 6);
+  tri_indices[10].set(3, 7, 0);
+  tri_indices[11].set(0, 7, 4);
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {

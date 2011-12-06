@@ -388,9 +388,9 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   res = ccdMPRPenetration(obj1, obj2, &ccd, &depth, &dir, &pos);
   if(res == 0)
   {
-    *contact_points = Vec3f(ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos));
+    contact_points->setValue(ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos));
     *penetration_depth = depth;
-    *normal = Vec3f(-ccdVec3X(&dir), -ccdVec3Y(&dir), -ccdVec3Z(&dir));
+    normal->setValue(-ccdVec3X(&dir), -ccdVec3Y(&dir), -ccdVec3Z(&dir));
 
     return true;
   }

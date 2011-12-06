@@ -234,7 +234,7 @@ int BVHModel<BV>::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
     num_tris_allocated *= 2;
   }
 
-  tri_indices[num_tris] = Triangle(offset, offset + 1, offset + 2);
+  tri_indices[num_tris].set(offset, offset + 1, offset + 2);
 
   return BVH_OK;
 }
@@ -329,7 +329,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
   for(int i = 0; i < num_tris_to_add; ++i)
   {
     const Triangle& t = ts[i];
-    tri_indices[num_tris] = Triangle(t[0] + offset, t[1] + offset, t[2] + offset);
+    tri_indices[num_tris].set(t[0] + offset, t[1] + offset, t[2] + offset);
     num_tris++;
   }
 

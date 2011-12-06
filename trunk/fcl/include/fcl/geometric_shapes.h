@@ -290,10 +290,8 @@ public:
   Plane(const Vec3f& n_, BVH_REAL d_) : ShapeBase(), n(n_), d(d_) { unitNormalTest(); }
   
   /** \brief Construct a plane with normal direction and offset */
-  Plane(BVH_REAL a, BVH_REAL b, BVH_REAL c, BVH_REAL d_)
+  Plane(BVH_REAL a, BVH_REAL b, BVH_REAL c, BVH_REAL d_) : n(a, b, c), d(d_)
   {
-    n = Vec3f(a, b, c);
-    d = d_;
     unitNormalTest();
   }
 

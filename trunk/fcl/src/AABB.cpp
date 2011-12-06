@@ -45,8 +45,8 @@ namespace fcl
 AABB::AABB()
 {
   BVH_REAL real_max = std::numeric_limits<BVH_REAL>::max();
-  min_ = Vec3f(real_max, real_max, real_max);
-  max_ = Vec3f(-real_max, -real_max, -real_max);
+  min_.setValue(real_max, real_max, real_max);
+  max_.setValue(-real_max, -real_max, -real_max);
 }
 
 BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const

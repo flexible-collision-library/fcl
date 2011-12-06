@@ -175,9 +175,9 @@ void matEigen(const Matrix3f& m, BVH_REAL dout[3], Vec3f vout[3])
         sm += fabs(R[ip][iq]);
     if(sm == 0.0)
     {
-      vout[0] = Vec3f(v[0][0], v[0][1], v[0][2]);
-      vout[1] = Vec3f(v[1][0], v[1][1], v[1][2]);
-      vout[2] = Vec3f(v[2][0], v[2][1], v[2][2]);
+      vout[0].setValue(v[0][0], v[0][1], v[0][2]);
+      vout[1].setValue(v[1][0], v[1][1], v[1][2]);
+      vout[2].setValue(v[2][0], v[2][1], v[2][2]);
       dout[0] = d[0]; dout[1] = d[1]; dout[2] = d[2];
       return;
     }
