@@ -217,10 +217,8 @@ void distance_Test(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -236,8 +234,8 @@ void distance_Test(const Transform& tf,
   distance(&node, NULL, qsize);
 
   // points are in local coordinate, to global coordinate
-  Vec3f p1 = matMulVec(tf.R, node.p1) + tf.T;
-  Vec3f p2 = matMulVec(R2, node.p2) + T2;
+  Vec3f p1 = tf.R * node.p1 + tf.T;
+  Vec3f p2 = R2 * node.p2 + T2;
 
 
   distance_result.distance = node.min_distance;
@@ -276,10 +274,8 @@ void distance_Test2(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -326,10 +322,8 @@ bool collide_Test_OBB(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);

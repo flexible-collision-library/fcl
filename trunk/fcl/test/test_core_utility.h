@@ -39,6 +39,7 @@
 #define FCL_TEST_CORE_UTILITY_H
 
 #include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 #include "fcl/primitive.h"
 #include <cstdio>
 #include <vector>
@@ -52,14 +53,12 @@ using namespace fcl;
 
 struct Transform
 {
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 
   Transform()
   {
-    R[0][0] = 1;
-    R[1][1] = 1;
-    R[2][2] = 1;
+    R.setIdentity();
   }
 };
 
@@ -104,9 +103,9 @@ inline bool collide_PQP(const Transform& tf,
     const Vec3f& p2_ = vertices1[t[1]];
     const Vec3f& p3_ = vertices1[t[2]];
 
-    Vec3f p1 = matMulVec(tf.R, p1_) + tf.T;
-    Vec3f p2 = matMulVec(tf.R, p2_) + tf.T;
-    Vec3f p3 = matMulVec(tf.R, p3_) + tf.T;
+    Vec3f p1 = tf.R * p1_ + tf.T;
+    Vec3f p2 = tf.R * p2_ + tf.T;
+    Vec3f p3 = tf.R * p3_ + tf.T;
 
     PQP_REAL q1[3];
     PQP_REAL q2[3];
@@ -292,9 +291,9 @@ inline bool distance_PQP(const Transform& tf,
     const Vec3f& p2_ = vertices1[t[1]];
     const Vec3f& p3_ = vertices1[t[2]];
 
-    Vec3f p1 = matMulVec(tf.R, p1_) + tf.T;
-    Vec3f p2 = matMulVec(tf.R, p2_) + tf.T;
-    Vec3f p3 = matMulVec(tf.R, p3_) + tf.T;
+    Vec3f p1 = tf.R * p1_ + tf.T;
+    Vec3f p2 = tf.R * p2_ + tf.T;
+    Vec3f p3 = tf.R * p3_ + tf.T;
 
     PQP_REAL q1[3];
     PQP_REAL q2[3];
@@ -431,7 +430,7 @@ inline bool distance_PQP2(const Transform& tf,
   Vec3f p1_temp(res.p1[0], res.p1[1], res.p1[2]);
   Vec3f p2_temp(res.p2[0], res.p2[1], res.p2[2]);
 
-  Vec3f p1 = matMulVec(tf.R, p1_temp) + tf.T;
+  Vec3f p1 = tf.R * p1_temp + tf.T;
   Vec3f p2 = p2_temp;
 
 
@@ -554,7 +553,7 @@ inline void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::v
 }
 
 
-inline void eulerToMatrix(BVH_REAL a, BVH_REAL b, BVH_REAL c, Vec3f R[3])
+inline void eulerToMatrix(BVH_REAL a, BVH_REAL b, BVH_REAL c, Matrix3f& R)
 {
   BVH_REAL c1 = cos(a);
   BVH_REAL c2 = cos(b);
@@ -563,9 +562,9 @@ inline void eulerToMatrix(BVH_REAL a, BVH_REAL b, BVH_REAL c, Vec3f R[3])
   BVH_REAL s2 = sin(b);
   BVH_REAL s3 = sin(c);
 
-  R[0] = Vec3f(c1 * c2, - c2 * s1, s2);
-  R[1] = Vec3f(c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3);
-  R[2] = Vec3f(s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3);
+  R.setValue(c1 * c2, - c2 * s1, s2,
+             c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
+             s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3);
 }
 
 inline void generateRandomTransform(BVH_REAL extents[6], Transform& transform)
@@ -580,7 +579,7 @@ inline void generateRandomTransform(BVH_REAL extents[6], Transform& transform)
   BVH_REAL c = rand_interval(0, 2 * pi);
 
   eulerToMatrix(a, b, c, transform.R);
-  transform.T = Vec3f(x, y, z);
+  transform.T.setValue(x, y, z);
 }
 
 inline void generateRandomTransform(BVH_REAL extents[6], std::vector<Transform>& transforms, std::vector<Transform>& transforms2, BVH_REAL delta_trans[3], BVH_REAL delta_rot, int n)
@@ -599,7 +598,7 @@ inline void generateRandomTransform(BVH_REAL extents[6], std::vector<Transform>&
     BVH_REAL c = rand_interval(0, 2 * pi);
 
     eulerToMatrix(a, b, c, transforms[i].R);
-    transforms[i].T = Vec3f(x, y, z);
+    transforms[i].T.setValue(x, y, z);
 
     BVH_REAL deltax = rand_interval(-delta_trans[0], delta_trans[0]);
     BVH_REAL deltay = rand_interval(-delta_trans[1], delta_trans[1]);
@@ -610,7 +609,7 @@ inline void generateRandomTransform(BVH_REAL extents[6], std::vector<Transform>&
     BVH_REAL deltac = rand_interval(-delta_rot, delta_rot);
 
     eulerToMatrix(a + deltaa, b + deltab, c + deltac, transforms2[i].R);
-    transforms2[i].T = Vec3f(x + deltax, y + deltay, z + deltaz);
+    transforms2[i].T.setValue(x + deltax, y + deltay, z + deltaz);
   }
 }
 
@@ -636,7 +635,7 @@ inline void generateRandomTransform_ccd(BVH_REAL extents[6], std::vector<Transfo
     Transform tf;
 
     eulerToMatrix(a, b, c, tf.R);
-    tf.T = Vec3f(x, y, z);
+    tf.T.setValue(x, y, z);
 
     std::vector<std::pair<int, int> > results;
 #if USE_PQP
@@ -654,7 +653,7 @@ inline void generateRandomTransform_ccd(BVH_REAL extents[6], std::vector<Transfo
       BVH_REAL deltac = rand_interval(-delta_rot, delta_rot);
 
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, transforms2[i].R);
-      transforms2[i].T = Vec3f(x + deltax, y + deltay, z + deltaz);
+      transforms2[i].T.setValue(x + deltax, y + deltay, z + deltaz);
       ++i;
     }
   }

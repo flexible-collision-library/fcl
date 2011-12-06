@@ -39,6 +39,7 @@
 #define FCL_MOTION_H
 
 #include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 #include "fcl/RSS.h"
 #include "fcl/transform.h"
 #include "fcl/motion_base.h"
@@ -138,20 +139,15 @@ public:
   }
 
   /** \brief Get the rotation and translation in current step */
-  void getCurrentTransform(Vec3f R[3], Vec3f& T) const
+  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
   {
-    for(int i = 0; i < 3; ++i)
-    {
-      R[i] = tf.getRotation()[i];
-    }
-
+    R = tf.getRotation();
     T = tf.getTranslation();
   }
 
-  void getCurrentRotation(Vec3f R[3]) const
+  void getCurrentRotation(Matrix3f& R) const
   {
-    for(int i = 0; i < 3; ++i)
-      R[i] = tf.getRotation()[i];
+    R = tf.getRotation();
   }
 
   void getCurrentTranslation(Vec3f& T) const
@@ -333,8 +329,8 @@ public:
   }
 
   /** \brief Construct motion from the initial rotation/translation and goal rotation/translation */
-  ScrewMotion(const Vec3f R1[3], const Vec3f& T1,
-              const Vec3f R2[3], const Vec3f& T2)
+  ScrewMotion(const Matrix3f& R1, const Vec3f& T1,
+              const Matrix3f& R2, const Vec3f& T2)
   {
     tf1 = SimpleTransform(R1, T1);
     tf2 = SimpleTransform(R2, T2);
@@ -384,20 +380,15 @@ public:
   }
 
   /** \brief Get the rotation and translation in current step */
-  void getCurrentTransform(Vec3f R[3], Vec3f& T) const
+  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
   {
-    for(int i = 0; i < 3; ++i)
-    {
-      R[i] = tf.getRotation()[i];
-    }
-
+    R = tf.getRotation();
     T = tf.getTranslation();
   }
 
-  void getCurrentRotation(Vec3f R[3]) const
+  void getCurrentRotation(Matrix3f& R) const
   {
-    for(int i = 0; i < 3; ++i)
-      R[i] = tf.getRotation()[i];
+    R = tf.getRotation();
   }
 
   void getCurrentTranslation(Vec3f& T) const
@@ -491,7 +482,7 @@ public:
   InterpMotion()
   {
     /** Default angular velocity is zero */
-    angular_axis = Vec3f(1, 0, 0);
+    angular_axis.setValue(1, 0, 0);
     angular_vel = 0;
 
     /** Default reference point is local zero point */
@@ -500,8 +491,8 @@ public:
   }
 
   /** \brief Construct motion from the initial rotation/translation and goal rotation/translation */
-  InterpMotion(const Vec3f R1[3], const Vec3f& T1,
-               const Vec3f R2[3], const Vec3f& T2)
+  InterpMotion(const Matrix3f& R1, const Vec3f& T1,
+               const Matrix3f& R2, const Vec3f& T2)
   {
     tf1 = SimpleTransform(R1, T1);
     tf2 = SimpleTransform(R2, T2);
@@ -517,8 +508,8 @@ public:
 
   /** \brief Construct motion from the initial rotation/translation and goal rotation/translation related to some rotation center
    */
-  InterpMotion(const Vec3f R1[3], const Vec3f& T1,
-               const Vec3f R2[3], const Vec3f& T2,
+  InterpMotion(const Matrix3f& R1, const Vec3f& T1,
+               const Matrix3f& R2, const Vec3f& T2,
                const Vec3f& O)
   {
     tf1 = SimpleTransform(R1, T1);
@@ -574,20 +565,15 @@ public:
   }
 
   /** \brief Get the rotation and translation in current step */
-  void getCurrentTransform(Vec3f R[3], Vec3f& T) const
+  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
   {
-    for(int i = 0; i < 3; ++i)
-    {
-      R[i] = tf.getRotation()[i];
-    }
-
+    R = tf.getRotation();
     T = tf.getTranslation();
   }
 
-  void getCurrentRotation(Vec3f R[3]) const
+  void getCurrentRotation(Matrix3f& R) const
   {
-    for(int i = 0; i < 3; ++i)
-      R[i] = tf.getRotation()[i];
+    R = tf.getRotation();
   }
 
   void getCurrentTranslation(Vec3f& T) const

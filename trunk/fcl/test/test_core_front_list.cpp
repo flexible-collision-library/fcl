@@ -215,7 +215,7 @@ bool collide_front_list_Test(const Transform& tf1, const Transform& tf2,
   std::vector<Vec3f> vertices1_new(vertices1.size());
   for(unsigned int i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = matMulVec(tf1.R, vertices1[i]) + tf1.T;
+    vertices1_new[i] = tf1.R * vertices1[i] + tf1.T;
   }
 
   m1.beginModel();
@@ -244,7 +244,7 @@ bool collide_front_list_Test(const Transform& tf1, const Transform& tf2,
   // update the mesh
   for(unsigned int i = 0; i < vertices1.size(); ++i)
   {
-    vertices1_new[i] = matMulVec(tf2.R, vertices1[i]) + tf2.T;
+    vertices1_new[i] = tf2.R * vertices1[i] + tf2.T;
   }
 
   m1.beginReplaceModel();
@@ -285,10 +285,8 @@ bool collide_front_list_OBB_Test(const Transform& tf1, const Transform& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf1.R, tf1.T);
@@ -344,10 +342,8 @@ bool collide_front_list_RSS_Test(const Transform& tf1, const Transform& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf1.R, tf1.T);
@@ -401,10 +397,8 @@ bool collide_Test(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);

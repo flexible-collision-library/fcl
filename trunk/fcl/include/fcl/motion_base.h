@@ -39,6 +39,7 @@
 #define FCL_MOTION_BASE_H
 
 #include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 #include "fcl/RSS.h"
 namespace fcl
 {
@@ -59,9 +60,9 @@ public:
   virtual BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const = 0;
 
   /** \brief Get the rotation and translation in current step */
-  virtual void getCurrentTransform(Vec3f R[3], Vec3f& T) const = 0;
+  virtual void getCurrentTransform(Matrix3f& R, Vec3f& T) const = 0;
 
-  virtual void getCurrentRotation(Vec3f R[3]) const = 0;
+  virtual void getCurrentRotation(Matrix3f& R) const = 0;
 
   virtual void getCurrentTranslation(Vec3f& T) const = 0;
 };

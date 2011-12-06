@@ -42,10 +42,7 @@ namespace fcl
 
 MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBB>()
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -107,10 +104,7 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 
 MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS() : MeshCollisionTraversalNode<RSS>()
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -173,10 +167,7 @@ void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 
 PointCloudCollisionTraversalNodeOBB::PointCloudCollisionTraversalNodeOBB() : PointCloudCollisionTraversalNode<OBB>()
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -211,10 +202,7 @@ void PointCloudCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 
 PointCloudCollisionTraversalNodeRSS::PointCloudCollisionTraversalNodeRSS() : PointCloudCollisionTraversalNode<RSS>()
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -249,10 +237,7 @@ void PointCloudCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 
 PointCloudMeshCollisionTraversalNodeOBB::PointCloudMeshCollisionTraversalNodeOBB() : PointCloudMeshCollisionTraversalNode<OBB>()
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -290,10 +275,7 @@ void PointCloudMeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 
 PointCloudMeshCollisionTraversalNodeRSS::PointCloudMeshCollisionTraversalNodeRSS() : PointCloudMeshCollisionTraversalNode<RSS>()
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -332,10 +314,7 @@ void PointCloudMeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 
 MeshDistanceTraversalNodeRSS::MeshDistanceTraversalNodeRSS() : MeshDistanceTraversalNode<RSS>()
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -511,10 +490,7 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
 
 MeshConservativeAdvancementTraversalNodeRSS::MeshConservativeAdvancementTraversalNodeRSS(BVH_REAL w_) : MeshConservativeAdvancementTraversalNode<RSS>(w_)
 {
-  R[0] = Vec3f(1, 0, 0);
-  R[1] = Vec3f(0, 1, 0);
-  R[2] = Vec3f(0, 0, 1);
-
+  R.setIdentity();
   // default T is 0
 }
 
@@ -573,9 +549,9 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
   /** n is the local frame of object 1, pointing from object 1 to object2 */
   Vec3f n = P2 - P1;
   /** turn n into the global frame, pointing from object 1 to object 2 */
-  Vec3f R0[3];
+  Matrix3f R0;
   motion1->getCurrentRotation(R0);
-  Vec3f n_transformed = matMulVec(R0, n);
+  Vec3f n_transformed = R0 * n;
   n_transformed.normalize();
   BVH_REAL bound1 = motion1->computeMotionBound(t11, t12, t13, n_transformed);
   BVH_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, -n_transformed);
@@ -619,9 +595,9 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
 
     // n is in local frame of RSS c1, so we need to turn n into the global frame
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[2] + model1->getBV(c1).bv.axis[2] * n[2];
-    Vec3f R0[3];
+    Matrix3f R0;
     motion1->getCurrentRotation(R0);
-    n_transformed = matMulVec(R0, n_transformed);
+    n_transformed = R0 * n_transformed;
     n_transformed.normalize();
 
     BVH_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);

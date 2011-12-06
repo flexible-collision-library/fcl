@@ -710,7 +710,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
         BVH_REAL x = (p1[0] + p2[0] + p3[0]) / 3;
         BVH_REAL y = (p1[1] + p2[1] + p3[1]) / 3;
         BVH_REAL z = (p1[2] + p2[2] + p3[2]) / 3;
-        p = Vec3f(x, y, z);
+        p.setValue(x, y, z);
       }
       else
       {

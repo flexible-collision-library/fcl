@@ -161,10 +161,8 @@ bool collide_Test_PP(const Transform& tf,
   m2.addSubModel(vertices2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -226,10 +224,8 @@ bool collide_Test_PP_OBB(const Transform& tf,
   m2.addSubModel(vertices2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -295,10 +291,8 @@ bool collide_Test_MP(const Transform& tf,
   m2.addSubModel(vertices2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -363,10 +357,8 @@ bool collide_Test_MP_OBB(const Transform& tf,
   m2.addSubModel(vertices2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -432,10 +424,8 @@ bool collide_Test_PM(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -499,10 +489,8 @@ bool collide_Test_PM_OBB(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);

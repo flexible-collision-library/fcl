@@ -51,10 +51,9 @@ bool OBB::overlap(const OBB& other) const
   // First compute the rotation part, then translation part
   Vec3f t = other.To - To; // T2 - T1
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Vec3f R[3];
-  R[0] = Vec3f(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]));
-  R[1] = Vec3f(axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]));
-  R[2] = Vec3f(axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
 
   // R is row first
   return (obbDisjoint(R, T, extent, other.extent) == 0);
@@ -87,7 +86,7 @@ OBB& OBB::operator += (const Vec3f& p)
   bvp.axis[0] = axis[0];
   bvp.axis[1] = axis[1];
   bvp.axis[2] = axis[2];
-  bvp.extent = Vec3f(0, 0, 0);
+  bvp.extent.setValue(0);
 
   *this += bvp;
   return *this;
@@ -109,30 +108,13 @@ OBB OBB::operator + (const OBB& other) const
 }
 
 
-bool OBB::obbDisjoint(const Vec3f B[3], const Vec3f& T, const Vec3f& a, const Vec3f& b)
+bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b)
 {
   register BVH_REAL t, s;
-  Vec3f Bf[3];
   const BVH_REAL reps = 1e-6;
 
-  Bf[0] = abs(B[0]);
-  Bf[1] = abs(B[1]);
-  Bf[2] = abs(B[2]);
-
-  Vec3f reps_vec(reps, reps, reps);
-
-  Bf[0] += reps_vec;
-  Bf[1] += reps_vec;
-  Bf[2] += reps_vec;
-
-  Vec3f Bf_col[3] = {Vec3f(Bf[0][0], Bf[1][0], Bf[2][0]),
-                     Vec3f(Bf[0][1], Bf[1][1], Bf[2][1]),
-                     Vec3f(Bf[0][2], Bf[1][2], Bf[2][2])};
-
-  Vec3f B_col[3] = {Vec3f(B[0][0], B[1][0], B[2][0]),
-                    Vec3f(B[0][1], B[1][1], B[2][1]),
-                    Vec3f(B[0][2], B[1][2], B[2][2])};
-
+  Matrix3f Bf = B.abs();
+  Bf += reps;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
 
@@ -143,10 +125,10 @@ bool OBB::obbDisjoint(const Vec3f B[3], const Vec3f& T, const Vec3f& a, const Ve
     return true;
 
   // B1 x B2 = B0
-  s =  T.dot(B_col[0]);
+  s =  B.transposeDotX(T);
   t = ((s < 0) ? -s : s);
 
-  if(t > (b[0] + a.dot(Bf_col[0])))
+  if(t > (b[0] + Bf.transposeDotX(a)))
     return true;
 
   // A2 x A0 = A1
@@ -162,17 +144,17 @@ bool OBB::obbDisjoint(const Vec3f B[3], const Vec3f& T, const Vec3f& a, const Ve
     return true;
 
   // B2 x B0 = B1
-  s = T.dot(B_col[1]);
+  s = B.transposeDotY(T);
   t = ((s < 0) ? -s : s);
 
-  if(t > (b[1] + a.dot(Bf_col[1])))
+  if(t > (b[1] + Bf.transposeDotY(a)))
     return true;
 
   // B0 x B1 = B2
-  s = T.dot(B_col[2]);
+  s = B.transposeDotZ(T);
   t = ((s < 0) ? -s : s);
 
-  if(t > (b[2] + a.dot(Bf_col[2])))
+  if(t > (b[2] + Bf.transposeDotZ(a)))
     return true;
 
   // A0 x B0
@@ -275,17 +257,21 @@ OBB OBB::merge_largedist(const OBB& b1, const OBB& b2)
   Vec3f vertex[16];
   b1.computeVertices(vertex);
   b2.computeVertices(vertex + 8);
-  Vec3f M[3];
+  Matrix3f M;
   Vec3f E[3];
   BVH_REAL s[3] = {0, 0, 0};
-  Vec3f R[3];
 
-  R[0] = b1.To - b2.To;
-  R[0].normalize();
+  // obb axes
+  Vec3f& R0 = b.axis[0];
+  Vec3f& R1 = b.axis[1];
+  Vec3f& R2 = b.axis[2];
+
+  R0 = b1.To - b2.To;
+  R0.normalize();
 
   Vec3f vertex_proj[16];
   for(int i = 0; i < 16; ++i)
-    vertex_proj[i] = vertex[i] - R[0] * vertex[i].dot(R[0]);
+    vertex_proj[i] = vertex[i] - R0 * vertex[i].dot(R0);
 
   getCovariance(vertex_proj, NULL, NULL, 16, M);
   matEigen(M, s, E);
@@ -298,17 +284,12 @@ OBB OBB::merge_largedist(const OBB& b1, const OBB& b2)
   else { mid = 2; }
 
 
-  R[1] = Vec3f(E[0][max], E[1][max], E[2][max]);
-  R[2] = Vec3f(E[0][mid], E[1][mid], E[2][mid]);
-
-  // set obb axes
-  b.axis[0] = R[0];
-  b.axis[1] = R[1];
-  b.axis[2] = R[2];
+  R1.setValue(E[0][max], E[1][max], E[2][max]);
+  R2.setValue(E[0][mid], E[1][mid], E[2][mid]);
 
   // set obb centers and extensions
   Vec3f center, extent;
-  getExtentAndCenter(vertex, NULL, NULL, 16, R, center, extent);
+  getExtentAndCenter(vertex, NULL, NULL, 16, b.axis, center, extent);
 
   b.To = center;
   b.extent = extent;
@@ -382,23 +363,18 @@ BVH_REAL OBB::distance(const OBB& other, Vec3f* P, Vec3f* Q) const
 }
 
 // R is row first
-bool overlap(const Vec3f R0[3], const Vec3f& T0, const OBB& b1, const OBB& b2)
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
 {
-  // R0 R2
-  Vec3f Rtemp_col[3];
-  Rtemp_col[0] = Vec3f(R0[0].dot(b2.axis[0]), R0[1].dot(b2.axis[0]), R0[2].dot(b2.axis[0]));
-  Rtemp_col[1] = Vec3f(R0[0].dot(b2.axis[1]), R0[1].dot(b2.axis[1]), R0[2].dot(b2.axis[1]));
-  Rtemp_col[2] = Vec3f(R0[0].dot(b2.axis[2]), R0[1].dot(b2.axis[2]), R0[2].dot(b2.axis[2]));
+  Matrix3f R0b2(R0[0].dot(b2.axis[0]), R0[0].dot(b2.axis[1]), R0[0].dot(b2.axis[2]),
+                R0[1].dot(b2.axis[0]), R0[1].dot(b2.axis[1]), R0[1].dot(b2.axis[2]),
+                R0[2].dot(b2.axis[0]), R0[2].dot(b2.axis[1]), R0[2].dot(b2.axis[2]));
 
-  // R1'Rtemp
-  Vec3f R[3];
-  R[0] = Vec3f(b1.axis[0].dot(Rtemp_col[0]), b1.axis[0].dot(Rtemp_col[1]), b1.axis[0].dot(Rtemp_col[2]));
-  R[1] = Vec3f(b1.axis[1].dot(Rtemp_col[0]), b1.axis[1].dot(Rtemp_col[1]), b1.axis[1].dot(Rtemp_col[2]));
-  R[2] = Vec3f(b1.axis[2].dot(Rtemp_col[0]), b1.axis[2].dot(Rtemp_col[1]), b1.axis[2].dot(Rtemp_col[2]));
+  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
+             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
+             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
 
-  Vec3f Ttemp = Vec3f(R0[0].dot(b2.To), R0[1].dot(b2.To), R0[2].dot(b2.To)) + T0 - b1.To;
-
-  Vec3f T = Vec3f(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+  Vec3f Ttemp = R0 * b2.To + T0 - b1.To;
+  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
   return (OBB::obbDisjoint(R, T, b1.extent, b2.extent) == 0);
 }

@@ -82,7 +82,7 @@ struct ccd_triangle_t : public ccd_obj_t
   ccd_vec3_t c;
 };
 
-void transformGJKObject(void* obj, const Vec3f R[3], const Vec3f& T)
+void transformGJKObject(void* obj, const Matrix3f& R, const Vec3f& T)
 {
   ccd_obj_t* o = (ccd_obj_t*)obj;
   SimpleQuaternion q_;
@@ -106,10 +106,9 @@ static void shapeToGJK(const ShapeBase& s, ccd_obj_t* o)
 {
 
   SimpleQuaternion q;
-  Vec3f R[3];
-  matMulMat(s.getRotation(), s.getLocalRotation(), R);
+  Matrix3f R = s.getRotation() * s.getLocalRotation();
   q.fromRotation(R);
-  Vec3f T = matMulVec(s.getRotation(), s.getLocalTranslation()) + s.getTranslation();
+  Vec3f T = s.getRotation() * s.getLocalTranslation() + s.getTranslation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
@@ -588,7 +587,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3)
   return o;
 }
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Vec3f R[3], Vec3f const& T)
+void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, Vec3f const& T)
 {
   ccd_triangle_t* o = new ccd_triangle_t;
   Vec3f center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);

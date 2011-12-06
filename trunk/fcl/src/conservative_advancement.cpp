@@ -82,11 +82,8 @@ int conservativeAdvancement(const CollisionObject* o1,
   if(!initialize(cnode, *model1, *model2))
     std::cout << "initialize error" << std::endl;
 
-
-  Vec3f R1_0[3];
-  Vec3f R2_0[3];
-  Vec3f T1_0;
-  Vec3f T2_0;
+  Matrix3f R1_0, R2_0;
+  Vec3f T1_0, T2_0;
 
   motion1->getCurrentTransform(R1_0, T1_0);
   motion2->getCurrentTransform(R2_0, T2_0);
@@ -120,10 +117,8 @@ int conservativeAdvancement(const CollisionObject* o1,
 
   do
   {
-    Vec3f R1_t[3];
-    Vec3f R2_t[3];
-    Vec3f T1_t;
-    Vec3f T2_t;
+    Matrix3f R1_t, R2_t;
+    Vec3f T1_t, T2_t;
 
     node.motion1->getCurrentTransform(R1_t, T1_t);
     node.motion2->getCurrentTransform(R2_t, T2_t);

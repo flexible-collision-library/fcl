@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-void SimpleQuaternion::fromRotation(const Vec3f R[3])
+void SimpleQuaternion::fromRotation(const Matrix3f& R)
 {
   const int next[3] = {1, 2, 0};
 
@@ -82,7 +82,7 @@ void SimpleQuaternion::fromRotation(const Vec3f R[3])
   }
 }
 
-void SimpleQuaternion::toRotation(Vec3f R[3]) const
+void SimpleQuaternion::toRotation(Matrix3f& R) const
 {
   BVH_REAL twoX  = 2.0*data[1];
   BVH_REAL twoY  = 2.0*data[2];
@@ -97,9 +97,9 @@ void SimpleQuaternion::toRotation(Vec3f R[3]) const
   BVH_REAL twoYZ = twoZ*data[2];
   BVH_REAL twoZZ = twoZ*data[3];
 
-  R[0] = Vec3f(1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY);
-  R[1] = Vec3f(twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX);
-  R[2] = Vec3f(twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY));
+  R.setValue(1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
+             twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
+             twoXZ - twoWY, twoYZ + twoWX, 1.0 - (twoXX + twoYY));
 }
 
 
@@ -163,9 +163,9 @@ void SimpleQuaternion::toAxes(Vec3f axis[3]) const
   BVH_REAL twoYZ = twoZ*data[2];
   BVH_REAL twoZZ = twoZ*data[3];
 
-  axis[0] = Vec3f(1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY);
-  axis[1] = Vec3f(twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX);
-  axis[2] = Vec3f(twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY));
+  axis[0].setValue(1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY);
+  axis[1].setValue(twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX);
+  axis[2].setValue(twoXZ + twoWY, twoYZ - twoWX, 1.0 - (twoXX + twoYY));
 }
 
 

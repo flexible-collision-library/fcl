@@ -137,7 +137,7 @@ public:
 
   static bool intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
                                  const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                 const Vec3f R[3], const Vec3f& T,
+                                 const Matrix3f& R, const Vec3f& T,
                                  Vec3f* contact_points = NULL,
                                  unsigned int* num_contact_points = NULL,
                                  BVH_REAL* penetration_depth = NULL,
@@ -151,14 +151,14 @@ public:
 
   static BVH_REAL intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                         Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
-                                        const Vec3f R[3], const Vec3f& T, const CloudClassifierParam& solver, bool scaling = true);
+                                        const Matrix3f& R, const Vec3f& T, const CloudClassifierParam& solver, bool scaling = true);
 
   static BVH_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                                 const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3);
 
   static BVH_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                                 const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                                const Vec3f R[3], const Vec3f& T);
+                                                const Matrix3f& R, const Vec3f& T);
 #endif
 
 private:
@@ -320,12 +320,12 @@ public:
    *  The returned P and Q are both in the coordinate of the first triangle's coordinate
    */
   static BVH_REAL triDistance(const Vec3f S[3], const Vec3f T[3],
-                              const Vec3f R[3], const Vec3f& Tl,
+                              const Matrix3f& R, const Vec3f& Tl,
                               Vec3f& P, Vec3f& Q);
 
   static BVH_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                               const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                              const Vec3f R[3], const Vec3f& Tl,
+                              const Matrix3f& R, const Vec3f& Tl,
                               Vec3f& P, Vec3f& Q);
 };
 

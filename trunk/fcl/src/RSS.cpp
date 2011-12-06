@@ -47,32 +47,26 @@ bool RSS::overlap(const RSS& other) const
   // First compute the rotation part, then translation part
   Vec3f t = other.Tr - Tr; // T2 - T1
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Vec3f R[3];
-  R[0] = Vec3f(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]));
-  R[1] = Vec3f(axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]));
-  R[2] = Vec3f(axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
 
   BVH_REAL dist = rectDistance(R, T, l, other.l);
   if(dist <= (r + other.r)) return true;
   return false;
 }
 
-bool overlap(const Vec3f R0[3], const Vec3f& T0, const RSS& b1, const RSS& b2)
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 {
-  // R0 R2
-  Vec3f Rtemp_col[3];
-  Rtemp_col[0] = Vec3f(R0[0].dot(b2.axis[0]), R0[1].dot(b2.axis[0]), R0[2].dot(b2.axis[0]));
-  Rtemp_col[1] = Vec3f(R0[0].dot(b2.axis[1]), R0[1].dot(b2.axis[1]), R0[2].dot(b2.axis[1]));
-  Rtemp_col[2] = Vec3f(R0[0].dot(b2.axis[2]), R0[1].dot(b2.axis[2]), R0[2].dot(b2.axis[2]));
+  Matrix3f R0b2(R0[0].dot(b2.axis[0]), R0[0].dot(b2.axis[1]), R0[0].dot(b2.axis[2]),
+                R0[1].dot(b2.axis[0]), R0[1].dot(b2.axis[1]), R0[1].dot(b2.axis[2]),
+                R0[2].dot(b2.axis[0]), R0[2].dot(b2.axis[1]), R0[2].dot(b2.axis[2]));
 
-  // R1'Rtemp
-  Vec3f R[3];
-  R[0] = Vec3f(b1.axis[0].dot(Rtemp_col[0]), b1.axis[0].dot(Rtemp_col[1]), b1.axis[0].dot(Rtemp_col[2]));
-  R[1] = Vec3f(b1.axis[1].dot(Rtemp_col[0]), b1.axis[1].dot(Rtemp_col[1]), b1.axis[1].dot(Rtemp_col[2]));
-  R[2] = Vec3f(b1.axis[2].dot(Rtemp_col[0]), b1.axis[2].dot(Rtemp_col[1]), b1.axis[2].dot(Rtemp_col[2]));
+  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
+             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
+             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
 
-  Vec3f Ttemp = Vec3f(R0[0].dot(b2.Tr), R0[1].dot(b2.Tr), R0[2].dot(b2.Tr)) + T0 - b1.Tr;
-
+  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
   Vec3f T = Vec3f(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
   BVH_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l);
@@ -261,35 +255,6 @@ RSS& RSS::operator += (const Vec3f& p)
 
   return *this;
 }
-/*
-RSS RSS::operator + (const RSS& other) const
-{
-  RSS res = *this;
-
-  Vec3f d0_pos = other.axis[0] * (other.l[0] + other.r);
-  Vec3f d1_pos = other.axis[1] * (other.l[1] + other.r);
-  Vec3f d0_neg = other.axis[0] * (-other.r);
-  Vec3f d1_neg = other.axis[1] * (-other.r);
-  Vec3f d2_pos = other.axis[2] * other.r;
-  Vec3f d2_neg = other.axis[2] * (-other.r);
-
-  Vec3f v[8];
-  v[0] = other.Tr + d0_pos + d1_pos + d2_pos;
-  v[1] = other.Tr + d0_pos + d1_pos + d2_neg;
-  v[2] = other.Tr + d0_pos + d1_neg + d2_pos;
-  v[3] = other.Tr + d0_pos + d1_neg + d2_neg;
-  v[4] = other.Tr + d0_neg + d1_pos + d2_pos;
-  v[5] = other.Tr + d0_neg + d1_pos + d2_neg;
-  v[6] = other.Tr + d0_neg + d1_neg + d2_pos;
-  v[7] = other.Tr + d0_neg + d1_neg + d2_neg;
-
-  for(int i = 0; i < 8; ++i)
-  {
-    res += v[i];
-  }
-  return res;
-}
-*/
 
 RSS RSS::operator + (const RSS& other) const
 {
@@ -329,7 +294,7 @@ RSS RSS::operator + (const RSS& other) const
   v[15] = Tr + d0_neg + d1_neg + d2_neg;
 
 
-  Vec3f M[3]; // row first matrix
+  Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
   BVH_REAL s[3] = {0, 0, 0};
 
@@ -343,20 +308,15 @@ RSS RSS::operator + (const RSS& other) const
   else if(s[2] > s[max]) { mid = max; max = 2; }
   else { mid = 2; }
 
-  Vec3f R[3]; // column first matrix, as the axis in RSS
-  R[0] = Vec3f(E[0][max], E[1][max], E[2][max]);
-  R[1] = Vec3f(E[0][mid], E[1][mid], E[2][mid]);
-  R[2] = Vec3f(E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
-               E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
-               E[0][max]*E[1][mid] - E[0][mid]*E[1][max]);
-
-  // set obb axes
-  bv.axis[0] = R[0];
-  bv.axis[1] = R[1];
-  bv.axis[2] = R[2];
+  // column first matrix, as the axis in RSS
+  bv.axis[0].setValue(E[0][max], E[1][max], E[2][max]);
+  bv.axis[1].setValue(E[0][mid], E[1][mid], E[2][mid]);
+  bv.axis[2].setValue(E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
+                      E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
+                      E[0][max]*E[1][mid] - E[0][mid]*E[1][max]);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(v, NULL, NULL, 16, R, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(v, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
 
   return bv;
 }
@@ -368,31 +328,26 @@ BVH_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
   // First compute the rotation part, then translation part
   Vec3f t = other.Tr - Tr; // T2 - T1
   Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Vec3f R[3];
-  R[0] = Vec3f(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]));
-  R[1] = Vec3f(axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]));
-  R[2] = Vec3f(axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
 
   BVH_REAL dist = rectDistance(R, T, l, other.l, P, Q);
   dist -= (r + other.r);
   return (dist < (BVH_REAL)0.0) ? (BVH_REAL)0.0 : dist;
 }
 
-BVH_REAL distance(const Vec3f R0[3], const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
+BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
 {
-  // R0 R2
-  Vec3f Rtemp_col[3];
-  Rtemp_col[0] = Vec3f(R0[0].dot(b2.axis[0]), R0[1].dot(b2.axis[0]), R0[2].dot(b2.axis[0]));
-  Rtemp_col[1] = Vec3f(R0[0].dot(b2.axis[1]), R0[1].dot(b2.axis[1]), R0[2].dot(b2.axis[1]));
-  Rtemp_col[2] = Vec3f(R0[0].dot(b2.axis[2]), R0[1].dot(b2.axis[2]), R0[2].dot(b2.axis[2]));
+  Matrix3f R0b2(R0[0].dot(b2.axis[0]), R0[0].dot(b2.axis[1]), R0[0].dot(b2.axis[2]),
+                R0[1].dot(b2.axis[0]), R0[1].dot(b2.axis[1]), R0[1].dot(b2.axis[2]),
+                R0[2].dot(b2.axis[0]), R0[2].dot(b2.axis[1]), R0[2].dot(b2.axis[2]));
 
-  // R1'Rtemp
-  Vec3f R[3];
-  R[0] = Vec3f(b1.axis[0].dot(Rtemp_col[0]), b1.axis[0].dot(Rtemp_col[1]), b1.axis[0].dot(Rtemp_col[2]));
-  R[1] = Vec3f(b1.axis[1].dot(Rtemp_col[0]), b1.axis[1].dot(Rtemp_col[1]), b1.axis[1].dot(Rtemp_col[2]));
-  R[2] = Vec3f(b1.axis[2].dot(Rtemp_col[0]), b1.axis[2].dot(Rtemp_col[1]), b1.axis[2].dot(Rtemp_col[2]));
+  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
+             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
+             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
 
-  Vec3f Ttemp = Vec3f(R0[0].dot(b2.Tr), R0[1].dot(b2.Tr), R0[2].dot(b2.Tr)) + T0 - b1.Tr;
+  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
 
   Vec3f T = Vec3f(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
@@ -402,7 +357,7 @@ BVH_REAL distance(const Vec3f R0[3], const Vec3f& T0, const RSS& b1, const RSS& 
 }
 
 
-BVH_REAL RSS::rectDistance(const Vec3f Rab[3], Vec3f const& Tab, const BVH_REAL a[2], const BVH_REAL b[2], Vec3f* P, Vec3f* Q)
+BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL a[2], const BVH_REAL b[2], Vec3f* P, Vec3f* Q)
 {
   BVH_REAL A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
 
@@ -423,7 +378,7 @@ BVH_REAL RSS::rectDistance(const Vec3f Rab[3], Vec3f const& Tab, const BVH_REAL 
   bA0_dot_B1 = b[1] * A0_dot_B1;
   bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vec3f Tba = matTransMulVec(Rab, Tab);
+  Vec3f Tba = Rab.transposeTimes(Tab);
 
   Vec3f S;
   BVH_REAL t, u;

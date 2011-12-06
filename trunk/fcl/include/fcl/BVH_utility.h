@@ -83,10 +83,10 @@ void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, BVH_REAL r);
 void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty* ucs);
 
 /** \brief Compute the covariance matrix for a set or subset of points. */
-void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f M[3]);
+void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& M);
 
 /** \brief Compute the covariance matrix for a set or subset of triangles. */
-void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f M[3]);
+void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M);
 
 
 /** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.

@@ -178,11 +178,9 @@ bool CA_linear_Test(const Transform& tf1, const Transform& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
 
   std::vector<Contact> contacts;
 
@@ -230,11 +228,9 @@ bool CA_screw_Test(const Transform& tf1, const Transform& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
 
   std::vector<Contact> contacts;
 
@@ -275,11 +271,9 @@ bool linear_interp_Test(const Transform& tf1, const Transform& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
 
   Vec3f m1_ref;
   Vec3f m2_ref;
@@ -301,7 +295,7 @@ bool linear_interp_Test(const Transform& tf1, const Transform& tf2,
   {
     BVH_REAL curt = i / (BVH_REAL)nsamples;
 
-    Vec3f R[3];
+    Matrix3f R;
     Vec3f T;
     motion1.integrate(curt);
     motion1.getCurrentTransform(R, T);
@@ -352,11 +346,10 @@ bool screw_interp_Test(const Transform& tf1, const Transform& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+
 
   Vec3f m1_ref;
   Vec3f m2_ref;
@@ -368,7 +361,7 @@ bool screw_interp_Test(const Transform& tf1, const Transform& tf2,
   {
     BVH_REAL curt = i / (BVH_REAL)nsamples;
 
-    Vec3f R[3];
+    Matrix3f R;
     Vec3f T;
     motion1.integrate(curt);
     motion1.getCurrentTransform(R, T);
@@ -428,7 +421,7 @@ bool CA_spline_Test(const Transform& tf1, const Transform& tf2,
   for(int i = 0; i < 4; ++i)
   {
     motion.integrate(i / 4.0);
-    Vec3f R[3];
+    Matrix3f R;
     Vec3f T;
     motion.getCurrentTransform(R, T);
     SimpleQuaternion q;
@@ -494,7 +487,7 @@ bool spline_interp_Test(const Transform& tf1, const Transform& tf2,
   for(int i = 0; i < 4; ++i)
   {
     motion.integrate(i / 4.0);
-    Vec3f R[3];
+    Matrix3f R;
     Vec3f T;
     motion.getCurrentTransform(R, T);
     SimpleQuaternion q;
@@ -523,7 +516,7 @@ bool spline_interp_Test(const Transform& tf1, const Transform& tf2,
   {
     BVH_REAL curt = i / (BVH_REAL)nsamples;
 
-    Vec3f R[3];
+    Matrix3f R;
     Vec3f T;
     motion1.integrate(curt);
     motion2.integrate(curt);

@@ -39,6 +39,7 @@
 #define FCL_TRANSFORM_H
 
 #include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 
 namespace fcl
 {
@@ -65,10 +66,10 @@ public:
   }
 
   /** \brief Matrix to quaternion */
-  void fromRotation(const Vec3f R[3]);
+  void fromRotation(const Matrix3f& R);
 
   /** \brief Quaternion to matrix */
-  void toRotation(Vec3f R[3]) const;
+  void toRotation(Matrix3f& R) const;
 
   /** \brief Axes to quaternion */
   void fromAxes(const Vec3f axis[3]);
@@ -128,7 +129,7 @@ private:
 class SimpleTransform
 {
   /** \brief Rotation matrix and translation vector */
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 
   /** \brief Quaternion representation for R */
@@ -139,13 +140,12 @@ public:
   /** \brief Default transform is no movement */
   SimpleTransform()
   {
-    R[0][0] = 1; R[1][1] = 1; R[2][2] = 1;
+    R.setIdentity();
   }
 
-  SimpleTransform(const Vec3f R_[3], const Vec3f& T_)
+  SimpleTransform(const Matrix3f& R_, const Vec3f& T_)
   {
-    for(int i = 0; i < 3; ++i)
-      R[i] = R_[i];
+    R = R_;
     T = T_;
 
     q.fromRotation(R_);
@@ -156,7 +156,7 @@ public:
     return T;
   }
 
-  inline const Vec3f* getRotation() const
+  inline const Matrix3f& getRotation() const
   {
     return R;
   }
@@ -166,10 +166,9 @@ public:
     return q;
   }
 
-  inline void setTransform(const Vec3f R_[3], const Vec3f& T_)
+  inline void setTransform(const Matrix3f& R_, const Vec3f& T_)
   {
-    for(int i = 0; i < 3; ++i)
-      R[i] = R_[i];
+    R = R_;
     T = T_;
 
     q.fromRotation(R_);
@@ -182,10 +181,9 @@ public:
     q.toRotation(R);
   }
 
-  inline void setRotation(const Vec3f R_[3])
+  inline void setRotation(const Matrix3f& R_)
   {
-    for(int i = 0; i < 3; ++i)
-      R[i] = R_[i];
+    R = R_;
     q.fromRotation(R_);
   }
 
@@ -213,10 +211,8 @@ public:
 
   void setIdentity()
   {
-    R[0] = Vec3f(1, 0, 0);
-    R[1] = Vec3f(0, 1, 0);
-    R[2] = Vec3f(0, 0, 1);
-    T = Vec3f();
+    R.setIdentity();
+    T.setValue(0.0);
     q = SimpleQuaternion();
   }
 

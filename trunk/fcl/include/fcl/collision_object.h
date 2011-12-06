@@ -89,7 +89,7 @@ public:
     return t.getTranslation();
   }
 
-  inline const Vec3f* getRotation() const
+  inline const Matrix3f& getRotation() const
   {
     return t.getRotation();
   }
@@ -99,7 +99,7 @@ public:
     return t.getQuatRotation();
   }
 
-  void setRotation(const Vec3f R[3])
+  void setRotation(const Matrix3f& R)
   {
     t.setRotation(R);
   }
@@ -114,7 +114,7 @@ public:
     t.setQuatRotation(q);
   }
 
-  void setTransform(const Vec3f R[3], const Vec3f& T)
+  void setTransform(const Matrix3f& R, const Vec3f& T)
   {
     t.setTransform(R, T);
   }

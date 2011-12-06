@@ -54,7 +54,7 @@ namespace fcl
              BVH_REAL zx, BVH_REAL zy, BVH_REAL zz)
     {
       setValue(xx, xy, xz,
-               yz, yy, yz,
+               yx, yy, yz,
                zx, zy, zz);
     }
 
@@ -95,11 +95,18 @@ namespace fcl
 
     Matrix3f& operator *= (const Matrix3f& other);
 
+    Matrix3f& operator += (BVH_REAL c);
+
     void setIdentity()
     {
       setValue((BVH_REAL)1.0, (BVH_REAL)0.0, (BVH_REAL)0.0,
                (BVH_REAL)0.0, (BVH_REAL)1.0, (BVH_REAL)0.0,
                (BVH_REAL)0.0, (BVH_REAL)0.0, (BVH_REAL)1.0);
+    }
+
+    void setZero()
+    {
+      setValue((BVH_REAL)0.0);
     }
 
     static const Matrix3f& getIdentity()
@@ -113,6 +120,7 @@ namespace fcl
     BVH_REAL determinant() const;
     Matrix3f transpose() const;
     Matrix3f inverse() const;
+    Matrix3f abs() const;
 
     Matrix3f transposeTimes(const Matrix3f& m) const;
     Matrix3f timesTranspose(const Matrix3f& m) const;
@@ -146,15 +154,20 @@ namespace fcl
       return v_[0][2] * v[0] + v_[1][2] * v[1] + v_[2][2] * v[2];
     }
 
-    inline Matrix3f& setValue(BVH_REAL xx, BVH_REAL xy, BVH_REAL xz,
-                              BVH_REAL yx, BVH_REAL yy, BVH_REAL yz,
-                              BVH_REAL zx, BVH_REAL zy, BVH_REAL zz)
+    inline void setValue(BVH_REAL xx, BVH_REAL xy, BVH_REAL xz,
+                         BVH_REAL yx, BVH_REAL yy, BVH_REAL yz,
+                         BVH_REAL zx, BVH_REAL zy, BVH_REAL zz)
     {
       v_[0].setValue(xx, xy, xz);
       v_[1].setValue(yx, yy, yz);
       v_[2].setValue(zx, zy, zz);
+    }
 
-      return *this;
+    inline void setValue(BVH_REAL x)
+    {
+      v_[0].setValue(x);
+      v_[1].setValue(x);
+      v_[2].setValue(x);
     }
   };
 

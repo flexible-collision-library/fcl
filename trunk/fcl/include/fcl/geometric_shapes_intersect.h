@@ -145,7 +145,7 @@ GJKCenterFunction triGetCenterFunction();
 
 void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3);
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Vec3f R[3], const Vec3f& T);
+void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T);
 
 void triDeleteGJKObject(void* o);
 
@@ -187,7 +187,7 @@ bool shapeTriangleIntersect(const S& s, const Vec3f& P1, const Vec3f& P2, const 
 
 /** \brief intersection checking between one shape and a triangle with transformation */
 template<typename S>
-bool shapeTriangleIntersect(const S& s, const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Vec3f R[3], const Vec3f& T,
+bool shapeTriangleIntersect(const S& s, const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
                             Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   void* o1 = GJKInitializer<S>::createGJKObject(s);

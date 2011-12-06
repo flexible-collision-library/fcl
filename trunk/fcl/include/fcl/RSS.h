@@ -39,6 +39,7 @@
 
 #include "fcl/BVH_internal.h"
 #include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 
 namespace fcl
 {
@@ -159,7 +160,7 @@ public:
   /** \brief distance between two oriented rectangles
    * P and Q (optional return values) are the closest points in the rectangles, both are in the local frame of the first rectangle
    */
-  static BVH_REAL rectDistance(const Vec3f Rab[3], Vec3f const& Tab, const BVH_REAL a[2], const BVH_REAL b[2], Vec3f* P = NULL, Vec3f* Q = NULL);
+  static BVH_REAL rectDistance(const Matrix3f& Rab, const Vec3f& Tab, const BVH_REAL a[2], const BVH_REAL b[2], Vec3f* P = NULL, Vec3f* Q = NULL);
 
 };
 
@@ -167,9 +168,9 @@ public:
  * P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points
  * Notice that P and Q are both in the local frame of the first RSS (not global frame and not even the local frame of object 1)
  */
-BVH_REAL distance(const Vec3f R0[3], const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
 
-bool overlap(const Vec3f R0[3], const Vec3f& T0, const RSS& b1, const RSS& b2);
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2);
 
 
 }

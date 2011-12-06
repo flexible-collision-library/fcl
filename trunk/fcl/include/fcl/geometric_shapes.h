@@ -53,26 +53,20 @@ public:
   /** \brief Default Constructor */
   ShapeBase()
   {
-    Rloc[0][0] = 1;
-    Rloc[1][1] = 1;
-    Rloc[2][2] = 1;
+    Rloc.setIdentity();
   }
 
   /** \brief Set the local frame of the shape */
-  void setLocalTransform(const Vec3f R_[3], const Vec3f& T_)
+  void setLocalTransform(const Matrix3f& R_, const Vec3f& T_)
   {
-    Rloc[0] = R_[0];
-    Rloc[1] = R_[1];
-    Rloc[2] = R_[2];
+    Rloc = R_;
     Tloc = T_;
   }
 
   /** \brief Set the local orientation of the shape */
-  void setLocalRotation(const Vec3f R[3])
+  void setLocalRotation(const Matrix3f& R)
   {
-    Rloc[0] = R[0];
-    Rloc[1] = R[1];
-    Rloc[2] = R[2];
+    Rloc = R;
   }
 
   /** \brief Set the local position of the shape */
@@ -82,22 +76,17 @@ public:
   }
 
   /** \brief Append additional transform to the local transform */
-  void appendLocalTransform(const Vec3f R[3], const Vec3f& T)
+  void appendLocalTransform(const Matrix3f& R, const Vec3f& T)
   {
-    Vec3f R0[3];
-    for(int i = 0; i < 3; ++i)
-      R0[i] = Rloc[i];
-    matMulMat(R, R0, Rloc);
-    Tloc = matMulVec(R, Tloc) + T;
+    Rloc = R * Rloc;
+    Tloc = R * Tloc + T;
   }
 
   /** \brief Get local transform */
-  void getLocalTransform(Vec3f R[3], Vec3f& T) const
+  void getLocalTransform(Matrix3f& R, Vec3f& T) const
   {
     T = Tloc;
-    R[0] = Rloc[0];
-    R[1] = Rloc[1];
-    R[2] = Rloc[2];
+    R = Rloc;
   }
 
   /** \brief Get local position */
@@ -107,7 +96,7 @@ public:
   }
 
   /** \brief Get local orientation */
-  inline const Vec3f* getLocalRotation() const
+  inline const Matrix3f& getLocalRotation() const
   {
     return Rloc;
   }
@@ -117,7 +106,7 @@ public:
 
 protected:
 
-  Vec3f Rloc[3];
+  Matrix3f Rloc;
   Vec3f Tloc;
 };
 

@@ -173,7 +173,7 @@ bool continuous_collide_Test(const Transform& tf1, const Transform& tf2,
   std::vector<Vec3f> vertices1_new(vertices1.size());
   for(unsigned int i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = matMulVec(tf1.R, vertices1[i]) + tf1.T;
+    vertices1_new[i] = tf1.R * vertices1[i] + tf1.T;
   }
 
   m1.beginModel();
@@ -201,7 +201,7 @@ bool continuous_collide_Test(const Transform& tf1, const Transform& tf2,
   // update
   for(unsigned int i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = matMulVec(tf2.R, vertices1[i]) + tf2.T;
+    vertices1_new[i] = tf2.R * vertices1[i] + tf2.T;
   }
 
   m1.beginUpdateModel();
@@ -241,13 +241,13 @@ bool discrete_continuous_collide_Test(const Transform& tf1, const Transform& tf2
   std::vector<Vec3f> vertices1_t1(vertices1.size());
   for(unsigned int i = 0; i < vertices1_t1.size(); ++i)
   {
-    vertices1_t1[i] = matMulVec(tf1.R, vertices1[i]) + tf1.T;
+    vertices1_t1[i] = tf1.R * vertices1[i] + tf1.T;
   }
 
   std::vector<Vec3f> vertices1_t2(vertices1.size());
   for(unsigned int i = 0; i < vertices1_t2.size(); ++i)
   {
-    vertices1_t2[i] = matMulVec(tf2.R, vertices1[i]) + tf2.T;
+    vertices1_t2[i] = tf2.R * vertices1[i] + tf2.T;
   }
 
   std::vector<Vec3f> vertices1_t(vertices1.size());

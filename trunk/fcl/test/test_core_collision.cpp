@@ -550,7 +550,7 @@ bool collide_Test2(const Transform& tf,
   std::vector<Vec3f> vertices1_new(vertices1.size());
   for(unsigned int i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = matMulVec(tf.R, vertices1[i]) + tf.T;
+    vertices1_new[i] = tf.R * vertices1[i] + tf.T;
   }
 
 
@@ -629,10 +629,8 @@ bool collide_Test(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -702,10 +700,8 @@ bool collide_Test_OBB(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -774,10 +770,8 @@ bool collide_Test_RSS(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setTransform(tf.R, tf.T);
@@ -847,10 +841,8 @@ bool test_collide_func(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Vec3f R2[3];
-  R2[0] = Vec3f(1, 0, 0);
-  R2[1] = Vec3f(0, 1, 0);
-  R2[2] = Vec3f(0, 0, 1);
+  Matrix3f R2;
+  R2.setIdentity();
   Vec3f T2;
 
   m1.setRotation(tf.R);

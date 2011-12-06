@@ -244,9 +244,7 @@ class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNod
 public:
   MeshShapeCollisionTraversalNodeOBB() : MeshShapeCollisionTraversalNode<OBB, S>()
   {
-    R[0] = Vec3f(1, 0, 0);
-    R[1] = Vec3f(0, 1, 0);
-    R[2] = Vec3f(0, 0, 1);
+    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
@@ -291,7 +289,7 @@ public:
   }
 
   // R, T is the transformation of bvh model
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -364,9 +362,7 @@ class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNod
 public:
   ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB>()
   {
-    R[0] = Vec3f(1, 0, 0);
-    R[1] = Vec3f(0, 1, 0);
-    R[2] = Vec3f(0, 0, 1);
+    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
@@ -411,7 +407,7 @@ public:
   }
 
   // R, T is the transformation of bvh model
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 

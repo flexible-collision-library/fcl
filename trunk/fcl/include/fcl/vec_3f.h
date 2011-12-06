@@ -230,10 +230,15 @@ namespace fcl
     }
 
     /** \brief Set the vector using new values */
-    inline Vec3f& setValue(float x, float y, float z)
+    inline void setValue(float x, float y, float z)
     {
       v_[0] = x; v_[1] = y; v_[2] = z; v_[3] = 0.0f;
-      return *this;
+    }
+
+    /** \brief Set the vector using new values */
+    inline void setValue(BVH_REAL x)
+    {
+      v_[0] = x; v_[1] = x; v_[2] = x; v_[3] = 0.0f;
     }
 
     /** \brief Check whether two vectors are the same in abstracted value */
@@ -420,10 +425,15 @@ namespace fcl
     }
 
     /** \brief Set the vector using new values */
-    inline Vec3f& setValue(BVH_REAL x, BVH_REAL y, BVH_REAL z)
+    inline void setValue(BVH_REAL x, BVH_REAL y, BVH_REAL z)
     {
       v_[0] = x; v_[1] = y; v_[2] = z;
-      return *this;
+    }
+
+    /** \brief Set the vector using new values */
+    inline void setValue(BVH_REAL x)
+    {
+      v_[0] = x; v_[1] = x; v_[2] = x;
     }
 
     /** \brief Check whether two vectors are the same in value */
@@ -480,26 +490,10 @@ namespace fcl
     return a.triple(b, c);
   }
 
-  /** \brief M * v */
-  Vec3f matMulVec(const Vec3f M[3], const Vec3f& v);
-
-  /** \brief M' * v */
-  Vec3f matTransMulVec(const Vec3f M[3], const Vec3f& v);
-
-  /** \brief v' * M * v */
-  BVH_REAL quadraticForm(const Vec3f M[3], const Vec3f& v);
-
-  /** \brief S * M * S' */
-  void tensorTransform(const Vec3f M[3], const Vec3f S[3], Vec3f newM[3]);
-
-  /** \brief A * B */
-  void matMulMat(const Vec3f M1[3], const Vec3f M2[3], Vec3f newM[3]);
-
-  /** \brief The relative transform from (R1, T1) to (R2, T2) */
-  void relativeTransform(const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, Vec3f R[3], Vec3f& T);
-
-  /** \brief compute eigen values and vectors */
-  void matEigen(Vec3f a[3], BVH_REAL dout[3], Vec3f vout[3]);
+  /** \brief generate a coordinate given a vector (i.e., generating three orthonormal vectors given a vector)
+   * w should be normalized
+   */
+  void generateCoordinateSystem(const Vec3f& w, Vec3f& u, Vec3f& v);
 
 
 }

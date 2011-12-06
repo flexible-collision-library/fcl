@@ -39,6 +39,7 @@
 
 #include "fcl/BVH_internal.h"
 #include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 
 /** \brief Main namespace */
 namespace fcl
@@ -141,12 +142,12 @@ private:
 
 public:
   /** Kernel check whether two OBB are disjoint */
-  static bool obbDisjoint(const Vec3f B[3], const Vec3f& T, const Vec3f& a, const Vec3f& b);
+  static bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
 
 };
 
 
-bool overlap(const Vec3f R0[3], const Vec3f& T0, const OBB& b1, const OBB& b2);
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2);
 
 }
 

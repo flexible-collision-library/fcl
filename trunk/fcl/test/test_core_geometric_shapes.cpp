@@ -209,7 +209,7 @@ TEST(shapeIntersection, boxbox)
 
   SimpleQuaternion q;
   q.fromAxisAngle(Vec3f(0, 0, 1), (BVH_REAL)3.140 / 6);
-  Vec3f R[3];
+  Matrix3f R;
   q.toRotation(R);
   s2.setLocalRotation(R);
   res = shapeIntersect(s1, s2);

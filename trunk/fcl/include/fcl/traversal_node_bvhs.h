@@ -275,7 +275,7 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -289,7 +289,7 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -412,7 +412,7 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -426,7 +426,7 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -515,7 +515,7 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -528,7 +528,7 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -1035,7 +1035,7 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 
@@ -1231,7 +1231,7 @@ public:
 
   bool canStop(BVH_REAL c) const;
 
-  Vec3f R[3];
+  Matrix3f R;
   Vec3f T;
 };
 

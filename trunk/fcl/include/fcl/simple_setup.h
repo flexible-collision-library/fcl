@@ -75,7 +75,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node, BVHModel<BV>& mode
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      Vec3f new_v = model1.getRotation() * p + model1.getTranslation();
       vertices_transformed[i] = new_v;
     }
 
@@ -114,7 +114,7 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV>& node, const S& model1, B
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      Vec3f new_v = model2.getRotation() * p  + model2.getTranslation();
       vertices_transformed[i] = new_v;
     }
 
@@ -152,8 +152,7 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node, const BVHModel<OBB>
   node.exhaustive = exhaustive;
   node.enable_contact = enable_contact;
 
-  for(int i = 0; i < 3; ++i)
-    node.R[i] = model1.getRotation()[i];
+  node.R = model1.getRotation();
   node.T = model1.getTranslation();
 
   return true;
@@ -176,8 +175,7 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S>& node, const S& model1, co
   node.exhaustive = exhaustive;
   node.enable_contact = enable_contact;
 
-  for(int i = 0; i < 3; ++i)
-    node.R[i] = model2.getRotation()[i];
+  node.R = model2.getRotation();
   node.T = model2.getTranslation();
 
   return true;
@@ -198,7 +196,7 @@ bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHM
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      Vec3f new_v = model1.getRotation() *  p + model1.getTranslation();
       vertices_transformed1[i] = new_v;
     }
 
@@ -215,7 +213,7 @@ bool initialize(MeshCollisionTraversalNode<BV>& node, BVHModel<BV>& model1, BVHM
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      Vec3f new_v = model2.getRotation() * p + model2.getTranslation();
       vertices_transformed2[i] = new_v;
     }
 
@@ -273,7 +271,7 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      Vec3f new_v = model1.getRotation() * p + model1.getTranslation();
       vertices_transformed1[i] = new_v;
     }
 
@@ -290,7 +288,7 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node, BVHModel<BV>& model1
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      Vec3f new_v = model2.getRotation() * p + model2.getTranslation();
       vertices_transformed2[i] = new_v;
     }
 
@@ -362,7 +360,7 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      Vec3f new_v = model1.getRotation() * p + model1.getTranslation();
       vertices_transformed1[i] = new_v;
     }
 
@@ -379,7 +377,7 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node, BVHModel<BV>& mo
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      Vec3f new_v = model2.getRotation() * p + model2.getTranslation();
       vertices_transformed2[i] = new_v;
     }
 
@@ -448,7 +446,7 @@ bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHMo
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = matMulVec(model1.getRotation(), p) + model1.getTranslation();
+      Vec3f new_v = model1.getRotation() * p + model1.getTranslation();
       vertices_transformed1[i] = new_v;
     }
 
@@ -465,7 +463,7 @@ bool initialize(MeshDistanceTraversalNode<BV>& node, BVHModel<BV>& model1, BVHMo
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = matMulVec(model2.getRotation(), p) + model2.getTranslation();
+      Vec3f new_v = model2.getRotation() * p + model2.getTranslation();
       vertices_transformed2[i] = new_v;
     }
 
@@ -574,7 +572,7 @@ bool initialize(PointCloudMeshContinuousCollisionTraversalNode<BV>& node, const 
 /** \brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>& model1, BVHModel<BV>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, BVH_REAL w = 1,
+                const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, BVH_REAL w = 1,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -584,7 +582,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = matMulVec(R1, p) + T1;
+    Vec3f new_v = R1 * p + T1;
     vertices_transformed1[i] = new_v;
   }
 
@@ -593,7 +591,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = matMulVec(R2, p) + T2;
+    Vec3f new_v = R2 * p + T2;
     vertices_transformed2[i] = new_v;
   }
 
@@ -622,7 +620,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node, BVHModel<BV>
 
 /** \brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms, specialized for RSS */
 inline bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Vec3f R1[3], const Vec3f& T1, const Vec3f R2[3], const Vec3f& T2, BVH_REAL w = 1)
+                const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, BVH_REAL w = 1)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;

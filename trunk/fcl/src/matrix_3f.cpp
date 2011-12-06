@@ -50,6 +50,15 @@ Matrix3f& Matrix3f::operator *= (const Matrix3f& other)
   return *this;
 }
 
+Matrix3f& Matrix3f::operator += (BVH_REAL c)
+{
+  setValue(v_[0][0] + c, v_[0][1] + c, v_[0][2] + c,
+           v_[1][0] + c, v_[1][1] + c, v_[1][2] + c,
+           v_[2][0] + c, v_[2][1] + c, v_[2][2] + c);
+  return *this;
+}
+
+
 BVH_REAL Matrix3f::determinant() const
 {
   return triple(v_[0], v_[1], v_[2]);
@@ -60,6 +69,13 @@ Matrix3f Matrix3f::transpose() const
   return Matrix3f(v_[0][0], v_[1][0], v_[2][0],
                   v_[0][1], v_[1][1], v_[2][1],
                   v_[0][2], v_[1][2], v_[2][2]);
+}
+
+Matrix3f Matrix3f::abs() const
+{
+  return Matrix3f(fabs(v_[0][0]), fabs(v_[0][1]), fabs(v_[0][2]),
+                  fabs(v_[1][0]), fabs(v_[1][1]), fabs(v_[1][2]),
+                  fabs(v_[2][0]), fabs(v_[2][1]), fabs(v_[2][2]));
 }
 
 Matrix3f Matrix3f::inverse() const

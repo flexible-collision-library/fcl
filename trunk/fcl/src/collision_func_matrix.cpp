@@ -176,8 +176,8 @@ namespace fcl
                                            { \
                                              for(int i = 0; i < num_contacts; ++i) \
                                              { \
-                                               Vec3f normal = matMulVec(obj1->getRotation(), node.pairs[i].normal); \
-                                               Vec3f contact_point = matMulVec(obj1->getRotation(), node.pairs[i].contact_point) + obj1->getTranslation(); \
+                                               Vec3f normal = obj1->getRotation() * node.pairs[i].normal; \
+                                               Vec3f contact_point = obj1->getRotation() * node.pairs[i].contact_point + obj1->getTranslation(); \
                                                contacts[i] = Contact(obj1, obj2, node.pairs[i].id1, node.pairs[i].id2, contact_point, normal, node.pairs[i].penetration_depth); \
                                              } \
                                            } \

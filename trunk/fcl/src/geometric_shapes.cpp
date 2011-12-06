@@ -103,14 +103,12 @@ void Plane::unitNormalTest()
   if(l > 0)
   {
     BVH_REAL inv_l = 1.0 / l;
-    n[0] *= inv_l;
-    n[1] *= inv_l;
-    n[2] *= inv_l;
+    n *= inv_l;
     d *= inv_l;
   }
   else
   {
-    n = Vec3f(1, 0, 0);
+    n.setValue(1, 0, 0);
     d = 0;
   }
 }

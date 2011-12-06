@@ -79,8 +79,8 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape)
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
-    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
+    v = shape.getRotation() * v + shape.getTranslation();
     points[i] = v;
   }
 
@@ -146,8 +146,8 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
-    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
+    v = shape.getRotation() * v + shape.getTranslation();
     points[i] = v;
   }
 
@@ -221,8 +221,8 @@ void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, unsigned int n_
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
-    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
+    v = shape.getRotation() * v + shape.getTranslation();
     points[i] = v;
   }
 
@@ -298,8 +298,8 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int t
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
-    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
+    v = shape.getRotation() * v + shape.getTranslation();
     points[i] = v;
   }
 
@@ -378,8 +378,8 @@ void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, unsigned int 
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
-    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
+    v = shape.getRotation() * v + shape.getTranslation();
     points[i] = v;
   }
 
@@ -453,8 +453,8 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, unsigned int tot =
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = matMulVec(shape.getLocalRotation(), points[i]) + shape.getLocalTranslation();
-    v = matMulVec(shape.getRotation(), v) + shape.getTranslation();
+    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
+    v = shape.getRotation() * v + shape.getTranslation();
     points[i] = v;
   }
 

@@ -805,15 +805,15 @@ bool Intersect::intersect_EE_filtered(const Vec3f& a0, const Vec3f& b0, const Ve
 
 bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
                                    const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                   const Vec3f R[3], const Vec3f& T,
+                                   const Matrix3f& R, const Vec3f& T,
                                    Vec3f* contact_points,
                                    unsigned int* num_contact_points,
                                    BVH_REAL* penetration_depth,
                                    Vec3f* normal)
 {
-  Vec3f Q1_ = Vec3f(R[0].dot(Q1), R[1].dot(Q1), R[2].dot(Q1)) + T;
-  Vec3f Q2_ = Vec3f(R[0].dot(Q2), R[1].dot(Q2), R[2].dot(Q2)) + T;
-  Vec3f Q3_ = Vec3f(R[0].dot(Q3), R[1].dot(Q3), R[2].dot(Q3)) + T;
+  Vec3f Q1_ = R * Q1 + T;
+  Vec3f Q2_ = R * Q2 + T;
+  Vec3f Q3_ = R * Q3 + T;
 
   return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
 }
@@ -1463,14 +1463,14 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 
       if (i < nPositiveExamples)
       {
-        double sigma = matMulVec(uc1[i].Sigma, fgrad).dot(fgrad);
+        double sigma = uc1[i].Sigma.quadraticForm(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
       else
       {
-        double sigma = matMulVec(uc2[i - nPositiveExamples].Sigma, fgrad).dot(fgrad);
+        double sigma = uc2[i - nPositiveExamples].Sigma.quadraticForm(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1498,7 +1498,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 
 BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                           Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
-                                          const Vec3f R[3], const Vec3f& T, const CloudClassifierParam& solver, bool scaling)
+                                          const Matrix3f& R, const Vec3f& T, const CloudClassifierParam& solver, bool scaling)
 {
   KERNEL_CACHE *kernel_cache;
   LEARN_PARM learn_parm = solver.learn_parm;
@@ -1576,7 +1576,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
     coord0[0] = cloud2[i][0];
     coord0[1] = cloud2[i][1];
     coord0[2] = cloud2[i][2];
-    coord1 = matMulVec(R, coord0) + T; // rotate the coordinate
+    coord1 = R * coord0 + T; // rotate the coordinate
 
     words[0].wnum = 1;
     words[0].weight = coord1[0];
@@ -1651,16 +1651,15 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 
       if (i < nPositiveExamples)
       {
-        double sigma = matMulVec(uc1[i].Sigma, fgrad).dot(fgrad);
+        double sigma = uc1[i].Sigma.quadraticForm(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
       else
       {
-        Vec3f rotatedSigma[3];
-        tensorTransform(uc2[i - nPositiveExamples].Sigma, R, rotatedSigma);
-        double sigma = matMulVec(rotatedSigma, fgrad).dot(fgrad);
+        Matrix3f rotatedSigma = R.tensorTransform(uc2[i - nPositiveExamples].Sigma);
+        double sigma = rotatedSigma.quadraticForm(fgrad);
         BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1724,26 +1723,19 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
     return 0.0;
   }
 
-  Vec3f P[3];
-   for(int i = 0; i < 3; ++i)
-   {
-     for(int j = 0; j < 3; ++j)
-     {
-       P[i][j] = ((i == j) ? 1 : 0) - n[i] * n[j];
-     }
-   }
+  Matrix3f P(1 - n[0] * n[0], -n[0] * n[1], -n[0] * n[2],
+             -n[1] * n[0], 1 - n[1] * n[1], -n[1] * n[2],
+             -n[2] * n[0], -n[2] * n[1], 1 - n[2] * n[2]);
 
    Vec3f delta = n * t;
 
    BVH_REAL max_prob = 0;
    for(int i = 0; i < size_cloud1; ++i)
    {
-     Vec3f projected_p = matMulVec(P, cloud1[i]) + delta;
+     Vec3f projected_p = P * cloud1[i] + delta;
 
      // compute the projected uncertainty by P * S * P'
-     const Vec3f* S = uc1[i].Sigma;
-     Vec3f newS[3];
-     tensorTransform(S, P, newS);
+     Matrix3f newS = P.tensorTransform(uc1[i].Sigma);
 
      // check whether the point is inside or outside the triangle
 
@@ -1751,9 +1743,9 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 
      if(b_inside)
      {
-       BVH_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(quadraticForm(newS, edge_n[0])));
-       BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(quadraticForm(newS, edge_n[1])));
-       BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(quadraticForm(newS, edge_n[2])));
+       BVH_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(newS.quadraticForm(edge_n[0])));
+       BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(newS.quadraticForm(edge_n[1])));
+       BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(newS.quadraticForm(edge_n[2])));
        BVH_REAL prob = 1.0 - prob1 - prob2 - prob3;
        if(prob > max_prob) max_prob = prob;
      }
@@ -1772,12 +1764,12 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
        if(pos_plane.size() == 1)
        {
          int pos_id = pos_plane[0];
-         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(quadraticForm(newS, edge_n[pos_id])));
+         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(newS.quadraticForm(edge_n[pos_id])));
 
          int neg_id1 = neg_plane[0];
          int neg_id2 = neg_plane[1];
-         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
-         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
+         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
+         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
 
          BVH_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;
@@ -1786,13 +1778,13 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
        else if(pos_plane.size() == 2)
        {
          int neg_id = neg_plane[0];
-         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(quadraticForm(newS, edge_n[neg_id])));
+         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(newS.quadraticForm(edge_n[neg_id])));
 
          int pos_id1 = pos_plane[0];
          int pos_id2 = pos_plane[1];
 
-         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(quadraticForm(newS, edge_n[pos_id1])));
-         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(quadraticForm(newS, edge_n[pos_id2])));
+         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(newS.quadraticForm(edge_n[pos_id1])));
+         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(newS.quadraticForm(edge_n[pos_id2])));
 
          BVH_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;
@@ -1810,11 +1802,11 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 
 BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                               const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                              const Vec3f R[3], const Vec3f& T)
+                                              const Matrix3f& R, const Vec3f& T)
 {
-  Vec3f Q1_ = Vec3f(R[0].dot(Q1), R[1].dot(Q1), R[2].dot(Q1)) + T;
-  Vec3f Q2_ = Vec3f(R[0].dot(Q2), R[1].dot(Q2), R[2].dot(Q2)) + T;
-  Vec3f Q3_ = Vec3f(R[0].dot(Q3), R[1].dot(Q3), R[2].dot(Q3)) + T;
+  Vec3f Q1_ = R * Q1 + T;
+  Vec3f Q2_ = R * Q2 + T;
+  Vec3f Q3_ = R * Q3 + T;
 
   return intersect_PointCloudsTriangle(cloud1, uc1, size_cloud1, Q1_, Q2_, Q3_);
 }
@@ -2173,25 +2165,25 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const V
 }
 
 BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
-                                       const Vec3f R[3], const Vec3f& Tl,
+                                       const Matrix3f& R, const Vec3f& Tl,
                                        Vec3f& P, Vec3f& Q)
 {
   Vec3f T_transformed[3];
-  T_transformed[0] = matMulVec(R, T[0]) + Tl;
-  T_transformed[1] = matMulVec(R, T[1]) + Tl;
-  T_transformed[2] = matMulVec(R, T[2]) + Tl;
+  T_transformed[0] = R * T[0] + Tl;
+  T_transformed[1] = R * T[1] + Tl;
+  T_transformed[2] = R * T[2] + Tl;
 
   return triDistance(S, T_transformed, P, Q);
 }
 
 BVH_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                                        const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                                       const Vec3f R[3], const Vec3f& Tl,
+                                       const Matrix3f& R, const Vec3f& Tl,
                                        Vec3f& P, Vec3f& Q)
 {
-  Vec3f T1_transformed = matMulVec(R, T1) + Tl;
-  Vec3f T2_transformed = matMulVec(R, T2) + Tl;
-  Vec3f T3_transformed = matMulVec(R, T3) + Tl;
+  Vec3f T1_transformed = R * T1 + Tl;
+  Vec3f T2_transformed = R * T2 + Tl;
+  Vec3f T3_transformed = R * T3 + Tl;
   return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
 

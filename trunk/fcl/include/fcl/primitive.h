@@ -39,6 +39,7 @@
 
 #include "fcl/BVH_internal.h"
 #include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 
 /** \brief Main namespace */
 namespace fcl
@@ -49,10 +50,8 @@ struct Uncertainty
 {
   Uncertainty() {}
 
-  Uncertainty(Vec3f Sigma_[3])
+  Uncertainty(Matrix3f& Sigma_) : Sigma(Sigma_)
   {
-    for(int i = 0; i < 3; ++i)
-      Sigma[i] = Sigma_[i];
     preprocess();
   }
 
@@ -74,14 +73,7 @@ struct Uncertainty
     }
 
 
-    for(int i = 0; i < 3; ++i)
-    {
-      for(int j = 0; j < 3; ++j)
-      {
-        Sigma[i][j] = 0;
-      }
-    }
-
+    Sigma.setZero();
     for(int i = 0; i < 3; ++i)
     {
       for(int j = 0; j < 3; ++j)
@@ -94,7 +86,7 @@ struct Uncertainty
   }
 
   /** \brief Variation matrix for uncertainty */
-  Vec3f Sigma[3];
+  Matrix3f Sigma;
 
   /** \brief Variations along the eigen axes */
   BVH_REAL sigma[3];

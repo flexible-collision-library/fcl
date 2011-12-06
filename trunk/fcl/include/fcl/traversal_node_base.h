@@ -37,12 +37,7 @@
 #ifndef FCL_TRAVERSAL_NODE_BASE_H
 #define FCL_TRAVERSAL_NODE_BASE_H
 
-#include "fcl/vec_3f.h"
 #include "fcl/primitive.h"
-#include "fcl/BVH_front.h"
-#include "fcl/BVH_model.h"
-#include <vector>
-
 
 /** \brief Main namespace */
 namespace fcl
