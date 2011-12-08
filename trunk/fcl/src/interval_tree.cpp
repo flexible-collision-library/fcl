@@ -44,7 +44,7 @@ namespace fcl
 
 IntervalTreeNode::IntervalTreeNode(){}
 
-IntervalTreeNode::IntervalTreeNode(Interval* new_interval) :
+IntervalTreeNode::IntervalTreeNode(SimpleInterval* new_interval) :
     stored_interval (new_interval),
     key(new_interval->low),
     high(new_interval->high),
@@ -157,7 +157,7 @@ void IntervalTree::fixupMaxHigh(IntervalTreeNode* x)
   }
 }
 
-IntervalTreeNode* IntervalTree::insert(Interval* new_interval)
+IntervalTreeNode* IntervalTree::insert(SimpleInterval* new_interval)
 {
   IntervalTreeNode* y;
   IntervalTreeNode* x;
@@ -406,11 +406,11 @@ void IntervalTree::deleteFixup(IntervalTreeNode* x)
   x->red = false;
 }
 
-Interval* IntervalTree::deleteNode(IntervalTreeNode* z)
+SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z)
 {
   IntervalTreeNode* y;
   IntervalTreeNode* x;
-  Interval* node_to_delete = z->stored_interval;
+  SimpleInterval* node_to_delete = z->stored_interval;
 
   y= ((z->left == nil) || (z->right == nil)) ? z : getSuccessor(z);
   x= (y->left == nil) ? y->right : y->left;
@@ -477,9 +477,9 @@ bool overlap(double a1, double a2, double b1, double b2)
   }
 }
 
-std::deque<Interval*> IntervalTree::query(double low, double high)
+std::deque<SimpleInterval*> IntervalTree::query(double low, double high)
 {
-  std::deque<Interval*> result_stack;
+  std::deque<SimpleInterval*> result_stack;
   IntervalTreeNode* x = root->left;
   bool run = (x != nil);
 

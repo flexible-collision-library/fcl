@@ -1,0 +1,239 @@
+/*
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2011, Willow Garage, Inc.
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Willow Garage, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/** \author Jia Pan */
+
+#include "fcl/interval_vector.h"
+#include <iostream>
+
+namespace fcl
+{
+
+
+IVector3::IVector3() {}
+
+IVector3::IVector3(BVH_REAL v) { i_[0] = i_[1] = i_[2] = v; }
+
+IVector3::IVector3(BVH_REAL x, BVH_REAL y, BVH_REAL z)
+{
+  i_[0].setValue(x);
+  i_[1].setValue(y);
+  i_[2].setValue(z);
+}
+
+IVector3::IVector3(BVH_REAL xl, BVH_REAL xu, BVH_REAL yl, BVH_REAL yu, BVH_REAL zl, BVH_REAL zu)
+{
+  i_[0].setValue(xl, xu);
+  i_[1].setValue(yl, yu);
+  i_[2].setValue(zl, zu);
+}
+
+IVector3::IVector3(BVH_REAL v[3][2])
+{
+  i_[0].setValue(v[0][0], v[0][1]);
+  i_[1].setValue(v[1][0], v[1][1]);
+  i_[2].setValue(v[2][0], v[2][1]);
+}
+
+IVector3::IVector3(Interval v[3])
+{
+  i_[0] = v[0];
+  i_[1] = v[1];
+  i_[2] = v[2];
+}
+
+IVector3::IVector3(const Interval& v1, const Interval& v2, const Interval& v3)
+{
+  i_[0] = v1;
+  i_[1] = v2;
+  i_[2] = v3;
+}
+
+IVector3::IVector3(const Vec3f& v)
+{
+  i_[0].setValue(v[0]);
+  i_[1].setValue(v[1]);
+  i_[2].setValue(v[2]);
+}
+
+void IVector3::setZero()
+{
+  i_[0].setValue(0);
+  i_[1].setValue(0);
+  i_[2].setValue(0);
+}
+
+IVector3 IVector3::operator + (const IVector3& other) const
+{
+  Interval res[3];
+  res[0] = i_[0] + other[0];
+  res[1] = i_[1] + other[1];
+  res[2] = i_[2] + other[2];
+  return IVector3(res);
+}
+
+IVector3& IVector3::operator += (const IVector3& other)
+{
+  i_[0] += other[0];
+  i_[1] += other[1];
+  i_[2] += other[2];
+  return *this;
+}
+
+IVector3 IVector3::operator - (const IVector3& other) const
+{
+  Interval res[3];
+  res[0] = i_[0] - other[0];
+  res[1] = i_[1] - other[1];
+  res[2] = i_[2] - other[2];
+  return IVector3(res);
+}
+
+IVector3& IVector3::operator -= (const IVector3& other)
+{
+  i_[0] -= other[0];
+  i_[1] -= other[1];
+  i_[2] -= other[2];
+  return *this;
+}
+
+Interval IVector3::dot(const IVector3& other) const
+{
+  return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
+}
+
+IVector3 IVector3::cross(const IVector3& other) const
+{
+  Interval res[3];
+  res[0] = i_[1] * other[2] - i_[2] * other[1];
+  res[1] = i_[2] * other[0] - i_[0] * other[2];
+  res[2] = i_[0] * other[1] - i_[1] * other[0];
+  return IVector3(res);
+}
+
+BVH_REAL IVector3::volumn() const
+{
+  return i_[0].diameter() * i_[1].diameter() * i_[2].diameter();
+}
+
+void IVector3::print() const
+{
+  std::cout << "[" << i_[0][0] << "," << i_[0][1] << "]" << std::endl;
+  std::cout << "[" << i_[1][0] << "," << i_[1][1] << "]" << std::endl;
+  std::cout << "[" << i_[2][0] << "," << i_[2][1] << "]" << std::endl;
+}
+
+Vec3f IVector3::center() const
+{
+  return Vec3f(i_[0].center(), i_[1].center(), i_[2].center());
+}
+
+void IVector3::bound(const IVector3& v)
+{
+  if(v[0][0] < i_[0][0]) i_[0][0] = v[0][0];
+  if(v[1][0] < i_[1][0]) i_[1][0] = v[1][0];
+  if(v[2][0] < i_[2][0]) i_[2][0] = v[2][0];
+
+  if(v[0][1] > i_[0][1]) i_[0][1] = v[0][1];
+  if(v[1][1] > i_[1][1]) i_[1][1] = v[1][1];
+  if(v[2][1] > i_[2][1]) i_[2][1] = v[2][1];
+}
+
+void IVector3::bound(const Vec3f& v)
+{
+  if(v[0] < i_[0][0]) i_[0][0] = v[0];
+  if(v[1] < i_[1][0]) i_[1][0] = v[1];
+  if(v[2] < i_[2][0]) i_[2][0] = v[2];
+
+  if(v[0] > i_[0][1]) i_[0][1] = v[0];
+  if(v[1] > i_[1][1]) i_[1][1] = v[1];
+  if(v[2] > i_[2][1]) i_[2][1] = v[2];
+}
+
+
+IVector3 IVector3::bounded(const IVector3& v) const
+{
+  IVector3 res = *this;
+  if(v[0][0] < res.i_[0][0]) res.i_[0][0] = v[0][0];
+  if(v[1][0] < res.i_[1][0]) res.i_[1][0] = v[1][0];
+  if(v[2][0] < res.i_[2][0]) res.i_[2][0] = v[2][0];
+
+  if(v[0][1] > res.i_[0][1]) res.i_[0][1] = v[0][1];
+  if(v[1][1] > res.i_[1][1]) res.i_[1][1] = v[1][1];
+  if(v[2][1] > res.i_[2][1]) res.i_[2][1] = v[2][1];
+
+  return res;
+}
+
+IVector3 IVector3::bounded(const Vec3f& v) const
+{
+  IVector3 res = *this;
+  if(v[0] < res.i_[0][0]) res.i_[0][0] = v[0];
+  if(v[1] < res.i_[1][0]) res.i_[1][0] = v[1];
+  if(v[2] < res.i_[2][0]) res.i_[2][0] = v[2];
+
+  if(v[0] > res.i_[0][1]) res.i_[0][1] = v[0];
+  if(v[1] > res.i_[1][1]) res.i_[1][1] = v[1];
+  if(v[2] > res.i_[2][1]) res.i_[2][1] = v[2];
+
+  return res;
+}
+
+bool IVector3::overlap(const IVector3& v) const
+{
+  if(v[0][1] < i_[0][0]) return false;
+  if(v[1][1] < i_[1][0]) return false;
+  if(v[2][1] < i_[2][0]) return false;
+
+  if(v[0][0] > i_[0][1]) return false;
+  if(v[1][0] > i_[1][1]) return false;
+  if(v[2][0] > i_[2][1]) return false;
+
+  return true;
+}
+
+bool IVector3::contain(const IVector3& v) const
+{
+  if(v[0][0] < i_[0][0]) return false;
+  if(v[1][0] < i_[1][0]) return false;
+  if(v[2][0] < i_[2][0]) return false;
+
+  if(v[0][1] > i_[0][1]) return false;
+  if(v[1][1] > i_[1][1]) return false;
+  if(v[2][1] > i_[2][1]) return false;
+
+  return true;
+}
+
+}

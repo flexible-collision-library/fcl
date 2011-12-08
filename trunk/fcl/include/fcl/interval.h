@@ -1,0 +1,222 @@
+/*
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2011, Willow Garage, Inc.
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Willow Garage, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/** \author Jia Pan */
+
+
+#ifndef FCL_INTERVAL_H
+#define FCL_INTERVAL_H
+
+#include "fcl/BVH_internal.h"
+#include <cstdlib>
+
+namespace fcl
+{
+
+struct Interval
+{
+  BVH_REAL i_[2];
+
+  Interval() {}
+  Interval(BVH_REAL v)
+  {
+    i_[0] = i_[1] = v;
+  }
+
+  Interval(BVH_REAL left, BVH_REAL right)
+  {
+    i_[0] = left; i_[1] = right;
+  }
+
+  inline void setValue(BVH_REAL a, BVH_REAL b)
+  {
+    i_[0] = a; i_[1] = b;
+  }
+
+  inline void setValue(BVH_REAL x)
+  {
+    i_[0] = i_[1] = x;
+  }
+
+  inline BVH_REAL operator [] (size_t i) const
+  {
+    return i_[i];
+  }
+
+  inline BVH_REAL& operator [] (size_t i)
+  {
+    return i_[i];
+  }
+
+  inline bool operator == (const Interval& other) const
+  {
+    if(i_[0] != other.i_[0]) return false;
+    if(i_[1] != other.i_[1]) return false;
+    return true;
+  }
+
+  inline Interval operator + (const Interval& other) const
+  {
+    return Interval(i_[0] + other.i_[0], i_[1] + other.i_[1]);
+  }
+
+  inline Interval operator - (const Interval& other) const
+  {
+    return Interval(i_[0] - other.i_[1], i_[1] - other.i_[0]);
+  }
+
+  inline Interval& operator += (const Interval& other)
+  {
+    i_[0] += other.i_[0];
+    i_[1] += other.i_[1];
+    return *this;
+  }
+
+  inline Interval& operator -= (const Interval& other)
+  {
+    i_[0] -= other.i_[1];
+    i_[1] -= other.i_[0];
+    return *this;
+  }
+
+  Interval operator * (const Interval& other) const;
+
+  inline Interval operator * (BVH_REAL d) const
+  {
+    if(d >= 0) return Interval(i_[0] * d, i_[1] * d);
+    return Interval(i_[1] * d, i_[0] * d);
+  }
+
+  inline Interval& operator *= (BVH_REAL d)
+  {
+    if(d >= 0)
+    {
+      i_[0] *= d;
+      i_[1] *= d;
+    }
+    else
+    {
+      BVH_REAL tmp = i_[0];
+      i_[0] = i_[1] * d;
+      i_[1] = tmp * d;
+    }
+
+    return *this;
+  }
+
+  /** \brief other must not contain 0 */
+  Interval operator / (const Interval& other) const;
+
+  /** \brief determine whether the intersection between intervals is empty */
+  inline bool overlap(const Interval& other) const
+  {
+    if(i_[1] < other.i_[0]) return false;
+    if(i_[0] > other.i_[1]) return false;
+    return true;
+  }
+
+  inline void intersect(const Interval& other)
+  {
+    if(i_[1] < other.i_[0]) return;
+    if(i_[0] > other.i_[1]) return;
+    if(i_[1] > other.i_[1]) i_[1] = other.i_[1];
+    if(i_[0] < other.i_[0]) i_[0] = other.i_[0];
+    return;
+  }
+
+  inline Interval operator - () const
+  {
+    return Interval(-i_[1], -i_[0]);
+  }
+
+  /** \brief Return the nearest distance for points within the interval to zero */
+  inline BVH_REAL getAbsLower() const
+  {
+    if(i_[0] >= 0) return i_[0];
+    if(i_[1] >= 0) return 0;
+    return -i_[1];
+  }
+
+  /** \brief Return the farthest distance for points within the interval to zero */
+  inline BVH_REAL getAbsUpper() const
+  {
+    if(i_[0] + i_[1] >= 0) return i_[1];
+    return i_[0];
+  }
+
+
+  inline bool contains(BVH_REAL v) const
+  {
+    if(v < i_[0]) return false;
+    if(v > i_[1]) return false;
+    return true;
+  }
+
+  /** \brief Compute the minimum interval contains v and original interval */
+  inline void bound(BVH_REAL v)
+  {
+    if(v < i_[0]) i_[0] = v;
+    if(v > i_[1]) i_[1] = v;
+  }
+
+  inline Interval bounded(BVH_REAL v) const
+  {
+    Interval res = *this;
+    if(v < res.i_[0]) res.i_[0] = v;
+    if(v > res.i_[1]) res.i_[1] = v;
+    return res;
+  }
+
+  /** \brief Compute the minimum interval contains other and original interval */
+  inline void bound(const Interval& other)
+  {
+    if(other.i_[0] < i_[0]) i_[0] = other.i_[0];
+    if(other.i_[1] > i_[1]) i_[1] = other.i_[1];
+  }
+
+  inline Interval bounded(const Interval& other) const
+  {
+    Interval res = *this;
+    if(other.i_[0] < res.i_[0]) res.i_[0] = other.i_[0];
+    if(other.i_[1] > res.i_[1]) res.i_[1] = other.i_[1];
+    return res;
+  }
+
+  void print() const;
+  inline BVH_REAL center() const { return 0.5 * (i_[0] + i_[1]); }
+  inline BVH_REAL diameter() const { return i_[1] -i_[0]; }
+};
+
+}
+#endif

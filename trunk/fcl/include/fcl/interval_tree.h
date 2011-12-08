@@ -50,11 +50,11 @@ namespace fcl
  * Can be replaced in part by boost::icl::interval_set, which is only supported after boost 1.46 and does not support delete node routine.
  */
 
-struct Interval
+struct SimpleInterval
 {
 public:
-  Interval() {}
-  virtual ~Interval() {}
+  SimpleInterval() {}
+  virtual ~SimpleInterval() {}
   virtual void print() {}
 
   double low, high;
@@ -69,13 +69,13 @@ public:
 
   IntervalTreeNode();
 
-  IntervalTreeNode(Interval* new_interval);
+  IntervalTreeNode(SimpleInterval* new_interval);
 
   ~IntervalTreeNode();
 
 protected:
 
-  Interval* stored_interval;
+  SimpleInterval* stored_interval;
 
   double key;
 
@@ -120,10 +120,10 @@ public:
   void print() const;
 
   /** \brief Delete one node of the interval tree */
-  Interval* deleteNode(IntervalTreeNode* node);
+  SimpleInterval* deleteNode(IntervalTreeNode* node);
 
   /** \brief Insert one node of the interval tree */
-  IntervalTreeNode* insert(Interval* new_interval);
+  IntervalTreeNode* insert(SimpleInterval* new_interval);
 
   /** \brief get the predecessor of a given node */
   IntervalTreeNode* getPredecessor(IntervalTreeNode* node) const;
@@ -132,7 +132,7 @@ public:
   IntervalTreeNode* getSuccessor(IntervalTreeNode* node) const;
 
   /** \brief Return result for a given query */
-  std::deque<Interval*> query(double low, double high);
+  std::deque<SimpleInterval*> query(double low, double high);
 
 protected:
 

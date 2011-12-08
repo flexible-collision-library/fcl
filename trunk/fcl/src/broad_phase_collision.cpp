@@ -917,7 +917,7 @@ void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, Co
 {
   static const unsigned int CUTOFF = 100;
 
-  std::deque<Interval*> results0, results1, results2;
+  std::deque<SimpleInterval*> results0, results1, results2;
 
   results0 = interval_trees[0]->query(obj->getAABB().min_[0], obj->getAABB().max_[0]);
   if(results0.size() > CUTOFF)

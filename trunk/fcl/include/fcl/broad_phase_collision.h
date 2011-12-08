@@ -465,7 +465,7 @@ protected:
   };
 
   /** \brief Extention interval tree's interval to SAP interval, adding more information */
-  struct SAPInterval : public Interval
+  struct SAPInterval : public SimpleInterval
   {
     CollisionObject* obj;
     SAPInterval(double low_, double high_, CollisionObject* obj_)

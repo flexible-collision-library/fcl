@@ -212,6 +212,20 @@ namespace fcl
       return false;
     }
 
+    inline Vec3f normalized() const
+    {
+      BVH_REAL sqr_length = v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2];
+      if(sqr_length > EPSILON * EPSILON)
+      {
+        BVH_REAL inv_length = (BVH_REAL)1.0 / (BVH_REAL)sqrt(sqr_length);
+        return *this * inv_length;
+      }
+      else
+      {
+        return *this;
+      }
+    }
+
     /** \brief Return vector length */
     inline float length() const
     {
@@ -411,6 +425,21 @@ namespace fcl
       }
       return false;
     }
+
+    inline Vec3f normalized() const
+    {
+      BVH_REAL sqr_length = v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2];
+      if(sqr_length > EPSILON * EPSILON)
+      {
+        BVH_REAL inv_length = (BVH_REAL)1.0 / (BVH_REAL)sqrt(sqr_length);
+        return *this * inv_length;
+      }
+      else
+      {
+        return *this;
+      }
+    }
+
 
     /** \brief Return vector length */
     inline BVH_REAL length() const
