@@ -93,6 +93,16 @@ namespace fcl
       return v_[i];
     }
 
+    inline BVH_REAL operator () (size_t i, size_t j) const
+    {
+      return v_[i][j];
+    }
+
+    inline BVH_REAL& operator() (size_t i, size_t j)
+    {
+      return v_[i][j];
+    }
+
     Matrix3f& operator *= (const Matrix3f& other);
 
     Matrix3f& operator += (BVH_REAL c);

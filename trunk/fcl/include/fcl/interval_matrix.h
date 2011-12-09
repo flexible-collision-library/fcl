@@ -54,6 +54,7 @@ struct IMatrix3
   IMatrix3(const Matrix3f& m);
   IMatrix3(BVH_REAL m[3][3][2]);
   IMatrix3(BVH_REAL m[3][3]);
+  IMatrix3(Interval m[3][3]);
 
   void setIdentity();
 
@@ -62,6 +63,9 @@ struct IMatrix3
 
   Vec3f getRealColumn(size_t i) const;
   Vec3f getRealRow(size_t i) const;
+
+  const Interval& operator () (size_t i, size_t j) const;
+  Interval& operator () (size_t i, size_t j);
 
   IVector3 operator * (const Vec3f& v) const;
   IVector3 operator * (const IVector3& v) const;

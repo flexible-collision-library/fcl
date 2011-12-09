@@ -95,6 +95,21 @@ IMatrix3::IMatrix3(BVH_REAL m[3][3])
   i_[2][2].setValue(m[2][2]);
 }
 
+IMatrix3::IMatrix3(Interval m[3][3])
+{
+  i_[0][0] = m[0][0];
+  i_[0][1] = m[0][1];
+  i_[0][2] = m[0][2];
+
+  i_[1][0] = m[1][0];
+  i_[1][1] = m[1][1];
+  i_[1][2] = m[1][2];
+
+  i_[2][0] = m[2][0];
+  i_[2][1] = m[2][1];
+  i_[2][2] = m[2][2];
+}
+
 void IMatrix3::setIdentity()
 {
   i_[0][0] = 1;
@@ -734,6 +749,16 @@ IVector3 IMatrix3::nonIntervalTimesVector(const IVector3& v) const
   return IVector3(i_[0][0][0] * v[0][0] + i_[0][1][0] * v[1][0] + i_[0][2][0] * v[2][0],
                   i_[1][0][0] * v[0][0] + i_[1][1][0] * v[1][0] + i_[1][2][0] * v[2][0],
                   i_[2][0][0] * v[0][0] + i_[2][1][0] * v[1][0] + i_[2][2][0] * v[2][0]);
+}
+
+const Interval& IMatrix3::operator () (size_t i, size_t j) const
+{
+  return i_[i][j];
+}
+
+Interval& IMatrix3::operator () (size_t i, size_t j)
+{
+  return i_[i][j];
 }
 
 void IMatrix3::print() const

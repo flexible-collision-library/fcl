@@ -37,9 +37,10 @@
 #ifndef FCL_TAYLOR_MATRIX_H
 #define FCL_TAYLOR_MATRIX_H
 
-#include "fcl/taylor_model.h"
+
 #include "fcl/matrix_3f.h"
 #include "fcl/taylor_vector.h"
+#include "fcl/interval_matrix.h"
 
 namespace fcl
 {
@@ -55,7 +56,22 @@ struct TMatrix3
   TVector3 getColumn(size_t i) const;
   TVector3 getRow(size_t i) const;
 
+  const TaylorModel& operator () (size_t i, size_t j) const;
+  TaylorModel& operator () (size_t i, size_t j);
 
+  TVector3 operator * (const Vec3f& v) const;
+  TVector3 operator * (const TVector3& v) const;
+  TMatrix3 operator * (const Matrix3f& m) const;
+  TMatrix3 operator * (const TMatrix3& m) const;
+  TMatrix3 operator * (const TaylorModel& d) const;
+  TMatrix3 operator + (const TMatrix3& m) const;
+  TMatrix3& operator += (const TMatrix3& m);
+
+  IMatrix3 getBound() const;
+  void print() const;
+  void setIdentity();
+  void setZero();
+  BVH_REAL diameter() const;
 };
 
 }

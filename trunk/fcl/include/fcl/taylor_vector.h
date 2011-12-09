@@ -37,6 +37,7 @@
 #ifndef FCL_TAYLOR_VECTOR_H
 #define FCL_TAYLOR_VECTOR_H
 
+#include "fcl/interval_vector.h"
 #include "fcl/taylor_model.h"
 
 namespace fcl
@@ -58,6 +59,9 @@ struct TVector3
   TVector3& operator -= (const TVector3& other);
   TVector3& operator = (const Vec3f& u);
 
+  const TaylorModel& operator [] (size_t i) const;
+  TaylorModel& operator [] (size_t i);
+
   TaylorModel dot(const TVector3& other) const;
   TVector3 cross(const TVector3& other) const;
 
@@ -71,7 +75,7 @@ struct TVector3
   TaylorModel squareLength() const;
 };
 
-void generateTVector3lForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity);
+void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity);
 
 
 }
