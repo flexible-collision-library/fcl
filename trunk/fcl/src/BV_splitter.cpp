@@ -49,21 +49,23 @@ void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitiv
 void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
 {
   split_vector = bv.axis[0];
-  BVH_REAL sum = 0;
+  BVH_REAL sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
   {
+    BVH_REAL c[3] = {0.0, 0.0, 0.0};
+
     for(int i = 0; i < num_primitives; ++i)
     {
       const Triangle& t = tri_indices[primitive_indices[i]];
       const Vec3f& p1 = vertices[t[0]];
       const Vec3f& p2 = vertices[t[1]];
       const Vec3f& p3 = vertices[t[2]];
-      Vec3f centroid((p1[0] + p2[0] + p3[0]) / 3,
-                     (p1[1] + p2[1] + p3[1]) / 3,
-                     (p1[2] + p2[2] + p3[2]) / 3);
 
-      sum += centroid.dot(split_vector);
+      c[0] += (p1[0] + p2[0] + p3[0]);
+      c[1] += (p1[1] + p2[1] + p3[1]);
+      c[2] += (p1[2] + p2[2] + p3[2]);
     }
+    split_value = (c[0] * split_vector[0] + c[1] * split_vector[1] + c[2] * split_vector[2]) / (3 * num_primitives);
   }
   else if(type == BVH_MODEL_POINTCLOUD)
   {
@@ -73,9 +75,9 @@ void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_in
       Vec3f v(p[0], p[1], p[2]);
       sum += v.dot(split_vector);
     }
-  }
 
-  split_value = sum / num_primitives;
+    split_value = sum / num_primitives;
+  }
 }
 
 
@@ -92,11 +94,11 @@ void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_
       const Vec3f& p1 = vertices[t[0]];
       const Vec3f& p2 = vertices[t[1]];
       const Vec3f& p3 = vertices[t[2]];
-      Vec3f centroid((p1[0] + p2[0] + p3[0]) / 3,
-                     (p1[1] + p2[1] + p3[1]) / 3,
-                     (p1[2] + p2[2] + p3[2]) / 3);
+      Vec3f centroid3(p1[0] + p2[0] + p3[0],
+                      p1[1] + p2[1] + p3[1],
+                      p1[2] + p2[2] + p3[2]);
 
-      proj[i] = centroid.dot(split_vector);
+      proj[i] = centroid3.dot(split_vector) / 3;
     }
   }
   else if(type == BVH_MODEL_POINTCLOUD)

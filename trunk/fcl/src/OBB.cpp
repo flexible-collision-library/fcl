@@ -119,47 +119,47 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
   // if any of these tests are one-sided, then the polyhedra are disjoint
 
   // A1 x A2 = A0
-  t = ((T[0] < 0) ? -T[0] : T[0]);
+  t = ((T[0] < 0.0) ? -T[0] : T[0]);
 
   if(t > (a[0] + b.dot(Bf[0])))
     return true;
 
   // B1 x B2 = B0
   s =  B.transposeDotX(T);
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (b[0] + Bf.transposeDotX(a)))
     return true;
 
   // A2 x A0 = A1
-  t = ((T[1] < 0) ? -T[1] : T[1]);
+  t = ((T[1] < 0.0) ? -T[1] : T[1]);
 
   if(t > (a[1] + b.dot(Bf[1])))
     return true;
 
   // A0 x A1 = A2
-  t =((T[2] < 0) ? -T[2] : T[2]);
+  t =((T[2] < 0.0) ? -T[2] : T[2]);
 
   if(t > (a[2] + b.dot(Bf[2])))
     return true;
 
   // B2 x B0 = B1
   s = B.transposeDotY(T);
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (b[1] + Bf.transposeDotY(a)))
     return true;
 
   // B0 x B1 = B2
   s = B.transposeDotZ(T);
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (b[2] + Bf.transposeDotZ(a)))
     return true;
 
   // A0 x B0
   s = T[2] * B[1][0] - T[1] * B[2][0];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[1] * Bf[2][0] + a[2] * Bf[1][0] +
           b[1] * Bf[0][2] + b[2] * Bf[0][1]))
@@ -167,7 +167,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A0 x B1
   s = T[2] * B[1][1] - T[1] * B[2][1];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[1] * Bf[2][1] + a[2] * Bf[1][1] +
           b[0] * Bf[0][2] + b[2] * Bf[0][0]))
@@ -175,7 +175,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A0 x B2
   s = T[2] * B[1][2] - T[1] * B[2][2];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[1] * Bf[2][2] + a[2] * Bf[1][2] +
           b[0] * Bf[0][1] + b[1] * Bf[0][0]))
@@ -183,7 +183,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A1 x B0
   s = T[0] * B[2][0] - T[2] * B[0][0];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[0] * Bf[2][0] + a[2] * Bf[0][0] +
           b[1] * Bf[1][2] + b[2] * Bf[1][1]))
@@ -191,7 +191,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A1 x B1
   s = T[0] * B[2][1] - T[2] * B[0][1];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[0] * Bf[2][1] + a[2] * Bf[0][1] +
           b[0] * Bf[1][2] + b[2] * Bf[1][0]))
@@ -199,7 +199,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A1 x B2
   s = T[0] * B[2][2] - T[2] * B[0][2];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[0] * Bf[2][2] + a[2] * Bf[0][2] +
           b[0] * Bf[1][1] + b[1] * Bf[1][0]))
@@ -207,7 +207,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A2 x B0
   s = T[1] * B[0][0] - T[0] * B[1][0];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[0] * Bf[1][0] + a[1] * Bf[0][0] +
           b[1] * Bf[2][2] + b[2] * Bf[2][1]))
@@ -215,7 +215,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A2 x B1
   s = T[1] * B[0][1] - T[0] * B[1][1];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[0] * Bf[1][1] + a[1] * Bf[0][1] +
           b[0] * Bf[2][2] + b[2] * Bf[2][0]))
@@ -223,7 +223,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
 
   // A2 x B2
   s = T[1] * B[0][2] - T[0] * B[1][2];
-  t = ((s < 0) ? -s : s);
+  t = ((s < 0.0) ? -s : s);
 
   if(t > (a[0] * Bf[1][2] + a[1] * Bf[0][2] +
           b[0] * Bf[2][1] + b[1] * Bf[2][0]))

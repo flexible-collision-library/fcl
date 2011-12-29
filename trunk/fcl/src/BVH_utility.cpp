@@ -193,15 +193,12 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
 /** \brief Compute the covariance matrix for a set or subset of points. */
 void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& M)
 {
-  bool indirect_index = true;
-  if(!indices) indirect_index = false;
-
   Vec3f S1;
   Vec3f S2[3];
 
   for(int i = 0; i < n; ++i)
   {
-    const Vec3f& p = indirect_index ? ps[indices[i]] : ps[i];
+    const Vec3f& p = (indices) ? ps[indices[i]] : ps[i];
     S1 += p;
     S2[0][0] += (p[0] * p[0]);
     S2[1][1] += (p[1] * p[1]);
@@ -212,7 +209,7 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f
 
     if(ps2) // another frame
     {
-      const Vec3f& p = indirect_index ? ps2[indices[i]] : ps2[i];
+      const Vec3f& p = (indices) ? ps2[indices[i]] : ps2[i];
       S1 += p;
       S2[0][0] += (p[0] * p[0]);
       S2[1][1] += (p[1] * p[1]);
@@ -223,7 +220,7 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f
     }
   }
 
-  int n_points = ((ps2 == NULL) ? n : 2*n);
+  int n_points = ((ps2) ? 2*n : n);
 
   M[0][0] = S2[0][0] - S1[0]*S1[0] / n_points;
   M[1][1] = S2[1][1] - S1[1]*S1[1] / n_points;
@@ -239,15 +236,12 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f
 /** \brief Compute the covariance matrix for a set or subset of triangles. */
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M)
 {
-  bool indirect_index = true;
-  if(!indices) indirect_index = false;
-
   Vec3f S1;
   Vec3f S2[3];
 
   for(int i = 0; i < n; ++i)
   {
-    const Triangle& t = indirect_index ? ts[indices[i]] : ts[i];
+    const Triangle& t = (indices) ? ts[indices[i]] : ts[i];
 
     const Vec3f& p1 = ps[t[0]];
     const Vec3f& p2 = ps[t[1]];
@@ -307,7 +301,7 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, i
     }
   }
 
-  int n_points = ((ps2 == NULL) ? 3*n : 6*n);
+  int n_points = ((ps2) ? 6*n : 3*n);
 
   M[0][0] = S2[0][0] - S1[0]*S1[0] / n_points;
   M[1][1] = S2[1][1] - S1[1]*S1[1] / n_points;

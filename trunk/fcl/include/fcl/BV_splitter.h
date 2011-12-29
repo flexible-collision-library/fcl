@@ -172,8 +172,10 @@ private:
       for(int i = 0; i < num_primitives; ++i)
       {
         const Triangle& t = tri_indices[primitive_indices[i]];
-        sum += ((vertices[t[0]][split_axis] + vertices[t[1]][split_axis] + vertices[t[2]][split_axis]) / 3);
+        sum += (vertices[t[0]][split_axis] + vertices[t[1]][split_axis] + vertices[t[2]][split_axis]);
       }
+
+      sum /= 3;
     }
     else if(type == BVH_MODEL_POINTCLOUD)
     {
@@ -250,9 +252,20 @@ public:
   /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
   void computeRule(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
   {
-    Vec3f center = bv.center();
-    split_vector = bv.axis[0];
-    split_value = center[0];
+    switch(split_method)
+    {
+      case SPLIT_METHOD_MEAN:
+        computeRule_mean(bv, primitive_indices, num_primitives);
+        break;
+      case SPLIT_METHOD_MEDIAN:
+        computeRule_median(bv, primitive_indices, num_primitives);
+        break;
+      case SPLIT_METHOD_BV_CENTER:
+        computeRule_bvcenter(bv, primitive_indices, num_primitives);
+        break;
+      default:
+        std::cerr << "Split method not supported" << std::endl;
+    }
   }
 
   /** \brief Apply the split rule on a given point */

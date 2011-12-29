@@ -59,7 +59,7 @@ void fit2(Vec3f* ps, OBB& bv)
   Vec3f p1(ps[0][0], ps[0][1], ps[0][2]);
   Vec3f p2(ps[1][0], ps[1][1], ps[1][2]);
   Vec3f p1p2 = p1 - p2;
-  float len_p1p2 = p1p2.length();
+  BVH_REAL len_p1p2 = p1p2.length();
   p1p2.normalize();
 
   bv.axis[0] = p1p2;
@@ -81,7 +81,7 @@ void fit3(Vec3f* ps, OBB& bv)
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  float len[3];
+  BVH_REAL len[3];
   len[0] = e[0].sqrLength();
   len[1] = e[1].sqrLength();
   len[2] = e[2].sqrLength();
@@ -163,7 +163,7 @@ void fit2(Vec3f* ps, RSS& bv)
   Vec3f p1(ps[0][0], ps[0][1], ps[0][2]);
   Vec3f p2(ps[1][0], ps[1][1], ps[1][2]);
   Vec3f p1p2 = p1 - p2;
-  float len_p1p2 = p1p2.length();
+  BVH_REAL len_p1p2 = p1p2.length();
   p1p2.normalize();
 
   bv.axis[0] = p1p2;
@@ -184,7 +184,7 @@ void fit3(Vec3f* ps, RSS& bv)
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  float len[3];
+  BVH_REAL len[3];
   len[0] = e[0].sqrLength();
   len[1] = e[1].sqrLength();
   len[2] = e[2].sqrLength();

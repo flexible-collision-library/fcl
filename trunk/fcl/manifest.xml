@@ -11,7 +11,7 @@
   <depend package="libccd"/>
   <depend package="ann"/>
   <depend package="assimp"/>
-  <!-- <depend package="PQP"/> -->
+  <depend package="PQP"/>
   <!-- <depend package="svm_light"/> -->
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lfcl"/>

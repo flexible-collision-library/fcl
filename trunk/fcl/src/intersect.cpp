@@ -910,59 +910,68 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
                                    BVH_REAL* penetration_depth,
                                    Vec3f* normal)
 {
-  Vec3f p1, p2, p3, q1, q2, q3, e1, e2, e3, f1, f2, f3, g1, g2, g3, h1, h2, h3, n1, m1;
-  Vec3f ef11, ef12, ef13, ef21, ef22, ef23, ef31, ef32, ef33;
+  Vec3f p1 = P1 - P1;
+  Vec3f p2 = P2 - P1;
+  Vec3f p3 = P3 - P1;
+  Vec3f q1 = Q1 - P1;
+  Vec3f q2 = Q2 - P1;
+  Vec3f q3 = Q3 - P1;
 
-  p1 = P1 - P1;
-  p2 = P2 - P1;
-  p3 = P3 - P1;
-  q1 = Q1 - P1;
-  q2 = Q2 - P1;
-  q3 = Q3 - P1;
-  e1 = p2 - p1;
-  e2 = p3 - p2;
-  e3 = p1 - p3;
-  f1 = q2 - q1;
-  f2 = q3 - q2;
-  f3 = q1 - q3;
-
-  n1 = e1.cross(e2);
-  m1 = f1.cross(f2);
-  g1 = e1.cross(n1);
-  g2 = e2.cross(n1);
-  g3 = e3.cross(n1);
-  h1 = f1.cross(m1);
-  h2 = f2.cross(m1);
-  h3 = f3.cross(m1);
-
-  ef11 = e1.cross(f1);
-  ef12 = e1.cross(f2);
-  ef13 = e1.cross(f3);
-  ef21 = e2.cross(f1);
-  ef22 = e2.cross(f2);
-  ef23 = e2.cross(f3);
-  ef31 = e3.cross(f1);
-  ef32 = e3.cross(f2);
-  ef33 = e3.cross(f3);
-
+  Vec3f e1 = p2 - p1;
+  Vec3f e2 = p3 - p2;
+  Vec3f n1 = e1.cross(e2);
   if (!project6(n1, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f f1 = q2 - q1;
+  Vec3f f2 = q3 - q2;
+  Vec3f m1 = f1.cross(f2);
   if (!project6(m1, p1, p2, p3, q1, q2, q3)) return 0;
 
+  Vec3f ef11 = e1.cross(f1);
   if (!project6(ef11, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f ef12 = e1.cross(f2);
   if (!project6(ef12, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f f3 = q1 - q3;
+  Vec3f ef13 = e1.cross(f3);
   if (!project6(ef13, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f ef21 = e2.cross(f1);
   if (!project6(ef21, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f ef22 = e2.cross(f2);
   if (!project6(ef22, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f ef23 = e2.cross(f3);
   if (!project6(ef23, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f e3 = p1 - p3;
+  Vec3f ef31 = e3.cross(f1);
   if (!project6(ef31, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f ef32 = e3.cross(f2);
   if (!project6(ef32, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f ef33 = e3.cross(f3);
   if (!project6(ef33, p1, p2, p3, q1, q2, q3)) return 0;
 
+  Vec3f g1 = e1.cross(n1);
   if (!project6(g1, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f g2 = e2.cross(n1);
   if (!project6(g2, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f g3 = e3.cross(n1);
   if (!project6(g3, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f h1 = f1.cross(m1);
   if (!project6(h1, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f h2 = f2.cross(m1);
   if (!project6(h2, p1, p2, p3, q1, q2, q3)) return 0;
+
+  Vec3f h3 = f3.cross(m1);
   if (!project6(h3, p1, p2, p3, q1, q2, q3)) return 0;
 
   if(contact_points && num_contact_points && penetration_depth && normal)
