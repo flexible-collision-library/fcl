@@ -275,6 +275,10 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
+  bool BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+
+  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+
   Matrix3f R;
   Vec3f T;
 };
@@ -288,6 +292,10 @@ public:
   bool BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
+
+  bool BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+
+  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
 
   Matrix3f R;
   Vec3f T;

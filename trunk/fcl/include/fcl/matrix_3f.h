@@ -58,6 +58,13 @@ namespace fcl
                zx, zy, zz);
     }
 
+    Matrix3f(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3)
+    {
+      v_[0] = v1;
+      v_[1] = v2;
+      v_[2] = v3;
+    }
+
     Matrix3f(const Matrix3f& other)
     {
       v_[0] = other.v_[0];

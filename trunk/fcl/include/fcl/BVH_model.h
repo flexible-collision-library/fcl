@@ -223,6 +223,11 @@ public:
   /** \brief Check the number of memory used */
   int memUsage(int msg) const;
 
+  void makeParentRelative()
+  {
+    makeParentRelativeRecurse(0, Matrix3f::getIdentity(), Vec3f());
+  }
+
 private:
 
   /** \brief Bounding volume hierarchy */
@@ -248,6 +253,23 @@ private:
 
   /** \brief Recursive kernel for bottomup refitting */
   int recursiveRefitTree_bottomup(int bv_id);
+
+  void makeParentRelativeRecurse(int bv_id, const Matrix3f& parentR, const Vec3f& parentT)
+  {
+    if(!bvs[bv_id].isLeaf())
+    {
+      makeParentRelativeRecurse(bvs[bv_id].first_child, bvs[bv_id].getOrientation(), bvs[bv_id].getCenter());
+
+      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, bvs[bv_id].getOrientation(), bvs[bv_id].getCenter());
+    }
+
+    // make self parent relative
+    Matrix3f Rpc = parentR.transposeTimes(bvs[bv_id].getOrientation());
+    bvs[bv_id].setOrientation(Rpc);
+
+    Vec3f Tpc = bvs[bv_id].getCenter() - parentT;
+    bvs[bv_id].setCenter(parentR.transposeTimes(Tpc));
+  }
 
 };
 

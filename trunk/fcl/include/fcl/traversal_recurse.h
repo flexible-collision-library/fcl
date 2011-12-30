@@ -39,6 +39,7 @@
 #define FCL_TRAVERSAL_RECURSE_H
 
 #include "fcl/traversal_node_base.h"
+#include "fcl/traversal_node_bvhs.h"
 #include "fcl/BVH_front.h"
 #include <queue>
 
@@ -51,6 +52,9 @@ inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
 }
 
 void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
+
+void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
+void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
 
 /** Recurse function for self collision
  * Make sure node is set correctly so that the first and second tree are the same

@@ -126,6 +126,7 @@ public:
     return Tr;
   }
 
+
   /** \brief the distance between two RSS */
   BVH_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 

@@ -62,6 +62,59 @@ int main()
 
   generateRandomTransform(extents, transforms, transforms2, delta_trans, 0.005 * 2 * 3.1415, n);
 
+  std::cout << "FCL timing 2" << std::endl;
+  {
+    double t_fcl = 0;
+
+    BVHModel<OBB> m1;
+    BVHModel<OBB> m2;
+    SplitMethodType split_method = SPLIT_METHOD_MEAN;
+    m1.bv_splitter.reset(new BVSplitter<OBB>(split_method));
+    m2.bv_splitter.reset(new BVSplitter<OBB>(split_method));
+
+    m1.beginModel();
+    m1.addSubModel(vertices1, triangles1);
+    m1.endModel();
+    m1.makeParentRelative();
+
+    m2.beginModel();
+    m2.addSubModel(vertices2, triangles2);
+    m2.endModel();
+    m2.makeParentRelative();
+
+
+    Matrix3f R2;
+    R2.setIdentity();
+    Vec3f T2;
+
+    for(unsigned int i = 0; i < transforms.size(); ++i)
+    {
+      Transform& tf = transforms[i];
+      m1.setTransform(tf.R, tf.T);
+      m2.setTransform(R2, T2);
+
+      MeshCollisionTraversalNodeOBB node;
+      if(!initialize(node, (const BVHModel<OBB>&)m1, (const BVHModel<OBB>&)m2))
+        std::cout << "initialize error" << std::endl;
+
+      node.enable_statistics = false;
+      node.num_max_contacts = -1;
+      node.exhaustive = false;
+      node.enable_contact = false;
+
+      Timer timer;
+      timer.start();
+      collide2(&node);
+      timer.stop();
+      t_fcl += timer.getElapsedTime();
+
+      //std::cout << node.pairs.size() << std::endl;
+    }
+
+    std::cout << "fcl timing " << t_fcl << " ms" << std::endl;
+  }
+
+
   std::cout << "PQP timing" << std::endl;
 #if USE_PQP
   {
@@ -88,6 +141,7 @@ int main()
       m1.AddTri(q1, q2, q3, i);
     }
     m1.EndModel();
+
 
     m2.BeginModel();
     for(unsigned int i = 0; i < triangles2.size(); ++i)
@@ -189,6 +243,7 @@ int main()
 
     std::cout << "fcl timing " << t_fcl << " ms" << std::endl;
   }
+
 
 
   return 1;
