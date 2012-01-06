@@ -40,6 +40,7 @@
 
 #include "fcl/vec_3f.h"
 #include "fcl/matrix_3f.h"
+#include "fcl/transform.h"
 #include "fcl/RSS.h"
 namespace fcl
 {
@@ -65,6 +66,8 @@ public:
   virtual void getCurrentRotation(Matrix3f& R) const = 0;
 
   virtual void getCurrentTranslation(Vec3f& T) const = 0;
+
+  virtual void getCurrentTransform(SimpleTransform& tf) const = 0;
 };
 
 

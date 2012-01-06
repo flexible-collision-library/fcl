@@ -48,7 +48,7 @@ namespace fcl
 
 /** \brief Generate BVH model from box */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box& shape)
+void generateBVHModel(BVHModel<BV>& model, const Box& shape, const SimpleTransform& pose = SimpleTransform())
 {
   double a = shape.side[0];
   double b = shape.side[1];
@@ -80,7 +80,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape)
   for(unsigned int i = 0; i < points.size(); ++i)
   {
     Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = shape.getRotation() * v + shape.getTranslation();
+    v = pose.transform(v);
     points[i] = v;
   }
 
@@ -92,7 +92,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape)
 
 /** Generate BVH model from sphere */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg = 16, unsigned int ring = 16)
+void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int seg = 16, unsigned int ring = 16)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -147,7 +147,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg
   for(unsigned int i = 0; i < points.size(); ++i)
   {
     Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = shape.getRotation() * v + shape.getTranslation();
+    v = pose.transform(v);
     points[i] = v;
   }
 
@@ -162,7 +162,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, unsigned int seg
  * then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
  */
 template<typename BV>
-void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, unsigned int n_faces_for_unit_sphere)
+void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int n_faces_for_unit_sphere = 100)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -222,7 +222,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, unsigned int n_
   for(unsigned int i = 0; i < points.size(); ++i)
   {
     Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = shape.getRotation() * v + shape.getTranslation();
+    v = pose.transform(v);
     points[i] = v;
   }
 
@@ -235,7 +235,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, unsigned int n_
 
 /** \brief Generate BVH model from cylinder */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int tot = 16)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int tot = 16)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -299,7 +299,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int t
   for(unsigned int i = 0; i < points.size(); ++i)
   {
     Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = shape.getRotation() * v + shape.getTranslation();
+    v = pose.transform(v);
     points[i] = v;
   }
 
@@ -314,7 +314,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, unsigned int t
  * larger radius, the number of circle split number is r * tot.
  */
 template<typename BV>
-void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, unsigned int tot_for_unit_cylinder)
+void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int tot_for_unit_cylinder = 100)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -379,7 +379,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, unsigned int 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
     Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = shape.getRotation() * v + shape.getTranslation();
+    v = pose.transform(v);
     points[i] = v;
   }
 
@@ -392,7 +392,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, unsigned int 
 
 /** \brief Generate BVH model from cone */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone& shape, unsigned int tot = 16)
+void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int tot = 16)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -454,7 +454,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, unsigned int tot =
   for(unsigned int i = 0; i < points.size(); ++i)
   {
     Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = shape.getRotation() * v + shape.getTranslation();
+    v = pose.transform(v);
     points[i] = v;
   }
 

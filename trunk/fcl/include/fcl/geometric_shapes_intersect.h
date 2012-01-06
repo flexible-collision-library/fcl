@@ -66,7 +66,7 @@ public:
    * Notice that only local transformation is applied.
    * Gloal transformation are considered later
    */
-  static void* createGJKObject(const T& s) { return NULL; }
+  static void* createGJKObject(const T& s, const SimpleTransform& tf) { return NULL; }
 
   /** \brief Delete GJK object */
   static void deleteGJKObject(void* o) {}
@@ -79,7 +79,7 @@ class GJKInitializer<Cylinder>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cylinder& s);
+  static void* createGJKObject(const Cylinder& s, const SimpleTransform& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -90,7 +90,7 @@ class GJKInitializer<Sphere>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Sphere& s);
+  static void* createGJKObject(const Sphere& s, const SimpleTransform& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -101,7 +101,7 @@ class GJKInitializer<Box>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Box& s);
+  static void* createGJKObject(const Box& s, const SimpleTransform& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -112,7 +112,7 @@ class GJKInitializer<Capsule>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Capsule& s);
+  static void* createGJKObject(const Capsule& s, const SimpleTransform& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -123,7 +123,7 @@ class GJKInitializer<Cone>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cone& s);
+  static void* createGJKObject(const Cone& s, const SimpleTransform& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -134,7 +134,7 @@ class GJKInitializer<Convex>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Convex& s);
+  static void* createGJKObject(const Convex& s, const SimpleTransform& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -157,10 +157,12 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
 
 /** intersection checking between two shapes */
 template<typename S1, typename S2>
-bool shapeIntersect(const S1& s1, const S2& s2, Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+bool shapeIntersect(const S1& s1, const SimpleTransform& tf1,
+                    const S2& s2, const SimpleTransform& tf2,
+                    Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
-  void* o1 = GJKInitializer<S1>::createGJKObject(s1);
-  void* o2 = GJKInitializer<S2>::createGJKObject(s2);
+  void* o1 = GJKInitializer<S1>::createGJKObject(s1, tf1);
+  void* o2 = GJKInitializer<S2>::createGJKObject(s2, tf2);
 
   return GJKCollide(o1, GJKInitializer<S1>::getSupportFunction(), GJKInitializer<S1>::getCenterFunction(),
                     o2, GJKInitializer<S2>::getSupportFunction(), GJKInitializer<S2>::getCenterFunction(),
@@ -172,9 +174,10 @@ bool shapeIntersect(const S1& s1, const S2& s2, Vec3f* contact_points = NULL, BV
 
 /** \brief intersection checking between one shape and a triangle */
 template<typename S>
-bool shapeTriangleIntersect(const S& s, const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
+                            const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
-  void* o1 = GJKInitializer<S>::createGJKObject(s);
+  void* o1 = GJKInitializer<S>::createGJKObject(s, tf);
   void* o2 = triCreateGJKObject(P1, P2, P3);
 
   return GJKCollide(o1, GJKInitializer<S>::getSupportFunction(), GJKInitializer<S>::getCenterFunction(),
@@ -187,10 +190,11 @@ bool shapeTriangleIntersect(const S& s, const Vec3f& P1, const Vec3f& P2, const 
 
 /** \brief intersection checking between one shape and a triangle with transformation */
 template<typename S>
-bool shapeTriangleIntersect(const S& s, const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
+bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
+                            const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
                             Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
-  void* o1 = GJKInitializer<S>::createGJKObject(s);
+  void* o1 = GJKInitializer<S>::createGJKObject(s, tf);
   void* o2 = triCreateGJKObject(P1, P2, P3, R, T);
 
   return GJKCollide(o1, GJKInitializer<S>::getSupportFunction(), GJKInitializer<S>::getCenterFunction(),

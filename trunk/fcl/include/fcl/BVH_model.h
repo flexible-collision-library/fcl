@@ -54,7 +54,7 @@ namespace fcl
 
 /** \brief A class describing the bounding hierarchy of a mesh model */
 template<typename BV>
-class BVHModel : public CollisionObject
+class BVHModel : public CollisionGeometry
 {
 private:
   int num_tris_allocated;

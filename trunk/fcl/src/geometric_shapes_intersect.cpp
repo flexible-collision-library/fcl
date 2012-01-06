@@ -102,13 +102,13 @@ void transformGJKObject(void* obj, const Matrix3f& R, const Vec3f& T)
 }
 
 /** Basic shape to ccd shape */
-static void shapeToGJK(const ShapeBase& s, ccd_obj_t* o)
+static void shapeToGJK(const ShapeBase& s, const SimpleTransform& tf, ccd_obj_t* o)
 {
 
   SimpleQuaternion q;
-  Matrix3f R = s.getRotation() * s.getLocalRotation();
+  Matrix3f R = tf.getRotation() * s.getLocalRotation();
   q.fromRotation(R);
-  Vec3f T = s.getRotation() * s.getLocalTranslation() + s.getTranslation();
+  Vec3f T = tf.getRotation() * s.getLocalTranslation() + tf.getTranslation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
@@ -124,44 +124,44 @@ static void shapeToGJK(const ShapeBase& s, ccd_obj_t* o)
 */
 }
 
-static void boxToGJK(const Box& s, ccd_box_t* box)
+static void boxToGJK(const Box& s, const SimpleTransform& tf, ccd_box_t* box)
 {
-  shapeToGJK(s, box);
+  shapeToGJK(s, tf, box);
   box->dim[0] = s.side[0] / 2.0;
   box->dim[1] = s.side[1] / 2.0;
   box->dim[2] = s.side[2] / 2.0;
 }
 
-static void capToGJK(const Capsule& s, ccd_cap_t* cap)
+static void capToGJK(const Capsule& s, const SimpleTransform& tf, ccd_cap_t* cap)
 {
-  shapeToGJK(s, cap);
+  shapeToGJK(s, tf, cap);
   cap->radius = s.radius;
   cap->height = s.lz / 2;
 }
 
-static void cylToGJK(const Cylinder& s, ccd_cyl_t* cyl)
+static void cylToGJK(const Cylinder& s, const SimpleTransform& tf, ccd_cyl_t* cyl)
 {
-  shapeToGJK(s, cyl);
+  shapeToGJK(s, tf, cyl);
   cyl->radius = s.radius;
   cyl->height = s.lz / 2;
 }
 
-static void coneToGJK(const Cone& s, ccd_cone_t* cone)
+static void coneToGJK(const Cone& s, const SimpleTransform& tf, ccd_cone_t* cone)
 {
-  shapeToGJK(s, cone);
+  shapeToGJK(s, tf, cone);
   cone->radius = s.radius;
   cone->height = s.lz / 2;
 }
 
-static void sphereToGJK(const Sphere& s, ccd_sphere_t* sph)
+static void sphereToGJK(const Sphere& s, const SimpleTransform& tf, ccd_sphere_t* sph)
 {
-  shapeToGJK(s, sph);
+  shapeToGJK(s, tf, sph);
   sph->radius = s.radius;
 }
 
-static void convexToGJK(const Convex& s, ccd_convex_t* conv)
+static void convexToGJK(const Convex& s, const SimpleTransform& tf, ccd_convex_t* conv)
 {
-  shapeToGJK(s, conv);
+  shapeToGJK(s, tf, conv);
   conv->convex = &s;
 }
 
@@ -411,10 +411,10 @@ GJKCenterFunction GJKInitializer<Cylinder>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Cylinder>::createGJKObject(const Cylinder& s)
+void* GJKInitializer<Cylinder>::createGJKObject(const Cylinder& s, const SimpleTransform& tf)
 {
   ccd_cyl_t* o = new ccd_cyl_t;
-  cylToGJK(s, o);
+  cylToGJK(s, tf, o);
   return o;
 }
 
@@ -438,10 +438,10 @@ GJKCenterFunction GJKInitializer<Sphere>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Sphere>::createGJKObject(const Sphere& s)
+void* GJKInitializer<Sphere>::createGJKObject(const Sphere& s, const SimpleTransform& tf)
 {
   ccd_sphere_t* o = new ccd_sphere_t;
-  sphereToGJK(s, o);
+  sphereToGJK(s, tf, o);
   return o;
 }
 
@@ -463,10 +463,10 @@ GJKCenterFunction GJKInitializer<Box>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Box>::createGJKObject(const Box& s)
+void* GJKInitializer<Box>::createGJKObject(const Box& s, const SimpleTransform& tf)
 {
   ccd_box_t* o = new ccd_box_t;
-  boxToGJK(s, o);
+  boxToGJK(s, tf, o);
   return o;
 }
 
@@ -490,10 +490,10 @@ GJKCenterFunction GJKInitializer<Capsule>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Capsule>::createGJKObject(const Capsule& s)
+void* GJKInitializer<Capsule>::createGJKObject(const Capsule& s, const SimpleTransform& tf)
 {
   ccd_cap_t* o = new ccd_cap_t;
-  capToGJK(s, o);
+  capToGJK(s, tf, o);
   return o;
 }
 
@@ -517,10 +517,10 @@ GJKCenterFunction GJKInitializer<Cone>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Cone>::createGJKObject(const Cone& s)
+void* GJKInitializer<Cone>::createGJKObject(const Cone& s, const SimpleTransform& tf)
 {
   ccd_cone_t* o = new ccd_cone_t;
-  coneToGJK(s, o);
+  coneToGJK(s, tf, o);
   return o;
 }
 
@@ -544,10 +544,10 @@ GJKCenterFunction GJKInitializer<Convex>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Convex>::createGJKObject(const Convex& s)
+void* GJKInitializer<Convex>::createGJKObject(const Convex& s, const SimpleTransform& tf)
 {
   ccd_convex_t* o = new ccd_convex_t;
-  convexToGJK(s, o);
+  convexToGJK(s, tf, o);
   return o;
 }
 

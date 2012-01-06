@@ -920,59 +920,59 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
   Vec3f e1 = p2 - p1;
   Vec3f e2 = p3 - p2;
   Vec3f n1 = e1.cross(e2);
-  if (!project6(n1, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(n1, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f f1 = q2 - q1;
   Vec3f f2 = q3 - q2;
   Vec3f m1 = f1.cross(f2);
-  if (!project6(m1, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(m1, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f ef11 = e1.cross(f1);
-  if (!project6(ef11, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef11, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f ef12 = e1.cross(f2);
-  if (!project6(ef12, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef12, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f f3 = q1 - q3;
   Vec3f ef13 = e1.cross(f3);
-  if (!project6(ef13, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef13, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f ef21 = e2.cross(f1);
-  if (!project6(ef21, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef21, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f ef22 = e2.cross(f2);
-  if (!project6(ef22, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef22, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f ef23 = e2.cross(f3);
-  if (!project6(ef23, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef23, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f e3 = p1 - p3;
   Vec3f ef31 = e3.cross(f1);
-  if (!project6(ef31, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef31, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f ef32 = e3.cross(f2);
-  if (!project6(ef32, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef32, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f ef33 = e3.cross(f3);
-  if (!project6(ef33, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(ef33, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f g1 = e1.cross(n1);
-  if (!project6(g1, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(g1, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f g2 = e2.cross(n1);
-  if (!project6(g2, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(g2, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f g3 = e3.cross(n1);
-  if (!project6(g3, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(g3, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f h1 = f1.cross(m1);
-  if (!project6(h1, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(h1, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f h2 = f2.cross(m1);
-  if (!project6(h2, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(h2, p1, p2, p3, q1, q2, q3)) return false;
 
   Vec3f h3 = f3.cross(m1);
-  if (!project6(h3, p1, p2, p3, q1, q2, q3)) return 0;
+  if (!project6(h3, p1, p2, p3, q1, q2, q3)) return false;
 
   if(contact_points && num_contact_points && penetration_depth && normal)
   {
@@ -1018,7 +1018,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
     }
   }
 
-  return 1;
+  return true;
 }
 #endif
 
@@ -1251,12 +1251,13 @@ int Intersect::project6(const Vec3f& ax,
   BVH_REAL Q2 = ax.dot(q2);
   BVH_REAL Q3 = ax.dot(q3);
 
-  BVH_REAL mx1 = std::max(P1, std::max(P2, P3));
   BVH_REAL mn1 = std::min(P1, std::min(P2, P3));
   BVH_REAL mx2 = std::max(Q1, std::max(Q2, Q3));
+  if(mn1 > mx2) return 0;
+
+  BVH_REAL mx1 = std::max(P1, std::max(P2, P3));
   BVH_REAL mn2 = std::min(Q1, std::min(Q2, Q3));
 
-  if(mn1 > mx2) return 0;
   if(mn2 > mx1) return 0;
   return 1;
 }

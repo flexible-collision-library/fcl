@@ -184,9 +184,11 @@ bool continuous_collide_Test(const Transform& tf1, const Transform& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
+  SimpleTransform pose1, pose2;
+
   MeshCollisionTraversalNode<BV> node0;
 
-  if(!initialize<BV>(node0, m1, m2))
+  if(!initialize<BV>(node0, m1, pose1, m2, pose2))
     std::cout << "initialize error" << std::endl;
 
   node0.enable_statistics = verbose;
@@ -212,9 +214,11 @@ bool continuous_collide_Test(const Transform& tf1, const Transform& tf2,
   m2.updateSubModel(vertices2);
   m2.endUpdateModel(true, refit_bottomup);
 
+  SimpleTransform pose11, pose21;
+
   MeshContinuousCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, m2))
+  if(!initialize<BV>(node, m1, pose11, m2, pose21))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -272,8 +276,10 @@ bool discrete_continuous_collide_Test(const Transform& tf1, const Transform& tf2
     m2.addSubModel(vertices2, triangles2);
     m2.endModel();
 
+    SimpleTransform pose1, pose2;
+
     MeshCollisionTraversalNode<BV> node;
-    if(!initialize<BV>(node, m1, m2))
+    if(!initialize<BV>(node, m1, pose1, m2, pose2))
       std::cout << "initialize error" << std::endl;
 
     node.enable_statistics = verbose;

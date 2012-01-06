@@ -221,8 +221,8 @@ void generateEnvironments(std::vector<CollisionObject*>& env, int n)
   {
     BVHModel<OBB>* model = new BVHModel<OBB>();
     box.setLocalTransform(transforms[i].R, transforms[i].T);
-    generateBVHModel(*model, box);
-    env.push_back(model);
+    generateBVHModel(*model, box, SimpleTransform());
+    env.push_back(new CollisionObject(model));
   }
 
   generateRandomTransform(extents, transforms, transforms2, delta_trans, 0.005 * 2 * 3.1415, n);
@@ -231,8 +231,8 @@ void generateEnvironments(std::vector<CollisionObject*>& env, int n)
   {
     BVHModel<OBB>* model = new BVHModel<OBB>();
     sphere.setLocalTransform(transforms[i].R, transforms[i].T);
-    generateBVHModel(*model, sphere);
-    env.push_back(model);
+    generateBVHModel(*model, sphere, SimpleTransform());
+    env.push_back(new CollisionObject(model));
   }
 
   generateRandomTransform(extents, transforms, transforms2, delta_trans, 0.005 * 2 * 3.1415, n);
@@ -241,7 +241,7 @@ void generateEnvironments(std::vector<CollisionObject*>& env, int n)
   {
     BVHModel<OBB>* model = new BVHModel<OBB>();
     cylinder.setLocalTransform(transforms[i].R, transforms[i].T);
-    generateBVHModel(*model, cylinder);
-    env.push_back(model);
+    generateBVHModel(*model, cylinder, SimpleTransform());
+    env.push_back(new CollisionObject(model));
   }
 }

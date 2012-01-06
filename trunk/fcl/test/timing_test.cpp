@@ -90,11 +90,9 @@ int main()
     for(unsigned int i = 0; i < transforms.size(); ++i)
     {
       Transform& tf = transforms[i];
-      m1.setTransform(tf.R, tf.T);
-      m2.setTransform(R2, T2);
 
       MeshCollisionTraversalNodeOBB node;
-      if(!initialize(node, (const BVHModel<OBB>&)m1, (const BVHModel<OBB>&)m2))
+      if(!initialize(node, (const BVHModel<OBB>&)m1, SimpleTransform(tf.R, tf.T), (const BVHModel<OBB>&)m2, SimpleTransform(R2, T2)))
         std::cout << "initialize error" << std::endl;
 
       node.enable_statistics = false;
@@ -220,11 +218,9 @@ int main()
     for(unsigned int i = 0; i < transforms.size(); ++i)
     {
       Transform& tf = transforms[i];
-      m1.setTransform(tf.R, tf.T);
-      m2.setTransform(R2, T2);
 
       MeshCollisionTraversalNodeOBB node;
-      if(!initialize(node, (const BVHModel<OBB>&)m1, (const BVHModel<OBB>&)m2))
+      if(!initialize(node, (const BVHModel<OBB>&)m1, SimpleTransform(tf.R, tf.T), (const BVHModel<OBB>&)m2, SimpleTransform(R2, T2)))
         std::cout << "initialize error" << std::endl;
 
       node.enable_statistics = false;

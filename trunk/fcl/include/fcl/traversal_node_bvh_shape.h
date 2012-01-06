@@ -79,7 +79,7 @@ public:
   {
     if(this->enable_statistics) num_bv_tests++;
     BV bv_shape;
-    computeBV(*model2, bv_shape);
+    computeBV(*model2, tf2, bv_shape);
     return !model1->getBV(b1).bv.overlap(bv_shape);
   }
 
@@ -130,7 +130,7 @@ public:
   {
     if(this->enable_statistics) num_bv_tests++;
     BV bv_shape;
-    computeBV(*model1, bv_shape);
+    computeBV(*model1, tf1, bv_shape);
     return !model2->getBV(b2).bv.overlap(bv_shape);
   }
 
@@ -209,14 +209,14 @@ public:
 
     if(!enable_contact) // only interested in collision or not
     {
-      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3))
+      if(shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3))
       {
         pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
     }
     else
     {
-      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3, &contactp, &penetration, &normal))
+      if(shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
       {
         pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }
@@ -251,7 +251,7 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     OBB bv_shape;
-    computeBV(*this->model2, bv_shape);
+    computeBV(*this->model2, this->tf2, bv_shape);
     return !overlap(R, T, bv_shape, this->model1->getBV(b1).bv);
   }
 
@@ -274,14 +274,14 @@ public:
 
     if(!this->enable_contact) // only interested in collision or not
     {
-      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3, R, T))
+      if(shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, R, T))
       {
         this->pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
     }
     else
     {
-      if(shapeTriangleIntersect(*(this->model2), p1, p2, p3, R, T, &contactp, &penetration, &normal))
+      if(shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, R, T, &contactp, &penetration, &normal))
       {
         this->pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }
@@ -327,14 +327,14 @@ public:
 
     if(!enable_contact) // only interested in collision or not
     {
-      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3))
+      if(shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3))
       {
         pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
     }
     else
     {
-      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3, &contactp, &penetration, &normal))
+      if(shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
       {
         pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }
@@ -369,7 +369,7 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     OBB bv_shape;
-    computeBV(*this->model1, bv_shape);
+    computeBV(*this->model1, this->tf1, bv_shape);
     return !overlap(R, T, bv_shape, this->model2->getBV(b2).bv);
   }
 
@@ -392,14 +392,14 @@ public:
 
     if(!this->enable_contact) // only interested in collision or not
     {
-      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3, R, T))
+      if(shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, R, T))
       {
         this->pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
     }
     else
     {
-      if(shapeTriangleIntersect(*(this->model1), p1, p2, p3, R, T, &contactp, &penetration, &normal))
+      if(shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, R, T, &contactp, &penetration, &normal))
       {
         this->pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }

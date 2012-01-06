@@ -562,9 +562,11 @@ bool collide_Test2(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
+  SimpleTransform pose1, pose2;
+
   MeshCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, m2))
+  if(!initialize<BV>(node, m1, pose1, m2, pose2))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -629,16 +631,11 @@ bool collide_Test(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Matrix3f R2;
-  R2.setIdentity();
-  Vec3f T2;
-
-  m1.setTransform(tf.R, tf.T);
-  m2.setTransform(R2, T2);
+  SimpleTransform pose1(tf.R, tf.T), pose2;
 
   MeshCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, m2))
+  if(!initialize<BV>(node, m1, pose1, m2, pose2))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -700,15 +697,10 @@ bool collide_Test_OBB(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Matrix3f R2;
-  R2.setIdentity();
-  Vec3f T2;
-
-  m1.setTransform(tf.R, tf.T);
-  m2.setTransform(R2, T2);
+  SimpleTransform pose1(tf.R, tf.T), pose2;
 
   MeshCollisionTraversalNodeOBB node;
-  if(!initialize(node, (const BVHModel<OBB>&)m1, (const BVHModel<OBB>&)m2))
+  if(!initialize(node, (const BVHModel<OBB>&)m1, pose1, (const BVHModel<OBB>&)m2, pose2))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -770,15 +762,10 @@ bool collide_Test_RSS(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Matrix3f R2;
-  R2.setIdentity();
-  Vec3f T2;
-
-  m1.setTransform(tf.R, tf.T);
-  m2.setTransform(R2, T2);
+  SimpleTransform pose1(tf.R, tf.T), pose2;
 
   MeshCollisionTraversalNodeRSS node;
-  if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
+  if(!initialize(node, (const BVHModel<RSS>&)m1, pose1, (const BVHModel<RSS>&)m2, pose2))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -841,18 +828,10 @@ bool test_collide_func(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Matrix3f R2;
-  R2.setIdentity();
-  Vec3f T2;
-
-  m1.setRotation(tf.R);
-  m1.setTranslation(tf.T);
-  m2.setRotation(R2);
-  m2.setTranslation(T2);
-
+  SimpleTransform pose1(tf.R, tf.T), pose2;
 
   std::vector<Contact> contacts;
-  int num_contacts = collide(&m1, &m2, num_max_contacts, enable_contact, exhaustive, contacts);
+  int num_contacts = collide(&m1, pose1, &m2, pose2, num_max_contacts, enable_contact, exhaustive, contacts);
   global_pairs_now.resize(num_contacts);
 
   for(int i = 0; i < num_contacts; ++i)

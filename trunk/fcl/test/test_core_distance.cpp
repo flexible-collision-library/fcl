@@ -217,16 +217,9 @@ void distance_Test(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Matrix3f R2;
-  R2.setIdentity();
-  Vec3f T2;
-
-  m1.setTransform(tf.R, tf.T);
-  m2.setTransform(R2, T2);
-
   MeshDistanceTraversalNodeRSS node;
 
-  if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
+  if(!initialize(node, (const BVHModel<RSS>&)m1, SimpleTransform(tf.R, tf.T), (const BVHModel<RSS>&)m2, SimpleTransform()))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -235,7 +228,7 @@ void distance_Test(const Transform& tf,
 
   // points are in local coordinate, to global coordinate
   Vec3f p1 = tf.R * node.p1 + tf.T;
-  Vec3f p2 = R2 * node.p2 + T2;
+  Vec3f p2 = node.p2;
 
 
   distance_result.distance = node.min_distance;
@@ -274,16 +267,11 @@ void distance_Test2(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Matrix3f R2;
-  R2.setIdentity();
-  Vec3f T2;
-
-  m1.setTransform(tf.R, tf.T);
-  m2.setTransform(R2, T2);
+  SimpleTransform pose1(tf.R, tf.T), pose2;
 
   MeshDistanceTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, m2))
+  if(!initialize<BV>(node, m1, pose1, m2, pose2))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -322,15 +310,8 @@ bool collide_Test_OBB(const Transform& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Matrix3f R2;
-  R2.setIdentity();
-  Vec3f T2;
-
-  m1.setTransform(tf.R, tf.T);
-  m2.setTransform(R2, T2);
-
   MeshCollisionTraversalNodeOBB node;
-  if(!initialize(node, (const BVHModel<OBB>&)m1, (const BVHModel<OBB>&)m2))
+  if(!initialize(node, (const BVHModel<OBB>&)m1, SimpleTransform(tf.R, tf.T), (const BVHModel<OBB>&)m2, SimpleTransform()))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;

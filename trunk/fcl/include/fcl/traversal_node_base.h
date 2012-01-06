@@ -38,6 +38,7 @@
 #define FCL_TRAVERSAL_NODE_BASE_H
 
 #include "fcl/primitive.h"
+#include "fcl/transform.h"
 
 /** \brief Main namespace */
 namespace fcl
@@ -74,6 +75,10 @@ public:
   void enableStatistics(bool enable) { enable_statistics = enable; }
 
   bool enable_statistics;
+
+  SimpleTransform tf1;
+
+  SimpleTransform tf2;
 };
 
 class CollisionTraversalNodeBase : public TraversalNodeBase

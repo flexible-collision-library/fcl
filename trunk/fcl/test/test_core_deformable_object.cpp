@@ -99,18 +99,18 @@ void lionTest()
       m.beginModel();
       m.addSubModel(p, t);
       m.endModel();
-      m.setIdentityTransform();
     }
     else
     {
       m.beginUpdateModel();
       m.updateSubModel(p);
       m.endUpdateModel(true, true);
-      m.setIdentityTransform();
     }
 
+    SimpleTransform tf1, tf2;
+
     MeshCollisionTraversalNode<AABB> node;
-    initialize(node, m, m);
+    initialize(node, m, tf1, m, tf2);
     selfCollide(&node);
 
     timing += timer.elapsed();
@@ -169,8 +169,10 @@ void lionTest_DCD()
       m.addSubModel(p, t1);
       m.endModel();
 
+      SimpleTransform tf1, tf2;
+
       MeshCollisionTraversalNode<AABB> node;
-      initialize(node, m, m);
+      initialize(node, m, tf1, m, tf2);
       selfCollide(&node);
 
       if(node.pairs.size() > 0) break;
@@ -214,18 +216,18 @@ void ballTest()
       m.beginModel();
       m.addSubModel(p, t);
       m.endModel();
-      m.setIdentityTransform();
     }
     else
     {
       m.beginUpdateModel();
       m.updateSubModel(p);
       m.endUpdateModel(true, true);
-      m.setIdentityTransform();
     }
 
+    SimpleTransform tf1, tf2;
+
     MeshCollisionTraversalNode<AABB> node;
-    initialize(node, m, m);
+    initialize(node, m, tf1, m, tf2);
     selfCollide(&node);
 
     timing += timer.elapsed();
@@ -284,8 +286,10 @@ void ballTest_DCD()
       m.addSubModel(p, t1);
       m.endModel();
 
+      SimpleTransform tf1, tf2;
+
       MeshCollisionTraversalNode<AABB> node;
-      initialize(node, m, m);
+      initialize(node, m, tf1, m, tf2);
       selfCollide(&node);
 
       if(node.pairs.size() > 0) break;

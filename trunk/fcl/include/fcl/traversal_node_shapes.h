@@ -65,12 +65,13 @@ public:
   void leafTesting(int, int) const
   {
     if(enable_contact)
-      is_collision = shapeIntersect(*model1, *model2, &contact_point, &penetration_depth, &normal);
+      is_collision = shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal);
     else
-      is_collision = shapeIntersect(*model1, *model2);
+      is_collision = shapeIntersect(*model1, tf1, *model2, tf2);
   }
 
   const S1* model1;
+
   const S2* model2;
 
   mutable Vec3f normal;

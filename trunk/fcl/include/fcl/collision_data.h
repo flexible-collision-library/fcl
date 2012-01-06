@@ -14,8 +14,8 @@ struct Contact
   BVH_REAL penetration_depth;
   Vec3f normal;
   Vec3f pos;
-  const CollisionObject* o1;
-  const CollisionObject* o2;
+  const CollisionGeometry* o1;
+  const CollisionGeometry* o2;
   int b1;
   int b2;
 
@@ -27,7 +27,7 @@ struct Contact
     b2 = -1;
   }
 
-  Contact(const CollisionObject* o1_, const CollisionObject* o2_, int b1_, int b2_)
+  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_)
   {
     o1 = o1_;
     o2 = o2_;
@@ -35,7 +35,7 @@ struct Contact
     b2 = b2_;
   }
 
-  Contact(const CollisionObject* o1_, const CollisionObject* o2_, int b1_, int b2_,
+  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_,
           const Vec3f& pos_, const Vec3f& normal_, BVH_REAL depth_)
   {
     o1 = o1_;

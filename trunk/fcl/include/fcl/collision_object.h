@@ -40,6 +40,7 @@
 
 #include "fcl/AABB.h"
 #include "fcl/transform.h"
+#include <boost/shared_ptr.hpp>
 
 namespace fcl
 {
@@ -49,11 +50,181 @@ enum OBJECT_TYPE {OT_UNKNOWN, OT_BVH, OT_GEOM};
 enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_KDOP16, BV_KDOP18, BV_KDOP24,
                 GEOM_BOX, GEOM_SPHERE, GEOM_CAPSULE, GEOM_CONE, GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE};
 
-/** \brief Base class for all objects participating in collision */
+class CollisionGeometry
+{
+public:
+  virtual ~CollisionGeometry() {}
+
+  virtual OBJECT_TYPE getObjectType() const { return OT_UNKNOWN; }
+
+  virtual NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
+
+  virtual void computeLocalAABB() = 0;
+
+  /** AABB center in local coordinate */
+  Vec3f aabb_center;
+
+  /** AABB radius */
+  BVH_REAL aabb_radius;
+};
+
 class CollisionObject
 {
 public:
-  virtual ~CollisionObject() {}
+  CollisionObject(CollisionGeometry* cgeom_)
+  {
+    cgeom.reset(cgeom_);
+    computeAABB();
+  }
+
+  CollisionObject(CollisionGeometry* cgeom_, const SimpleTransform& tf)
+  {
+    cgeom.reset(cgeom_);
+    t = tf;
+    computeAABB();
+  }
+
+  CollisionObject(CollisionGeometry* cgeom_, const Matrix3f& R, const Vec3f& T)
+  {
+    cgeom.reset(cgeom_);
+    t = SimpleTransform(R, T);
+    computeAABB();
+  }
+
+  CollisionObject()
+  {
+  }
+
+  ~CollisionObject()
+  {
+  }
+
+  OBJECT_TYPE getObjectType() const
+  {
+    return cgeom->getObjectType();
+  }
+
+  NODE_TYPE getNodeType() const
+  {
+    return cgeom->getNodeType();
+  }
+
+  inline const AABB& getAABB() const
+  {
+    return aabb;
+  }
+
+  inline void computeAABB()
+  {
+    Vec3f center = t.transform(cgeom->aabb_center);
+    Vec3f delta(cgeom->aabb_radius, cgeom->aabb_radius, cgeom->aabb_radius);
+    aabb.min_ = center - delta;
+    aabb.max_ = center + delta;
+  }
+
+  inline void computeAABB2()
+  {
+    Vec3f center = t.transform(cgeom->aabb_center);
+    // compute new r1, r2, r3
+  }
+
+  void* getUserData() const
+  {
+    return user_data;
+  }
+
+  void setUserData(void *data)
+  {
+    user_data = data;
+  }
+
+  inline const Vec3f& getTranslation() const
+  {
+    return t.getTranslation();
+  }
+
+  inline const Matrix3f& getRotation() const
+  {
+    return t.getRotation();
+  }
+
+  inline const SimpleQuaternion& getQuatRotation() const
+  {
+    return t.getQuatRotation();
+  }
+
+  inline const SimpleTransform& getTransform() const
+  {
+    return t;
+  }
+
+  void setRotation(const Matrix3f& R)
+  {
+    t.setRotation(R);
+  }
+
+  void setTranslation(const Vec3f& T)
+  {
+    t.setTranslation(T);
+  }
+
+  void setQuatRotation(const SimpleQuaternion& q)
+  {
+    t.setQuatRotation(q);
+  }
+
+  void setTransform(const Matrix3f& R, const Vec3f& T)
+  {
+    t.setTransform(R, T);
+  }
+
+  void setTransform(const SimpleQuaternion& q, const Vec3f& T)
+  {
+    t.setTransform(q, T);
+  }
+
+  void setTransform(const SimpleTransform& tf)
+  {
+    t = tf;
+  }
+
+  bool isIdentityTransform() const
+  {
+    return t.isIdentity();
+  }
+
+  void setIdentityTransform()
+  {
+    t.setIdentity();
+  }
+
+  const CollisionGeometry* getCollisionGeometry() const
+  {
+    return cgeom.get();
+  }
+
+protected:
+
+  // const CollisionGeometry* cgeom;
+  boost::shared_ptr<CollisionGeometry> cgeom;
+
+  SimpleTransform t;
+
+  /** AABB in global coordinate */
+  mutable AABB aabb;
+
+  /** pointer to user defined data specific to this object */
+  void *user_data;
+};
+
+
+
+
+/** \brief Base class for all objects participating in collision */
+class CollisionObject2
+{
+public:
+  virtual ~CollisionObject2() {}
 
   virtual OBJECT_TYPE getObjectType() const { return OT_UNKNOWN; }
 

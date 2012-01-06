@@ -47,9 +47,9 @@ namespace fcl
 {
 
 template<typename BV>
-int conservativeAdvancement(const CollisionObject* o1,
+int conservativeAdvancement(const CollisionGeometry* o1,
                             MotionBase<BV>* motion1,
-                            const CollisionObject* o2,
+                            const CollisionGeometry* o2,
                             MotionBase<BV>* motion2,
                             int num_max_contacts, bool exhaustive, bool enable_contact,
                             std::vector<Contact>& contacts,
@@ -77,18 +77,16 @@ int conservativeAdvancement(const CollisionObject* o1,
   const BVHModel<RSS>* model1 = (const BVHModel<RSS>*)o1;
   const BVHModel<RSS>* model2 = (const BVHModel<RSS>*)o2;
 
+  SimpleTransform tf1, tf2;
+  motion1->getCurrentTransform(tf1);
+  motion2->getCurrentTransform(tf2);
+
   // whether the first start configuration is in collision
   MeshCollisionTraversalNodeRSS cnode;
-  if(!initialize(cnode, *model1, *model2))
+  if(!initialize(cnode, *model1, tf1, *model2, tf2))
     std::cout << "initialize error" << std::endl;
 
-  Matrix3f R1_0, R2_0;
-  Vec3f T1_0, T2_0;
-
-  motion1->getCurrentTransform(R1_0, T1_0);
-  motion2->getCurrentTransform(R2_0, T2_0);
-
-  relativeTransform(R1_0, T1_0, R2_0, T2_0, cnode.R, cnode.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), cnode.R, cnode.T);
 
   cnode.enable_statistics = false;
   cnode.num_max_contacts = num_max_contacts;
@@ -109,7 +107,7 @@ int conservativeAdvancement(const CollisionObject* o1,
 
   MeshConservativeAdvancementTraversalNodeRSS node;
 
-  initialize(node, *model1, *model2, R1_0, T1_0, R2_0, T2_0);
+  initialize(node, *model1, *model2, tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation());
 
   node.motion1 = motion1;
   node.motion2 = motion2;
@@ -158,9 +156,9 @@ int conservativeAdvancement(const CollisionObject* o1,
 }
 
 
-template int conservativeAdvancement<RSS>(const CollisionObject* o1,
+template int conservativeAdvancement<RSS>(const CollisionGeometry* o1,
                                           MotionBase<RSS>* motion1,
-                                          const CollisionObject* o2,
+                                          const CollisionGeometry* o2,
                                           MotionBase<RSS>* motion2,
                                           int num_max_contacts, bool exhaustive, bool enable_contact,
                                           std::vector<Contact>& contacts,

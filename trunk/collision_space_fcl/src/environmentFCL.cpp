@@ -266,9 +266,92 @@ fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::Shape *shape
       ROS_FATAL_STREAM("This shape type is not supported using FCL yet");
   }
 
-  return g;
+  fcl::CollisionObject* co = new fcl::CollisionObject(g);
+  return co;
 }
 
+/*
+fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::Shape *shape, double scale, double padding)
+{
+  fcl::CollisionObject* g = NULL;
+  switch(shape->type)
+  {
+    case shapes::SPHERE:
+    {
+      g = new fcl::Sphere(static_cast<const shapes::Sphere*>(shape)->radius * scale + padding);
+    }
+    break;
+    case shapes::BOX:
+    {
+      const double *size = static_cast<const shapes::Box*>(shape)->size;
+      g = new fcl::Box(size[0] * scale + padding * 2.0, size[1] * scale + padding * 2.0, size[2] * scale + padding * 2.0);
+    }
+    break;
+    case shapes::CYLINDER:
+    {
+      g = new fcl::Cylinder(static_cast<const shapes::Cylinder*>(shape)->radius * scale + padding,
+                            static_cast<const shapes::Cylinder*>(shape)->length * scale + padding * 2.0);
+    }
+    break;
+    case shapes::MESH:
+    {
+      fcl::BVHModel<fcl::OBB>* gobb = new fcl::BVHModel<fcl::OBB>();
+      const shapes::Mesh *mesh = static_cast<const shapes::Mesh*>(shape);
+      if(mesh->vertexCount > 0 && mesh->triangleCount > 0)
+      {
+        std::vector<fcl::Triangle> tri_indices(mesh->triangleCount);
+        for(unsigned int i = 0; i < mesh->triangleCount; ++i)
+          tri_indices[i] = fcl::Triangle(mesh->triangles[3 * i], mesh->triangles[3 * i + 1], mesh->triangles[3 * i + 2]);
+
+        std::vector<fcl::Vec3f> points(mesh->vertexCount);
+        double sx = 0.0, sy = 0.0, sz = 0.0;
+        for(unsigned int i = 0; i < mesh->vertexCount; ++i)
+        {
+          points[i] = fcl::Vec3f(mesh->vertices[3 * i], mesh->vertices[3 * i + 1], mesh->vertices[3 * i + 2]);
+          sx += points[i][0];
+          sy += points[i][1];
+          sz += points[i][2];
+        }
+        // the center of the mesh
+        sx /= (double)mesh->vertexCount;
+        sy /= (double)mesh->vertexCount;
+        sz /= (double)mesh->vertexCount;
+
+        // scale the mesh
+        for(unsigned int i = 0; i < mesh->vertexCount; ++i)
+        {
+          // vector from center to the vertex
+          double dx = points[i][0] - sx;
+          double dy = points[i][1] - sy;
+          double dz = points[i][2] - sz;
+
+          // length of vector
+          //double norm = sqrt(dx * dx + dy * dy + dz * dz);
+
+          double ndx = ((dx > 0) ? dx+padding : dx-padding);
+          double ndy = ((dy > 0) ? dy+padding : dy-padding);
+          double ndz = ((dz > 0) ? dz+padding : dz-padding);
+
+          // the new distance of the vertex from the center
+          //double fact = scale + padding/norm;
+          points[i] = fcl::Vec3f(sx + ndx, sy + ndy, sz + ndz);
+        }
+
+        gobb->beginModel();
+        gobb->addSubModel(points, tri_indices);
+        gobb->endModel();
+        gobb->computeLocalAABB();
+        g = gobb;
+      }
+    }
+    break;
+    default:
+      ROS_FATAL_STREAM("This shape type is not supported using FCL yet");
+  }
+
+  return g;
+}
+*/
 
 void EnvironmentModelFCL::updateGeom(fcl::CollisionObject* geom,  const btTransform &pose) const
 {

@@ -295,16 +295,12 @@ bool linear_interp_Test(const Transform& tf1, const Transform& tf2,
   {
     BVH_REAL curt = i / (BVH_REAL)nsamples;
 
-    Matrix3f R;
-    Vec3f T;
+    SimpleTransform pose;
     motion1.integrate(curt);
-    motion1.getCurrentTransform(R, T);
-
-    m1.setTransform(R, T);
-    m2.setTransform(R2, T2);
+    motion1.getCurrentTransform(pose);
 
     MeshCollisionTraversalNodeRSS node;
-    if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
+    if(!initialize(node, (const BVHModel<RSS>&)m1, pose, (const BVHModel<RSS>&)m2, SimpleTransform(R2, T2)))
       std::cout << "initialize error" << std::endl;
 
     node.enable_statistics = false;
@@ -361,16 +357,12 @@ bool screw_interp_Test(const Transform& tf1, const Transform& tf2,
   {
     BVH_REAL curt = i / (BVH_REAL)nsamples;
 
-    Matrix3f R;
-    Vec3f T;
+    SimpleTransform pose;
     motion1.integrate(curt);
-    motion1.getCurrentTransform(R, T);
-
-    m1.setTransform(R, T);
-    m2.setTransform(R2, T2);
+    motion1.getCurrentTransform(pose);
 
     MeshCollisionTraversalNodeRSS node;
-    if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
+    if(!initialize(node, (const BVHModel<RSS>&)m1, pose, (const BVHModel<RSS>&)m2, SimpleTransform(R2, T2)))
       std::cout << "initialize error" << std::endl;
 
     node.enable_statistics = false;
@@ -516,19 +508,15 @@ bool spline_interp_Test(const Transform& tf1, const Transform& tf2,
   {
     BVH_REAL curt = i / (BVH_REAL)nsamples;
 
-    Matrix3f R;
-    Vec3f T;
     motion1.integrate(curt);
     motion2.integrate(curt);
 
-    motion1.getCurrentTransform(R, T);
-    m1.setTransform(R, T);
-
-    motion2.getCurrentTransform(R, T);
-    m2.setTransform(R, T);
+    SimpleTransform tf1, tf2;
+    motion1.getCurrentTransform(tf1);
+    motion2.getCurrentTransform(tf2);
 
     MeshCollisionTraversalNodeRSS node;
-    if(!initialize(node, (const BVHModel<RSS>&)m1, (const BVHModel<RSS>&)m2))
+    if(!initialize(node, (const BVHModel<RSS>&)m1, tf1, (const BVHModel<RSS>&)m2, tf2))
       std::cout << "initialize error" << std::endl;
 
     node.enable_statistics = false;

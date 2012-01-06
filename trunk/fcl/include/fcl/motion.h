@@ -155,6 +155,11 @@ public:
     T = tf.getTranslation();
   }
 
+  void getCurrentTransform(SimpleTransform& tf_) const
+  {
+    tf_ = tf;
+  }
+
 protected:
   void computeSplineParameter()
   {
@@ -396,6 +401,11 @@ public:
     T = tf.getTranslation();
   }
 
+  void getCurrentTransform(SimpleTransform& tf_) const
+  {
+    tf_ = tf;
+  }
+
 protected:
   void computeScrewParameter()
   {
@@ -579,6 +589,11 @@ public:
   void getCurrentTranslation(Vec3f& T) const
   {
     T = tf.getTranslation();
+  }
+
+  void getCurrentTransform(SimpleTransform& tf_) const
+  {
+    tf_ = tf;
   }
 
 protected:

@@ -57,107 +57,82 @@ TEST(shapeIntersection, spheresphere)
   bool res;
 
   s2.setLocalTranslation(Vec3f(40, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(30, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(29.9, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(0, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(-29.9, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(-30, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
-
 }
 
 TEST(shapeIntersection, boxbox)
@@ -173,61 +148,47 @@ TEST(shapeIntersection, boxbox)
 
   bool res;
 
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(15, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
-
 
   SimpleQuaternion q;
   q.fromAxisAngle(Vec3f(0, 0, 1), (BVH_REAL)3.140 / 6);
   Matrix3f R;
   q.toRotation(R);
   s2.setLocalRotation(R);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
-
 }
 
 TEST(shapeIntersection, spherebox)
@@ -243,57 +204,43 @@ TEST(shapeIntersection, spherebox)
 
   bool res;
 
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
-
 
   s2.setLocalTranslation(Vec3f(22.5, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(22.4, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
-
 }
 
 TEST(shapeIntersection, cylindercylinder)
@@ -309,55 +256,43 @@ TEST(shapeIntersection, cylindercylinder)
 
   bool res;
 
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(9.9, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(10, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 }
 
 TEST(shapeIntersection, conecone)
@@ -373,89 +308,69 @@ TEST(shapeIntersection, conecone)
 
   bool res;
 
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(9.9, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(10.001, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(0, 0, 9.9));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(0, 0, 10));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 }
 
 TEST(shapeIntersection, conecylinder)
@@ -471,89 +386,69 @@ TEST(shapeIntersection, conecylinder)
 
   bool res;
 
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(9.9, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(10, 0, 0));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(0, 0, 9.9));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_TRUE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_TRUE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 
   s2.setLocalTranslation(Vec3f(0, 0, 10));
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(), s2, SimpleTransform());
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(), &s2, SimpleTransform(), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
 
-  s1.setTransform(transform.R, transform.T);
-  s2.setTransform(transform.R, transform.T);
-  res = shapeIntersect(s1, s2);
+  res = shapeIntersect(s1, SimpleTransform(transform.R, transform.T), s2, SimpleTransform(transform.R, transform.T));
   ASSERT_FALSE(res);
   contacts.clear();
-  res = (collide(&s1, &s2, 1, false, false, contacts) > 0);
+  res = (collide(&s1, SimpleTransform(transform.R, transform.T), &s2, SimpleTransform(transform.R, transform.T), 1, false, false, contacts) > 0);
   ASSERT_FALSE(res);
-  s1.setTransform(identity.R, identity.T);
-  s2.setTransform(identity.R, identity.T);
 }
 
 TEST(shapeIntersection, spheretriangle)
@@ -570,35 +465,29 @@ TEST(shapeIntersection, spheretriangle)
 
   bool res;
 
-  res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
+  res = shapeTriangleIntersect(s, SimpleTransform(), t[0], t[1], t[2]);
   ASSERT_TRUE(res);
 
-  s.setTransform(transform.R, transform.T);
-  res =  shapeTriangleIntersect(s, t[0], t[1], t[2], transform.R, transform.T);
+  res =  shapeTriangleIntersect(s, SimpleTransform(transform.R, transform.T), t[0], t[1], t[2], transform.R, transform.T);
   ASSERT_TRUE(res);
-  s.setTransform(identity.R, identity.T);
 
   t[0].setValue(30, 0, 0);
   t[1].setValue(10, -20, 0);
   t[2].setValue(10, 20, 0);
-  res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
+  res = shapeTriangleIntersect(s, SimpleTransform(), t[0], t[1], t[2]);
   ASSERT_FALSE(res);
 
-  s.setTransform(transform.R, transform.T);
-  res =  shapeTriangleIntersect(s, t[0], t[1], t[2], transform.R, transform.T);
+  res =  shapeTriangleIntersect(s, SimpleTransform(transform.R, transform.T), t[0], t[1], t[2], transform.R, transform.T);
   ASSERT_FALSE(res);
-  s.setTransform(identity.R, identity.T);
 
   t[0].setValue(30, 0, 0);
   t[1].setValue(9.9, -20, 0);
   t[2].setValue(9.9, 20, 0);
-  res = shapeTriangleIntersect(s, t[0], t[1], t[2]);
+  res = shapeTriangleIntersect(s, SimpleTransform(), t[0], t[1], t[2]);
   ASSERT_TRUE(res);
 
-  s.setTransform(transform.R, transform.T);
-  res =  shapeTriangleIntersect(s, t[0], t[1], t[2], transform.R, transform.T);
+  res =  shapeTriangleIntersect(s, SimpleTransform(transform.R, transform.T), t[0], t[1], t[2], transform.R, transform.T);
   ASSERT_TRUE(res);
-  s.setTransform(identity.R, identity.T);
 }
 
 

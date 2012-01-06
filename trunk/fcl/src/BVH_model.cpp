@@ -43,7 +43,7 @@ namespace fcl
 {
 
 template<typename BV>
-BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionObject(other)
+BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other)
 {
   num_tris = num_tris_allocated = other.num_tris;
   num_vertices = num_vertices_allocated = other.num_vertices;
@@ -861,9 +861,7 @@ void BVHModel<BV>::computeLocalAABB()
     aabb_ += vertices[i];
   }
 
-  aabb = aabb_;
-
-  aabb_center = aabb.center();
+  aabb_center = aabb_.center();
 
   aabb_radius = 0;
   for(int i = 0; i < num_vertices; ++i)

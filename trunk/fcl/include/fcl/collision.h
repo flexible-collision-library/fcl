@@ -54,6 +54,11 @@ namespace fcl
 int collide(const CollisionObject* o1, const CollisionObject* o2,
              int num_max_contacts, bool exhaustive, bool enable_contact,
              std::vector<Contact>& contacts);
+
+int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
+            const CollisionGeometry* o2, const SimpleTransform& tf2,
+            int num_max_contacts, bool exhaustive, bool enable_contact,
+            std::vector<Contact>& contacts);
 }
 
 #endif

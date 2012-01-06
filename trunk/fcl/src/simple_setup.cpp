@@ -40,7 +40,9 @@
 namespace fcl
 {
 
-bool initialize(MeshCollisionTraversalNodeOBB& node, const BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
+bool initialize(MeshCollisionTraversalNodeOBB& node,
+                const BVHModel<OBB>& model1, const SimpleTransform& tf1,
+                const BVHModel<OBB>& model2, const SimpleTransform& tf2,
                 int num_max_contacts, bool exhaustive, bool enable_contact)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -53,19 +55,23 @@ bool initialize(MeshCollisionTraversalNodeOBB& node, const BVHModel<OBB>& model1
   node.tri_indices2 = model2.tri_indices;
 
   node.model1 = &model1;
+  node.tf1 = tf1;
   node.model2 = &model2;
+  node.tf2 = tf2;
 
   node.num_max_contacts = num_max_contacts;
   node.exhaustive = exhaustive;
   node.enable_contact = enable_contact;
 
-  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 
-bool initialize(MeshCollisionTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
+bool initialize(MeshCollisionTraversalNodeRSS& node,
+                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
+                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
                 int num_max_contacts, bool exhaustive, bool enable_contact)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -78,20 +84,25 @@ bool initialize(MeshCollisionTraversalNodeRSS& node, const BVHModel<RSS>& model1
   node.tri_indices2 = model2.tri_indices;
 
   node.model1 = &model1;
+  node.tf1 = tf1;
   node.model2 = &model2;
+  node.tf2 = tf2;
+
 
   node.num_max_contacts = num_max_contacts;
   node.exhaustive = exhaustive;
   node.enable_contact = enable_contact;
 
-  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 #if USE_SVMLIGHT
 
-bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, BVHModel<OBB>& model2,
+bool initialize(PointCloudCollisionTraversalNodeOBB& node,
+                BVHModel<OBB>& model1, const SimpleTransform& tf1,
+                BVHModel<OBB>& model2, const SimpleTransform& tf2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -104,7 +115,9 @@ bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1
     return false;
 
   node.model1 = &model1;
+  node.tf1 = tf1;
   node.model2 = &model2;
+  node.tf2 = tf2;
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -124,13 +137,15 @@ bool initialize(PointCloudCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 
-bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, BVHModel<RSS>& model2,
+bool initialize(PointCloudCollisionTraversalNodeRSS& node,
+                BVHModel<RSS>& model1, const SimpleTransform& tf1,
+                BVHModel<RSS>& model2, const SimpleTransform& tf2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -143,7 +158,9 @@ bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1
     return false;
 
   node.model1 = &model1;
+  node.tf1 = tf1;
   node.model2 = &model2;
+  node.tf2 = tf2;
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -163,12 +180,14 @@ bool initialize(PointCloudCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
-bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& model1, const BVHModel<OBB>& model2,
+bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
+                BVHModel<OBB>& model1, const SimpleTransform& tf1,
+                const BVHModel<OBB>& model2, const SimpleTransform& tf2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -180,7 +199,9 @@ bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& mo
     return false;
 
   node.model1 = &model1;
+  node.tf1 = tf1;
   node.model2 = &model2;
+  node.tf2 = tf2;
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -198,13 +219,15 @@ bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node, BVHModel<OBB>& mo
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 
-bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
+bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
+                BVHModel<RSS>& model1, const SimpleTransform& tf1,
+                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
                 BVH_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
@@ -216,7 +239,9 @@ bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& mo
     return false;
 
   node.model1 = &model1;
+  node.tf1 = tf1;
   node.model2 = &model2;
+  node.tf2 = tf2;
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -234,20 +259,24 @@ bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node, BVHModel<RSS>& mo
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
-  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
   return true;
 }
 
 #endif
 
-bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2)
+bool initialize(MeshDistanceTraversalNodeRSS& node,
+                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
+                const BVHModel<RSS>& model2, const SimpleTransform& tf2)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   node.model1 = &model1;
+  node.tf1 = tf1;
   node.model2 = &model2;
+  node.tf2 = tf2;
 
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
@@ -255,7 +284,7 @@ bool initialize(MeshDistanceTraversalNodeRSS& node, const BVHModel<RSS>& model1,
   node.tri_indices1 = model1.tri_indices;
   node.tri_indices2 = model2.tri_indices;
 
-  relativeTransform(model1.getRotation(), model1.getTranslation(), model2.getRotation(), model2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
   return true;
 }

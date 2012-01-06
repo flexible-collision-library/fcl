@@ -47,7 +47,7 @@ namespace fcl
 {
 
 /** \brief Base class for all basic geometric shapes */
-class ShapeBase : public CollisionObject
+class ShapeBase : public CollisionGeometry
 {
 public:
   /** \brief Default Constructor */
