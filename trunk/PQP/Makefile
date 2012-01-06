@@ -19,7 +19,6 @@ installed: wiped $(SOURCE_DIR)/unpacked
 	cd $(SOURCE_DIR)/PQP_v1.3 && make $(ROS_PARALLEL_JOBS)
 	mkdir -p $(INSTALL_DIR)/lib
 	mkdir -p $(INSTALL_DIR)/include
-	mkdir -p $(INSTALL_DIR)/include/PQP
 	cp -r $(SOURCE_DIR)/PQP_v1.3/include/*.h $(INSTALL_DIR)/include
 	cp -r $(SOURCE_DIR)/PQP_v1.3/lib/*.a $(INSTALL_DIR)/lib
 	touch installed
