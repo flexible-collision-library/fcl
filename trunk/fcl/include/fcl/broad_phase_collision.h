@@ -84,6 +84,9 @@ public:
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   virtual void collide(void* cdata, CollisionCallBack callback) const = 0;
 
+  /** \brief perform collision test for all pairs of objects belonging to the \e other manager */
+  virtual void collide(const BroadPhaseCollisionManager *other, void* cdata, CollisionCallBack callback) const;
+  
   /** \brief whether the manager is empty */
   virtual bool empty() const = 0;
   
