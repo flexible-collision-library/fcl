@@ -86,15 +86,18 @@ class CollisionObject
 public:
   CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_) : cgeom(cgeom_)
   {
+    computeAABB();
   }
 
   CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const SimpleTransform& tf) : cgeom(cgeom_), t(tf)
   {
+    computeAABB();
   }
 
   CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
       cgeom(cgeom_), t(SimpleTransform(R, T))
   {
+    computeAABB();
   }
 
   CollisionObject()

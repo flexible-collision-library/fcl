@@ -266,7 +266,7 @@ fcl::CollisionObject* EnvironmentModelFCL::createGeom(const shapes::Shape *shape
       ROS_FATAL_STREAM("This shape type is not supported using FCL yet");
   }
 
-  fcl::CollisionObject* co = new fcl::CollisionObject(g);
+  fcl::CollisionObject* co = new fcl::CollisionObject(boost::shared_ptr<fcl::CollisionGeometry>(g));
   return co;
 }
 
