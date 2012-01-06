@@ -61,11 +61,24 @@ public:
 
   virtual void computeLocalAABB() = 0;
 
+  void* getUserData() const
+  {
+    return user_data;
+  }
+
+  void setUserData(void *data)
+  {
+    user_data = data;
+  }
+
   /** AABB center in local coordinate */
   Vec3f aabb_center;
 
   /** AABB radius */
   BVH_REAL aabb_radius;
+
+  /** pointer to user defined data specific to this object */
+  void *user_data;
 };
 
 class CollisionObject
