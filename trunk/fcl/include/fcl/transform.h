@@ -140,7 +140,7 @@ public:
   /** \brief Default transform is no movement */
   SimpleTransform()
   {
-    R.setIdentity();
+    setIdentity();
   }
 
   SimpleTransform(const Matrix3f& R_, const Vec3f& T_)
