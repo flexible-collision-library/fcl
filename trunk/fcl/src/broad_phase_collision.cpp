@@ -69,19 +69,6 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
   return cdata->done;
 }
 
-void BroadPhaseCollisionManager::collide(const BroadPhaseCollisionManager *other, void* cdata, CollisionCallBack callback) const
-{
-  if (other->size() < size())
-    other->collide(this, cdata, callback);
-  else
-  {
-    std::vector<CollisionObject*> objs;
-    getObjects(objs);
-    for (std::size_t i = 0 ; i < objs.size() ; ++i)
-      other->collide(objs[i], cdata, callback);
-  }
-}
-
 void NaiveCollisionManager::unregisterObject(CollisionObject* obj)
 {
   objs.remove(obj);
