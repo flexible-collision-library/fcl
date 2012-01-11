@@ -10,9 +10,12 @@
   <url>http://ros.org/wiki/fcl</url>
   <depend package="libccd"/>
   <depend package="ann"/>
-  <depend package="assimp"/>
   <depend package="PQP"/>
   <!-- <depend package="svm_light"/> -->
+  <depend package="common_rosdeps"/>
+
+  <rosdep name="assimp"/>
+
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lfcl"/>
   </export>
