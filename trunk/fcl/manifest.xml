@@ -12,8 +12,6 @@
   <depend package="ann"/>
   <depend package="common_rosdeps"/>
 
-  <rosdep name="assimp"/>
-
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lfcl"/>
   </export>
