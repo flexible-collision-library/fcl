@@ -10,8 +10,6 @@
   <url>http://ros.org/wiki/fcl</url>
   <depend package="libccd"/>
   <depend package="ann"/>
-  <depend package="PQP"/>
-  <!-- <depend package="svm_light"/> -->
   <depend package="common_rosdeps"/>
 
   <rosdep name="assimp"/>
@@ -21,5 +19,3 @@
   </export>
 
 </package>
-
-

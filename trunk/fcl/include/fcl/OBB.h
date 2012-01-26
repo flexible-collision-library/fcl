@@ -34,8 +34,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_PQP_H
-#define FCL_PQP_H
+#ifndef FCL_OBB_H
+#define FCL_OBB_H
 
 #include "fcl/BVH_internal.h"
 #include "fcl/vec_3f.h"
