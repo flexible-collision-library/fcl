@@ -4,9 +4,7 @@
   <license>BSD</license>  
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/fcl_ros</url>
-  <depend stack="arm_navigation" /> <!-- planning_models, geometric_shapes -->
-  <depend stack="bullet" /> <!-- bullet -->
-  <depend stack="ros" />
+
   <depend stack="ros_comm" /> <!-- rosconsole -->
 
 </stack>
