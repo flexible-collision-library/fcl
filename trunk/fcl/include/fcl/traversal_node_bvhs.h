@@ -147,8 +147,8 @@ struct BVHCollisionPair
 
   BVHCollisionPair(int id1_, int id2_) : id1(id1_), id2(id2_) {}
 
-  BVHCollisionPair(int id1_, int id2_, const Vec3f& n, const Vec3f& contactp, BVH_REAL depth) : id1(id1_),
-      id2(id2_), normal(n), contact_point(contactp), penetration_depth(depth) {}
+  BVHCollisionPair(int id1_, int id2_, const Vec3f& contactp, const Vec3f& n, BVH_REAL depth) : id1(id1_),
+      id2(id2_), contact_point(contactp), normal(n), penetration_depth(depth) {}
 
   /** \brief The index of one in-collision primitive */
   int id1;
@@ -156,11 +156,11 @@ struct BVHCollisionPair
   /** \brief The index of the other in-collision primitive */
   int id2;
 
-  /** \brief Contact normal */
-  Vec3f normal;
-
   /** \brief Contact points */
   Vec3f contact_point;
+
+  /** \brief Contact normal */
+  Vec3f normal;
 
   /** \brief Penetration depth for two triangles */
   BVH_REAL penetration_depth;
