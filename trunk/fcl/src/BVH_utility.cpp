@@ -36,7 +36,9 @@
 
 
 #include "fcl/BVH_utility.h"
-#include <ANN/ANN.h>
+//#include <ANN/ANN.h>
+#include <flann/flann.hpp>
+
 
 namespace fcl
 {
@@ -107,6 +109,92 @@ void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, BVH_REAL r = 1.0)
 void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty* ucs)
 {
   int nPts = num_vertices;
+
+  int knn_k = 10;
+  if(knn_k > nPts) knn_k = nPts;
+  int dim = 3;
+
+  float* dataset_ = new float[dim * nPts];
+  float* query_ = new float[dim * 1];
+
+  for(int i = 0; i < nPts; ++i)
+  {
+    for(int j = 0; j < dim; ++j)
+      dataset_[i * dim + j] = vertices[i][j];
+  }
+
+
+  flann::Matrix<float> dataset(dataset_, nPts, dim);
+  flann::Matrix<float> query(query_, 1, dim);
+
+  int* indices_ = new int[query.rows * knn_k];
+  float* dists_ = new float[query.rows * knn_k];
+
+  flann::Matrix<int> indices(indices_, query.rows, knn_k);
+  flann::Matrix<float> dists(dists_, query.rows, knn_k);
+
+  flann::Index<flann::L2<float> > index(dataset, flann::KDTreeIndexParams(4));
+  index.buildIndex();
+
+  double eps = 0;
+  double scale = 2;
+
+  for(int i = 0; i < nPts; ++i)
+  {
+    float C[3][3];
+    for(int j = 0; j < dim; ++j)
+    {
+      for(int k = 0; k < dim; ++k)
+        C[j][k] = 0;
+    }
+
+    for(int j = 0; j < dim; ++j)
+      query_[j] = vertices[i][j];
+
+    index.knnSearch(query, indices, dists, knn_k, flann::SearchParams(128));
+
+    double r = dists_[knn_k - 1];
+    double sigma = scale * r;
+
+    double weight_sum = 0;
+
+    for(int j = 1; j < knn_k; ++j)
+    {
+      int id = indices_[j];
+      Vec3f p = vertices[i] - vertices[id];
+      double norm2p = p.sqrLength();
+      double weight = exp(-norm2p / (sigma * sigma));
+
+      weight_sum += weight;
+
+      for(int k = 0; k < dim; ++k)
+      {
+        for(int l = 0; l < dim; ++l)
+          C[k][l] += p[k] * p[l] * weight;
+      }
+    }
+
+    for(int j = 0; j < dim; ++j)
+    {
+      for(int k = 0; k < dim; ++k)
+      {
+        C[j][k] /= weight_sum;
+        ucs[i].Sigma[j][k] = C[j][k];
+      }
+    }
+
+    ucs[i].preprocess();
+    ucs[i].sqrt();
+  }
+
+
+  delete [] dataset.ptr();
+  delete [] query.ptr();
+  delete [] indices.ptr();
+  delete [] dists.ptr();
+
+  /*
+  int nPts = num_vertices;
   ANNpointArray dataPts;
   ANNpoint queryPt;
 
@@ -125,7 +213,7 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
 
   for(int i = 0; i < nPts; ++i)
   {
-    for(int j = 0; j < 3; ++j)
+    for(int j = 0; j < dim; ++j)
       dataPts[i][j] = vertices[i][j];
   }
 
@@ -188,6 +276,7 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
   delete [] dists;
   delete kdTree;
   annClose();
+  */
 }
 
 /** \brief Compute the covariance matrix for a set or subset of points. */
