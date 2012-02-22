@@ -117,7 +117,7 @@ namespace fcl
       v4 = v;
     }
 
-    virtual ~Vec3f() {}
+    ~Vec3f() {}
 
     /** \brief Get the ith element */
     inline float operator [] (size_t i) const
@@ -324,7 +324,7 @@ namespace fcl
       v_[2] = z;
     }
 
-    virtual ~Vec3f() {}
+    ~Vec3f() {}
 
     /** \brief Get the ith element */
     inline BVH_REAL operator [] (size_t i) const
