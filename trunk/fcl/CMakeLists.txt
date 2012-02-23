@@ -10,9 +10,14 @@ project(fcl CXX C)
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_BUILD_TYPE Release)
 
-set(FCL_VERSION "0.1.0")
+set(FCL_VERSION "0.1.1")
 set(PKG_DESC "Fast Collision Library")
 set(PKG_EXTERNAL_DEPS "ccd flann")
+
+set(CMAKE_SKIP_BUILD_RPATH  FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 #set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
