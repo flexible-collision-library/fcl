@@ -127,7 +127,7 @@ void computeBV<AABB>(const Plane& s, const SimpleTransform& tf, AABB& bv)
 {
   Matrix3f R = tf.getRotation() * s.getLocalRotation();
 
-  Vec3f n = R * n;
+  Vec3f n = R * s.n;
 
   AABB bv_;
   if(n[1] == (BVH_REAL)0.0 && n[2] == (BVH_REAL)0.0)
