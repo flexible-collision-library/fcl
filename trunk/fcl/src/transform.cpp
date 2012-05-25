@@ -210,10 +210,30 @@ SimpleQuaternion SimpleQuaternion::operator + (const SimpleQuaternion& other) co
                           data[2] + other.data[2], data[3] + other.data[3]);
 }
 
+const SimpleQuaternion& SimpleQuaternion::operator += (const SimpleQuaternion& other)
+{
+  data[0] += other.data[0];
+  data[1] += other.data[1];
+  data[2] += other.data[2];
+  data[3] += other.data[3];
+
+  return *this;
+}
+
 SimpleQuaternion SimpleQuaternion::operator - (const SimpleQuaternion& other) const
 {
   return SimpleQuaternion(data[0] - other.data[0], data[1] - other.data[1],
                           data[2] - other.data[2], data[3] - other.data[3]);
+}
+
+const SimpleQuaternion& SimpleQuaternion::operator -= (const SimpleQuaternion& other)
+{
+  data[0] -= other.data[0];
+  data[1] -= other.data[1];
+  data[2] -= other.data[2];
+  data[3] -= other.data[3];
+
+  return *this;
 }
 
 SimpleQuaternion SimpleQuaternion::operator * (const SimpleQuaternion& other) const
@@ -222,6 +242,21 @@ SimpleQuaternion SimpleQuaternion::operator * (const SimpleQuaternion& other) co
                           data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2],
                           data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1],
                           data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0]);
+}
+
+
+const SimpleQuaternion& SimpleQuaternion::operator *= (const SimpleQuaternion& other)
+{
+  BVH_REAL a = data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3];
+  BVH_REAL b = data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2];
+  BVH_REAL c = data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1];
+  BVH_REAL d = data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0];
+
+  data[0] = a;
+  data[1] = b;
+  data[2] = c;
+  data[3] = d;
+  return *this;
 }
 
 SimpleQuaternion SimpleQuaternion::operator - () const
@@ -233,6 +268,17 @@ SimpleQuaternion SimpleQuaternion::operator * (BVH_REAL t) const
 {
   return SimpleQuaternion(data[0] * t, data[1] * t, data[2] * t, data[3] * t);
 }
+
+const SimpleQuaternion& SimpleQuaternion::operator *= (BVH_REAL t)
+{
+  data[0] *= t;
+  data[1] *= t;
+  data[2] *= t;
+  data[3] *= t;
+
+  return *this;
+}
+
 
 SimpleQuaternion SimpleQuaternion::conj() const
 {

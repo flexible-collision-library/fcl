@@ -88,18 +88,22 @@ public:
 
   /** \brief addition */
   SimpleQuaternion operator + (const SimpleQuaternion& other) const;
+  const SimpleQuaternion& operator += (const SimpleQuaternion& other);
 
   /** \brief minus */
   SimpleQuaternion operator - (const SimpleQuaternion& other) const;
+  const SimpleQuaternion& operator -= (const SimpleQuaternion& other);
 
   /** \brief multiplication */
   SimpleQuaternion operator * (const SimpleQuaternion& other) const;
+  const SimpleQuaternion& operator *= (const SimpleQuaternion& other);
 
   /** \brief division */
   SimpleQuaternion operator - () const;
 
   /** \brief scalar multiplication */
   SimpleQuaternion operator * (BVH_REAL t) const;
+  const SimpleQuaternion& operator *= (BVH_REAL t);
 
   /** \brief conjugate */
   SimpleQuaternion conj() const;
@@ -215,6 +219,25 @@ public:
   Vec3f transform(const Vec3f& v) const
   {
     return q.transform(v) + T;
+  }
+
+  const SimpleTransform& operator *= (const SimpleTransform& other)
+  {
+    T = q.transform(other.T) + T;
+    q *= other.q;
+    q.toRotation(R);
+
+    return *this;
+  }
+
+  SimpleTransform operator * (const SimpleTransform& other) const
+  {
+    SimpleQuaternion q_new = q * other.q;
+    SimpleTransform t;
+    t.q = q_new;
+    q_new.toRotation(t.R);
+    t.T = q.transform(other.T) + T;
+    return t;
   }
 
   bool isIdentity() const
