@@ -892,6 +892,12 @@ NODE_TYPE BVHModel<RSS>::getNodeType() const
 }
 
 template<>
+NODE_TYPE BVHModel<kIOS>::getNodeType() const
+{
+  return BV_KIOS;
+}
+
+template<>
 NODE_TYPE BVHModel<KDOP<16> >::getNodeType() const
 {
   return BV_KDOP16;
@@ -917,5 +923,5 @@ template class BVHModel<KDOP<24> >;
 template class BVHModel<OBB>;
 template class BVHModel<AABB>;
 template class BVHModel<RSS>;
-
+template class BVHModel<kIOS>;
 }

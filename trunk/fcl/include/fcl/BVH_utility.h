@@ -111,6 +111,15 @@ void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec
  */
 void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent);
 
+/** \brief Compute the center and radius for a triangle's circumcircle */
+void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, BVH_REAL& radius);
+
+/** \brief Compute the maximum distance from a given center point to a point cloud */
+BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query);
+
+BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query);
+
+
 }
 
 #endif

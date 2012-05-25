@@ -301,7 +301,18 @@ public:
   Vec3f T;
 };
 
+class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS>
+{
+public:
+  MeshCollisionTraversalNodekIOS();
+ 
+  bool BVTesting(int b1, int b2) const;
 
+  void leafTesting(int b1, int b2) const;
+
+  Matrix3f R;
+  Vec3f T;
+};
 
 #if USE_SVMLIGHT
 
@@ -1047,6 +1058,19 @@ public:
   Vec3f T;
 };
 
+
+class MeshDistanceTraversalNodekIOS : public MeshDistanceTraversalNode<kIOS>
+{
+public:
+  MeshDistanceTraversalNodekIOS();
+
+  BVH_REAL BVTesting(int b1, int b2) const;
+
+  void leafTesting(int b1, int b2) const;
+
+  Matrix3f R;
+  Vec3f T;
+};
 
 
 struct ConservativeAdvancementStackData

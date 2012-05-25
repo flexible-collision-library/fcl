@@ -43,6 +43,7 @@
 #include "fcl/vec_3f.h"
 #include "fcl/OBB.h"
 #include "fcl/RSS.h"
+#include "fcl/kIOS.h"
 #include <iostream>
 
 /** \brief Main namespace */
@@ -64,6 +65,9 @@ void fit<OBB>(Vec3f* ps, int n, OBB& bv);
 
 template<>
 void fit<RSS>(Vec3f* ps, int n, RSS& bv);
+
+template<>
+void fit<kIOS>(Vec3f* ps, int n, kIOS& bv);
 
 
 template<typename BV>
@@ -253,6 +257,52 @@ private:
   Triangle* tri_indices;
   BVHModelType type;
 };
+
+
+/** \brief Specification of BVFitter for kIOS bounding volume */
+template<>
+class BVFitter<kIOS> : public BVFitterBase<kIOS>
+{
+public:
+  /** \brief Prepare the geometry primitive data for fitting */
+  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  {
+    vertices = vertices_;
+    prev_vertices = NULL;
+    tri_indices = tri_indices_;
+    type = type_;
+  }
+
+  /** \brief Prepare the geometry primitive data for fitting */
+  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
+  {
+    vertices = vertices_;
+    prev_vertices = prev_vertices_;
+    tri_indices = tri_indices_;
+    type = type_;
+  }
+
+  /** \brief Compute a bounding volume that fits a set of primitives (points or triangles).
+   * The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
+   */
+  kIOS fit(unsigned int* primitive_indices, int num_primitives);
+
+  /** \brief Clear the geometry primitive data */
+  void clear()
+  {
+    vertices = NULL;
+    prev_vertices = NULL;
+    tri_indices = NULL;
+    type = BVH_MODEL_UNKNOWN;
+  }
+
+private:
+  Vec3f* vertices;
+  Vec3f* prev_vertices;
+  Triangle* tri_indices;
+  BVHModelType type;
+};
+
 
 }
 

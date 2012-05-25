@@ -39,16 +39,54 @@
 namespace fcl
 {
 
-void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+
+template<typename BV>
+void computeSplitVector(const BV& bv, Vec3f& split_vector)
+{
+  split_vector = bv.axis[0];
+}
+
+template<>
+void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
+{
+  switch(bv.num_spheres)
+  {
+  case 1:
+    split_vector = Vec3f(1, 0, 0);
+    break;
+  case 3:
+    {
+      Vec3f v[3];
+      v[0] = bv.spheres[1].o - bv.spheres[0].o;
+      v[0].normalize();
+      generateCoordinateSystem(v[0], v[1], v[2]);
+      split_vector = v[1];
+    }
+    break;
+  case 5:
+    {
+      Vec3f v[2];
+      v[0] = bv.spheres[1].o - bv.spheres[0].o;
+      v[1] = bv.spheres[3].o - bv.spheres[0].o;
+      split_vector = v[0].cross(v[1]);
+      split_vector.normalize();
+    }
+    break;
+  default:
+    ;
+  }
+}
+
+template<typename BV>
+void computeSplitValue_bvcenter(const BV& bv, BVH_REAL& split_value)
 {
   Vec3f center = bv.center();
-  split_vector = bv.axis[0];
   split_value = center[0];
 }
 
-void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+template<typename BV>
+void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, BVH_REAL& split_value)
 {
-  split_vector = bv.axis[0];
   BVH_REAL sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
   {
@@ -56,7 +94,7 @@ void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_in
 
     for(int i = 0; i < num_primitives; ++i)
     {
-      const Triangle& t = tri_indices[primitive_indices[i]];
+      const Triangle& t = triangles[primitive_indices[i]];
       const Vec3f& p1 = vertices[t[0]];
       const Vec3f& p2 = vertices[t[1]];
       const Vec3f& p3 = vertices[t[2]];
@@ -80,17 +118,16 @@ void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_in
   }
 }
 
-
-void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+template<typename BV>
+void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, BVH_REAL& split_value)
 {
-  split_vector = bv.axis[0];
   std::vector<BVH_REAL> proj(num_primitives);
 
   if(type == BVH_MODEL_TRIANGLES)
   {
     for(int i = 0; i < num_primitives; ++i)
     {
-      const Triangle& t = tri_indices[primitive_indices[i]];
+      const Triangle& t = triangles[primitive_indices[i]];
       const Vec3f& p1 = vertices[t[0]];
       const Vec3f& p2 = vertices[t[1]];
       const Vec3f& p3 = vertices[t[2]];
@@ -120,7 +157,64 @@ void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_
   else
   {
     split_value = (proj[num_primitives / 2] + proj[num_primitives / 2 - 1]) / 2;
-  }
+  }  
 }
+
+
+void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<OBB>(bv, split_vector);
+  computeSplitValue_bvcenter<OBB>(bv, split_value);
+}
+
+void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<OBB>(bv, split_vector);
+  computeSplitValue_mean<OBB>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<OBB>(bv, split_vector);
+  computeSplitValue_median<OBB>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+
+void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<RSS>(bv, split_vector);
+  computeSplitValue_bvcenter<RSS>(bv, split_value);
+}
+                                  
+void BVSplitter<RSS>::computeRule_mean(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<RSS>(bv, split_vector);
+  computeSplitValue_mean<RSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+void BVSplitter<RSS>::computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<RSS>(bv, split_vector);
+  computeSplitValue_median<RSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<kIOS>(bv, split_vector);
+  computeSplitValue_bvcenter<kIOS>(bv, split_value);
+}
+
+void BVSplitter<kIOS>::computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<kIOS>(bv, split_vector);
+  computeSplitValue_mean<kIOS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<kIOS>(bv, split_vector);
+  computeSplitValue_median<kIOS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
 
 }

@@ -141,5 +141,37 @@ void distance(MeshDistanceTraversalNodeRSS* node, BVHFrontList* front_list, int 
   node->p2 = node->R.transposeTimes(u);
 }
 
+void distance(MeshDistanceTraversalNodekIOS* node, BVHFrontList* front_list, int qsize)
+{
+  Triangle last_tri1 = node->tri_indices1[node->last_tri_id1];
+  Triangle last_tri2 = node->tri_indices2[node->last_tri_id2];
+
+  Vec3f last_tri1_points[3];
+  Vec3f last_tri2_points[3];
+
+  last_tri1_points[0] = node->vertices1[last_tri1[0]];
+  last_tri1_points[1] = node->vertices1[last_tri1[1]];
+  last_tri1_points[2] = node->vertices1[last_tri1[2]];
+
+  last_tri2_points[0] = node->vertices2[last_tri2[0]];
+  last_tri2_points[1] = node->vertices2[last_tri2[1]];
+  last_tri2_points[2] = node->vertices2[last_tri2[2]];
+
+  Vec3f last_tri_P, last_tri_Q;
+
+  node->min_distance = TriangleDistance::triDistance(last_tri1_points[0], last_tri1_points[1], last_tri1_points[2],
+                                                     last_tri2_points[0], last_tri2_points[1], last_tri2_points[2],
+                                                     node->R, node->T, last_tri_P, last_tri_Q);
+  node->p1 = last_tri_P;
+  node->p2 = node->R.transposeTimes(last_tri_Q - node->T);
+
+  if(qsize <= 2)
+    distanceRecurse(node, 0, 0, front_list);
+  else
+    distanceQueueRecurse(node, 0, 0, front_list, qsize);
+
+  Vec3f u = node->p2 - node->T;
+  node->p2 = node->R.transposeTimes(u);
+}
 
 }

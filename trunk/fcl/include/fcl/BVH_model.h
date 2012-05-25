@@ -285,6 +285,9 @@ template<>
 NODE_TYPE BVHModel<RSS>::getNodeType() const;
 
 template<>
+NODE_TYPE BVHModel<kIOS>::getNodeType() const;
+
+template<>
 NODE_TYPE BVHModel<KDOP<16> >::getNodeType() const;
 
 template<>

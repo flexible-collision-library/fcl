@@ -121,7 +121,7 @@ public:
   }
 
   /** \brief The RSS center */
-  inline Vec3f center() const
+  inline const Vec3f& center() const
   {
     return Tr;
   }

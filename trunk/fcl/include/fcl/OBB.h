@@ -118,7 +118,7 @@ public:
   }
 
   /** \brief Center of the OBB */
-  inline Vec3f center() const
+  inline const Vec3f& center() const
   {
     return To;
   }

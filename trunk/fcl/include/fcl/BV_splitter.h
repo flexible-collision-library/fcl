@@ -42,6 +42,8 @@
 #include "fcl/primitive.h"
 #include "fcl/vec_3f.h"
 #include "fcl/OBB.h"
+#include "fcl/RSS.h"
+#include "fcl/kIOS.h"
 #include <vector>
 #include <iostream>
 
@@ -301,6 +303,153 @@ private:
   BVHModelType type;
   SplitMethodType split_method;
 };
+
+
+/** \brief BVHSplitRule specialization for RSS */
+template<>
+class BVSplitter<RSS> : public BVSplitterBase<RSS>
+{
+public:
+
+  BVSplitter(SplitMethodType method)
+  {
+    split_method = method;
+  }
+
+  /** \brief Set the geometry data needed by the split rule */
+  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  {
+    vertices = vertices_;
+    tri_indices = tri_indices_;
+    type = type_;
+  }
+
+  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
+  void computeRule(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+  {
+    switch(split_method)
+    {
+      case SPLIT_METHOD_MEAN:
+        computeRule_mean(bv, primitive_indices, num_primitives);
+        break;
+      case SPLIT_METHOD_MEDIAN:
+        computeRule_median(bv, primitive_indices, num_primitives);
+        break;
+      case SPLIT_METHOD_BV_CENTER:
+        computeRule_bvcenter(bv, primitive_indices, num_primitives);
+        break;
+      default:
+        std::cerr << "Split method not supported" << std::endl;
+    }
+  }
+
+  /** \brief Apply the split rule on a given point */
+  bool apply(const Vec3f& q) const
+  {
+    return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  }
+
+  /** \brief Clear the geometry data set before */
+  void clear()
+  {
+    vertices = NULL;
+    tri_indices = NULL;
+    type = BVH_MODEL_UNKNOWN;
+  }
+
+private:
+
+  /** \brief Split the node from center */
+  void computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
+
+  /** \brief Split the node according to the mean of the data contained */
+  void computeRule_mean(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
+
+  /** \brief Split the node according to the median of the data contained */
+  void computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
+
+  BVH_REAL split_value;
+  Vec3f split_vector;
+
+  Vec3f* vertices;
+  Triangle* tri_indices;
+  BVHModelType type;
+  SplitMethodType split_method;
+};
+
+
+/** \brief BVHSplitRule specialization for RSS */
+template<>
+class BVSplitter<kIOS> : public BVSplitterBase<kIOS>
+{
+public:
+
+  BVSplitter(SplitMethodType method)
+  {
+    split_method = method;
+  }
+
+  /** \brief Set the geometry data needed by the split rule */
+  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  {
+    vertices = vertices_;
+    tri_indices = tri_indices_;
+    type = type_;
+  }
+
+  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
+  void computeRule(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+  {
+    switch(split_method)
+    {
+      case SPLIT_METHOD_MEAN:
+        computeRule_mean(bv, primitive_indices, num_primitives);
+        break;
+      case SPLIT_METHOD_MEDIAN:
+        computeRule_median(bv, primitive_indices, num_primitives);
+        break;
+      case SPLIT_METHOD_BV_CENTER:
+        computeRule_bvcenter(bv, primitive_indices, num_primitives);
+        break;
+      default:
+        std::cerr << "Split method not supported" << std::endl;
+    }
+  }
+
+  /** \brief Apply the split rule on a given point */
+  bool apply(const Vec3f& q) const
+  {
+    return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  }
+
+  /** \brief Clear the geometry data set before */
+  void clear()
+  {
+    vertices = NULL;
+    tri_indices = NULL;
+    type = BVH_MODEL_UNKNOWN;
+  }
+
+private:
+
+  /** \brief Split the node from center */
+  void computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
+
+  /** \brief Split the node according to the mean of the data contained */
+  void computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
+
+  /** \brief Split the node according to the median of the data contained */
+  void computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
+
+  BVH_REAL split_value;
+  Vec3f split_vector;
+
+  Vec3f* vertices;
+  Triangle* tri_indices;
+  BVHModelType type;
+  SplitMethodType split_method;
+};
+
 
 }
 

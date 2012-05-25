@@ -279,6 +279,10 @@ bool initialize(MeshCollisionTraversalNodeRSS& node,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2,
                 int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
 
+bool initialize(MeshCollisionTraversalNodekIOS& node,
+                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
+                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
 
 #if USE_SVMLIGHT
 
@@ -542,6 +546,11 @@ bool initialize(MeshDistanceTraversalNode<BV>& node,
 bool initialize(MeshDistanceTraversalNodeRSS& node,
                 const BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2);
+
+
+bool initialize(MeshDistanceTraversalNodekIOS& node,
+                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
+                const BVHModel<kIOS>& model2, const SimpleTransform& tf2);
 
 
 

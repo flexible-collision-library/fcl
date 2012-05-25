@@ -1026,6 +1026,81 @@ void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indic
 
 }
 
+void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, BVH_REAL& radius)
+{
+  Vec3f e1 = a - c;
+  Vec3f e2 = b - c;
+  BVH_REAL e1_len2 = e1.sqrLength();
+  BVH_REAL e2_len2 = e2.sqrLength();
+  Vec3f e3 = e1.cross(e2);
+  BVH_REAL e3_len2 = e3.sqrLength();
+  radius = e1_len2 * e2_len2 * (e1 - e2).sqrLength() / e3_len2;
+  radius = sqrt(radius) / 2.0;
+
+  center = (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2) + c;
+}
+
+
+BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
+{
+  bool indirect_index = true;
+  if(!indices) indirect_index = false;
+  
+  BVH_REAL maxD = 0;
+  for(int i = 0; i < n; ++i)
+  {
+    unsigned int index = indirect_index ? indices[i] : i;
+    const Triangle& t = ts[index];
+
+    for(int j = 0; j < 3; ++j)
+    {
+      int point_id = t[j];
+      const Vec3f& p = ps[point_id];
+      
+      BVH_REAL d = (p - query).sqrLength();
+      if(d > maxD) maxD = d;
+    }
+
+    if(ps2)
+    {
+      for(int j = 0; j < 3; ++j)
+      {
+        int point_id = t[j];
+        const Vec3f& p = ps2[point_id];
+        
+        BVH_REAL d = (p - query).sqrLength();
+        if(d > maxD) maxD = d;
+      }
+    }
+  }
+
+  return sqrt(maxD);
+}
+
+BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query)
+{
+  bool indirect_index = true;
+  if(!indices) indirect_index = false;
+
+  BVH_REAL maxD = 0;
+  for(unsigned int i = 0; i < n; ++i)
+  {
+    int index = indirect_index ? indices[i] : i;
+
+    const Vec3f& p = ps[index];
+    BVH_REAL d = (p - query).sqrLength();
+    if(d > maxD) maxD = d;
+
+    if(ps2)
+    {
+      const Vec3f& v = ps2[index];
+      BVH_REAL d = (v - query).sqrLength();
+      if(d > maxD) maxD = d;
+    }
+  }
+
+  return sqrt(maxD);
+}
 
 
 }

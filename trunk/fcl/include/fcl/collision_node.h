@@ -57,6 +57,8 @@ void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, 
 
 void distance(MeshDistanceTraversalNodeRSS* node, BVHFrontList* front_list = NULL, int qsize = 2);
 
+void distance(MeshDistanceTraversalNodekIOS* node, BVHFrontList* front_list = NULL, int qsize = 2);
+
 }
 
 #endif
