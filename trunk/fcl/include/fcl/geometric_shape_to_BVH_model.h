@@ -79,9 +79,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape, const SimpleTransfo
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = pose.transform(v);
-    points[i] = v;
+    points[i] = pose.transform(points[i]);
   }
 
   model.beginModel();
@@ -146,9 +144,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const SimpleTran
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = pose.transform(v);
-    points[i] = v;
+    points[i] = pose.transform(points[i]);
   }
 
   model.beginModel();
@@ -221,9 +217,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, const SimpleTra
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = pose.transform(v);
-    points[i] = v;
+    points[i] = pose.transform(points[i]);
   }
 
   model.beginModel();
@@ -298,9 +292,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const SimpleTr
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = pose.transform(v);
-    points[i] = v;
+    points[i] = pose.transform(points[i]);
   }
 
   model.beginModel();
@@ -378,9 +370,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, const SimpleT
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = pose.transform(v);
-    points[i] = v;
+    points[i] = pose.transform(points[i]);
   }
 
   model.beginModel();
@@ -453,9 +443,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const SimpleTransf
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    Vec3f v = shape.getLocalRotation() * points[i] + shape.getLocalTranslation();
-    v = pose.transform(v);
-    points[i] = v;
+    points[i] = pose.transform(points[i]);
   }
 
   model.beginModel();

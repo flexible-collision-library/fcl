@@ -51,7 +51,7 @@ typedef int (*CollisionFunc)(const CollisionGeometry* o1, const SimpleTransform&
 
 struct CollisionFunctionMatrix
 {
-  CollisionFunc collision_matrix[14][14];
+  CollisionFunc collision_matrix[15][15];
 
   CollisionFunctionMatrix();
 };

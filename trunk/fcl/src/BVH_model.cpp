@@ -894,7 +894,7 @@ NODE_TYPE BVHModel<RSS>::getNodeType() const
 template<>
 NODE_TYPE BVHModel<kIOS>::getNodeType() const
 {
-  return BV_KIOS;
+  return BV_kIOS;
 }
 
 template<>

@@ -151,6 +151,20 @@ public:
     q.fromRotation(R_);
   }
 
+  SimpleTransform(const Matrix3f& R_)
+  {
+    R = R_;
+    q.fromRotation(R_);
+    T.setValue(0.0);
+  }
+
+  SimpleTransform(const Vec3f& T_)
+  {
+    T = T_;
+    R.setIdentity();
+    q = SimpleQuaternion();
+  }
+
   inline const Vec3f& getTranslation() const
   {
     return T;

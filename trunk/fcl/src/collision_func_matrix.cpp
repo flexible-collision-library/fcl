@@ -66,7 +66,7 @@ int ShapeShapeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, c
 
 
 template<typename T_BVH, typename T_SH>
-int BVHShapeContactCollection(const std::vector<BVHShapeCollisionPair>& pairs, const BVHModel<T_BVH>* obj1, const T_SH* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+static inline int BVHShapeContactCollection(const std::vector<BVHShapeCollisionPair>& pairs, const BVHModel<T_BVH>* obj1, const T_SH* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
   int num_contacts = pairs.size();
   if(num_contacts > 0)
@@ -164,7 +164,7 @@ struct BVHShapeCollider<kIOS, T_SH>
 */
 
 template<typename T_BVH>
-int BVHContactCollection(const std::vector<BVHCollisionPair>& pairs, const BVHModel<T_BVH>* obj1, const BVHModel<T_BVH>* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+static inline int BVHContactCollection(const std::vector<BVHCollisionPair>& pairs, const BVHModel<T_BVH>* obj1, const BVHModel<T_BVH>* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
   int num_contacts = pairs.size();
   if(num_contacts > 0)
@@ -188,7 +188,7 @@ int BVHContactCollection(const std::vector<BVHCollisionPair>& pairs, const BVHMo
 
 
 template<typename T_BVH>
-int BVHContactCollection_OBB_and_RSS_and_kIOS(const std::vector<BVHCollisionPair>& pairs, const SimpleTransform& tf1, const BVHModel<T_BVH>* obj1, const BVHModel<T_BVH>* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+static inline int BVHContactCollection_OBB_and_RSS_and_kIOS(const std::vector<BVHCollisionPair>& pairs, const SimpleTransform& tf1, const BVHModel<T_BVH>* obj1, const BVHModel<T_BVH>* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
   int num_contacts = pairs.size();
   if(num_contacts > 0)
@@ -264,9 +264,9 @@ int BVHCollide<kIOS>(const CollisionGeometry* o1, const SimpleTransform& tf1, co
 
 CollisionFunctionMatrix::CollisionFunctionMatrix()
 {
-  for(int i = 0; i < 14; ++i)
+  for(int i = 0; i < 15; ++i)
   {
-    for(int j = 0; j < 14; ++j)
+    for(int j = 0; j < 15; ++j)
       collision_matrix[i][j] = NULL;
   }
 
@@ -374,55 +374,13 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_KDOP24][GEOM_CONVEX] = &BVHShapeCollider<KDOP<24>, Convex>::collide;
   collision_matrix[BV_KDOP24][GEOM_PLANE] = &BVHShapeCollider<KDOP<24>, Plane>::collide;
 
-  /*
-  collision_matrix[GEOM_BOX][BV_AABB] = BoxAABBCollide;
-  collision_matrix[GEOM_SPHERE][BV_AABB] = SphereAABBCollide;
-  collision_matrix[GEOM_CAPSULE][BV_AABB] = CapAABBCollide;
-  collision_matrix[GEOM_CONE][BV_AABB] = ConeAABBCollide;
-  collision_matrix[GEOM_CYLINDER][BV_AABB] = CylinderAABBCollide;
-  collision_matrix[GEOM_CONVEX][BV_AABB] = ConvexAABBCollide;
-  collision_matrix[GEOM_PLANE][BV_AABB] = PlaneAABBCollide;
-
-  collision_matrix[GEOM_BOX][BV_OBB] = BoxOBBCollide;
-  collision_matrix[GEOM_SPHERE][BV_OBB] = SphereOBBCollide;
-  collision_matrix[GEOM_CAPSULE][BV_OBB] = CapOBBCollide;
-  collision_matrix[GEOM_CONE][BV_OBB] = ConeOBBCollide;
-  collision_matrix[GEOM_CYLINDER][BV_OBB] = CylinderOBBCollide;
-  collision_matrix[GEOM_CONVEX][BV_OBB] = ConvexOBBCollide;
-  collision_matrix[GEOM_PLANE][BV_OBB] = PlaneOBBCollide;
-
-  collision_matrix[GEOM_BOX][BV_RSS] = BoxRSSCollide;
-  collision_matrix[GEOM_SPHERE][BV_RSS] = SphereRSSCollide;
-  collision_matrix[GEOM_CAPSULE][BV_RSS] = CapRSSCollide;
-  collision_matrix[GEOM_CONE][BV_RSS] = ConeRSSCollide;
-  collision_matrix[GEOM_CYLINDER][BV_RSS] = CylinderRSSCollide;
-  collision_matrix[GEOM_CONVEX][BV_RSS] = ConvexRSSCollide;
-  collision_matrix[GEOM_PLANE][BV_RSS] = PlaneRSSCollide;
-
-  collision_matrix[GEOM_BOX][BV_KDOP16] = BoxKDOP16Collide;
-  collision_matrix[GEOM_SPHERE][BV_KDOP16] = SphereKDOP16Collide;
-  collision_matrix[GEOM_CAPSULE][BV_KDOP16] = CapKDOP16Collide;
-  collision_matrix[GEOM_CONE][BV_KDOP16] = ConeKDOP16Collide;
-  collision_matrix[GEOM_CYLINDER][BV_KDOP16] = CylinderKDOP16Collide;
-  collision_matrix[GEOM_CONVEX][BV_KDOP16] = ConvexKDOP16Collide;
-  collision_matrix[GEOM_PLANE][BV_KDOP16] = PlaneKDOP16Collide;
-
-  collision_matrix[GEOM_BOX][BV_KDOP18] = BoxKDOP18Collide;
-  collision_matrix[GEOM_SPHERE][BV_KDOP18] = SphereKDOP18Collide;
-  collision_matrix[GEOM_CAPSULE][BV_KDOP18] = CapKDOP18Collide;
-  collision_matrix[GEOM_CONE][BV_KDOP18] = ConeKDOP18Collide;
-  collision_matrix[GEOM_CYLINDER][BV_KDOP18] = CylinderKDOP18Collide;
-  collision_matrix[GEOM_CONVEX][BV_KDOP18] = ConvexKDOP18Collide;
-  collision_matrix[GEOM_PLANE][BV_KDOP18] = PlaneKDOP18Collide;
-
-  collision_matrix[GEOM_BOX][BV_KDOP24] = BoxKDOP24Collide;
-  collision_matrix[GEOM_SPHERE][BV_KDOP24] = SphereKDOP24Collide;
-  collision_matrix[GEOM_CAPSULE][BV_KDOP24] = CapKDOP24Collide;
-  collision_matrix[GEOM_CONE][BV_KDOP24] = ConeKDOP24Collide;
-  collision_matrix[GEOM_CYLINDER][BV_KDOP24] = CylinderKDOP24Collide;
-  collision_matrix[GEOM_CONVEX][BV_KDOP24] = ConvexKDOP24Collide;
-  collision_matrix[GEOM_PLANE][BV_KDOP24] = PlaneKDOP24Collide;
-  */
+  collision_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeCollider<kIOS, Box>::collide;
+  collision_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeCollider<kIOS, Sphere>::collide;
+  collision_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeCollider<kIOS, Capsule>::collide;
+  collision_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeCollider<kIOS, Cone>::collide;
+  collision_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeCollider<kIOS, Cylinder>::collide;
+  collision_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeCollider<kIOS, Convex>::collide;
+  collision_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeCollider<kIOS, Plane>::collide;
 
   collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABB>;
   collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBB>;
@@ -430,6 +388,7 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_KDOP16][BV_KDOP16] = &BVHCollide<KDOP<16> >;
   collision_matrix[BV_KDOP18][BV_KDOP18] = &BVHCollide<KDOP<18> >;
   collision_matrix[BV_KDOP24][BV_KDOP24] = &BVHCollide<KDOP<24> >;
+  collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS>;
 }
 
 }

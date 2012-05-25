@@ -51,63 +51,10 @@ class ShapeBase : public CollisionGeometry
 {
 public:
   /** \brief Default Constructor */
-  ShapeBase()
-  {
-    Rloc.setIdentity();
-  }
-
-  /** \brief Set the local frame of the shape */
-  void setLocalTransform(const Matrix3f& R_, const Vec3f& T_)
-  {
-    Rloc = R_;
-    Tloc = T_;
-  }
-
-  /** \brief Set the local orientation of the shape */
-  void setLocalRotation(const Matrix3f& R)
-  {
-    Rloc = R;
-  }
-
-  /** \brief Set the local position of the shape */
-  void setLocalTranslation(const Vec3f& T)
-  {
-    Tloc = T;
-  }
-
-  /** \brief Append additional transform to the local transform */
-  void appendLocalTransform(const Matrix3f& R, const Vec3f& T)
-  {
-    Rloc = R * Rloc;
-    Tloc = R * Tloc + T;
-  }
-
-  /** \brief Get local transform */
-  void getLocalTransform(Matrix3f& R, Vec3f& T) const
-  {
-    T = Tloc;
-    R = Rloc;
-  }
-
-  /** \brief Get local position */
-  inline const Vec3f& getLocalTranslation() const
-  {
-    return Tloc;
-  }
-
-  /** \brief Get local orientation */
-  inline const Matrix3f& getLocalRotation() const
-  {
-    return Rloc;
-  }
+  ShapeBase() {}
 
   /** \brief Get object type: a geometric shape */
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
-
-protected:
-
-  Matrix3f Rloc;
-  Vec3f Tloc;
 };
 
 
