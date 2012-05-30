@@ -51,6 +51,10 @@ public:
 
   virtual ~TraversalNodeBase();
 
+  virtual void preprocess() {}
+  
+  virtual void postprocess() {}
+
   /** \brief Whether b is a leaf node in the first BVH tree */
   virtual bool isFirstNodeLeaf(int b) const;
 

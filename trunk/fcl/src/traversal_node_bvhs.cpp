@@ -422,10 +422,61 @@ void PointCloudMeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 
 #endif
 
+
+
+
+static inline void distance_preprocess(Vec3f* vertices1, Vec3f* vertices2,
+                                       Triangle* tri_indices1, Triangle* tri_indices2,
+                                       int last_tri_id1, int last_tri_id2,
+                                       const Matrix3f& R, const Vec3f& T,
+                                       BVH_REAL& min_distance,
+                                       Vec3f& p1,
+                                       Vec3f& p2)
+{
+  const Triangle& last_tri1 = tri_indices1[last_tri_id1];
+  const Triangle& last_tri2 = tri_indices2[last_tri_id2];
+
+  Vec3f last_tri1_points[3];
+  Vec3f last_tri2_points[3];
+
+  last_tri1_points[0] = vertices1[last_tri1[0]];
+  last_tri1_points[1] = vertices1[last_tri1[1]];
+  last_tri1_points[2] = vertices1[last_tri1[2]];
+
+  last_tri2_points[0] = vertices2[last_tri2[0]];
+  last_tri2_points[1] = vertices2[last_tri2[1]];
+  last_tri2_points[2] = vertices2[last_tri2[2]];
+
+  Vec3f last_tri_P, last_tri_Q;
+
+  min_distance = TriangleDistance::triDistance(last_tri1_points[0], last_tri1_points[1], last_tri1_points[2],
+                                               last_tri2_points[0], last_tri2_points[1], last_tri2_points[2],
+                                               R, T, last_tri_P, last_tri_Q);
+  p1 = last_tri_P;
+  p2 = R.transposeTimes(last_tri_Q - T);
+}
+
+static inline void distance_postprocess(const Matrix3f& R, const Vec3f& T, Vec3f& p2)
+{
+  Vec3f u = p2 - T;
+  p2 = R.transposeTimes(u);
+}
+
+
 MeshDistanceTraversalNodeRSS::MeshDistanceTraversalNodeRSS() : MeshDistanceTraversalNode<RSS>()
 {
   R.setIdentity();
   // default T is 0
+}
+
+void MeshDistanceTraversalNodeRSS::preprocess()
+{
+  distance_preprocess(vertices1, vertices2, tri_indices1, tri_indices2, last_tri_id1, last_tri_id2, R, T, min_distance, p1, p2);
+}
+
+void MeshDistanceTraversalNodeRSS::postprocess()
+{
+  distance_postprocess(R, T, p2);
 }
 
 BVH_REAL MeshDistanceTraversalNodeRSS::BVTesting(int b1, int b2) const
@@ -447,6 +498,16 @@ MeshDistanceTraversalNodekIOS::MeshDistanceTraversalNodekIOS() : MeshDistanceTra
   // default T is 0
 }
 
+void MeshDistanceTraversalNodekIOS::preprocess()
+{
+  distance_preprocess(vertices1, vertices2, tri_indices1, tri_indices2, last_tri_id1, last_tri_id2, R, T, min_distance, p1, p2);
+}
+
+void MeshDistanceTraversalNodekIOS::postprocess()
+{
+  distance_postprocess(R, T, p2);
+}
+
 BVH_REAL MeshDistanceTraversalNodekIOS::BVTesting(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
@@ -464,6 +525,16 @@ MeshDistanceTraversalNodeOBBRSS::MeshDistanceTraversalNodeOBBRSS() : MeshDistanc
 {
   R.setIdentity();
   // default T is 0
+}
+
+void MeshDistanceTraversalNodeOBBRSS::preprocess()
+{
+  distance_preprocess(vertices1, vertices2, tri_indices1, tri_indices2, last_tri_id1, last_tri_id2, R, T, min_distance, p1, p2);
+}
+
+void MeshDistanceTraversalNodeOBBRSS::postprocess()
+{
+  distance_postprocess(R, T, p2);
 }
 
 BVH_REAL MeshDistanceTraversalNodeOBBRSS::BVTesting(int b1, int b2) const

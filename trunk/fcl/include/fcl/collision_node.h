@@ -54,13 +54,6 @@ void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list = NU
 void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
 
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
-
-void distance(MeshDistanceTraversalNodeRSS* node, BVHFrontList* front_list = NULL, int qsize = 2);
-
-void distance(MeshDistanceTraversalNodekIOS* node, BVHFrontList* front_list = NULL, int qsize = 2);
-
-void distance(MeshDistanceTraversalNodeOBBRSS* node, BVHFrontList* front_list = NULL, int qsize = 2);
-
 }
 
 #endif

@@ -1063,6 +1063,10 @@ class MeshDistanceTraversalNodeRSS : public MeshDistanceTraversalNode<RSS>
 public:
   MeshDistanceTraversalNodeRSS();
 
+  void preprocess();
+
+  void postprocess();
+
   BVH_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
@@ -1077,6 +1081,10 @@ class MeshDistanceTraversalNodekIOS : public MeshDistanceTraversalNode<kIOS>
 public:
   MeshDistanceTraversalNodekIOS();
 
+  void preprocess();
+  
+  void postprocess();
+
   BVH_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
@@ -1089,6 +1097,10 @@ class MeshDistanceTraversalNodeOBBRSS : public MeshDistanceTraversalNode<OBBRSS>
 {
 public:
   MeshDistanceTraversalNodeOBBRSS();
+
+  void preprocess();
+
+  void postprocess();
 
   BVH_REAL BVTesting(int b1, int b2) const;
 
