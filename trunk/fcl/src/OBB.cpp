@@ -273,7 +273,7 @@ OBB OBB::merge_largedist(const OBB& b1, const OBB& b2)
   for(int i = 0; i < 16; ++i)
     vertex_proj[i] = vertex[i] - R0 * vertex[i].dot(R0);
 
-  getCovariance(vertex_proj, NULL, NULL, 16, M);
+  getCovariance(vertex_proj, NULL, NULL, NULL, 16, M);
   matEigen(M, s, E);
 
   int min, mid, max;
@@ -289,7 +289,7 @@ OBB OBB::merge_largedist(const OBB& b1, const OBB& b2)
 
   // set obb centers and extensions
   Vec3f center, extent;
-  getExtentAndCenter(vertex, NULL, NULL, 16, b.axis, center, extent);
+  getExtentAndCenter(vertex, NULL, NULL, NULL, 16, b.axis, center, extent);
 
   b.To = center;
   b.extent = extent;

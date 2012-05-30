@@ -72,7 +72,7 @@ public:
   }
 
   /** \brief Check whether the OBB contains a point */
-  inline bool contain(const Vec3f& p) const;
+  bool contain(const Vec3f& p) const;
 
   /** \brief A simple way to merge the OBB and a point, not compact. */
   OBB& operator += (const Vec3f& p);

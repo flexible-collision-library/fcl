@@ -186,9 +186,9 @@ static inline int BVHContactCollection(const std::vector<BVHCollisionPair>& pair
   return num_contacts;
 }
 
-
+// for OBB-alike contact 
 template<typename T_BVH>
-static inline int BVHContactCollection_OBB_and_RSS_and_kIOS(const std::vector<BVHCollisionPair>& pairs, const SimpleTransform& tf1, const BVHModel<T_BVH>* obj1, const BVHModel<T_BVH>* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+static inline int BVHContactCollection2(const std::vector<BVHCollisionPair>& pairs, const SimpleTransform& tf1, const BVHModel<T_BVH>* obj1, const BVHModel<T_BVH>* obj2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
   int num_contacts = pairs.size();
   if(num_contacts > 0)
@@ -246,8 +246,22 @@ int BVHCollide<OBB>(const CollisionGeometry* o1, const SimpleTransform& tf1, con
   initialize(node, *obj1, tf1, *obj2, tf2, num_max_contacts, exhaustive, enable_contact);
   collide(&node);
 
-  return BVHContactCollection_OBB_and_RSS_and_kIOS(node.pairs, tf1, obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
+  return BVHContactCollection2(node.pairs, tf1, obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
 }
+
+template<>
+int BVHCollide<OBBRSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  MeshCollisionTraversalNodeOBBRSS node;
+  const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
+  const BVHModel<OBBRSS>* obj2 = static_cast<const BVHModel<OBBRSS>* >(o2);
+
+  initialize(node, *obj1, tf1, *obj2, tf2, num_max_contacts, exhaustive, enable_contact);
+  collide(&node);
+
+  return BVHContactCollection2(node.pairs, tf1, obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
+}
+
 
 template<>
 int BVHCollide<kIOS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
@@ -259,14 +273,15 @@ int BVHCollide<kIOS>(const CollisionGeometry* o1, const SimpleTransform& tf1, co
   initialize(node, *obj1, tf1, *obj2, tf2, num_max_contacts, exhaustive, enable_contact);
   collide(&node);
 
-  return BVHContactCollection_OBB_and_RSS_and_kIOS(node.pairs, tf1,  obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
+  return BVHContactCollection2(node.pairs, tf1,  obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
 }
+
 
 CollisionFunctionMatrix::CollisionFunctionMatrix()
 {
-  for(int i = 0; i < 15; ++i)
+  for(int i = 0; i < 16; ++i)
   {
-    for(int j = 0; j < 15; ++j)
+    for(int j = 0; j < 16; ++j)
       collision_matrix[i][j] = NULL;
   }
 
@@ -382,6 +397,14 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeCollider<kIOS, Convex>::collide;
   collision_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeCollider<kIOS, Plane>::collide;
 
+  collision_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeCollider<OBBRSS, Box>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeCollider<OBBRSS, Sphere>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeCollider<OBBRSS, Capsule>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeCollider<OBBRSS, Cone>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeCollider<OBBRSS, Cylinder>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeCollider<OBBRSS, Convex>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeCollider<OBBRSS, Plane>::collide;
+
   collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABB>;
   collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBB>;
   collision_matrix[BV_RSS][BV_RSS] = &BVHCollide<RSS>;
@@ -389,6 +412,7 @@ CollisionFunctionMatrix::CollisionFunctionMatrix()
   collision_matrix[BV_KDOP18][BV_KDOP18] = &BVHCollide<KDOP<18> >;
   collision_matrix[BV_KDOP24][BV_KDOP24] = &BVHCollide<KDOP<24> >;
   collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS>;
+  collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS>;
 }
 
 }

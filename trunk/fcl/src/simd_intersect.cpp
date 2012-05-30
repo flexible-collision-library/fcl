@@ -1,0 +1,406 @@
+#include "fcl/simd_intersect.h"
+
+namespace fcl
+{
+
+#if COLLISION_USE_SSE
+#include <xmmintrin.h>
+#include <pmmintrin.h>
+
+static inline __m128 sse_four_spheres_intersect(const Vec3f& o1, BVH_REAL r1,
+                                                const Vec3f& o2, BVH_REAL r2,
+                                                const Vec3f& o3, BVH_REAL r3,
+                                                const Vec3f& o4, BVH_REAL r4,
+                                                const Vec3f& o5, BVH_REAL r5,
+                                                const Vec3f& o6, BVH_REAL r6,
+                                                const Vec3f& o7, BVH_REAL r7,
+                                                const Vec3f& o8, BVH_REAL r8)
+{
+  __m128 PX, PY, PZ, PR, QX, QY, QZ, QR;
+  PX = _mm_set_ps(o1[0], o2[0], o3[0], o4[0]);
+  PY = _mm_set_ps(o1[1], o2[1], o3[1], o4[1]);
+  PZ = _mm_set_ps(o1[2], o2[2], o3[2], o4[2]);
+  PR = _mm_set_ps(r1, r2, r3, r4);
+  QX = _mm_set_ps(o5[0], o6[0], o7[0], o8[0]);
+  QY = _mm_set_ps(o5[1], o6[1], o7[1], o8[1]);
+  QZ = _mm_set_ps(o5[2], o6[2], o7[2], o8[2]);
+  QR = _mm_set_ps(r5, r6, r7, r8);
+
+  __m128 T1 = _mm_sub_ps(PX, QX);
+  __m128 T2 = _mm_sub_ps(PY, QY);
+  __m128 T3 = _mm_sub_ps(PZ, QZ);
+  __m128 T4 = _mm_add_ps(PR, QR);
+  T1 = _mm_mul_ps(T1, T1);
+  T2 = _mm_mul_ps(T2, T2);
+  T3 = _mm_mul_ps(T3, T3);
+  T4 = _mm_mul_ps(T4, T4);
+  T1 = _mm_add_ps(T1, T2);
+  T2 = _mm_sub_ps(R2, T3);
+  return _mm_cmple_ps(T1, T2);
+}
+
+
+static inline __m128 sse_four_spheres_four_AABBs_intersect(const Vec3f& o1, BVH_REAL r1,
+                                                           const Vec3f& o2, BVH_REAL r2,
+                                                           const Vec3f& o3, BVH_REAL r3,
+                                                           const Vec3f& o4, BVH_REAL r4,
+                                                           const Vec3f& min1, const Vec3f& max1,
+                                                           const Vec3f& min2, const Vec3f& max2,
+                                                           const Vec3f& min3, const Vec3f& max3,
+                                                           const Vec3f& min4, const Vec3f& max4)
+{
+  __m128 MINX, MINY, MINZ, MAXX, MAXX, MAXY, MAXZ, SX, SY, SZ, SR;
+  MINX = _mm_set_ps(min1[0], min2[0], min3[0], min4[0]);
+  MAXX = _mm_set_ps(max1[0], max2[0], max3[0], max4[0]);
+  MINY = _mm_set_ps(min1[1], min2[1], min3[1], min4[1]);
+  MAXY = _mm_set_ps(max1[1], max2[1], max3[1], max4[1]);
+  MINZ = _mm_set_ps(min1[2], min2[2], min3[2], min4[2]);
+  MAXZ = _mm_set_ps(max1[2], max2[2], max3[2], max4[2]);
+  SX = _mm_set_ps(o1[0], o2[0], o3[0], o4[0]);
+  SY = _mm_set_ps(o1[1], o2[1], o3[1], o4[1]);
+  SZ = _mm_set_ps(o1[2], o2[2], o3[2], o4[2]);
+  SR = _mm_set_ps(r1, r2, r3, r4);
+
+
+  __m128 TX = _mm_max_ps(SX, MINX);
+  __m128 TY = _mm_max_ps(SY, MINY);
+  __m128 TZ = _mm_max_ps(SZ, MINZ);
+  TX = _mm_min_ps(TX, MAXX);
+  TY = _mm_min_ps(TY, MAXY);
+  TZ = _mm_min_ps(TZ, MAXZ);
+  __m128 DX = _mm_sub_ps(SX, TX);
+  __m128 DY = _mm_sub_ps(SY, TY);
+  __m128 DZ = _mm_sub_ps(SZ, TZ);
+  __m128 R2 = _mm_mul_ps(SR, SR);
+  DX = _mm_mul_ps(DX, DX);
+  DY = _mm_mul_ps(DY, DY);
+  DZ = _mm_mul_ps(DZ, DZ);
+  __m128 T1 = _mm_add_ps(DX, DY);
+  __m128 T2 = _mm_sub_ps(R2, DZ);
+  return _mm_cmple_ps(T1, T2);  
+}
+
+
+static inline __m128 sse_four_AABBs_intersect(const Vec3f& min1, const Vec3f& max1,
+                                              const Vec3f& min2, const Vec3f& max2,
+                                              const Vec3f& min3, const Vec3f& max3,
+                                              const Vec3f& min4, const Vec3f& max4,
+                                              const Vec3f& min5, const Vec3f& max5,
+                                              const Vec3f& min6, const Vec3f& max6,
+                                              const Vec3f& min7, const Vec3f& max7,
+                                              const Vec3f& min8, const Vec3f& max8)
+{
+  __m128 MIN1X, MIN1Y, MIN1Z, MAX1X, MAX1Y, MAX1Z, MIN2X, MIN2Y, MIN2Z, MAX2X, MAX2Y, MAX2Z;
+  MIN1X = _mm_set_ps(min1[0], min2[0], min3[0], min4[0]);
+  MAX1X = _mm_set_ps(max1[0], max2[0], max3[0], max4[0]);
+  MIN1Y = _mm_set_ps(min1[1], min2[1], min3[1], min4[1]);
+  MAX1Y = _mm_set_ps(max1[1], max2[1], max3[1], max4[1]);
+  MIN1Z = _mm_set_ps(min1[2], min2[2], min3[2], min4[2]);
+  MAX1Z = _mm_set_ps(max1[2], max2[2], max3[2], max4[2]);
+  MIN2X = _mm_set_ps(min5[0], min6[0], min7[0], min8[0]);
+  MAX2X = _mm_set_ps(max5[0], max6[0], max7[0], max8[0]);
+  MIN2Y = _mm_set_ps(min5[1], min6[1], min7[1], min8[1]);
+  MAX2Y = _mm_set_ps(max5[1], max6[1], max7[1], max8[1]);
+  MIN2Z = _mm_set_ps(min5[2], min6[2], min7[2], min8[2]);
+  MAX2Z = _mm_set_ps(max5[2], max6[2], max7[2], max8[2]);
+
+  __m128 AX = _mm_max_ps(MIN1X, MIN2X);
+  __m128 BX = _mm_min_ps(MAX1X, MAX2X);
+  __m128 AY = _mm_max_ps(MIN1Y, MIN2Y);
+  __m128 BY = _mm_min_ps(MAX1Y, MAX2Y);
+  __m128 AZ = _mm_max_ps(MIN1Z, MIN2Z);
+  __m128 BZ = _mm_min_ps(MAX1Z, MAX2Z);
+  __m128 T1 = _mm_cmple_ps(AX, BX);
+  __m128 T2 = _mm_cmple_ps(AY, BY);
+  __m128 T3 = _mm_cmple_ps(AZ, BZ);
+  __m128 T4 = _mm_and_ps(T1, T2);
+  return _mm_and_ps(T3, T4);
+}
+
+bool four_spheres_intersect_and(const Vec3f& o1, BVH_REAL r1,
+                                const Vec3f& o2, BVH_REAL r2,
+                                const Vec3f& o3, BVH_REAL r3,
+                                const Vec3f& o4, BVH_REAL r4,
+                                const Vec3f& o5, BVH_REAL r5,
+                                const Vec3f& o6, BVH_REAL r6,
+                                const Vec3f& o7, BVH_REAL r7,
+                                const Vec3f& o8, BVH_REAL r8)
+{
+  __m128 CMP = four_spheres_intersect(o1, r1, o2, r2, o3, r3, o4, r4, o5, r5, o6, r6, o7, r7, o8, r8);
+  return _mm_movemask_ps(CMP) == 15.f;
+}
+
+bool four_spheres_intersect_or(const Vec3f& o1, BVH_REAL r1,
+                               const Vec3f& o2, BVH_REAL r2,
+                               const Vec3f& o3, BVH_REAL r3,
+                               const Vec3f& o4, BVH_REAL r4,
+                               const Vec3f& o5, BVH_REAL r5,
+                               const Vec3f& o6, BVH_REAL r6,
+                               const Vec3f& o7, BVH_REAL r7,
+                               const Vec3f& o8, BVH_REAL r8)
+{
+  __m128 CMP = four_spheres_intersect(o1, r1, o2, r2, o3, r3, o4, r4, o5, r5, o6, r6, o7, r7, o8, r8);
+  return __mm_movemask_ps(CMP) > 0;
+}
+
+/** \brief four spheres versus four AABBs SIMD test */
+bool four_spheres_four_AABBs_intersect_and(const Vec3f& o1, BVH_REAL r1,
+                                           const Vec3f& o2, BVH_REAL r2,
+                                           const Vec3f& o3, BVH_REAL r3,
+                                           const Vec3f& o4, BVH_REAL r4,
+                                           const Vec3f& min1, const Vec3f& max1,
+                                           const Vec3f& min2, const Vec3f& max2,
+                                           const Vec3f& min3, const Vec3f& max3,
+                                           const Vec3f& min4, const Vec3f& max4)
+{
+  __m128 CMP = four_spheres_four_AABBs_intersect(o1, r1, o2, r2, o3, r3, o4, r4, min1, max1, min2, max2, min3, max3, min4, max4);
+  return _mm_movemask_ps(CMP) == 15.f;
+}
+
+bool four_spheres_four_AABBs_intersect_or(const Vec3f& o1, BVH_REAL r1,
+                                          const Vec3f& o2, BVH_REAL r2,
+                                          const Vec3f& o3, BVH_REAL r3,
+                                          const Vec3f& o4, BVH_REAL r4,
+                                          const Vec3f& min1, const Vec3f& max1,
+                                          const Vec3f& min2, const Vec3f& max2,
+                                          const Vec3f& min3, const Vec3f& max3,
+                                          const Vec3f& min4, const Vec3f& max4)
+{
+  __m128 CMP = four_spheres_four_AABBs_intersect(o1, r1, o2, r2, o3, r3, o4, r4, min1, max1, min2, max2, min3, max3, min4, max4);
+  return _mm_movemask_ps(CMP) > 0;
+}
+
+/** \brief four AABBs versus four AABBs SIMD test */
+bool four_AABBs_intersect_and(const Vec3f& min1, const Vec3f& max1,
+                              const Vec3f& min2, const Vec3f& max2,
+                              const Vec3f& min3, const Vec3f& max3,
+                              const Vec3f& min4, const Vec3f& max4,
+                              const Vec3f& min5, const Vec3f& max5,
+                              const Vec3f& min6, const Vec3f& max6,
+                              const Vec3f& min7, const Vec3f& max7,
+                              const Vec3f& min8, const Vec3f& max8)
+{
+  __m128 CMP = four_AABBs_intersect(min1, max1, min2, max2, min3, max3, min4, max4, min5, max5, min6, max6, min7, max7, min8, max8);
+  return _mm_movemask_ps(CMP) == 15.f;
+}
+
+bool four_AABBs_intersect_or(const Vec3f& min1, const Vec3f& max1,
+                             const Vec3f& min2, const Vec3f& max2,
+                             const Vec3f& min3, const Vec3f& max3,
+                             const Vec3f& min4, const Vec3f& max4,
+                             const Vec3f& min5, const Vec3f& max5,
+                             const Vec3f& min6, const Vec3f& max6,
+                             const Vec3f& min7, const Vec3f& max7,
+                             const Vec3f& min8, const Vec3f& max8)
+{
+  __m128 CMP = four_AABBs_intersect(min1, max1, min2, max2, min3, max3, min4, max4, min5, max5, min6, max6, min7, max7, min8, max8);
+  return _mm_movemask_ps(CMP) > 0;
+}
+
+#else
+
+bool four_spheres_intersect_and(const Vec3f& o1, BVH_REAL r1,
+                                const Vec3f& o2, BVH_REAL r2,
+                                const Vec3f& o3, BVH_REAL r3,
+                                const Vec3f& o4, BVH_REAL r4,
+                                const Vec3f& o5, BVH_REAL r5,
+                                const Vec3f& o6, BVH_REAL r6,
+                                const Vec3f& o7, BVH_REAL r7,
+                                const Vec3f& o8, BVH_REAL r8)
+{
+  BVH_REAL r;
+
+  r = r1 + r5;
+  if((o1 - o5).sqrLength() > r * r) return false;
+  r = r2 + r6;
+  if((o2 - o6).sqrLength() > r * r) return false;
+  r = r3 + r7;
+  if((o3 - o7).sqrLength() > r * r) return false;
+  r = r4 + r8;
+  if((o4 - o8).sqrLength() > r * r) return false;
+
+  return true;
+}
+
+bool four_spheres_intersect_or(const Vec3f& o1, BVH_REAL r1,
+                               const Vec3f& o2, BVH_REAL r2,
+                               const Vec3f& o3, BVH_REAL r3,
+                               const Vec3f& o4, BVH_REAL r4,
+                               const Vec3f& o5, BVH_REAL r5,
+                               const Vec3f& o6, BVH_REAL r6,
+                               const Vec3f& o7, BVH_REAL r7,
+                               const Vec3f& o8, BVH_REAL r8)
+{
+  BVH_REAL r;
+
+  r = r1 + r5;
+  if((o1 - o5).sqrLength() < r * r) return true;
+  r = r2 + r6;
+  if((o2 - o6).sqrLength() < r * r) return true;
+  r = r3 + r7;
+  if((o3 - o7).sqrLength() < r * r) return true;
+  r = r4 + r8;
+  if((o4 - o8).sqrLength() < r * r) return true;
+
+  return false;
+}
+
+
+bool four_spheres_four_AABBs_intersect_and(const Vec3f& o1, BVH_REAL r1,
+                                           const Vec3f& o2, BVH_REAL r2,
+                                           const Vec3f& o3, BVH_REAL r3,
+                                           const Vec3f& o4, BVH_REAL r4,
+                                           const Vec3f& min1, const Vec3f& max1,
+                                           const Vec3f& min2, const Vec3f& max2,
+                                           const Vec3f& min3, const Vec3f& max3,
+                                           const Vec3f& min4, const Vec3f& max4)
+{
+  Vec3f o_new;
+  o_new = max(min(o1, max1), min1);
+  if((o_new - o1).sqrLength() > r1 * r1)
+    return false;
+  
+  o_new = max(min(o2, max2), min2);
+  if((o_new - o2).sqrLength() > r2 * r2)
+    return false;
+  
+  o_new = max(min(o3, max3), min3);
+  if((o_new - o3).sqrLength() > r3 * r3)
+    return false;
+  
+  o_new = max(min(o4, max4), min4);
+  if((o_new - o4).sqrLength() > r4 * r4)
+    return false;
+
+  return true;
+}
+
+bool four_spheres_four_AABBs_intersect_or(const Vec3f& o1, BVH_REAL r1,
+                                          const Vec3f& o2, BVH_REAL r2,
+                                          const Vec3f& o3, BVH_REAL r3,
+                                          const Vec3f& o4, BVH_REAL r4,
+                                          const Vec3f& min1, const Vec3f& max1,
+                                          const Vec3f& min2, const Vec3f& max2,
+                                          const Vec3f& min3, const Vec3f& max3,
+                                          const Vec3f& min4, const Vec3f& max4)
+{
+  Vec3f o_new;
+  o_new = max(min(o1, max1), min1);
+  if((o_new - o1).sqrLength() < r1 * r1)
+    return true;
+
+  o_new = max(min(o2, max2), min2);
+  if((o_new - o2).sqrLength() < r2 * r2)
+    return true;
+
+  o_new = max(min(o3, max3), min3);
+  if((o_new - o3).sqrLength() < r3 * r3)
+    return true;
+
+  o_new = max(min(o4, max4), min4);
+  if((o_new - o4).sqrLength() < r4 * r4)
+    return true;
+
+  return false;
+}
+
+
+bool four_AABBs_intersect_and(const Vec3f& min1, const Vec3f& max1,
+                              const Vec3f& min2, const Vec3f& max2,
+                              const Vec3f& min3, const Vec3f& max3,
+                              const Vec3f& min4, const Vec3f& max4,
+                              const Vec3f& min5, const Vec3f& max5,
+                              const Vec3f& min6, const Vec3f& max6,
+                              const Vec3f& min7, const Vec3f& max7,
+                              const Vec3f& min8, const Vec3f& max8)
+{
+  if(min1[0] > max5[0]) return false;
+  if(min1[1] > max5[1]) return false;
+  if(min1[2] > max5[2]) return false;
+
+  if(max1[0] < min5[0]) return false;
+  if(max1[1] < min5[1]) return false;
+  if(max1[2] < min5[2]) return false;
+
+  if(min2[0] > max6[0]) return false;
+  if(min2[1] > max6[1]) return false;
+  if(min2[2] > max6[2]) return false;
+
+  if(max2[0] < min6[0]) return false;
+  if(max2[1] < min6[1]) return false;
+  if(max2[2] < min6[2]) return false;
+ 
+  if(min3[0] > max7[0]) return false;
+  if(min3[1] > max7[1]) return false;
+  if(min3[2] > max7[2]) return false;
+
+  if(max3[0] < min7[0]) return false;
+  if(max3[1] < min7[1]) return false;
+  if(max3[2] < min7[2]) return false;
+
+  if(min4[0] > max8[0]) return false;
+  if(min4[1] > max8[1]) return false;
+  if(min4[2] > max8[2]) return false;
+
+  if(max4[0] < min8[0]) return false;
+  if(max4[1] < min8[1]) return false;
+  if(max4[2] < min8[2]) return false;
+
+  return true;
+}
+
+bool four_AABBs_intersect_or(const Vec3f& min1, const Vec3f& max1,
+                             const Vec3f& min2, const Vec3f& max2,
+                             const Vec3f& min3, const Vec3f& max3,
+                             const Vec3f& min4, const Vec3f& max4,
+                             const Vec3f& min5, const Vec3f& max5,
+                             const Vec3f& min6, const Vec3f& max6,
+                             const Vec3f& min7, const Vec3f& max7,
+                             const Vec3f& min8, const Vec3f& max8)
+{
+  if(min1[0] > max5[0]) goto second;
+  if(min1[1] > max5[1]) goto second;
+  if(min1[2] > max5[2]) goto second;
+
+  if(max1[0] < min5[0]) goto second;
+  if(max1[1] < min5[1]) goto second;
+  if(max1[2] < min5[2]) goto second;
+
+  return true;
+
+ second:
+  if(min2[0] > max6[0]) goto third;
+  if(min2[1] > max6[1]) goto third;
+  if(min2[2] > max6[2]) goto third;
+
+  if(max2[0] < min6[0]) goto third;
+  if(max2[1] < min6[1]) goto third;
+  if(max2[2] < min6[2]) goto third;
+
+  return true;
+
+ third:
+  if(min3[0] > max7[0]) goto fourth;
+  if(min3[1] > max7[1]) goto fourth;
+  if(min3[2] > max7[2]) goto fourth;
+
+  if(max3[0] < min7[0]) goto fourth;
+  if(max3[1] < min7[1]) goto fourth;
+  if(max3[2] < min7[2]) goto fourth;
+
+ fourth:
+  if(min4[0] > max8[0]) return false;
+  if(min4[1] > max8[1]) return false;
+  if(min4[2] > max8[2]) return false;
+
+  if(max4[0] < min8[0]) return false;
+  if(max4[1] < min8[1]) return false;
+  if(max4[2] < min8[2]) return false;
+
+  return true;
+}
+
+#endif
+
+
+}

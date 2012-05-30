@@ -279,26 +279,55 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
   */
 }
 
-/** \brief Compute the covariance matrix for a set or subset of points. */
-void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& M)
+void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M)
 {
   Vec3f S1;
   Vec3f S2[3];
 
-  for(int i = 0; i < n; ++i)
+  if(ts)
   {
-    const Vec3f& p = (indices) ? ps[indices[i]] : ps[i];
-    S1 += p;
-    S2[0][0] += (p[0] * p[0]);
-    S2[1][1] += (p[1] * p[1]);
-    S2[2][2] += (p[2] * p[2]);
-    S2[0][1] += (p[0] * p[1]);
-    S2[0][2] += (p[0] * p[2]);
-    S2[1][2] += (p[1] * p[2]);
-
-    if(ps2) // another frame
+    for(int i = 0; i < n; ++i)
     {
-      const Vec3f& p = (indices) ? ps2[indices[i]] : ps2[i];
+      const Triangle& t = (indices) ? ts[indices[i]] : ts[i];
+
+      const Vec3f& p1 = ps[t[0]];
+      const Vec3f& p2 = ps[t[1]];
+      const Vec3f& p3 = ps[t[2]];
+
+      S1[0] += (p1[0] + p2[0] + p3[0]);
+      S1[1] += (p1[1] + p2[1] + p3[1]);
+      S1[2] += (p1[2] + p2[2] + p3[2]);
+      S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
+      S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
+      S2[2][2] += (p1[2] * p1[2] + p2[2] * p2[2] + p3[2] * p3[2]);
+      S2[0][1] += (p1[0] * p1[1] + p2[0] * p2[1] + p3[0] * p3[1]);
+      S2[0][2] += (p1[0] * p1[2] + p2[0] * p2[2] + p3[0] * p3[2]);
+      S2[1][2] += (p1[1] * p1[2] + p2[1] * p2[2] + p3[1] * p3[2]);
+
+      if(ps2)
+      {
+        const Vec3f& p1 = ps2[t[0]];
+        const Vec3f& p2 = ps2[t[1]];
+        const Vec3f& p3 = ps2[t[2]];
+
+        S1[0] += (p1[0] + p2[0] + p3[0]);
+        S1[1] += (p1[1] + p2[1] + p3[1]);
+        S1[2] += (p1[2] + p2[2] + p3[2]);
+
+        S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
+        S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
+        S2[2][2] += (p1[2] * p1[2] + p2[2] * p2[2] + p3[2] * p3[2]);
+        S2[0][1] += (p1[0] * p1[1] + p2[0] * p2[1] + p3[0] * p3[1]);
+        S2[0][2] += (p1[0] * p1[2] + p2[0] * p2[2] + p3[0] * p3[2]);
+        S2[1][2] += (p1[1] * p1[2] + p2[1] * p2[2] + p3[1] * p3[2]);
+      }
+    }
+  }
+  else
+  {
+    for(int i = 0; i < n; ++i)
+    {
+      const Vec3f& p = (indices) ? ps[indices[i]] : ps[i];
       S1 += p;
       S2[0][0] += (p[0] * p[0]);
       S2[1][1] += (p[1] * p[1]);
@@ -306,10 +335,22 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f
       S2[0][1] += (p[0] * p[1]);
       S2[0][2] += (p[0] * p[2]);
       S2[1][2] += (p[1] * p[2]);
+
+      if(ps2) // another frame
+      {
+        const Vec3f& p = (indices) ? ps2[indices[i]] : ps2[i];
+        S1 += p;
+        S2[0][0] += (p[0] * p[0]);
+        S2[1][1] += (p[1] * p[1]);
+        S2[2][2] += (p[2] * p[2]);
+        S2[0][1] += (p[0] * p[1]);
+        S2[0][2] += (p[0] * p[2]);
+        S2[1][2] += (p[1] * p[2]);
+      }
     }
   }
 
-  int n_points = ((ps2) ? 2*n : n);
+  int n_points = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
 
   M[0][0] = S2[0][0] - S1[0]*S1[0] / n_points;
   M[1][1] = S2[1][1] - S1[1]*S1[1] / n_points;
@@ -320,331 +361,6 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f
   M[1][0] = M[0][1];
   M[2][0] = M[0][2];
   M[2][1] = M[1][2];
-}
-
-/** \brief Compute the covariance matrix for a set or subset of triangles. */
-void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M)
-{
-  Vec3f S1;
-  Vec3f S2[3];
-
-  for(int i = 0; i < n; ++i)
-  {
-    const Triangle& t = (indices) ? ts[indices[i]] : ts[i];
-
-    const Vec3f& p1 = ps[t[0]];
-    const Vec3f& p2 = ps[t[1]];
-    const Vec3f& p3 = ps[t[2]];
-
-    S1[0] += (p1[0] + p2[0] + p3[0]);
-    S1[1] += (p1[1] + p2[1] + p3[1]);
-    S1[2] += (p1[2] + p2[2] + p3[2]);
-
-    S2[0][0] += (p1[0] * p1[0] +
-                 p2[0] * p2[0] +
-                 p3[0] * p3[0]);
-    S2[1][1] += (p1[1] * p1[1] +
-                 p2[1] * p2[1] +
-                 p3[1] * p3[1]);
-    S2[2][2] += (p1[2] * p1[2] +
-                 p2[2] * p2[2] +
-                 p3[2] * p3[2]);
-    S2[0][1] += (p1[0] * p1[1] +
-                 p2[0] * p2[1] +
-                 p3[0] * p3[1]);
-    S2[0][2] += (p1[0] * p1[2] +
-                 p2[0] * p2[2] +
-                 p3[0] * p3[2]);
-    S2[1][2] += (p1[1] * p1[2] +
-                 p2[1] * p2[2] +
-                 p3[1] * p3[2]);
-
-    if(ps2)
-    {
-      const Vec3f& p1 = ps2[t[0]];
-      const Vec3f& p2 = ps2[t[1]];
-      const Vec3f& p3 = ps2[t[2]];
-
-      S1[0] += (p1[0] + p2[0] + p3[0]);
-      S1[1] += (p1[1] + p2[1] + p3[1]);
-      S1[2] += (p1[2] + p2[2] + p3[2]);
-
-      S2[0][0] += (p1[0] * p1[0] +
-                   p2[0] * p2[0] +
-                   p3[0] * p3[0]);
-      S2[1][1] += (p1[1] * p1[1] +
-                   p2[1] * p2[1] +
-                   p3[1] * p3[1]);
-      S2[2][2] += (p1[2] * p1[2] +
-                   p2[2] * p2[2] +
-                   p3[2] * p3[2]);
-      S2[0][1] += (p1[0] * p1[1] +
-                   p2[0] * p2[1] +
-                   p3[0] * p3[1]);
-      S2[0][2] += (p1[0] * p1[2] +
-                   p2[0] * p2[2] +
-                   p3[0] * p3[2]);
-      S2[1][2] += (p1[1] * p1[2] +
-                   p2[1] * p2[2] +
-                   p3[1] * p3[2]);
-    }
-  }
-
-  int n_points = ((ps2) ? 6*n : 3*n);
-
-  M[0][0] = S2[0][0] - S1[0]*S1[0] / n_points;
-  M[1][1] = S2[1][1] - S1[1]*S1[1] / n_points;
-  M[2][2] = S2[2][2] - S1[2]*S1[2] / n_points;
-  M[0][1] = S2[0][1] - S1[0]*S1[1] / n_points;
-  M[1][2] = S2[1][2] - S1[1]*S1[2] / n_points;
-  M[0][2] = S2[0][2] - S1[0]*S1[2] / n_points;
-  M[1][0] = M[0][1];
-  M[2][0] = M[0][2];
-  M[2][1] = M[1][2];
-}
-
-
-/** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
- * The bounding volume axes are known.
- */
-void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, BVH_REAL l[2], BVH_REAL& r)
-{
-  bool indirect_index = true;
-  if(!indices) indirect_index = false;
-
-  int size_P = (ps2 == NULL) ? n : (2 * n);
-
-  BVH_REAL (*P)[3] = new BVH_REAL[size_P][3];
-
-
-  int P_id = 0;
-  for(int i = 0; i < n; ++i)
-  {
-    int index = indirect_index ? indices[i] : i;
-
-    const Vec3f& p = ps[index];
-    Vec3f v(p[0], p[1], p[2]);
-    P[P_id][0] = axis[0].dot(v);
-    P[P_id][1] = axis[1].dot(v);
-    P[P_id][2] = axis[2].dot(v);
-    P_id++;
-
-    if(ps2)
-    {
-      const Vec3f& v = ps2[index];
-      P[P_id][0] = axis[0].dot(v);
-      P[P_id][1] = axis[1].dot(v);
-      P[P_id][2] = axis[2].dot(v);
-      P_id++;
-    }
-  }
-
-  BVH_REAL minx, maxx, miny, maxy, minz, maxz;
-
-  BVH_REAL cz, radsqr;
-
-  minz = maxz = P[0][2];
-
-  for(int i = 1; i < size_P; ++i)
-  {
-    BVH_REAL z_value = P[i][2];
-    if(z_value < minz) minz = z_value;
-    else if(z_value > maxz) maxz = z_value;
-  }
-
-  r = (BVH_REAL)0.5 * (maxz - minz);
-  radsqr = r * r;
-  cz = (BVH_REAL)0.5 * (maxz + minz);
-
-  // compute an initial length of rectangle along x direction
-
-  // find minx and maxx as starting points
-
-  int minindex, maxindex;
-  minindex = maxindex = 0;
-  BVH_REAL mintmp, maxtmp;
-  mintmp = maxtmp = P[0][0];
-
-  for(int i = 1; i < size_P; ++i)
-  {
-    BVH_REAL x_value = P[i][0];
-    if(x_value < mintmp)
-    {
-      minindex = i;
-      mintmp = x_value;
-    }
-    else if(x_value > maxtmp)
-    {
-      maxindex = i;
-      maxtmp = x_value;
-    }
-  }
-
-  BVH_REAL x, dz;
-  dz = P[minindex][2] - cz;
-  minx = P[minindex][0] + sqrt(std::max(radsqr - dz * dz, 0.0));
-  dz = P[maxindex][2] - cz;
-  maxx = P[maxindex][0] - sqrt(std::max(radsqr - dz * dz, 0.0));
-
-
-  // grow minx
-
-  for(int i = 0; i < size_P; ++i)
-  {
-    if(P[i][0] < minx)
-    {
-      dz = P[i][2] - cz;
-      x = P[i][0] + sqrt(std::max(radsqr - dz * dz, 0.0));
-      if(x < minx) minx = x;
-    }
-  }
-
-  // grow maxx
-
-  for(int i = 0; i < size_P; ++i)
-  {
-    if(P[i][0] > maxx)
-    {
-      dz = P[i][2] - cz;
-      x = P[i][0] - sqrt(std::max(radsqr - dz * dz, 0.0));
-      if(x > maxx) maxx = x;
-    }
-  }
-
-  // compute an initial length of rectangle along y direction
-
-  // find miny and maxy as starting points
-
-  minindex = maxindex = 0;
-  mintmp = maxtmp = P[0][1];
-  for(int i = 1; i < size_P; ++i)
-  {
-    BVH_REAL y_value = P[i][1];
-    if(y_value < mintmp)
-    {
-      minindex = i;
-      mintmp = y_value;
-    }
-    else if(y_value > maxtmp)
-    {
-      maxindex = i;
-      maxtmp = y_value;
-    }
-  }
-
-  BVH_REAL y;
-  dz = P[minindex][2] - cz;
-  miny = P[minindex][1] + sqrt(std::max(radsqr - dz * dz, 0.0));
-  dz = P[maxindex][2] - cz;
-  maxy = P[maxindex][1] - sqrt(std::max(radsqr - dz * dz, 0.0));
-
-  // grow miny
-
-  for(int i = 0; i < size_P; ++i)
-  {
-    if(P[i][1] < miny)
-    {
-      dz = P[i][2] - cz;
-      y = P[i][1] + sqrt(std::max(radsqr - dz * dz, 0.0));
-      if(y < miny) miny = y;
-    }
-  }
-
-  // grow maxy
-
-  for(int i = 0; i < size_P; ++i)
-  {
-    if(P[i][1] > maxy)
-    {
-      dz = P[i][2] - cz;
-      y = P[i][1] - sqrt(std::max(radsqr - dz * dz, 0.0));
-      if(y > maxy) maxy = y;
-    }
-  }
-
-  // corners may have some points which are not covered - grow lengths if necessary
-  // quite conservative (can be improved)
-
-  BVH_REAL dx, dy, u, t;
-  BVH_REAL a = sqrt((BVH_REAL)0.5);
-  for(int i = 0; i < size_P; ++i)
-  {
-    if(P[i][0] > maxx)
-    {
-      if(P[i][1] > maxy)
-      {
-        dx = P[i][0] - maxx;
-        dy = P[i][1] - maxy;
-        u = dx * a + dy * a;
-        t = (a*u - dx)*(a*u - dx) +
-            (a*u - dy)*(a*u - dy) +
-            (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
-        if(u > 0)
-        {
-          maxx += u*a;
-          maxy += u*a;
-        }
-      }
-      else if(P[i][1] < miny)
-      {
-        dx = P[i][0] - maxx;
-        dy = P[i][1] - miny;
-        u = dx * a - dy * a;
-        t = (a*u - dx)*(a*u - dx) +
-            (-a*u - dy)*(-a*u - dy) +
-            (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
-        if(u > 0)
-        {
-          maxx += u*a;
-          miny -= u*a;
-        }
-      }
-    }
-    else if(P[i][0] < minx)
-    {
-      if(P[i][1] > maxy)
-      {
-        dx = P[i][0] - minx;
-        dy = P[i][1] - maxy;
-        u = dy * a - dx * a;
-        t = (-a*u - dx)*(-a*u - dx) +
-            (a*u - dy)*(a*u - dy) +
-            (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
-        if(u > 0)
-        {
-          minx -= u*a;
-          maxy += u*a;
-        }
-      }
-      else if(P[i][1] < miny)
-      {
-        dx = P[i][0] - minx;
-        dy = P[i][1] - miny;
-        u = -dx * a - dy * a;
-        t = (-a*u - dx)*(-a*u - dx) +
-            (-a*u - dy)*(-a*u - dy) +
-            (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
-        if (u > 0)
-        {
-          minx -= u*a;
-          miny -= u*a;
-        }
-      }
-    }
-  }
-
-  origin = axis[0] * minx + axis[1] * miny + axis[2] * cz;
-
-  l[0] = maxx - minx;
-  if(l[0] < 0) l[0] = 0;
-  l[1] = maxy - miny;
-  if(l[1] < 0) l[1] = 0;
-
-  delete [] P;
 }
 
 
@@ -656,43 +372,69 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  int size_P = (ps2 == NULL) ? n * 3 : (2 * n * 3);
+  int size_P = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
 
   BVH_REAL (*P)[3] = new BVH_REAL[size_P][3];
 
-
   int P_id = 0;
-  for(int i = 0; i < n; ++i)
+  
+  if(ts)
   {
-    int index = indirect_index ? indices[i] : i;
-    const Triangle& t = ts[index];
-
-    for(int j = 0; j < 3; ++j)
+    for(int i = 0; i < n; ++i)
     {
-      int point_id = t[j];
-      const Vec3f& p = ps[point_id];
+      int index = indirect_index ? indices[i] : i;
+      const Triangle& t = ts[index];
+
+      for(int j = 0; j < 3; ++j)
+      {
+        int point_id = t[j];
+        const Vec3f& p = ps[point_id];
+        Vec3f v(p[0], p[1], p[2]);
+        P[P_id][0] = axis[0].dot(v);
+        P[P_id][1] = axis[1].dot(v);
+        P[P_id][2] = axis[2].dot(v);
+        P_id++;
+      }
+
+      if(ps2)
+      {
+        for(int j = 0; j < 3; ++j)
+        {
+          int point_id = t[j];
+          const Vec3f& p = ps2[point_id];
+          Vec3f v(p[0], p[1], p[2]);
+          P[P_id][0] = axis[0].dot(v);
+          P[P_id][1] = axis[0].dot(v);
+          P[P_id][2] = axis[1].dot(v);
+          P_id++;
+        }
+      }
+    }
+  }
+  else
+  {
+    for(int i = 0; i < n; ++i)
+    {
+      int index = indirect_index ? indices[i] : i;
+
+      const Vec3f& p = ps[index];
       Vec3f v(p[0], p[1], p[2]);
       P[P_id][0] = axis[0].dot(v);
       P[P_id][1] = axis[1].dot(v);
       P[P_id][2] = axis[2].dot(v);
       P_id++;
-    }
 
-    if(ps2)
-    {
-      for(int j = 0; j < 3; ++j)
+      if(ps2)
       {
-        int point_id = t[j];
-        const Vec3f& p = ps2[point_id];
-        Vec3f v(p[0], p[1], p[2]);
+        const Vec3f& v = ps2[index];
         P[P_id][0] = axis[0].dot(v);
-        P[P_id][1] = axis[0].dot(v);
-        P[P_id][2] = axis[1].dot(v);
+        P[P_id][1] = axis[1].dot(v);
+        P[P_id][2] = axis[2].dot(v);
         P_id++;
       }
     }
   }
-
+    
   BVH_REAL minx, maxx, miny, maxy, minz, maxz;
 
   BVH_REAL cz, radsqr;
@@ -898,12 +640,14 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
   if(l[1] < 0) l[1] = 0;
 
   delete [] P;
+
 }
+
 
 /** \brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
-void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -961,7 +705,7 @@ void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec
 /** \brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
  */
-void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -1026,6 +770,14 @@ void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indic
 
 }
 
+void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent)
+{
+  if(ts)
+    getExtentAndCenter_mesh(ps, ps2, ts, indices, n, axis, center, extent);
+  else
+    getExtentAndCenter_pointcloud(ps, ps2, indices, n, axis, center, extent);
+}
+
 void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, BVH_REAL& radius)
 {
   Vec3f e1 = a - c;
@@ -1035,13 +787,13 @@ void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec
   Vec3f e3 = e1.cross(e2);
   BVH_REAL e3_len2 = e3.sqrLength();
   radius = e1_len2 * e2_len2 * (e1 - e2).sqrLength() / e3_len2;
-  radius = sqrt(radius) / 2.0;
+  radius = sqrt(radius) * 0.5;
 
   center = (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2) + c;
 }
 
 
-BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
+static inline BVH_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -1077,7 +829,7 @@ BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indi
   return sqrt(maxD);
 }
 
-BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query)
+static inline BVH_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
@@ -1100,6 +852,14 @@ BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, co
   }
 
   return sqrt(maxD);
+}
+
+BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
+{
+  if(ts)
+    return maximumDistance_mesh(ps, ps2, ts, indices, n, query);
+  else
+    return maximumDistance_pointcloud(ps, ps2, indices, n, query);
 }
 
 

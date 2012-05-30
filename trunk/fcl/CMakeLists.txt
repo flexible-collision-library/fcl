@@ -37,7 +37,7 @@ link_directories(${CCD_LIBRARY_DIRS})
 
 add_definitions(-DUSE_SVMLIGHT=0)
 
-add_library(${PROJECT_NAME} SHARED src/AABB.cpp src/OBB.cpp src/RSS.cpp src/kIOS.cpp src/vec_3f.cpp src/traversal_node_base.cpp src/traversal_node_bvhs.cpp src/intersect.cpp src/motion.cpp src/BV_fitter.cpp src/BV_splitter.cpp src/BVH_model.cpp src/BVH_utility.cpp src/transform.cpp src/simple_setup.cpp src/geometric_shapes.cpp src/geometric_shapes_utility.cpp src/geometric_shapes_intersect.cpp src/collision_node.cpp src/traversal_recurse.cpp src/broad_phase_collision.cpp src/collision.cpp src/collision_func_matrix.cpp src/interval_tree.cpp src/conservative_advancement.cpp src/matrix_3f.cpp src/interval.cpp src/interval_vector.cpp src/interval_matrix.cpp src/taylor_model.cpp src/taylor_vector.cpp src/taylor_matrix.cpp)
+add_library(${PROJECT_NAME} SHARED src/AABB.cpp src/OBB.cpp src/RSS.cpp src/kIOS.cpp src/vec_3f.cpp src/traversal_node_base.cpp src/traversal_node_bvhs.cpp src/intersect.cpp src/motion.cpp src/BV_fitter.cpp src/BV_splitter.cpp src/BVH_model.cpp src/BVH_utility.cpp src/transform.cpp src/simple_setup.cpp src/geometric_shapes.cpp src/geometric_shapes_utility.cpp src/geometric_shapes_intersect.cpp src/collision_node.cpp src/traversal_recurse.cpp src/broad_phase_collision.cpp src/collision.cpp src/collision_func_matrix.cpp src/interval_tree.cpp src/conservative_advancement.cpp src/matrix_3f.cpp src/interval.cpp src/interval_vector.cpp src/interval_matrix.cpp src/taylor_model.cpp src/taylor_vector.cpp src/taylor_matrix.cpp src/simd_intersect.cpp)
 
 target_link_libraries(${PROJECT_NAME} ${FLANN_LIBRARIES} ${CCD_LIBRARIES})
 

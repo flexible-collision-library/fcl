@@ -279,6 +279,11 @@ bool initialize(MeshCollisionTraversalNodeRSS& node,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2,
                 int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
 
+bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
+                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
+                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false);
+
 bool initialize(MeshCollisionTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
                 const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
@@ -552,6 +557,9 @@ bool initialize(MeshDistanceTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
                 const BVHModel<kIOS>& model2, const SimpleTransform& tf2);
 
+bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
+                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
+                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2);
 
 
 /** \brief Initialize traversal node for continuous collision detection between two meshes */

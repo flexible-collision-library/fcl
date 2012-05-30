@@ -57,6 +57,8 @@ bool kIOS::overlap(const kIOS& other) const
     }
   }
 
+  return obb_bv.overlap(other.obb_bv);
+
   return true;
 }
 
@@ -84,6 +86,9 @@ kIOS& kIOS::operator += (const Vec3f& p)
       spheres[i].r = sqrt(new_r_sqr);
     }
   }
+
+  obb_bv += p;
+
 }
 
 kIOS kIOS::operator + (const kIOS& other) const
@@ -96,33 +101,30 @@ kIOS kIOS::operator + (const kIOS& other) const
   }
     
   result.num_spheres = new_num_spheres;
+
+  result.obb_bv = obb_bv + other.obb_bv;
+  
   return result;
 }
 
 BVH_REAL kIOS::width() const
 {
-  BVH_REAL min_r = std::numeric_limits<BVH_REAL>::max();
-  for(unsigned int i = 0; i < num_spheres; ++i)
-  {
-    if(spheres[i].r < min_r) min_r = spheres[i].r;
-  }
-  return min_r;
+  return obb_bv.width();
 }
 
 BVH_REAL kIOS::height() const
 {
-  return width();
+  return obb_bv.height();
 }
   
 BVH_REAL kIOS::depth() const
 {
-  return width();
+  return obb_bv.depth();
 }
 
 BVH_REAL kIOS::volume() const
 {
-  BVH_REAL r = kIOS::width();
-  return 4.0 / 3.0 * 3.1415926 * r * r * r;
+  return obb_bv.volume();
 }
 
 BVH_REAL kIOS::size() const
@@ -172,6 +174,13 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2
   {
     b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
   }
+
+
+  // crap
+  b2_temp.obb_bv.To = R0 * b2_temp.obb_bv.To + T0;
+  b2_temp.obb_bv.axis[0] = R0 * b2_temp.obb_bv.axis[0];
+  b2_temp.obb_bv.axis[1] = R0 * b2_temp.obb_bv.axis[1];
+  b2_temp.obb_bv.axis[2] = R0 * b2_temp.obb_bv.axis[2];
 
   return b1.overlap(b2_temp);
 }

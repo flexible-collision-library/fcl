@@ -314,6 +314,19 @@ public:
   Vec3f T;
 };
 
+class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS>
+{
+public:
+  MeshCollisionTraversalNodeOBBRSS();
+ 
+  bool BVTesting(int b1, int b2) const;
+
+  void leafTesting(int b1, int b2) const;
+
+  Matrix3f R;
+  Vec3f T;
+};
+
 #if USE_SVMLIGHT
 
 struct BVHPointCollisionPair
@@ -1063,6 +1076,19 @@ class MeshDistanceTraversalNodekIOS : public MeshDistanceTraversalNode<kIOS>
 {
 public:
   MeshDistanceTraversalNodekIOS();
+
+  BVH_REAL BVTesting(int b1, int b2) const;
+
+  void leafTesting(int b1, int b2) const;
+
+  Matrix3f R;
+  Vec3f T;
+};
+
+class MeshDistanceTraversalNodeOBBRSS : public MeshDistanceTraversalNode<OBBRSS>
+{
+public:
+  MeshDistanceTraversalNodeOBBRSS();
 
   BVH_REAL BVTesting(int b1, int b2) const;
 

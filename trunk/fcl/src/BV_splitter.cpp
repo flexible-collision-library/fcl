@@ -49,6 +49,7 @@ void computeSplitVector(const BV& bv, Vec3f& split_vector)
 template<>
 void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
 {
+  /*
   switch(bv.num_spheres)
   {
   case 1:
@@ -75,6 +76,14 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
   default:
     ;
   }
+  */
+  split_vector = bv.obb_bv.axis[0];
+}
+
+template<>
+void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3f& split_vector)
+{
+  split_vector = bv.obb.axis[0];
 }
 
 template<typename BV>
@@ -214,6 +223,25 @@ void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitiv
 {
   computeSplitVector<kIOS>(bv, split_vector);
   computeSplitValue_median<kIOS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+
+void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<OBBRSS>(bv, split_vector);
+  computeSplitValue_bvcenter<OBBRSS>(bv, split_value);
+}
+
+void BVSplitter<OBBRSS>::computeRule_mean(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<OBBRSS>(bv, split_vector);
+  computeSplitValue_mean<OBBRSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
+{
+  computeSplitVector<OBBRSS>(bv, split_vector);
+  computeSplitValue_median<OBBRSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 

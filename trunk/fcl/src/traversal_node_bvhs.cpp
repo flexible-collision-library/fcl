@@ -40,6 +40,121 @@
 namespace fcl
 {
 
+template<typename BV>
+static inline void BVHCollisionLeafTesting(int b1, int b2,
+                                           const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                           Vec3f* vertices1, Vec3f* vertices2, 
+                                           Triangle* tri_indices1, Triangle* tri_indices2,
+                                           const Matrix3f& R, const Vec3f& T,
+                                           bool enable_statistics,
+                                           bool enable_contact,
+                                           bool exhaustive,
+                                           int num_max_contacts,
+                                           int& num_leaf_tests,
+                                           std::vector<BVHCollisionPair>& pairs)
+{
+  if(enable_statistics) num_leaf_tests++;
+
+  const BVNode<BV>& node1 = model1->getBV(b1);
+  const BVNode<BV>& node2 = model2->getBV(b2);
+
+  int primitive_id1 = node1.primitiveId();
+  int primitive_id2 = node2.primitiveId();
+
+  const Triangle& tri_id1 = tri_indices1[primitive_id1];
+  const Triangle& tri_id2 = tri_indices2[primitive_id2];
+
+  const Vec3f& p1 = vertices1[tri_id1[0]];
+  const Vec3f& p2 = vertices1[tri_id1[1]];
+  const Vec3f& p3 = vertices1[tri_id1[2]];
+  const Vec3f& q1 = vertices2[tri_id2[0]];
+  const Vec3f& q2 = vertices2[tri_id2[1]];
+  const Vec3f& q3 = vertices2[tri_id2[2]];
+
+  BVH_REAL penetration;
+  Vec3f normal;
+  int n_contacts;
+  Vec3f contacts[2];
+
+
+  if(!enable_contact) // only interested in collision or not
+  {
+    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
+  }
+  else // need compute the contact information
+  {
+    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
+                                     R, T,
+                                     contacts,
+                                     (unsigned int*)&n_contacts,
+                                     &penetration,
+                                     &normal))
+    {
+      for(int i = 0; i < n_contacts; ++i)
+      {
+        if((!exhaustive) && (num_max_contacts <= (int)pairs.size())) break;
+        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
+      }
+    }
+  }
+}
+
+
+template<typename BV>
+static inline void BVHDistanceLeafTesting(int b1, int b2,
+                                          const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                          Vec3f* vertices1, Vec3f* vertices2, 
+                                          Triangle* tri_indices1, Triangle* tri_indices2,
+                                          const Matrix3f& R, const Vec3f& T,
+                                          bool enable_statistics,
+                                          int& num_leaf_tests,
+                                          Vec3f& p1,
+                                          Vec3f& p2,
+                                          int& last_tri_id1,
+                                          int& last_tri_id2,
+                                          BVH_REAL& min_distance)
+{
+  if(enable_statistics) num_leaf_tests++;
+
+  const BVNode<BV>& node1 = model1->getBV(b1);
+  const BVNode<BV>& node2 = model2->getBV(b2);
+
+  int primitive_id1 = node1.primitiveId();
+  int primitive_id2 = node2.primitiveId();
+
+  const Triangle& tri_id1 = tri_indices1[primitive_id1];
+  const Triangle& tri_id2 = tri_indices2[primitive_id2];
+
+  const Vec3f& t11 = vertices1[tri_id1[0]];
+  const Vec3f& t12 = vertices1[tri_id1[1]];
+  const Vec3f& t13 = vertices1[tri_id1[2]];
+
+  const Vec3f& t21 = vertices2[tri_id2[0]];
+  const Vec3f& t22 = vertices2[tri_id2[1]];
+  const Vec3f& t23 = vertices2[tri_id2[2]];
+
+  // nearest point pair
+  Vec3f P1, P2;
+
+  BVH_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
+                                             R, T,
+                                             P1, P2);
+
+  if(d < min_distance)
+  {
+    min_distance = d;
+
+    p1 = P1;
+    p2 = P2;
+
+    last_tri_id1 = primitive_id1;
+    last_tri_id2 = primitive_id2;
+  }
+}
+
+
+
 MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBB>()
 {
   R.setIdentity();
@@ -54,51 +169,13 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
 
 void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<OBB>& node1 = model1->getBV(b1);
-  const BVNode<OBB>& node2 = model2->getBV(b2);
-
-  int primitive_id1 = node1.primitiveId();
-  int primitive_id2 = node2.primitiveId();
-
-  const Triangle& tri_id1 = tri_indices1[primitive_id1];
-  const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-  const Vec3f& p1 = vertices1[tri_id1[0]];
-  const Vec3f& p2 = vertices1[tri_id1[1]];
-  const Vec3f& p3 = vertices1[tri_id1[2]];
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  BVH_REAL penetration;
-  Vec3f normal;
-  int n_contacts;
-  Vec3f contacts[2];
-
-
-  if(!enable_contact) // only interested in collision or not
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
-  }
-  else // need compute the contact information
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                     R, T,
-                                     contacts,
-                                     (unsigned int*)&n_contacts,
-                                     &penetration,
-                                     &normal))
-    {
-      for(int i = 0; i < n_contacts; ++i)
-      {
-        if((!exhaustive) && (num_max_contacts <= (int)pairs.size())) break;
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
-      }
-    }
-  }
+  fcl::BVHCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                            tri_indices1, tri_indices2, 
+                            R, T, 
+                            enable_statistics, enable_contact, exhaustive,
+                            num_max_contacts, 
+                            num_leaf_tests,
+                            pairs);
 }
 
 
@@ -110,51 +187,13 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2, const Matrix3f& Rc
 
 void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<OBB>& node1 = model1->getBV(b1);
-  const BVNode<OBB>& node2 = model2->getBV(b2);
-
-  int primitive_id1 = node1.primitiveId();
-  int primitive_id2 = node2.primitiveId();
-
-  const Triangle& tri_id1 = tri_indices1[primitive_id1];
-  const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-  const Vec3f& p1 = vertices1[tri_id1[0]];
-  const Vec3f& p2 = vertices1[tri_id1[1]];
-  const Vec3f& p3 = vertices1[tri_id1[2]];
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  BVH_REAL penetration;
-  Vec3f normal;
-  int n_contacts;
-  Vec3f contacts[2];
-
-
-  if(!enable_contact) // only interested in collision or not
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
-  }
-  else // need compute the contact information
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                     R, T,
-                                     contacts,
-                                     (unsigned int*)&n_contacts,
-                                     &penetration,
-                                     &normal))
-    {
-      for(int i = 0; i < n_contacts; ++i)
-      {
-        if((!exhaustive) && (num_max_contacts <= (int)pairs.size())) break;
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
-      }
-    }
-  }
+  fcl::BVHCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                               tri_indices1, tri_indices2, 
+                               R, T, 
+                               enable_statistics, enable_contact, exhaustive,
+                               num_max_contacts, 
+                               num_leaf_tests,
+                               pairs);
 }
 
 
@@ -173,51 +212,13 @@ bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
 
 void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<RSS>& node1 = model1->getBV(b1);
-  const BVNode<RSS>& node2 = model2->getBV(b2);
-
-  int primitive_id1 = node1.primitiveId();
-  int primitive_id2 = node2.primitiveId();
-
-  const Triangle& tri_id1 = tri_indices1[primitive_id1];
-  const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-  const Vec3f& p1 = vertices1[tri_id1[0]];
-  const Vec3f& p2 = vertices1[tri_id1[1]];
-  const Vec3f& p3 = vertices1[tri_id1[2]];
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  BVH_REAL penetration;
-  Vec3f normal;
-  int n_contacts;
-  Vec3f contacts[2];
-
-
-  if(!enable_contact) // only interested in collision or not
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
-  }
-  else // need compute the contact information
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                     R, T,
-                                     contacts,
-                                     (unsigned int*)&n_contacts,
-                                     &penetration,
-                                     &normal))
-    {
-      for(int i = 0; i < n_contacts; ++i)
-      {
-        if((!exhaustive) && (num_max_contacts <= (int)pairs.size())) break;
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
-      }
-    }
-  }
+  fcl::BVHCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                               tri_indices1, tri_indices2, 
+                               R, T, 
+                               enable_statistics, enable_contact, exhaustive,
+                               num_max_contacts, 
+                               num_leaf_tests,
+                               pairs);
 }
 
 
@@ -237,52 +238,40 @@ bool MeshCollisionTraversalNodekIOS::BVTesting(int b1, int b2) const
 
 void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<kIOS>& node1 = model1->getBV(b1);
-  const BVNode<kIOS>& node2 = model2->getBV(b2);
-
-  int primitive_id1 = node1.primitiveId();
-  int primitive_id2 = node2.primitiveId();
-
-  const Triangle& tri_id1 = tri_indices1[primitive_id1];
-  const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-  const Vec3f& p1 = vertices1[tri_id1[0]];
-  const Vec3f& p2 = vertices1[tri_id1[1]];
-  const Vec3f& p3 = vertices1[tri_id1[2]];
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  BVH_REAL penetration;
-  Vec3f normal;
-  int n_contacts;
-  Vec3f contacts[2];
-
-
-  if(!enable_contact) // only interested in collision or not
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
-  }
-  else // need compute the contact information
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                     R, T,
-                                     contacts,
-                                     (unsigned int*)&n_contacts,
-                                     &penetration,
-                                     &normal))
-    {
-      for(int i = 0; i < n_contacts; ++i)
-      {
-        if((!exhaustive) && (num_max_contacts <= (int)pairs.size())) break;
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
-      }
-    }
-  }
+ fcl::BVHCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                              tri_indices1, tri_indices2, 
+                              R, T, 
+                              enable_statistics, enable_contact, exhaustive,
+                              num_max_contacts, 
+                              num_leaf_tests,
+                              pairs);
 }
+
+
+
+MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS() : MeshCollisionTraversalNode<OBBRSS>()
+{
+  R.setIdentity();
+  // default T is 0
+}
+
+bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
+{
+  if(enable_statistics) num_bv_tests++;
+  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
+}
+
+void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
+{
+ fcl::BVHCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                              tri_indices1, tri_indices2, 
+                              R, T, 
+                              enable_statistics, enable_contact, exhaustive,
+                              num_max_contacts, 
+                              num_leaf_tests,
+                              pairs);
+}
+
 
 #if USE_SVMLIGHT
 
@@ -447,42 +436,9 @@ BVH_REAL MeshDistanceTraversalNodeRSS::BVTesting(int b1, int b2) const
 
 void MeshDistanceTraversalNodeRSS::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<RSS>& node1 = model1->getBV(b1);
-  const BVNode<RSS>& node2 = model2->getBV(b2);
-
-  int primitive_id1 = node1.primitiveId();
-  int primitive_id2 = node2.primitiveId();
-
-  const Triangle& tri_id1 = tri_indices1[primitive_id1];
-  const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-  const Vec3f& t11 = vertices1[tri_id1[0]];
-  const Vec3f& t12 = vertices1[tri_id1[1]];
-  const Vec3f& t13 = vertices1[tri_id1[2]];
-
-  const Vec3f& t21 = vertices2[tri_id2[0]];
-  const Vec3f& t22 = vertices2[tri_id2[1]];
-  const Vec3f& t23 = vertices2[tri_id2[2]];
-
-  // nearest point pair
-  Vec3f P1, P2;
-
-  BVH_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
-                                             R, T,
-                                             P1, P2);
-
-  if(d < min_distance)
-  {
-    min_distance = d;
-
-    p1 = P1;
-    p2 = P2;
-
-    last_tri_id1 = primitive_id1;
-    last_tri_id2 = primitive_id2;
-  }
+  fcl::BVHDistanceLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+                              R, T, enable_statistics, num_leaf_tests, 
+                              p1, p2, last_tri_id1, last_tri_id2, min_distance);
 }
 
 MeshDistanceTraversalNodekIOS::MeshDistanceTraversalNodekIOS() : MeshDistanceTraversalNode<kIOS>()
@@ -499,42 +455,28 @@ BVH_REAL MeshDistanceTraversalNodekIOS::BVTesting(int b1, int b2) const
 
 void MeshDistanceTraversalNodekIOS::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
+  fcl::BVHDistanceLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+                              R, T, enable_statistics, num_leaf_tests, 
+                              p1, p2, last_tri_id1, last_tri_id2, min_distance);
+}
 
-  const BVNode<kIOS>& node1 = model1->getBV(b1);
-  const BVNode<kIOS>& node2 = model2->getBV(b2);
+MeshDistanceTraversalNodeOBBRSS::MeshDistanceTraversalNodeOBBRSS() : MeshDistanceTraversalNode<OBBRSS>()
+{
+  R.setIdentity();
+  // default T is 0
+}
 
-  int primitive_id1 = node1.primitiveId();
-  int primitive_id2 = node2.primitiveId();
+BVH_REAL MeshDistanceTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
+{
+  if(enable_statistics) num_bv_tests++;
+  return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
+}
 
-  const Triangle& tri_id1 = tri_indices1[primitive_id1];
-  const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-  const Vec3f& t11 = vertices1[tri_id1[0]];
-  const Vec3f& t12 = vertices1[tri_id1[1]];
-  const Vec3f& t13 = vertices1[tri_id1[2]];
-
-  const Vec3f& t21 = vertices2[tri_id2[0]];
-  const Vec3f& t22 = vertices2[tri_id2[1]];
-  const Vec3f& t23 = vertices2[tri_id2[2]];
-
-  // nearest point pair
-  Vec3f P1, P2;
-
-  BVH_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
-                                             R, T,
-                                             P1, P2);
-
-  if(d < min_distance)
-  {
-    min_distance = d;
-
-    p1 = P1;
-    p2 = P2;
-
-    last_tri_id1 = primitive_id1;
-    last_tri_id2 = primitive_id2;
-  }
+void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
+{
+  fcl::BVHDistanceLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+                              R, T, enable_statistics, num_leaf_tests, 
+                              p1, p2, last_tri_id1, last_tri_id2, min_distance);
 }
 
 

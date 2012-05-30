@@ -40,6 +40,7 @@
 #include "fcl/BVH_internal.h"
 #include "fcl/vec_3f.h"
 #include "fcl/matrix_3f.h"
+#include "fcl/OBB.h"
 
 /** \brief Main namespace */
 namespace fcl
@@ -71,19 +72,21 @@ class kIOS
       float dist = sqrt(dist2);
       kIOS_Sphere s;
       s.r = dist + s0.r + s1.r;
-      s.o = s0.o;
       if(dist > 0)
-        s.o += d * ((s.r - s0.r) / dist);
-
+        s.o = s0.o + d * ((s.r - s0.r) / dist);
+      else
+        s.o = s0.o;
       return s;
     }
   }
 public:
     
-  /** \brief The (at most) three spheres for intersection */
+  /** \brief The (at most) five spheres for intersection */
   kIOS_Sphere spheres[5];
 
   unsigned int num_spheres; // num_spheres <= 5
+
+  OBB obb_bv;
 
   kIOS() {}
 

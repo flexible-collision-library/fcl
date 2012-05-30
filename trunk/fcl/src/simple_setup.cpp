@@ -127,6 +127,35 @@ bool initialize(MeshCollisionTraversalNodekIOS& node,
   return true;
 }
 
+bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
+                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
+                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                int num_max_contacts, bool exhaustive, bool enable_contact)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.vertices1 = model1.vertices;
+  node.vertices2 = model2.vertices;
+
+  node.tri_indices1 = model1.tri_indices;
+  node.tri_indices2 = model2.tri_indices;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
+
+  return true;
+}
+
+
 #if USE_SVMLIGHT
 
 bool initialize(PointCloudCollisionTraversalNodeOBB& node,
@@ -322,6 +351,29 @@ bool initialize(MeshDistanceTraversalNodeRSS& node,
 bool initialize(MeshDistanceTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
                 const BVHModel<kIOS>& model2, const SimpleTransform& tf2)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+
+  node.vertices1 = model1.vertices;
+  node.vertices2 = model2.vertices;
+
+  node.tri_indices1 = model1.tri_indices;
+  node.tri_indices2 = model2.tri_indices;
+
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
+
+  return true;
+}
+
+bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
+                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
+                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;

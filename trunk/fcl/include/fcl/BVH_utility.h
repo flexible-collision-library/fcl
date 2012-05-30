@@ -45,7 +45,6 @@
 
 namespace fcl
 {
-
 /** \brief Expand the BVH bounding boxes according to uncertainty */
 template<typename BV>
 void BVHExpand(BVHModel<BV>& model, const Uncertainty* ucs, BVH_REAL r)
@@ -81,30 +80,15 @@ void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, BVH_REAL r);
 
 /** \brief Estimate the uncertainty of point clouds due to sampling procedure */
 void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty* ucs);
+  
 
-/** \brief Compute the covariance matrix for a set or subset of points. */
-void getCovariance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Matrix3f& M);
-
-/** \brief Compute the covariance matrix for a set or subset of triangles. */
+/** \brief Compute the covariance matrix for a set or subset of points. if ts = null, then indices refer to points directly; otherwise refer to triangles */
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M);
-
-
-/** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
- * The bounding volume axes are known.
- */
-void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, BVH_REAL l[2], BVH_REAL& r);
-
 
 /** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
  * The bounding volume axes are known.
  */
 void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, BVH_REAL l[2], BVH_REAL& r);
-
-/** \brief Compute the bounding volume extent and center for a set or subset of points.
- * The bounding volume axes are known.
- */
-void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent);
-
 
 /** \brief Compute the bounding volume extent and center for a set or subset of points.
  * The bounding volume axes are known.
@@ -115,8 +99,6 @@ void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indic
 void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, BVH_REAL& radius);
 
 /** \brief Compute the maximum distance from a given center point to a point cloud */
-BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query);
-
 BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query);
 
 

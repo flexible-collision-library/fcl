@@ -34,33 +34,110 @@
 
 /** \author Jia Pan */
 
+#ifndef FCL_OBBRSS_H
+#define FCL_OBBRSS_H
 
-#ifndef FCL_COLLISION_NODE_H
-#define FCL_COLLISION_NODE_H
+#include "fcl/BVH_internal.h"
+#include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
 
-#include "fcl/traversal_node_base.h"
-#include "fcl/traversal_node_bvhs.h"
-#include "fcl/BVH_front.h"
 
 namespace fcl
 {
 
-void collide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
+class OBBRSS
+{
+public:
 
-void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list = NULL);
+  OBB obb;
+  RSS rss;
+  
+  OBBRSS() {}
+  
+  bool overlap(const OBBRSS& other) const
+  {
+    return obb.overlap(other.obb);
+  }
 
-void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list = NULL);
+  bool overlap(const OBBRSS& other, OBBRSS& overlap_part) const
+  {
+    return overlap(other);
+  }
 
-void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
+  inline bool contain(const Vec3f& p) const
+  {
+    return obb.contain(p);
+  }
 
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
+  OBBRSS& operator += (const Vec3f& p) 
+  {
+    obb += p;
+    rss += p;
+    return *this;
+  }
 
-void distance(MeshDistanceTraversalNodeRSS* node, BVHFrontList* front_list = NULL, int qsize = 2);
+  OBBRSS& operator += (const OBBRSS& other)
+  {
+    *this = *this + other;
+    return *this;
+  }
 
-void distance(MeshDistanceTraversalNodekIOS* node, BVHFrontList* front_list = NULL, int qsize = 2);
+  OBBRSS operator + (const OBBRSS& other) const
+  {
+    OBBRSS result;
+    result.obb = obb + other.obb;
+    result.rss = rss + other.rss;
+    return result;
+  }
 
-void distance(MeshDistanceTraversalNodeOBBRSS* node, BVHFrontList* front_list = NULL, int qsize = 2);
+  inline BVH_REAL width() const
+  {
+    return obb.width();
+  }
+
+  inline BVH_REAL height() const
+  {
+    return obb.height();
+  }
+
+  inline BVH_REAL depth() const
+  {
+    return obb.depth();
+  }
+
+  inline BVH_REAL volume() const
+  {
+    return obb.volume();
+  }
+
+  inline BVH_REAL size() const
+  {
+    return obb.size();
+  }
+
+  inline const Vec3f& center() const
+  {
+    return obb.center();
+  }
+
+  BVH_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
+  {
+    return rss.distance(other.rss, P, Q);
+  }
+};
+
+
+static bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2)
+{
+  return overlap(R0, T0, b1.obb, b2.obb);
+}
+
+static BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL)
+{
+  return distance(R0, T0, b1.rss, b2.rss, P, Q);
+}
 
 }
+
 
 #endif

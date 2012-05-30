@@ -298,7 +298,7 @@ RSS RSS::operator + (const RSS& other) const
   Vec3f E[3]; // row first eigen-vectors
   BVH_REAL s[3] = {0, 0, 0};
 
-  getCovariance(v, NULL, NULL, 16, M);
+  getCovariance(v, NULL, NULL, NULL, 16, M);
   matEigen(M, s, E);
 
   int min, mid, max;
@@ -316,7 +316,7 @@ RSS RSS::operator + (const RSS& other) const
                       E[0][max]*E[1][mid] - E[0][mid]*E[1][max]);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(v, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
 
   return bv;
 }
