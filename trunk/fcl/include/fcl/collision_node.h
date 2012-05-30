@@ -47,13 +47,14 @@ namespace fcl
 
 void collide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
 
+void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
+
+void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
+
 void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list = NULL);
 
 void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list = NULL);
 
-void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
-
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 }
 
 #endif
