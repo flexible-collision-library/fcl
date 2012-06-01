@@ -69,6 +69,11 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
   return cdata->done;
 }
 
+BVH_REAL defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
+{
+  return 0.0;
+}
+
 void NaiveCollisionManager::unregisterObject(CollisionObject* obj)
 {
   objs.remove(obj);
@@ -97,10 +102,7 @@ void NaiveCollisionManager::clear()
 void NaiveCollisionManager::getObjects(std::vector<CollisionObject*>& objs_) const
 {
   objs_.resize(objs.size());
-  std::list<CollisionObject*>::const_iterator it;
-  int i = 0;
-  for(it = objs.begin(); it != objs.end(); ++it, ++i)
-    objs_[i] = *it;
+  std::copy(objs.begin(), objs.end(), objs_.begin());
 }
 
 void NaiveCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
@@ -132,7 +134,6 @@ bool NaiveCollisionManager::empty() const
 {
   return objs.empty();
 }
-
 
 
 void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
@@ -218,8 +219,7 @@ void SSaPCollisionManager::clear()
 void SSaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
 {
   objs.resize(objs_x.size());
-  for(unsigned int i = 0; i < objs.size(); ++i)
-    objs[i] = objs_x[i];
+  std::copy(objs_x.begin(), objs_x.end(), objs.begin());
 }
 
 void SSaPCollisionManager::checkColl(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,

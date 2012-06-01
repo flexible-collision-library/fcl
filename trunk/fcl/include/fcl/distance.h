@@ -34,29 +34,17 @@
 
 /** \author Jia Pan */
 
-
-#ifndef FCL_COLLISION_FUNC_MATRIX_H
-#define FCL_COLLISION_FUNC_MATRIX_H
-
+#ifndef FCL_DISTANCE_H
+#define FCL_DISTANCE_H
 
 #include "fcl/collision_object.h"
-#include "fcl/collision_data.h"
 
 namespace fcl
 {
+BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2);
 
-
-typedef int (*CollisionFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
-
-
-struct CollisionFunctionMatrix
-{
-  CollisionFunc collision_matrix[16][16];
-
-  CollisionFunctionMatrix();
-};
-
-
+BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
+                  const CollisionGeometry* o2, const SimpleTransform& tf2);
 
 }
 

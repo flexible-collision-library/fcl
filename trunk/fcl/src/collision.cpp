@@ -45,70 +45,15 @@ namespace fcl
 
 static CollisionFunctionMatrix CollisionFunctionLookTable;
 
+
+
 int collide(const CollisionObject* o1, const CollisionObject* o2,
             int num_max_contacts, bool exhaustive, bool enable_contact,
             std::vector<Contact>& contacts)
 {
-  if(num_max_contacts <= 0 && !exhaustive)
-  {
-    std::cerr << "Warning: should stop early as num_max_contact is " << num_max_contacts << " !" << std::endl;
-    return 0;
-  }
-
-  const OBJECT_TYPE object_type1 = o1->getObjectType();
-  const NODE_TYPE node_type1 = o1->getNodeType();
-
-  const OBJECT_TYPE object_type2 = o2->getObjectType();
-  const NODE_TYPE node_type2 = o2->getNodeType();
-
-
-  if(object_type1 == OT_GEOM && object_type2 == OT_GEOM)
-  {
-    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
-    {
-      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-      return 0;
-    }
-
-    return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), num_max_contacts, exhaustive, enable_contact, contacts);
-  }
-  else if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
-  {
-    if(!CollisionFunctionLookTable.collision_matrix[node_type2][node_type1])
-    {
-      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-      return 0;
-    }
-
-    return CollisionFunctionLookTable.collision_matrix[node_type2][node_type1](o2->getCollisionGeometry(), o2->getTransform(), o1->getCollisionGeometry(), o1->getTransform(), num_max_contacts, exhaustive, enable_contact, contacts);
-  }
-  else if(object_type1 == OT_BVH && object_type2 == OT_GEOM)
-  {
-    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
-    {
-      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-      return 0;
-    }
-
-    return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), num_max_contacts, exhaustive, enable_contact, contacts);
-  }
-  else if(object_type1 == OT_BVH && object_type2 == OT_BVH)
-  {
-    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
-    {
-      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-      return 0;
-    }
-
-    if(node_type1 == node_type2)
-    {
-      return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), num_max_contacts, exhaustive, enable_contact, contacts);
-    }
-  }
-
-  return 0;
+  return collide(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(),
+                 num_max_contacts, exhaustive, enable_contact, contacts);
 }
-
 
 int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
             const CollisionGeometry* o2, const SimpleTransform& tf2,
@@ -121,58 +66,32 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
     return 0;
   }
 
-  const OBJECT_TYPE object_type1 = o1->getObjectType();
-  const NODE_TYPE node_type1 = o1->getNodeType();
-
-  const OBJECT_TYPE object_type2 = o2->getObjectType();
-  const NODE_TYPE node_type2 = o2->getNodeType();
-
-
-  if(object_type1 == OT_GEOM && object_type2 == OT_GEOM)
-  {
-    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
-    {
-      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-      return 0;
-    }
-
-    return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, num_max_contacts, exhaustive, enable_contact, contacts);
-  }
-  else if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
-  {
+  OBJECT_TYPE object_type1 = o1->getObjectType();
+  OBJECT_TYPE object_type2 = o2->getObjectType();
+  NODE_TYPE node_type1 = o1->getNodeType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+  
+  if(object_type1 == OT_GEOM & object_type2 == OT_BVH)
+  {  
     if(!CollisionFunctionLookTable.collision_matrix[node_type2][node_type1])
     {
       std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
       return 0;
     }
-
+    
     return CollisionFunctionLookTable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, num_max_contacts, exhaustive, enable_contact, contacts);
   }
-  else if(object_type1 == OT_BVH && object_type2 == OT_GEOM)
+  else
   {
     if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
     {
       std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
       return 0;
     }
-
+    
     return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, num_max_contacts, exhaustive, enable_contact, contacts);
   }
-  else if(object_type1 == OT_BVH && object_type2 == OT_BVH)
-  {
-    if(!CollisionFunctionLookTable.collision_matrix[node_type1][node_type2])
-    {
-      std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-      return 0;
-    }
 
-    if(node_type1 == node_type2)
-    {
-      return CollisionFunctionLookTable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, num_max_contacts, exhaustive, enable_contact, contacts);
-    }
-  }
-
-  return 0;
 }
 
 

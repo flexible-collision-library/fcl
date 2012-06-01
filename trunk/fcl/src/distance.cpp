@@ -34,30 +34,49 @@
 
 /** \author Jia Pan */
 
+#include "fcl/distance.h"
+#include "fcl/distance_func_matrix.h"
 
-#ifndef FCL_COLLISION_FUNC_MATRIX_H
-#define FCL_COLLISION_FUNC_MATRIX_H
-
-
-#include "fcl/collision_object.h"
-#include "fcl/collision_data.h"
+#include <iostream>
 
 namespace fcl
 {
 
+static DistanceFunctionMatrix DistanceFunctionLookTable;
 
-typedef int (*CollisionFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
-
-
-struct CollisionFunctionMatrix
+BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2)
 {
-  CollisionFunc collision_matrix[16][16];
-
-  CollisionFunctionMatrix();
-};
-
-
-
+  return distance(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform());
 }
 
-#endif
+BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, 
+                  const CollisionGeometry* o2, const SimpleTransform& tf2)
+{
+  OBJECT_TYPE object_type1 = o1->getObjectType();
+  NODE_TYPE node_type1 = o1->getNodeType();
+  OBJECT_TYPE object_type2 = o2->getObjectType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+
+  if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
+  {
+    if(!DistanceFunctionLookTable.distance_matrix[node_type2][node_type1])
+    {
+      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
+      return 0;
+    }
+
+    return DistanceFunctionLookTable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1);
+  }
+  else
+  {
+    if(!DistanceFunctionLookTable.distance_matrix[node_type1][node_type2])
+    {
+      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
+      return 0;
+    }
+
+    return DistanceFunctionLookTable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2);    
+  }
+}
+
+}
