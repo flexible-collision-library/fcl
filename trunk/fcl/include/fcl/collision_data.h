@@ -4,6 +4,7 @@
 #include "fcl/collision_object.h"
 #include "fcl/vec_3f.h"
 #include <vector>
+#include <limits>
 
 
 namespace fcl
@@ -66,6 +67,18 @@ struct CollisionData
   bool enable_contact;
 
   std::vector<Contact> contacts;
+};
+
+struct DistanceData
+{
+  DistanceData()
+  {
+    min_distance = std::numeric_limits<BVH_REAL>::max();
+    done = false;
+  }
+
+  BVH_REAL min_distance;
+  bool done;
 };
 
 

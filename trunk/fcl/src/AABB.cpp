@@ -51,8 +51,55 @@ AABB::AABB()
 
 BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
 {
-  std::cerr << "AABB distance not implemented!" << std::endl;
-  return 0.0;
+  BVH_REAL result = 0;
+  for(unsigned int i = 0; i < 3; ++i)
+  {
+    BVH_REAL amin = min_[i];
+    BVH_REAL amax = max_[i];
+    BVH_REAL bmin = other.min_[i];
+    BVH_REAL bmax = other.max_[i];
+    
+    if(amin > bmax)
+    {
+      BVH_REAL delta = bmax - amin;
+      result += delta * delta;
+      if(P && Q)
+      {
+        (*P)[i] = amin;
+        (*Q)[i] = bmax;
+      }
+    }
+    else if(bmin > amax)
+    {
+      BVH_REAL delta = amax - bmin;
+      result += delta * delta;
+      if(P && Q)
+      {
+        (*P)[i] = amax;
+        (*Q)[i] = bmin;
+      }
+    }
+    else
+    {
+      if(P && Q)
+      {
+        if(bmin >= amin)
+        {
+          BVH_REAL t = 0.5 * (amax + bmin);
+          (*P)[i] = t;
+          (*Q)[i] = t;
+        }
+        else
+        {
+          BVH_REAL t = 0.5 * (amin + bmax);
+          (*P)[i] = t;
+          (*Q)[i] = t;
+        }
+      }
+    }
+  }
+
+  return sqrt(result);
 }
 
 }

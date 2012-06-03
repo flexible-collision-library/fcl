@@ -55,10 +55,12 @@ namespace fcl
 
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
-BVH_REAL defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
+bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
 /** \brief return value is whether can stop now */
 typedef bool (*CollisionCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata);
+
+typedef bool (*DistanceCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
 /** \brief Base class for broad phase collision */
 class BroadPhaseCollisionManager
@@ -86,6 +88,9 @@ public:
 
   /** \brief perform collision test between one object and all the objects belonging to the manager */
   virtual void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const = 0;
+
+  /** \brief perform distance computation between one object and all the objects belonging to the manager */
+  virtual void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const = 0;
 
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   virtual void collide(void* cdata, CollisionCallBack callback) const = 0;
@@ -125,6 +130,9 @@ public:
   /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform distance computation between one object and all the objects belonging to the manager */
+  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
+
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
@@ -140,7 +148,7 @@ protected:
   std::list<CollisionObject*> objs;
 };
 
-
+/** \brief Spatial hash function: hash an AABB to a set of integer values */
 struct SpatialHash
 {
   SpatialHash(const AABB& scene_limit_, BVH_REAL cell_size_)
@@ -201,33 +209,45 @@ public:
     delete hash_table;
   }
 
+  /** \brief add one object to the manager */
   void registerObject(CollisionObject* obj);
 
+  /** \brief remove one object from the manager */
   void unregisterObject(CollisionObject* obj);
 
+  /** \brief initialize the manager, related with the specific type of manager */
   void setup();
 
+  /** \brief update the condition of manager */
   void update();
 
+  /** \brief clear the manager */
   void clear();
 
+  /** \brief return the objects managed by the manager */
   void getObjects(std::vector<CollisionObject*>& objs) const;
 
+  /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform distance computation between one object and all the objects belonging ot the manager */
+  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
+
+  /** \brief perform collision test for the objects belonging to the manager (i.e, N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
+  /** \brief whether the manager is empty */
   bool empty() const;
 
+  /** \brief the number of objects managed by the manager */
   size_t size() const;
 
+  /** \brief compute the bound for the environent */
   static void computeBound(std::vector<CollisionObject*>& objs, Vec3f& l, Vec3f& u)
   {
     AABB bound;
     for(unsigned int i = 0; i < objs.size(); ++i)
-    {
       bound += objs[i]->getAABB();
-    }
     
     l = bound.min_;
     u = bound.max_;
@@ -243,6 +263,7 @@ protected:
   // objects outside the scene limit are in another list
   std::list<CollisionObject*> objs_outside_scene_limit;
 
+  // the size of the scene
   AABB scene_limit;
 };
 
@@ -263,9 +284,7 @@ void SpatialHashingCollisionManager<HashTable>::registerObject(CollisionObject* 
     hash_table->insert(overlap_aabb, obj);
   }
   else
-  {
     objs_outside_scene_limit.push_back(obj);
-  }
 }
 
 template<typename HashTable>
@@ -284,9 +303,7 @@ void SpatialHashingCollisionManager<HashTable>::unregisterObject(CollisionObject
     hash_table->remove(overlap_aabb, obj);
   }
   else
-  {
     objs_outside_scene_limit.remove(obj);
-  }
 }
 
 template<typename HashTable>
@@ -301,9 +318,7 @@ void SpatialHashingCollisionManager<HashTable>::update()
 
   std::list<CollisionObject*>::const_iterator it;
   for(it = objs.begin(); it != objs.end(); ++it)
-  {
     registerObject(*it);
-  }
 }
 
 template<typename HashTable>
@@ -355,6 +370,90 @@ void SpatialHashingCollisionManager<HashTable>::collide(CollisionObject* obj, vo
 }
 
 template<typename HashTable>
+void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
+{
+  DistanceData* cdata = static_cast<DistanceData*>(cdata_);
+  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  AABB aabb = obj->getAABB();
+  if(cdata->min_distance < std::numeric_limits<BVH_REAL>::max())
+  {
+    BVH_REAL d = cdata->min_distance;
+    aabb.min_ -= Vec3f(d, d, d);
+    aabb.max_ += Vec3f(d, d, d);
+  }
+  AABB overlap_aabb;
+
+  int status = 1;
+  BVH_REAL old_min_distance;
+
+  while(1)
+  {
+    old_min_distance = cdata->min_distance;
+
+    if(scene_limit.overlap(aabb, overlap_aabb))
+    {
+      if(!scene_limit.contain(aabb))
+      {
+        std::list<CollisionObject*>::const_iterator it;
+        for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
+        {
+          if(callback(obj, *it, cdata)) break;
+        }
+      }
+      
+      std::vector<CollisionObject*> query_result = hash_table->query(overlap_aabb);
+      for(unsigned int i = 0; i < query_result.size(); ++i)
+      {
+        if(callback(obj, query_result[i], cdata)) break;
+      }
+    }
+    else
+    {
+      std::list<CollisionObject*>::const_iterator it;
+      for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
+      {
+        if(callback(obj, *it, cdata)) break;
+      }
+    }
+
+    if(status == 1)
+    {
+      if(old_min_distance < std::numeric_limits<BVH_REAL>::max())
+      {
+        if(cdata->min_distance < old_min_distance) break;
+        else
+          cdata->min_distance = std::numeric_limits<BVH_REAL>::max();
+      }
+      else
+      {
+        if(cdata->min_distance < old_min_distance)
+        {
+          BVH_REAL d = cdata->min_distance;
+          aabb.min_ = obj->getAABB().min_ - Vec3f(d, d, d);
+          aabb.max_ = obj->getAABB().max_ + Vec3f(d, d, d);
+          status = 0;
+        }
+        else
+        {
+          if(aabb.equal(obj->getAABB()))
+          {
+            aabb.min_ -= delta;
+            aabb.max_ += delta;
+          }
+          else
+          {
+            aabb.min_ = aabb.min_ * 2 - obj->getAABB().min_;
+            aabb.max_ = aabb.max_ * 2 - obj->getAABB().max_;
+          }
+        }
+      }
+    }
+    else if(status == 0)
+      break;
+  }
+}
+
+template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCallBack callback) const
 {
   std::list<CollisionObject*>::const_iterator it1;
@@ -370,20 +469,14 @@ void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCa
         std::list<CollisionObject*>::const_iterator it2;
         for(it2 = objs_outside_scene_limit.begin(); it2 != objs_outside_scene_limit.end(); ++it2)
         {
-          if(*it1 < *it2)
-          {
-            if(callback(*it1, *it2, cdata)) return;
-          }
+          if(*it1 < *it2) { if(callback(*it1, *it2, cdata)) return; }
         }
       }
 
       std::vector<CollisionObject*> query_result = hash_table->query(overlap_aabb);
       for(unsigned int i = 0; i < query_result.size(); ++i)
       {
-        if(*it1 < query_result[i])
-        {
-          if(callback(*it1, query_result[i], cdata)) return;
-        }
+        if(*it1 < query_result[i]) { if(callback(*it1, query_result[i], cdata)) return; }
       }
     }
     else
@@ -391,10 +484,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCa
       std::list<CollisionObject*>::const_iterator it2;
       for(it2 = objs_outside_scene_limit.begin(); it2 != objs_outside_scene_limit.end(); ++it2)
       {
-        if(*it1 < *it2)
-        {
-          if(callback(*it1, *it2, cdata)) return;
-        }
+        if(*it1 < *it2) { if(callback(*it1, *it2, cdata)) return; }
       }
     }
   }
@@ -450,6 +540,9 @@ public:
 
   /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+
+  /** \brief perform distance computation between one object and all the objects belonging to the manager */
+  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
 
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
@@ -568,6 +661,9 @@ protected:
   std::list<SaPPair> overlap_pairs;
 };
 
+
+
+
 /** Simple SAP collision manager */
 class SSaPCollisionManager : public BroadPhaseCollisionManager
 {
@@ -598,6 +694,9 @@ public:
   /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform distance computation between one object and all the objects belonging to the manager */
+  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
+
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
@@ -608,55 +707,12 @@ public:
   inline size_t size() const { return objs_x.size(); }
 
 protected:
-
-  /** \brief Functor sorting objects according to the AABB lower x bound */
-  struct SortByXLow
-  {
-    bool operator()(const CollisionObject* a, const CollisionObject* b) const
-    {
-      if(a->getAABB().min_[0] < b->getAABB().min_[0])
-        return true;
-      return false;
-    }
-  };
-
-  /** \brief Functor sorting objects according to the AABB lower y bound */
-  struct SortByYLow
-   {
-     bool operator()(const CollisionObject* a, const CollisionObject* b) const
-     {
-       if(a->getAABB().min_[1] < b->getAABB().min_[1])
-         return true;
-       return false;
-     }
-   };
-
-  /** \brief Functor sorting objects according to the AABB lower z bound */
-   struct SortByZLow
-   {
-     bool operator()(const CollisionObject* a, const CollisionObject* b) const
-     {
-       if(a->getAABB().min_[2] < b->getAABB().min_[2])
-         return true;
-       return false;
-     }
-   };
-
-   /** \brief Dummy collision object with a point AABB */
-   class DummyCollisionObject : public CollisionObject
-   {
-   public:
-     DummyCollisionObject(const AABB& aabb_)
-     {
-       aabb = aabb_;
-     }
-
-     void computeLocalAABB() {}
-   };
-
    /** \brief check collision between one object and a list of objects */
    void checkColl(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
                   CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+
+   void checkDis(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
+                    CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
 
 
    /** \brief Objects sorted according to lower x value */
@@ -704,6 +760,9 @@ public:
   /** \brief perform collision test between one object and all the objects belonging to the manager */
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
+  /** \brief perform distance computation between one object and all the objects belonging to the manager */
+  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
+
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
   void collide(void* cdata, CollisionCallBack callback) const;
 
@@ -714,10 +773,6 @@ public:
   inline size_t size() const { return endpoints[0].size() / 2; }
 
 protected:
-
-  /** \brief check collision between one object and a list of objects */
-  void checkColl(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
-                 CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
 
   /** \brief SAP end point */
@@ -755,6 +810,11 @@ protected:
       obj = obj_;
     }
   };
+
+
+  void checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+
+  void checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
 
   /** \brief vector stores all the end points */
   std::vector<EndPoint> endpoints[3];

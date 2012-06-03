@@ -41,6 +41,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
+#include <cstring>
 
 /** \brief Main namespace */
 namespace fcl
@@ -310,11 +311,14 @@ namespace fcl
 
     Vec3f() { v_[0] = 0; v_[1] = 0; v_[2] = 0; }
 
+    Vec3f(const Vec3f& other)
+    {
+      memcpy(v_, other.v_, sizeof(BVH_REAL) * 3);
+    }
+
     Vec3f(const BVH_REAL* v)
     {
-      v_[0] = v[0];
-      v_[1] = v[1];
-      v_[2] = v[2];
+      memcpy(v_, v, sizeof(BVH_REAL) * 3);
     }
 
     Vec3f(BVH_REAL x, BVH_REAL y, BVH_REAL z)

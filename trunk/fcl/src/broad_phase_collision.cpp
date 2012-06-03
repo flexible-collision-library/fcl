@@ -37,6 +37,7 @@
 
 #include "fcl/broad_phase_collision.h"
 #include "fcl/collision.h"
+#include "fcl/distance.h"
 #include <algorithm>
 #include <set>
 #include <deque>
@@ -49,7 +50,7 @@ namespace fcl
 
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
 {
-  CollisionData* cdata = (CollisionData*)cdata_;
+  CollisionData* cdata = static_cast<CollisionData*>(cdata_);
 
   if(cdata->done) return true;
 
@@ -69,9 +70,16 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
   return cdata->done;
 }
 
-BVH_REAL defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
+bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
 {
-  return 0.0;
+  DistanceData* cdata = static_cast<DistanceData*>(cdata_);
+  
+  if(cdata->done) return true;
+
+  BVH_REAL d = distance(o1, o2);
+  if(cdata->min_distance > d) cdata->min_distance = d;
+  
+  return cdata->done;
 }
 
 void NaiveCollisionManager::unregisterObject(CollisionObject* obj)
@@ -115,6 +123,16 @@ void NaiveCollisionManager::collide(CollisionObject* obj, void* cdata, Collision
   }
 }
 
+void NaiveCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
+{
+  std::list<CollisionObject*>::const_iterator it;
+  for(it = objs.begin(); it != objs.end(); ++it)
+  {
+    if(callback(obj, *it, cdata))
+      return;
+  }
+}
+
 void NaiveCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
   std::list<CollisionObject*>::const_iterator it1;
@@ -134,6 +152,52 @@ bool NaiveCollisionManager::empty() const
 {
   return objs.empty();
 }
+
+
+/** \brief Functor sorting objects according to the AABB lower x bound */
+struct SortByXLow
+{
+  bool operator()(const CollisionObject* a, const CollisionObject* b) const
+  {
+    if(a->getAABB().min_[0] < b->getAABB().min_[0])
+      return true;
+    return false;
+  }
+};
+
+/** \brief Functor sorting objects according to the AABB lower y bound */
+struct SortByYLow
+{
+  bool operator()(const CollisionObject* a, const CollisionObject* b) const
+  {
+    if(a->getAABB().min_[1] < b->getAABB().min_[1])
+      return true;
+    return false;
+  }
+};
+
+/** \brief Functor sorting objects according to the AABB lower z bound */
+struct SortByZLow
+{
+  bool operator()(const CollisionObject* a, const CollisionObject* b) const
+  {
+    if(a->getAABB().min_[2] < b->getAABB().min_[2])
+      return true;
+    return false;
+  }
+};
+
+/** \brief Dummy collision object with a point AABB */
+class DummyCollisionObject : public CollisionObject
+{
+public:
+  DummyCollisionObject(const AABB& aabb_) : CollisionObject()
+  {
+    aabb = aabb_;
+  }
+
+  void computeLocalAABB() {}
+};
 
 
 void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
@@ -246,17 +310,16 @@ void SSaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionC
   std::vector<CollisionObject*>::const_iterator pos_start1 = objs_x.begin();
   std::vector<CollisionObject*>::const_iterator pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
   unsigned int d1 = pos_end1 - pos_start1;
+
   if(d1 > CUTOFF)
   {
     std::vector<CollisionObject*>::const_iterator pos_start2 = objs_y.begin();
-
     std::vector<CollisionObject*>::const_iterator pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow());
     unsigned int d2 = pos_end2 - pos_start2;
 
     if(d2 > CUTOFF)
     {
       std::vector<CollisionObject*>::const_iterator pos_start3 = objs_z.begin();
-
       std::vector<CollisionObject*>::const_iterator pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow());
       unsigned int d3 = pos_end3 - pos_start3;
 
@@ -282,6 +345,114 @@ void SSaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionC
     checkColl(pos_start1, pos_end1, obj, cdata, callback);
 }
 
+void SSaPCollisionManager::checkDis(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end, CollisionObject* obj, void* cdata, DistanceCallBack callback) const
+{
+  while(pos_start != pos_end)
+  {
+    if(callback(*pos_start, obj, cdata)) 
+      return;
+
+    pos_start++;
+  }
+}
+
+void SSaPCollisionManager::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
+{
+  static const unsigned int CUTOFF = 100;
+
+  DistanceData* cdata = static_cast<DistanceData*>(cdata_);
+  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vec3f dummy_vector = obj->getAABB().max_;
+  if(cdata->min_distance < std::numeric_limits<BVH_REAL>::max())
+    dummy_vector += Vec3f(cdata->min_distance, cdata->min_distance, cdata->min_distance);
+
+  std::vector<CollisionObject*>::const_iterator pos_start1 = objs_x.begin();
+  std::vector<CollisionObject*>::const_iterator pos_start2 = objs_y.begin();
+  std::vector<CollisionObject*>::const_iterator pos_start3 = objs_z.begin();
+  std::vector<CollisionObject*>::const_iterator pos_end1 = objs_x.end();
+  std::vector<CollisionObject*>::const_iterator pos_end2 = objs_y.end();
+  std::vector<CollisionObject*>::const_iterator pos_end3 = objs_z.end();
+
+  int status = 1;
+  BVH_REAL old_min_distance;
+
+  while(1)
+  {
+    old_min_distance = cdata->min_distance;
+    AABB dummy_aabb = AABB(dummy_vector);
+    DummyCollisionObject dummyHigh(dummy_aabb);
+    // DummyCollisionObject dummyHigh(AABB(dummy_vector));
+
+    pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
+    unsigned int d1 = pos_end1 - pos_start1;
+
+    if(d1 > CUTOFF)
+    {
+      pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow());
+      unsigned int d2 = pos_end2 - pos_start2;
+
+      if(d2 > CUTOFF)
+      {
+        pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow());
+        unsigned int d3 = pos_end3 - pos_start3;
+
+        if(d3 > CUTOFF)
+        {
+          if(d3 <= d2 && d3 <= d1)
+            checkDis(pos_start3, pos_end3, obj, cdata, callback);
+          else
+          {
+            if(d2 <= d3 && d2 <= d1)
+              checkDis(pos_start2, pos_end2, obj, cdata, callback);
+            else
+              checkDis(pos_start1, pos_end1, obj, cdata, callback);
+          }
+        }
+        else
+          checkDis(pos_start3, pos_end3, obj, cdata, callback);
+      }
+      else
+        checkDis(pos_start2, pos_end2, obj, cdata, callback);
+    }
+    else
+    {
+      checkDis(pos_start1, pos_end1, obj, cdata, callback);
+    }
+
+    if(status == 1)
+    {
+      if(old_min_distance < std::numeric_limits<BVH_REAL>::max())
+      {
+        if(cdata->min_distance < old_min_distance) break;
+        else // the initial min distance estimate is not correct, so turn to use conservative estimate. dummy_vector not changed this time.
+          cdata->min_distance = std::numeric_limits<BVH_REAL>::max();
+      }
+      else
+      {
+        // from infinity to a finite one, only need one additional loop 
+        // to check the possible missed ones to the right of the objs array
+        if(cdata->min_distance < old_min_distance) 
+        {
+          BVH_REAL d = cdata->min_distance;
+          dummy_vector = obj->getAABB().max_ + Vec3f(d, d, d);
+          status = 0;
+        }
+        else // need more loop
+        {
+          if(dummy_vector.equal(obj->getAABB().max_))
+            dummy_vector = dummy_vector + delta;
+          else
+            dummy_vector = dummy_vector * 2 - obj->getAABB().max_;
+        }
+        if(pos_end1 != objs_x.end()) pos_start1 = pos_end1;
+        if(pos_end2 != objs_y.end()) pos_start2 = pos_end2;
+        if(pos_end3 != objs_z.end()) pos_start3 = pos_end3;
+      }
+    }
+    else if(status == 0)
+      break;
+  }
+}
 
 void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
@@ -691,6 +862,19 @@ void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCa
   }
 }
 
+void SaPCollisionManager::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
+{
+  DistanceData* cdata = static_cast<DistanceData*>(cdata_);
+  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
+  {
+    if((*it)->obj->getAABB().distance(obj->getAABB()) < cdata->min_distance)
+    {
+      if(callback(obj, (*it)->obj, cdata_))
+        return;
+    }
+  }
+}
+
 void SaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
   for(std::list<SaPPair>::const_iterator it = overlap_pairs.begin(); it != overlap_pairs.end(); ++it)
@@ -907,11 +1091,6 @@ void IntervalTreeCollisionManager::getObjects(std::vector<CollisionObject*>& obj
   }
 }
 
-void IntervalTreeCollisionManager::checkColl(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
-                                             CollisionObject* obj, void* cdata, CollisionCallBack callback) const
-{
-
-}
 
 void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
@@ -933,66 +1112,117 @@ void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, Co
         int d3 = results2.size();
 
         if(d1 >= d2 && d1 >= d3)
-        {
-          for(unsigned int i = 0; i < results0.size(); ++i)
-          {
-            SAPInterval* ivl = (SAPInterval*)results0[i];
-            if(callback(ivl->obj, obj, cdata))
-              break;
-          }
-        }
+          checkColl(results0.begin(), results0.end(), obj, cdata, callback);
         else if(d2 >= d1 && d2 >= d3)
-        {
-          for(unsigned int i = 0; i < results1.size(); ++i)
-          {
-            SAPInterval* ivl = (SAPInterval*)results1[i];
-            if(callback(ivl->obj, obj, cdata))
-              break;
-          }
-        }
+          checkColl(results1.begin(), results1.end(), obj, cdata, callback);
         else
-        {
-          for(unsigned int i = 0; i < results2.size(); ++i)
-          {
-            SAPInterval* ivl = (SAPInterval*)results2[i];
-            if(callback(ivl->obj, obj, cdata))
-              break;
-          }
-        }
+          checkColl(results2.begin(), results2.end(), obj, cdata, callback);
       }
       else
-      {
-        for(unsigned int i = 0; i < results2.size(); ++i)
-        {
-          SAPInterval* ivl = (SAPInterval*)results2[i];
-          if(callback(ivl->obj, obj, cdata))
-            break;
-        }
-      }
+        checkColl(results2.begin(), results2.end(), obj, cdata, callback);
     }
     else
-    {
-      for(unsigned int i = 0; i < results1.size(); ++i)
-      {
-        SAPInterval* ivl = (SAPInterval*)results1[i];
-        if(callback(ivl->obj, obj, cdata))
-          break;
-      }
-    }
+      checkColl(results1.begin(), results1.end(), obj, cdata, callback);
   }
   else
-  {
-    for(unsigned int i = 0; i < results0.size(); ++i)
-    {
-      SAPInterval* ivl = (SAPInterval*)results0[i];
-      if(callback(ivl->obj, obj, cdata))
-        break;
-    }
-  }
+    checkColl(results0.begin(), results0.end(), obj, cdata, callback);
 
   results0.clear();
   results1.clear();
   results2.clear();
+}
+
+void IntervalTreeCollisionManager::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
+{
+  static const unsigned int CUTOFF = 100;
+
+  DistanceData* cdata = static_cast<DistanceData*>(cdata_);
+  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  AABB aabb = obj->getAABB();
+  if(cdata->min_distance < std::numeric_limits<BVH_REAL>::max())
+  {
+    BVH_REAL d = cdata->min_distance;
+    aabb.min_ -= Vec3f(d, d, d);
+    aabb.max_ += Vec3f(d, d, d);
+  }
+
+  int status = 1;
+  BVH_REAL old_min_distance;
+  
+  while(1)
+  {
+    old_min_distance = cdata->min_distance;
+
+    std::deque<SimpleInterval*> results0, results1, results2;
+
+    results0 = interval_trees[0]->query(aabb.min_[0], aabb.max_[0]);
+    if(results0.size() > CUTOFF)
+    {
+      results1 = interval_trees[1]->query(aabb.min_[1], aabb.max_[1]);
+      if(results1.size() > CUTOFF)
+      {
+        results2 = interval_trees[2]->query(aabb.min_[2], aabb.max_[2]);
+        if(results2.size() > CUTOFF)
+        {
+          int d1 = results0.size();
+          int d2 = results1.size();
+          int d3 = results2.size();
+
+          if(d1 >= d2 && d1 >= d3)
+            checkDist(results0.begin(), results1.end(), obj, cdata, callback);
+          else if(d2 >= d1 && d2 >= d3)
+            checkDist(results1.begin(), results1.end(), obj, cdata, callback);
+          else
+            checkDist(results2.begin(), results2.end(), obj, cdata, callback);
+        }
+        else
+          checkDist(results2.begin(), results2.end(), obj, cdata, callback);
+      }
+      else
+        checkDist(results1.begin(), results1.end(), obj, cdata, callback);
+    }
+    else
+      checkDist(results0.begin(), results0.end(), obj, cdata, callback);
+
+    results0.clear();
+    results1.clear();
+    results2.clear();
+
+    if(status == 1)
+    {
+      if(old_min_distance < std::numeric_limits<BVH_REAL>::max())
+      {
+        if(cdata->min_distance < old_min_distance) break;
+        else
+          cdata->min_distance = std::numeric_limits<BVH_REAL>::max();
+      }
+      else
+      {
+        if(cdata->min_distance < old_min_distance)
+        {
+          BVH_REAL d = cdata->min_distance;
+          aabb.min_ = obj->getAABB().min_ - Vec3f(d, d, d);
+          aabb.max_ = obj->getAABB().max_ + Vec3f(d, d, d);
+          status = 0;
+        }
+        else
+        {
+          if(aabb.equal(obj->getAABB()))
+          {
+            aabb.min_ -= delta;
+            aabb.max_ += delta;
+          }
+          else
+          {
+            aabb.min_ = aabb.min_ * 2 - obj->getAABB().min_;
+            aabb.max_ = aabb.max_ * 2 - obj->getAABB().max_;
+          }
+        }
+      }
+    }
+    else if(status == 0)
+      break;
+  }
 }
 
 void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callback) const
@@ -1054,6 +1284,35 @@ bool IntervalTreeCollisionManager::empty() const
 {
   return endpoints[0].empty();
 }
+
+void IntervalTreeCollisionManager::checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+{
+  while(pos_start != pos_end)
+  {
+    SAPInterval* ivl = static_cast<SAPInterval*>(*pos_start);
+      
+    if(ivl->obj->getAABB().overlap(obj->getAABB()))
+    {
+      if(callback(ivl->obj, obj, cdata))
+        return;
+    }
+      
+    pos_start++;
+  }
+}
+
+void IntervalTreeCollisionManager::checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, DistanceCallBack callback) const
+{
+  while(pos_start != pos_end)
+  {
+    SAPInterval* ivl = static_cast<SAPInterval*>(*pos_start);
+    if(callback(ivl->obj, obj, cdata))
+      return;
+
+    pos_start++;
+  }
+}
+
 
 
 

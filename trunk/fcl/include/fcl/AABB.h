@@ -180,10 +180,12 @@ public:
     return (min_ + max_) * 0.5;
   }
 
-  /** \brief The distance between two AABB 
-   * Not implemented.
-   */
   BVH_REAL distance(const AABB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+
+  inline bool equal(const AABB& other) const
+  {
+    return min_.equal(other.min_) && max_.equal(other.max_);
+  }
 };
 
 }
