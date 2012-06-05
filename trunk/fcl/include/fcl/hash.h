@@ -37,15 +37,11 @@
 #ifndef FCL_HASH_H
 #define FCL_HASH_H
 
-#if USE_GOOGLEHASH
-#include <sparsehash/sparse_hash_map>
-#include <sparsehash/dense_hash_map>
-#endif
 #include <stdexcept>
-#include <hash_map>
 #include <set>
 #include <vector>
 #include <list>
+#include <boost/unordered_map.hpp>
 
 namespace fcl
 {
@@ -112,16 +108,19 @@ public:
   }
 };
 
-#if USE_GOOGLEHASH
 
-template<typename Key, typename Data, typename HashFnc>
+template<typename U, typename V>
+class unordered_map_hash_table : public boost::unordered_map<U, V> {};
+
+
+template<typename Key, typename Data, typename HashFnc, template<typename, typename> class TableT = unordered_map_hash_table>
 class SparseHashTable
 {
 protected:
   HashFnc h_;
   typedef std::list<Data> Bin;
-  typedef google::sparse_hash_map<size_t, Bin, std::tr1::hash<size_t>, std::equal_to<size_t> > Table;
-
+  typedef TableT<size_t, Bin> Table;
+  
   Table table_;
 public:
   SparseHashTable(const HashFnc& h) : h_(h) {}
@@ -160,68 +159,12 @@ public:
     }
   }
 
-  void clear() 
-  {
-    table_.clear();
-  }
-};
-
-
-template<typename Key, typename Data, typename HashFnc>
-class DenseHashTable
-{
-protected:
-  HashFnc h_;
-  typedef std::list<Data> Bin;
-  typedef google::dense_hash_map<size_t, Bin, std::tr1::hash<size_t>, std::equal_to<size_t> > Table;
-
-  Table table_;
-public:
-  
-  DenseHashTable(const HashFnc& h) : h_(h)
-  { table_.set_empty_key(NULL); }
-
-  void init(size_t) { table_.clear(); }
-
-  void insert(Key key, Data value)
-  {
-    std::vector<unsigned int> indices = h_(key);
-    for(size_t i = 0; i < indices.size(); ++i)
-      table_[indices[i]].push_back(value);
-  }
-
-  std::vector<Data> query(Key key) const
-  {
-    std::vector<unsigned int> indices = h_(key);
-    std::set<Data> result;
-    for(size_t i = 0; i < indices.size(); ++i)
-    {
-      unsigned int index = indices[i];
-      typename Table::const_iterator p = table_.find(index);
-      if(p != table_.end())
-        std::copy((*p).second.begin(), (*p).second.end(), std::inserter(result, result.end()));
-    }
-
-    return std::vector<Data>(result.begin(), result.end());
-  }
-
-  void remove(Key key, Data value)
-  {
-    std::vector<unsigned int> indices = h_(key);
-    for(size_t i = 0; i < indices.size(); ++i)
-    {
-      unsigned int index = indices[i];
-      table_[index].remove(value);
-    }
-  }
-
   void clear()
   {
     table_.clear();
   }
 };
 
-#endif
 
 }
 
