@@ -456,6 +456,9 @@ void SSaPCollisionManager::distance(CollisionObject* obj, void* cdata_, Distance
 
 void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
+  if (size() < 1)
+    return;
+  
   // simple sweep and prune method
   double delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
   double delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
