@@ -339,6 +339,8 @@ void SpatialHashingCollisionManager<HashTable>::getObjects(std::vector<Collision
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   const AABB& obj_aabb = obj->getAABB();
   AABB overlap_aabb;
 
@@ -372,6 +374,8 @@ void SpatialHashingCollisionManager<HashTable>::collide(CollisionObject* obj, vo
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
+
   DistanceData* cdata = static_cast<DistanceData*>(cdata_);
   Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB aabb = obj->getAABB();
@@ -456,6 +460,8 @@ void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, v
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   std::list<CollisionObject*>::const_iterator it1;
   for(it1 = objs.begin(); it1 != objs.end(); ++it1)
   {

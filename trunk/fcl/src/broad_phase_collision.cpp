@@ -115,6 +115,8 @@ void NaiveCollisionManager::getObjects(std::vector<CollisionObject*>& objs_) con
 
 void NaiveCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   std::list<CollisionObject*>::const_iterator it;
   for(it = objs.begin(); it != objs.end(); ++it)
   {
@@ -125,6 +127,8 @@ void NaiveCollisionManager::collide(CollisionObject* obj, void* cdata, Collision
 
 void NaiveCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
+
   std::list<CollisionObject*>::const_iterator it;
   for(it = objs.begin(); it != objs.end(); ++it)
   {
@@ -135,6 +139,8 @@ void NaiveCollisionManager::distance(CollisionObject* obj, void* cdata, Distance
 
 void NaiveCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   std::list<CollisionObject*>::const_iterator it1;
   std::list<CollisionObject*>::const_iterator it2;
   for(it1 = objs.begin(); it1 != objs.end(); ++it1)
@@ -303,6 +309,8 @@ void SSaPCollisionManager::checkColl(std::vector<CollisionObject*>::const_iterat
 
 void SSaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   static const unsigned int CUTOFF = 100;
 
   DummyCollisionObject dummyHigh(AABB(obj->getAABB().max_));
@@ -358,6 +366,8 @@ void SSaPCollisionManager::checkDis(std::vector<CollisionObject*>::const_iterato
 
 void SSaPCollisionManager::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
+
   static const unsigned int CUTOFF = 100;
 
   DistanceData* cdata = static_cast<DistanceData*>(cdata_);
@@ -379,9 +389,7 @@ void SSaPCollisionManager::distance(CollisionObject* obj, void* cdata_, Distance
   while(1)
   {
     old_min_distance = cdata->min_distance;
-    AABB dummy_aabb = AABB(dummy_vector);
-    DummyCollisionObject dummyHigh(dummy_aabb);
-    // DummyCollisionObject dummyHigh(AABB(dummy_vector));
+    DummyCollisionObject dummyHigh((AABB(dummy_vector)));
 
     pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
     unsigned int d1 = pos_end1 - pos_start1;
@@ -456,7 +464,7 @@ void SSaPCollisionManager::distance(CollisionObject* obj, void* cdata_, Distance
 
 void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
-  if (size() < 1)
+  if (size() == 0)
     return;
   
   // simple sweep and prune method
@@ -855,6 +863,8 @@ void SaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
 
 void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
   {
     if((*it)->obj->getAABB().overlap(obj->getAABB()))
@@ -867,6 +877,8 @@ void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCa
 
 void SaPCollisionManager::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
+
   DistanceData* cdata = static_cast<DistanceData*>(cdata_);
   for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
   {
@@ -880,6 +892,8 @@ void SaPCollisionManager::distance(CollisionObject* obj, void* cdata_, DistanceC
 
 void SaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   for(std::list<SaPPair>::const_iterator it = overlap_pairs.begin(); it != overlap_pairs.end(); ++it)
   {
     CollisionObject* obj1 = it->obj1;
@@ -1097,6 +1111,8 @@ void IntervalTreeCollisionManager::getObjects(std::vector<CollisionObject*>& obj
 
 void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   static const unsigned int CUTOFF = 100;
 
   std::deque<SimpleInterval*> results0, results1, results2;
@@ -1137,6 +1153,8 @@ void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, Co
 
 void IntervalTreeCollisionManager::distance(CollisionObject* obj, void* cdata_, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
+
   static const unsigned int CUTOFF = 100;
 
   DistanceData* cdata = static_cast<DistanceData*>(cdata_);
@@ -1230,6 +1248,8 @@ void IntervalTreeCollisionManager::distance(CollisionObject* obj, void* cdata_, 
 
 void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   std::set<CollisionObject*> active;
   std::set<std::pair<CollisionObject*, CollisionObject*> > overlap;
   unsigned int n = endpoints[0].size();
