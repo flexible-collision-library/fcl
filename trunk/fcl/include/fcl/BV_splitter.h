@@ -41,10 +41,10 @@
 #include "fcl/BVH_internal.h"
 #include "fcl/primitive.h"
 #include "fcl/vec_3f.h"
-#include "fcl/OBB.h"
-#include "fcl/RSS.h"
-#include "fcl/kIOS.h"
-#include "fcl/OBBRSS.h"
+#include "fcl/BV/OBB.h"
+#include "fcl/BV/RSS.h"
+#include "fcl/BV/kIOS.h"
+#include "fcl/BV/OBBRSS.h"
 #include <vector>
 #include <iostream>
 

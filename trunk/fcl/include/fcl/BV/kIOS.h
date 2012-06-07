@@ -40,7 +40,7 @@
 #include "fcl/BVH_internal.h"
 #include "fcl/vec_3f.h"
 #include "fcl/matrix_3f.h"
-#include "fcl/OBB.h"
+#include "fcl/BV/OBB.h"
 
 /** \brief Main namespace */
 namespace fcl

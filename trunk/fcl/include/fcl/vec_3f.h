@@ -47,7 +47,6 @@
 namespace fcl
 {
 
-
 #if COLLISION_USE_SSE
 #include <xmmintrin.h>
 #include <pmmintrin.h>

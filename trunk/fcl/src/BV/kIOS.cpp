@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/kIOS.h"
+#include "fcl/BV/kIOS.h"
 #include "fcl/BVH_utility.h"
 #include "fcl/transform.h"
 

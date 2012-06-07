@@ -38,7 +38,7 @@
 #ifndef FCL_COLLISION_OBJECT_BASE_H
 #define FCL_COLLISION_OBJECT_BASE_H
 
-#include "fcl/AABB.h"
+#include "fcl/BV/AABB.h"
 #include "fcl/transform.h"
 #include <boost/shared_ptr.hpp>
 

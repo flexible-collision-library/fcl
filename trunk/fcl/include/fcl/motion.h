@@ -40,7 +40,7 @@
 
 #include "fcl/vec_3f.h"
 #include "fcl/matrix_3f.h"
-#include "fcl/RSS.h"
+#include "fcl/BV/RSS.h"
 #include "fcl/transform.h"
 #include "fcl/motion_base.h"
 #include "fcl/intersect.h"

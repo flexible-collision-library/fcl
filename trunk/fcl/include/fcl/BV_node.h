@@ -41,8 +41,8 @@
 #include "fcl/vec_3f.h"
 #include "fcl/matrix_3f.h"
 
-#include "fcl/OBB.h"
-#include "fcl/RSS.h"
+#include "fcl/BV/OBB.h"
+#include "fcl/BV/RSS.h"
 
 /** \brief Main namespace */
 namespace fcl

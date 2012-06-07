@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/AABB.h"
+#include "fcl/BV/AABB.h"
 
 #include <limits>
 #include <iostream>

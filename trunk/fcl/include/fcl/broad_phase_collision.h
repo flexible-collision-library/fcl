@@ -41,7 +41,7 @@
 
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
-#include "fcl/AABB.h"
+#include "fcl/BV/AABB.h"
 #include "fcl/interval_tree.h"
 #include "fcl/hash.h"
 #include <vector>

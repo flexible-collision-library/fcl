@@ -38,10 +38,12 @@
 #define FCL_BV_H
 
 
-#include "fcl/kDOP.h"
-#include "fcl/AABB.h"
-#include "fcl/OBB.h"
-#include "fcl/RSS.h"
+#include "fcl/BV/kDOP.h"
+#include "fcl/BV/AABB.h"
+#include "fcl/BV/OBB.h"
+#include "fcl/BV/RSS.h"
+#include "fcl/BV/OBBRSS.h"
+#include "fcl/BV/kIOS.h"
 
 /** \brief Main namespace */
 namespace fcl
