@@ -66,10 +66,11 @@ struct sse_meta_f4
   sse_meta_f4(float x) : v(_mm_set1_ps(x)) {}
   sse_meta_f4(float* px) : v(_mm_load_ps(px)) {}
   sse_meta_f4(__m128 x) : v(x) {}
-  sse_meta_f4(float x, float y, float z, float w = 0) : v(_mm_setr_ps(x, y, z, w)) {}
-  void setValue(float x, float y, float z, float w = 0) { v = _mm_setr_ps(x, y, z, w); }
-  void setValue(float x) { v = _mm_set1_ps(x); }
-  void negate() { v = _mm_sub_ps(xmms_0, v); }
+  sse_meta_f4(float x, float y, float z, float w = 1) : v(_mm_setr_ps(x, y, z, w)) {}
+  inline void setValue(float x, float y, float z, float w = 1) { v = _mm_setr_ps(x, y, z, w); }
+  inline void setValue(float x) { v = _mm_set1_ps(x); }
+  inline void setValue(__m128 x) { v = x; }
+  inline void negate() { v = _mm_sub_ps(xmms_0, v); }
   
   inline void* operator new [] (size_t n) { return _mm_malloc(n, 16); }
   inline void operator delete [] (void* x) { if(x) _mm_free(x); }
@@ -139,6 +140,12 @@ struct sse_meta_d4
     v[1] = v[0];
   }
 
+  inline void setValue(__m128d x, __m128d y)
+  {
+    v[0] = x;
+    v[1] = y;
+  }
+
   inline void negate()
   {
     v[0] = _mm_sub_pd(xmmd_0, v[0]);
@@ -155,8 +162,8 @@ struct sse_meta_d4
     if(x) _mm_free(x);
   }
 
-  double operator [] (size_t i) const { return vs[i]; }
-  double& operator [] (size_t i) { return vs[i]; }
+  inline double operator [] (size_t i) const { return vs[i]; }
+  inline double& operator [] (size_t i) { return vs[i]; }
 
   inline sse_meta_d4 operator + (const sse_meta_d4& other) const { return sse_meta_d4(_mm_add_pd(v[0], other.v[0]), _mm_add_pd(v[1], other.v[1])); }
   inline sse_meta_d4 operator - (const sse_meta_d4& other) const { return sse_meta_d4(_mm_sub_pd(v[0], other.v[0]), _mm_sub_pd(v[1], other.v[1])); }
@@ -314,6 +321,146 @@ static inline bool equal(const sse_meta_d4& x, const sse_meta_d4& y, double epsi
   return true;
 }
 
+
+
+struct sse_meta_f16
+{
+  typedef float meta_type;
+
+  sse_meta_f4 c[4];
+  
+  sse_meta_f16(float xx, float xy, float xz,
+               float yx, float yy, float yz,
+               float zx, float zy, float zz)
+  {
+    setValue(xx, xy, xz, yz, yy, yz, zx, zy, zz);
+  }
+
+  sse_meta_f16(float xx, float xy, float xz, float xw,
+               float yx, float yy, float yz, float yw,
+               float zx, float zy, float zz, float zw,
+               float wx, float wy, float wz, float ww)
+  {
+    setValue(xx, xy, xz, xw,
+             yz, yy, yz, yw,
+             zx, zy, zz, zw,
+             wx, wy, wz, ww);
+  }
+
+  sse_meta_f16(const sse_meta_f4& x, const sse_meta_f4& y, const sse_meta_f4& z)
+  {
+    setColumn(x, y, z);
+  }
+
+  sse_meta_f16(const sse_meta_f4& x, const sse_meta_f4& y, const sse_meta_f4& z, const sse_meta_f4& w)
+  {
+    setColumn(x, y, z, w);
+  }
+
+  sse_meta_f16(__m128 x, __m128 y, __m128 z)
+  {
+    setColumn(x, y, z);
+  }
+
+  sse_meta_f16(__m128 x, __m128 y, __m128 z, __m128 w)
+  {
+    setColumn(x, y, z, w);
+  }
+
+  inline void setValue(float xx, float xy, float xz,
+                       float yx, float yy, float yz,
+                       float zx, float zy, float zz)
+  {
+    c[0].setValue(xx, yx, zx, 0);
+    c[1].setValue(xy, yy, zy, 0);
+    c[2].setValue(xz, yz, zz, 0);
+    c[3].setValue(0, 0, 0, 1);
+  }
+
+  inline void setValue(float xx, float xy, float xz, float xw,
+                       float yx, float yy, float yz, float yw,
+                       float zx, float zy, float zz, float zw,
+                       float wx, float wy, float wz, float ww)
+  {
+    c[0].setValue(xx, yz, zx, wx);
+    c[1].setValue(xy, yy, zy, wy);
+    c[2].setValue(xz, yz, zz, wz);
+    c[3].setValue(xw, yw, zw, ww);
+  }
+
+  inline void setColumn(const sse_meta_f4& x, const sse_meta_f4& y, const sse_meta_f4& z)
+  {
+    c[0] = x; c[1] = y; c[2] = z; c[3].setValue(0, 0, 0, 1);
+  }
+
+  inline void setColumn(const sse_meta_f4& x, const sse_meta_f4& y, const sse_meta_f4& z, const sse_meta_f4& w)
+  {
+    c[0] = x; c[1] = y; c[2] = z; c[3] = w;
+  }
+
+  inline void setColumn(__m128 x, __m128 y, __m128 z)
+  {
+    c[0].setValue(x); c[1].setValue(y); c[2].setValue(z); c[3].setValue(0, 0, 0, 1);
+  }
+
+  inline void setColumn(__m128 x, __m128 y, __m128 z, __m128 w)
+  {
+    c[0].setValue(x); c[1].setValue(y); c[2].setValue(z); c[3].setValue(w);
+  }
+
+  inline const sse_meta_f4& getColumn(size_t i) const
+  {
+    return c[i];
+  }
+
+  inline sse_meta_f4& getColumn(size_t i) 
+  {
+    return c[i];
+  }
+
+  inline sse_meta_f4 getRow(size_t i) const
+  {
+    return sse_meta_f4(c[0][i], c[1][i], c[2][i], c[3][i]);
+  }
+
+  inline float operator () (size_t i, size_t j) const
+  {
+    return c[j][i];
+  }
+
+  inline float& operator () (size_t i, size_t j) 
+  {
+    return c[j][i];
+  }
+
+  
+
+  inline sse_meta_f4 operator * (const sse_meta_f4& v) const
+  {
+    return sse_meta_f4(_mm_add_ps(_mm_add_ps(_mm_mul_ps(c[0].v, _mm_shuffle_ps(v.v, v.v, _MM_SHUFFLE(0, 0, 0, 0))), _mm_mul_ps(c[1].v, _mm_shuffle_ps(v.v, v.v, _MM_SHUFFLE(1, 1, 1, 1)))), 
+                                  _mm_add_ps(_mm_mul_ps(c[2].v, _mm_shuffle_ps(v.v, v.v, _MM_SHUFFLE(2, 2, 2, 2))), _mm_mul_ps(c[3].v, _mm_shuffle_ps(v.v, v.v, _MM_SHUFFLE(3, 3, 3, 3))))
+                                  ));
+  }
+
+  inline sse_meta_f16 operator * (const sse_meta_f16& mat) const
+  {
+    return sse_meta_f16((*this) * mat.c[0], (*this) * mat.c[1], (*this) * mat.c[2], (*this) * mat.c[3]);
+  }
+
+
+
+
+};
+
+sse_meta_f16 transpose(const sse_meta_f16& mat)
+{
+  __m128 tmp0 = _mm_unpackhi_ps(mat.getColumn(0).v, mat.getColumn(2).v);
+  __m128 tmp1 = _mm_unpackhi_ps(mat.getColumn(1).v, mat.getColumn(3).v);
+  __m128 tmp2 = _mm_unpacklo_ps(mat.getColumn(0).v, mat.getColumn(2).v);
+  __m128 tmp3 = _mm_unpacklo_ps(mat.getColumn(1).v, mat.getColumn(3).v);
+  return sse_meta_f16(_mm_unpackhi_ps(tmp0, tmp1), _mm_unpacklo_ps(tmp0, tmp1), _mm_unpackhi_ps(tmp2, tmp3), _mm_unpacklo_ps(tmp2, tmp3));
+}
+                                
 
 
 } // details

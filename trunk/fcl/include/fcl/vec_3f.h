@@ -56,7 +56,6 @@ public:
 
   Vec3fX() {}
   Vec3fX(const Vec3fX& other) : data(other.data) {}
-  Vec3fX(U* v) : data(v) {}
   Vec3fX(U x, U y, U z) : data(x, y, z) {}
   Vec3fX(const T& data_) : data(data_) {}
 
