@@ -34,42 +34,9 @@
 
 /** \author Jia Pan */
 
-#include "fcl/vec_3f.h"
-#include <iostream>
+#ifndef FCL_SIMD_H
+#define FCL_SIMD_H
 
-namespace fcl
-{
-#if COLLISION_USE_SSE
-const float Vec3f::EPSILON = 1e-11;
-#else
-const BVH_REAL Vec3f::EPSILON = 1e-11;
+#include "fcl/math_simd_details.h"
+
 #endif
-
-
-void generateCoordinateSystem(const Vec3f& w, Vec3f& u, Vec3f& v)
-{
-  BVH_REAL inv_length;
-  if(fabs(w[0]) >= fabs(w[1]))
-  {
-    inv_length = (BVH_REAL)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
-    u[0] = -w[2] * inv_length;
-    u[1] = (BVH_REAL)0;
-    u[2] = w[0] * inv_length;
-    v[0] = w[1] * u[2];
-    v[1] = w[2] * u[0] - w[0] * u[2];
-    v[2] = -w[1] * u[0];
-  }
-  else
-  {
-    inv_length = (BVH_REAL)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
-    u[0] = (BVH_REAL)0;
-    u[1] = w[2] * inv_length;
-    u[2] = -w[1] * inv_length;
-    v[0] = w[1] * u[2] - w[2] * u[1];
-    v[1] = -w[0] * u[2];
-    v[2] = w[0] * u[1];
-  }
-}
-
-
-}

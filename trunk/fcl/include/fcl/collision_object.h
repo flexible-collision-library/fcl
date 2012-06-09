@@ -131,12 +131,6 @@ public:
     aabb.max_ = center + delta;
   }
 
-  inline void computeAABB2()
-  {
-    Vec3f center = t.transform(cgeom->aabb_center);
-    // compute new r1, r2, r3
-  }
-
   void* getUserData() const
   {
     return user_data;
