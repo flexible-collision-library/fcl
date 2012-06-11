@@ -116,7 +116,7 @@ static inline Vec3Data<T> cross_prod(const Vec3Data<T>& l, const Vec3Data<T>& r)
 }
 
 template <typename T>
-static inline T dot_prod(const Vec3Data<T>& l, const Vec3Data<T>& r)
+static inline T dot_prod3(const Vec3Data<T>& l, const Vec3Data<T>& r)
 {
   return l.vs[0] * r.vs[0] + l.vs[1] * r.vs[1] + l.vs[2] * r.vs[2];
 }

@@ -80,10 +80,10 @@ public:
   inline Vec3fX& operator /= (U t) { data /= t; return *this; }
   inline Vec3fX operator - () { return Vec3fX(-data); }
   inline Vec3fX cross(const Vec3fX& other) const { return Vec3fX(details::cross_prod(data, other.data)); }
-  inline U dot(const Vec3fX& other) const { return details::dot_prod(data, other.data); }
+  inline U dot(const Vec3fX& other) const { return details::dot_prod3(data, other.data); }
   inline bool normalize()
   {
-    U sqr_length = details::dot_prod(data, data);
+    U sqr_length = details::dot_prod3(data, data);
     if(sqr_length > 0)
     {
       *this /= (U)sqrt(sqr_length);
@@ -95,15 +95,15 @@ public:
 
   inline Vec3fX normalized() const
   {
-    U sqr_length = details::dot_prod(data, data);
+    U sqr_length = details::dot_prod3(data, data);
     if(sqr_length > 0)
       return *this / (U)sqrt(sqr_length);
     else
       return *this;
   }
 
-  inline U length() const { return sqrt(details::dot_prod(data, data)); }
-  inline U sqrLength() const { return details::dot_prod(data, data); }
+  inline U length() const { return sqrt(details::dot_prod3(data, data)); }
+  inline U sqrLength() const { return details::dot_prod3(data, data); }
   inline void setValue(U x, U y, U z) { data.setValue(x, y, z); }
   inline void setValue(U x) { data.setValue(x); }
   inline bool equal(const Vec3fX& other, U epsilon = std::numeric_limits<U>::epsilon() * 100) const { return details::equal(data, other.data, epsilon); }
