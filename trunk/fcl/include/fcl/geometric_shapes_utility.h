@@ -43,74 +43,89 @@
 
 namespace fcl
 {
-  template<typename BV>
-  void computeBV(const Box& s, const SimpleTransform& tf, BV& bv) {}
 
-  template<typename BV>
-  void computeBV(const Sphere& s, const SimpleTransform& tf, BV& bv) {}
+namespace details
+{
+std::vector<Vec3f> getBoundVertices(const Box& box, const SimpleTransform& tf);
+std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const SimpleTransform& tf);
+std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransform& tf);
+std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf);
+std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransform& tf);
 
-  template<typename BV>
-  void computeBV(const Capsule& s, const SimpleTransform& tf, BV& bv) {}
+} // end detail
 
-  template<typename BV>
-  void computeBV(const Cone& s, const SimpleTransform& tf, BV& bv) {}
 
-  template<typename BV>
-  void computeBV(const Cylinder& s, const SimpleTransform& tf, BV& bv) {}
+template<typename BV, typename S>
+void computeBV(const S& s, const SimpleTransform& tf, BV& bv)
+{
+  std::vector<Vec3f> convex_bound_vertices = details::getBoundVertices(s, tf);
+  fit(&convex_bound_vertices[0], (int)convex_bound_vertices.size(), bv);
+}
 
-  template<typename BV>
-  void computeBV(const Convex& s, const SimpleTransform& tf, BV& bv) {}
+template<>
+void computeBV<AABB, Box>(const Box& s, const SimpleTransform& tf, AABB& bv);
 
-  /** the bounding volume for half space back of plane
-   * for OBB, it is the plane itself
-   */
-  template<typename BV>
-  void computeBV(const Plane& s, const SimpleTransform& tf, BV& bv) {}
+template<>
+void computeBV<AABB, Sphere>(const Sphere& s, const SimpleTransform& tf, AABB& bv);
 
-  /** For AABB */
-  template<>
-  void computeBV<AABB>(const Box& s, const SimpleTransform& tf, AABB& bv);
+template<>
+void computeBV<AABB, Capsule>(const Capsule& s, const SimpleTransform& tf, AABB& bv);
 
-  template<>
-  void computeBV<AABB>(const Sphere& s, const SimpleTransform& tf, AABB& bv);
+template<>
+void computeBV<AABB, Cone>(const Cone& s, const SimpleTransform& tf, AABB& bv);
 
-  template<>
-  void computeBV<AABB>(const Capsule& s, const SimpleTransform& tf, AABB& bv);
+template<>
+void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AABB& bv);
 
-  template<>
-  void computeBV<AABB>(const Cone& s, const SimpleTransform& tf, AABB& bv);
+template<>
+void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& bv);
 
-  template<>
-  void computeBV<AABB>(const Cylinder& s, const SimpleTransform& tf, AABB& bv);
 
-  template<>
-  void computeBV<AABB>(const Convex& s, const SimpleTransform& tf, AABB& bv);
+/** the bounding volume for half space back of plane for OBB, it is the plane itself */
+template<>
+void computeBV<AABB, Plane>(const Plane& s, const SimpleTransform& tf, AABB& bv);
 
-  template<>
-  void computeBV<AABB>(const Plane& s, const SimpleTransform& tf, AABB& bv);
 
-  template<>
-  void computeBV<OBB>(const Box& s, const SimpleTransform& tf, OBB& bv);
 
-  template<>
-  void computeBV<OBB>(const Sphere& s, const SimpleTransform& tf, OBB& bv);
+template<>
+void computeBV<OBB, Box>(const Box& s, const SimpleTransform& tf, OBB& bv);
 
-  template<>
-  void computeBV<OBB>(const Capsule& s, const SimpleTransform& tf, OBB& bv);
+template<>
+void computeBV<OBB, Sphere>(const Sphere& s, const SimpleTransform& tf, OBB& bv);
 
-  template<>
-  void computeBV<OBB>(const Cone& s, const SimpleTransform& tf, OBB& bv);
+template<>
+void computeBV<OBB, Capsule>(const Capsule& s, const SimpleTransform& tf, OBB& bv);
 
-  template<>
-  void computeBV<OBB>(const Cylinder& s, const SimpleTransform& tf, OBB& bv);
+template<>
+void computeBV<OBB, Cone>(const Cone& s, const SimpleTransform& tf, OBB& bv);
 
-  template<>
-  void computeBV<OBB>(const Convex& s, const SimpleTransform& tf, OBB& bv);
+template<>
+void computeBV<OBB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, OBB& bv);
 
-  template<>
-  void computeBV<OBB>(const Plane& s, const SimpleTransform& tf, OBB& bv);
+template<>
+void computeBV<OBB, Convex>(const Convex& s, const SimpleTransform& tf, OBB& bv);
 
-  // TODO: implement computeBV for RSS and KDOP
+template<>
+void computeBV<OBB, Plane>(const Plane& s, const SimpleTransform& tf, OBB& bv);
+
+template<>
+void computeBV<RSS, Plane>(const Plane& s, const SimpleTransform& tf, RSS& bv);
+
+template<>
+void computeBV<OBBRSS, Plane>(const Plane& s, const SimpleTransform& tf, OBBRSS& bv);
+
+template<>
+void computeBV<kIOS, Plane>(const Plane& s, const SimpleTransform& tf, kIOS& bv);
+
+template<>
+void computeBV<KDOP<16>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<16>& bv);
+
+template<>
+void computeBV<KDOP<18>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<18>& bv);
+
+template<>
+void computeBV<KDOP<24>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<24>& bv);
+
 }
 
 #endif

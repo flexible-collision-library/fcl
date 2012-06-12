@@ -78,13 +78,12 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) num_bv_tests++;
-    BV bv_shape;
-    computeBV(*model2, tf2, bv_shape);
-    return !model1->getBV(b1).bv.overlap(bv_shape);
+    return !model1->getBV(b1).bv.overlap(model2_bv);
   }
 
   const BVHModel<BV>* model1;
   const S* model2;
+  BV model2_bv;
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
@@ -129,13 +128,12 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) num_bv_tests++;
-    BV bv_shape;
-    computeBV(*model1, tf1, bv_shape);
-    return !model2->getBV(b2).bv.overlap(bv_shape);
+    return !model2->getBV(b2).bv.overlap(model1_bv);
   }
 
   const S* model1;
   const BVHModel<BV>* model2;
+  BV model1_bv;
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
@@ -250,9 +248,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    OBB bv_shape;
-    computeBV(*this->model2, this->tf2, bv_shape);
-    return !overlap(R, T, bv_shape, this->model1->getBV(b1).bv);
+    return !overlap(R, T, this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -368,9 +364,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    OBB bv_shape;
-    computeBV(*this->model1, this->tf1, bv_shape);
-    return !overlap(R, T, bv_shape, this->model2->getBV(b2).bv);
+    return !overlap(R, T, this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const

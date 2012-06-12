@@ -95,6 +95,8 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
   node.model2 = &model2;
   node.tf2 = tf2;
 
+  computeBV(model2, tf2, node.model2_bv);
+
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
   node.num_max_contacts = num_max_contacts;
@@ -138,6 +140,8 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV>& node,
   node.model2 = &model2;
   node.tf2 = tf2;
 
+  computeBV(model1, tf1, node.model1_bv);
+
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
   node.num_max_contacts = num_max_contacts;
@@ -163,6 +167,8 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node,
   node.tf1 = tf1;
   node.model2 = &model2;
   node.tf2 = tf2;
+
+  computeBV(model2, tf2, node.model2_bv);
 
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
@@ -191,6 +197,8 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S>& node,
   node.tf1 = tf1;
   node.model2 = &model2;
   node.tf2 = tf2;
+
+  computeBV(model1, tf1, node.model1_bv);
 
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;

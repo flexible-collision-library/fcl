@@ -41,8 +41,162 @@
 namespace fcl
 {
 
+namespace details
+{
+
+std::vector<Vec3f> getBoundVertices(const Box& box, const SimpleTransform& tf)
+{
+  std::vector<Vec3f> result(8);
+  BVH_REAL a = box.side[0] / 2;
+  BVH_REAL b = box.side[1] / 2;
+  BVH_REAL c = box.side[2] / 2;
+  result[0] = tf.transform(Vec3f(a, b, c));
+  result[1] = tf.transform(Vec3f(a, b, -c));
+  result[2] = tf.transform(Vec3f(a, -b, c));
+  result[3] = tf.transform(Vec3f(a, -b, -c));
+  result[4] = tf.transform(Vec3f(-a, b, c));
+  result[5] = tf.transform(Vec3f(-a, b, -c));
+  result[6] = tf.transform(Vec3f(-a, -b, c));
+  result[7] = tf.transform(Vec3f(-a, -b, -c));
+  
+  return result;
+}
+
+// we use icosahedron to bound the sphere
+std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const SimpleTransform& tf)
+{
+  std::vector<Vec3f> result(12);
+  const BVH_REAL m = (1 + sqrt(5.0)) / 2.0;
+  BVH_REAL edge_size = sphere.radius * 6 / (sqrt(27.0) + sqrt(15.0));
+  
+  BVH_REAL a = edge_size;
+  BVH_REAL b = m * edge_size;
+  result[0] = tf.transform(Vec3f(0, a, b));
+  result[1] = tf.transform(Vec3f(0, -a, b));
+  result[2] = tf.transform(Vec3f(0, a, -b));
+  result[3] = tf.transform(Vec3f(0, -a, -b));
+  result[4] = tf.transform(Vec3f(a, b, 0));
+  result[5] = tf.transform(Vec3f(-a, b, 0));
+  result[6] = tf.transform(Vec3f(a, -b, 0));
+  result[7] = tf.transform(Vec3f(-a, -b, 0));
+  result[8] = tf.transform(Vec3f(b, 0, a));
+  result[9] = tf.transform(Vec3f(b, 0, -a));
+  result[10] = tf.transform(Vec3f(-b, 0, a));
+  result[11] = tf.transform(Vec3f(-b, 0, -a));
+
+  return result;
+}
+
+std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransform& tf)
+{
+  std::vector<Vec3f> result(36);
+  const BVH_REAL m = (1 + sqrt(5.0)) / 2.0;
+
+  BVH_REAL hl = capsule.lz * 0.5;
+  BVH_REAL edge_size = capsule.radius * 6 / (sqrt(27.0) + sqrt(15.0));
+  BVH_REAL a = edge_size;
+  BVH_REAL b = m * edge_size;
+  BVH_REAL r2 = capsule.radius * 2 / sqrt(3.0);
+
+
+  result[0] = tf.transform(Vec3f(0, a, b + hl));
+  result[1] = tf.transform(Vec3f(0, -a, b + hl));
+  result[2] = tf.transform(Vec3f(0, a, -b + hl));
+  result[3] = tf.transform(Vec3f(0, -a, -b + hl));
+  result[4] = tf.transform(Vec3f(a, b, hl));
+  result[5] = tf.transform(Vec3f(-a, b, hl));
+  result[6] = tf.transform(Vec3f(a, -b, hl));
+  result[7] = tf.transform(Vec3f(-a, -b, hl));
+  result[8] = tf.transform(Vec3f(b, 0, a + hl));
+  result[9] = tf.transform(Vec3f(b, 0, -a + hl));
+  result[10] = tf.transform(Vec3f(-b, 0, a + hl));
+  result[11] = tf.transform(Vec3f(-b, 0, -a + hl));
+
+  result[12] = tf.transform(Vec3f(0, a, b - hl));
+  result[13] = tf.transform(Vec3f(0, -a, b - hl));
+  result[14] = tf.transform(Vec3f(0, a, -b - hl));
+  result[15] = tf.transform(Vec3f(0, -a, -b - hl));
+  result[16] = tf.transform(Vec3f(a, b, -hl));
+  result[17] = tf.transform(Vec3f(-a, b, -hl));
+  result[18] = tf.transform(Vec3f(a, -b, -hl));
+  result[19] = tf.transform(Vec3f(-a, -b, -hl));
+  result[20] = tf.transform(Vec3f(b, 0, a - hl));
+  result[21] = tf.transform(Vec3f(b, 0, -a - hl));
+  result[22] = tf.transform(Vec3f(-b, 0, a - hl));
+  result[23] = tf.transform(Vec3f(-b, 0, -a - hl));
+
+  BVH_REAL c = 0.5 * r2;
+  BVH_REAL d = capsule.radius;
+  result[24] = tf.transform(Vec3f(r2, 0, hl));
+  result[25] = tf.transform(Vec3f(c, d, hl));
+  result[26] = tf.transform(Vec3f(-c, d, hl));
+  result[27] = tf.transform(Vec3f(-r0, 0, hl));
+  result[28] = tf.transform(Vec3f(-c, -d, hl));
+  result[29] = tf.transform(Vec3f(c, -d, hl));
+
+  result[30] = tf.transform(Vec3f(r2, 0, -hl));
+  result[31] = tf.transform(Vec3f(c, d, -hl));
+  result[32] = tf.transform(Vec3f(-c, d, -hl));
+  result[33] = tf.transform(Vec3f(-r0, 0, -hl));
+  result[34] = tf.transform(Vec3f(-c, -d, -hl));
+  result[35] = tf.transform(Vec3f(c, -d, -hl));
+
+  return result;
+}
+
+
+std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf)
+{
+  std::vector<Vec3f> result(7);
+  
+  BVH_REAL hl = cone.lz * 0.5;
+  BVH_REAL r2 = cone.radius * 2 / sqrt(3.0);
+  BVH_REAL a = 0.5 * r2;
+  BVH_REAL b = cone.radius;
+
+  result[0] = tf.transform(Vec3f(r2, 0, -hl));
+  result[1] = tf.transform(Vec3f(c, d, -hl));
+  result[2] = tf.transform(Vec3f(-c, d, -hl));
+  result[3] = tf.transform(Vec3f(-r0, 0, -hl));
+  result[4] = tf.transform(Vec3f(-c, -d, -hl));
+  result[5] = tf.transform(Vec3f(c, -d, -hl));
+
+  result[6] = tf.transform(Vec3f(0, 0, hl));
+                          
+  return result;
+}
+
+std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransform& tf)
+{
+  std::vector<Vec3f> result;
+
+  BVH_REAL hl = cylinder.lz * 0.5;
+  BVH_REAL r2 = cylinder.radius * 2 / sqrt(3.0);
+  BVH_REAL a = 0.5 * r2;
+  BVH_REAL b = cylinder.radius;
+
+  result[0] = tf.transform(Vec3f(r2, 0, -hl));
+  result[1] = tf.transform(Vec3f(c, d, -hl));
+  result[2] = tf.transform(Vec3f(-c, d, -hl));
+  result[3] = tf.transform(Vec3f(-r0, 0, -hl));
+  result[4] = tf.transform(Vec3f(-c, -d, -hl));
+  result[5] = tf.transform(Vec3f(c, -d, -hl));
+
+  result[6] = tf.transform(Vec3f(r2, 0, hl));
+  result[7] = tf.transform(Vec3f(c, d, hl));
+  result[8] = tf.transform(Vec3f(-c, d, hl));
+  result[9] = tf.transform(Vec3f(-r0, 0, hl));
+  result[10] = tf.transform(Vec3f(-c, -d, hl));
+  result[11] = tf.transform(Vec3f(c, -d, hl));
+
+  return result;
+}
+
+} // end detail
+
+
 template<>
-void computeBV<AABB>(const Box& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Box>(const Box& s, const SimpleTransform& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -56,7 +210,7 @@ void computeBV<AABB>(const Box& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB>(const Sphere& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Sphere>(const Sphere& s, const SimpleTransform& tf, AABB& bv)
 {
   const Vec3f& T = tf.getTranslation();
 
@@ -65,7 +219,7 @@ void computeBV<AABB>(const Sphere& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB>(const Capsule& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Capsule>(const Capsule& s, const SimpleTransform& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -79,7 +233,7 @@ void computeBV<AABB>(const Capsule& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB>(const Cone& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Cone>(const Cone& s, const SimpleTransform& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -93,7 +247,7 @@ void computeBV<AABB>(const Cone& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB>(const Cylinder& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -107,7 +261,7 @@ void computeBV<AABB>(const Cylinder& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB>(const Convex& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -123,7 +277,7 @@ void computeBV<AABB>(const Convex& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB>(const Plane& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Plane>(const Plane& s, const SimpleTransform& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
 
@@ -154,7 +308,7 @@ void computeBV<AABB>(const Plane& s, const SimpleTransform& tf, AABB& bv)
 
 
 template<>
-void computeBV<OBB>(const Box& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Box>(const Box& s, const SimpleTransform& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -167,7 +321,7 @@ void computeBV<OBB>(const Box& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB>(const Sphere& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Sphere>(const Sphere& s, const SimpleTransform& tf, OBB& bv)
 {
   const Vec3f& T = tf.getTranslation();
 
@@ -179,7 +333,7 @@ void computeBV<OBB>(const Sphere& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB>(const Capsule& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Capsule>(const Capsule& s, const SimpleTransform& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -192,7 +346,7 @@ void computeBV<OBB>(const Capsule& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB>(const Cone& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Cone>(const Cone& s, const SimpleTransform& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -205,7 +359,7 @@ void computeBV<OBB>(const Cone& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB>(const Cylinder& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -218,7 +372,7 @@ void computeBV<OBB>(const Cylinder& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB>(const Convex& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Convex>(const Convex& s, const SimpleTransform& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -230,11 +384,10 @@ void computeBV<OBB>(const Convex& s, const SimpleTransform& tf, OBB& bv)
   bv.axis[2] = R * bv.axis[2];
 
   bv.To = R * bv.To + T;
-
 }
 
 template<>
-void computeBV<OBB>(const Plane& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Plane>(const Plane& s, const SimpleTransform& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -247,6 +400,46 @@ void computeBV<OBB>(const Plane& s, const SimpleTransform& tf, OBB& bv)
 
   Vec3f p = s.n * s.d;
   bv.To = R * p + T;
+}
+
+template<>
+void computeBV<RSS, Plane>(const Plane& s, const SimpleTransform& tf, RSS& bv)
+{
+  const Matrix3f& R = tf.getRotation();
+  const Vec3f& T = tf.getTranslation();
+
+  generateCoordinateSystem(s.n, bv.axis[1], bv.axis[2]);
+  bv.axis[0] = s.n;
+
+  bv.l[0] = std::numeric_limits<BVH_REAL>::max();
+  bv.l[1] = std::numeric_limits<BVH_REAL>::max();
+
+  bv.r = std::numeric_limits<BVH_REAL>::max();
+}
+
+template<>
+void computeBV<OBBRSS, Plane>(const Plane& s, const SimpleTransform& tf, OBBRSS& bv)
+{
+}
+
+template<>
+void computeBV<kIOS, Plane>(const Plane& s, const SimpleTransform& tf, kIOS& bv)
+{
+}
+
+template<>
+void computeBV<KDOP<16>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<16>& bv)
+{
+}
+
+template<>
+void computeBV<KDOP<18>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<18>& bv)
+{
+}
+
+template<>
+void computeBV<KDOP<24>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<24>& bv)
+{
 }
 
 void Box::computeLocalAABB()
