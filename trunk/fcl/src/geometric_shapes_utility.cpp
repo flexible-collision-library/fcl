@@ -130,14 +130,14 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransfor
   result[24] = tf.transform(Vec3f(r2, 0, hl));
   result[25] = tf.transform(Vec3f(c, d, hl));
   result[26] = tf.transform(Vec3f(-c, d, hl));
-  result[27] = tf.transform(Vec3f(-r0, 0, hl));
+  result[27] = tf.transform(Vec3f(-r2, 0, hl));
   result[28] = tf.transform(Vec3f(-c, -d, hl));
   result[29] = tf.transform(Vec3f(c, -d, hl));
 
   result[30] = tf.transform(Vec3f(r2, 0, -hl));
   result[31] = tf.transform(Vec3f(c, d, -hl));
   result[32] = tf.transform(Vec3f(-c, d, -hl));
-  result[33] = tf.transform(Vec3f(-r0, 0, -hl));
+  result[33] = tf.transform(Vec3f(-r2, 0, -hl));
   result[34] = tf.transform(Vec3f(-c, -d, -hl));
   result[35] = tf.transform(Vec3f(c, -d, -hl));
 
@@ -155,11 +155,11 @@ std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf)
   BVH_REAL b = cone.radius;
 
   result[0] = tf.transform(Vec3f(r2, 0, -hl));
-  result[1] = tf.transform(Vec3f(c, d, -hl));
-  result[2] = tf.transform(Vec3f(-c, d, -hl));
-  result[3] = tf.transform(Vec3f(-r0, 0, -hl));
-  result[4] = tf.transform(Vec3f(-c, -d, -hl));
-  result[5] = tf.transform(Vec3f(c, -d, -hl));
+  result[1] = tf.transform(Vec3f(a, b, -hl));
+  result[2] = tf.transform(Vec3f(-a, b, -hl));
+  result[3] = tf.transform(Vec3f(-r2, 0, -hl));
+  result[4] = tf.transform(Vec3f(-a, -b, -hl));
+  result[5] = tf.transform(Vec3f(a, -b, -hl));
 
   result[6] = tf.transform(Vec3f(0, 0, hl));
                           
@@ -176,18 +176,29 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransf
   BVH_REAL b = cylinder.radius;
 
   result[0] = tf.transform(Vec3f(r2, 0, -hl));
-  result[1] = tf.transform(Vec3f(c, d, -hl));
-  result[2] = tf.transform(Vec3f(-c, d, -hl));
-  result[3] = tf.transform(Vec3f(-r0, 0, -hl));
-  result[4] = tf.transform(Vec3f(-c, -d, -hl));
-  result[5] = tf.transform(Vec3f(c, -d, -hl));
+  result[1] = tf.transform(Vec3f(a, b, -hl));
+  result[2] = tf.transform(Vec3f(-a, b, -hl));
+  result[3] = tf.transform(Vec3f(-r2, 0, -hl));
+  result[4] = tf.transform(Vec3f(-a, -b, -hl));
+  result[5] = tf.transform(Vec3f(a, -b, -hl));
 
   result[6] = tf.transform(Vec3f(r2, 0, hl));
-  result[7] = tf.transform(Vec3f(c, d, hl));
-  result[8] = tf.transform(Vec3f(-c, d, hl));
-  result[9] = tf.transform(Vec3f(-r0, 0, hl));
-  result[10] = tf.transform(Vec3f(-c, -d, hl));
-  result[11] = tf.transform(Vec3f(c, -d, hl));
+  result[7] = tf.transform(Vec3f(a, b, hl));
+  result[8] = tf.transform(Vec3f(-a, b, hl));
+  result[9] = tf.transform(Vec3f(-r2, 0, hl));
+  result[10] = tf.transform(Vec3f(-a, -b, hl));
+  result[11] = tf.transform(Vec3f(a, -b, hl));
+
+  return result;
+}
+
+std::vector<Vec3f> getBoundVertices(const Convex& convex, const SimpleTransform& tf)
+{
+  std::vector<Vec3f> result(convex.num_points);
+  for(int i = 0; i < convex.num_points; ++i)
+  {
+    result[i] = tf.transform(convex.points[i]);
+  }
 
   return result;
 }

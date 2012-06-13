@@ -38,6 +38,7 @@
 #ifndef FCL_GEOMETRIC_SHAPES_UTILITY_H
 #define FCL_GEOMETRIC_SHAPES_UTILITY_H
 
+#include <vector>
 #include "fcl/geometric_shapes.h"
 #include "fcl/BV.h"
 
@@ -51,7 +52,7 @@ std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const SimpleTransform&
 std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransform& tf);
 std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf);
 std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransform& tf);
-
+std::vector<Vec3f> getBoundVertices(const Convex& convex, const SimpleTransform& tf);
 } // end detail
 
 
