@@ -82,7 +82,7 @@ template<>
 void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& bv);
 
 
-/** the bounding volume for half space back of plane for OBB, it is the plane itself */
+/** \brief the bounding volume for half space back of plane for OBB, it is the plane itself */
 template<>
 void computeBV<AABB, Plane>(const Plane& s, const SimpleTransform& tf, AABB& bv);
 

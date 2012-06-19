@@ -78,7 +78,7 @@ public:
   inline Vec3fX& operator -= (U t) { data -= t; return *this; }
   inline Vec3fX& operator *= (U t) { data *= t; return *this; }
   inline Vec3fX& operator /= (U t) { data /= t; return *this; }
-  inline Vec3fX operator - () { return Vec3fX(-data); }
+  inline Vec3fX operator - () const { return Vec3fX(-data); }
   inline Vec3fX cross(const Vec3fX& other) const { return Vec3fX(details::cross_prod(data, other.data)); }
   inline U dot(const Vec3fX& other) const { return details::dot_prod3(data, other.data); }
   inline bool normalize()

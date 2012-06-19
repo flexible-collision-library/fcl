@@ -221,6 +221,18 @@ public:
     return q.transform(v) + T;
   }
 
+  SimpleTransform inverse() const
+  {
+    Matrix3f Rinv = R.transpose();
+    return SimpleTransform(Rinv, Rinv * (-T));
+  }
+
+  SimpleTransform inverseTimes(const SimpleTransform& other) const
+  {
+    Vec3f v = other.T - T;
+    return SimpleTransform(R.transposeTimes(other.R), R.transposeTimes(v));
+  }
+
   const SimpleTransform& operator *= (const SimpleTransform& other)
   {
     T = q.transform(other.T) + T;

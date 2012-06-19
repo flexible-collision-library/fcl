@@ -205,6 +205,15 @@ bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
   triDeleteGJKObject(o2);
 }
 
+
+/** \brief distance computation between two shapes */
+template<typename S1, typename S2>
+BVH_REAL shapeDistance(const S1& s1, const SimpleTransform& tf1,
+                       const S2& s2, const SimpleTransform& tf2)
+{
+  return 0.0;
+}
+
 }
 
 #endif

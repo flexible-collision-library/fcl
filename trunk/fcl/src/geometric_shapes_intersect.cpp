@@ -82,6 +82,68 @@ struct ccd_triangle_t : public ccd_obj_t
   ccd_vec3_t c;
 };
 
+/*
+static int __ccdGJK(const void *obj1, const void *obj2,
+                    const ccd_t *ccd, ccd_simplex_t *simplex)
+{
+  unsigned long iterations;
+  ccd_vec3_t dir; // direction vector
+  ccd_support_t a, b, c;
+  int do_simplex_res;
+
+  // initialize simplex struct
+  ccdSimplexInit(simplex);
+
+  ccd->first_dir(obj1, obj2, &dir);
+  __ccdSupport(obj1, obj2, &dir, ccd, &a);
+  ccdSimplexAdd(simplex, &a);
+
+  // set up direction vector to as (O - last) which is exactly -last
+  ccdVec3Copy(&dir, &a.v);
+  ccdVec3Scale(&dir, -CCD_ONE);
+  __ccdSupport(obj1, obj2, &dir, ccd, &b);
+  ccdSimplexAdd(simplex, &b);
+
+  // start iterations
+  for(iterations = 0UL; iterations < ccd->max_iterations; ++iterations) 
+  {
+    ccd_vec3_t ba, bo, tmp;
+    ccdVec3Sub2(&ba, &a.v, &b.v);
+    ccdVec3Copy(&bo, &b.v);
+    ccdVec3Scale(&bo, -CCD_ONE);
+
+    ccd_real_t dot = ccdVec3Dot(&ba, &bo);
+    ccdVec3Cross(&tmp, &ba, &bo);
+    if(ccdIsZero(dot) || dot < CCD_ZERO)
+    {
+      ccdSimplexSet(simplex, 0, &b);
+      ccdSimpleSetSize(simplex, 1);
+      ccdVec3Copy(&dir, &bo);
+    }
+    else
+    {
+      tripleCross(&ba, &bo, &ba, &dir);
+    }
+    __ccdSupport(obj1, obj2, &dir, ccd, &c);
+    ccdSimplexAdd(simplex, &c);
+
+    if(ccdSimplexSize(simplex) == 2)
+    {
+      
+    }
+    else if(ccdSimplexSize(simplex) == 3)
+    {
+      
+    }
+
+
+
+  }
+}
+
+*/
+
+
 /** Basic shape to ccd shape */
 static void shapeToGJK(const ShapeBase& s, const SimpleTransform& tf, ccd_obj_t* o)
 {
