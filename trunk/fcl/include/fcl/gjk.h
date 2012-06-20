@@ -280,9 +280,9 @@ bool shapeDistance2(const S1& s1, const SimpleTransform& tf1,
 }
 
 template<typename S1, typename S2>
-bool shapeIntersect(const S1& s1, const SimpleTransform& tf1,
-                    const S2& s2, const SimpleTransform& tf2,
-                    Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+bool shapeIntersect2(const S1& s1, const SimpleTransform& tf1,
+                     const S2& s2, const SimpleTransform& tf2,
+                     Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   Vec3f guess(1, 0, 0);
   MinkowskiDiff shape;
