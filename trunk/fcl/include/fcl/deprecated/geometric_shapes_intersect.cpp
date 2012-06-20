@@ -42,6 +42,9 @@
 namespace fcl
 {
 
+namespace details
+{
+
 struct ccd_obj_t
 {
   ccd_vec3_t pos;
@@ -951,4 +954,6 @@ void triDeleteGJKObject(void* o_)
   delete o;
 }
 
-}
+} // details
+
+} // fcl

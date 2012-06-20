@@ -53,6 +53,7 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransfor
 std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf);
 std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransform& tf);
 std::vector<Vec3f> getBoundVertices(const Convex& convex, const SimpleTransform& tf);
+std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const SimpleTransform& tf);
 } // end detail
 
 
@@ -80,6 +81,9 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AAB
 
 template<>
 void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& bv);
+
+template<>
+void computeBV<AABB, Triangle2>(const Triangle2& s, const SimpleTransform& tf, AABB& bv);
 
 
 /** \brief the bounding volume for half space back of plane for OBB, it is the plane itself */

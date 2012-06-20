@@ -47,6 +47,9 @@
 namespace fcl
 {
 
+namespace details
+{
+
 /** \brief recall function used by GJK algorithm */
 typedef void (*GJKSupportFunction)(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v);
 typedef void (*GJKCenterFunction)(const void* obj, ccd_vec3_t* c);
@@ -154,6 +157,13 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
                Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal);
 
+bool GJKDistance(void* obj1, ccd_support_fn supp1,
+                 void* obj2, ccd_support_fn supp2,
+                 BVH_REAL* dist);
+
+
+} // details
+
 
 /** intersection checking between two shapes */
 template<typename S1, typename S2>
@@ -161,15 +171,15 @@ bool shapeIntersect(const S1& s1, const SimpleTransform& tf1,
                     const S2& s2, const SimpleTransform& tf2,
                     Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
-  void* o1 = GJKInitializer<S1>::createGJKObject(s1, tf1);
-  void* o2 = GJKInitializer<S2>::createGJKObject(s2, tf2);
+  void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
+  void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);
 
-  bool res =  GJKCollide(o1, GJKInitializer<S1>::getSupportFunction(), GJKInitializer<S1>::getCenterFunction(),
-                         o2, GJKInitializer<S2>::getSupportFunction(), GJKInitializer<S2>::getCenterFunction(),
-                         contact_points, penetration_depth, normal);
+  bool res =  details::GJKCollide(o1, details::GJKInitializer<S1>::getSupportFunction(), details::GJKInitializer<S1>::getCenterFunction(),
+                                  o2, details::GJKInitializer<S2>::getSupportFunction(), details::GJKInitializer<S2>::getCenterFunction(),
+                                  contact_points, penetration_depth, normal);
 
-  GJKInitializer<S1>::deleteGJKObject(o1);
-  GJKInitializer<S2>::deleteGJKObject(o2);
+  details::GJKInitializer<S1>::deleteGJKObject(o1);
+  details::GJKInitializer<S2>::deleteGJKObject(o2);
 
   return res;
 }
@@ -179,15 +189,15 @@ template<typename S>
 bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
-  void* o1 = GJKInitializer<S>::createGJKObject(s, tf);
-  void* o2 = triCreateGJKObject(P1, P2, P3);
+  void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf);
+  void* o2 = details::triCreateGJKObject(P1, P2, P3);
 
-  bool res = GJKCollide(o1, GJKInitializer<S>::getSupportFunction(), GJKInitializer<S>::getCenterFunction(),
-                        o2, triGetSupportFunction(), triGetCenterFunction(),
-                        contact_points, penetration_depth, normal);
+  bool res = details::GJKCollide(o1, details::GJKInitializer<S>::getSupportFunction(), details::GJKInitializer<S>::getCenterFunction(),
+                                 o2, details::triGetSupportFunction(), details::triGetCenterFunction(),
+                                 contact_points, penetration_depth, normal);
 
-  GJKInitializer<S>::deleteGJKObject(o1);
-  triDeleteGJKObject(o2);
+  details::GJKInitializer<S>::deleteGJKObject(o1);
+  details::triDeleteGJKObject(o2);
 
   return res;
 }
@@ -198,23 +208,18 @@ bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
                             Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
-  void* o1 = GJKInitializer<S>::createGJKObject(s, tf);
-  void* o2 = triCreateGJKObject(P1, P2, P3, R, T);
+  void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf);
+  void* o2 = details::triCreateGJKObject(P1, P2, P3, R, T);
 
-  bool res = GJKCollide(o1, GJKInitializer<S>::getSupportFunction(), GJKInitializer<S>::getCenterFunction(),
-                        o2, triGetSupportFunction(), triGetCenterFunction(),
-                        contact_points, penetration_depth, normal);
+  bool res = details::GJKCollide(o1, details::GJKInitializer<S>::getSupportFunction(), details::GJKInitializer<S>::getCenterFunction(),
+                                 o2, details::triGetSupportFunction(), details::triGetCenterFunction(),
+                                 contact_points, penetration_depth, normal);
 
-  GJKInitializer<S>::deleteGJKObject(o1);
-  triDeleteGJKObject(o2);
+  details::GJKInitializer<S>::deleteGJKObject(o1);
+  details::triDeleteGJKObject(o2);
 
   return res;
 }
-
-
-bool GJKDistance(void* obj1, ccd_support_fn supp1,
-                 void* obj2, ccd_support_fn supp2,
-                 BVH_REAL* dist);
 
 
 /** \brief distance computation between two shapes */
@@ -223,17 +228,17 @@ bool shapeDistance(const S1& s1, const SimpleTransform& tf1,
                    const S2& s2, const SimpleTransform& tf2,
                    BVH_REAL* dist)
 {
-  void* o1 = GJKInitializer<S1>::createGJKObject(s1, tf1);
-  void* o2 = GJKInitializer<S2>::createGJKObject(s2, tf2);
+  void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
+  void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);
 
-  bool res =  GJKDistance(o1, GJKInitializer<S1>::getSupportFunction(),
-                          o2, GJKInitializer<S2>::getSupportFunction(),
-                          dist);
+  bool res =  details::GJKDistance(o1, details::GJKInitializer<S1>::getSupportFunction(),
+                                   o2, details::GJKInitializer<S2>::getSupportFunction(),
+                                   dist);
 
   if(*dist > 0) *dist = std::sqrt(*dist);
 
-  GJKInitializer<S1>::deleteGJKObject(o1);
-  GJKInitializer<S2>::deleteGJKObject(o2);
+  details::GJKInitializer<S1>::deleteGJKObject(o1);
+  details::GJKInitializer<S2>::deleteGJKObject(o2);
 
   return res;
 }

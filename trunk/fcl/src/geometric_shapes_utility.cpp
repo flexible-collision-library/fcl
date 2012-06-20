@@ -203,6 +203,16 @@ std::vector<Vec3f> getBoundVertices(const Convex& convex, const SimpleTransform&
   return result;
 }
 
+std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const SimpleTransform& tf)
+{
+  std::vector<Vec3f> result(3);
+  result[0] = tf.transform(triangle.a);
+  result[1] = tf.transform(triangle.b);
+  result[2] = tf.transform(triangle.c);
+
+  return result;
+}
+
 } // end detail
 
 
@@ -283,6 +293,17 @@ void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& b
     Vec3f new_p = R * s.points[i] + T;
     bv_ += new_p;
   }
+
+  bv = bv_;
+}
+
+template<>
+void computeBV<AABB, Triangle2>(const Triangle2& s, const SimpleTransform& tf, AABB& bv)
+{
+  AABB bv_;
+  bv_ += tf.transform(s.a);
+  bv_ += tf.transform(s.b);
+  bv_ += tf.transform(s.c);
 
   bv = bv_;
 }
@@ -502,6 +523,14 @@ void Convex::computeLocalAABB()
 }
 
 void Plane::computeLocalAABB()
+{
+  AABB aabb;
+  computeBV<AABB>(*this, SimpleTransform(), aabb);
+  aabb_center = aabb.center();
+  aabb_radius = (aabb.min_ - aabb_center).length();
+}
+
+void Triangle2::computeLocalAABB()
 {
   AABB aabb;
   computeBV<AABB>(*this, SimpleTransform(), aabb);

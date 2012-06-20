@@ -57,6 +57,17 @@ public:
   OBJECT_TYPE getObjectType() const { return OT_GEOM; }
 };
 
+class Triangle2 : public ShapeBase
+{
+public:
+  Triangle2(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_) : a(a_), b(b_), c(c_) {}
+
+  void computeLocalAABB();
+  
+  NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
+
+  Vec3f a, b, c;
+};
 
 /** Center at zero point, axis aligned box */
 class Box : public ShapeBase

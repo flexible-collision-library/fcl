@@ -42,7 +42,7 @@
 #include "fcl/geometric_shapes.h"
 #include "fcl/BVH_model.h"
 #include "fcl/collision_node.h"
-#include "fcl/geometric_shapes_intersect.h"
+#include "fcl/narrowphase/narrowphase.h"
 
 
 namespace fcl

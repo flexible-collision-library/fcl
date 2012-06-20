@@ -34,17 +34,40 @@
 
 /** \author Jia Pan */
 
-#include "fcl/gjk.h"
+#include "fcl/narrowphase/gjk.h"
 
 namespace fcl
 {
 
-
+namespace details
+{
 
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 {
   switch(shape->getNodeType())
   {
+  case GEOM_TRIANGLE:
+    {
+      const Triangle2* triangle = static_cast<const Triangle2*>(shape);
+      BVH_REAL dota = dir.dot(triangle->a);
+      BVH_REAL dotb = dir.dot(triangle->b);
+      BVH_REAL dotc = dir.dot(triangle->c);
+      if(dota > dotb)
+      {
+        if(dotc > dota)
+          return triangle->c;
+        else
+          return triangle->a;
+      }
+      else
+      {
+        if(dotc > dotb)
+          return triangle->c;
+        else
+          return triangle->b;
+      }
+    }
+    break;
   case GEOM_BOX:
     {
       const Box* box = static_cast<const Box*>(shape);
@@ -115,14 +138,12 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_CONVEX:
     {
       const Convex* convex = static_cast<const Convex*>(shape);
-      const Vec3f& center = convex->center;
       BVH_REAL maxdot = - std::numeric_limits<BVH_REAL>::max();
       Vec3f* curp = convex->points;
       Vec3f bestv;
       for(size_t i = 0; i < convex->num_points; ++i, curp+=1)
       {
-        Vec3f p = (*curp) - center;
-        BVH_REAL dot = dir.dot(p);
+        BVH_REAL dot = dir.dot(*curp);
         if(dot > maxdot)
         {
           bestv = *curp;
@@ -142,9 +163,6 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   return Vec3f(0, 0, 0);
 }
 
-
-namespace details
-{
 
 BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, BVH_REAL* w, size_t& m)
 {
@@ -255,9 +273,14 @@ BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec
 }
 
 
-} // detail
-
-
+void GJK::initialize()
+{
+  ray = Vec3f();
+  nfree = 0;
+  status = Failed;
+  current = 0;
+  distance = 0.0;
+}
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 {
@@ -337,11 +360,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     switch(curr_simplex.rank)
     {
     case 2:
-      sqdist = details::projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, weights, mask); break;
+      sqdist = projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, weights, mask); break;
     case 3:
-      sqdist = details::projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, weights, mask); break;
+      sqdist = projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, weights, mask); break;
     case 4:
-      sqdist = details::projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, curr_simplex.c[3]->w, weights, mask); break;
+      sqdist = projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, curr_simplex.c[3]->w, weights, mask); break;
     }
       
     if(sqdist >= 0)
@@ -463,6 +486,16 @@ bool GJK::encloseOrigin()
   return false;
 }
 
+
+void EPA::initialize()
+{
+  status = Failed;
+  normal = Vec3f(0, 0, 0);
+  depth = 0;
+  nextsv = 0;
+  for(size_t i = 0; i < EPA_MAX_FACES; ++i)
+    stock.append(&fc_store[EPA_MAX_FACES-i-1]);
+}
 
 bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, BVH_REAL& dist)
 {
@@ -723,6 +756,6 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
   return false;
 }
 
-
+} // details
 
 } // fcl

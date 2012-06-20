@@ -44,6 +44,8 @@
 namespace fcl
 {
 
+namespace details
+{
 
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir); 
 
@@ -80,8 +82,6 @@ struct MinkowskiDiff
 
 };
 
-namespace details
-{
 
 BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, BVH_REAL* w, size_t& m);
 
@@ -89,7 +89,6 @@ BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, BVH_REAL*
 
 BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, BVH_REAL* w, size_t& m);
 
-}
 
 static const BVH_REAL GJK_EPS = 0.000001;
 static const size_t GJK_MAX_ITERATIONS = 128;
@@ -119,14 +118,7 @@ struct GJK
 
   GJK() { initialize(); }
   
-  void initialize()
-  {
-    ray = Vec3f();
-    nfree = 0;
-    status = Failed;
-    current = 0;
-    distance = 0.0;
-  }
+  void initialize();
 
   Status evaluate(const MinkowskiDiff& shape_, const Vec3f& guess);
 
@@ -160,6 +152,7 @@ static const size_t EPA_MAX_ITERATIONS = 255;
 
 struct EPA
 {
+private:
   typedef GJK::SimplexV SimplexV;
   struct SimplexF
   {
@@ -209,6 +202,8 @@ struct EPA
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
+public:
+
   enum Status {Valid, Touching, Degenerated, NonConvex, InvalidHull, OutOfFaces, OutOfVertices, AccuracyReached, FallBack, Failed};
   
   Status status;
@@ -225,15 +220,7 @@ struct EPA
     initialize();
   }
 
-  void initialize()
-  {
-    status = Failed;
-    normal = Vec3f(0, 0, 0);
-    depth = 0;
-    nextsv = 0;
-    for(size_t i = 0; i < EPA_MAX_FACES; ++i)
-      stock.append(&fc_store[EPA_MAX_FACES-i-1]);
-  }
+  void initialize();
 
   bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, BVH_REAL& dist);
 
@@ -248,21 +235,28 @@ struct EPA
   bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon& horizon);  
 };
 
+
+} // details
+
+
+
+
+
 template<typename S1, typename S2>
 bool shapeDistance2(const S1& s1, const SimpleTransform& tf1,
                     const S2& s2, const SimpleTransform& tf2,
                     BVH_REAL* distance)
 {
   Vec3f guess(1, 0, 0);
-  MinkowskiDiff shape;
+  details::MinkowskiDiff shape;
   shape.shapes[0] = &s1;
   shape.shapes[1] = &s2;
   shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
   shape.toshape0 = tf1.inverseTimes(tf2);
 
-  GJK gjk;
-  GJK::Status gjk_status = gjk.evaluate(shape, -guess);
-  if(gjk_status == GJK::Valid)
+  details::GJK gjk;
+  details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
+  if(gjk_status == details::GJK::Valid)
   {
     Vec3f w0, w1;
     for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
@@ -288,21 +282,21 @@ bool shapeIntersect2(const S1& s1, const SimpleTransform& tf1,
                      Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   Vec3f guess(1, 0, 0);
-  MinkowskiDiff shape;
+  details::MinkowskiDiff shape;
   shape.shapes[0] = &s1;
   shape.shapes[1] = &s2;
   shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
   shape.toshape0 = tf1.inverseTimes(tf2);
   
-  GJK gjk;
-  GJK::Status gjk_status = gjk.evaluate(shape, -guess);
+  details::GJK gjk;
+  details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
   switch(gjk_status)
   {
-  case GJK::Inside:
+  case details::GJK::Inside:
     {
-      EPA epa;
-      EPA::Status epa_status = epa.evaluate(gjk, -guess);
-      if(epa_status != EPA::Failed)
+      details::EPA epa;
+      details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
+      if(epa_status != details::EPA::Failed)
       {
         Vec3f w0;
         for(size_t i = 0; i < epa.result.rank; ++i)
@@ -312,6 +306,94 @@ bool shapeIntersect2(const S1& s1, const SimpleTransform& tf1,
         if(penetration_depth) *penetration_depth = -epa.depth;
         if(normal) *normal = -epa.normal;
         if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+        return true;
+      }
+      else return false;
+    }
+    break;
+  default:
+    ;
+  }
+
+  return false;
+}
+
+
+template<typename S>
+bool shapeTriangleIntersect2(const S& s, const SimpleTransform& tf,
+                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+                             Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+{
+  Triangle2 tri(P1, P2, P3);
+  Vec3f guess(1, 0, 0);
+  details::MinkowskiDiff shape;
+  shape.shapes[0] = &s;
+  shape.shapes[1] = &tri;
+  shape.toshape1 = tf.getRotation();
+  shape.toshape0 = tf.inverse();
+  
+  details::GJK gjk;
+  details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
+  switch(gjk_status)
+  {
+  case details::GJK::Inside:
+    {
+      details::EPA epa;
+      details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
+      if(epa_status != details::EPA::Failed)
+      {
+        Vec3f w0;
+        for(size_t i = 0; i < epa.result.rank; ++i)
+        {
+          w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+        }
+        if(penetration_depth) *penetration_depth = -epa.depth;
+        if(normal) *normal = -epa.normal;
+        if(contact_points) *contact_points = tf.transform(w0 - epa.normal*(epa.depth *0.5));
+        return true;
+      }
+      else return false;
+    }
+    break;
+  default:
+    ;
+  }
+
+  return false;
+}
+
+template<typename S>
+bool shapeTriangleIntersect2(const S& s, const SimpleTransform& tf,
+                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
+                             Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+{
+  Triangle2 tri(P1, P2, P3);
+  SimpleTransform tf2(R, T);
+  Vec3f guess(1, 0, 0);
+  details::MinkowskiDiff shape;
+  shape.shapes[0] = &s;
+  shape.shapes[1] = &tri;
+  shape.toshape1 = tf2.getRotation().transposeTimes(tf.getRotation());
+  shape.toshape0 = tf.inverseTimes(tf2);
+  
+  details::GJK gjk;
+  details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
+  switch(gjk_status)
+  {
+  case details::GJK::Inside:
+    {
+      details::EPA epa;
+      details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
+      if(epa_status != details::EPA::Failed)
+      {
+        Vec3f w0;
+        for(size_t i = 0; i < epa.result.rank; ++i)
+        {
+          w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+        }
+        if(penetration_depth) *penetration_depth = -epa.depth;
+        if(normal) *normal = -epa.normal;
+        if(contact_points) *contact_points = tf.transform(w0 - epa.normal*(epa.depth *0.5));
         return true;
       }
       else return false;
