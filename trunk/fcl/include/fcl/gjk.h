@@ -91,7 +91,7 @@ BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec
 
 }
 
-static const BVH_REAL GJK_EPS = 0.0001;
+static const BVH_REAL GJK_EPS = 0.000001;
 static const size_t GJK_MAX_ITERATIONS = 128;
 
 struct GJK
@@ -155,7 +155,7 @@ private:
 
 static const size_t EPA_MAX_FACES = 128;
 static const size_t EPA_MAX_VERTICES = 64;
-static const BVH_REAL EPA_EPS = 0.0001;
+static const BVH_REAL EPA_EPS = 0.000001;
 static const size_t EPA_MAX_ITERATIONS = 255;
 
 struct EPA
@@ -251,7 +251,7 @@ struct EPA
 template<typename S1, typename S2>
 bool shapeDistance2(const S1& s1, const SimpleTransform& tf1,
                     const S2& s2, const SimpleTransform& tf2,
-                    BVH_REAL& distance)
+                    BVH_REAL* distance)
 {
   Vec3f guess(1, 0, 0);
   MinkowskiDiff shape;
@@ -272,11 +272,14 @@ bool shapeDistance2(const S1& s1, const SimpleTransform& tf1,
       w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
     }
 
-    distance = (w0 - w1).length();
+    *distance = (w0 - w1).length();
     return true;
   }
   else
+  {
+    *distance = -1;
     return false;
+  }
 }
 
 template<typename S1, typename S2>
@@ -314,6 +317,8 @@ bool shapeIntersect2(const S1& s1, const SimpleTransform& tf1,
       else return false;
     }
     break;
+  default:
+    ;
   }
 
   return false;

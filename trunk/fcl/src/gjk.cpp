@@ -43,7 +43,7 @@ namespace fcl
 
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 {
-  switch(shape->getObjectType())
+  switch(shape->getNodeType())
   {
   case GEOM_BOX:
     {
