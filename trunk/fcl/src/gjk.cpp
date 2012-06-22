@@ -317,7 +317,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     Simplex& next_simplex = simplices[next];
       
     BVH_REAL rl = ray.sqrLength();
-    if(rl < GJK_EPS) // means origin is near the face of original simplex, return touch
+    if(rl < tolerance) // means origin is near the face of original simplex, return touch
     {
       status = Inside;
       break;
@@ -329,7 +329,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     bool found = false;
     for(size_t i = 0; i < 4; ++i)
     {
-      if((w - lastw[i]).sqrLength() < GJK_EPS)
+      if((w - lastw[i]).sqrLength() < tolerance)
       {
         found = true; break;
       }
@@ -348,7 +348,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     // check for termination, from bullet
     BVH_REAL omega = ray.dot(w) / rl;
     alpha = std::max(alpha, omega);
-    if((rl - alpha) - GJK_EPS * rl <= 0)
+    if((rl - alpha) - tolerance * rl <= 0)
     {
       removeVertex(simplices[current]);
       break;
@@ -391,7 +391,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       break;
     }
 
-    status = ((++iterations) < GJK_MAX_ITERATIONS) ? status : Failed;
+    status = ((++iterations) < max_iterations) ? status : Failed;
       
   } while(status == Valid);
 
@@ -489,12 +489,14 @@ bool GJK::encloseOrigin()
 
 void EPA::initialize()
 {
+  sv_store = new SimplexV[max_vertex_num];
+  fc_store = new SimplexF[max_face_num];
   status = Failed;
   normal = Vec3f(0, 0, 0);
   depth = 0;
   nextsv = 0;
-  for(size_t i = 0; i < EPA_MAX_FACES; ++i)
-    stock.append(&fc_store[EPA_MAX_FACES-i-1]);
+  for(size_t i = 0; i < max_face_num; ++i)
+    stock.append(&fc_store[max_face_num-i-1]);
 }
 
 bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, BVH_REAL& dist)
@@ -542,7 +544,7 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
     face->n = (b->w - a->w).cross(c->w - a->w);
     BVH_REAL l = face->n.length();
       
-    if(l > EPA_EPS)
+    if(l > tolerance)
     {
       if(!(getEdgeDist(face, a, b, face->d) ||
            getEdgeDist(face, b, c, face->d) ||
@@ -552,7 +554,7 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
       }
 
       face->n /= l;
-      if(forced || face->d >= -EPA_EPS)
+      if(forced || face->d >= -tolerance)
         return face;
       else
         status = NonConvex;
@@ -633,9 +635,9 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
       bind(tetrahedron[2], 2, tetrahedron[3], 1);
 
       status = Valid;
-      for(; iterations < EPA_MAX_ITERATIONS; ++iterations)
+      for(; iterations < max_iterations; ++iterations)
       {
-        if(nextsv < EPA_MAX_VERTICES)
+        if(nextsv < max_vertex_num)
         {
           SimplexHorizon horizon;
           SimplexV* w = &sv_store[nextsv++];
@@ -643,7 +645,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
           best->pass = ++pass;
           gjk.getSupport(best->n, *w);
           BVH_REAL wdist = best->n.dot(w->w) - best->d;
-          if(wdist > EPA_EPS)
+          if(wdist > tolerance)
           {
             for(size_t j = 0; (j < 3) && valid; ++j)
             {
@@ -719,7 +721,7 @@ bool EPA::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon
     const size_t e1 = nexti[e];
       
     // case 1: the new face is not degenerated, i.e., the new face is not coplanar with the old face f.
-    if(f->n.dot(w->w) - f->d < -EPA_EPS)
+    if(f->n.dot(w->w) - f->d < -tolerance)
     {
       SimplexF* nf = newFace(f->c[e1], f->c[e], w, false);
       if(nf)

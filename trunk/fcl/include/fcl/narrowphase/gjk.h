@@ -89,10 +89,6 @@ BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, BVH_REAL*
 
 BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, BVH_REAL* w, size_t& m);
 
-
-static const BVH_REAL GJK_EPS = 0.000001;
-static const size_t GJK_MAX_ITERATIONS = 128;
-
 struct GJK
 {
   struct SimplexV
@@ -116,7 +112,13 @@ struct GJK
   Simplex simplices[2];
 
 
-  GJK() { initialize(); }
+  GJK(unsigned int max_iterations_, BVH_REAL tolerance_) 
+  {
+    max_iterations = max_iterations_;
+    tolerance = tolerance_;
+
+    initialize(); 
+  }
   
   void initialize();
 
@@ -142,6 +144,9 @@ private:
   size_t current;
   Simplex* simplex;
   Status status;
+
+  BVH_REAL tolerance;
+  unsigned int max_iterations;
 };
 
 
@@ -202,6 +207,12 @@ private:
     SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
   };
 
+private:
+  unsigned int max_face_num;
+  unsigned int max_vertex_num;
+  unsigned int max_iterations;
+  BVH_REAL tolerance;
+
 public:
 
   enum Status {Valid, Touching, Degenerated, NonConvex, InvalidHull, OutOfFaces, OutOfVertices, AccuracyReached, FallBack, Failed};
@@ -210,14 +221,25 @@ public:
   GJK::Simplex result;
   Vec3f normal;
   BVH_REAL depth;
-  SimplexV sv_store[EPA_MAX_VERTICES];
-  SimplexF fc_store[EPA_MAX_FACES];
+  SimplexV* sv_store;
+  SimplexF* fc_store;
   size_t nextsv;
   SimplexList hull, stock;
 
-  EPA()
+  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_, unsigned int max_iterations_, BVH_REAL tolerance_)
   {
+    max_face_num = max_face_num_;
+    max_vertex_num = max_vertex_num_;
+    max_iterations = max_iterations_;
+    tolerance = tolerance_;
+
     initialize();
+  }
+
+  ~EPA()
+  {
+    delete [] sv_store;
+    delete [] fc_store;
   }
 
   void initialize();

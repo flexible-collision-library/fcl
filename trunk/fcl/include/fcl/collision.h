@@ -51,9 +51,24 @@ namespace fcl
  * performs the collision between them. 
  * Return value is the number of contacts returned 
  */
+
+template<typename NarrowPhaseSolver>
 int collide(const CollisionObject* o1, const CollisionObject* o2,
-             int num_max_contacts, bool exhaustive, bool enable_contact,
-             std::vector<Contact>& contacts);
+            const NarrowPhaseSolver* nsolver,
+            int num_max_contacts, bool exhaustive, bool enable_contact,
+            std::vector<Contact>& contacts);
+
+template<typename NarrowPhaseSolver>
+int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
+            const CollisionGeometry* o2, const SimpleTransform& tf2,
+            const NarrowPhaseSolver* nsolver,
+            int num_max_contacts, bool exhaustive, bool enable_contact,
+            std::vector<Contact>& contacts);
+
+
+int collide(const CollisionObject* o1, const CollisionObject* o2,
+            int num_max_contacts, bool exhaustive, bool enable_contact,
+            std::vector<Contact>& contacts);
 
 int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
             const CollisionGeometry* o2, const SimpleTransform& tf2,

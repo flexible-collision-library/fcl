@@ -155,10 +155,12 @@ void triDeleteGJKObject(void* o);
 /** \brief GJK collision algorithm */
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
+                unsigned int max_iterations, BVH_REAL tolerance,
                 Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal);
 
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
+                 unsigned int max_iterations, BVH_REAL tolerance,
                  BVH_REAL* dist);
 
 

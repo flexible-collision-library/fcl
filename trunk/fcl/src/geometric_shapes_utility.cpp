@@ -168,7 +168,7 @@ std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf)
 
 std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransform& tf)
 {
-  std::vector<Vec3f> result;
+  std::vector<Vec3f> result(12);
 
   BVH_REAL hl = cylinder.lz * 0.5;
   BVH_REAL r2 = cylinder.radius * 2 / sqrt(3.0);
@@ -474,69 +474,6 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<
 {
 }
 
-void Box::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
-}
-
-void Sphere::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = radius;
-}
-
-void Capsule::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
-}
-
-void Cone::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
-}
-
-void Cylinder::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
-}
-
-void Convex::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
-}
-
-void Plane::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
-}
-
-void Triangle2::computeLocalAABB()
-{
-  AABB aabb;
-  computeBV<AABB>(*this, SimpleTransform(), aabb);
-  aabb_center = aabb.center();
-  aabb_radius = (aabb.min_ - aabb_center).length();
-}
 
 
 

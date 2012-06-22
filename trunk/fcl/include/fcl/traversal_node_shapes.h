@@ -44,7 +44,7 @@
 namespace fcl
 {
 
-template<typename S1, typename S2>
+template<typename S1, typename S2, typename NarrowPhaseSolver>
 class ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
 public:
@@ -55,6 +55,8 @@ public:
 
     enable_contact = false;
     is_collision = false;
+
+    nsolver = NULL;
   }
 
   bool BVTesting(int, int) const
@@ -65,9 +67,9 @@ public:
   void leafTesting(int, int) const
   {
     if(enable_contact)
-      is_collision = shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal);
+      is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal);
     else
-      is_collision = shapeIntersect(*model1, tf1, *model2, tf2);
+      is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL);
   }
 
   const S1* model1;
@@ -83,7 +85,45 @@ public:
   bool enable_contact;
 
   mutable bool is_collision;
- };
+
+  const NarrowPhaseSolver* nsolver;
+};
+
+template<typename S1, typename S2, typename NarrowPhaseSolver>
+class ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
+{
+public:
+  ShapeDistanceTraversalNode() : DistanceTraversalNodeBase()
+  {
+    model1 = NULL;
+    model2 = NULL;
+
+    nsolver = NULL;
+  }
+
+  BVH_REAL BVTesting(int, int) const
+  {
+    return -1; // should not be used 
+  }
+
+  void leafTesting(int, int) const
+  {
+    is_collision = !nsolver->shapeDistance(*model1, tf1, *model2, tf2, &min_distance);
+  }
+
+  const S1* model1;
+  const S2* model2;
+
+  mutable BVH_REAL min_distance;
+  mutable Vec3f p1;
+  mutable Vec3f p2;
+
+  mutable bool is_collision;
+
+  const NarrowPhaseSolver* nsolver;
+};
+
+
 }
 
 #endif

@@ -42,10 +42,12 @@
 
 namespace fcl
 {
-typedef BVH_REAL (*DistanceFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2);
 
+template<typename NarrowPhaseSolver>
 struct DistanceFunctionMatrix
 {
+  typedef BVH_REAL (*DistanceFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver);
+  
   DistanceFunc distance_matrix[16][16];
 
   DistanceFunctionMatrix();

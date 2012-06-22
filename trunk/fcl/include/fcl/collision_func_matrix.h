@@ -45,12 +45,11 @@
 namespace fcl
 {
 
-
-typedef int (*CollisionFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
-
-
+template<typename NarrowPhaseSolver>
 struct CollisionFunctionMatrix
 {
+  typedef int (*CollisionFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
+
   CollisionFunc collision_matrix[16][16];
 
   CollisionFunctionMatrix();

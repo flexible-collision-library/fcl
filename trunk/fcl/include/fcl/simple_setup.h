@@ -48,10 +48,11 @@ namespace fcl
 {
 
 /** \brief Initialize traversal node for collision between two geometric shapes */
-template<typename S1, typename S2>
-bool initialize(ShapeCollisionTraversalNode<S1, S2>& node,
+template<typename S1, typename S2, typename NarrowPhaseSolver>
+bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
                 const S1& shape1, const SimpleTransform& tf1,
                 const S2& shape2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
                 bool enable_contact = false)
 {
   node.enable_contact = enable_contact;
@@ -59,14 +60,16 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2>& node,
   node.tf1 = tf1;
   node.model2 = &shape2;
   node.tf2 = tf2;
+  node.nsolver = nsolver;
   return true;
 }
 
 /** \brief Initialize traversal node for collision between one mesh and one shape, given current object transform */
-template<typename BV, typename S>
-bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
+template<typename BV, typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
                 BVHModel<BV>& model1, SimpleTransform& tf1,
                 const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
                 int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false,
                 bool use_refit = false, bool refit_bottomup = false)
 {
@@ -94,6 +97,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
   node.tf1 = tf1;
   node.model2 = &model2;
   node.tf2 = tf2;
+  node.nsolver = nsolver;
 
   computeBV(model2, tf2, node.model2_bv);
 
@@ -108,10 +112,11 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S>& node,
 
 
 /** \brief Initialize traversal node for collision between one mesh and one shape, given current object transform */
-template<typename S, typename BV>
-bool initialize(ShapeMeshCollisionTraversalNode<S, BV>& node,
+template<typename S, typename BV, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
                 const S& model1, const SimpleTransform& tf1,
                 BVHModel<BV>& model2, SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
                 int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false,
                 bool use_refit = false, bool refit_bottomup = false)
 {
@@ -139,6 +144,7 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV>& node,
   node.tf1 = tf1;
   node.model2 = &model2;
   node.tf2 = tf2;
+  node.nsolver = nsolver;
 
   computeBV(model1, tf1, node.model1_bv);
 
@@ -154,10 +160,11 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV>& node,
 
 
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type */
-template<typename S>
-bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node,
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
                 const BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
                 int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
@@ -167,6 +174,7 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node,
   node.tf1 = tf1;
   node.model2 = &model2;
   node.tf2 = tf2;
+  node.nsolver = nsolver;
 
   computeBV(model2, tf2, node.model2_bv);
 
@@ -184,10 +192,11 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S>& node,
 
 
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type */
-template<typename S>
-bool initialize(ShapeMeshCollisionTraversalNodeOBB<S>& node,
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
                 const S& model1, const SimpleTransform& tf1,
                 const BVHModel<OBB>& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
                 int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -197,6 +206,7 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S>& node,
   node.tf1 = tf1;
   node.model2 = &model2;
   node.tf2 = tf2;
+  node.nsolver = nsolver;
 
   computeBV(model1, tf1, node.model1_bv);
 
@@ -211,6 +221,201 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S>& node,
 
   return true;
 }
+
+
+/** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type */
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
+                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model2, tf2, node.model2_bv);
+
+  node.vertices = model1.vertices;
+  node.tri_indices = model1.tri_indices;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+
+  node.R = tf1.getRotation();
+  node.T = tf1.getTranslation();
+
+  return true;
+}
+
+
+/** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type */
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model1, tf1, node.model1_bv);
+
+  node.vertices = model2.vertices;
+  node.tri_indices = model2.tri_indices;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+
+  node.R = tf2.getRotation();
+  node.T = tf2.getTranslation();
+
+  return true;
+}
+
+
+/** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type */
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
+                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model2, tf2, node.model2_bv);
+
+  node.vertices = model1.vertices;
+  node.tri_indices = model1.tri_indices;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+
+  node.R = tf1.getRotation();
+  node.T = tf1.getTranslation();
+
+  return true;
+}
+
+
+/** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type */
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model1, tf1, node.model1_bv);
+
+  node.vertices = model2.vertices;
+  node.tri_indices = model2.tri_indices;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+
+  node.R = tf2.getRotation();
+  node.T = tf2.getTranslation();
+
+  return true;
+}
+
+
+/** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type */
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
+                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model2, tf2, node.model2_bv);
+
+  node.vertices = model1.vertices;
+  node.tri_indices = model1.tri_indices;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+
+  node.R = tf1.getRotation();
+  node.T = tf1.getTranslation();
+
+  return true;
+}
+
+
+/** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type */
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model1, tf1, node.model1_bv);
+
+  node.vertices = model2.vertices;
+  node.tri_indices = model2.tri_indices;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+  node.enable_contact = enable_contact;
+
+  node.R = tf2.getRotation();
+  node.T = tf2.getTranslation();
+
+  return true;
+}
+
+
+
 
 /** \brief Initialize traversal node for collision between two meshes, given the current transforms */
 template<typename BV>
@@ -496,6 +701,22 @@ bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
 #endif
 
 
+/** \brief Initialize traversal node for distance between two geometric shapes */
+template<typename S1, typename S2, typename NarrowPhaseSolver>
+bool initialize(ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
+                const S1& shape1, const SimpleTransform& tf1,
+                const S2& shape2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver)
+{
+  node.model1 = &shape1;
+  node.tf1 = tf1;
+  node.model2 = &shape2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  return true;
+}
+
 /** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshDistanceTraversalNode<BV>& node,
@@ -568,6 +789,249 @@ bool initialize(MeshDistanceTraversalNodekIOS& node,
 bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
                 const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2);
+
+
+template<typename BV, typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeDistanceTraversalNode<BV, S, NarrowPhaseSolver>& node,
+                BVHModel<BV>& model1, SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                bool use_refit = false, bool refit_bottomup = false)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  if(!tf1.isIdentity())
+  {
+    std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
+    for(int i = 0; i < model1.num_vertices; ++i)
+    {
+      Vec3f& p = model1.vertices[i];
+      Vec3f new_v = tf1.transform(p);
+      vertices_transformed1[i] = new_v;
+    }
+
+    model1.beginReplaceModel();
+    model1.replaceSubModel(vertices_transformed1);
+    model1.endReplaceModel(use_refit, refit_bottomup);
+
+    tf1.setIdentity();
+  }
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+  
+  node.vertices = model1.vertices;
+  node.tri_indices = model1.tri_indices;
+
+  computeBV(model2, tf2, node.model2_bv);
+
+  return true;
+}
+
+
+template<typename S, typename BV, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                BVHModel<BV>& model2, SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver,
+                bool use_refit = false, bool refit_bottomup = false)
+{
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+  
+  if(!tf2.isIdentity())
+  {
+    std::vector<Vec3f> vertices_transformed(model2.num_vertices);
+    for(int i = 0; i < model2.num_vertices; ++i)
+    {
+      Vec3f& p = model2.vertices[i];
+      Vec3f new_v = tf2.transform(p);
+      vertices_transformed[i] = new_v;
+    }
+
+    model2.beginReplaceModel();
+    model2.replaceSubModel(vertices_transformed);
+    model2.endReplaceModel(use_refit, refit_bottomup);
+
+    tf2.setIdentity();
+  }
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  node.vertices = model2.vertices;
+  node.tri_indices = model2.tri_indices;
+
+  computeBV(model1, tf1, node.model1_bv);
+  
+  return true;
+}
+
+
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
+                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model2, tf2, node.model2_bv);
+
+  node.vertices = model1.vertices;
+  node.tri_indices = model1.tri_indices;
+  node.R = tf1.getRotation();
+  node.T = tf1.getTranslation();
+
+  return true;
+}
+
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver)
+{
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model1, tf1, node.model1_bv);
+
+  node.vertices = model2.vertices;
+  node.tri_indices = model2.tri_indices;
+  node.R = tf2.getRotation();
+  node.T = tf2.getTranslation();
+
+  return true;
+}
+
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
+                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model2, tf2, node.model2_bv);
+
+  node.vertices = model1.vertices;
+  node.tri_indices = model1.tri_indices;
+  node.R = tf1.getRotation();
+  node.T = tf1.getTranslation();
+
+  return true;
+}
+
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver)
+{
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model1, tf1, node.model1_bv);
+
+  node.vertices = model2.vertices;
+  node.tri_indices = model2.tri_indices;
+  node.R = tf2.getRotation();
+  node.T = tf2.getTranslation();
+
+  return true;
+}
+
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
+                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model2, tf2, node.model2_bv);
+
+  node.vertices = model1.vertices;
+  node.tri_indices = model1.tri_indices;
+  node.R = tf1.getRotation();
+  node.T = tf1.getTranslation();
+
+  return true;
+}
+
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                const NarrowPhaseSolver* nsolver)
+{
+  if(model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.tf1 = tf1;
+  node.model2 = &model2;
+  node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV(model1, tf1, node.model1_bv);
+
+  node.vertices = model2.vertices;
+  node.tri_indices = model2.tri_indices;
+  node.R = tf2.getRotation();
+  node.T = tf2.getTranslation();
+
+  return true;
+}
+
+
 
 
 /** \brief Initialize traversal node for continuous collision detection between two meshes */

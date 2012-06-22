@@ -361,7 +361,8 @@ static int doSimplexDist(ccd_simplex_t *simplex, ccd_vec3_t *dir, ccd_real_t* di
 
 
 static ccd_real_t __ccdGJKDist(const void *obj1, const void *obj2,
-                               const ccd_t *ccd, ccd_simplex_t *simplex)
+                               const ccd_t *ccd, ccd_simplex_t *simplex,
+                               ccd_real_t tolerance)
 {
   unsigned long iterations;
   ccd_vec3_t dir; // direction vector
@@ -383,8 +384,10 @@ static ccd_real_t __ccdGJKDist(const void *obj1, const void *obj2,
   ccdVec3Copy(&dir, &last.v);
   ccdVec3Scale(&dir, -CCD_ONE);
 
+  bool collision_free = false;
+
   // start iterations
-  for (iterations = 0UL; iterations < ccd->max_iterations; ++iterations)
+  for(iterations = 0UL; iterations < ccd->max_iterations; ++iterations)
   {
     // obtain support point
     __ccdSupport(obj1, obj2, &dir, ccd, &last);
@@ -394,10 +397,10 @@ static ccd_real_t __ccdGJKDist(const void *obj1, const void *obj2,
     // - because if it is, objects are not intersecting at all.
     if(ccdVec3Dot(&last.v, &dir) < CCD_ZERO)
     {
+      collision_free = true;
       ccd_real_t dist = ccdVec3Len2(&last.v);
       if(min_dist < 0) min_dist = dist;
-      else 
-        min_dist = std::min(min_dist, dist);
+      else min_dist = std::min(min_dist, dist);
     }
 
     // add last support vector to simplex
@@ -408,26 +411,23 @@ static ccd_real_t __ccdGJKDist(const void *obj1, const void *obj2,
     ccd_real_t dist;
     do_simplex_res = doSimplexDist(simplex, &dir, &dist);
 
-    if(do_simplex_res == 1)
+    if((do_simplex_res == 1) && (!collision_free))
     {
       return -1; // intersection found
     }
-    else if(do_simplex_res == -1)
-    {
-      return min_dist;
-    }
+    else if(do_simplex_res == -1) collision_free = true;
 
     if(ccdIsZero(ccdVec3Len2(&dir)))
-    {
-      return min_dist; // intersection not found
-    }
+      collision_free = true;
+    
 
     if(min_dist > 0)
     {
-      if(fabs(min_dist - dist) < 0.000001 && iterations > 0)
+      ccd_real_t old_min_dist = min_dist;
+      min_dist = std::min(min_dist, dist);
+
+      if((fabs(min_dist - old_min_dist) < tolerance) && (iterations > 0))
         break;
-      else
-        min_dist = std::min(min_dist, dist);
     }
     else min_dist = dist;
   }
@@ -686,6 +686,7 @@ static void centerTriangle(const void* obj, ccd_vec3_t* c)
 
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
+                unsigned int max_iterations, BVH_REAL tolerance,
                 Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal)
 {
   ccd_t ccd;
@@ -699,8 +700,8 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   ccd.support2 = supp2;
   ccd.center1 = cen1;
   ccd.center2 = cen2;
-  ccd.max_iterations = 500;
-  ccd.mpr_tolerance = 1e-6;
+  ccd.max_iterations = max_iterations;
+  ccd.mpr_tolerance = tolerance;
 
   if(!contact_points)
   {
@@ -723,6 +724,7 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
 
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
+                 unsigned int max_iterations, BVH_REAL tolerance_,
                  BVH_REAL* res)
 {
   ccd_t ccd;
@@ -732,10 +734,12 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
   ccd.support1 = supp1;
   ccd.support2 = supp2;
   
-  ccd.max_iterations = 500;
+  ccd.max_iterations = max_iterations;
+  ccd_real_t tolerance = tolerance_;
   
+
   ccd_simplex_t simplex;
-  dist = __ccdGJKDist(obj1, obj2, &ccd, &simplex);
+  dist = __ccdGJKDist(obj1, obj2, &ccd, &simplex, tolerance);
   *res = dist;
   if(dist < 0) return false;
   else return true;

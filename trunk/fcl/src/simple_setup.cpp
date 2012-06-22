@@ -39,7 +39,6 @@
 
 namespace fcl
 {
-
 bool initialize(MeshCollisionTraversalNodeOBB& node,
                 const BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBB>& model2, const SimpleTransform& tf2,

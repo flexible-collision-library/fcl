@@ -41,11 +41,21 @@
 
 namespace fcl
 {
+
+
+template<typename NarrowPhaseSolver>
+BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver);
+
+template<typename NarrowPhaseSolver>
+BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
+                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+                  const NarrowPhaseSolver* nsolver);
+
+
 BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2);
 
 BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
                   const CollisionGeometry* o2, const SimpleTransform& tf2);
-
 }
 
 #endif

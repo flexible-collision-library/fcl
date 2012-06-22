@@ -36,47 +36,103 @@
 
 #include "fcl/distance.h"
 #include "fcl/distance_func_matrix.h"
+#include "fcl/narrowphase/narrowphase.h"
 
 #include <iostream>
 
 namespace fcl
 {
 
-static DistanceFunctionMatrix DistanceFunctionLookTable;
+static DistanceFunctionMatrix<GJKSolver_libccd> DistanceFunctionLookTable_libccd;
+static DistanceFunctionMatrix<GJKSolver_indep> DistanceFunctionLookTable_indep;
 
-BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2)
+template<typename NarrowPhaseSolver>
+BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver)
 {
-  return distance(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform());
+  return distance<NarrowPhaseSolver>(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), nsolver);
 }
 
-BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, 
-                  const CollisionGeometry* o2, const SimpleTransform& tf2)
+template<typename NarrowPhaseSolver>
+void* getDistanceLookTable() { return NULL; }
+
+template<>
+void* getDistanceLookTable<GJKSolver_libccd>()
 {
+  return &DistanceFunctionLookTable_libccd;
+}
+
+template<>
+void* getDistanceLookTable<GJKSolver_indep>()
+{
+  return &DistanceFunctionLookTable_indep;
+}
+
+template<typename NarrowPhaseSolver>
+BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, 
+                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+                  const NarrowPhaseSolver* nsolver_)
+{
+  const NarrowPhaseSolver* nsolver = nsolver_;
+  if(!nsolver_) 
+    nsolver = new NarrowPhaseSolver();
+
+  const DistanceFunctionMatrix<NarrowPhaseSolver>* looktable = static_cast<const DistanceFunctionMatrix<NarrowPhaseSolver>*>(getDistanceLookTable<NarrowPhaseSolver>());
+
   OBJECT_TYPE object_type1 = o1->getObjectType();
   NODE_TYPE node_type1 = o1->getNodeType();
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
+  BVH_REAL res;
+
   if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
-    if(!DistanceFunctionLookTable.distance_matrix[node_type2][node_type1])
+    if(!looktable->distance_matrix[node_type2][node_type1])
     {
       std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-      return 0;
+      res = 0;
     }
-
-    return DistanceFunctionLookTable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1);
+    else
+    {
+      res = looktable->distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver);
+    }
   }
   else
   {
-    if(!DistanceFunctionLookTable.distance_matrix[node_type1][node_type2])
+    if(!looktable->distance_matrix[node_type1][node_type2])
     {
       std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-      return 0;
+      res = 0;
     }
-
-    return DistanceFunctionLookTable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2);    
+    else
+    {
+      res = looktable->distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver);    
+    }
   }
+
+  if(!nsolver_)
+    delete nsolver;
+
+  return res;
 }
+
+template BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver);
+template BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver);
+template BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver);
+template BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver);
+
+BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2)
+{
+  GJKSolver_libccd solver;
+  return distance<GJKSolver_libccd>(o1, o2, &solver);
+}
+
+BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
+                  const CollisionGeometry* o2, const SimpleTransform& tf2)
+{
+  GJKSolver_libccd solver;
+  return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver);
+}
+
 
 }
