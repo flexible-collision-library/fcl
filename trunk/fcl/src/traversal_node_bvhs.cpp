@@ -40,18 +40,20 @@
 namespace fcl
 {
 
+namespace details
+{
 template<typename BV>
-static inline void meshCollisionLeafTesting(int b1, int b2,
-                                            const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                            Vec3f* vertices1, Vec3f* vertices2, 
-                                            Triangle* tri_indices1, Triangle* tri_indices2,
-                                            const Matrix3f& R, const Vec3f& T,
-                                            bool enable_statistics,
-                                            bool enable_contact,
-                                            bool exhaustive,
-                                            int num_max_contacts,
-                                            int& num_leaf_tests,
-                                            std::vector<BVHCollisionPair>& pairs)
+static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
+                                                        const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                        Vec3f* vertices1, Vec3f* vertices2, 
+                                                        Triangle* tri_indices1, Triangle* tri_indices2,
+                                                        const Matrix3f& R, const Vec3f& T,
+                                                        bool enable_statistics,
+                                                        bool enable_contact,
+                                                        bool exhaustive,
+                                                        int num_max_contacts,
+                                                        int& num_leaf_tests,
+                                                        std::vector<BVHCollisionPair>& pairs)
 {
   if(enable_statistics) num_leaf_tests++;
 
@@ -101,19 +103,21 @@ static inline void meshCollisionLeafTesting(int b1, int b2,
 }
 
 
+
+
 template<typename BV>
-static inline void meshDistanceLeafTesting(int b1, int b2,
-                                          const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                          Vec3f* vertices1, Vec3f* vertices2, 
-                                          Triangle* tri_indices1, Triangle* tri_indices2,
-                                          const Matrix3f& R, const Vec3f& T,
-                                          bool enable_statistics,
-                                          int& num_leaf_tests,
-                                          Vec3f& p1,
-                                          Vec3f& p2,
-                                          int& last_tri_id1,
-                                          int& last_tri_id2,
-                                          BVH_REAL& min_distance)
+static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
+                                                       const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                       Vec3f* vertices1, Vec3f* vertices2, 
+                                                       Triangle* tri_indices1, Triangle* tri_indices2,
+                                                       const Matrix3f& R, const Vec3f& T,
+                                                       bool enable_statistics,
+                                                       int& num_leaf_tests,
+                                                       Vec3f& p1,
+                                                       Vec3f& p2,
+                                                       int& last_tri_id1,
+                                                       int& last_tri_id2,
+                                                       BVH_REAL& min_distance)
 {
   if(enable_statistics) num_leaf_tests++;
 
@@ -153,7 +157,7 @@ static inline void meshDistanceLeafTesting(int b1, int b2,
   }
 }
 
-
+}
 
 MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBB>()
 {
@@ -169,13 +173,13 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
 
 void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 {
-  fcl::meshCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                tri_indices1, tri_indices2, 
-                                R, T, 
-                                enable_statistics, enable_contact, exhaustive,
-                                num_max_contacts, 
-                                num_leaf_tests,
-                                pairs);
+  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                                                tri_indices1, tri_indices2, 
+                                                R, T, 
+                                                enable_statistics, enable_contact, exhaustive,
+                                                num_max_contacts, 
+                                                num_leaf_tests,
+                                                pairs);
 }
 
 
@@ -187,13 +191,13 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2, const Matrix3f& Rc
 
 void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
 {
-  fcl::meshCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                tri_indices1, tri_indices2, 
-                                R, T, 
-                                enable_statistics, enable_contact, exhaustive,
-                                num_max_contacts, 
-                                num_leaf_tests,
-                                pairs);
+  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                                                tri_indices1, tri_indices2, 
+                                                R, T, 
+                                                enable_statistics, enable_contact, exhaustive,
+                                                num_max_contacts, 
+                                                num_leaf_tests,
+                                                pairs);
 }
 
 
@@ -212,13 +216,13 @@ bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
 
 void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 {
-  fcl::meshCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                                tri_indices1, tri_indices2, 
-                                R, T, 
-                                enable_statistics, enable_contact, exhaustive,
-                                num_max_contacts, 
-                                num_leaf_tests,
-                                pairs);
+  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                                                tri_indices1, tri_indices2, 
+                                                R, T, 
+                                                enable_statistics, enable_contact, exhaustive,
+                                                num_max_contacts, 
+                                                num_leaf_tests,
+                                                pairs);
 }
 
 
@@ -238,13 +242,13 @@ bool MeshCollisionTraversalNodekIOS::BVTesting(int b1, int b2) const
 
 void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
 {
- fcl::meshCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                               tri_indices1, tri_indices2, 
-                               R, T, 
-                               enable_statistics, enable_contact, exhaustive,
-                               num_max_contacts, 
-                               num_leaf_tests,
-                               pairs);
+  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                                                tri_indices1, tri_indices2, 
+                                                R, T, 
+                                                enable_statistics, enable_contact, exhaustive,
+                                                num_max_contacts, 
+                                                num_leaf_tests,
+                                                pairs);
 }
 
 
@@ -263,17 +267,55 @@ bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
 
 void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 {
- fcl::meshCollisionLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
-                               tri_indices1, tri_indices2, 
-                               R, T, 
-                               enable_statistics, enable_contact, exhaustive,
-                               num_max_contacts, 
-                               num_leaf_tests,
-                               pairs);
+  details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
+                                                tri_indices1, tri_indices2, 
+                                                R, T, 
+                                                enable_statistics, enable_contact, exhaustive,
+                                                num_max_contacts, 
+                                                num_leaf_tests,
+                                                pairs);
 }
 
 
 #if USE_SVMLIGHT
+
+
+namespace details
+{
+template<typename BV>
+static inline void pointCloudCollisionOrientedNodeLeafTesting(int b1, int b2, 
+                                                              const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                              Vec3f* vertices1, Vec3f* vertices2,
+                                                              const Matrix3f& R, const Vec3f& T,
+                                                              bool enable_statistics,
+                                                              BVH_REAL collision_prob_threshold,
+                                                              const boost::shared_arry<Uncertainty>& uc1, const boost::shared_array<Uncertainty>& uc2,
+                                                              const CloudClassifierParam classifier_param,
+                                                              int& num_leaf_tests,
+                                                              BVH_REAL& max_collision_prob,
+                                                              std::vector<BVHPointCollisionPair>& pairs)
+{
+  if(enable_statistics) num_leaf_tests++;
+  
+  const BVNode<BV>& node1 = model1->getBV(b1);
+  const BVNode<BV>& node2 = model2->getBV(b2);
+  
+  BVH_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
+                                                             node1.num_primitives,
+                                                             vertices2 + node2.first_primitive, uc2.get() + node2.first_primitive,
+                                                             node2.num_primitives,
+                                                             R, T,
+                                                             classifier_param);
+
+  if(collision_prob > collision_prob_threshold)
+    pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
+
+
+  if(collision_prob > max_collision_prob)
+    max_collision_prob = collision_prob;
+}
+
+}
 
 PointCloudCollisionTraversalNodeOBB::PointCloudCollisionTraversalNodeOBB() : PointCloudCollisionTraversalNode<OBB>()
 {
@@ -289,25 +331,15 @@ bool PointCloudCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
 
 void PointCloudCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<OBB>& node1 = model1->getBV(b1);
-  const BVNode<OBB>& node2 = model2->getBV(b2);
-
-  BVH_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                             node1.num_primitives,
-                                                             vertices2 + node2.first_primitive, uc2.get() + node2.first_primitive,
-                                                             node2.num_primitives,
-                                                             R, T,
-                                                             classifier_param);
-
-
-  if(collision_prob > collision_prob_threshold)
-    pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
-
-
-  if(collision_prob > max_collision_prob)
-    max_collision_prob = collision_prob;
+  details::pointCloudCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2,
+                                                      R, T, 
+                                                      enable_statistics, 
+                                                      collision_prob_threshold,
+                                                      uc1, uc2,
+                                                      classifier_param,
+                                                      num_leaf_tests,
+                                                      max_collision_prob,
+                                                      pairs);
 }
 
 PointCloudCollisionTraversalNodeRSS::PointCloudCollisionTraversalNodeRSS() : PointCloudCollisionTraversalNode<RSS>()
@@ -324,24 +356,58 @@ bool PointCloudCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
 
 void PointCloudCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 {
+  details::pointCloudCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2,
+                                                      R, T, 
+                                                      enable_statistics, 
+                                                      collision_prob_threshold,
+                                                      uc1, uc2,
+                                                      classifier_param,
+                                                      num_leaf_tests,
+                                                      max_collision_prob,
+                                                      pairs);
+}
+
+
+namespace details
+{
+
+template<typename BV>
+static inline void pointCloudMeshCollisionOrientedNodeLeafTesting(int b1, int b2,
+                                                                  const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                                  Vec3f* vertices1, Vec3f* vertices2,
+                                                                  Triangle* tri_indices2,
+                                                                  const Matrix3f& R, const Vec3f& T,
+                                                                  bool enable_statistics,
+                                                                  BVH_REAL collision_prob_threshold,
+                                                                  const boost::shared_array<Uncertainty>& uc1,
+                                                                  int& num_leaf_tests,
+                                                                  BVH_REAL& max_collision_prob,
+                                                                  std::vector<BVHPointCollisionPair>& pairs)
+{
   if(enable_statistics) num_leaf_tests++;
 
-  const BVNode<RSS>& node1 = model1->getBV(b1);
-  const BVNode<RSS>& node2 = model2->getBV(b2);
+  const BVNode<OBB>& node1 = model1->getBV(b1);
+  const BVNode<OBB>& node2 = model2->getBV(b2);
 
-  BVH_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                             node1.num_primitives,
-                                                             vertices2 + node2.first_primitive, uc2.get() + node2.first_primitive,
-                                                             node2.num_primitives,
-                                                             R, T,
-                                                             classifier_param);
 
+  const Triangle& tri_id2 = tri_indices2[node2.primitiveId()];
+
+  const Vec3f& q1 = vertices2[tri_id2[0]];
+  const Vec3f& q2 = vertices2[tri_id2[1]];
+  const Vec3f& q3 = vertices2[tri_id2[2]];
+
+  BVH_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
+                                                                     node1.num_primitives,
+                                                                     q1, q2, q3,
+                                                                     R, T);
 
   if(collision_prob > collision_prob_threshold)
     pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
 
   if(collision_prob > max_collision_prob)
     max_collision_prob = collision_prob;
+}
+
 }
 
 
@@ -359,28 +425,13 @@ bool PointCloudMeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
 
 void PointCloudMeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<OBB>& node1 = model1->getBV(b1);
-  const BVNode<OBB>& node2 = model2->getBV(b2);
-
-
-  const Triangle& tri_id2 = tri_indices2[node2.primitiveId()];
-
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  BVH_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                                     node1.num_primitives,
-                                                                     q1, q2, q3,
-                                                                     R, T);
-
-  if(collision_prob > collision_prob_threshold)
-    pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
-
-  if(collision_prob > max_collision_prob)
-    max_collision_prob = collision_prob;
+  details::pointCloudMeshCollisionOrientedNodeLeafTesting(b1, b2,
+                                                          model1, model2,
+                                                          vertices1, vertices2,
+                                                          tri_indices2,
+                                                          R, T,
+                                                          enable_statistics, collision_prob_threshold, uc1,
+                                                          num_leaf_tests, max_collision_prob, pairs);
 }
 
 PointCloudMeshCollisionTraversalNodeRSS::PointCloudMeshCollisionTraversalNodeRSS() : PointCloudMeshCollisionTraversalNode<RSS>()
@@ -397,27 +448,13 @@ bool PointCloudMeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
 
 void PointCloudMeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 {
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<RSS>& node1 = model1->getBV(b1);
-  const BVNode<RSS>& node2 = model2->getBV(b2);
-
-  const Triangle& tri_id2 = tri_indices2[node2.primitiveId()];
-
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  BVH_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                                     node1.num_primitives,
-                                                                     q1, q2, q3,
-                                                                     R, T);
-
-  if(collision_prob > collision_prob_threshold)
-    pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
-
-  if(collision_prob > max_collision_prob)
-    max_collision_prob = collision_prob;
+  details::pointCloudMeshCollisionOrientedNodeLeafTesting(b1, b2,
+                                                          model1, model2,
+                                                          vertices1, vertices2,
+                                                          tri_indices2,
+                                                          R, T,
+                                                          enable_statistics, collision_prob_threshold, uc1,
+                                                          num_leaf_tests, max_collision_prob, pairs);
 }
 
 #endif
@@ -487,9 +524,9 @@ BVH_REAL MeshDistanceTraversalNodeRSS::BVTesting(int b1, int b2) const
 
 void MeshDistanceTraversalNodeRSS::leafTesting(int b1, int b2) const
 {
-  fcl::meshDistanceLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-                               R, T, enable_statistics, num_leaf_tests, 
-                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
+  details::meshDistanceOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+                                               R, T, enable_statistics, num_leaf_tests, 
+                                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
 }
 
 MeshDistanceTraversalNodekIOS::MeshDistanceTraversalNodekIOS() : MeshDistanceTraversalNode<kIOS>()
@@ -516,9 +553,9 @@ BVH_REAL MeshDistanceTraversalNodekIOS::BVTesting(int b1, int b2) const
 
 void MeshDistanceTraversalNodekIOS::leafTesting(int b1, int b2) const
 {
-  fcl::meshDistanceLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-                               R, T, enable_statistics, num_leaf_tests, 
-                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
+  details::meshDistanceOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+                                               R, T, enable_statistics, num_leaf_tests, 
+                                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
 }
 
 MeshDistanceTraversalNodeOBBRSS::MeshDistanceTraversalNodeOBBRSS() : MeshDistanceTraversalNode<OBBRSS>()
@@ -545,9 +582,9 @@ BVH_REAL MeshDistanceTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
 
 void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 {
-  fcl::meshDistanceLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
-                               R, T, enable_statistics, num_leaf_tests, 
-                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
+  details::meshDistanceOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
+                                               R, T, enable_statistics, num_leaf_tests, 
+                                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
 }
 
 

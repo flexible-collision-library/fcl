@@ -34,105 +34,20 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_OBBRSS_H
-#define FCL_OBBRSS_H
-
-#include "fcl/BVH_internal.h"
-#include "fcl/vec_3f.h"
-#include "fcl/matrix_3f.h"
-#include "fcl/BV/OBB.h"
-#include "fcl/BV/RSS.h"
+#include "fcl/BV/OBBRSS.h"
 
 namespace fcl
 {
 
-class OBBRSS
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2)
 {
-public:
+  return overlap(R0, T0, b1.obb, b2.obb);
+}
 
-  OBB obb;
-  RSS rss;
-  
-  OBBRSS() {}
-  
-  bool overlap(const OBBRSS& other) const
-  {
-    return obb.overlap(other.obb);
-  }
-
-  bool overlap(const OBBRSS& other, OBBRSS& overlap_part) const
-  {
-    return overlap(other);
-  }
-
-  inline bool contain(const Vec3f& p) const
-  {
-    return obb.contain(p);
-  }
-
-  OBBRSS& operator += (const Vec3f& p) 
-  {
-    obb += p;
-    rss += p;
-    return *this;
-  }
-
-  OBBRSS& operator += (const OBBRSS& other)
-  {
-    *this = *this + other;
-    return *this;
-  }
-
-  OBBRSS operator + (const OBBRSS& other) const
-  {
-    OBBRSS result;
-    result.obb = obb + other.obb;
-    result.rss = rss + other.rss;
-    return result;
-  }
-
-  inline BVH_REAL width() const
-  {
-    return obb.width();
-  }
-
-  inline BVH_REAL height() const
-  {
-    return obb.height();
-  }
-
-  inline BVH_REAL depth() const
-  {
-    return obb.depth();
-  }
-
-  inline BVH_REAL volume() const
-  {
-    return obb.volume();
-  }
-
-  inline BVH_REAL size() const
-  {
-    return obb.size();
-  }
-
-  inline const Vec3f& center() const
-  {
-    return obb.center();
-  }
-
-  BVH_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
-  {
-    return rss.distance(other.rss, P, Q);
-  }
-};
-
-
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2);
-
-BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
-
+BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P, Vec3f* Q)
+{
+  return distance(R0, T0, b1.rss, b2.rss, P, Q);
 }
 
 
-#endif
+}

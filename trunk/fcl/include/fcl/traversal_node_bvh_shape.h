@@ -241,19 +241,21 @@ public:
 };
 
 
+namespace details
+{
 template<typename BV, typename S, typename NarrowPhaseSolver>
-static inline void meshShapeCollisionLeafTesting(int b1, int b2,
-                                                 const BVHModel<BV>* model1, const S& model2,
-                                                 Vec3f* vertices, Triangle* tri_indices,
-                                                 const Matrix3f& R, const Vec3f& T,
-                                                 const SimpleTransform& tf2,
-                                                 const NarrowPhaseSolver* nsolver,
-                                                 bool enable_statistics, 
-                                                 bool enable_contact,
-                                                 bool exhaustive,
-                                                 int num_max_contacts,
-                                                 int& num_leaf_tests,
-                                                 std::vector<BVHShapeCollisionPair>& pairs)
+static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
+                                                             const BVHModel<BV>* model1, const S& model2,
+                                                             Vec3f* vertices, Triangle* tri_indices,
+                                                             const Matrix3f& R, const Vec3f& T,
+                                                             const SimpleTransform& tf2,
+                                                             const NarrowPhaseSolver* nsolver,
+                                                             bool enable_statistics, 
+                                                             bool enable_contact,
+                                                             bool exhaustive,
+                                                             int num_max_contacts,
+                                                             int& num_leaf_tests,
+                                                             std::vector<BVHShapeCollisionPair>& pairs)
                                                  
 {
   if(enable_statistics) num_leaf_tests++;
@@ -287,6 +289,8 @@ static inline void meshShapeCollisionLeafTesting(int b1, int b2,
   }
 }
 
+}
+
 template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
 {
@@ -304,9 +308,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                  R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -331,9 +335,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                  R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -358,9 +362,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                  R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -385,9 +389,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                  R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -478,9 +482,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                  R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }
@@ -508,9 +512,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                  R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }
@@ -538,9 +542,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                  R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }
@@ -568,9 +572,9 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeCollisionLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                  R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                  this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+    details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
+                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }
@@ -732,18 +736,20 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 
+namespace details
+{
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
-void meshShapeDistanceLeafTesting(int b1, int b2,
-                                  const BVHModel<BV>* model1, const S& model2,
-                                  Vec3f* vertices, Triangle* tri_indices,
-                                  const Matrix3f&R, const Vec3f& T,
-                                  const SimpleTransform& tf2,
-                                  const NarrowPhaseSolver* nsolver,
-                                  bool enable_statistics,
-                                  int & num_leaf_tests,
-                                  int& last_tri_id,
-                                  BVH_REAL& min_distance)
+void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
+                                              const BVHModel<BV>* model1, const S& model2,
+                                              Vec3f* vertices, Triangle* tri_indices,
+                                              const Matrix3f&R, const Vec3f& T,
+                                              const SimpleTransform& tf2,
+                                              const NarrowPhaseSolver* nsolver,
+                                              bool enable_statistics,
+                                              int & num_leaf_tests,
+                                              int& last_tri_id,
+                                              BVH_REAL& min_distance)
 {
   if(enable_statistics) num_leaf_tests++;
     
@@ -765,6 +771,8 @@ void meshShapeDistanceLeafTesting(int b1, int b2,
 
     last_tri_id = primitive_id;
   }
+}
+
 }
 
 
@@ -824,8 +832,8 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeDistanceLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                 R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+    details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+                                                      R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
   Matrix3f R;
@@ -860,8 +868,8 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeDistanceLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                 R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+    details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+                                                      R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
   Matrix3f R;
@@ -895,8 +903,8 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeDistanceLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                 R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+    details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
+                                                      R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
   Matrix3f R;
@@ -994,8 +1002,8 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeDistanceLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                 R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+    details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
+                                                      R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
   Matrix3f R;
@@ -1029,8 +1037,8 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeDistanceLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                 R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+    details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
+                                                      R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
   Matrix3f R;
@@ -1064,8 +1072,8 @@ public:
 
   void leafTesting(int b1, int b2) const
   {
-    meshShapeDistanceLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                 R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+    details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
+                                                      R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
   Matrix3f R;
