@@ -137,7 +137,6 @@ namespace fcl
     BVH_REAL determinant() const;
     Matrix3f transpose() const;
     Matrix3f inverse() const;
-    Matrix3f abs() const;
 
     Matrix3f transposeTimes(const Matrix3f& m) const;
     Matrix3f timesTranspose(const Matrix3f& m) const;
@@ -171,6 +170,11 @@ namespace fcl
       return v_[0][2] * v[0] + v_[1][2] * v[1] + v_[2][2] * v[2];
     }
 
+    inline BVH_REAL transposeDot(size_t i, const Vec3f& v) const
+    {
+      return v_[0][i] * v[0] + v_[1][i] * v[1] + v_[2][i] * v[2];
+    }
+    
     inline void setValue(BVH_REAL xx, BVH_REAL xy, BVH_REAL xz,
                          BVH_REAL yx, BVH_REAL yy, BVH_REAL yz,
                          BVH_REAL zx, BVH_REAL zy, BVH_REAL zz)
@@ -179,7 +183,7 @@ namespace fcl
       v_[1].setValue(yx, yy, yz);
       v_[2].setValue(zx, zy, zz);
     }
-
+    
     inline void setValue(BVH_REAL x)
     {
       v_[0].setValue(x);
@@ -191,6 +195,8 @@ namespace fcl
   void relativeTransform(const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, Matrix3f& R, Vec3f& T);
 
   void matEigen(const Matrix3f& R, BVH_REAL dout[3], Vec3f vout[3]);
+
+  Matrix3f abs(const Matrix3f& R);
 }
 
 #endif

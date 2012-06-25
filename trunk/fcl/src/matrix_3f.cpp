@@ -71,13 +71,6 @@ Matrix3f Matrix3f::transpose() const
                   v_[0][2], v_[1][2], v_[2][2]);
 }
 
-Matrix3f Matrix3f::abs() const
-{
-  return Matrix3f(fabs(v_[0][0]), fabs(v_[0][1]), fabs(v_[0][2]),
-                  fabs(v_[1][0]), fabs(v_[1][1]), fabs(v_[1][2]),
-                  fabs(v_[2][0]), fabs(v_[2][1]), fabs(v_[2][2]));
-}
-
 Matrix3f Matrix3f::inverse() const
 {
   BVH_REAL det = determinant();
@@ -234,6 +227,14 @@ void matEigen(const Matrix3f& m, BVH_REAL dout[3], Vec3f vout[3])
   return;
 
 }
+
+Matrix3f abs(const Matrix3f& R)
+{
+  return Matrix3f(fabs(R.v_[0][0]), fabs(R.v_[0][1]), fabs(R.v_[0][2]),
+                  fabs(R.v_[1][0]), fabs(R.v_[1][1]), fabs(R.v_[1][2]),
+                  fabs(R.v_[2][0]), fabs(R.v_[2][1]), fabs(R.v_[2][2]));
+}
+
 
 
 }

@@ -41,6 +41,7 @@
 #include "fcl/narrowphase/gjk_libccd.h"
 
 
+
 namespace fcl
 {
 
@@ -192,6 +193,30 @@ struct GJKSolver_libccd
 
 
 
+template<>
+bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
+                                                      const Sphere& s2, const SimpleTransform& tf2,
+                                                      Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const;
+/*
+template<> 
+bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
+                                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const;
+
+template<> 
+bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
+                                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T, Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const;
+
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const SimpleTransform& tf1,
+                                                const Box& s2, const SimpleTransform& tf2,
+                                                Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const;
+*/
+
+template<>
+bool GJKSolver_libccd::shapeDistance<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
+                                                     const Sphere& s2, const SimpleTransform& tf2,
+                                                     BVH_REAL* dist) const;
 
 struct GJKSolver_indep
 {
@@ -453,8 +478,22 @@ struct GJKSolver_indep
   BVH_REAL gjk_max_iterations;
 };
 
+template<>
+bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
+                                                      const Sphere& s2, const SimpleTransform& tf2,
+                                                      Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const;
 
+/*
+template<>
+bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const SimpleTransform& tf1,
+                                                const Box& s2, const SimpleTransform& tf2,
+                                                Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const;
+*/
 
+template<>
+bool GJKSolver_indep::shapeDistance<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
+                                                    const Sphere& s2, const SimpleTransform& tf2,
+                                                    BVH_REAL* dist) const;
 
 }
 

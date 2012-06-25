@@ -113,7 +113,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
   register BVH_REAL t, s;
   const BVH_REAL reps = 1e-6;
 
-  Matrix3f Bf = B.abs();
+  Matrix3f Bf = abs(B);
   Bf += reps;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
