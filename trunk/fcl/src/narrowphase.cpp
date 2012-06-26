@@ -1241,57 +1241,6 @@ bool boxBoxIntersect(const Box& s1, const SimpleTransform& tf1,
   return return_code != 0;
 }
 
-bool boxTriangleIntersect(const Box& s, const SimpleTransform& tf,
-                          const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
-                          Vec3f* contact_points, BVH_REAL* penetration_depth_, Vec3f* normal_)
-{
-    Real min0, max0, min1, max1;
-    Vector3<Real> D, edge[3];
-
-    // Test direction of triangle normal.
-    edge[0] = mTriangle->V[1] - mTriangle->V[0];
-    edge[1] = mTriangle->V[2] - mTriangle->V[0];
-    D = edge[0].Cross(edge[1]);
-    min0 = D.Dot(mTriangle->V[0]);
-    max0 = min0;
-    IntrAxis<Real>::GetProjection(D, *mBox, min1, max1);
-    if (max1 < min0 || max0 < min1)
-    {
-        return false;
-    }
-
-    // Test direction of box faces.
-    for (int i = 0; i < 3; ++i)
-    {
-        D = mBox->Axis[i];
-        IntrAxis<Real>::GetProjection(D, *mTriangle, min0, max0);
-        Real DdC = D.Dot(mBox->Center);
-        min1 = DdC - mBox->Extent[i];
-        max1 = DdC + mBox->Extent[i];
-        if (max1 < min0 || max0 < min1)
-        {
-            return false;
-        }
-    }
-
-    // Test direction of triangle-box edge cross products.
-    edge[2] = edge[1] - edge[0];
-    for (int i0 = 0; i0 < 3; ++i0)
-    {
-        for (int i1 = 0; i1 < 3; ++i1)
-        {
-            D = edge[i0].Cross(mBox->Axis[i1]);
-            IntrAxis<Real>::GetProjection(D, *mTriangle, min0, max0);
-            IntrAxis<Real>::GetProjection(D, *mBox, min1, max1);
-            if (max1 < min0 || max0 < min1)
-            {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
 
 
 
