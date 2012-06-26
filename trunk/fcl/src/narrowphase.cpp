@@ -86,7 +86,7 @@ bool sphereSphereDistance(const Sphere& s1, const SimpleTransform& tf1,
   return false;
 }
 
-
+/** \brief the minimum distance from a point to a line */
 BVH_REAL segmentSqrDistance(const Vec3f& from, const Vec3f& to,const Vec3f& p, Vec3f& nearest) 
 {
   Vec3f diff = p - from;
@@ -114,7 +114,8 @@ BVH_REAL segmentSqrDistance(const Vec3f& from, const Vec3f& to,const Vec3f& p, V
   return diff.dot(diff);	
 }
 
-bool pointInTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3, const Vec3f& normal, const Vec3f& p)
+/** \brief Whether a point's projection is in a triangle */
+bool projectInTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3, const Vec3f& normal, const Vec3f& p)
 {
   Vec3f edge1(p2 - p1);
   Vec3f edge2(p3 - p2);
@@ -143,10 +144,10 @@ bool sphereTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal_)
 {
   Vec3f normal = (P2 - P1).cross(P3 - P1);
-  normal.normalized();
+  normal.normalize();
   const Vec3f& center = tf.getTranslation();
   const BVH_REAL& radius = s.radius;
-  BVH_REAL radius_with_threshold = radius + 1e-6; // std::numeric_limits<BVH_REAL>::epsilon();
+  BVH_REAL radius_with_threshold = radius + std::numeric_limits<BVH_REAL>::epsilon();
   Vec3f p1_to_center = center - P1;
   BVH_REAL distance_from_plane = p1_to_center.dot(normal);
 
@@ -162,7 +163,7 @@ bool sphereTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
   Vec3f contact_point;
   if(is_inside_contact_plane)
   {
-    if(pointInTriangle(P1, P2, P3, center, normal))
+    if(projectInTriangle(P1, P2, P3, center, normal))
     {
       has_contact = true;
       contact_point = center - normal * distance_from_plane;
@@ -222,6 +223,247 @@ bool sphereTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
   }
 
   return false;
+}
+
+bool sphereTriangleDistance(const Sphere& sp, const SimpleTransform& tf,
+                            const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+                            BVH_REAL* dist)
+{
+  // from geometric tools, very different from the collision code.
+
+  const Vec3f& center = tf.getTranslation();
+  BVH_REAL radius = sp.radius;
+  Vec3f diff = P1 - center;
+  Vec3f edge0 = P2 - P1;
+  Vec3f edge1 = P3 - P1;
+  BVH_REAL a00 = edge0.sqrLength();
+  BVH_REAL a01 = edge0.dot(edge1);
+  BVH_REAL a11 = edge1.sqrLength();
+  BVH_REAL b0 = diff.dot(edge0);
+  BVH_REAL b1 = diff.dot(edge1);
+  BVH_REAL c = diff.sqrLength();
+  BVH_REAL det = fabs(a00*a11 - a01*a01);
+  BVH_REAL s = a01*b1 - a11*b0;
+  BVH_REAL t = a01*b0 - a00*b1;
+
+  BVH_REAL sqr_dist;
+
+  if(s + t <= det)
+  {
+    if(s < 0)
+    {
+      if(t < 0)  // region 4
+      {
+        if(b0 < 0)
+        {
+          t = 0;
+          if(-b0 >= a00)
+          {
+            s = 1;
+            sqr_dist = a00 + 2*b0 + c;
+          }
+          else
+          {
+            s = -b0/a00;
+            sqr_dist = b0*s + c;
+          }
+        }
+        else
+        {
+          s = 0;
+          if(b1 >= 0)
+          {
+            t = 0;
+            sqr_dist = c;
+          }
+          else if(-b1 >= a11)
+          {
+            t = 1;
+            sqr_dist = a11 + 2*b1 + c;
+          }
+          else
+          {
+            t = -b1/a11;
+            sqr_dist = b1*t + c;
+          }
+        }
+      }
+      else  // region 3
+      {
+        s = 0;
+        if(b1 >= 0)
+        {
+          t = 0;
+          sqr_dist = c;
+        }
+        else if(-b1 >= a11)
+        {
+          t = 1;
+          sqr_dist = a11 + 2*b1 + c;
+        }
+        else
+        {
+          t = -b1/a11;
+          sqr_dist = b1*t + c;
+        }
+      }
+    }
+    else if(t < 0)  // region 5
+    {
+      t = 0;
+      if(b0 >= 0)
+      {
+        s = 0;
+        sqr_dist = c;
+      }
+      else if(-b0 >= a00)
+      {
+        s = 1;
+        sqr_dist = a00 + 2*b0 + c;
+      }
+      else
+      {
+        s = -b0/a00;
+        sqr_dist = b0*s + c;
+      }
+    }
+    else  // region 0
+    {
+      // minimum at interior point
+      BVH_REAL inv_det = (1)/det;
+      s *= inv_det;
+      t *= inv_det;
+      sqr_dist = s*(a00*s + a01*t + 2*b0) + t*(a01*s + a11*t + 2*b1) + c;
+    }
+  }
+  else
+  {
+    BVH_REAL tmp0, tmp1, numer, denom;
+
+    if(s < 0)  // region 2
+    {
+      tmp0 = a01 + b0;
+      tmp1 = a11 + b1;
+      if(tmp1 > tmp0)
+      {
+        numer = tmp1 - tmp0;
+        denom = a00 - 2*a01 + a11;
+        if(numer >= denom)
+        {
+          s = 1;
+          t = 0;
+          sqr_dist = a00 + 2*b0 + c;
+        }
+        else
+        {
+          s = numer/denom;
+          t = 1 - s;
+          sqr_dist = s*(a00*s + a01*t + 2*b0) + t*(a01*s + a11*t + 2*b1) + c;
+        }
+      }
+      else
+      {
+        s = 0;
+        if(tmp1 <= 0)
+        {
+          t = 1;
+          sqr_dist = a11 + 2*b1 + c;
+        }
+        else if(b1 >= 0)
+        {
+          t = 0;
+          sqr_dist = c;
+        }
+        else
+        {
+          t = -b1/a11;
+          sqr_dist = b1*t + c;
+        }
+      }
+    }
+    else if(t < 0)  // region 6
+    {
+      tmp0 = a01 + b1;
+      tmp1 = a00 + b0;
+      if(tmp1 > tmp0)
+      {
+        numer = tmp1 - tmp0;
+        denom = a00 - 2*a01 + a11;
+        if(numer >= denom)
+        {
+          t = 1;
+          s = 0;
+          sqr_dist = a11 + 2*b1 + c;
+        }
+        else
+        {
+          t = numer/denom;
+          s = 1 - t;
+          sqr_dist = s*(a00*s + a01*t + 2*b0) + t*(a01*s + a11*t + 2*b1) + c;
+        }
+      }
+      else
+      {
+        t = 0;
+        if(tmp1 <= 0)
+        {
+          s = 1;
+          sqr_dist = a00 + 2*b0 + c;
+        }
+        else if(b0 >= 0)
+        {
+          s = 0;
+          sqr_dist = c;
+        }
+        else
+        {
+          s = -b0/a00;
+          sqr_dist = b0*s + c;
+        }
+      }
+    }
+    else  // region 1
+    {
+      numer = a11 + b1 - a01 - b0;
+      if(numer <= 0)
+      {
+        s = 0;
+        t = 1;
+        sqr_dist = a11 + 2*b1 + c;
+      }
+      else
+      {
+        denom = a00 - 2*a01 + a11;
+        if(numer >= denom)
+        {
+          s = 1;
+          t = 0;
+          sqr_dist = a00 + 2*b0 + c;
+        }
+        else
+        {
+          s = numer/denom;
+          t = 1 - s;
+          sqr_dist = s*(a00*s + a01*t + 2*b0) + t*(a01*s + a11*t + 2*b1) + c;
+        }
+      }
+    }
+  }
+
+  // Account for numerical round-off error.
+  if(sqr_dist < 0)
+    sqr_dist = 0;
+
+  if(sqr_dist > radius * radius)
+  {
+    *dist = std::sqrt(sqr_dist) - radius;
+    return true;
+  }
+  else
+  {
+    *dist = -1;
+    return false;
+  }
 }
 
 
@@ -335,7 +577,6 @@ static int intersectRectQuad2(BVH_REAL h[2], BVH_REAL p[8], BVH_REAL ret[16])
 static inline void cullPoints2(int n, BVH_REAL p[], int m, int i0, int iret[])
 {
   // compute the centroid of the polygon in cx,cy
-  int i, j;
   BVH_REAL a, cx, cy, q;
   switch(n)
   {
@@ -351,7 +592,7 @@ static inline void cullPoints2(int n, BVH_REAL p[], int m, int i0, int iret[])
     a = 0;
     cx = 0;
     cy = 0;
-    for(i = 0; i < n-1; ++i) 
+    for(int i = 0; i < n-1; ++i) 
     {
       q = p[i*2]*p[i*2+3] - p[i*2+2]*p[i*2+1];
       a += q;
@@ -371,24 +612,24 @@ static inline void cullPoints2(int n, BVH_REAL p[], int m, int i0, int iret[])
 
   // compute the angle of each point w.r.t. the centroid
   BVH_REAL A[8];
-  for(i = 0; i < n; ++i) 
+  for(int i = 0; i < n; ++i) 
     A[i] = atan2(p[i*2+1]-cy,p[i*2]-cx);
 
   // search for points that have angles closest to A[i0] + i*(2*pi/m).
   int avail[8];
-  for(i = 0; i < n; ++i) avail[i] = 1;
+  for(int i = 0; i < n; ++i) avail[i] = 1;
   avail[i0] = 0;
   iret[0] = i0;
   iret++;
   const double pi = boost::math::constants::pi<BVH_REAL>();
-  for(j = 1; j < m; ++j) 
+  for(int j = 1; j < m; ++j) 
   {
     a = j*(2*pi/m) + A[i0];
     if (a > pi) a -= 2*pi;
     BVH_REAL maxdiff= 1e9, diff;
 
     *iret = i0;	// iret is not allowed to keep this value, but it sometimes does, when diff=#QNAN0
-    for(i = 0; i < n; ++i) 
+    for(int i = 0; i < n; ++i) 
     {
       if(avail[i]) 
       {
@@ -414,12 +655,12 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
             int maxc, std::vector<ContactPoint>& contacts)
 {
   const BVH_REAL fudge_factor = BVH_REAL(1.05);
-  Vec3f p, pp, normalC;
+  Vec3f normalC;
   BVH_REAL s, s2, l;
-  int i, j, invert_normal, code;
+  int invert_normal, code;
 
-  p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
-  pp = R1.transposeTimes(p); // get pp = p relative to body 1
+  Vec3f p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
+  Vec3f pp = R1.transposeTimes(p); // get pp = p relative to body 1
 
   // get side lengths / 2
   Vec3f A = side1 * 0.5;
@@ -450,7 +691,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u1, u2, u3
   tmp = pp[0];
   s2 = std::abs(tmp) - (Q[0].dot(B) + A[0]);
-  if(s2 > 0) return 0;
+  if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s) 
   {
     s = s2; 
@@ -461,7 +702,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[1]; 
   s2 = std::abs(tmp) - (Q[1].dot(B) + A[1]);
-  if(s2 > 0) return 0;
+  if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s) 
   {
     s = s2; 
@@ -472,7 +713,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[2];
   s2 = std::abs(tmp) - (Q[2].dot(B) + A[2]);
-  if(s2 > 0) return 0;
+  if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
     s = s2;
@@ -484,7 +725,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = v1, v2, v3
   tmp = R2.transposeDotX(p);
   s2 = std::abs(tmp) - (Q.transposeDotX(A) + B[0]);
-  if(s2 > 0) return 0;
+  if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
     s = s2;
@@ -494,7 +735,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = R2.transposeDotY(p);
   s2 = std::abs(tmp) - (Q.transposeDotY(A) + B[1]);
-  if(s2 > 0) return 0;
+  if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
     s = s2;
@@ -504,7 +745,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = R2.transposeDotZ(p);
   s2 =  std::abs(tmp) - (Q.transposeDotZ(A) + B[2]);
-  if(s2 > 0) return 0;
+  if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
     s = s2;
@@ -522,7 +763,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R[1][0] - pp[1] * R[2][0];
   s2 = std::abs(tmp) - (A[1] * Q[2][0] + A[2] * Q[1][0] + B[1] * Q[0][2] + B[2] * Q[0][1]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(0, -R[2][0], R[1][0]);
   l = n.length();
   if(l > eps) 
@@ -540,7 +781,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[2] * R[1][1] - pp[1] * R[2][1];
   s2 = std::abs(tmp) - (A[1] * Q[2][1] + A[2] * Q[1][1] + B[0] * Q[0][2] + B[2] * Q[0][0]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(0, -R[2][1], R[1][1]);
   l = n.length();
   if(l > eps) 
@@ -558,7 +799,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[2] * R[1][2] - pp[1] * R[2][2];
   s2 = std::abs(tmp) - (A[1] * Q[2][2] + A[2] * Q[1][2] + B[0] * Q[0][1] + B[1] * Q[0][0]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(0, -R[2][2], R[1][2]);
   l = n.length();
   if(l > eps) 
@@ -577,7 +818,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u2 x (v1,v2,v3)
   tmp = pp[0] * R[2][0] - pp[2] * R[0][0];
   s2 = std::abs(tmp) - (A[0] * Q[2][0] + A[2] * Q[0][0] + B[1] * Q[1][2] + B[2] * Q[1][1]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(R[2][0], 0, -R[0][0]);
   l = n.length();
   if(l > eps) 
@@ -595,7 +836,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[0] * R[2][1] - pp[2] * R[0][1];
   s2 = std::abs(tmp) - (A[0] * Q[2][1] + A[2] * Q[0][1] + B[0] * Q[1][2] + B[2] * Q[1][0]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(R[2][1], 0, -R[0][1]);
   l = n.length();
   if(l > eps) 
@@ -613,7 +854,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[0] * R[2][2] - pp[2] * R[0][2];
   s2 = std::abs(tmp) - (A[0] * Q[2][2] + A[2] * Q[0][2] + B[0] * Q[1][1] + B[1] * Q[1][0]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(R[2][2], 0, -R[0][2]);
   l = n.length();
   if(l > eps) 
@@ -632,7 +873,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u3 x (v1,v2,v3)
   tmp = pp[1] * R[0][0] - pp[0] * R[1][0];
   s2 = std::abs(tmp) - (A[0] * Q[1][0] + A[1] * Q[0][0] + B[1] * Q[2][2] + B[2] * Q[2][1]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(-R[1][0], R[0][0], 0);
   l = n.length();
   if(l > eps) 
@@ -650,7 +891,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[1] * R[0][1] - pp[0] * R[1][1];
   s2 = std::abs(tmp) - (A[0] * Q[1][1] + A[1] * Q[0][1] + B[0] * Q[2][2] + B[2] * Q[2][0]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(-R[1][1], R[0][1], 0);
   l = n.length();
   if(l > eps) 
@@ -668,7 +909,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[1] * R[0][2] - pp[0] * R[1][2];
   s2 = std::abs(tmp) - (A[0] * Q[1][2] + A[1] * Q[0][2] + B[0] * Q[2][1] + B[1] * Q[2][0]);
-  if(s2 > eps) return 0;
+  if(s2 > eps) { *return_code = 0; return 0; }
   n = Vec3f(-R[1][2], R[0][2], 0);
   l = n.length();
   if(l > eps) 
@@ -686,7 +927,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
 
   
-  if (!code) return 0;
+  if (!code) { *return_code = code; return 0; }
 
   // if we get to this point, the boxes interpenetrate. compute the normal
   // in global coordinates.
@@ -709,7 +950,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     Vec3f pa = T1;
     BVH_REAL sign;
   
-    for(j = 0; j < 3; ++j)
+    for(int j = 0; j < 3; ++j)
     {
       sign = (R1.transposeDot(j, normal) > 0) ? 1 : -1;
       pa += R1.getColumn(j) * (A[j] * sign);
@@ -718,7 +959,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     // find a point pb on the intersecting edge of box 2
     Vec3f pb;
     pb = T2;
-    for(j = 0; j < 3; ++j)
+    for(int j = 0; j < 3; ++j)
     {
       sign = (R2.transposeDot(j, normal) > 0) ? 1 : -1;
       pb += R2.getColumn(j) * (B[j] * sign);
@@ -879,7 +1120,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // intersect the incident and reference faces
   BVH_REAL ret[16];
   int n_intersect = intersectRectQuad2(rect, quad, ret);
-  if(n_intersect < 1) return 0; // this should never happen
+  if(n_intersect < 1) { *return_code = code; return 0; } // this should never happen
 
   // convert the intersection points into reference-face coordinates,
   // and compute the contact position and depth for each point. only keep
@@ -893,7 +1134,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   m21 *= det1;
   m22 *= det1;
   int cnum = 0;	// number of penetrating contact points found
-  for(j = 0; j < n_intersect; ++j) 
+  for(int j = 0; j < n_intersect; ++j) 
   {
     BVH_REAL k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
     BVH_REAL k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
@@ -906,7 +1147,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
       cnum++;
     }
   }
-  if(cnum < 1) return 0;  // this should never happen
+  if(cnum < 1) { *return_code = code; return 0; } // this should never happen
 
   // we can't generate more contacts than we actually have
   if(maxc > cnum) maxc = cnum;
@@ -917,7 +1158,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(code<4) 
     {
       // we have less contacts than we need, so we use them all
-      for(j = 0; j < cnum; ++j) 
+      for(int j = 0; j < cnum; ++j) 
       {
         Vec3f pointInWorld = points[j] + (*pa);
         contacts.push_back(ContactPoint(-normal, pointInWorld, -dep[j]));
@@ -926,7 +1167,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     else
     {
       // we have less contacts than we need, so we use them all
-      for(j = 0; j < cnum; ++j) 
+      for(int j = 0; j < cnum; ++j) 
       {
         Vec3f pointInWorld = points[j] + (*pa) - normal * dep[j];
         contacts.push_back(ContactPoint(-normal, pointInWorld, -dep[j]));
@@ -939,7 +1180,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     // find the deepest point, it is always the first contact.
     int i1 = 0;
     BVH_REAL maxdepth = dep[0];
-    for(i = 1; i < cnum; ++i) 
+    for(int i = 1; i < cnum; ++i) 
     {
       if(dep[i] > maxdepth) 
       {
@@ -951,7 +1192,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     int iret[8];
     cullPoints2(cnum, ret, maxc, i1, iret);
 
-    for(j = 0; j < maxc; ++j) 
+    for(int j = 0; j < maxc; ++j) 
     {
       Vec3f posInWorld = points[iret[j] * 3] + (*pa);
       if(code < 4)
@@ -997,8 +1238,59 @@ bool boxBoxIntersect(const Box& s1, const SimpleTransform& tf1,
     *contact_points = contact_point;
   }
 
-  return (return_code != 0);
+  return return_code != 0;
+}
 
+bool boxTriangleIntersect(const Box& s, const SimpleTransform& tf,
+                          const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
+                          Vec3f* contact_points, BVH_REAL* penetration_depth_, Vec3f* normal_)
+{
+    Real min0, max0, min1, max1;
+    Vector3<Real> D, edge[3];
+
+    // Test direction of triangle normal.
+    edge[0] = mTriangle->V[1] - mTriangle->V[0];
+    edge[1] = mTriangle->V[2] - mTriangle->V[0];
+    D = edge[0].Cross(edge[1]);
+    min0 = D.Dot(mTriangle->V[0]);
+    max0 = min0;
+    IntrAxis<Real>::GetProjection(D, *mBox, min1, max1);
+    if (max1 < min0 || max0 < min1)
+    {
+        return false;
+    }
+
+    // Test direction of box faces.
+    for (int i = 0; i < 3; ++i)
+    {
+        D = mBox->Axis[i];
+        IntrAxis<Real>::GetProjection(D, *mTriangle, min0, max0);
+        Real DdC = D.Dot(mBox->Center);
+        min1 = DdC - mBox->Extent[i];
+        max1 = DdC + mBox->Extent[i];
+        if (max1 < min0 || max0 < min1)
+        {
+            return false;
+        }
+    }
+
+    // Test direction of triangle-box edge cross products.
+    edge[2] = edge[1] - edge[0];
+    for (int i0 = 0; i0 < 3; ++i0)
+    {
+        for (int i1 = 0; i1 < 3; ++i1)
+        {
+            D = edge[i0].Cross(mBox->Axis[i1]);
+            IntrAxis<Real>::GetProjection(D, *mTriangle, min0, max0);
+            IntrAxis<Real>::GetProjection(D, *mBox, min1, max1);
+            if (max1 < min0 || max0 < min1)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 
@@ -1014,7 +1306,6 @@ bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Si
   return details::sphereSphereIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
 
-/*
 template<> 
 bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
                                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const
@@ -1029,8 +1320,6 @@ bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const SimpleTrans
   return details::sphereTriangleIntersect(s, tf, R * P1 + T, R * P2 + T, R * P3 + T, contact_points, penetration_depth, normal);
 }
 
-*/
-
 template<>
 bool GJKSolver_libccd::shapeDistance<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
                                                      const Sphere& s2, const SimpleTransform& tf2,
@@ -1038,6 +1327,23 @@ bool GJKSolver_libccd::shapeDistance<Sphere, Sphere>(const Sphere& s1, const Sim
 {
   return details::sphereSphereDistance(s1, tf1, s2, tf2, dist);
 }
+
+template<>
+bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf,
+                                                     const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
+                                                     BVH_REAL* dist) const
+{
+  return details::sphereTriangleDistance(s, tf, P1, P2, P3, dist);
+}
+
+template<> 
+bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf, 
+                                                     const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
+                                                     BVH_REAL* dist) const
+{
+  return details::sphereTriangleDistance(s, tf, R * P1 + T, R * P2 + T, R * P3 + T, dist);
+}
+
 
 
 
@@ -1050,6 +1356,20 @@ bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Sim
   return details::sphereSphereIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
 
+template<> 
+bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
+                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::sphereTriangleIntersect(s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
+}
+
+template<> 
+bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
+                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T, Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::sphereTriangleIntersect(s, tf, R * P1 + T, R * P2 + T, R * P3 + T, contact_points, penetration_depth, normal);
+}
+
 
 template<>
 bool GJKSolver_indep::shapeDistance<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
@@ -1060,8 +1380,23 @@ bool GJKSolver_indep::shapeDistance<Sphere, Sphere>(const Sphere& s1, const Simp
 }
 
 
+template<>
+bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf,
+                                                    const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
+                                                    BVH_REAL* dist) const
+{
+  return details::sphereTriangleDistance(s, tf, P1, P2, P3, dist);
+}
 
-/*
+template<> 
+bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf, 
+                                                    const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
+                                                    BVH_REAL* dist) const
+{
+  return details::sphereTriangleDistance(s, tf, R * P1 + T, R * P2 + T, R * P3 + T, dist);
+}
+
+
 template<>
 bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const SimpleTransform& tf1,
                                                 const Box& s2, const SimpleTransform& tf2,
@@ -1077,14 +1412,6 @@ bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const SimpleTransf
 {
   return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
-*/
-
-
-
-
-
-
-
 
 
 
