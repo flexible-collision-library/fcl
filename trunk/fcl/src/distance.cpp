@@ -43,28 +43,17 @@
 namespace fcl
 {
 
-static DistanceFunctionMatrix<GJKSolver_libccd> DistanceFunctionLookTable_libccd;
-static DistanceFunctionMatrix<GJKSolver_indep> DistanceFunctionLookTable_indep;
+template<typename GJKSolver>
+DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
+{
+  static DistanceFunctionMatrix<GJKSolver> table;
+  return table;
+}
 
 template<typename NarrowPhaseSolver>
 BVH_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver)
 {
   return distance<NarrowPhaseSolver>(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), nsolver);
-}
-
-template<typename NarrowPhaseSolver>
-void* getDistanceLookTable() { return NULL; }
-
-template<>
-void* getDistanceLookTable<GJKSolver_libccd>()
-{
-  return &DistanceFunctionLookTable_libccd;
-}
-
-template<>
-void* getDistanceLookTable<GJKSolver_indep>()
-{
-  return &DistanceFunctionLookTable_indep;
 }
 
 template<typename NarrowPhaseSolver>
@@ -76,7 +65,7 @@ BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
   if(!nsolver_) 
     nsolver = new NarrowPhaseSolver();
 
-  const DistanceFunctionMatrix<NarrowPhaseSolver>* looktable = static_cast<const DistanceFunctionMatrix<NarrowPhaseSolver>*>(getDistanceLookTable<NarrowPhaseSolver>());
+  const DistanceFunctionMatrix<NarrowPhaseSolver>& looktable = getDistanceFunctionLookTable<NarrowPhaseSolver>();
 
   OBJECT_TYPE object_type1 = o1->getObjectType();
   NODE_TYPE node_type1 = o1->getNodeType();
@@ -87,26 +76,26 @@ BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
 
   if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
-    if(!looktable->distance_matrix[node_type2][node_type1])
+    if(!looktable.distance_matrix[node_type2][node_type1])
     {
       std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
       res = 0;
     }
     else
     {
-      res = looktable->distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver);
+      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver);
     }
   }
   else
   {
-    if(!looktable->distance_matrix[node_type1][node_type2])
+    if(!looktable.distance_matrix[node_type1][node_type2])
     {
       std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
       res = 0;
     }
     else
     {
-      res = looktable->distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver);    
+      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver);    
     }
   }
 

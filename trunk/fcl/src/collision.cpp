@@ -44,9 +44,12 @@
 namespace fcl
 {
 
-static CollisionFunctionMatrix<GJKSolver_libccd> CollisionFunctionLookTable_libccd;
-static CollisionFunctionMatrix<GJKSolver_indep> CollisionFunctionLookTable_indep;
-
+template<typename GJKSolver>
+CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
+{
+  static CollisionFunctionMatrix<GJKSolver> table;
+  return table;
+};
 
 template<typename NarrowPhaseSolver>
 int collide(const CollisionObject* o1, const CollisionObject* o2,
@@ -60,21 +63,6 @@ int collide(const CollisionObject* o1, const CollisionObject* o2,
 }
 
 template<typename NarrowPhaseSolver>
-void* getCollisionLookTable() { return NULL; }
-
-template<>
-void* getCollisionLookTable<GJKSolver_libccd>() 
-{
-  return &CollisionFunctionLookTable_libccd;
-}
-
-template<>
-void* getCollisionLookTable<GJKSolver_indep>()
-{
-  return &CollisionFunctionLookTable_indep;
-}
-
-template<typename NarrowPhaseSolver>
 int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
             const CollisionGeometry* o2, const SimpleTransform& tf2,
             const NarrowPhaseSolver* nsolver_,
@@ -85,7 +73,7 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
   if(!nsolver_)
     nsolver = new NarrowPhaseSolver();
 
-  const CollisionFunctionMatrix<NarrowPhaseSolver>* looktable = static_cast<const CollisionFunctionMatrix<NarrowPhaseSolver>*>(getCollisionLookTable<NarrowPhaseSolver>());
+  const CollisionFunctionMatrix<NarrowPhaseSolver>& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
 
   int res; 
   if(num_max_contacts <= 0 && !exhaustive)
@@ -102,23 +90,23 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
   
     if(object_type1 == OT_GEOM & object_type2 == OT_BVH)
     {  
-      if(!looktable->collision_matrix[node_type2][node_type1])
+      if(!looktable.collision_matrix[node_type2][node_type1])
       {
         std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
         res = 0;
       }
       else
-        res = looktable->collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, num_max_contacts, exhaustive, enable_contact, contacts);
+        res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, num_max_contacts, exhaustive, enable_contact, contacts);
     }
     else
     {
-      if(!looktable->collision_matrix[node_type1][node_type2])
+      if(!looktable.collision_matrix[node_type1][node_type2])
       {
         std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
         res = 0;
       }
       else
-        res = looktable->collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, num_max_contacts, exhaustive, enable_contact, contacts);
+        res = looktable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, num_max_contacts, exhaustive, enable_contact, contacts);
     }
   }
 
