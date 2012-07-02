@@ -108,7 +108,6 @@ public:
     bv_splitter.reset(new BVSplitter<BV>(SPLIT_METHOD_MEAN));
     bv_fitter.reset(new BVFitter<BV>());
   }
-
   BVHModel(const BVHModel& other);
 
 

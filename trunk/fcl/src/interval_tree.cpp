@@ -50,7 +50,7 @@ IntervalTreeNode::IntervalTreeNode(SimpleInterval* new_interval) :
     high(new_interval->high),
     max_high(high) {}
 
-IntervalTreeNode::~IntervalTreeNode(){}
+IntervalTreeNode::~IntervalTreeNode() {}
 
 
 IntervalTree::IntervalTree()

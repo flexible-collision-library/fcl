@@ -52,7 +52,7 @@ AABB::AABB()
 BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
 {
   BVH_REAL result = 0;
-  for(unsigned int i = 0; i < 3; ++i)
+  for(size_t i = 0; i < 3; ++i)
   {
     BVH_REAL amin = min_[i];
     BVH_REAL amax = max_[i];

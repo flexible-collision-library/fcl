@@ -184,8 +184,10 @@ void selfCollisionRecurse(CollisionTraversalNodeBase* node, int b, BVHFrontList*
   int c2 = node->getFirstRightChild(b);
 
   selfCollisionRecurse(node, c1, front_list);
+  if(node->canStop() && !front_list) return;
 
   selfCollisionRecurse(node, c2, front_list);
+  if(node->canStop() && !front_list) return;
 
   collisionRecurse(node, c1, c2, front_list);
 }
