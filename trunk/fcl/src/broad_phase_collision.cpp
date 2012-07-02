@@ -560,9 +560,11 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, void* cdata, Distance
             dummy_vector = dummy_vector * 2 - obj->getAABB().max_;
         }
       }
-      if(pos_end1 != objs_x.end()) pos_start1 = pos_end1;
-      if(pos_end2 != objs_y.end()) pos_start2 = pos_end2;
-      if(pos_end3 != objs_z.end()) pos_start3 = pos_end3;
+      
+      // yes, following is wrong, will result in too large distance.
+      // if(pos_end1 != objs_x.end()) pos_start1 = pos_end1;
+      // if(pos_end2 != objs_y.end()) pos_start2 = pos_end2;
+      // if(pos_end3 != objs_z.end()) pos_start3 = pos_end3;
     }
     else if(status == 0)
       break;
@@ -1122,34 +1124,51 @@ void SaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
   }
 }
 
-void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+bool SaPCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
-  if(size() == 0) return;
-  
   size_t axis = optimal_axis;
   const AABB& obj_aabb = obj->getAABB();
 
   BVH_REAL min_val = obj_aabb.min_[axis];
   BVH_REAL max_val = obj_aabb.max_[axis];
+
+  EndPoint dummy;
+  SaPAABB dummy_aabb;
+  dummy_aabb.cached = obj_aabb;
+  dummy.minmax = 1;
+  dummy.aabb = &dummy_aabb;
   
-  std::vector<EndPoint*>::const_iterator res_it = std::lower_bound(velist[axis].begin(), velist[axis].end(), min_val,
+  // compute stop_pos by binary search, this is cheaper than check it in while iteration linearly
+  std::vector<EndPoint*>::const_iterator res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
                                                                    boost::bind(std::less<BVH_REAL>(),
                                                                                boost::bind(static_cast<BVH_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _1, axis),
-                                                                               min_val));
+                                                                               boost::bind(static_cast<BVH_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _2, axis)));
   
-  if(res_it == velist[axis].end()) return;
+  EndPoint* end_pos = NULL;
+  if(res_it != velist[axis].end())
+    end_pos = *res_it;
   
-  EndPoint* pos = *res_it;
-  
-  while((pos != NULL) && (pos->getVal(axis) <= max_val))
+  EndPoint* pos = elist[axis];
+
+  while(pos != end_pos)
   {
-    if(pos->aabb->cached.overlap(obj->getAABB()))
+    if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val))
     {
-      if(callback(obj, pos->aabb->obj, cdata))
-        return;
+      if(pos->aabb->cached.overlap(obj->getAABB()))
+        if(callback(obj, pos->aabb->obj, cdata))
+          return true;
     }
     pos = pos->next[axis];
   } 
+
+  return false;
+}
+
+void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+{
+  if(size() == 0) return;
+  
+  collide_(obj, cdata, callback);
 }
 
 bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
@@ -1169,8 +1188,6 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
   BVH_REAL old_min_distance;
 
   EndPoint* start_pos = elist[axis];
-
-  std::set<CollisionObject*> tested;
 
   while(1)
   {
@@ -1203,14 +1220,27 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
       if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val)) 
       {
         CollisionObject* curr_obj = pos->aabb->obj;
-        if(!enable_tested_set || (tested.find(curr_obj) == tested.end()))
+        if(!enable_tested_set_)
         {
           if(pos->aabb->cached.distance(obj->getAABB()) < min_dist)
           {
             if(callback(curr_obj, obj, cdata, min_dist))
               return true;
           }
-          if(enable_tested_set) tested.insert(curr_obj);
+        }
+        else
+        {
+          bool not_find = (tested_set2.find(curr_obj) == tested_set2.end());
+          if(not_find)
+          {
+            if(pos->aabb->cached.distance(obj->getAABB()) < min_dist)
+            {
+              if(callback(curr_obj, obj, cdata, min_dist))
+                return true;
+            }
+
+            tested_set2.insert(curr_obj);
+          }
         }
       }
 
@@ -1294,11 +1324,20 @@ void SaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, vo
     return;
   }
 
-  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
+  if(this->size() < other_manager->size())
   {
-    for(std::list<SaPAABB*>::const_iterator it2 = other_manager->AABB_arr.begin(); it2 != other_manager->AABB_arr.end(); ++it2)
+    for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
     {
-      if(callback((*it)->obj, (*it2)->obj, cdata)) return;
+      if(other_manager->collide_((*it)->obj, cdata, callback))
+        return;
+    }
+  }
+  else
+  {
+    for(std::list<SaPAABB*>::const_iterator it = other_manager->AABB_arr.begin(); it != other_manager->AABB_arr.end(); ++it)
+    {
+      if(collide_((*it)->obj, cdata, callback))
+        return;
     }
   }
 }
@@ -1313,14 +1352,21 @@ void SaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, v
   }
 
   BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
-  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
+
+  if(this->size() < other_manager->size())
   {
-    for(std::list<SaPAABB*>::const_iterator it2 = other_manager->AABB_arr.begin(); it2 != other_manager->AABB_arr.end(); ++it2)
+    for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
     {
-      if((*it)->obj->getAABB().distance((*it2)->obj->getAABB()) < min_dist)
-      {
-        if(callback((*it)->obj, (*it2)->obj, cdata, min_dist)) return;
-      }
+      if(other_manager->distance_((*it)->obj, cdata, callback, min_dist))
+        return;
+    }
+  }
+  else
+  {
+    for(std::list<SaPAABB*>::const_iterator it = other_manager->AABB_arr.begin(); it != other_manager->AABB_arr.end(); ++it)
+    {
+      if(distance_((*it)->obj, cdata, callback, min_dist))
+        return;
     }
   }
 }
@@ -1339,9 +1385,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
 
   EndPoint p;
   p.value = obj->getAABB().min_[0];
-  std::vector<EndPoint>::iterator start1 = std::lower_bound(endpoints[0].begin(), endpoints[0].end(), p, SortByValue());
+  std::vector<EndPoint>::iterator start1 = std::lower_bound(endpoints[0].begin(), endpoints[0].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
   p.value = obj->getAABB().max_[0];
-  std::vector<EndPoint>::iterator end1 = std::upper_bound(start1, endpoints[0].end(), p, SortByValue());
+  std::vector<EndPoint>::iterator end1 = std::upper_bound(start1, endpoints[0].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
 
   if(start1 < end1)
   {
@@ -1365,9 +1411,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
   }
 
   p.value = obj->getAABB().min_[1];
-  std::vector<EndPoint>::iterator start2 = std::lower_bound(endpoints[1].begin(), endpoints[1].end(), p, SortByValue());
+  std::vector<EndPoint>::iterator start2 = std::lower_bound(endpoints[1].begin(), endpoints[1].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
   p.value = obj->getAABB().max_[1];
-  std::vector<EndPoint>::iterator end2 = std::upper_bound(start2, endpoints[1].end(), p, SortByValue());
+  std::vector<EndPoint>::iterator end2 = std::upper_bound(start2, endpoints[1].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
 
   if(start2 < end2)
   {
@@ -1392,9 +1438,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
 
 
   p.value = obj->getAABB().min_[2];
-  std::vector<EndPoint>::iterator start3 = std::lower_bound(endpoints[2].begin(), endpoints[2].end(), p, SortByValue());
+  std::vector<EndPoint>::iterator start3 = std::lower_bound(endpoints[2].begin(), endpoints[2].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
   p.value = obj->getAABB().max_[2];
-  std::vector<EndPoint>::iterator end3 = std::upper_bound(start3, endpoints[2].end(), p, SortByValue());
+  std::vector<EndPoint>::iterator end3 = std::upper_bound(start3, endpoints[2].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
 
   if(start3 < end3)
   {
@@ -1447,9 +1493,9 @@ void IntervalTreeCollisionManager::setup()
 {
   if(!setup_)
   {
-    std::sort(endpoints[0].begin(), endpoints[0].end(), SortByValue());
-    std::sort(endpoints[1].begin(), endpoints[1].end(), SortByValue());
-    std::sort(endpoints[2].begin(), endpoints[2].end(), SortByValue());
+    std::sort(endpoints[0].begin(), endpoints[0].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    std::sort(endpoints[1].begin(), endpoints[1].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    std::sort(endpoints[2].begin(), endpoints[2].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
 
     for(int i = 0; i < 3; ++i)
       delete interval_trees[i];
@@ -1729,10 +1775,15 @@ void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callba
 
 void IntervalTreeCollisionManager::distance(void* cdata, DistanceCallBack callback) const
 {
+  enable_tested_set_ = true;
+  tested_set.clear();
   BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
   
   for(size_t i = 0; i < endpoints[0].size(); ++i)
     if(distance_(endpoints[0][i].obj, cdata, callback, min_dist)) return;
+  
+  enable_tested_set_ = false;
+  tested_set.clear();
 }
 
 void IntervalTreeCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
@@ -1811,10 +1862,31 @@ bool IntervalTreeCollisionManager::checkDist(std::deque<SimpleInterval*>::const_
     SAPInterval* ivl = static_cast<SAPInterval*>(*pos_start);
     if(ivl->obj != obj)
     {
-      if(ivl->obj->getAABB().distance(obj->getAABB()) < min_dist)
+      if(!enable_tested_set_)
       {
-        if(callback(ivl->obj, obj, cdata, min_dist))
-          return true;
+        if(ivl->obj->getAABB().distance(obj->getAABB()) < min_dist)
+        {
+          if(callback(ivl->obj, obj, cdata, min_dist))
+            return true;
+        }
+      }
+      else
+      {
+        bool not_find;
+        if(ivl->obj < obj) not_find = (tested_set.find(std::make_pair(ivl->obj, obj)) == tested_set.end());
+        else not_find = (tested_set.find(std::make_pair(obj, ivl->obj)) == tested_set.end());
+
+        if(not_find)
+        {
+          if(ivl->obj->getAABB().distance(obj->getAABB()) < min_dist)
+          {
+            if(callback(ivl->obj, obj, cdata, min_dist))
+              return true;
+          }
+
+          if(ivl->obj < obj) tested_set.insert(std::make_pair(ivl->obj, obj));
+          else tested_set.insert(std::make_pair(obj, ivl->obj));
+        }
       }
     }
 
@@ -1826,5 +1898,285 @@ bool IntervalTreeCollisionManager::checkDist(std::deque<SimpleInterval*>::const_
 
 
 
+void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<CollisionObject*>& other_objs)
+{
+  if(size() > 0)
+  {
+    BroadPhaseCollisionManager::registerObjects(other_objs);
+  }
+  else
+  {
+    std::vector<DynamicAABBNode*> leaves(other_objs.size());
+    for(size_t i = 0; i < other_objs.size(); ++i)
+    {
+      DynamicAABBNode* node = new DynamicAABBNode;
+      node->bv = other_objs[i]->getAABB();
+      node->parent = NULL;
+      node->childs[1] = NULL;
+      node->data = other_objs[i];
+      table[other_objs[i]] = node;
+      leaves[i] = node;
+    }
+
+    dtree.getRoot() = dtree.topdown(leaves, tree_topdown_balance_threshold);
+    setup_ = true;
+  }
+}
+
+void DynamicAABBTreeCollisionManager::registerObject(CollisionObject* obj)
+{
+  DynamicAABBNode* node = dtree.insert(obj->getAABB(), obj);
+  table[obj] = node;
+}
+
+void DynamicAABBTreeCollisionManager::unregisterObject(CollisionObject* obj)
+{
+  DynamicAABBNode* node = table[obj];
+  table.erase(obj);
+  dtree.remove(node);
+}
+
+void DynamicAABBTreeCollisionManager::setup()
+{
+  if(!setup_)
+  {
+    size_t height = dtree.getMaxHeight(dtree.getRoot());
+    size_t num = dtree.size();
+    if(height - std::log((BVH_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
+      dtree.balanceIncremental(10);
+    else
+      dtree.balanceTopdown(tree_topdown_balance_threshold);
+    setup_ = true;
+  }
+}
+
+
+void DynamicAABBTreeCollisionManager::update()
+{
+  for(DynamicAABBTable::const_iterator it = table.begin(); it != table.end(); ++it)
+  {
+    CollisionObject* obj = it->first;
+    DynamicAABBNode* node = it->second;
+    if(!node->bv.equal(obj->getAABB()))
+      dtree.update(node, obj->getAABB());
+  }
+  setup_ = false;
+}
+
+void DynamicAABBTreeCollisionManager::update(CollisionObject* obj)
+{
+  DynamicAABBTable::const_iterator it = table.find(obj);
+  if(it != table.end())
+  {
+    DynamicAABBNode* node = it->second;
+    if(!node->bv.equal(obj->getAABB()))
+      dtree.update(node, obj->getAABB());
+  }
+  setup_ = false;
+}
+
+bool DynamicAABBTreeCollisionManager::collisionRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, CollisionCallBack callback) const
+{
+  if(root1->isLeaf() && root2->isLeaf())
+  {
+    if(!root1->bv.overlap(root2->bv)) return false;
+    return callback(static_cast<CollisionObject*>(root1->data), static_cast<CollisionObject*>(root2->data), cdata);
+  }
+    
+  if(!root1->bv.overlap(root2->bv)) return false;
+    
+  if(root2->isLeaf() || (!root1->isLeaf() && (root1->bv.size() > root2->bv.size())))
+  {
+    if(collisionRecurse(root1->childs[0], root2, cdata, callback))
+      return true;
+    if(collisionRecurse(root1->childs[1], root2, cdata, callback))
+      return true;
+  }
+  else
+  {
+    if(collisionRecurse(root1, root2->childs[0], cdata, callback))
+      return true;
+    if(collisionRecurse(root1, root2->childs[1], cdata, callback))
+      return true;
+  }
+  return false;
+}
+
+bool DynamicAABBTreeCollisionManager::collisionRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, CollisionCallBack callback) const
+{
+  if(root->isLeaf())
+  {
+    if(!root->bv.overlap(query->getAABB())) return false;
+    return callback(static_cast<CollisionObject*>(root->data), query, cdata);
+  }
+    
+  if(!root->bv.overlap(query->getAABB())) return false;
+
+  int select_res = select(query->getAABB(), *(root->childs[0]), *(root->childs[1]));
+    
+  if(collisionRecurse(root->childs[select_res], query, cdata, callback))
+    return true;
+    
+  if(collisionRecurse(root->childs[1-select_res], query, cdata, callback))
+    return true;
+
+  return false;
+}
+
+bool DynamicAABBTreeCollisionManager::selfCollisionRecurse(DynamicAABBNode* root, void* cdata, CollisionCallBack callback) const
+{
+  if(root->isLeaf()) return false;
+
+  if(selfCollisionRecurse(root->childs[0], cdata, callback))
+    return true;
+
+  if(selfCollisionRecurse(root->childs[1], cdata, callback))
+    return true;
+
+  if(collisionRecurse(root->childs[0], root->childs[1], cdata, callback))
+    return true;
+
+  return false;
+}
+
+bool DynamicAABBTreeCollisionManager::distanceRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
+{
+  if(root1->isLeaf() && root2->isLeaf())
+  {
+    CollisionObject* root1_obj = static_cast<CollisionObject*>(root1->data);
+    CollisionObject* root2_obj = static_cast<CollisionObject*>(root2->data);
+    return callback(root1_obj, root2_obj, cdata, min_dist);
+  }
+
+  if(root2->isLeaf() || (!root1->isLeaf() && (root1->bv.size() > root2->bv.size())))
+  {
+    BVH_REAL d1 = root2->bv.distance(root1->childs[0]->bv);
+    BVH_REAL d2 = root2->bv.distance(root1->childs[1]->bv);
+      
+    if(d2 < d1)
+    {
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[1], root2, cdata, callback, min_dist))
+          return true;
+      }
+        
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[0], root2, cdata, callback, min_dist))
+          return true;
+      }
+    }
+    else
+    {
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[0], root2, cdata, callback, min_dist))
+          return true;
+      }
+
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[1], root2, cdata, callback, min_dist))
+          return true;
+      }
+    }
+  }
+  else
+  {
+    BVH_REAL d1 = root1->bv.distance(root2->childs[0]->bv);
+    BVH_REAL d2 = root1->bv.distance(root2->childs[1]->bv);
+      
+    if(d2 < d1)
+    {
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1, root2->childs[1], cdata, callback, min_dist))
+          return true;
+      }
+        
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1, root2->childs[0], cdata, callback, min_dist))
+          return true;
+      }
+    }
+    else
+    {
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1, root2->childs[0], cdata, callback, min_dist))
+          return true;
+      }
+
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1, root2->childs[1], cdata, callback, min_dist))
+          return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool DynamicAABBTreeCollisionManager::distanceRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
+{ 
+  if(root->isLeaf())
+  {
+    CollisionObject* root_obj = static_cast<CollisionObject*>(root->data);
+    return callback(root_obj, query, cdata, min_dist); 
+  }
+
+  BVH_REAL d1 = query->getAABB().distance(root->childs[0]->bv);
+  BVH_REAL d2 = query->getAABB().distance(root->childs[1]->bv);
+    
+  if(d2 < d1)
+  {
+    if(d2 < min_dist)
+    {
+      if(distanceRecurse(root->childs[1], query, cdata, callback, min_dist))
+        return true;
+    }
+
+    if(d1 < min_dist)
+    {
+      if(distanceRecurse(root->childs[0], query, cdata, callback, min_dist))
+        return true;
+    }
+  }
+  else
+  {
+    if(d1 < min_dist)
+    {
+      if(distanceRecurse(root->childs[0], query, cdata, callback, min_dist))
+        return true;
+    }
+
+    if(d2 < min_dist)
+    {
+      if(distanceRecurse(root->childs[1], query, cdata, callback, min_dist))
+        return true;
+    }
+  }
+
+  return false;
+}
+
+bool DynamicAABBTreeCollisionManager::selfDistanceRecurse(DynamicAABBNode* root, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
+{
+  if(root->isLeaf()) return false;
+
+  if(selfDistanceRecurse(root->childs[0], cdata, callback, min_dist))
+    return true;
+
+  if(selfDistanceRecurse(root->childs[1], cdata, callback, min_dist))
+    return true;
+
+  if(distanceRecurse(root->childs[0], root->childs[1], cdata, callback, min_dist))
+    return true;
+
+  return false;
+}
 
 }

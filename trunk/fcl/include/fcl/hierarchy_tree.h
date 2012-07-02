@@ -189,7 +189,8 @@ public:
   {
     if(root_node)
     {
-      std::vector<NodeType*> leaves(n_leaves);
+      std::vector<NodeType*> leaves;
+      leaves.reserve(n_leaves);
       fetchLeaves(root_node, leaves);
       bottomup(leaves);
       root_node = leaves[0];
@@ -201,10 +202,10 @@ public:
   {
     if(root_node)
     {
-      std::vector<NodeType*> leaves(n_leaves);
+      std::vector<NodeType*> leaves;
+      leaves.reserve(n_leaves);
       fetchLeaves(root_node, leaves);
-      topdown(leaves, bu_threshold);
-      root_node = leaves[0];
+      root_node = topdown(leaves, bu_threshold);
     }
   }
 
@@ -274,35 +275,28 @@ public:
     return root_node;
   }
 
-private:
-
-  /** \brief sort node n and its parent according to their memory position */
-  NodeType* sort(NodeType* n, NodeType*& r)
+  NodeType*& getRoot()
   {
-    NodeType* p = n->parent;
-    if(p > n)
-    {
-      int i = indexOf(n);
-      int j = 1 - i;
-      NodeType* s = p->childs[j];
-      NodeType* q = p->parent;
-      if(q) q->childs[indexOf(p)] = n; else r = n;
-      s->parent = n;
-      p->parent = n;
-      n->parent = q;
-      p->childs[0] = n->childs[0];
-      p->childs[1] = n->childs[1];
-      n->childs[0]->parent = p;
-      n->childs[1]->parent = p;
-      n->childs[i] = p;
-      n->childs[j] = s;
-      std::swap(p->bv, n->bv);
-      return p;
-    }
-    return n;
+    return root_node;
   }
-  
 
+  void print(NodeType* root, int depth)
+  {
+    if(root->isLeaf())
+    {
+      for(int i = 0; i < depth; ++i)
+        std::cout << " ";
+      std::cout << " (" << root->bv.min_[0] << ", " << root->bv.min_[1] << ", " << root->bv.min_[2] << "; " << root->bv.max_[0] << ", " << root->bv.max_[1] << ", " << root->bv.max_[2] << ")" << std::endl;
+    }
+    else
+    {
+      for(int i = 0; i < depth; ++i)
+        std::cout << " ";
+      std::cout << " (" << root->bv.min_[0] << ", " << root->bv.min_[1] << ", " << root->bv.min_[2] << "; " << root->bv.max_[0] << ", " << root->bv.max_[1] << ", " << root->bv.max_[2] << ")" << std::endl;
+      print(root->childs[0], depth+1);
+      print(root->childs[1], depth+1);
+    }
+  }
 
   /** \brief construct a tree for a set of leaves from top */
   NodeType* topdown(std::vector<NodeType*>& leaves, int bu_threshold)
@@ -326,7 +320,6 @@ private:
             ++splitcount[j][x.dot(axis[j]) > 0 ? 1 : 0];
           }
         }
-
         
         for(size_t i = 0; i < 3; ++i)
         {
@@ -373,6 +366,34 @@ private:
     return leaves[0];
   }
 
+private:
+
+  /** \brief sort node n and its parent according to their memory position */
+  NodeType* sort(NodeType* n, NodeType*& r)
+  {
+    NodeType* p = n->parent;
+    if(p > n)
+    {
+      int i = indexOf(n);
+      int j = 1 - i;
+      NodeType* s = p->childs[j];
+      NodeType* q = p->parent;
+      if(q) q->childs[indexOf(p)] = n; else r = n;
+      s->parent = n;
+      p->parent = n;
+      n->parent = q;
+      p->childs[0] = n->childs[0];
+      p->childs[1] = n->childs[1];
+      n->childs[0]->parent = p;
+      n->childs[1]->parent = p;
+      n->childs[i] = p;
+      n->childs[j] = s;
+      std::swap(p->bv, n->bv);
+      return p;
+    }
+    return n;
+  }
+  
 
   /** \brief construct a tree for a set of leaves from bottom */
   void bottomup(std::vector<NodeType*>& leaves)
@@ -499,14 +520,16 @@ private:
   /** \brief Delete all internal nodes and return all leaves nodes with given depth from root */
   void fetchLeaves(NodeType* root, std::vector<NodeType*>& leaves, int depth = -1)
   {
-    if(!root->isLeaf() && depth)
+    if((!root->isLeaf()) && depth)
     {
       fetchLeaves(root->childs[0], leaves, depth-1);
       fetchLeaves(root->childs[1], leaves, depth-1);
       deleteNode(root);
     }
     else
+    {
       leaves.push_back(root);
+    }
   }
 
   static size_t indexOf(NodeType* node)

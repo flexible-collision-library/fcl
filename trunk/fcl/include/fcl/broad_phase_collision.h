@@ -71,6 +71,11 @@ typedef bool (*DistanceCallBack)(CollisionObject* o1, CollisionObject* o2, void*
 class BroadPhaseCollisionManager
 {
 public:
+  BroadPhaseCollisionManager()
+  {
+    enable_tested_set_ = false;
+  }
+
   virtual ~BroadPhaseCollisionManager() {}
 
   /** \brief add objects to the manager */
@@ -121,6 +126,12 @@ public:
   
   /** \brief the number of objects managed by the manager */
   virtual size_t size() const = 0;
+
+protected:
+  mutable std::set<std::pair<CollisionObject*, CollisionObject*> > tested_set;
+  mutable std::set<CollisionObject*> tested_set2;
+  mutable bool enable_tested_set_;
+
 };
 
 
@@ -305,7 +316,7 @@ protected:
 
 
   // all objects in the scene
-  std::list<CollisionObject*>  objs;
+  std::list<CollisionObject*> objs;
 
   // objects in the scene limit (given by scene_min and scene_max) are in the spatial hash table
   HashTable* hash_table;
@@ -635,7 +646,6 @@ public:
     elist[0] = NULL;
     elist[1] = NULL;
     elist[2] = NULL;
-    enable_tested_set = true;
   }
 
   ~SaPCollisionManager()
@@ -830,8 +840,7 @@ protected:
 
   bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
 
-public:
-  bool enable_tested_set; 
+  bool collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 };
 
 
@@ -1017,17 +1026,6 @@ protected:
     char minmax;
   };
 
-  /** \brief Functor for sorting end points */
-  struct SortByValue
-  {
-    bool operator()(const EndPoint& a, const EndPoint& b) const
-    {
-      if(a.value < b.value)
-        return true;
-      return false;
-    }
-  };
-
   /** \brief Extention interval tree's interval to SAP interval, adding more information */
   struct SAPInterval : public SimpleInterval
   {
@@ -1057,7 +1055,6 @@ protected:
 
   /** \brief tag for whether the interval tree is maintained suitably */
   bool setup_;
-
 };
 
 
@@ -1076,57 +1073,26 @@ public:
     max_tree_nonbalanced_level = 4;
     tree_incremental_balance_pass = 10;
     tree_topdown_balance_threshold = 128;
+    setup_ = false;
   }
+
+  /** \brief add objects to the manager */
+  void registerObjects(const std::vector<CollisionObject*>& other_objs);
   
   /** \brief add one object to the manager */
-  void registerObject(CollisionObject* obj)
-  {
-    DynamicAABBNode* node = dtree.insert(obj->getAABB(), obj);
-    table[obj] = node;
-  }
+  void registerObject(CollisionObject* obj);
 
   /** \brief remove one object from the manager */
-  void unregisterObject(CollisionObject* obj)
-  {
-    DynamicAABBNode* node = table[obj];
-    table.erase(obj);
-    dtree.remove(node);
-  }
+  void unregisterObject(CollisionObject* obj);
 
   /** \brief initialize the manager, related with the specific type of manager */
-  void setup()
-  {
-    size_t height = dtree.getMaxHeight(dtree.getRoot());
-    size_t num = dtree.size();
-    if(height - std::log((BVH_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
-      dtree.balanceIncremental(10);
-    else
-      dtree.balanceTopdown(tree_topdown_balance_threshold);
-  }
+  void setup();
 
   /** \brief update the condition of manager */
-  void update()
-  {
-    for(DynamicAABBTable::const_iterator it = table.begin(); it != table.end(); ++it)
-    {
-      CollisionObject* obj = it->first;
-      DynamicAABBNode* node = it->second;
-      if(!node->bv.equal(obj->getAABB()))
-        dtree.update(node, obj->getAABB());
-    }
-  }
+  void update();
 
   /** \brief update a specific object */
-  void update(CollisionObject* obj)
-  {
-    DynamicAABBTable::const_iterator it = table.find(obj);
-    if(it != table.end())
-    {
-      DynamicAABBNode* node = it->second;
-      if(!node->bv.equal(obj->getAABB()))
-        dtree.update(node, obj->getAABB());
-    }
-  }
+  void update(CollisionObject* obj);
 
   /** \brief clear the manager */
   void clear()
@@ -1200,211 +1166,19 @@ private:
   HierarchyTree<AABB> dtree;
   boost::unordered_map<CollisionObject*, DynamicAABBNode*> table;
 
-  bool collisionRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, CollisionCallBack callback) const
-  {
-    if(root1->isLeaf() && root2->isLeaf())
-    {
-      if(!root1->bv.overlap(root2->bv)) return false;
-      return callback(static_cast<CollisionObject*>(root1->data), static_cast<CollisionObject*>(root2->data), cdata);
-    }
-    
-    if(!root1->bv.overlap(root2->bv)) return false;
-    
-    if(root2->isLeaf() || (!root1->isLeaf() && (root1->bv.size() > root2->bv.size())))
-    {
-      if(collisionRecurse(root1->childs[0], root2, cdata, callback))
-        return true;
-      if(collisionRecurse(root1->childs[1], root2, cdata, callback))
-        return true;
-    }
-    else
-    {
-      if(collisionRecurse(root1, root2->childs[0], cdata, callback))
-        return true;
-      if(collisionRecurse(root1, root2->childs[1], cdata, callback))
-        return true;
-    }
-    return false;
-  }
+  bool setup_;
 
-  bool collisionRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, CollisionCallBack callback) const
-  {
-    if(root->isLeaf())
-    {
-      if(!root->bv.overlap(query->getAABB())) return false;
-      return callback(static_cast<CollisionObject*>(root->data), query, cdata);
-    }
-    
-    if(!root->bv.overlap(query->getAABB())) return false;
+  bool collisionRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, CollisionCallBack callback) const;
 
-    int select_res = select(query->getAABB(), *(root->childs[0]), *(root->childs[1]));
-    
-    if(collisionRecurse(root->childs[select_res], query, cdata, callback))
-      return true;
-    
-    if(collisionRecurse(root->childs[1-select_res], query, cdata, callback))
-      return true;
+  bool collisionRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, CollisionCallBack callback) const;
 
-    return false;
-  }
+  bool selfCollisionRecurse(DynamicAABBNode* root, void* cdata, CollisionCallBack callback) const;
 
-  bool selfCollisionRecurse(DynamicAABBNode* root, void* cdata, CollisionCallBack callback) const
-  {
-    if(root->isLeaf()) return false;
+  bool distanceRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
 
-    if(selfCollisionRecurse(root->childs[0], cdata, callback))
-      return true;
+  bool distanceRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
 
-    if(selfCollisionRecurse(root->childs[1], cdata, callback))
-      return true;
-
-    if(collisionRecurse(root->childs[0], root->childs[1], cdata, callback))
-      return true;
-
-    return false;
-  }
-
-  bool distanceRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
-  {
-    if(root1->isLeaf() && root2->isLeaf())
-    {
-      CollisionObject* root1_obj = static_cast<CollisionObject*>(root1->data);
-      CollisionObject* root2_obj = static_cast<CollisionObject*>(root2->data);
-      return callback(root1_obj, root2_obj, cdata, min_dist);
-    }
-
-    if(root2->isLeaf() || (!root1->isLeaf() && (root1->bv.size() > root2->bv.size())))
-    {
-      BVH_REAL d1 = root2->bv.distance(root1->childs[0]->bv);
-      BVH_REAL d2 = root2->bv.distance(root1->childs[1]->bv);
-      
-      if(d2 < d1)
-      {
-        if(d2 < min_dist)
-        {
-          if(distanceRecurse(root1->childs[1], root2, cdata, callback, min_dist))
-            return true;
-        }
-        
-        if(d1 < min_dist)
-        {
-          if(distanceRecurse(root1->childs[0], root2, cdata, callback, min_dist))
-            return true;
-        }
-      }
-      else
-      {
-        if(d1 < min_dist)
-        {
-          if(distanceRecurse(root1->childs[0], root2, cdata, callback, min_dist))
-            return true;
-        }
-
-        if(d2 < min_dist)
-        {
-          if(distanceRecurse(root1->childs[1], root2, cdata, callback, min_dist))
-            return true;
-        }
-      }
-    }
-    else
-    {
-      BVH_REAL d1 = root1->bv.distance(root2->childs[0]->bv);
-      BVH_REAL d2 = root1->bv.distance(root2->childs[1]->bv);
-      
-      if(d2 < d1)
-      {
-        if(d2 < min_dist)
-        {
-          if(distanceRecurse(root1, root2->childs[1], cdata, callback, min_dist))
-            return true;
-        }
-        
-        if(d1 < min_dist)
-        {
-          if(distanceRecurse(root1, root2->childs[0], cdata, callback, min_dist))
-            return true;
-        }
-      }
-      else
-      {
-        if(d1 < min_dist)
-        {
-          if(distanceRecurse(root1, root2->childs[0], cdata, callback, min_dist))
-            return true;
-        }
-
-        if(d2 < min_dist)
-        {
-          if(distanceRecurse(root1, root2->childs[1], cdata, callback, min_dist))
-            return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  bool distanceRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
-  { 
-    if(root->isLeaf())
-    {
-      CollisionObject* root_obj = static_cast<CollisionObject*>(root->data);
-      return callback(root_obj, query, cdata, min_dist); 
-    }
-
-    BVH_REAL d1 = query->getAABB().distance(root->childs[0]->bv);
-    BVH_REAL d2 = query->getAABB().distance(root->childs[1]->bv);
-    
-    if(d2 < d1)
-    {
-      if(d2 < min_dist)
-      {
-        if(distanceRecurse(root->childs[1], query, cdata, callback, min_dist))
-          return true;
-      }
-
-      if(d1 < min_dist)
-      {
-        if(distanceRecurse(root->childs[0], query, cdata, callback, min_dist))
-          return true;
-      }
-    }
-    else
-    {
-      if(d1 < min_dist)
-      {
-        if(distanceRecurse(root->childs[0], query, cdata, callback, min_dist))
-          return true;
-      }
-
-      if(d2 < min_dist)
-      {
-        if(distanceRecurse(root->childs[1], query, cdata, callback, min_dist))
-          return true;
-      }
-    }
-
-    return false;
-  }
-
-  bool selfDistanceRecurse(DynamicAABBNode* root, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
-  {
-    if(root->isLeaf()) return false;
-
-    if(selfDistanceRecurse(root->childs[0], cdata, callback, min_dist))
-      return true;
-
-    if(selfDistanceRecurse(root->childs[1], cdata, callback, min_dist))
-      return true;
-
-    if(distanceRecurse(root->childs[0], root->childs[1], cdata, callback, min_dist))
-      return true;
-
-    return false;
-  }
-
-  
+  bool selfDistanceRecurse(DynamicAABBNode* root, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;  
 };
 
 
