@@ -445,8 +445,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
   if(min_dist < std::numeric_limits<BVH_REAL>::max())
   {
     Vec3f min_dist_delta(min_dist, min_dist, min_dist);
-    aabb.min_ -= min_dist_delta;
-    aabb.max_ += min_dist_delta;
+    aabb.expand(min_dist_delta);
   }
 
   AABB overlap_aabb;
@@ -500,22 +499,15 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
         if(min_dist < old_min_distance)
         {
           Vec3f min_dist_delta(min_dist, min_dist, min_dist);
-          aabb.min_ = obj->getAABB().min_ - min_dist_delta;
-          aabb.max_ = obj->getAABB().max_ + min_dist_delta;
+          aabb = AABB(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else
         {
           if(aabb.equal(obj->getAABB()))
-          {
-            aabb.min_ -= delta;
-            aabb.max_ += delta;
-          }
+            aabb.expand(delta);
           else
-          {
-            aabb.min_ = aabb.min_ * 2 - obj->getAABB().min_;
-            aabb.max_ = aabb.max_ * 2 - obj->getAABB().max_;
-          }
+            aabb.expand(obj->getAABB(), 2.0);
         }
       }
     }
@@ -643,6 +635,7 @@ public:
     elist[0] = NULL;
     elist[1] = NULL;
     elist[2] = NULL;
+    enable_tested_set = true;
   }
 
   ~SaPCollisionManager()
@@ -834,6 +827,11 @@ protected:
   std::list<SaPPair> overlap_pairs;
 
   size_t optimal_axis;
+
+  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+
+public:
+  bool enable_tested_set; 
 };
 
 

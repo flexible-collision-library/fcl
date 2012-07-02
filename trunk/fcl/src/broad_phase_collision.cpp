@@ -1141,7 +1141,7 @@ void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCa
   
   EndPoint* pos = *res_it;
   
-  while(pos != NULL & pos->getVal(axis) <= max_val)
+  while((pos != NULL) && (pos->getVal(axis) <= max_val))
   {
     if(pos->aabb->cached.overlap(obj->getAABB()))
     {
@@ -1152,19 +1152,110 @@ void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCa
   } 
 }
 
+bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
+{
+  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  AABB aabb = obj->getAABB();
+
+  if(min_dist < std::numeric_limits<BVH_REAL>::max())
+  {
+    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+    aabb.expand(min_dist_delta);
+  }
+
+  size_t axis = optimal_axis;
+
+  int status = 1;
+  BVH_REAL old_min_distance;
+
+  EndPoint* start_pos = elist[axis];
+
+  std::set<CollisionObject*> tested;
+
+  while(1)
+  {
+    old_min_distance = min_dist;
+    BVH_REAL min_val = aabb.min_[axis];
+    BVH_REAL max_val = aabb.max_[axis];
+
+    EndPoint dummy; 
+    SaPAABB dummy_aabb;
+    dummy_aabb.cached = aabb;
+    dummy.minmax = 1;
+    dummy.aabb = &dummy_aabb;
+    
+ 
+    std::vector<EndPoint*>::const_iterator res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
+                                                                     boost::bind(std::less<BVH_REAL>(),
+                                                                                 boost::bind(static_cast<BVH_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _1, axis),
+                                                                                 boost::bind(static_cast<BVH_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _2, axis)));
+
+    EndPoint* end_pos = NULL;
+    if(res_it != velist[axis].end())
+      end_pos = *res_it;
+
+    EndPoint* pos = start_pos;
+
+    while(pos != end_pos)
+    {
+      // can change to pos->aabb->hi->getVal(axis) >= min_val - min_dist, and then update start_pos to end_pos.
+      // but this seems slower.
+      if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val)) 
+      {
+        CollisionObject* curr_obj = pos->aabb->obj;
+        if(!enable_tested_set || (tested.find(curr_obj) == tested.end()))
+        {
+          if(pos->aabb->cached.distance(obj->getAABB()) < min_dist)
+          {
+            if(callback(curr_obj, obj, cdata, min_dist))
+              return true;
+          }
+          if(enable_tested_set) tested.insert(curr_obj);
+        }
+      }
+
+      pos = pos->next[axis];
+    }
+
+    if(status == 1)
+    {
+      if(old_min_distance < std::numeric_limits<BVH_REAL>::max())
+      {
+        if(min_dist < old_min_distance) break;
+        else
+          min_dist = std::numeric_limits<BVH_REAL>::max();
+      }
+      else
+      {
+        if(min_dist < old_min_distance)
+        {
+          Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+          aabb = AABB(obj->getAABB(), min_dist_delta);
+          status = 0;
+        }
+        else
+        {
+          if(aabb.equal(obj->getAABB()))
+            aabb.expand(delta);
+          else
+            aabb.expand(obj->getAABB(), 2.0);
+        }
+      }
+    }
+    else if(status == 0)
+      break;
+  }
+
+  return false;
+}
+
 void SaPCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
 {
   if(size() == 0) return;
 
   BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
-  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
-  {
-    if((*it)->obj->getAABB().distance(obj->getAABB()) < min_dist)
-    {
-      if(callback(obj, (*it)->obj, cdata, min_dist))
-        return;
-    }
-  }
+  
+  distance_(obj, cdata, callback, min_dist);
 }
 
 void SaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
@@ -1186,16 +1277,11 @@ void SaPCollisionManager::distance(void* cdata, DistanceCallBack callback) const
   if(size() == 0) return;
 
   BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
+
   for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
   {
-    std::list<SaPAABB*>::const_iterator it2 = it; it2++;
-    for(; it2 != AABB_arr.end(); ++it2)
-    {
-      if((*it)->obj->getAABB().distance((*it2)->obj->getAABB()) < min_dist)
-      {
-        if(callback((*it)->obj, (*it2)->obj, cdata, min_dist)) return;
-      }
-    }
+    if(distance_((*it)->obj, cdata, callback, min_dist))
+      return;
   }
 }
 
@@ -1503,8 +1589,7 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, 
   if(min_dist < std::numeric_limits<BVH_REAL>::max())
   {
     Vec3f min_dist_delta(min_dist, min_dist, min_dist);
-    aabb.min_ -= min_dist_delta;
-    aabb.max_ += min_dist_delta;
+    aabb.expand(min_dist_delta);
   }
 
   int status = 1;
@@ -1566,22 +1651,15 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, 
         if(min_dist < old_min_distance)
         {
           Vec3f min_dist_delta(min_dist, min_dist, min_dist);
-          aabb.min_ = obj->getAABB().min_ - min_dist_delta;
-          aabb.max_ = obj->getAABB().max_ + min_dist_delta;
+          aabb = AABB(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else
         {
           if(aabb.equal(obj->getAABB()))
-          {
-            aabb.min_ -= delta;
-            aabb.max_ += delta;
-          }
+            aabb.expand(delta);
           else
-          {
-            aabb.min_ = aabb.min_ * 2 - obj->getAABB().min_;
-            aabb.max_ = aabb.max_ * 2 - obj->getAABB().max_;
-          }
+            aabb.expand(obj->getAABB(), 2.0);
         }
       }
     }

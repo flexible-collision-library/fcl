@@ -69,6 +69,12 @@ public:
     max_ = max(a, b);
   }
 
+  AABB(const AABB& core, const Vec3f& delta)
+  {
+    min_ = core.min_ - delta;
+    max_ = core.max_ + delta;
+  }
+
   /** \brief Check whether two AABB are overlap */
   inline bool overlap(const AABB& other) const
   {
@@ -186,6 +192,23 @@ public:
   {
     return min_.equal(other.min_) && max_.equal(other.max_);
   }
+
+  inline AABB& expand(const Vec3f& delta)
+  {
+    min_ -= delta;
+    max_ += delta;
+    return *this;
+  }
+
+  /**\brief expand the aabb by increase the 'thickness of the plate by a ratio */
+  inline AABB& expand(const AABB& core, BVH_REAL ratio)
+  {
+    min_ = min_ * ratio - core.min_;
+    max_ = max_ * ratio - core.max_;
+    return *this;
+  }
+
+  
 };
 
 }
