@@ -55,7 +55,8 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
   if(cdata->done) return true;
 
   std::vector<Contact> contacts;
-  int num_contacts = collide(o1, o2, 1, false, false, contacts);
+  // int num_contacts = collide(o1, o2, 1, false, false, contacts);
+  int num_contacts = collide(o1, o2, cdata->num_max_contacts, cdata->exhaustive, cdata->enable_contact, contacts);
 
   cdata->is_collision = (num_contacts > 0);
   for(int i = 0; i < num_contacts; ++i)
@@ -1152,11 +1153,14 @@ bool SaPCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionC
 
   while(pos != end_pos)
   {
-    if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val))
+    if(pos->aabb->obj != obj)
     {
-      if(pos->aabb->cached.overlap(obj->getAABB()))
-        if(callback(obj, pos->aabb->obj, cdata))
-          return true;
+      if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val))
+      {
+        if(pos->aabb->cached.overlap(obj->getAABB()))
+          if(callback(obj, pos->aabb->obj, cdata))
+            return true;
+      }
     }
     pos = pos->next[axis];
   } 
@@ -1220,26 +1224,32 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
       if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val)) 
       {
         CollisionObject* curr_obj = pos->aabb->obj;
-        if(!enable_tested_set_)
+        if(curr_obj != obj)
         {
-          if(pos->aabb->cached.distance(obj->getAABB()) < min_dist)
-          {
-            if(callback(curr_obj, obj, cdata, min_dist))
-              return true;
-          }
-        }
-        else
-        {
-          bool not_find = (tested_set2.find(curr_obj) == tested_set2.end());
-          if(not_find)
+          if(!enable_tested_set_)
           {
             if(pos->aabb->cached.distance(obj->getAABB()) < min_dist)
             {
               if(callback(curr_obj, obj, cdata, min_dist))
                 return true;
             }
+          }
+          else
+          {
+            bool not_find;
+            if(curr_obj < obj) not_find = (tested_set.find(std::make_pair(curr_obj, obj)) == tested_set.end());
+            else not_find = (tested_set.find(std::make_pair(obj, curr_obj)) == tested_set.end());
+            if(not_find)
+            {
+              if(pos->aabb->cached.distance(obj->getAABB()) < min_dist)
+              {
+                if(callback(curr_obj, obj, cdata, min_dist))
+                  return true;
+              }
 
-            tested_set2.insert(curr_obj);
+              if(curr_obj < obj) tested_set.insert(std::make_pair(curr_obj, obj));
+              else tested_set.insert(std::make_pair(obj, curr_obj));
+            }
           }
         }
       }
@@ -1907,6 +1917,7 @@ void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<Collisio
   else
   {
     std::vector<DynamicAABBNode*> leaves(other_objs.size());
+    table.rehash(other_objs.size());
     for(size_t i = 0; i < other_objs.size(); ++i)
     {
       DynamicAABBNode* node = new DynamicAABBNode;
@@ -1963,16 +1974,22 @@ void DynamicAABBTreeCollisionManager::update()
   setup_ = false;
 }
 
-void DynamicAABBTreeCollisionManager::update(CollisionObject* obj)
+void DynamicAABBTreeCollisionManager::update(CollisionObject* updated_obj)
 {
-  DynamicAABBTable::const_iterator it = table.find(obj);
+  DynamicAABBTable::const_iterator it = table.find(updated_obj);
   if(it != table.end())
   {
     DynamicAABBNode* node = it->second;
-    if(!node->bv.equal(obj->getAABB()))
-      dtree.update(node, obj->getAABB());
+    if(!node->bv.equal(updated_obj->getAABB()))
+      dtree.update(node, updated_obj->getAABB());
   }
   setup_ = false;
+}
+
+void DynamicAABBTreeCollisionManager::update(const std::vector<CollisionObject*>& updated_objs)
+{
+  for(size_t i = 0; i < updated_objs.size(); ++i)
+    update(updated_objs[i]);
 }
 
 bool DynamicAABBTreeCollisionManager::collisionRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, CollisionCallBack callback) const

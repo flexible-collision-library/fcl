@@ -121,6 +121,8 @@ BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
 {
   GJKSolver_libccd solver;
   return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver);
+  // GJKSolver_indep solver;
+  // return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver);
 }
 
 

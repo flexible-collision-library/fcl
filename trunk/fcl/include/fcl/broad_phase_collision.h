@@ -97,6 +97,18 @@ public:
   /** \brief update the condition of manager */
   virtual void update() = 0;
 
+  /** \brief update the manager by explicitly given the object updated */
+  virtual void update(CollisionObject* updated_obj)
+  {
+    update();
+  }
+
+  /** \brief update the manager by explicitly given the set of objects update */
+  virtual void update(const std::vector<CollisionObject*>& updated_objs)
+  {
+    update();
+  }
+
   /** \brief clear the manager */
   virtual void clear() = 0;
 
@@ -129,7 +141,6 @@ public:
 
 protected:
   mutable std::set<std::pair<CollisionObject*, CollisionObject*> > tested_set;
-  mutable std::set<CollisionObject*> tested_set2;
   mutable bool enable_tested_set_;
 
 };
@@ -424,6 +435,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
       std::list<CollisionObject*>::const_iterator it;
       for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
       {
+        if(obj == *it) continue;
         if(callback(obj, *it, cdata)) return true;
       }
     }
@@ -431,6 +443,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
     std::vector<CollisionObject*> query_result = hash_table->query(overlap_aabb);
     for(unsigned int i = 0; i < query_result.size(); ++i)
     {
+      if(obj == query_result[i]) continue;
       if(callback(obj, query_result[i], cdata)) return true;
     }
   }
@@ -439,6 +452,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
     std::list<CollisionObject*>::const_iterator it;
     for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
     {
+      if(obj == *it) continue;
       if(callback(obj, *it, cdata)) return true;
     }
   }
@@ -475,6 +489,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
         std::list<CollisionObject*>::const_iterator it;
         for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
         {
+          if(obj == *it) continue;
           if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
             if(callback(obj, *it, cdata, min_dist)) return true;
         }
@@ -483,6 +498,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
       std::vector<CollisionObject*> query_result = hash_table->query(overlap_aabb);
       for(unsigned int i = 0; i < query_result.size(); ++i)
       {
+        if(obj == query_result[i]) continue;
         if(obj->getAABB().distance(query_result[i]->getAABB()) < min_dist)
           if(callback(obj, query_result[i], cdata, min_dist)) return true;
       }
@@ -492,6 +508,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
       std::list<CollisionObject*>::const_iterator it;
       for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
       {
+        if(obj == *it) continue;
         if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
           if(callback(obj, *it, cdata, min_dist)) return true;
       }
@@ -1091,8 +1108,11 @@ public:
   /** \brief update the condition of manager */
   void update();
 
-  /** \brief update a specific object */
-  void update(CollisionObject* obj);
+  /** \brief update the manager by explicitly given the object updated */
+  void update(CollisionObject* updated_obj);
+
+  /** \brief update the manager by explicitly given the set of objects update */
+  void update(const std::vector<CollisionObject*>& updated_objs);
 
   /** \brief clear the manager */
   void clear()

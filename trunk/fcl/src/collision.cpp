@@ -137,6 +137,8 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
 {
   GJKSolver_libccd solver;
   return collide<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, num_max_contacts, exhaustive, enable_contact, contacts);
+  // GJKSolver_indep solver;
+  // return collide<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, num_max_contacts, exhaustive, enable_contact, contacts);
 }
 
 }
