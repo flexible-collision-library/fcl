@@ -709,6 +709,7 @@ void SaPCollisionManager::unregisterObject(CollisionObject* obj)
   }
 
   AABB_arr.erase(it);
+  obj_aabb_map.erase(obj);
 
   if(it == AABB_arr.end())
     return;
@@ -765,6 +766,7 @@ void SaPCollisionManager::registerObjects(const std::vector<CollisionObject*>& o
       sapaabb->lo->aabb = sapaabb;
       sapaabb->hi->aabb = sapaabb;
       AABB_arr.push_back(sapaabb);
+      obj_aabb_map[other_objs[i]] = sapaabb;
     }
 
 
@@ -920,6 +922,8 @@ void SaPCollisionManager::registerObject(CollisionObject* obj)
 
   AABB_arr.push_back(curr);
 
+  obj_aabb_map[obj] = curr;
+
   updateVelist();
 }
 
@@ -935,158 +939,170 @@ void SaPCollisionManager::setup()
   optimal_axis = axis;
 }
 
+void SaPCollisionManager::update_(SaPAABB* updated_aabb)
+{
+  if(updated_aabb->cached.equal(updated_aabb->obj->getAABB()))
+    return;
+
+  SaPAABB* current = updated_aabb;
+
+  Vec3f new_min = current->obj->getAABB().min_;
+  Vec3f new_max = current->obj->getAABB().max_;
+
+  SaPAABB dummy;
+  dummy.cached = current->obj->getAABB();
+
+  for(int coord = 0; coord < 3; ++coord)
+  {
+    int direction; // -1 reverse, 0 nochange, 1 forward
+    EndPoint* temp;
+
+    if(current->lo->getVal(coord) > new_min[coord])
+      direction = -1;
+    else if(current->lo->getVal(coord) < new_min[coord])
+      direction = 1;
+    else direction = 0;
+
+    if(direction == -1)
+    {
+      //first update the "lo" endpoint of the interval
+      if(current->lo->prev[coord] != NULL)
+      {
+        temp = current->lo;
+        while((temp != NULL) && (temp->getVal(coord) > new_min[coord]))
+        {
+          if(temp->minmax == 1)
+            if(temp->aabb->cached.overlap(dummy.cached))
+              addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+          temp = temp->prev[coord];
+        }
+
+        if(temp == NULL)
+        {
+          current->lo->prev[coord]->next[coord] = current->lo->next[coord];
+          current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
+          current->lo->prev[coord] = NULL;
+          current->lo->next[coord] = elist[coord];
+          elist[coord]->prev[coord] = current->lo;
+          elist[coord] = current->lo;
+        }
+        else
+        {
+          current->lo->prev[coord]->next[coord] = current->lo->next[coord];
+          current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
+          current->lo->prev[coord] = temp;
+          current->lo->next[coord] = temp->next[coord];
+          temp->next[coord]->prev[coord] = current->lo;
+          temp->next[coord] = current->lo;
+        }
+      }
+
+      current->lo->getVal(coord) = new_min[coord];
+
+      // update hi end point
+      temp = current->hi;
+      while(temp->getVal(coord) > new_max[coord])
+      {
+        if((temp->minmax == 0) && (temp->aabb->cached.overlap(current->cached)))
+          removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+        temp = temp->prev[coord];
+      }
+
+      current->hi->prev[coord]->next[coord] = current->hi->next[coord];
+      if(current->hi->next[coord] != NULL)
+        current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
+      current->hi->prev[coord] = temp;
+      current->hi->next[coord] = temp->next[coord];
+      if(temp->next[coord] != NULL)
+        temp->next[coord]->prev[coord] = current->hi;
+      temp->next[coord] = current->hi;
+
+      current->hi->getVal(coord) = new_max[coord];
+    }
+    else if(direction == 1)
+    {
+      //here, we first update the "hi" endpoint.
+      if(current->hi->next[coord] != NULL)
+      {
+        temp = current->hi;
+        while((temp->next[coord] != NULL) && (temp->getVal(coord) < new_max[coord]))
+        {
+          if(temp->minmax == 0)
+            if(temp->aabb->cached.overlap(dummy.cached))
+              addToOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+          temp = temp->next[coord];
+        }
+
+        if(temp->getVal(coord) < new_max[coord])
+        {
+          current->hi->prev[coord]->next[coord] = current->hi->next[coord];
+          current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
+          current->hi->prev[coord] = temp;
+          current->hi->next[coord] = NULL;
+          temp->next[coord] = current->hi;
+        }
+        else
+        {
+          current->hi->prev[coord]->next[coord] = current->hi->next[coord];
+          current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
+          current->hi->prev[coord] = temp->prev[coord];
+          current->hi->next[coord] = temp;
+          temp->prev[coord]->next[coord] = current->hi;
+          temp->prev[coord] = current->hi;
+        }
+      }
+
+      current->hi->getVal(coord) = new_max[coord];
+
+      //then, update the "lo" endpoint of the interval.
+      temp = current->lo;
+
+      while(temp->getVal(coord) < new_min[coord])
+      {
+        if((temp->minmax == 1) && (temp->aabb->cached.overlap(current->cached)))
+          removeFromOverlapPairs(SaPPair(temp->aabb->obj, current->obj));
+        temp = temp->next[coord];
+      }
+
+      if(current->lo->prev[coord] != NULL)
+        current->lo->prev[coord]->next[coord] = current->lo->next[coord];
+      else
+        elist[coord] = current->lo->next[coord];
+      current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
+      current->lo->prev[coord] = temp->prev[coord];
+      current->lo->next[coord] = temp;
+      if(temp->prev[coord] != NULL)
+        temp->prev[coord]->next[coord] = current->lo;
+      else
+        elist[coord] = current->lo;
+      temp->prev[coord] = current->lo;
+      current->lo->getVal(coord) = new_min[coord];
+    }
+  }
+}
+
+void SaPCollisionManager::update(CollisionObject* updated_obj)
+{
+  update_(obj_aabb_map[updated_obj]);
+
+  updateVelist();
+}
+
+void SaPCollisionManager::update(const std::vector<CollisionObject*>& updated_objs)
+{
+  for(size_t i = 0; i < updated_objs.size(); ++i)
+    update_(obj_aabb_map[updated_objs[i]]);
+
+  updateVelist();
+}
+
 void SaPCollisionManager::update()
 {
   for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
   {
-    SaPAABB* current = *it;
-
-    Vec3f new_min = current->obj->getAABB().min_;
-    Vec3f new_max = current->obj->getAABB().max_;
-
-    SaPAABB dummy;
-    dummy.cached = current->obj->getAABB();
-
-    EndPoint lo, hi;
-    dummy.lo = &lo;
-    dummy.hi = &hi;
-
-    lo.minmax = 0;
-    lo.aabb = &dummy;
-    hi.minmax = 1;
-    hi.aabb = &dummy;
-
-
-    for(int coord = 0; coord < 3; ++coord)
-    {
-      int direction; // -1 reverse, 0 nochange, 1 forward
-      EndPoint* temp;
-
-      if(current->lo->getVal()[coord] > new_min[coord])
-        direction = -1;
-      else if(current->lo->getVal()[coord] < new_min[coord])
-        direction = 1;
-      else direction = 0;
-
-      if(direction == -1)
-      {
-        //first update the "lo" endpoint of the interval
-        if(current->lo->prev[coord] != NULL)
-        {
-          temp = current->lo;
-          while((temp != NULL) && (temp->getVal()[coord] > new_min[coord]))
-          {
-            if(temp->minmax == 1)
-              if(temp->aabb->cached.overlap(dummy.cached))
-                overlap_pairs.push_back(SaPPair(temp->aabb->obj, current->obj));
-            temp = temp->prev[coord];
-          }
-
-          if(temp == NULL)
-          {
-            current->lo->prev[coord]->next[coord] = current->lo->next[coord];
-            current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-            current->lo->prev[coord] = NULL;
-            current->lo->next[coord] = elist[coord];
-            elist[coord]->prev[coord] = current->lo;
-            elist[coord] = current->lo;
-          }
-          else
-          {
-            current->lo->prev[coord]->next[coord] = current->lo->next[coord];
-            current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-            current->lo->prev[coord] = temp;
-            current->lo->next[coord] = temp->next[coord];
-            temp->next[coord]->prev[coord] = current->lo;
-            temp->next[coord] = current->lo;
-          }
-        }
-
-        current->lo->getVal()[coord] = new_min[coord];
-
-        // update hi end point
-        temp = current->hi;
-        while(temp->getVal()[coord] > new_max[coord])
-        {
-          if((temp->minmax == 0) && (temp->aabb->cached.overlap(current->cached)))
-            overlap_pairs.remove_if(isNotValidPair(temp->aabb->obj, current->obj));
-          temp = temp->prev[coord];
-        }
-
-        current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-        if(current->hi->next[coord] != NULL)
-          current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
-        current->hi->prev[coord] = temp;
-        current->hi->next[coord] = temp->next[coord];
-        if(temp->next[coord] != NULL)
-          temp->next[coord]->prev[coord] = current->hi;
-        temp->next[coord] = current->hi;
-
-        current->hi->getVal()[coord] = new_max[coord];
-      }
-      else if(direction == 1)
-      {
-        //here, we first update the "hi" endpoint.
-        if(current->hi->next[coord] != NULL)
-        {
-          temp = current->hi;
-          while((temp->next[coord] != NULL) && (temp->getVal()[coord] < new_max[coord]))
-          {
-            if(temp->minmax == 0)
-              if(temp->aabb->cached.overlap(dummy.cached))
-                overlap_pairs.push_back(SaPPair(temp->aabb->obj, current->obj));
-            temp = temp->next[coord];
-          }
-
-          if(temp->getVal()[coord] < new_max[coord])
-          {
-            current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-            current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
-            current->hi->prev[coord] = temp;
-            current->hi->next[coord] = NULL;
-            temp->next[coord] = current->hi;
-          }
-          else
-          {
-            current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-            current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
-            current->hi->prev[coord] = temp->prev[coord];
-            current->hi->next[coord] = temp;
-            temp->prev[coord]->next[coord] = current->hi;
-            temp->prev[coord] = current->hi;
-          }
-        }
-
-        current->hi->getVal()[coord] = new_max[coord];
-
-        //then, update the "lo" endpoint of the interval.
-        temp = current->lo;
-
-        while(temp->getVal()[coord] < new_min[coord])
-        {
-          if((temp->minmax == 1) && (temp->aabb->cached.overlap(current->cached)))
-            overlap_pairs.remove_if(isNotValidPair(temp->aabb->obj, current->obj));
-          temp = temp->next[coord];
-        }
-
-        if(current->lo->prev[coord] != NULL)
-          current->lo->prev[coord]->next[coord] = current->lo->next[coord];
-        else
-          elist[coord] = current->lo->next[coord];
-        current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-        current->lo->prev[coord] = temp->prev[coord];
-        current->lo->next[coord] = temp;
-        if(temp->prev[coord] != NULL)
-          temp->prev[coord]->next[coord] = current->lo;
-        else
-          elist[coord] = current->lo;
-        temp->prev[coord] = current->lo;
-        current->lo->getVal()[coord] = new_min[coord];
-      }
-    }
+    update_(*it);
   }
 
-  // update velist
   updateVelist();
 }
 
@@ -1113,6 +1129,8 @@ void SaPCollisionManager::clear()
   velist[0].clear();
   velist[1].clear();
   velist[2].clear();
+
+  obj_aabb_map.clear();
 }
 
 void SaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
@@ -1472,6 +1490,26 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
     if(cur_id < end_id)
       endpoints[2].resize(endpoints[2].size() - 2);
   }
+
+  // update the interval tree
+  if(obj_interval_maps[0].find(obj) != obj_interval_maps[0].end())
+  {
+    SAPInterval* ivl1 = obj_interval_maps[0][obj];
+    SAPInterval* ivl2 = obj_interval_maps[1][obj];
+    SAPInterval* ivl3 = obj_interval_maps[2][obj];
+
+    interval_trees[0]->deleteNode(ivl1);
+    interval_trees[1]->deleteNode(ivl2);
+    interval_trees[2]->deleteNode(ivl3);
+
+    delete ivl1;
+    delete ivl2;
+    delete ivl3;
+
+    obj_interval_maps[0].erase(obj);
+    obj_interval_maps[1].erase(obj);             
+    obj_interval_maps[2].erase(obj);
+  }
 }
 
 void IntervalTreeCollisionManager::registerObject(CollisionObject* obj)
@@ -1522,9 +1560,14 @@ void IntervalTreeCollisionManager::setup()
         SAPInterval* ivl1 = new SAPInterval(obj->getAABB().min_[0], obj->getAABB().max_[0], obj);
         SAPInterval* ivl2 = new SAPInterval(obj->getAABB().min_[1], obj->getAABB().max_[1], obj);
         SAPInterval* ivl3 = new SAPInterval(obj->getAABB().min_[2], obj->getAABB().max_[2], obj);
+
         interval_trees[0]->insert(ivl1);
         interval_trees[1]->insert(ivl2);
         interval_trees[2]->insert(ivl3);
+
+        obj_interval_maps[0][obj] = ivl1;
+        obj_interval_maps[1][obj] = ivl2;
+        obj_interval_maps[2][obj] = ivl3;
       }
     }
 
@@ -1564,11 +1607,80 @@ void IntervalTreeCollisionManager::update()
 
 }
 
+
+void IntervalTreeCollisionManager::update(CollisionObject* updated_obj)
+{
+  AABB old_aabb;
+  const AABB& new_aabb = updated_obj->getAABB();
+  for(int i = 0; i < 3; ++i)
+  {
+    std::map<CollisionObject*, SAPInterval*>::const_iterator it = obj_interval_maps[i].find(updated_obj);
+    interval_trees[i]->deleteNode(it->second);
+    old_aabb.min_[i] = it->second->low;
+    old_aabb.max_[i] = it->second->high;
+    it->second->low = new_aabb.min_[i];
+    it->second->high = new_aabb.max_[i];
+    interval_trees[i]->insert(it->second);
+  }
+
+  EndPoint dummy;
+  std::vector<EndPoint>::iterator it;
+  for(int i = 0; i < 3; ++i)
+  {
+    dummy.value = old_aabb.min_[i];
+    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    for(; it != endpoints[i].end(); ++it)
+    {
+      if(it->obj == updated_obj && it->minmax == 0)
+      {
+        it->value = new_aabb.min_[i];
+        break;
+      }
+    }
+
+    dummy.value = old_aabb.max_[i];
+    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    for(; it != endpoints[i].end(); ++it)
+    {
+      if(it->obj == updated_obj && it->minmax == 0)
+      {
+        it->value = new_aabb.max_[i];
+        break;
+      }
+    }         
+
+    std::sort(endpoints[i].begin(), endpoints[i].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+  }
+}
+
+void IntervalTreeCollisionManager::update(const std::vector<CollisionObject*>& updated_objs)
+{
+  for(size_t i = 0; i < updated_objs.size(); ++i)
+    update(updated_objs[i]);
+}
+
 void IntervalTreeCollisionManager::clear()
 {
   endpoints[0].clear();
   endpoints[1].clear();
   endpoints[2].clear();
+
+  for(int i = 0; i < 3; ++i)
+    obj_interval_maps[i].clear();
+
+  delete interval_trees[0]; interval_trees[0] = NULL;
+  delete interval_trees[1]; interval_trees[1] = NULL;
+  delete interval_trees[2]; interval_trees[2] = NULL;
+
+  for(int i = 0; i < 3; ++i)
+  {
+    for(std::map<CollisionObject*, SAPInterval*>::const_iterator it = obj_interval_maps[i].begin();
+        it != obj_interval_maps[i].end(); ++it)
+    {
+      delete it->second;
+    }
+  }
+
   setup_ = false;
 }
 
@@ -1920,7 +2032,7 @@ void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<Collisio
     table.rehash(other_objs.size());
     for(size_t i = 0; i < other_objs.size(); ++i)
     {
-      DynamicAABBNode* node = new DynamicAABBNode;
+      DynamicAABBNode* node = new DynamicAABBNode; // node will be managed by the dtree
       node->bv = other_objs[i]->getAABB();
       node->parent = NULL;
       node->childs[1] = NULL;

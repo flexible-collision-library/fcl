@@ -52,7 +52,6 @@ IntervalTreeNode::IntervalTreeNode(SimpleInterval* new_interval) :
 
 IntervalTreeNode::~IntervalTreeNode() {}
 
-
 IntervalTree::IntervalTree()
 {
   nil = new IntervalTreeNode;
@@ -72,6 +71,43 @@ IntervalTree::IntervalTree()
   recursion_node_stack = (it_recursion_node*)malloc(recursion_node_stack_size*sizeof(it_recursion_node));
   recursion_node_stack_top = 1;
   recursion_node_stack[0].start_node = NULL;
+}
+
+IntervalTree::~IntervalTree()
+{
+  IntervalTreeNode* x = root->left;
+  std::deque<IntervalTreeNode*> nodes_to_free;
+
+  if(x != nil)
+  {
+    if(x->left != nil)
+    {
+      nodes_to_free.push_back(x->left);
+    }
+    if(x->right != nil)
+    {
+      nodes_to_free.push_back(x->right);
+    }
+
+    delete x;
+    while( nodes_to_free.size() > 0)
+    {
+      x = nodes_to_free.back();
+      nodes_to_free.pop_back();
+      if(x->left != nil)
+      {
+        nodes_to_free.push_back(x->left);
+      }
+      if(x->right != nil)
+      {
+        nodes_to_free.push_back(x->right);
+      }
+      delete x;
+    }
+  }
+  delete nil;
+  delete root;
+  free(recursion_node_stack);
 }
 
 
@@ -290,43 +326,6 @@ void IntervalTree::recursivePrint(IntervalTreeNode* x) const
   }
 }
 
-IntervalTree::~IntervalTree()
-{
-  IntervalTreeNode* x = root->left;
-  std::deque<IntervalTreeNode*> nodes_to_free;
-
-  if(x != nil)
-  {
-    if(x->left != nil)
-    {
-      nodes_to_free.push_back(x->left);
-    }
-    if(x->right != nil)
-    {
-      nodes_to_free.push_back(x->right);
-    }
-
-    delete x;
-    while( nodes_to_free.size() > 0)
-    {
-      x = nodes_to_free.back();
-      nodes_to_free.pop_back();
-      if(x->left != nil)
-      {
-        nodes_to_free.push_back(x->left);
-      }
-      if(x->right != nil)
-      {
-        nodes_to_free.push_back(x->right);
-      }
-      delete x;
-    }
-  }
-  delete nil;
-  delete root;
-  free(recursion_node_stack);
-}
-
 
 void IntervalTree::print() const
 {
@@ -404,6 +403,29 @@ void IntervalTree::deleteFixup(IntervalTreeNode* x)
     }
   }
   x->red = false;
+}
+
+void IntervalTree::deleteNode(SimpleInterval* ivl)
+{
+  IntervalTreeNode* node = recursiveSearch(root, ivl);
+  if(node)
+    deleteNode(node);
+}
+
+IntervalTreeNode* IntervalTree::recursiveSearch(IntervalTreeNode* node, SimpleInterval* ivl) const
+{
+  if(node != nil)
+  {
+    if(node->stored_interval == ivl)
+      return node;
+    
+    IntervalTreeNode* left = recursiveSearch(node->left, ivl);
+    if(left != nil) return left;
+    IntervalTreeNode* right = recursiveSearch(node->right, ivl);
+    if(right != nil) return right;
+  } 
+  
+  return nil;
 }
 
 SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z)

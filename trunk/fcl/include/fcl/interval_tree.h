@@ -122,6 +122,9 @@ public:
   /** \brief Delete one node of the interval tree */
   SimpleInterval* deleteNode(IntervalTreeNode* node);
 
+  void deleteNode(SimpleInterval* ivl);
+
+
   /** \brief Insert one node of the interval tree */
   IntervalTreeNode* insert(SimpleInterval* new_interval);
 
@@ -151,6 +154,9 @@ protected:
 
   /** \brief recursively print a subtree */
   void recursivePrint(IntervalTreeNode* node) const;
+
+  /** \brief recursively find the node corresponding to the interval */
+  IntervalTreeNode* recursiveSearch(IntervalTreeNode* node, SimpleInterval* ivl) const;
 
   /** \brief Travels up to the root fixing the max_high fields after an insertion or deletion */
   void fixupMaxHigh(IntervalTreeNode* node);

@@ -54,6 +54,7 @@ protected:
   typedef std::list<Data> Bin;
   std::vector<Bin> table_;
   HashFnc h_;
+  size_t table_size_;
 public:
   SimpleHashTable(const HashFnc& h) : h_(h)
   {
@@ -67,6 +68,7 @@ public:
     }
 
     table_.resize(size);
+    table_size_ = size;
   }
 
   void insert(Key key, Data value)
@@ -105,6 +107,7 @@ public:
   void clear() 
   {
     table_.clear();
+    table_.resize(table_size_);
   }
 };
 

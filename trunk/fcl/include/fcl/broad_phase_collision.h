@@ -49,7 +49,7 @@
 #include <list>
 #include <iostream>
 #include <boost/unordered_map.hpp>
-
+#include <map>
 #include <boost/bind.hpp>
 
 namespace fcl
@@ -276,6 +276,12 @@ public:
   /** \brief update the condition of manager */
   void update();
 
+  /** \brief update the manager by explicitly given the object updated */
+  void update(CollisionObject* updated_obj);
+
+  /** \brief update the manager by explicitly given the set of objects update */
+  void update(const std::vector<CollisionObject*>& updated_objs);
+
   /** \brief clear the manager */
   void clear();
 
@@ -336,6 +342,8 @@ protected:
 
   // the size of the scene
   AABB scene_limit;
+
+  std::map<CollisionObject*, AABB> obj_aabb_map; // store the map between objects and their aabbs. will make update more convenient
 };
 
 
@@ -356,6 +364,8 @@ void SpatialHashingCollisionManager<HashTable>::registerObject(CollisionObject* 
   }
   else
     objs_outside_scene_limit.push_back(obj);
+
+  obj_aabb_map[obj] = obj_aabb;
 }
 
 template<typename HashTable>
@@ -375,6 +385,8 @@ void SpatialHashingCollisionManager<HashTable>::unregisterObject(CollisionObject
   }
   else
     objs_outside_scene_limit.remove(obj);
+
+  obj_aabb_map.erase(obj);
 }
 
 template<typename HashTable>
@@ -389,8 +401,63 @@ void SpatialHashingCollisionManager<HashTable>::update()
 
   std::list<CollisionObject*>::const_iterator it;
   for(it = objs.begin(); it != objs.end(); ++it)
-    registerObject(*it);
+  {
+    CollisionObject* obj = *it;
+    const AABB& obj_aabb = obj->getAABB();
+    AABB overlap_aabb;
+
+    if(scene_limit.overlap(obj_aabb, overlap_aabb))
+    {
+      if(!scene_limit.contain(obj_aabb))
+        objs_outside_scene_limit.push_back(obj);
+    
+      hash_table->insert(overlap_aabb, obj);
+    }
+    else
+      objs_outside_scene_limit.push_back(obj);
+
+    obj_aabb_map[obj] = obj_aabb;
+  }
 }
+
+template<typename HashTable>
+void SpatialHashingCollisionManager<HashTable>::update(CollisionObject* updated_obj)
+{
+  const AABB& new_aabb = updated_obj->getAABB();
+  const AABB& old_aabb = obj_aabb_map[updated_obj];
+
+  if(!scene_limit.contain(old_aabb)) // previously not completely in scene limit
+  {
+    if(scene_limit.contain(new_aabb))
+    {
+      std::list<CollisionObject*>::iterator find_it = std::find(objs_outside_scene_limit.begin(),
+                                                                objs_outside_scene_limit.end(),
+                                                                updated_obj);
+    
+      objs_outside_scene_limit.erase(find_it);
+    }
+  }
+  else if(!scene_limit.contain(new_aabb)) // previous completely in scenelimit, now not
+      objs_outside_scene_limit.push_back(updated_obj);
+  
+  AABB old_overlap_aabb;
+  if(scene_limit.overlap(old_aabb, old_overlap_aabb))
+    hash_table->remove(old_overlap_aabb, updated_obj);
+
+  AABB new_overlap_aabb;
+  if(scene_limit.overlap(new_aabb, new_overlap_aabb))
+     hash_table->insert(new_overlap_aabb, updated_obj);
+
+  obj_aabb_map[updated_obj] = new_aabb;
+}
+
+template<typename HashTable>
+void SpatialHashingCollisionManager<HashTable>::update(const std::vector<CollisionObject*>& updated_objs)
+{
+  for(size_t i = 0; i < updated_objs.size(); ++i)
+    update(updated_objs[i]);
+}
+
 
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::clear()
@@ -398,6 +465,7 @@ void SpatialHashingCollisionManager<HashTable>::clear()
   objs.clear();
   hash_table->clear();
   objs_outside_scene_limit.clear();
+  obj_aabb_map.clear();
 }
 
 template<typename HashTable>
@@ -663,6 +731,8 @@ public:
     elist[0] = NULL;
     elist[1] = NULL;
     elist[2] = NULL;
+
+    optimal_axis = 0;
   }
 
   ~SaPCollisionManager()
@@ -684,6 +754,12 @@ public:
 
   /** \brief update the condition of manager */
   void update();
+
+  /** \brief update the manager by explicitly given the object updated */
+  void update(CollisionObject* updated_obj);
+
+  /** \brief update the manager by explicitly given the set of objects update */
+  void update(const std::vector<CollisionObject*>& updated_objs);
 
   /** \brief clear the manager */
   void clear();
@@ -782,12 +858,25 @@ protected:
   {
     SaPPair(CollisionObject* a, CollisionObject* b)
     {
-      obj1 = a;
-      obj2 = b;
+      if(a < b)
+      {
+        obj1 = a;
+        obj2 = b;
+      }
+      else
+      {
+        obj1 = b;
+        obj2 = a;
+      }
     }
 
     CollisionObject* obj1;
     CollisionObject* obj2;
+
+    bool operator == (const SaPPair& other) const
+    {
+      return ((obj1 == other.obj1) && (obj2 == other.obj2));
+    }
   };
 
   /** Functor to help unregister one object */
@@ -822,9 +911,11 @@ protected:
 
     bool operator() (const SaPPair& pair)
     {
-      return ((pair.obj1 == obj1) && (pair.obj2 == obj2)) || ((pair.obj1 == obj2) && (pair.obj2 == obj1));
+      return (pair.obj1 == obj1) && (pair.obj2 == obj2);
     }
   };
+
+  void update_(SaPAABB* updated_aabb);
 
   void updateVelist() 
   {
@@ -845,6 +936,7 @@ protected:
   /** \brief End point list for x, y, z coordinates */
   EndPoint* elist[3];
   
+  /** \brief vector version of elist, for acceleration */
   std::vector<EndPoint*> velist[3];
 
   /** \brief SAP interval list */
@@ -855,9 +947,45 @@ protected:
 
   size_t optimal_axis;
 
+  std::map<CollisionObject*, SaPAABB*> obj_aabb_map;
+
   bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
 
   bool collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+
+  void addToOverlapPairs(const SaPPair& p)
+  {
+    bool repeated = false;
+    for(std::list<SaPPair>::iterator it = overlap_pairs.begin();
+        it != overlap_pairs.end();
+        ++it)
+    {
+      if(*it == p)
+      {
+        repeated = true;
+        break;
+      }
+    }
+
+    if(!repeated)
+      overlap_pairs.push_back(p);
+  }
+
+  void removeFromOverlapPairs(const SaPPair& p)
+  {
+    for(std::list<SaPPair>::iterator it = overlap_pairs.begin();
+        it != overlap_pairs.end();
+        ++it)
+    {
+      if(*it == p)
+      {
+        overlap_pairs.erase(it);
+        break;
+      }
+    }
+
+    // or overlap_pairs.remove_if(isNotValidPair(p));
+  }
 };
 
 
@@ -985,6 +1113,11 @@ public:
       interval_trees[i] = NULL;
   }
 
+  ~IntervalTreeCollisionManager()
+  {
+    clear();
+  }
+
   /** \brief remove one object from the manager */
   void registerObject(CollisionObject* obj);
 
@@ -996,6 +1129,12 @@ public:
 
   /** \brief update the condition of manager */
   void update();
+
+  /** \brief update the manager by explicitly given the object updated */
+  void update(CollisionObject* updated_obj);
+
+  /** \brief update the manager by explicitly given the set of objects update */
+  void update(const std::vector<CollisionObject*>& updated_objs);
 
   /** \brief clear the manager */
   void clear();
@@ -1069,6 +1208,8 @@ protected:
 
   /** \brief  interval tree manages the intervals */
   IntervalTree* interval_trees[3];
+
+  std::map<CollisionObject*, SAPInterval*> obj_interval_maps[3];
 
   /** \brief tag for whether the interval tree is maintained suitably */
   bool setup_;
