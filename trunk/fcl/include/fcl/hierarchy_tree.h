@@ -133,7 +133,7 @@ public:
   }
 
   /** \brief update one leaf node's bounding volume */
-  void update(NodeType* leaf, const BV& bv)
+  void update_(NodeType* leaf, const BV& bv)
   {
     NodeType* root = removeLeaf(leaf);
     if(root)
@@ -168,11 +168,18 @@ public:
     insertLeaf(root, leaf);
   }
 
+  bool update(NodeType* leaf, const BV& bv)
+  {
+    if(leaf->bv.contain(bv)) return false;
+    update_(leaf, bv);
+    return true;
+  }
+
   /** \brief update one leaf's bounding volume, with prediction */
   bool update(NodeType* leaf, const BV& bv, const Vec3f& vel, BVH_REAL margin)
   {
     if(leaf->bv.contain(bv)) return false;
-    update(leaf, bv);
+    update_(leaf, bv);
     return true;
   }
 
@@ -180,7 +187,7 @@ public:
   bool update(NodeType* leaf, const BV& bv, const Vec3f& vel)
   {
     if(leaf->bv.contain(bv)) return false;
-    update(leaf, bv);
+    update_(leaf, bv);
     return true;
   }
 
@@ -207,6 +214,27 @@ public:
       fetchLeaves(root_node, leaves);
       root_node = topdown(leaves, bu_threshold);
     }
+  }
+
+  /** \brief refit */
+  void refit()
+  {
+    if(root_node)
+    {
+      recurseRefit(root_node);
+    }
+  }
+
+  void recurseRefit(NodeType* node)
+  {
+    if(!node->isLeaf())
+    {
+      recurseRefit(node->childs[0]);
+      recurseRefit(node->childs[1]);
+      node->bv = node->childs[0]->bv + node->childs[1]->bv;
+    }
+    else
+      return;
   }
 
   size_t getMaxHeight(NodeType* node) const
@@ -295,9 +323,47 @@ public:
     }
   }
 
+
+  /** \brief construct a tree for a set of leaves from bottom -- very heavy way */
+  void bottomup(std::vector<NodeType*>& leaves)
+  {
+    while(leaves.size() > 1)
+    {
+      BVH_REAL min_size = std::numeric_limits<BVH_REAL>::max();
+      int min_idx[2] = {-1, -1};
+      for(size_t i = 0; i < leaves.size(); ++i)
+      {
+        for(size_t j = i+1; j < leaves.size(); ++j)
+        {
+          BVH_REAL cur_size = (leaves[i]->bv + leaves[j]->bv).size();
+          if(cur_size < min_size)
+          {
+            min_size = cur_size;
+            min_idx[0] = i;
+            min_idx[1] = j;
+          }
+        }
+      }
+
+      NodeType* n[2] = {leaves[min_idx[0]], leaves[min_idx[1]]};
+      NodeType* p = createNode(NULL, n[0]->bv, n[1]->bv, NULL);
+      p->childs[0] = n[0];
+      p->childs[1] = n[1];
+      n[0]->parent = p;
+      n[1]->parent = p;
+      leaves[min_idx[0]] = p;
+      NodeType* tmp = leaves[min_idx[1]];
+      leaves[min_idx[1]] = leaves.back();
+      leaves.back() = tmp;
+      leaves.pop_back();
+    }
+  }
+
+
   /** \brief construct a tree for a set of leaves from top */
   NodeType* topdown(std::vector<NodeType*>& leaves, int bu_threshold)
   {
+    n_leaves = leaves.size();
     static const Vec3f axis[3] = {Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1)};
     if(leaves.size() > 1)
     {
@@ -391,43 +457,6 @@ private:
     return n;
   }
   
-
-  /** \brief construct a tree for a set of leaves from bottom */
-  void bottomup(std::vector<NodeType*>& leaves)
-  {
-    while(leaves.size() > 1)
-    {
-      BVH_REAL min_size = std::numeric_limits<BVH_REAL>::max();
-      int min_idx[2] = {-1, -1};
-      for(size_t i = 0; i < leaves.size(); ++i)
-      {
-        for(size_t j = i+1; j < leaves.size(); ++j)
-        {
-          BVH_REAL cur_size = (leaves[i]->bv + leaves[j]->bv).size();
-          if(cur_size < min_size)
-          {
-            min_size = cur_size;
-            min_idx[0] = i;
-            min_idx[1] = j;
-          }
-        }
-      }
-
-      NodeType* n[2] = {leaves[min_idx[0]], leaves[min_idx[1]]};
-      NodeType* p = createNode(NULL, n[0]->bv, n[1]->bv, NULL);
-      p->childs[0] = n[0];
-      p->childs[1] = n[1];
-      n[0]->parent = p;
-      n[1]->parent = p;
-      leaves[min_idx[0]] = p;
-      NodeType* tmp = leaves[min_idx[1]];
-      leaves[min_idx[1]] = leaves.back();
-      leaves.back() = tmp;
-      leaves.pop_back();
-    }
-  }
-
-
   /** \brief Insert a leaf node and also update its ancestors */
   void insertLeaf(NodeType* root, NodeType* leaf)
   {

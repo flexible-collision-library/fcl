@@ -143,6 +143,18 @@ protected:
   mutable std::set<std::pair<CollisionObject*, CollisionObject*> > tested_set;
   mutable bool enable_tested_set_;
 
+  bool inTestedSet(CollisionObject* a, CollisionObject* b) const
+  {
+    if(a < b) return tested_set.find(std::make_pair(a, b)) != tested_set.end();
+    else return tested_set.find(std::make_pair(b, a)) != tested_set.end();
+  }
+
+  void insertTestedSet(CollisionObject* a, CollisionObject* b) const
+  {
+    if(a < b) tested_set.insert(std::make_pair(a, b));
+    else tested_set.insert(std::make_pair(b, a));
+  }
+
 };
 
 
@@ -504,7 +516,7 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
       for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
       {
         if(obj == *it) continue;
-        if(callback(obj, *it, cdata)) return true;
+        if(callback(obj, *it, cdata)) return true; 
       }
     }
 
@@ -558,8 +570,20 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
         for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
         {
           if(obj == *it) continue;
-          if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
-            if(callback(obj, *it, cdata, min_dist)) return true;
+          if(!enable_tested_set_)
+          {
+            if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
+              if(callback(obj, *it, cdata, min_dist)) return true;
+          }
+          else
+          {
+            if(!inTestedSet(obj, *it))
+            {
+              if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
+                if(callback(obj, *it, cdata, min_dist)) return true;
+              insertTestedSet(obj, *it);
+            }
+          }
         }
       }
       
@@ -567,8 +591,20 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
       for(unsigned int i = 0; i < query_result.size(); ++i)
       {
         if(obj == query_result[i]) continue;
-        if(obj->getAABB().distance(query_result[i]->getAABB()) < min_dist)
-          if(callback(obj, query_result[i], cdata, min_dist)) return true;
+        if(!enable_tested_set_)
+        {
+          if(obj->getAABB().distance(query_result[i]->getAABB()) < min_dist)
+            if(callback(obj, query_result[i], cdata, min_dist)) return true;
+        }
+        else
+        {
+          if(!inTestedSet(obj, query_result[i]))
+          {
+            if(obj->getAABB().distance(query_result[i]->getAABB()) < min_dist)
+              if(callback(obj, query_result[i], cdata, min_dist)) return true;
+            insertTestedSet(obj, query_result[i]);
+          }
+        }
       }
     }
     else
@@ -577,19 +613,27 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
       for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
       {
         if(obj == *it) continue;
-        if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
-          if(callback(obj, *it, cdata, min_dist)) return true;
+        if(!enable_tested_set_)
+        {
+          if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
+            if(callback(obj, *it, cdata, min_dist)) return true;
+        }
+        else
+        {
+          if(!inTestedSet(obj, *it))
+          {
+            if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
+              if(callback(obj, *it, cdata, min_dist)) return true;
+            insertTestedSet(obj, *it);
+          }
+        }
       }
     }
 
     if(status == 1)
     {
       if(old_min_distance < std::numeric_limits<BVH_REAL>::max())
-      {
-        if(min_dist < old_min_distance) break;
-        else
-          min_dist = std::numeric_limits<BVH_REAL>::max();
-      }
+        break;
       else
       {
         if(min_dist < old_min_distance)
@@ -656,10 +700,16 @@ void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCa
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::distance(void* cdata, DistanceCallBack callback) const
 {
+  enable_tested_set_ = true;
+  tested_set.clear();
+  
   BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
 
   for(std::list<CollisionObject*>::const_iterator it = objs.begin(); it != objs.end(); ++it)
-    if(distance_(*it, cdata, callback, min_dist)) return;
+    if(distance_(*it, cdata, callback, min_dist)) break;
+
+  enable_tested_set_ = false;
+  tested_set.clear();
 }
 
 template<typename HashTable>
@@ -1228,9 +1278,9 @@ public:
   
   DynamicAABBTreeCollisionManager()
   {
-    max_tree_nonbalanced_level = 4;
+    max_tree_nonbalanced_level = 10;
     tree_incremental_balance_pass = 10;
-    tree_topdown_balance_threshold = 128;
+    tree_topdown_balance_threshold = 16;
     setup_ = false;
   }
 

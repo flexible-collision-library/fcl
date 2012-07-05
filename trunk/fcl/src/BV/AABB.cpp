@@ -54,10 +54,10 @@ BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
   BVH_REAL result = 0;
   for(size_t i = 0; i < 3; ++i)
   {
-    BVH_REAL amin = min_[i];
-    BVH_REAL amax = max_[i];
-    BVH_REAL bmin = other.min_[i];
-    BVH_REAL bmax = other.max_[i];
+    const BVH_REAL& amin = min_[i];
+    const BVH_REAL& amax = max_[i];
+    const BVH_REAL& bmin = other.min_[i];
+    const BVH_REAL& bmax = other.max_[i];
     
     if(amin > bmax)
     {
@@ -96,6 +96,31 @@ BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
           (*Q)[i] = t;
         }
       }
+    }
+  }
+
+  return sqrt(result);
+}
+
+BVH_REAL AABB::distance(const AABB& other) const
+{
+  BVH_REAL result = 0;
+  for(size_t i = 0; i < 3; ++i)
+  {
+    const BVH_REAL& amin = min_[i];
+    const BVH_REAL& amax = max_[i];
+    const BVH_REAL& bmin = other.min_[i];
+    const BVH_REAL& bmax = other.max_[i];
+    
+    if(amin > bmax)
+    {
+      BVH_REAL delta = bmax - amin;
+      result += delta * delta;
+    }
+    else if(bmin > amax)
+    {
+      BVH_REAL delta = amax - bmin;
+      result += delta * delta;
     }
   }
 

@@ -186,7 +186,9 @@ public:
     return (min_ + max_) * 0.5;
   }
 
-  BVH_REAL distance(const AABB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  BVH_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
+
+  BVH_REAL distance(const AABB& other) const;
 
   inline bool equal(const AABB& other) const
   {
