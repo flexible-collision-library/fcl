@@ -40,6 +40,7 @@
 #include <vector>
 #include "fcl/BV/AABB.h"
 #include "fcl/vec_3f.h"
+#include <boost/bind.hpp>
 
 namespace fcl
 {
@@ -58,6 +59,13 @@ struct NodeBase
     void* data;
   };
 };
+
+template<typename BV>
+bool nodeBaseLess(NodeBase<BV>* a, NodeBase<BV>* b, int d)
+{
+  if(a->bv.center()[d] < b->bv.center()[d]) return true;
+  return false;
+}
 
 template<typename BV>
 size_t select(const NodeBase<BV>& query, const NodeBase<BV>& node1, const NodeBase<BV>& node2)
@@ -82,6 +90,7 @@ template<typename BV>
 class HierarchyTree
 {
   typedef NodeBase<BV> NodeType;
+  typedef typename std::vector<NodeBase<BV>* >::iterator NodeVecIterator;
 public:
 
   HierarchyTree()
@@ -96,6 +105,16 @@ public:
   ~HierarchyTree()
   {
     clear();
+  }
+
+  void init(std::vector<NodeType*>& leaves, int bu_threshold)
+  {
+    clear();
+    root_node = topdown(leaves.begin(), leaves.end(), bu_threshold);
+    n_leaves = leaves.size();
+    free_node = NULL;
+    max_lookahead_level = -1;
+    opath = 0;
   }
 
   /** \brief Insest a node */
@@ -199,7 +218,7 @@ public:
       std::vector<NodeType*> leaves;
       leaves.reserve(n_leaves);
       fetchLeaves(root_node, leaves);
-      bottomup(leaves);
+      bottomup(leaves.begin(), leaves.end());
       root_node = leaves[0];
     }
   }
@@ -212,7 +231,7 @@ public:
       std::vector<NodeType*> leaves;
       leaves.reserve(n_leaves);
       fetchLeaves(root_node, leaves);
-      root_node = topdown(leaves, bu_threshold);
+      root_node = topdown(leaves.begin(), leaves.end(), bu_threshold);
     }
   }
 
@@ -323,67 +342,106 @@ public:
     }
   }
 
-
   /** \brief construct a tree for a set of leaves from bottom -- very heavy way */
-  void bottomup(std::vector<NodeType*>& leaves)
+  void bottomup(const NodeVecIterator lbeg, const NodeVecIterator lend)
   {
-    while(leaves.size() > 1)
+    NodeVecIterator lcur_end = lend;
+    while(lbeg < lcur_end - 1)
     {
+      NodeVecIterator min_it1, min_it2;
       BVH_REAL min_size = std::numeric_limits<BVH_REAL>::max();
-      int min_idx[2] = {-1, -1};
-      for(size_t i = 0; i < leaves.size(); ++i)
+      for(NodeVecIterator it1 = lbeg; it1 < lcur_end; ++it1)
       {
-        for(size_t j = i+1; j < leaves.size(); ++j)
+        for(NodeVecIterator it2 = it1 + 1; it2 < lcur_end; ++it2)
         {
-          BVH_REAL cur_size = (leaves[i]->bv + leaves[j]->bv).size();
+          BVH_REAL cur_size = ((*it1)->bv + (*it2)->bv).size();
           if(cur_size < min_size)
           {
             min_size = cur_size;
-            min_idx[0] = i;
-            min_idx[1] = j;
+            min_it1 = it1;
+            min_it2 = it2;
           }
         }
       }
-
-      NodeType* n[2] = {leaves[min_idx[0]], leaves[min_idx[1]]};
+      
+      NodeType* n[2] = {*min_it1, *min_it2};
       NodeType* p = createNode(NULL, n[0]->bv, n[1]->bv, NULL);
       p->childs[0] = n[0];
       p->childs[1] = n[1];
       n[0]->parent = p;
       n[1]->parent = p;
-      leaves[min_idx[0]] = p;
-      NodeType* tmp = leaves[min_idx[1]];
-      leaves[min_idx[1]] = leaves.back();
-      leaves.back() = tmp;
-      leaves.pop_back();
+      *min_it1 = p;
+      NodeType* tmp = *min_it2;
+      lcur_end--;
+      *min_it2 = *lcur_end;
+      *lcur_end = tmp;
     }
   }
 
-
   /** \brief construct a tree for a set of leaves from top */
-  NodeType* topdown(std::vector<NodeType*>& leaves, int bu_threshold)
+  NodeType* topdown(const NodeVecIterator lbeg, const NodeVecIterator lend, int bu_threshold)
   {
-    n_leaves = leaves.size();
-    static const Vec3f axis[3] = {Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1)};
-    if(leaves.size() > 1)
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
     {
-      if((int)leaves.size() > bu_threshold)
+      if(num_leaves > bu_threshold)
       {
-        BV vol = bounds(leaves);
-        Vec3f org = vol.center();
-        std::vector<NodeType*> sets[2];
-        int bestaxis = -1;
-        int bestmidp = leaves.size();
-        int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
-        for(size_t i = 0; i < leaves.size(); ++i)
+        BV vol = (*lbeg)->bv;
+        for(NodeVecIterator it = lbeg + 1; it < lend; ++it)
+          vol += (*it)->bv;
+
+        int best_axis = 0;
+        BVH_REAL extent[3] = {vol.width(), vol.height(), vol.depth()};
+        if(extent[1] > extent[0]) best_axis = 1;
+        if(extent[2] > extent[best_axis]) best_axis = 2;
+
+        // compute median 
+        NodeVecIterator lcenter = lbeg + num_leaves / 2;
+        std::nth_element(lbeg, lcenter, lend, boost::bind(&nodeBaseLess<BV>, _1, _2, boost::ref(best_axis)));
+
+        NodeType* node = createNode(NULL, vol, NULL);
+        node->childs[0] = topdown(lbeg, lcenter, bu_threshold);
+        node->childs[1] = topdown(lcenter, lend, bu_threshold);
+        node->childs[0]->parent = node;
+        node->childs[1]->parent = node;
+        return node;
+      }
+      else
+      {
+        bottomup(lbeg, lend);
+        return *lbeg;
+      }
+    }
+    return *lbeg;
+  }
+
+
+  NodeType* topdown2(const NodeVecIterator lbeg, const NodeVecIterator lend, int bu_threshold)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      if(num_leaves > bu_threshold)
+      {
+        Vec3f split_p = (*lbeg)->bv.center();
+        BV vol = (*lbeg)->bv;
+        NodeVecIterator it;
+        for(it = lbeg + 1; it < lend; ++it)
         {
-          Vec3f x = leaves[i]->bv.center() - org;
-          for(size_t j = 0; j < 3; ++j)
-          {
-            ++splitcount[j][x.dot(axis[j]) > 0 ? 1 : 0];
-          }
+          split_p += (*it)->bv.center();
+          vol += (*it)->bv;
         }
-        
+        split_p /= (BVH_REAL)(num_leaves);
+        int best_axis = -1;
+        int bestmidp = num_leaves;
+        int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
+        for(it = lbeg; it < lend; ++it)
+        {
+          Vec3f x = (*it)->bv.center() - split_p;
+          for(size_t j = 0; j < 3; ++j)
+            ++splitcount[j][x[j] > 0 ? 1 : 0];
+        }
+
         for(size_t i = 0; i < 3; ++i)
         {
           if((splitcount[i][0] > 0) && (splitcount[i][1] > 0))
@@ -391,44 +449,43 @@ public:
             int midp = std::abs(splitcount[i][0] - splitcount[i][1]);
             if(midp < bestmidp)
             {
-              bestaxis = i;
+              best_axis = i;
               bestmidp = midp;
             }
           }
         }
 
-        if(bestaxis >= 0)
+        if(best_axis < 0) best_axis = 0;
+
+        BVH_REAL split_value = split_p[best_axis];
+        NodeVecIterator lcenter = lbeg;
+        for(it = lbeg; it < lend; ++it)
         {
-          sets[0].reserve(splitcount[bestaxis][0]);
-          sets[1].reserve(splitcount[bestaxis][1]);
-          split(leaves, sets[0], sets[1], org, axis[bestaxis]);
-        }
-        else
-        {
-          sets[0].reserve(leaves.size() / 2 + 1);
-          sets[1].reserve(leaves.size() / 2);
-          for(size_t i = 0; i < leaves.size(); ++i)
+          if((*it)->bv.center()[best_axis] < split_value)
           {
-            sets[i&1].push_back(leaves[i]);
+            NodeType* temp = *it;
+            *it = *lcenter;
+            *lcenter = temp;
+            ++lcenter;
           }
         }
 
         NodeType* node = createNode(NULL, vol, NULL);
-        node->childs[0] = topdown(sets[0], bu_threshold);
-        node->childs[1] = topdown(sets[1], bu_threshold);
+        node->childs[0] = topdown(lbeg, lcenter, bu_threshold);
+        node->childs[1] = topdown(lcenter, lend, bu_threshold);
         node->childs[0]->parent = node;
         node->childs[1]->parent = node;
         return node;
       }
       else
       {
-        bottomup(leaves);
-        return leaves[0];
+        bottomup(lbeg, lend);
+        return *lbeg;
       }
     }
-    return leaves[0];
+    return *lbeg;
   }
-
+  
 private:
 
   /** \brief sort node n and its parent according to their memory position */
@@ -634,20 +691,17 @@ private:
     return bv;
   }
 
-  static void split(const std::vector<NodeType*>& leaves, std::vector<NodeType*>& left, std::vector<NodeType*>& right, const Vec3f& org, const Vec3f& axis)
+  static BV bounds(const NodeVecIterator lbeg, const NodeVecIterator lend)
   {
-    left.clear();
-    right.clear();
-    for(size_t i = 0; i < leaves.size(); ++i)
+    if(lbeg == lend) return BV();
+    BV bv = *lbeg;
+    for(NodeVecIterator it = lbeg + 1; it < lend; ++it)
     {
-      if((leaves[i]->bv.center() - org).dot(axis) < 0)
-        left.push_back(leaves[i]);
-      else
-        right.push_back(leaves[i]);
+      bv += (*it)->bv;
     }
+
+    return bv;
   }
-
-
   
 protected:
   NodeType* root_node;

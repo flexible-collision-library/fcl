@@ -1280,7 +1280,7 @@ public:
   {
     max_tree_nonbalanced_level = 10;
     tree_incremental_balance_pass = 10;
-    tree_topdown_balance_threshold = 16;
+    tree_topdown_balance_threshold = 2;
     setup_ = false;
   }
 
@@ -1390,6 +1390,8 @@ private:
   bool distanceRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
 
   bool selfDistanceRecurse(DynamicAABBNode* root, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;  
+
+  void update_(CollisionObject* updated_obj);
 };
 
 

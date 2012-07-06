@@ -1084,6 +1084,8 @@ void SaPCollisionManager::update(CollisionObject* updated_obj)
   update_(obj_aabb_map[updated_obj]);
 
   updateVelist();
+
+  setup();
 }
 
 void SaPCollisionManager::update(const std::vector<CollisionObject*>& updated_objs)
@@ -1092,6 +1094,8 @@ void SaPCollisionManager::update(const std::vector<CollisionObject*>& updated_ob
     update_(obj_aabb_map[updated_objs[i]]);
 
   updateVelist();
+
+  setup();
 }
 
 void SaPCollisionManager::update()
@@ -1102,6 +1106,8 @@ void SaPCollisionManager::update()
   }
 
   updateVelist();
+
+  setup();
 }
 
 
@@ -2027,8 +2033,8 @@ void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<Collisio
       table[other_objs[i]] = node;
       leaves[i] = node;
     }
-
-    dtree.getRoot() = dtree.topdown(leaves, tree_topdown_balance_threshold);
+    
+    dtree.init(leaves, tree_topdown_balance_threshold);
     setup_ = true;
   }
 }
@@ -2064,18 +2070,7 @@ void DynamicAABBTreeCollisionManager::setup()
 
 
 void DynamicAABBTreeCollisionManager::update()
-{
-  /*
-  for(DynamicAABBTable::const_iterator it = table.begin(); it != table.end(); ++it)
-  {
-    CollisionObject* obj = it->first;
-    DynamicAABBNode* node = it->second;
-    if(!node->bv.equal(obj->getAABB()))
-      dtree.update(node, obj->getAABB());
-  }
-  */
- 
-  
+{ 
   for(DynamicAABBTable::const_iterator it = table.begin(); it != table.end(); ++it)
   {
     CollisionObject* obj = it->first;
@@ -2084,11 +2079,12 @@ void DynamicAABBTreeCollisionManager::update()
   }
 
   dtree.refit();
-
   setup_ = false;
+
+  setup();
 }
 
-void DynamicAABBTreeCollisionManager::update(CollisionObject* updated_obj)
+void DynamicAABBTreeCollisionManager::update_(CollisionObject* updated_obj)
 {
   DynamicAABBTable::const_iterator it = table.find(updated_obj);
   if(it != table.end())
@@ -2100,10 +2096,17 @@ void DynamicAABBTreeCollisionManager::update(CollisionObject* updated_obj)
   setup_ = false;
 }
 
+void DynamicAABBTreeCollisionManager::update(CollisionObject* updated_obj)
+{
+  update_(updated_obj);
+  setup();
+}
+
 void DynamicAABBTreeCollisionManager::update(const std::vector<CollisionObject*>& updated_objs)
 {
   for(size_t i = 0; i < updated_objs.size(); ++i)
-    update(updated_objs[i]);
+    update_(updated_objs[i]);
+  setup();
 }
 
 bool DynamicAABBTreeCollisionManager::collisionRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, CollisionCallBack callback) const
