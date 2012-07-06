@@ -86,6 +86,7 @@ template<>
 size_t select(const AABB& query, const NodeBase<AABB>& node1, const NodeBase<AABB>& node2);
 
 
+
 template<typename BV>
 class HierarchyTree
 {

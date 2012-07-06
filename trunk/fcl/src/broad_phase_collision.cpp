@@ -2011,8 +2011,6 @@ bool IntervalTreeCollisionManager::checkDist(std::deque<SimpleInterval*>::const_
   return false;
 }
 
-
-
 void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<CollisionObject*>& other_objs)
 {
   if(size() > 0)
@@ -2033,8 +2031,10 @@ void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<Collisio
       table[other_objs[i]] = node;
       leaves[i] = node;
     }
-    
+   
+   
     dtree.init(leaves, tree_topdown_balance_threshold);
+   
     setup_ = true;
   }
 }
