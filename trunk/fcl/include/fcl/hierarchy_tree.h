@@ -471,8 +471,8 @@ public:
         }
 
         NodeType* node = createNode(NULL, vol, NULL);
-        node->childs[0] = topdown(lbeg, lcenter, bu_threshold);
-        node->childs[1] = topdown(lcenter, lend, bu_threshold);
+        node->childs[0] = topdown2(lbeg, lcenter, bu_threshold);
+        node->childs[1] = topdown2(lcenter, lend, bu_threshold);
         node->childs[0]->parent = node;
         node->childs[1]->parent = node;
         return node;
