@@ -44,24 +44,24 @@ namespace fcl
 
 AABB::AABB()
 {
-  BVH_REAL real_max = std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
   min_.setValue(real_max, real_max, real_max);
   max_.setValue(-real_max, -real_max, -real_max);
 }
 
-BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
 {
-  BVH_REAL result = 0;
+  FCL_REAL result = 0;
   for(size_t i = 0; i < 3; ++i)
   {
-    const BVH_REAL& amin = min_[i];
-    const BVH_REAL& amax = max_[i];
-    const BVH_REAL& bmin = other.min_[i];
-    const BVH_REAL& bmax = other.max_[i];
+    const FCL_REAL& amin = min_[i];
+    const FCL_REAL& amax = max_[i];
+    const FCL_REAL& bmin = other.min_[i];
+    const FCL_REAL& bmax = other.max_[i];
     
     if(amin > bmax)
     {
-      BVH_REAL delta = bmax - amin;
+      FCL_REAL delta = bmax - amin;
       result += delta * delta;
       if(P && Q)
       {
@@ -71,7 +71,7 @@ BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
     }
     else if(bmin > amax)
     {
-      BVH_REAL delta = amax - bmin;
+      FCL_REAL delta = amax - bmin;
       result += delta * delta;
       if(P && Q)
       {
@@ -85,13 +85,13 @@ BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
       {
         if(bmin >= amin)
         {
-          BVH_REAL t = 0.5 * (amax + bmin);
+          FCL_REAL t = 0.5 * (amax + bmin);
           (*P)[i] = t;
           (*Q)[i] = t;
         }
         else
         {
-          BVH_REAL t = 0.5 * (amin + bmax);
+          FCL_REAL t = 0.5 * (amin + bmax);
           (*P)[i] = t;
           (*Q)[i] = t;
         }
@@ -102,24 +102,24 @@ BVH_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
   return sqrt(result);
 }
 
-BVH_REAL AABB::distance(const AABB& other) const
+FCL_REAL AABB::distance(const AABB& other) const
 {
-  BVH_REAL result = 0;
+  FCL_REAL result = 0;
   for(size_t i = 0; i < 3; ++i)
   {
-    const BVH_REAL& amin = min_[i];
-    const BVH_REAL& amax = max_[i];
-    const BVH_REAL& bmin = other.min_[i];
-    const BVH_REAL& bmax = other.max_[i];
+    const FCL_REAL& amin = min_[i];
+    const FCL_REAL& amax = max_[i];
+    const FCL_REAL& bmin = other.min_[i];
+    const FCL_REAL& bmax = other.max_[i];
     
     if(amin > bmax)
     {
-      BVH_REAL delta = bmax - amin;
+      FCL_REAL delta = bmax - amin;
       result += delta * delta;
     }
     else if(bmin > amax)
     {
-      BVH_REAL delta = amax - bmin;
+      FCL_REAL delta = amax - bmin;
       result += delta * delta;
     }
   }

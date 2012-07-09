@@ -47,14 +47,14 @@ namespace fcl
 {
 
 
-static inline __m128 sse_four_spheres_intersect(const Vec3f& o1, BVH_REAL r1,
-                                                const Vec3f& o2, BVH_REAL r2,
-                                                const Vec3f& o3, BVH_REAL r3,
-                                                const Vec3f& o4, BVH_REAL r4,
-                                                const Vec3f& o5, BVH_REAL r5,
-                                                const Vec3f& o6, BVH_REAL r6,
-                                                const Vec3f& o7, BVH_REAL r7,
-                                                const Vec3f& o8, BVH_REAL r8)
+static inline __m128 sse_four_spheres_intersect(const Vec3f& o1, FCL_REAL r1,
+                                                const Vec3f& o2, FCL_REAL r2,
+                                                const Vec3f& o3, FCL_REAL r3,
+                                                const Vec3f& o4, FCL_REAL r4,
+                                                const Vec3f& o5, FCL_REAL r5,
+                                                const Vec3f& o6, FCL_REAL r6,
+                                                const Vec3f& o7, FCL_REAL r7,
+                                                const Vec3f& o8, FCL_REAL r8)
 {
   __m128 PX, PY, PZ, PR, QX, QY, QZ, QR;
   PX = _mm_set_ps(o1[0], o2[0], o3[0], o4[0]);
@@ -80,10 +80,10 @@ static inline __m128 sse_four_spheres_intersect(const Vec3f& o1, BVH_REAL r1,
 }
 
 
-static inline __m128 sse_four_spheres_four_AABBs_intersect(const Vec3f& o1, BVH_REAL r1,
-                                                           const Vec3f& o2, BVH_REAL r2,
-                                                           const Vec3f& o3, BVH_REAL r3,
-                                                           const Vec3f& o4, BVH_REAL r4,
+static inline __m128 sse_four_spheres_four_AABBs_intersect(const Vec3f& o1, FCL_REAL r1,
+                                                           const Vec3f& o2, FCL_REAL r2,
+                                                           const Vec3f& o3, FCL_REAL r3,
+                                                           const Vec3f& o4, FCL_REAL r4,
                                                            const Vec3f& min1, const Vec3f& max1,
                                                            const Vec3f& min2, const Vec3f& max2,
                                                            const Vec3f& min3, const Vec3f& max3,
@@ -157,37 +157,37 @@ static inline __m128 sse_four_AABBs_intersect(const Vec3f& min1, const Vec3f& ma
   return _mm_and_ps(T3, T4);
 }
 
-static bool four_spheres_intersect_and(const Vec3f& o1, BVH_REAL r1,
-                                       const Vec3f& o2, BVH_REAL r2,
-                                       const Vec3f& o3, BVH_REAL r3,
-                                       const Vec3f& o4, BVH_REAL r4,
-                                       const Vec3f& o5, BVH_REAL r5,
-                                       const Vec3f& o6, BVH_REAL r6,
-                                       const Vec3f& o7, BVH_REAL r7,
-                                       const Vec3f& o8, BVH_REAL r8)
+static bool four_spheres_intersect_and(const Vec3f& o1, FCL_REAL r1,
+                                       const Vec3f& o2, FCL_REAL r2,
+                                       const Vec3f& o3, FCL_REAL r3,
+                                       const Vec3f& o4, FCL_REAL r4,
+                                       const Vec3f& o5, FCL_REAL r5,
+                                       const Vec3f& o6, FCL_REAL r6,
+                                       const Vec3f& o7, FCL_REAL r7,
+                                       const Vec3f& o8, FCL_REAL r8)
 {
   __m128 CMP = four_spheres_intersect(o1, r1, o2, r2, o3, r3, o4, r4, o5, r5, o6, r6, o7, r7, o8, r8);
   return _mm_movemask_ps(CMP) == 15.f;
 }
 
-static bool four_spheres_intersect_or(const Vec3f& o1, BVH_REAL r1,
-                                      const Vec3f& o2, BVH_REAL r2,
-                                      const Vec3f& o3, BVH_REAL r3,
-                                      const Vec3f& o4, BVH_REAL r4,
-                                      const Vec3f& o5, BVH_REAL r5,
-                                      const Vec3f& o6, BVH_REAL r6,
-                                      const Vec3f& o7, BVH_REAL r7,
-                                      const Vec3f& o8, BVH_REAL r8)
+static bool four_spheres_intersect_or(const Vec3f& o1, FCL_REAL r1,
+                                      const Vec3f& o2, FCL_REAL r2,
+                                      const Vec3f& o3, FCL_REAL r3,
+                                      const Vec3f& o4, FCL_REAL r4,
+                                      const Vec3f& o5, FCL_REAL r5,
+                                      const Vec3f& o6, FCL_REAL r6,
+                                      const Vec3f& o7, FCL_REAL r7,
+                                      const Vec3f& o8, FCL_REAL r8)
 {
   __m128 CMP = four_spheres_intersect(o1, r1, o2, r2, o3, r3, o4, r4, o5, r5, o6, r6, o7, r7, o8, r8);
   return __mm_movemask_ps(CMP) > 0;
 }
 
 /** \brief four spheres versus four AABBs SIMD test */
-static bool four_spheres_four_AABBs_intersect_and(const Vec3f& o1, BVH_REAL r1,
-                                                  const Vec3f& o2, BVH_REAL r2,
-                                                  const Vec3f& o3, BVH_REAL r3,
-                                                  const Vec3f& o4, BVH_REAL r4,
+static bool four_spheres_four_AABBs_intersect_and(const Vec3f& o1, FCL_REAL r1,
+                                                  const Vec3f& o2, FCL_REAL r2,
+                                                  const Vec3f& o3, FCL_REAL r3,
+                                                  const Vec3f& o4, FCL_REAL r4,
                                                   const Vec3f& min1, const Vec3f& max1,
                                                   const Vec3f& min2, const Vec3f& max2,
                                                   const Vec3f& min3, const Vec3f& max3,
@@ -197,10 +197,10 @@ static bool four_spheres_four_AABBs_intersect_and(const Vec3f& o1, BVH_REAL r1,
   return _mm_movemask_ps(CMP) == 15.f;
 }
 
-static bool four_spheres_four_AABBs_intersect_or(const Vec3f& o1, BVH_REAL r1,
-                                                 const Vec3f& o2, BVH_REAL r2,
-                                                 const Vec3f& o3, BVH_REAL r3,
-                                                 const Vec3f& o4, BVH_REAL r4,
+static bool four_spheres_four_AABBs_intersect_or(const Vec3f& o1, FCL_REAL r1,
+                                                 const Vec3f& o2, FCL_REAL r2,
+                                                 const Vec3f& o3, FCL_REAL r3,
+                                                 const Vec3f& o4, FCL_REAL r4,
                                                  const Vec3f& min1, const Vec3f& max1,
                                                  const Vec3f& min2, const Vec3f& max2,
                                                  const Vec3f& min3, const Vec3f& max3,

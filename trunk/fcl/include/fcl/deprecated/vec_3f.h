@@ -50,21 +50,21 @@ class Vec3f
 {
 public:
   /** \brief vector data */
-  BVH_REAL v_[3];
+  FCL_REAL v_[3];
 
   Vec3f() { v_[0] = 0; v_[1] = 0; v_[2] = 0; }
 
   Vec3f(const Vec3f& other)
   {
-    memcpy(v_, other.v_, sizeof(BVH_REAL) * 3);
+    memcpy(v_, other.v_, sizeof(FCL_REAL) * 3);
   }
 
-  Vec3f(const BVH_REAL* v)
+  Vec3f(const FCL_REAL* v)
   {
-    memcpy(v_, v, sizeof(BVH_REAL) * 3);
+    memcpy(v_, v, sizeof(FCL_REAL) * 3);
   }
 
-  Vec3f(BVH_REAL x, BVH_REAL y, BVH_REAL z)
+  Vec3f(FCL_REAL x, FCL_REAL y, FCL_REAL z)
   {
     v_[0] = x;
     v_[1] = y;
@@ -74,12 +74,12 @@ public:
   ~Vec3f() {}
 
   /** \brief Get the ith element */
-  inline BVH_REAL operator [] (size_t i) const
+  inline FCL_REAL operator [] (size_t i) const
   {
     return v_[i];
   }
 
-  inline BVH_REAL& operator[] (size_t i)
+  inline FCL_REAL& operator[] (size_t i)
   {
     return v_[i];
   }
@@ -103,7 +103,7 @@ public:
     return *this;
   }
 
-  inline Vec3f& operator *= (BVH_REAL t)
+  inline Vec3f& operator *= (FCL_REAL t)
   {
     v_[0] *= t;
     v_[1] *= t;
@@ -139,7 +139,7 @@ public:
   }
 
   /** \brief Scale the vector by t */
-  inline Vec3f operator * (BVH_REAL t) const
+  inline Vec3f operator * (FCL_REAL t) const
   {
     return Vec3f(v_[0] * t, v_[1] * t, v_[2] * t);
   }
@@ -153,7 +153,7 @@ public:
   }
 
   /** \brief Return the dot product with another vector */
-  inline BVH_REAL dot(const Vec3f& other) const
+  inline FCL_REAL dot(const Vec3f& other) const
   {
     return v_[0] * other.v_[0] + v_[1] * other.v_[1] + v_[2] * other.v_[2];
   }
@@ -161,11 +161,11 @@ public:
   /** \brief Normalization */
   inline bool normalize()
   {
-    const BVH_REAL EPSILON = 1e-11;
-    BVH_REAL sqr_length = v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2];
+    const FCL_REAL EPSILON = 1e-11;
+    FCL_REAL sqr_length = v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2];
     if(sqr_length > EPSILON * EPSILON)
     {
-      BVH_REAL inv_length = (BVH_REAL)1.0 / (BVH_REAL)sqrt(sqr_length);
+      FCL_REAL inv_length = (FCL_REAL)1.0 / (FCL_REAL)sqrt(sqr_length);
       v_[0] *= inv_length;
       v_[1] *= inv_length;
       v_[2] *= inv_length;
@@ -176,11 +176,11 @@ public:
 
   inline Vec3f normalized() const
   {
-    const BVH_REAL EPSILON = 1e-11;
-    BVH_REAL sqr_length = v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2];
+    const FCL_REAL EPSILON = 1e-11;
+    FCL_REAL sqr_length = v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2];
     if(sqr_length > EPSILON * EPSILON)
     {
-      BVH_REAL inv_length = (BVH_REAL)1.0 / (BVH_REAL)sqrt(sqr_length);
+      FCL_REAL inv_length = (FCL_REAL)1.0 / (FCL_REAL)sqrt(sqr_length);
       return *this * inv_length;
     }
     else
@@ -191,25 +191,25 @@ public:
 
 
   /** \brief Return vector length */
-  inline BVH_REAL length() const
+  inline FCL_REAL length() const
   {
     return sqrt(v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2]);
   }
 
   /** \brief Return vector square length */
-  inline BVH_REAL sqrLength() const
+  inline FCL_REAL sqrLength() const
   {
     return v_[0] * v_[0] + v_[1] * v_[1] + v_[2] * v_[2];
   }
 
   /** \brief Set the vector using new values */
-  inline void setValue(BVH_REAL x, BVH_REAL y, BVH_REAL z)
+  inline void setValue(FCL_REAL x, FCL_REAL y, FCL_REAL z)
   {
     v_[0] = x; v_[1] = y; v_[2] = z;
   }
 
   /** \brief Set the vector using new values */
-  inline void setValue(BVH_REAL x)
+  inline void setValue(FCL_REAL x)
   {
     v_[0] = x; v_[1] = x; v_[2] = x;
   }
@@ -217,7 +217,7 @@ public:
   /** \brief Check whether two vectors are the same in value */
   inline bool equal(const Vec3f& other) const
   {
-    const BVH_REAL EPSILON = 1e-11;
+    const FCL_REAL EPSILON = 1e-11;
     return ((v_[0] - other.v_[0] < EPSILON) &&
             (v_[0] - other.v_[0] > -EPSILON) &&
             (v_[1] - other.v_[1] < EPSILON) &&
@@ -226,7 +226,7 @@ public:
             (v_[2] - other.v_[2] > -EPSILON));
   }
 
-  inline BVH_REAL triple(const Vec3f& v1, const Vec3f& v2) const
+  inline FCL_REAL triple(const Vec3f& v1, const Vec3f& v2) const
   {
     return v_[0] * (v1.v_[1] * v2.v_[2] - v1.v_[2] * v2.v_[1]) +
       v_[1] * (v1.v_[2] * v2.v_[0] - v1.v_[0] * v2.v_[2]) +
@@ -253,15 +253,15 @@ inline Vec3f max(const Vec3f& a, const Vec3f& b)
 
 inline Vec3f abs(const Vec3f& v)
 {
-  BVH_REAL x = v[0] < 0 ? -v[0] : v[0];
-  BVH_REAL y = v[1] < 0 ? -v[1] : v[1];
-  BVH_REAL z = v[2] < 0 ? -v[2] : v[2];
+  FCL_REAL x = v[0] < 0 ? -v[0] : v[0];
+  FCL_REAL y = v[1] < 0 ? -v[1] : v[1];
+  FCL_REAL z = v[2] < 0 ? -v[2] : v[2];
 
   return Vec3f(x, y, z);
 }
 
 
-inline BVH_REAL triple(const Vec3f& a, const Vec3f& b, const Vec3f& c)
+inline FCL_REAL triple(const Vec3f& a, const Vec3f& b, const Vec3f& c)
 {
   return a.triple(b, c);
 }
@@ -271,12 +271,12 @@ inline BVH_REAL triple(const Vec3f& a, const Vec3f& b, const Vec3f& c)
  */
 static void generateCoordinateSystem(const Vec3f& w, Vec3f& u, Vec3f& v)
 {
-  BVH_REAL inv_length;
+  FCL_REAL inv_length;
   if(fabs(w[0]) >= fabs(w[1]))
   {
-    inv_length = (BVH_REAL)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
+    inv_length = (FCL_REAL)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
     u[0] = -w[2] * inv_length;
-    u[1] = (BVH_REAL)0;
+    u[1] = (FCL_REAL)0;
     u[2] = w[0] * inv_length;
     v[0] = w[1] * u[2];
     v[1] = w[2] * u[0] - w[0] * u[2];
@@ -284,8 +284,8 @@ static void generateCoordinateSystem(const Vec3f& w, Vec3f& u, Vec3f& v)
   }
   else
   {
-    inv_length = (BVH_REAL)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
-    u[0] = (BVH_REAL)0;
+    inv_length = (FCL_REAL)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
+    u[0] = (FCL_REAL)0;
     u[1] = w[2] * inv_length;
     u[2] = -w[1] * inv_length;
     v[0] = w[1] * u[2] - w[2] * u[1];

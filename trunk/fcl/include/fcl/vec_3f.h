@@ -108,6 +108,18 @@ public:
   inline void setValue(U x) { data.setValue(x); }
   inline bool equal(const Vec3fX& other, U epsilon = std::numeric_limits<U>::epsilon() * 100) const { return details::equal(data, other.data, epsilon); }
   inline void negate() { data.negate(); }
+
+  inline Vec3fX<T>& ubound(const Vec3fX<T>& u)
+  {
+    data.ubound(u.data);
+    return *this;
+  }
+
+  inline Vec3fX<T>& lbound(const Vec3fX<T>& l)
+  {
+    data.lbound(l.data);
+    return *this;
+  }
 };
 
 template <typename T>
@@ -169,7 +181,7 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
 }
 
 
-typedef Vec3fX<details::Vec3Data<BVH_REAL> > Vec3f;
+typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;
 
 
 }

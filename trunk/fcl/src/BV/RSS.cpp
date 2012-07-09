@@ -51,7 +51,7 @@ bool RSS::overlap(const RSS& other) const
              axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
              axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
 
-  BVH_REAL dist = rectDistance(R, T, l, other.l);
+  FCL_REAL dist = rectDistance(R, T, l, other.l);
   if(dist <= (r + other.r)) return true;
   return false;
 }
@@ -69,7 +69,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
   Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
-  BVH_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l);
+  FCL_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l);
   if(dist <= (b1.r + b2.r)) return true;
   return false;
 }
@@ -77,10 +77,10 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 bool RSS::contain(const Vec3f& p) const
 {
   Vec3f local_p = p - Tr;
-  BVH_REAL proj0 = local_p.dot(axis[0]);
-  BVH_REAL proj1 = local_p.dot(axis[1]);
-  BVH_REAL proj2 = local_p.dot(axis[2]);
-  BVH_REAL abs_proj2 = fabs(proj2);
+  FCL_REAL proj0 = local_p.dot(axis[0]);
+  FCL_REAL proj1 = local_p.dot(axis[1]);
+  FCL_REAL proj2 = local_p.dot(axis[2]);
+  FCL_REAL abs_proj2 = fabs(proj2);
   Vec3f proj(proj0, proj1, proj2);
 
   // projection is within the rectangle
@@ -93,7 +93,7 @@ bool RSS::contain(const Vec3f& p) const
   }
   else if((proj0 < l[0]) && (proj0 > 0) && ((proj1 < 0) || (proj1 > l[1])))
   {
-    BVH_REAL y = (proj1 > 0) ? l[1] : 0;
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(proj0, y, 0);
     if((proj - v).sqrLength() < r * r)
       return true;
@@ -102,7 +102,7 @@ bool RSS::contain(const Vec3f& p) const
   }
   else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
   {
-    BVH_REAL x = (proj0 > 0) ? l[0] : 0;
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     Vec3f v(x, proj1, 0);
     if((proj - v).sqrLength() < r * r)
       return true;
@@ -111,8 +111,8 @@ bool RSS::contain(const Vec3f& p) const
   }
   else
   {
-    BVH_REAL x = (proj0 > 0) ? l[0] : 0;
-    BVH_REAL y = (proj1 > 0) ? l[1] : 0;
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(x, y, 0);
     if((proj - v).sqrLength() < r * r)
       return true;
@@ -124,10 +124,10 @@ bool RSS::contain(const Vec3f& p) const
 RSS& RSS::operator += (const Vec3f& p)
 {
   Vec3f local_p = p - Tr;
-  BVH_REAL proj0 = local_p.dot(axis[0]);
-  BVH_REAL proj1 = local_p.dot(axis[1]);
-  BVH_REAL proj2 = local_p.dot(axis[2]);
-  BVH_REAL abs_proj2 = fabs(proj2);
+  FCL_REAL proj0 = local_p.dot(axis[0]);
+  FCL_REAL proj1 = local_p.dot(axis[1]);
+  FCL_REAL proj2 = local_p.dot(axis[2]);
+  FCL_REAL abs_proj2 = fabs(proj2);
   Vec3f proj(proj0, proj1, proj2);
 
   // projection is within the rectangle
@@ -147,23 +147,23 @@ RSS& RSS::operator += (const Vec3f& p)
   }
   else if((proj0 < l[0]) && (proj0 > 0) && ((proj1 < 0) || (proj1 > l[1])))
   {
-    BVH_REAL y = (proj1 > 0) ? l[1] : 0;
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(proj0, y, 0);
-    BVH_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).sqrLength();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        BVH_REAL delta_y = - sqrt(r * r - proj2 * proj2) + fabs(proj1 - y);
+        FCL_REAL delta_y = - sqrt(r * r - proj2 * proj2) + fabs(proj1 - y);
         l[1] += delta_y;
         if(proj1 < 0)
           Tr[1] -= delta_y;
       }
       else
       {
-        BVH_REAL delta_y = fabs(proj1 - y);
+        FCL_REAL delta_y = fabs(proj1 - y);
         l[1] += delta_y;
         if(proj1 < 0)
           Tr[1] -= delta_y;
@@ -177,23 +177,23 @@ RSS& RSS::operator += (const Vec3f& p)
   }
   else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
   {
-    BVH_REAL x = (proj0 > 0) ? l[0] : 0;
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
     Vec3f v(x, proj1, 0);
-    BVH_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).sqrLength();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        BVH_REAL delta_x = - sqrt(r * r - proj2 * proj2) + fabs(proj0 - x);
+        FCL_REAL delta_x = - sqrt(r * r - proj2 * proj2) + fabs(proj0 - x);
         l[0] += delta_x;
         if(proj0 < 0)
           Tr[0] -= delta_x;
       }
       else
       {
-        BVH_REAL delta_x = fabs(proj0 - x);
+        FCL_REAL delta_x = fabs(proj0 - x);
         l[0] += delta_x;
         if(proj0 < 0)
           Tr[0] -= delta_x;
@@ -207,21 +207,21 @@ RSS& RSS::operator += (const Vec3f& p)
   }
   else
   {
-    BVH_REAL x = (proj0 > 0) ? l[0] : 0;
-    BVH_REAL y = (proj1 > 0) ? l[1] : 0;
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
     Vec3f v(x, y, 0);
-    BVH_REAL new_r_sqr = (proj - v).sqrLength();
+    FCL_REAL new_r_sqr = (proj - v).sqrLength();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        BVH_REAL diag = sqrt(new_r_sqr - proj2 * proj2);
-        BVH_REAL delta_diag = - sqrt(r * r - proj2 * proj2) + diag;
+        FCL_REAL diag = sqrt(new_r_sqr - proj2 * proj2);
+        FCL_REAL delta_diag = - sqrt(r * r - proj2 * proj2) + diag;
 
-        BVH_REAL delta_x = delta_diag / diag * fabs(proj0 - x);
-        BVH_REAL delta_y = delta_diag / diag * fabs(proj1 - y);
+        FCL_REAL delta_x = delta_diag / diag * fabs(proj0 - x);
+        FCL_REAL delta_y = delta_diag / diag * fabs(proj1 - y);
         l[0] += delta_x;
         l[1] += delta_y;
 
@@ -233,8 +233,8 @@ RSS& RSS::operator += (const Vec3f& p)
       }
       else
       {
-        BVH_REAL delta_x = fabs(proj0 - x);
-        BVH_REAL delta_y = fabs(proj1 - y);
+        FCL_REAL delta_x = fabs(proj0 - x);
+        FCL_REAL delta_y = fabs(proj1 - y);
 
         l[0] += delta_x;
         l[1] += delta_y;
@@ -296,7 +296,7 @@ RSS RSS::operator + (const RSS& other) const
 
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  BVH_REAL s[3] = {0, 0, 0};
+  FCL_REAL s[3] = {0, 0, 0};
 
   getCovariance(v, NULL, NULL, NULL, 16, M);
   matEigen(M, s, E);
@@ -321,7 +321,7 @@ RSS RSS::operator + (const RSS& other) const
   return bv;
 }
 
-BVH_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
 {
   // compute what transform [R,T] that takes us from cs1 to cs2.
   // [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
@@ -332,12 +332,12 @@ BVH_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
              axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
              axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
 
-  BVH_REAL dist = rectDistance(R, T, l, other.l, P, Q);
+  FCL_REAL dist = rectDistance(R, T, l, other.l, P, Q);
   dist -= (r + other.r);
-  return (dist < (BVH_REAL)0.0) ? (BVH_REAL)0.0 : dist;
+  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
 }
 
-BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
 {
   Matrix3f R0b2(R0[0].dot(b2.axis[0]), R0[0].dot(b2.axis[1]), R0[0].dot(b2.axis[2]),
                 R0[1].dot(b2.axis[0]), R0[1].dot(b2.axis[1]), R0[1].dot(b2.axis[2]),
@@ -351,23 +351,23 @@ BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS&
 
   Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
-  BVH_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l, P, Q);
+  FCL_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);
-  return (dist < (BVH_REAL)0.0) ? (BVH_REAL)0.0 : dist;
+  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
 }
 
 
-BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL a[2], const BVH_REAL b[2], Vec3f* P, Vec3f* Q)
+FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vec3f* P, Vec3f* Q)
 {
-  BVH_REAL A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
+  FCL_REAL A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
 
   A0_dot_B0 = Rab[0][0];
   A0_dot_B1 = Rab[0][1];
   A1_dot_B0 = Rab[1][0];
   A1_dot_B1 = Rab[1][1];
 
-  BVH_REAL aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
-  BVH_REAL bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
+  FCL_REAL aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
+  FCL_REAL bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
 
   aA0_dot_B0 = a[0] * A0_dot_B0;
   aA0_dot_B1 = a[0] * A0_dot_B1;
@@ -381,13 +381,13 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
   Vec3f Tba = Rab.transposeTimes(Tab);
 
   Vec3f S;
-  BVH_REAL t, u;
+  FCL_REAL t, u;
 
   // determine if any edge pair contains the closest points
 
-  BVH_REAL ALL_x, ALU_x, AUL_x, AUU_x;
-  BVH_REAL BLL_x, BLU_x, BUL_x, BUU_x;
-  BVH_REAL LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
+  FCL_REAL ALL_x, ALU_x, AUL_x, AUU_x;
+  FCL_REAL BLL_x, BLU_x, BUL_x, BUU_x;
+  FCL_REAL LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
 
   ALL_x = -Tba[0];
   ALU_x = ALL_x + aA1_dot_B0;
@@ -544,14 +544,14 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
     }
   }
 
-  BVH_REAL ALL_y, ALU_y, AUL_y, AUU_y;
+  FCL_REAL ALL_y, ALU_y, AUL_y, AUU_y;
 
   ALL_y = -Tba[1];
   ALU_y = ALL_y + aA1_dot_B1;
   AUL_y = ALL_y + aA0_dot_B1;
   AUU_y = ALU_y + aA0_dot_B1;
 
-  BVH_REAL LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
+  FCL_REAL LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
 
   if(ALL_y < ALU_y)
   {
@@ -698,14 +698,14 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
     }
   }
 
-  BVH_REAL BLL_y, BLU_y, BUL_y, BUU_y;
+  FCL_REAL BLL_y, BLU_y, BUL_y, BUU_y;
 
   BLL_y = Tab[1];
   BLU_y = BLL_y + bA1_dot_B1;
   BUL_y = BLL_y + bA1_dot_B0;
   BUU_y = BLU_y + bA1_dot_B0;
 
-  BVH_REAL LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
+  FCL_REAL LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
 
   if(ALL_x < AUL_x)
   {
@@ -850,7 +850,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
     }
   }
 
-  BVH_REAL LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
+  FCL_REAL LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
 
   if(ALL_y < AUL_y)
   {
@@ -998,7 +998,7 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
 
   // no edges passed, take max separation along face normals
 
-  BVH_REAL sep1, sep2;
+  FCL_REAL sep1, sep2;
 
   if(Tab[2] > 0.0)
   {
@@ -1066,21 +1066,21 @@ BVH_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const BVH_REAL
     }
   }
 
-  BVH_REAL sep = (sep1 > sep2 ? sep1 : sep2);
+  FCL_REAL sep = (sep1 > sep2 ? sep1 : sep2);
   return (sep > 0 ? sep : 0);
 }
 
 
-void RSS::clipToRange(BVH_REAL& val, BVH_REAL a, BVH_REAL b)
+void RSS::clipToRange(FCL_REAL& val, FCL_REAL a, FCL_REAL b)
 {
   if(val < a) val = a;
   else if(val > b) val = b;
 }
 
 
-void RSS::segCoords(BVH_REAL& t, BVH_REAL& u, BVH_REAL a, BVH_REAL b, BVH_REAL A_dot_B, BVH_REAL A_dot_T, BVH_REAL B_dot_T)
+void RSS::segCoords(FCL_REAL& t, FCL_REAL& u, FCL_REAL a, FCL_REAL b, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
 {
-  BVH_REAL denom = 1 - A_dot_B * A_dot_B;
+  FCL_REAL denom = 1 - A_dot_B * A_dot_B;
 
   if(denom == 0) t = 0;
   else
@@ -1104,11 +1104,11 @@ void RSS::segCoords(BVH_REAL& t, BVH_REAL& u, BVH_REAL a, BVH_REAL b, BVH_REAL A
   }
 }
 
-bool RSS::inVoronoi(BVH_REAL a, BVH_REAL b, BVH_REAL Anorm_dot_B, BVH_REAL Anorm_dot_T, BVH_REAL A_dot_B, BVH_REAL A_dot_T, BVH_REAL B_dot_T)
+bool RSS::inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_T, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
 {
   if(fabs(Anorm_dot_B) < 1e-7) return false;
 
-  BVH_REAL t, u, v;
+  FCL_REAL t, u, v;
 
   u = -Anorm_dot_T / Anorm_dot_B;
   clipToRange(u, 0, b);

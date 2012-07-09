@@ -53,7 +53,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
                             MotionBase<BV>* motion2,
                             int num_max_contacts, bool exhaustive, bool enable_contact,
                             std::vector<Contact>& contacts,
-                            BVH_REAL& toc)
+                            FCL_REAL& toc)
 {
   if(num_max_contacts <= 0 && !exhaustive)
   {
@@ -125,7 +125,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
     relativeTransform(R1_t, T1_t, R2_t, T2_t, node.R, node.T);
 
     node.delta_t = 1;
-    node.min_distance = std::numeric_limits<BVH_REAL>::max();
+    node.min_distance = std::numeric_limits<FCL_REAL>::max();
 
     distanceRecurse(&node, 0, 0, NULL);
 
@@ -162,7 +162,7 @@ template int conservativeAdvancement<RSS>(const CollisionGeometry* o1,
                                           MotionBase<RSS>* motion2,
                                           int num_max_contacts, bool exhaustive, bool enable_contact,
                                           std::vector<Contact>& contacts,
-                                          BVH_REAL& toc);
+                                          FCL_REAL& toc);
 
 
 }

@@ -83,11 +83,11 @@ struct MinkowskiDiff
 };
 
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, BVH_REAL* w, size_t& m);
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, FCL_REAL* w, size_t& m);
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, BVH_REAL* w, size_t& m);
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, FCL_REAL* w, size_t& m);
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, BVH_REAL* w, size_t& m);
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, FCL_REAL* w, size_t& m);
 
 struct GJK
 {
@@ -100,7 +100,7 @@ struct GJK
   struct Simplex
   {
     SimplexV* c[4]; // simplex vertex
-    BVH_REAL p[4]; // weight
+    FCL_REAL p[4]; // weight
     size_t rank; // size of simplex (number of vertices)
   };
 
@@ -108,11 +108,11 @@ struct GJK
 
   MinkowskiDiff shape;
   Vec3f ray;
-  BVH_REAL distance;
+  FCL_REAL distance;
   Simplex simplices[2];
 
 
-  GJK(unsigned int max_iterations_, BVH_REAL tolerance_) 
+  GJK(unsigned int max_iterations_, FCL_REAL tolerance_) 
   {
     max_iterations = max_iterations_;
     tolerance = tolerance_;
@@ -145,14 +145,14 @@ private:
   Simplex* simplex;
   Status status;
 
-  BVH_REAL tolerance;
+  FCL_REAL tolerance;
   unsigned int max_iterations;
 };
 
 
 static const size_t EPA_MAX_FACES = 128;
 static const size_t EPA_MAX_VERTICES = 64;
-static const BVH_REAL EPA_EPS = 0.000001;
+static const FCL_REAL EPA_EPS = 0.000001;
 static const size_t EPA_MAX_ITERATIONS = 255;
 
 struct EPA
@@ -162,7 +162,7 @@ private:
   struct SimplexF
   {
     Vec3f n;
-    BVH_REAL d;
+    FCL_REAL d;
     SimplexV* c[3]; // a face has three vertices
     SimplexF* f[3]; // a face has three adjacent faces
     SimplexF* l[2]; // the pre and post faces in the list
@@ -211,7 +211,7 @@ private:
   unsigned int max_face_num;
   unsigned int max_vertex_num;
   unsigned int max_iterations;
-  BVH_REAL tolerance;
+  FCL_REAL tolerance;
 
 public:
 
@@ -220,13 +220,13 @@ public:
   Status status;
   GJK::Simplex result;
   Vec3f normal;
-  BVH_REAL depth;
+  FCL_REAL depth;
   SimplexV* sv_store;
   SimplexF* fc_store;
   size_t nextsv;
   SimplexList hull, stock;
 
-  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_, unsigned int max_iterations_, BVH_REAL tolerance_)
+  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_, unsigned int max_iterations_, FCL_REAL tolerance_)
   {
     max_face_num = max_face_num_;
     max_vertex_num = max_vertex_num_;
@@ -244,7 +244,7 @@ public:
 
   void initialize();
 
-  bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, BVH_REAL& dist);
+  bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
 
   SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced);
 

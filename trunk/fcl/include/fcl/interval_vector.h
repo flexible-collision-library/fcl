@@ -49,11 +49,11 @@ struct IVector3
   Interval i_[3];
 
   IVector3();
-  IVector3(BVH_REAL v);
-  IVector3(BVH_REAL x, BVH_REAL y, BVH_REAL z);
-  IVector3(BVH_REAL xl, BVH_REAL xu, BVH_REAL yl, BVH_REAL yu, BVH_REAL zl, BVH_REAL zu);
+  IVector3(FCL_REAL v);
+  IVector3(FCL_REAL x, FCL_REAL y, FCL_REAL z);
+  IVector3(FCL_REAL xl, FCL_REAL xu, FCL_REAL yl, FCL_REAL yu, FCL_REAL zl, FCL_REAL zu);
   IVector3(Interval v[3]);
-  IVector3(BVH_REAL v[3][2]);
+  IVector3(FCL_REAL v[3][2]);
   IVector3(const Interval& v1, const Interval& v2, const Interval& v3);
   IVector3(const Vec3f& v);
 
@@ -77,7 +77,7 @@ struct IVector3
 
   void print() const;
   Vec3f center() const;
-  BVH_REAL volumn() const;
+  FCL_REAL volumn() const;
   void setZero();
 
   void bound(const Vec3f& v);

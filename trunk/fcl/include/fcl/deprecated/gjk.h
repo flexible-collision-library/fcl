@@ -83,14 +83,14 @@ struct MinkowskiDiff
 };
 
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, BVH_REAL* w, size_t& m);
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, FCL_REAL* w, size_t& m);
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, BVH_REAL* w, size_t& m);
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, FCL_REAL* w, size_t& m);
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, BVH_REAL* w, size_t& m);
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, FCL_REAL* w, size_t& m);
 
 
-static const BVH_REAL GJK_EPS = 0.000001;
+static const FCL_REAL GJK_EPS = 0.000001;
 static const size_t GJK_MAX_ITERATIONS = 128;
 
 struct GJK
@@ -104,7 +104,7 @@ struct GJK
   struct Simplex
   {
     SimplexV* c[4]; // simplex vertex
-    BVH_REAL p[4]; // weight
+    FCL_REAL p[4]; // weight
     size_t rank; // size of simplex (number of vertices)
   };
 
@@ -112,7 +112,7 @@ struct GJK
 
   MinkowskiDiff shape;
   Vec3f ray;
-  BVH_REAL distance;
+  FCL_REAL distance;
   Simplex simplices[2];
 
 
@@ -147,7 +147,7 @@ private:
 
 static const size_t EPA_MAX_FACES = 128;
 static const size_t EPA_MAX_VERTICES = 64;
-static const BVH_REAL EPA_EPS = 0.000001;
+static const FCL_REAL EPA_EPS = 0.000001;
 static const size_t EPA_MAX_ITERATIONS = 255;
 
 struct EPA
@@ -157,7 +157,7 @@ private:
   struct SimplexF
   {
     Vec3f n;
-    BVH_REAL d;
+    FCL_REAL d;
     SimplexV* c[3]; // a face has three vertices
     SimplexF* f[3]; // a face has three adjacent faces
     SimplexF* l[2]; // the pre and post faces in the list
@@ -209,7 +209,7 @@ public:
   Status status;
   GJK::Simplex result;
   Vec3f normal;
-  BVH_REAL depth;
+  FCL_REAL depth;
   SimplexV sv_store[EPA_MAX_VERTICES];
   SimplexF fc_store[EPA_MAX_FACES];
   size_t nextsv;
@@ -222,7 +222,7 @@ public:
 
   void initialize();
 
-  bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, BVH_REAL& dist);
+  bool getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist);
 
   SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced);
 
@@ -245,7 +245,7 @@ public:
 template<typename S1, typename S2>
 bool shapeDistance2(const S1& s1, const SimpleTransform& tf1,
                     const S2& s2, const SimpleTransform& tf2,
-                    BVH_REAL* distance)
+                    FCL_REAL* distance)
 {
   Vec3f guess(1, 0, 0);
   details::MinkowskiDiff shape;
@@ -261,7 +261,7 @@ bool shapeDistance2(const S1& s1, const SimpleTransform& tf1,
     Vec3f w0, w1;
     for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
     {
-      BVH_REAL p = gjk.getSimplex()->p[i];
+      FCL_REAL p = gjk.getSimplex()->p[i];
       w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
       w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
     }
@@ -279,7 +279,7 @@ bool shapeDistance2(const S1& s1, const SimpleTransform& tf1,
 template<typename S1, typename S2>
 bool shapeIntersect2(const S1& s1, const SimpleTransform& tf1,
                      const S2& s2, const SimpleTransform& tf2,
-                     Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+                     Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   Vec3f guess(1, 0, 0);
   details::MinkowskiDiff shape;
@@ -322,7 +322,7 @@ bool shapeIntersect2(const S1& s1, const SimpleTransform& tf1,
 template<typename S>
 bool shapeTriangleIntersect2(const S& s, const SimpleTransform& tf,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                             Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+                             Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   Triangle2 tri(P1, P2, P3);
   Vec3f guess(1, 0, 0);
@@ -365,7 +365,7 @@ bool shapeTriangleIntersect2(const S& s, const SimpleTransform& tf,
 template<typename S>
 bool shapeTriangleIntersect2(const S& s, const SimpleTransform& tf,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
-                             Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+                             Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   Triangle2 tri(P1, P2, P3);
   SimpleTransform tf2(R, T);

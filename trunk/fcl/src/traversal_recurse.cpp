@@ -222,8 +222,8 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
     c2 = node->getSecondRightChild(b2);
   }
 
-  BVH_REAL d1 = node->BVTesting(a1, a2);
-  BVH_REAL d2 = node->BVTesting(c1, c2);
+  FCL_REAL d1 = node->BVTesting(a1, a2);
+  FCL_REAL d2 = node->BVTesting(c1, c2);
 
   if(d2 < d1)
   {
@@ -256,7 +256,7 @@ void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontLi
 struct BVT
 {
   /** \brief distance between bvs */
-  BVH_REAL d;
+  FCL_REAL d;
 
   /** \brief bv indices for a pair of bvs in two models */
   int b1, b2;

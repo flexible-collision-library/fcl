@@ -48,7 +48,7 @@ static const double invCosA = 2.0 / sqrt(3.0);
 static const double sinA = 0.5;
 static const double cosA = sqrt(3.0) / 2.0;
 
-static inline void axisFromEigen(Vec3f eigenV[3], BVH_REAL eigenS[3], Vec3f axis[3])
+static inline void axisFromEigen(Vec3f eigenV[3], FCL_REAL eigenS[3], Vec3f axis[3])
 {
   int min, mid, max;
   if(eigenS[0] > eigenS[1]) { max = 0; min = 1; }
@@ -81,7 +81,7 @@ void fit2(Vec3f* ps, OBB& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  BVH_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.length();
   p1p2.normalize();
 
   bv.axis[0] = p1p2;
@@ -102,7 +102,7 @@ void fit3(Vec3f* ps, OBB& bv)
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  BVH_REAL len[3];
+  FCL_REAL len[3];
   len[0] = e[0].sqrLength();
   len[1] = e[1].sqrLength();
   len[2] = e[2].sqrLength();
@@ -137,7 +137,7 @@ void fitn(Vec3f* ps, int n, OBB& bv)
 {
   Matrix3f M;
   Vec3f E[3];
-  BVH_REAL s[3] = {0, 0, 0}; // three eigen values
+  FCL_REAL s[3] = {0, 0, 0}; // three eigen values
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   matEigen(M, s, E);
@@ -168,7 +168,7 @@ void fit2(Vec3f* ps, RSS& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  BVH_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.length();
   p1p2.normalize();
 
   bv.axis[0] = p1p2;
@@ -189,7 +189,7 @@ void fit3(Vec3f* ps, RSS& bv)
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  BVH_REAL len[3];
+  FCL_REAL len[3];
   len[0] = e[0].sqrLength();
   len[1] = e[1].sqrLength();
   len[2] = e[2].sqrLength();
@@ -223,7 +223,7 @@ void fitn(Vec3f* ps, int n, RSS& bv)
 {
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  BVH_REAL s[3] = {0, 0, 0};
+  FCL_REAL s[3] = {0, 0, 0};
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   matEigen(M, s, E);
@@ -258,22 +258,22 @@ void fit2(Vec3f* ps, kIOS& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  BVH_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.length();
   p1p2.normalize();
  
   Vec3f* axis = bv.obb_bv.axis;
   axis[0] = p1p2;
   generateCoordinateSystem(axis[0], axis[1], axis[2]);
     
-  BVH_REAL r0 = len_p1p2 * 0.5;
+  FCL_REAL r0 = len_p1p2 * 0.5;
   bv.obb_bv.extent.setValue(r0, 0, 0);
   bv.obb_bv.To = (p1 + p2) * 0.5;
 
   bv.spheres[0].o = bv.obb_bv.To;
   bv.spheres[0].r = r0;
 
-  BVH_REAL r1 = r0 * invSinA;
-  BVH_REAL r1cosA = r1 * cosA;
+  FCL_REAL r1 = r0 * invSinA;
+  FCL_REAL r1cosA = r1 * cosA;
   bv.spheres[1].r = r1;
   bv.spheres[2].r = r1;
   Vec3f delta = axis[1] * r1cosA;
@@ -298,7 +298,7 @@ void fit3(Vec3f* ps, kIOS& bv)
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  BVH_REAL len[3];
+  FCL_REAL len[3];
   len[0] = e[0].sqrLength();
   len[1] = e[1].sqrLength();
   len[2] = e[2].sqrLength();
@@ -320,14 +320,14 @@ void fit3(Vec3f* ps, kIOS& bv)
   getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.obb_bv.axis, bv.obb_bv.To, bv.obb_bv.extent);
 
   // compute radius and center
-  BVH_REAL r0;
+  FCL_REAL r0;
   Vec3f center;
   circumCircleComputation(p1, p2, p3, center, r0);
 
   bv.spheres[0].o = center;
   bv.spheres[0].r = r0;
 
-  BVH_REAL r1 = r0 * invSinA;
+  FCL_REAL r1 = r0 * invSinA;
   Vec3f delta = bv.obb_bv.axis[2] * (r1 * cosA);
   
   bv.spheres[1].r = r1;
@@ -340,7 +340,7 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
 {
   Matrix3f M;
   Vec3f E[3];
-  BVH_REAL s[3] = {0, 0, 0}; // three eigen values;
+  FCL_REAL s[3] = {0, 0, 0}; // three eigen values;
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
   matEigen(M, s, E);
@@ -353,7 +353,7 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
   // get center and extension
   const Vec3f& center = bv.obb_bv.To;
   const Vec3f& extent = bv.obb_bv.extent;
-  BVH_REAL r0 = maximumDistance(ps, NULL, NULL, NULL, n, center);
+  FCL_REAL r0 = maximumDistance(ps, NULL, NULL, NULL, n, center);
   
   // decide the k in kIOS
   if(extent[0] > kIOS_RATIO * extent[2])
@@ -369,12 +369,12 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
 
   if(bv.num_spheres >= 3)
   {
-    BVH_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
+    FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
     Vec3f delta = axis[2] * (r10 * cosA - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
    
-    BVH_REAL r11 = 0, r12 = 0;
+    FCL_REAL r11 = 0, r12 = 0;
     r11 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[1].o);
     r12 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[2].o);
     bv.spheres[1].o += axis[2] * (-r10 + r11);
@@ -386,12 +386,12 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
 
   if(bv.num_spheres >= 5)
   {
-    BVH_REAL r10 = bv.spheres[1].r;
+    FCL_REAL r10 = bv.spheres[1].r;
     Vec3f delta = axis[1] * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
     
-    BVH_REAL r21 = 0, r22 = 0;
+    FCL_REAL r21 = 0, r22 = 0;
     r21 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[3].o);
     r22 = maximumDistance(ps, NULL, NULL, NULL, n, bv.spheres[4].o);
 
@@ -522,7 +522,7 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
 
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  BVH_REAL s[3]; // three eigen values
+  FCL_REAL s[3]; // three eigen values
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   matEigen(M, s, E);
@@ -540,7 +540,7 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   OBBRSS bv;
   Matrix3f M;
   Vec3f E[3];
-  BVH_REAL s[3];
+  FCL_REAL s[3];
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   matEigen(M, s, E);
@@ -553,8 +553,8 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   Vec3f origin;
-  BVH_REAL l[2];
-  BVH_REAL r;
+  FCL_REAL l[2];
+  FCL_REAL r;
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.axis, origin, l, r);
 
   bv.rss.Tr = origin;
@@ -571,7 +571,7 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
 
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  BVH_REAL s[3]; // three eigen values
+  FCL_REAL s[3]; // three eigen values
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   matEigen(M, s, E);
   axisFromEigen(E, s, bv.axis);
@@ -579,8 +579,8 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   // set rss origin, rectangle size and radius
 
   Vec3f origin;
-  BVH_REAL l[2];
-  BVH_REAL r;
+  FCL_REAL l[2];
+  FCL_REAL r;
   getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axis, origin, l, r);
 
   bv.Tr = origin;
@@ -599,7 +599,7 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  BVH_REAL s[3];
+  FCL_REAL s[3];
   
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   matEigen(M, s, E);
@@ -612,7 +612,7 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 
   const Vec3f& center = bv.obb_bv.To;
   const Vec3f& extent = bv.obb_bv.extent;
-  BVH_REAL r0 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, center);
+  FCL_REAL r0 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, center);
 
   // decide k in kIOS
   if(extent[0] > kIOS_RATIO * extent[2])
@@ -627,13 +627,13 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 
   if(bv.num_spheres >= 3)
   {
-    BVH_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
+    FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * invSinA;
     Vec3f delta = axis[2] * (r10 * cosA - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 
-    BVH_REAL r11 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[1].o);
-    BVH_REAL r12 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[2].o);
+    FCL_REAL r11 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[1].o);
+    FCL_REAL r12 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[2].o);
 
     bv.spheres[1].o += axis[2] * (-r10 + r11);
     bv.spheres[2].o += axis[2] * (r10 - r12);
@@ -644,12 +644,12 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 
   if(bv.num_spheres >= 5)
   {
-    BVH_REAL r10 = bv.spheres[1].r;
+    FCL_REAL r10 = bv.spheres[1].r;
     Vec3f delta = axis[1] * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
     
-    BVH_REAL r21 = 0, r22 = 0;
+    FCL_REAL r21 = 0, r22 = 0;
     r21 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[3].o);
     r22 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[4].o);
 

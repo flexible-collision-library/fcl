@@ -87,7 +87,7 @@ public:
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable BVH_REAL query_time_seconds;
+  mutable FCL_REAL query_time_seconds;
 };
 
 
@@ -137,7 +137,7 @@ public:
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable BVH_REAL query_time_seconds;
+  mutable FCL_REAL query_time_seconds;
 };
 
 
@@ -149,7 +149,7 @@ struct BVHShapeCollisionPair
 
   BVHShapeCollisionPair(int id_) : id(id_) {}
 
-  BVHShapeCollisionPair(int id_, const Vec3f& n, const Vec3f& contactp, BVH_REAL depth) : id(id_),
+  BVHShapeCollisionPair(int id_, const Vec3f& n, const Vec3f& contactp, FCL_REAL depth) : id(id_),
       normal(n), contact_point(contactp), penetration_depth(depth) {}
 
   /** \brief The index of BVH's in-collision primitive */
@@ -162,7 +162,7 @@ struct BVHShapeCollisionPair
   Vec3f contact_point;
 
   /** \brief Penetration depth for two triangles */
-  BVH_REAL penetration_depth;
+  FCL_REAL penetration_depth;
 };
 
 struct BVHShapeCollisionPairComp
@@ -203,7 +203,7 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    BVH_REAL penetration;
+    FCL_REAL penetration;
     Vec3f normal;
     Vec3f contactp;
 
@@ -269,7 +269,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& p2 = vertices[tri_id[1]];
   const Vec3f& p3 = vertices[tri_id[2]];
 
-  BVH_REAL penetration;
+  FCL_REAL penetration;
   Vec3f normal;
   Vec3f contactp;
 
@@ -428,7 +428,7 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    BVH_REAL penetration;
+    FCL_REAL penetration;
     Vec3f normal;
     Vec3f contactp;
 
@@ -614,7 +614,7 @@ public:
     return model1->getBV(b).rightChild();
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     return model1->getBV(b1).bv.distance(model2_bv);
   }
@@ -625,7 +625,7 @@ public:
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable BVH_REAL query_time_seconds;
+  mutable FCL_REAL query_time_seconds;
 };
 
 template<typename S, typename BV>
@@ -657,7 +657,7 @@ public:
     return model2->getBV(b).rightChild();
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     return model1_bv.distance(model2->getBV(b2).bv);
   }
@@ -668,7 +668,7 @@ public:
   
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable BVH_REAL query_time_seconds;
+  mutable FCL_REAL query_time_seconds;
 };
                                   
 
@@ -687,7 +687,7 @@ public:
     rel_err = 0;
     abs_err = 0;
 
-    min_distance = std::numeric_limits<BVH_REAL>::max();
+    min_distance = std::numeric_limits<FCL_REAL>::max();
 
     nsolver = NULL;
   }
@@ -706,7 +706,7 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
     
-    BVH_REAL d;
+    FCL_REAL d;
     nsolver->shapeTriangleDistance(*(this->model2), this->tf2, p1, p2, p3, &d);
 
     if(d < min_distance)
@@ -717,7 +717,7 @@ public:
     }
   }
 
-  bool canStop(BVH_REAL c) const
+  bool canStop(FCL_REAL c) const
   {
     if((c >= min_distance - abs_err) && (c * (1 + rel_err) >= min_distance))
       return true;
@@ -727,10 +727,10 @@ public:
   Vec3f* vertices;
   Triangle* tri_indices;
 
-  BVH_REAL rel_err;
-  BVH_REAL abs_err;
+  FCL_REAL rel_err;
+  FCL_REAL abs_err;
   
-  mutable BVH_REAL min_distance;
+  mutable FCL_REAL min_distance;
   mutable int last_tri_id;
   
   const NarrowPhaseSolver* nsolver;
@@ -749,7 +749,7 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
                                               bool enable_statistics,
                                               int & num_leaf_tests,
                                               int& last_tri_id,
-                                              BVH_REAL& min_distance)
+                                              FCL_REAL& min_distance)
 {
   if(enable_statistics) num_leaf_tests++;
     
@@ -761,7 +761,7 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& p2 = vertices[tri_id[1]];
   const Vec3f& p3 = vertices[tri_id[2]];
     
-  BVH_REAL dist;
+  FCL_REAL dist;
 
   nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, R, T, &dist);
     
@@ -781,7 +781,7 @@ static inline void distance_preprocess(Vec3f* vertices, Triangle* tri_indices, i
                                        const Matrix3f& R, const Vec3f& T,
                                        const S& s, const SimpleTransform& tf,
                                        const NarrowPhaseSolver* nsolver,
-                                       BVH_REAL& min_distance)
+                                       FCL_REAL& min_distance)
 {
   const Triangle& last_tri = tri_indices[last_tri_id];
   
@@ -791,7 +791,7 @@ static inline void distance_preprocess(Vec3f* vertices, Triangle* tri_indices, i
 
   Vec3f last_tri_P, last_tri_Q;
   
-  BVH_REAL dist;
+  FCL_REAL dist;
   nsolver->shapeTriangleDistance(s, tf, p1, p2, p3, R, T, &dist);
   
   min_distance = dist;
@@ -824,7 +824,7 @@ public:
     
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(R, T, this->model2_bv, this->model1->getBV(b1).bv);
@@ -860,7 +860,7 @@ public:
     
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(R, T, this->model2_bv, this->model1->getBV(b1).bv);
@@ -895,7 +895,7 @@ public:
     
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(R, T, this->model2_bv, this->model1->getBV(b1).bv);
@@ -926,7 +926,7 @@ public:
     rel_err = 0;
     abs_err = 0;
 
-    min_distance = std::numeric_limits<BVH_REAL>::max();
+    min_distance = std::numeric_limits<FCL_REAL>::max();
 
     nsolver = NULL;
   }
@@ -945,7 +945,7 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
     
-    BVH_REAL d;
+    FCL_REAL d;
     nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &d);
 
     if(d < min_distance)
@@ -956,7 +956,7 @@ public:
     }
   }
 
-  bool canStop(BVH_REAL c) const
+  bool canStop(FCL_REAL c) const
   {
     if((c >= min_distance - abs_err) && (c * (1 + rel_err) >= min_distance))
       return true;
@@ -966,10 +966,10 @@ public:
   Vec3f* vertices;
   Triangle* tri_indices;
 
-  BVH_REAL rel_err;
-  BVH_REAL abs_err;
+  FCL_REAL rel_err;
+  FCL_REAL abs_err;
   
-  mutable BVH_REAL min_distance;
+  mutable FCL_REAL min_distance;
   mutable int last_tri_id;
   
   const NarrowPhaseSolver* nsolver;
@@ -994,7 +994,7 @@ public:
     
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(R, T, this->model1_bv, this->model2->getBV(b2).bv);
@@ -1029,7 +1029,7 @@ public:
     
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(R, T, this->model1_bv, this->model2->getBV(b2).bv);
@@ -1064,7 +1064,7 @@ public:
     
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(R, T, this->model1_bv, this->model2->getBV(b2).bv);

@@ -54,7 +54,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
                             MotionBase<BV>* motion2,
                             int num_max_contacts, bool exhaustive, bool enable_contact,
                             std::vector<Contact>& contacts,
-                            BVH_REAL& toc);
+                            FCL_REAL& toc);
 
 }
 

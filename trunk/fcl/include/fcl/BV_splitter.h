@@ -135,7 +135,7 @@ private:
   int split_axis;
 
   /** \brief The split threshold */
-  BVH_REAL split_value;
+  FCL_REAL split_value;
 
   Vec3f* vertices;
   Triangle* tri_indices;
@@ -168,7 +168,7 @@ private:
       axis = 1;
 
     split_axis = axis;
-    BVH_REAL sum = 0;
+    FCL_REAL sum = 0;
 
     if(type == BVH_MODEL_TRIANGLES)
     {
@@ -202,7 +202,7 @@ private:
       axis = 1;
 
     split_axis = axis;
-    std::vector<BVH_REAL> proj(num_primitives);
+    std::vector<FCL_REAL> proj(num_primitives);
 
     if(type == BVH_MODEL_TRIANGLES)
     {
@@ -296,7 +296,7 @@ private:
   /** \brief Split the node according to the median of the data contained */
   void computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
 
-  BVH_REAL split_value;
+  FCL_REAL split_value;
   Vec3f split_vector;
 
   Vec3f* vertices;
@@ -369,7 +369,7 @@ private:
   /** \brief Split the node according to the median of the data contained */
   void computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  BVH_REAL split_value;
+  FCL_REAL split_value;
   Vec3f split_vector;
 
   Vec3f* vertices;
@@ -442,7 +442,7 @@ private:
   /** \brief Split the node according to the median of the data contained */
   void computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  BVH_REAL split_value;
+  FCL_REAL split_value;
   Vec3f split_vector;
 
   Vec3f* vertices;
@@ -513,7 +513,7 @@ private:
   /** \brief Split the node according to the median of the data contained */
   void computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  BVH_REAL split_value;
+  FCL_REAL split_value;
   Vec3f split_vector;
 
   Vec3f* vertices;

@@ -44,7 +44,7 @@ namespace fcl
 {
 
 template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
-BVH_REAL ShapeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
 {
   ShapeDistanceTraversalNode<T_SH1, T_SH2, NarrowPhaseSolver> node;
   const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
@@ -58,7 +58,7 @@ BVH_REAL ShapeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& 
 template<typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer
 {
-  static BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
   {
     MeshShapeDistanceTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
@@ -77,7 +77,7 @@ struct BVHShapeDistancer
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer<RSS, T_SH, NarrowPhaseSolver>
 {
-  static BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
   {
     MeshShapeDistanceTraversalNodeRSS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<RSS>* obj1 = static_cast<const BVHModel<RSS>* >(o1);
@@ -94,7 +94,7 @@ struct BVHShapeDistancer<RSS, T_SH, NarrowPhaseSolver>
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer<kIOS, T_SH, NarrowPhaseSolver>
 {
-  static BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
   {
     MeshShapeDistanceTraversalNodekIOS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);
@@ -110,7 +110,7 @@ struct BVHShapeDistancer<kIOS, T_SH, NarrowPhaseSolver>
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer<OBBRSS, T_SH, NarrowPhaseSolver>
 {
-  static BVH_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
   {
     MeshShapeDistanceTraversalNodeOBBRSS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
@@ -125,7 +125,7 @@ struct BVHShapeDistancer<OBBRSS, T_SH, NarrowPhaseSolver>
 
 
 template<typename T_BVH>
-BVH_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
 {
   MeshDistanceTraversalNode<T_BVH> node;
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
@@ -142,7 +142,7 @@ BVH_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, co
 }
 
 template<>
-BVH_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
 {
   MeshDistanceTraversalNodeRSS node;
   const BVHModel<RSS>* obj1 = static_cast<const BVHModel<RSS>* >(o1);
@@ -155,7 +155,7 @@ BVH_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const SimpleTransform& tf
 }
 
 template<>
-BVH_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
 {
   MeshDistanceTraversalNodekIOS node;
   const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);
@@ -169,7 +169,7 @@ BVH_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const SimpleTransform& t
 
 
 template<>
-BVH_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
 {
   MeshDistanceTraversalNodeOBBRSS node;
   const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
@@ -183,7 +183,7 @@ BVH_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const SimpleTransform&
 
 
 template<typename T_BVH, typename NarrowPhaseSolver>
-BVH_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
                      const NarrowPhaseSolver* nsolver)
 {
   return BVHDistance<T_BVH>(o1, tf1, o2, tf2);

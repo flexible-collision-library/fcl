@@ -54,10 +54,10 @@ public:
   Vec3f Tr;
 
   /** \brief side lengths of rectangle */
-  BVH_REAL l[2];
+  FCL_REAL l[2];
 
   /** \brief radius of sphere summed with rectangle to form RSS */
-  BVH_REAL r;
+  FCL_REAL r;
 
   RSS() {}
 
@@ -91,31 +91,31 @@ public:
   RSS operator + (const RSS& other) const;
 
   /** \brief Width of the RSS */
-  inline BVH_REAL width() const
+  inline FCL_REAL width() const
   {
     return l[0] + 2 * r;
   }
 
   /** \brief Height of the RSS */
-  inline BVH_REAL height() const
+  inline FCL_REAL height() const
   {
     return l[1] + 2 * r;
   }
 
   /** \brief Depth of the RSS */
-  inline BVH_REAL depth() const
+  inline FCL_REAL depth() const
   {
     return 2 * r;
   }
 
   /** \brief Volume of the RSS */
-  inline BVH_REAL volume() const
+  inline FCL_REAL volume() const
   {
     return (l[0] * l[1] * 2 * r + 4 * 3.1415926 * r * r * r);
   }
 
   /** \brief Size of the RSS, for split order */
-  inline BVH_REAL size() const
+  inline FCL_REAL size() const
   {
     return (sqrt(l[0] * l[0] + l[1] * l[1]) + 2 * r);
   }
@@ -128,12 +128,12 @@ public:
 
 
   /** \brief the distance between two RSS */
-  BVH_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  FCL_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
 protected:
 
   /** \brief Clip val between a and b */
-  static void clipToRange(BVH_REAL& val, BVH_REAL a, BVH_REAL b);
+  static void clipToRange(FCL_REAL& val, FCL_REAL a, FCL_REAL b);
 
   /** \brief Finds the parameters t & u corresponding to the two closest points on a pair of line segments.
    * The first segment is defined as Pa + A*t, 0 <= t <= a,  where "Pa" is one endpoint of the segment, "A" is a unit vector
@@ -144,7 +144,7 @@ protected:
    * instead of complete specifications of each segment. "T" in the dot products is the vector betweeen Pa and Pb.
    * Reference: "On fast computation of distance between line segments." Vladimir J. Lumelsky, in Information Processing Letters, no. 21, pages 55-61, 1985.
    */
-  static void segCoords(BVH_REAL& t, BVH_REAL& u, BVH_REAL a, BVH_REAL b, BVH_REAL A_dot_B, BVH_REAL A_dot_T, BVH_REAL B_dot_T);
+  static void segCoords(FCL_REAL& t, FCL_REAL& u, FCL_REAL a, FCL_REAL b, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T);
 
   /** \brief Returns whether the nearest point on rectangle edge
    * Pb + B*u, 0 <= u <= b, to the rectangle edge,
@@ -154,14 +154,14 @@ protected:
    * A,B, and Anorm are unit vectors.
    * T is the vector between Pa and Pb.
    */
-  static bool inVoronoi(BVH_REAL a, BVH_REAL b, BVH_REAL Anorm_dot_B, BVH_REAL Anorm_dot_T, BVH_REAL A_dot_B, BVH_REAL A_dot_T, BVH_REAL B_dot_T);
+  static bool inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_T, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T);
 
 public:
 
   /** \brief distance between two oriented rectangles
    * P and Q (optional return values) are the closest points in the rectangles, both are in the local frame of the first rectangle
    */
-  static BVH_REAL rectDistance(const Matrix3f& Rab, const Vec3f& Tab, const BVH_REAL a[2], const BVH_REAL b[2], Vec3f* P = NULL, Vec3f* Q = NULL);
+  static FCL_REAL rectDistance(const Matrix3f& Rab, const Vec3f& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vec3f* P = NULL, Vec3f* Q = NULL);
 
 };
 
@@ -169,7 +169,7 @@ public:
  * P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points
  * Notice that P and Q are both in the local frame of the first RSS (not global frame and not even the local frame of object 1)
  */
-BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2);
 

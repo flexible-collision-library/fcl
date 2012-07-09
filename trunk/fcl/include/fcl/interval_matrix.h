@@ -50,10 +50,10 @@ struct IMatrix3
   Interval i_[3][3];
 
   IMatrix3();
-  IMatrix3(BVH_REAL v);
+  IMatrix3(FCL_REAL v);
   IMatrix3(const Matrix3f& m);
-  IMatrix3(BVH_REAL m[3][3][2]);
-  IMatrix3(BVH_REAL m[3][3]);
+  IMatrix3(FCL_REAL m[3][3][2]);
+  IMatrix3(FCL_REAL m[3][3]);
   IMatrix3(Interval m[3][3]);
 
   void setIdentity();

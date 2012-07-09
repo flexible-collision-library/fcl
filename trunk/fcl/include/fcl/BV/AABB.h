@@ -130,16 +130,16 @@ public:
   /** \brief Merge the AABB and a point */
   inline AABB& operator += (const Vec3f& p)
   {
-    min_ = min(min_, p);
-    max_ = max(max_, p);
+    min_.ubound(p);
+    max_.lbound(p);
     return *this;
   }
 
   /** \brief Merge the AABB and another AABB */
   inline AABB& operator += (const AABB& other)
   {
-    min_ = min(min_, other.min_);
-    max_ = max(max_, other.max_);
+    min_.ubound(other.min_);
+    max_.lbound(other.max_);
     return *this;
   }
 
@@ -151,31 +151,31 @@ public:
   }
 
   /** \brief Width of the AABB */
-  inline BVH_REAL width() const
+  inline FCL_REAL width() const
   {
     return max_[0] - min_[0];
   }
 
   /** \brief Height of the AABB */
-  inline BVH_REAL height() const
+  inline FCL_REAL height() const
   {
     return max_[1] - min_[1];
   }
 
   /** \brief Depth of the AABB */
-  inline BVH_REAL depth() const
+  inline FCL_REAL depth() const
   {
     return max_[2] - min_[2];
   }
 
   /** \brief Volume of the AABB */
-  inline BVH_REAL volume() const
+  inline FCL_REAL volume() const
   {
     return width() * height() * depth();
   }  
 
   /** \brief Size of the AABB, for split order */
-  inline BVH_REAL size() const
+  inline FCL_REAL size() const
   {
     return (max_ - min_).sqrLength();
   }
@@ -186,9 +186,9 @@ public:
     return (min_ + max_) * 0.5;
   }
 
-  BVH_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
+  FCL_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
 
-  BVH_REAL distance(const AABB& other) const;
+  FCL_REAL distance(const AABB& other) const;
 
   inline bool equal(const AABB& other) const
   {
@@ -203,7 +203,7 @@ public:
   }
 
   /**\brief expand the aabb by increase the 'thickness of the plate by a ratio */
-  inline AABB& expand(const AABB& core, BVH_REAL ratio)
+  inline AABB& expand(const AABB& core, FCL_REAL ratio)
   {
     min_ = min_ * ratio - core.min_;
     max_ = max_ * ratio - core.max_;

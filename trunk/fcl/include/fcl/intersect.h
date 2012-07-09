@@ -58,22 +58,22 @@ class PolySolver
 {
 public:
   /** \brief Solve a linear equation with coefficients c, return roots s and number of roots */
-  static int solveLinear(BVH_REAL c[2], BVH_REAL s[1]);
+  static int solveLinear(FCL_REAL c[2], FCL_REAL s[1]);
 
   /** \brief Solve a quadratic function with coefficients c, return roots s and number of roots */
-  static int solveQuadric(BVH_REAL c[3], BVH_REAL s[2]);
+  static int solveQuadric(FCL_REAL c[3], FCL_REAL s[2]);
 
   /** \brief Solve a cubic function with coefficients c, return roots s and number of roots */
-  static int solveCubic(BVH_REAL c[4], BVH_REAL s[3]);
+  static int solveCubic(FCL_REAL c[4], FCL_REAL s[3]);
 
 private:
   /** \brief Check whether v is zero */
-  static inline bool isZero(BVH_REAL v);
+  static inline bool isZero(FCL_REAL v);
 
   /** \brief Compute v^{1/3} */
-  static inline bool cbrt(BVH_REAL v);
+  static inline bool cbrt(FCL_REAL v);
 
-  static const BVH_REAL NEAR_ZERO_THRESHOLD;
+  static const FCL_REAL NEAR_ZERO_THRESHOLD;
 };
 
 #if USE_SVMLIGHT
@@ -101,7 +101,7 @@ public:
    */
   static bool intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                            const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                           BVH_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
+                           FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
 
   /** \brief CCD intersect between two edges
    * [a0, b0] and [a1, b1] are points for one edge in time t0 and t1
@@ -110,17 +110,17 @@ public:
    */
   static bool intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                            const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                           BVH_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
+                           FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
 
   /** \brief CCD intersect between one vertex and one face, using additional filter */
   static bool intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                            const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                           BVH_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
+                           FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
 
   /** \brief CCD intersect between two edges, using additional filter */
   static bool intersect_EE_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                            const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                           BVH_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
+                           FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
 
   /** \brief CCD intersect between one vertex and and one edge */
   static bool intersect_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
@@ -132,7 +132,7 @@ public:
                                  const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
                                  Vec3f* contact_points = NULL,
                                  unsigned int* num_contact_points = NULL,
-                                 BVH_REAL* penetration_depth = NULL,
+                                 FCL_REAL* penetration_depth = NULL,
                                  Vec3f* normal = NULL);
 
   static bool intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
@@ -140,23 +140,23 @@ public:
                                  const Matrix3f& R, const Vec3f& T,
                                  Vec3f* contact_points = NULL,
                                  unsigned int* num_contact_points = NULL,
-                                 BVH_REAL* penetration_depth = NULL,
+                                 FCL_REAL* penetration_depth = NULL,
                                  Vec3f* normal = NULL);
 
 #if USE_SVMLIGHT
 
-  static BVH_REAL intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+  static FCL_REAL intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                         Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
                                         const CloudClassifierParam& solver, bool scaling = true);
 
-  static BVH_REAL intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+  static FCL_REAL intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                         Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
                                         const Matrix3f& R, const Vec3f& T, const CloudClassifierParam& solver, bool scaling = true);
 
-  static BVH_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+  static FCL_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                                 const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3);
 
-  static BVH_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+  static FCL_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                                 const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
                                                 const Matrix3f& R, const Vec3f& T);
 #endif
@@ -169,12 +169,12 @@ private:
                       const Vec3f& q1, const Vec3f& q2, const Vec3f& q3);
 
   /** \brief Check whether one value is zero */
-  static inline bool isZero(BVH_REAL v);
+  static inline bool isZero(FCL_REAL v);
 
   /** \brief Solve the cubic function using Newton method, also satisfies the interval restriction */
   static bool solveCubicWithIntervalNewton(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                                            const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                           BVH_REAL& l, BVH_REAL& r, bool bVF, BVH_REAL coeffs[], Vec3f* data = NULL);
+                                           FCL_REAL& l, FCL_REAL& r, bool bVF, FCL_REAL coeffs[], Vec3f* data = NULL);
 
   /** \brief Check whether one point p is within triangle [a, b, c] */
   static bool insideTriangle(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f&p);
@@ -189,32 +189,32 @@ private:
    * return FALSE if no solution exists.
   */
   static bool linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3, const Vec3f& p4,
-                                Vec3f* pa, Vec3f* pb, BVH_REAL* mua, BVH_REAL* mub);
+                                Vec3f* pa, Vec3f* pb, FCL_REAL* mua, FCL_REAL* mub);
 
   /** \brief Check whether a root for VF intersection is valid (i.e. within the triangle at intersection t */
   static bool checkRootValidity_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                                    const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
-                                   BVH_REAL t);
+                                   FCL_REAL t);
 
   /** \brief Check whether a root for EE intersection is valid (i.e. within the two edges intersected at the given time */
   static bool checkRootValidity_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                                    const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                   BVH_REAL t, Vec3f* q_i = NULL);
+                                   FCL_REAL t, Vec3f* q_i = NULL);
 
   /** \brief Check whether a root for VE intersection is valid */
   static bool checkRootValidity_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
                                    const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
-                                   BVH_REAL t);
+                                   FCL_REAL t);
 
   /** \brief Solve a square function for EE intersection (with interval restriction) */
-  static bool solveSquare(BVH_REAL a, BVH_REAL b, BVH_REAL c,
+  static bool solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
                           const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                           const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
                           bool bVF,
-                          BVH_REAL* ret);
+                          FCL_REAL* ret);
 
   /** \brief Solve a square function for VE intersection (with interval restriction) */
-  static bool solveSquare(BVH_REAL a, BVH_REAL b, BVH_REAL c,
+  static bool solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
                           const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
                           const Vec3f& va, const Vec3f& vb, const Vec3f& vp);
 
@@ -223,52 +223,52 @@ private:
    */
   static void computeCubicCoeff_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                                    const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
-                                   BVH_REAL* a, BVH_REAL* b, BVH_REAL* c, BVH_REAL* d);
+                                   FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d);
 
   /** \brief Compute the cubic coefficients for EE intersection */
   static void computeCubicCoeff_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                                    const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                   BVH_REAL* a, BVH_REAL* b, BVH_REAL* c, BVH_REAL* d);
+                                   FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d);
 
   /** \brief Compute the cubic coefficients for VE intersection */
   static void computeCubicCoeff_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
                                    const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
                                    const Vec3f& L,
-                                   BVH_REAL* a, BVH_REAL* b, BVH_REAL* c);
+                                   FCL_REAL* a, FCL_REAL* b, FCL_REAL* c);
 
   /** \brief filter for intersection, works for both VF and EE */
   static bool intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                            const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1);
 
   /** \brief distance of point v to a plane n * x - t = 0 */
-  static BVH_REAL distanceToPlane(const Vec3f& n, BVH_REAL t, const Vec3f& v);
+  static FCL_REAL distanceToPlane(const Vec3f& n, FCL_REAL t, const Vec3f& v);
 
   /** \brief check wether points v1, v2, v2 are on the same side of plane n * x - t = 0 */
-  static bool sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& n, BVH_REAL t);
+  static bool sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& n, FCL_REAL t);
 
   /** \brief clip triangle v1, v2, v3 by the prism made by t1, t2 and t3. The normal of the prism is tn and is cutted up by to */
   static void clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3,
                                                   const Vec3f& t1, const Vec3f& t2, const Vec3f& t3,
-                                                  const Vec3f& tn, BVH_REAL to,
+                                                  const Vec3f& tn, FCL_REAL to,
                                                   Vec3f clipped_points[], unsigned int* num_clipped_points, bool clip_triangle = false);
 
   /** \brief build a plane passed through triangle v1 v2 v3 */
-  static bool buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, BVH_REAL* t);
+  static bool buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t);
 
   /** \brief build a plane pass through edge v1 and v2, normal is tn */
-  static bool buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, BVH_REAL* t);
+  static bool buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, FCL_REAL* t);
 
   /** \brief compute the points which has deepest penetration depth */
-  static void computeDeepestPoints(Vec3f* clipped_points, unsigned int num_clipped_points, const Vec3f& n, BVH_REAL t, BVH_REAL* penetration_depth, Vec3f* deepest_points, unsigned int* num_deepest_points);
+  static void computeDeepestPoints(Vec3f* clipped_points, unsigned int num_clipped_points, const Vec3f& n, FCL_REAL t, FCL_REAL* penetration_depth, Vec3f* deepest_points, unsigned int* num_deepest_points);
 
   /** \brief clip polygon by plane */
-  static void clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polygon_points, const Vec3f& n, BVH_REAL t, Vec3f clipped_points[], unsigned int* num_clipped_points);
+  static void clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polygon_points, const Vec3f& n, FCL_REAL t, Vec3f clipped_points[], unsigned int* num_clipped_points);
 
   /** \brief clip a line segment by plane */
-  static void clipSegmentByPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& n, BVH_REAL t, Vec3f* clipped_point);
+  static void clipSegmentByPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& n, FCL_REAL t, Vec3f* clipped_point);
 
   /** \brief compute the cdf(x) */
-  static BVH_REAL gaussianCDF(BVH_REAL x)
+  static FCL_REAL gaussianCDF(FCL_REAL x)
   {
     return 0.5 * erfc(-x / sqrt(2.0));
   }
@@ -281,9 +281,9 @@ private:
   static void singleKernelGradient(KERNEL_PARM *kernel_parm, SVECTOR *a, SVECTOR *b, Vec3f& g);
 #endif
 
-  static const BVH_REAL EPSILON;
-  static const BVH_REAL NEAR_ZERO_THRESHOLD;
-  static const BVH_REAL CCD_RESOLUTION;
+  static const FCL_REAL EPSILON;
+  static const FCL_REAL NEAR_ZERO_THRESHOLD;
+  static const FCL_REAL CCD_RESOLUTION;
   static const unsigned int MAX_TRIANGLE_CLIPS = 8;
 };
 
@@ -306,9 +306,9 @@ public:
    *  if the triangles overlap, P and Q are basically a random pair of points from the triangles, not
    *  coincident points on the intersection of the triangles, as might be expected.
    */
-  static BVH_REAL triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q);
+  static FCL_REAL triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q);
 
-  static BVH_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+  static FCL_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                               const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
                               Vec3f& P, Vec3f& Q);
 
@@ -319,11 +319,11 @@ public:
    *  coincident points on the intersection of the triangles, as might be expected.
    *  The returned P and Q are both in the coordinate of the first triangle's coordinate
    */
-  static BVH_REAL triDistance(const Vec3f S[3], const Vec3f T[3],
+  static FCL_REAL triDistance(const Vec3f S[3], const Vec3f T[3],
                               const Matrix3f& R, const Vec3f& Tl,
                               Vec3f& P, Vec3f& Q);
 
-  static BVH_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+  static FCL_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                               const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
                               const Matrix3f& R, const Vec3f& Tl,
                               Vec3f& P, Vec3f& Q);

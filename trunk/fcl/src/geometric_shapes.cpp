@@ -99,10 +99,10 @@ void Convex::fillEdges()
 
 void Plane::unitNormalTest()
 {
-  BVH_REAL l = n.length();
+  FCL_REAL l = n.length();
   if(l > 0)
   {
-    BVH_REAL inv_l = 1.0 / l;
+    FCL_REAL inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   }

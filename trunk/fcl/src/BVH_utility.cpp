@@ -43,7 +43,7 @@
 namespace fcl
 {
 
-void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, BVH_REAL r = 1.0)
+void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
 {
   for(int i = 0; i < model.getNumBVs(); ++i)
   {
@@ -74,7 +74,7 @@ void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, BVH_REAL r = 1.0)
   }
 }
 
-void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, BVH_REAL r = 1.0)
+void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
 {
   for(int i = 0; i < model.getNumBVs(); ++i)
   {
@@ -367,14 +367,14 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, i
 /** \brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin.
  * The bounding volume axes are known.
  */
-void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, BVH_REAL l[2], BVH_REAL& r)
+void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, FCL_REAL l[2], FCL_REAL& r)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
   int size_P = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
 
-  BVH_REAL (*P)[3] = new BVH_REAL[size_P][3];
+  FCL_REAL (*P)[3] = new FCL_REAL[size_P][3];
 
   int P_id = 0;
   
@@ -435,22 +435,22 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     }
   }
     
-  BVH_REAL minx, maxx, miny, maxy, minz, maxz;
+  FCL_REAL minx, maxx, miny, maxy, minz, maxz;
 
-  BVH_REAL cz, radsqr;
+  FCL_REAL cz, radsqr;
 
   minz = maxz = P[0][2];
 
   for(int i = 1; i < size_P; ++i)
   {
-    BVH_REAL z_value = P[i][2];
+    FCL_REAL z_value = P[i][2];
     if(z_value < minz) minz = z_value;
     else if(z_value > maxz) maxz = z_value;
   }
 
-  r = (BVH_REAL)0.5 * (maxz - minz);
+  r = (FCL_REAL)0.5 * (maxz - minz);
   radsqr = r * r;
-  cz = (BVH_REAL)0.5 * (maxz + minz);
+  cz = (FCL_REAL)0.5 * (maxz + minz);
 
   // compute an initial length of rectangle along x direction
 
@@ -458,12 +458,12 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
   int minindex, maxindex;
   minindex = maxindex = 0;
-  BVH_REAL mintmp, maxtmp;
+  FCL_REAL mintmp, maxtmp;
   mintmp = maxtmp = P[0][0];
 
   for(int i = 1; i < size_P; ++i)
   {
-    BVH_REAL x_value = P[i][0];
+    FCL_REAL x_value = P[i][0];
     if(x_value < mintmp)
     {
       minindex = i;
@@ -476,7 +476,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     }
   }
 
-  BVH_REAL x, dz;
+  FCL_REAL x, dz;
   dz = P[minindex][2] - cz;
   minx = P[minindex][0] + sqrt(std::max(radsqr - dz * dz, 0.0));
   dz = P[maxindex][2] - cz;
@@ -515,7 +515,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
   mintmp = maxtmp = P[0][1];
   for(int i = 1; i < size_P; ++i)
   {
-    BVH_REAL y_value = P[i][1];
+    FCL_REAL y_value = P[i][1];
     if(y_value < mintmp)
     {
       minindex = i;
@@ -528,7 +528,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     }
   }
 
-  BVH_REAL y;
+  FCL_REAL y;
   dz = P[minindex][2] - cz;
   miny = P[minindex][1] + sqrt(std::max(radsqr - dz * dz, 0.0));
   dz = P[maxindex][2] - cz;
@@ -560,8 +560,8 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
   // corners may have some points which are not covered - grow lengths if necessary
   // quite conservative (can be improved)
-  BVH_REAL dx, dy, u, t;
-  BVH_REAL a = sqrt((BVH_REAL)0.5);
+  FCL_REAL dx, dy, u, t;
+  FCL_REAL a = sqrt((FCL_REAL)0.5);
   for(int i = 0; i < size_P; ++i)
   {
     if(P[i][0] > maxx)
@@ -652,10 +652,10 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  BVH_REAL real_max = std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
 
-  BVH_REAL min_coord[3] = {real_max, real_max, real_max};
-  BVH_REAL max_coord[3] = {-real_max, -real_max, -real_max};
+  FCL_REAL min_coord[3] = {real_max, real_max, real_max};
+  FCL_REAL max_coord[3] = {-real_max, -real_max, -real_max};
 
   for(int i = 0; i < n; ++i)
   {
@@ -663,7 +663,7 @@ static inline void getExtentAndCenter_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned
 
     const Vec3f& p = ps[index];
     Vec3f v(p[0], p[1], p[2]);
-    BVH_REAL proj[3];
+    FCL_REAL proj[3];
     proj[0] = axis[0].dot(v);
     proj[1] = axis[1].dot(v);
     proj[2] = axis[2].dot(v);
@@ -710,10 +710,10 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  BVH_REAL real_max = std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
 
-  BVH_REAL min_coord[3] = {real_max, real_max, real_max};
-  BVH_REAL max_coord[3] = {-real_max, -real_max, -real_max};
+  FCL_REAL min_coord[3] = {real_max, real_max, real_max};
+  FCL_REAL max_coord[3] = {-real_max, -real_max, -real_max};
 
   for(int i = 0; i < n; ++i)
   {
@@ -725,7 +725,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
       int point_id = t[j];
       const Vec3f& p = ps[point_id];
       Vec3f v(p[0], p[1], p[2]);
-      BVH_REAL proj[3];
+      FCL_REAL proj[3];
       proj[0] = axis[0].dot(v);
       proj[1] = axis[1].dot(v);
       proj[2] = axis[2].dot(v);
@@ -744,7 +744,7 @@ static inline void getExtentAndCenter_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, 
         int point_id = t[j];
         const Vec3f& p = ps2[point_id];
         Vec3f v(p[0], p[1], p[2]);
-        BVH_REAL proj[3];
+        FCL_REAL proj[3];
         proj[0] = axis[0].dot(v);
         proj[1] = axis[1].dot(v);
         proj[2] = axis[2].dot(v);
@@ -778,14 +778,14 @@ void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indic
     getExtentAndCenter_pointcloud(ps, ps2, indices, n, axis, center, extent);
 }
 
-void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, BVH_REAL& radius)
+void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, FCL_REAL& radius)
 {
   Vec3f e1 = a - c;
   Vec3f e2 = b - c;
-  BVH_REAL e1_len2 = e1.sqrLength();
-  BVH_REAL e2_len2 = e2.sqrLength();
+  FCL_REAL e1_len2 = e1.sqrLength();
+  FCL_REAL e2_len2 = e2.sqrLength();
   Vec3f e3 = e1.cross(e2);
-  BVH_REAL e3_len2 = e3.sqrLength();
+  FCL_REAL e3_len2 = e3.sqrLength();
   radius = e1_len2 * e2_len2 * (e1 - e2).sqrLength() / e3_len2;
   radius = sqrt(radius) * 0.5;
 
@@ -793,12 +793,12 @@ void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec
 }
 
 
-static inline BVH_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
+static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
   
-  BVH_REAL maxD = 0;
+  FCL_REAL maxD = 0;
   for(int i = 0; i < n; ++i)
   {
     unsigned int index = indirect_index ? indices[i] : i;
@@ -809,7 +809,7 @@ static inline BVH_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
       int point_id = t[j];
       const Vec3f& p = ps[point_id];
       
-      BVH_REAL d = (p - query).sqrLength();
+      FCL_REAL d = (p - query).sqrLength();
       if(d > maxD) maxD = d;
     }
 
@@ -820,7 +820,7 @@ static inline BVH_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
         int point_id = t[j];
         const Vec3f& p = ps2[point_id];
         
-        BVH_REAL d = (p - query).sqrLength();
+        FCL_REAL d = (p - query).sqrLength();
         if(d > maxD) maxD = d;
       }
     }
@@ -829,24 +829,24 @@ static inline BVH_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
   return sqrt(maxD);
 }
 
-static inline BVH_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query)
+static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  BVH_REAL maxD = 0;
+  FCL_REAL maxD = 0;
   for(unsigned int i = 0; i < n; ++i)
   {
     int index = indirect_index ? indices[i] : i;
 
     const Vec3f& p = ps[index];
-    BVH_REAL d = (p - query).sqrLength();
+    FCL_REAL d = (p - query).sqrLength();
     if(d > maxD) maxD = d;
 
     if(ps2)
     {
       const Vec3f& v = ps2[index];
-      BVH_REAL d = (v - query).sqrLength();
+      FCL_REAL d = (v - query).sqrLength();
       if(d > maxD) maxD = d;
     }
   }
@@ -854,7 +854,7 @@ static inline BVH_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigne
   return sqrt(maxD);
 }
 
-BVH_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
+FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)
 {
   if(ts)
     return maximumDistance_mesh(ps, ps2, ts, indices, n, query);

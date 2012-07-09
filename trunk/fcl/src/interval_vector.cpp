@@ -43,23 +43,23 @@ namespace fcl
 
 IVector3::IVector3() {}
 
-IVector3::IVector3(BVH_REAL v) { i_[0] = i_[1] = i_[2] = v; }
+IVector3::IVector3(FCL_REAL v) { i_[0] = i_[1] = i_[2] = v; }
 
-IVector3::IVector3(BVH_REAL x, BVH_REAL y, BVH_REAL z)
+IVector3::IVector3(FCL_REAL x, FCL_REAL y, FCL_REAL z)
 {
   i_[0].setValue(x);
   i_[1].setValue(y);
   i_[2].setValue(z);
 }
 
-IVector3::IVector3(BVH_REAL xl, BVH_REAL xu, BVH_REAL yl, BVH_REAL yu, BVH_REAL zl, BVH_REAL zu)
+IVector3::IVector3(FCL_REAL xl, FCL_REAL xu, FCL_REAL yl, FCL_REAL yu, FCL_REAL zl, FCL_REAL zu)
 {
   i_[0].setValue(xl, xu);
   i_[1].setValue(yl, yu);
   i_[2].setValue(zl, zu);
 }
 
-IVector3::IVector3(BVH_REAL v[3][2])
+IVector3::IVector3(FCL_REAL v[3][2])
 {
   i_[0].setValue(v[0][0], v[0][1]);
   i_[1].setValue(v[1][0], v[1][1]);
@@ -142,7 +142,7 @@ IVector3 IVector3::cross(const IVector3& other) const
   return IVector3(res);
 }
 
-BVH_REAL IVector3::volumn() const
+FCL_REAL IVector3::volumn() const
 {
   return i_[0].diameter() * i_[1].diameter() * i_[2].diameter();
 }

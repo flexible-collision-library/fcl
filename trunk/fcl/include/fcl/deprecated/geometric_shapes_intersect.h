@@ -155,11 +155,11 @@ void triDeleteGJKObject(void* o);
 /** \brief GJK collision algorithm */
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
-               Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal);
+               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal);
 
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
-                 BVH_REAL* dist);
+                 FCL_REAL* dist);
 
 
 } // details
@@ -169,7 +169,7 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
 template<typename S1, typename S2>
 bool shapeIntersect(const S1& s1, const SimpleTransform& tf1,
                     const S2& s2, const SimpleTransform& tf2,
-                    Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+                    Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
   void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);
@@ -187,7 +187,7 @@ bool shapeIntersect(const S1& s1, const SimpleTransform& tf1,
 /** \brief intersection checking between one shape and a triangle */
 template<typename S>
 bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
-                            const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+                            const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf);
   void* o2 = details::triCreateGJKObject(P1, P2, P3);
@@ -206,7 +206,7 @@ bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
 template<typename S>
 bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T,
-                            Vec3f* contact_points = NULL, BVH_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
+                            Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL)
 {
   void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf);
   void* o2 = details::triCreateGJKObject(P1, P2, P3, R, T);
@@ -226,7 +226,7 @@ bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
 template<typename S1, typename S2>
 bool shapeDistance(const S1& s1, const SimpleTransform& tf1,
                    const S2& s2, const SimpleTransform& tf2,
-                   BVH_REAL* dist)
+                   FCL_REAL* dist)
 {
   void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
   void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);

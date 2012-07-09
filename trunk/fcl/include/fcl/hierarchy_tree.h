@@ -40,6 +40,7 @@
 #include <vector>
 #include "fcl/BV/AABB.h"
 #include "fcl/vec_3f.h"
+#include "fcl/morton.h"
 #include <boost/bind.hpp>
 
 namespace fcl
@@ -140,6 +141,7 @@ public:
   {
     if(root_node)
       recurseDeleteNode(root_node);
+    n_leaves = 0;
     delete free_node;
     free_node = NULL;
     max_lookahead_level = -1;
@@ -150,25 +152,6 @@ public:
   bool empty() const
   {
     return (NULL == root_node);
-  }
-
-  /** \brief update one leaf node's bounding volume */
-  void update_(NodeType* leaf, const BV& bv)
-  {
-    NodeType* root = removeLeaf(leaf);
-    if(root)
-    {
-      if(max_lookahead_level >= 0)
-      {
-        for(int i = 0; (i < max_lookahead_level) && root->parent; ++i)
-          root = root->parent;
-      }
-      else
-        root = root_node;
-    }
-
-    leaf->bv = bv;
-    insertLeaf(root, leaf);
   }
 
   /** \brief update one leaf node */
@@ -196,7 +179,7 @@ public:
   }
 
   /** \brief update one leaf's bounding volume, with prediction */
-  bool update(NodeType* leaf, const BV& bv, const Vec3f& vel, BVH_REAL margin)
+  bool update(NodeType* leaf, const BV& bv, const Vec3f& vel, FCL_REAL margin)
   {
     if(leaf->bv.contain(bv)) return false;
     update_(leaf, bv);
@@ -209,6 +192,35 @@ public:
     if(leaf->bv.contain(bv)) return false;
     update_(leaf, bv);
     return true;
+  }
+
+  size_t getMaxHeight() const
+  {
+    return getMaxHeight(root_node);
+  }
+
+
+  size_t getMaxHeight(NodeType* node) const
+  {
+    if(!node->isLeaf())
+    {
+      size_t height1 = getMaxHeight(node->childs[0]);
+      size_t height2 = getMaxHeight(node->childs[1]);
+      return std::max(height1, height2) + 1;
+    }
+    else
+      return 0;
+  }
+
+  void getMaxDepth(NodeType* node, size_t depth, size_t& max_depth) const
+  {
+    if(!node->isLeaf())
+    {
+      getMaxDepth(node->childs[0], depth+1, max_depth);
+      getMaxDepth(node->childs[1], depth+1, max_depth);
+    }
+    else
+      max_depth = std::max(max_depth, depth);
   }
 
   /** \brief balance the tree from bottom */
@@ -236,57 +248,14 @@ public:
     }
   }
 
-  /** \brief refit */
-  void refit()
-  {
-    if(root_node)
-    {
-      recurseRefit(root_node);
-    }
-  }
-
-  void recurseRefit(NodeType* node)
-  {
-    if(!node->isLeaf())
-    {
-      recurseRefit(node->childs[0]);
-      recurseRefit(node->childs[1]);
-      node->bv = node->childs[0]->bv + node->childs[1]->bv;
-    }
-    else
-      return;
-  }
-
-  size_t getMaxHeight(NodeType* node) const
-  {
-    if(!node->isLeaf())
-    {
-      size_t height1 = getMaxHeight(node->childs[0]);
-      size_t height2 = getMaxHeight(node->childs[1]);
-      return std::max(height1, height2) + 1;
-    }
-    else
-      return 0;
-  }
-
-  void getMaxDepth(NodeType* node, size_t depth, size_t& max_depth) const
-  {
-    if(!node->isLeaf())
-    {
-      getMaxDepth(node->childs[0], depth+1, max_depth);
-      getMaxDepth(node->childs[1], depth+1, max_depth);
-    }
-    else
-      max_depth = std::max(max_depth, depth);
-  }
 
   /** \brief balance the tree in an incremental way */
-  void balanceIncremental(int passes)
+  void balanceIncremental(int iterations)
   {
-    if(passes < 0) passes = n_leaves;
-    if(root_node && (passes > 0))
+    if(iterations < 0) iterations = n_leaves;
+    if(root_node && (iterations > 0))
     {
-      for(int i = 0; i < passes; ++i)
+      for(int i = 0; i < iterations; ++i)
       {
         NodeType* node = root_node;
         unsigned int bit = 0;
@@ -299,6 +268,13 @@ public:
         ++opath;
       }
     }
+  }
+
+  /** \brief refit */
+  void refit()
+  {
+    if(root_node)
+      recurseRefit(root_node);
   }
 
   /** \brief extract all the leaves of the tree */
@@ -350,12 +326,12 @@ public:
     while(lbeg < lcur_end - 1)
     {
       NodeVecIterator min_it1, min_it2;
-      BVH_REAL min_size = std::numeric_limits<BVH_REAL>::max();
+      FCL_REAL min_size = std::numeric_limits<FCL_REAL>::max();
       for(NodeVecIterator it1 = lbeg; it1 < lcur_end; ++it1)
       {
         for(NodeVecIterator it2 = it1 + 1; it2 < lcur_end; ++it2)
         {
-          BVH_REAL cur_size = ((*it1)->bv + (*it2)->bv).size();
+          FCL_REAL cur_size = ((*it1)->bv + (*it2)->bv).size();
           if(cur_size < min_size)
           {
             min_size = cur_size;
@@ -392,7 +368,7 @@ public:
           vol += (*it)->bv;
 
         int best_axis = 0;
-        BVH_REAL extent[3] = {vol.width(), vol.height(), vol.depth()};
+        FCL_REAL extent[3] = {vol.width(), vol.height(), vol.depth()};
         if(extent[1] > extent[0]) best_axis = 1;
         if(extent[2] > extent[best_axis]) best_axis = 2;
 
@@ -432,7 +408,7 @@ public:
           split_p += (*it)->bv.center();
           vol += (*it)->bv;
         }
-        split_p /= (BVH_REAL)(num_leaves);
+        split_p /= (FCL_REAL)(num_leaves);
         int best_axis = -1;
         int bestmidp = num_leaves;
         int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
@@ -458,7 +434,7 @@ public:
 
         if(best_axis < 0) best_axis = 0;
 
-        BVH_REAL split_value = split_p[best_axis];
+        FCL_REAL split_value = split_p[best_axis];
         NodeVecIterator lcenter = lbeg;
         for(it = lbeg; it < lend; ++it)
         {
@@ -486,8 +462,32 @@ public:
     }
     return *lbeg;
   }
+
+  NodeType* topdown_morton(const NodeVecIterator lbeg, const NodeVecIterator lend, int bu_threshold)
+  {
+    return NULL;
+  }
   
 private:
+
+  /** \brief update one leaf node's bounding volume */
+  void update_(NodeType* leaf, const BV& bv)
+  {
+    NodeType* root = removeLeaf(leaf);
+    if(root)
+    {
+      if(max_lookahead_level >= 0)
+      {
+        for(int i = 0; (i < max_lookahead_level) && root->parent; ++i)
+          root = root->parent;
+      }
+      else
+        root = root_node;
+    }
+
+    leaf->bv = bv;
+    insertLeaf(root, leaf);
+  }
 
   /** \brief sort node n and its parent according to their memory position */
   NodeType* sort(NodeType* n, NodeType*& r)
@@ -676,9 +676,23 @@ private:
       recurseDeleteNode(node->childs[0]);
       recurseDeleteNode(node->childs[1]);
     }
+    
     if(node == root_node) root_node = NULL;
     deleteNode(node);
   }
+
+  void recurseRefit(NodeType* node)
+  {
+    if(!node->isLeaf())
+    {
+      recurseRefit(node->childs[0]);
+      recurseRefit(node->childs[1]);
+      node->bv = node->childs[0]->bv + node->childs[1]->bv;
+    }
+    else
+      return;
+  }
+
 
   static BV bounds(const std::vector<NodeType*>& leaves)
   {
@@ -719,10 +733,716 @@ protected:
 
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vec3f& vel, BVH_REAL margin);
+bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vec3f& vel, FCL_REAL margin);
 
 template<>
 bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vec3f& vel);
+
+
+namespace alternative
+{
+
+template<typename BV>
+struct NodeBase
+{
+  BV bv;
+
+  union
+  {
+    size_t parent;
+    size_t next;
+  };
+  
+  union
+  {
+    size_t childs[2];
+    void* data;
+  };
+  
+  bool isLeaf() const { return (childs[1] == (size_t)(-1)); }
+  bool isInternal() const { return !isLeaf(); }
+};
+ 
+template<typename BV>
+struct nodeBaseLess
+{
+  nodeBaseLess(const NodeBase<BV>* nodes_, size_t d_)
+  {
+    nodes = nodes_;
+    d = d_;
+  }
+
+  bool operator() (size_t i, size_t j) const
+  {
+    if(nodes[i].bv.center()[d] < nodes[j].bv.center()[d])
+      return true;
+    return false;
+  }
+
+  const NodeBase<BV>* nodes;
+  size_t d;
+};
+
+
+
+
+template<typename BV> 
+size_t select(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
+{
+  return 0;
+}
+
+template<>
+size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABB>* nodes);
+
+template<typename BV>
+size_t select(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
+{
+  return 0;
+}
+
+template<>
+size_t select(const AABB& query, size_t node1, size_t node2, NodeBase<AABB>* nodes);
+
+
+template<typename BV>
+class HierarchyTree
+{
+  typedef NodeBase<BV> NodeType;
+public:
+  HierarchyTree()
+  {
+    root_node = NULL_NODE;
+    n_nodes = 0;
+    n_nodes_alloc = 16;
+    nodes = new NodeType[n_nodes_alloc];
+    for(size_t i = 0; i < n_nodes_alloc - 1; ++i)
+      nodes[i].next = i + 1;
+    nodes[n_nodes_alloc - 1].next = NULL_NODE;
+    n_leaves = 0;
+    freelist = 0;
+    opath = 0;
+    max_lookahead_level = -1;
+  }
+
+  ~HierarchyTree()
+  {
+    delete [] nodes;
+  }
+
+  void init(NodeType* leaves, int n_leaves_, int bu_threshold = 128)
+  {
+    n_leaves = n_leaves_;
+    root_node = NULL_NODE;
+    nodes = new NodeType[n_leaves * 2];
+    memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+    freelist = n_leaves;
+    n_nodes = n_leaves;
+    n_nodes_alloc = 2 * n_leaves;
+    for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
+      nodes[i].next = i + 1;
+    nodes[n_nodes_alloc - 1].next = NULL_NODE;
+    
+    size_t* ids = new size_t[n_leaves];
+    for(size_t i = 0; i < n_leaves; ++i)
+      ids[i] = i;
+    
+    root_node = topdown(ids, ids + n_leaves, bu_threshold);
+    delete [] ids;
+  }
+  
+
+  size_t insert(const BV& bv, void* data)
+  {
+    size_t node = createNode(NULL_NODE, bv, data);
+    insertLeaf(root_node, node);
+    ++n_leaves;
+    return node;
+  }
+
+  void remove(size_t leaf)
+  {
+    removeLeaf(leaf);
+    deleteNode(leaf);
+    --n_leaves;
+  }
+
+  void clear()
+  {
+    delete [] nodes;
+    root_node = NULL_NODE;
+    n_nodes = 0;
+    n_nodes_alloc = 16;
+    nodes = new NodeType[n_nodes_alloc];
+    for(size_t i = 0; i < n_nodes_alloc; ++i)
+      nodes[i].next = i + 1;
+    nodes[n_nodes_alloc - 1].next = NULL_NODE;
+    n_leaves = 0;
+    freelist = 0;
+    opath = 0;
+    max_lookahead_level = -1;
+  }
+
+  bool empty() const
+  {
+    return (n_nodes == 0);
+  }
+
+ 
+  void update(size_t leaf, int lookahead_level = -1)
+  {
+    size_t root = removeLeaf(leaf);
+    if(root != NULL_NODE)
+    {
+      if(lookahead_level > 0)
+      {
+        for(int i = 0; (i < lookahead_level) && (nodes[root].parent != NULL_NODE); ++i)
+          root = nodes[root].parent;
+      }
+      else
+        root = root_node;
+    }
+    insertLeaf(root, leaf);
+  }
+
+  bool update(size_t leaf, const BV& bv)
+  {
+    if(nodes[leaf].bv.contain(bv)) return false;
+    update_(leaf, bv);
+    return true;
+  }
+
+  bool update(size_t leaf, const BV& bv, const Vec3f& vel, FCL_REAL margin)
+  {
+    if(nodes[leaf].bv.contain(bv)) return false;
+    update_(leaf, bv);
+    return true;
+  }
+
+  bool update(size_t leaf, const BV& bv, const Vec3f& vel)
+  {
+    if(nodes[leaf].bv.contain(bv)) return false;
+    update_(leaf, bv);
+    return true;
+  }
+
+
+  size_t getMaxHeight() const
+  {
+    return getMaxHeight(root_node);
+  }
+
+  size_t getMaxHeight(size_t node) const
+  {
+    if(!nodes[node].isLeaf())
+    {
+      size_t height1 = getMaxHeight(nodes[node].childs[0]);
+      size_t height2 = getMaxHeight(nodes[node].childs[1]);
+      return std::max(height1, height2) + 1;
+    }
+    else
+      return 0;
+  }
+
+  void getMaxDepth(size_t node, size_t depth, size_t& max_depth) const
+  {
+    if(!nodes[node].isLeaf())
+    {
+      getMaxDepth(nodes[node].childs[0], depth+1, max_depth);
+      getmaxDepth(nodes[node].childs[1], depth+1, max_depth);
+    }
+    else
+      max_depth = std::max(max_depth, depth);
+  }
+
+  void balanceBottomup()
+  {
+    if(root_node != NULL_NODE)
+    {
+      NodeType* leaves = new NodeType[n_leaves];
+      NodeType* leaves_ = leaves;
+      extractLeaves(root_node, leaves_);
+      root_node = NULL_NODE;
+      memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+      freelist = n_leaves;
+      n_nodes = n_leaves;
+      for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
+        nodes[i].next = i + 1;
+      nodes[n_nodes_alloc - 1].next = NULL_NODE;
+
+      
+      size_t* ids = new size_t[n_leaves];
+      for(size_t i = 0; i < n_leaves; ++i)
+        ids[i] = i;
+     
+      bottomup(ids, ids + n_leaves);
+      root_node = *ids;
+
+      delete [] ids;
+    }
+  }
+
+  void balanceTopdown(int bu_threshold = 128)
+  {
+    if(root_node != NULL_NODE)
+    {
+      NodeType* leaves = new NodeType[n_leaves];
+      NodeType* leaves_ = leaves;
+      extractLeaves(root_node, leaves_);
+      root_node = NULL_NODE;
+      memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+      freelist = n_leaves;
+      n_nodes = n_leaves;
+      for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
+        nodes[i].next = i + 1;
+      nodes[n_nodes_alloc - 1].next = NULL_NODE;
+
+      size_t* ids = new size_t[n_leaves];
+      for(size_t i = 0; i < n_leaves; ++i)
+        ids[i] = i;
+
+      root_node = topdown(ids, ids + n_leaves, bu_threshold);
+      delete [] ids;
+    }
+  }
+
+  void balanceIncremental(int iterations)
+  {
+    if(iterations < 0) iterations = n_leaves;
+    if((root_node != NULL_NODE) && (iterations > 0))
+    {
+      for(int i = 0; i < iterations; ++i)
+      {
+        size_t node = root_node;
+        unsigned int bit = 0;
+        while(!nodes[node].isLeaf())
+        {
+          node = nodes[node].childs[(opath>>bit)&1];
+          bit = (bit+1)&(sizeof(unsigned int) * 8-1);
+        }
+        update(node);
+        ++opath;
+      }
+    }
+  }
+
+  void refit()
+  {
+    if(root_node != NULL_NODE)
+      recurseRefit(root_node);
+  }
+
+  void extractLeaves(size_t root, NodeType*& leaves) const
+  {
+    if(!nodes[root].isLeaf())
+    {
+      extractLeaves(nodes[root].childs[0], leaves);
+      extractLeaves(nodes[root].childs[1], leaves);
+    }
+    else
+    {
+      *leaves = nodes[root];
+      leaves++;
+    }
+  }
+
+  size_t size() const
+  {
+    return n_leaves;
+  }
+
+  size_t getRoot() const
+  {
+    return root_node;
+  }
+
+  NodeType* getNodes() const
+  {
+    return nodes;
+  }
+
+  void print(size_t root, int depth)
+  {
+    for(int i = 0; i < depth; ++i)
+      std::cout << " ";
+    NodeType* n = nodes + root;
+    std::cout << " (" << n->bv.min_[0] << ", " << n->bv.min_[1] << ", " << n->bv.min_[2] << "; " << n->bv.max_[0] << ", " << n->bv.max_[1] << ", " << n->bv.max_[2] << ")" << std::endl;
+    if(n->isLeaf())
+    {
+    }
+    else
+    {
+      print(n->childs[0], depth+1);
+      print(n->childs[1], depth+1);
+    }
+  }
+
+  void bottomup(size_t* lbeg, size_t* lend)
+  {
+    size_t* lcur_end = lend;
+    while(lbeg < lcur_end - 1)
+    {
+      size_t* min_it1, *min_it2;
+      FCL_REAL min_size = std::numeric_limits<FCL_REAL>::max();
+      for(size_t* it1 = lbeg; it1 < lcur_end; ++it1)
+      {
+        for(size_t* it2 = it1 + 1; it2 < lcur_end; ++it2)
+        {
+          FCL_REAL cur_size = (nodes[*it1].bv + nodes[*it2].bv).size();
+          if(cur_size < min_size)
+          {
+            min_size = cur_size;
+            min_it1 = it1;
+            min_it2 = it2;
+          }
+        }
+      }
+
+      size_t p = createNode(NULL_NODE, nodes[*min_it1].bv, nodes[*min_it2].bv, NULL);
+      nodes[p].childs[0] = *min_it1;
+      nodes[p].childs[1] = *min_it2;
+      nodes[*min_it1].parent = p;
+      nodes[*min_it2].parent = p;
+      *min_it1 = p;
+      size_t tmp = *min_it2;
+      lcur_end--;
+      *min_it2 = *lcur_end;
+      *lcur_end = tmp;
+    }
+  }
+
+  size_t topdown(size_t* lbeg, size_t* lend, int bu_threshold)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      if(num_leaves > bu_threshold)
+      {
+        BV vol = nodes[*lbeg].bv;
+        for(size_t* i = lbeg + 1; i < lend; ++i)
+          vol += nodes[*i].bv;
+
+        int best_axis = 0;
+        FCL_REAL extent[3] = {vol.width(), vol.height(), vol.depth()};
+        if(extent[1] > extent[0]) best_axis = 1;
+        if(extent[2] > extent[best_axis]) best_axis = 2;
+
+        nodeBaseLess<BV> less_functor(nodes, best_axis);
+        size_t* lcenter = lbeg + num_leaves / 2;
+        std::nth_element(lbeg, lcenter, lend, less_functor);
+
+        size_t node = createNode(NULL_NODE, vol, NULL);
+        nodes[node].childs[0] = topdown(lbeg, lcenter, bu_threshold);
+        nodes[node].childs[1] = topdown(lcenter, lend, bu_threshold);
+        nodes[nodes[node].childs[0]].parent = node;
+        nodes[nodes[node].childs[1]].parent = node;
+        return node;
+      }
+      else
+      {
+        bottomup(lbeg, lend);
+        return *lbeg;
+      }
+    }
+    return *lbeg;
+  }
+
+  size_t topdown2(size_t* lbeg, size_t* lend, int bu_threshold)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      if(num_leaves > bu_threshold)
+      {
+        Vec3f split_p = nodes[*lbeg].bv.center();
+        BV vol = nodes[*lbeg].bv;
+        for(size_t* i = lbeg + 1; i < lend; ++i)
+        {
+          split_p += nodes[*i].bv.center();
+          vol += nodes[*i].bv;
+        }
+        split_p /= (FCL_REAL)(num_leaves);
+        int best_axis = -1;
+        int bestmidp = num_leaves;
+        int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
+        for(size_t* i = lbeg; i < lend; ++i)
+        {
+          Vec3f x = nodes[*i].bv.center() - split_p;
+          for(size_t j = 0; j < 3; ++j)
+            ++splitcount[j][x[j] > 0 ? 1 : 0];
+        }
+
+        for(size_t i = 0; i < 3; ++i)
+        {
+          if((splitcount[i][0] > 0) && (splitcount[i][1] > 0))
+          {
+            int midp = std::abs(splitcount[i][0] - splitcount[i][1]);
+            if(midp < bestmidp)
+            {
+              best_axis = i;
+              bestmidp = midp;
+            }
+          }
+        }
+
+        if(best_axis < 0) best_axis = 0;
+
+        FCL_REAL split_value = split_p[best_axis];
+        size_t* lcenter = lbeg;
+        for(size_t* i = lbeg; i < lend; ++i)
+        {
+          if(nodes[*i].bv.center()[best_axis] < split_value)
+          {
+            size_t temp = *i;
+            *i = *lcenter;
+            *lcenter = temp;
+            ++lcenter;
+          }
+        }
+
+        size_t node = createNode(NULL_NODE, vol, NULL);
+        nodes[node].childs[0] = topdown2(lbeg, lcenter, bu_threshold);
+        nodes[node].childs[1] = topdown2(lcenter, lend, bu_threshold);
+        nodes[nodes[node].childs[0]].parent = node;
+        nodes[nodes[node].childs[1]].parent = node;
+        return node;
+      }
+      else
+      {
+        bottomup(lbeg, lend);
+        return *lbeg;
+      }
+    }
+    return *lbeg;
+  }
+
+
+private:
+
+  void insertLeaf(size_t root, size_t leaf)
+  {
+    if(root_node == NULL_NODE)
+    {
+      root_node = leaf;
+      nodes[leaf].parent = NULL_NODE;
+    }
+    else
+    {
+      if(!nodes[root].isLeaf())
+      {
+        do
+        {
+          root = nodes[root].childs[select(leaf, nodes[root].childs[0], nodes[root].childs[1], nodes)];
+        }
+        while(!nodes[root].isLeaf());
+      }
+
+      size_t prev = nodes[root].parent;
+      size_t node = createNode(prev, nodes[leaf].bv, nodes[root].bv, NULL);
+      if(prev != NULL_NODE)
+      {
+        nodes[prev].childs[indexOf(root)] = node;
+        nodes[node].childs[0] = root; nodes[root].parent = node;
+        nodes[node].childs[1] = leaf; nodes[leaf].parent = node;
+        do
+        {
+          if(!nodes[prev].bv.contain(nodes[node].bv))
+            nodes[prev].bv = nodes[nodes[prev].childs[0]].bv + nodes[nodes[prev].childs[1]].bv;
+          else
+            break;
+          node = prev;
+        } while (NULL_NODE != (prev = nodes[node].parent));
+      }
+      else
+      {
+        nodes[node].childs[0] = root; nodes[root].parent = node;
+        nodes[node].childs[1] = leaf; nodes[leaf].parent = node;
+        root_node = node;
+      }
+    }
+  }
+
+  size_t removeLeaf(size_t leaf)
+  {
+    if(leaf == root_node)
+    {
+      root_node = NULL_NODE;
+      return NULL_NODE;
+    }
+    else
+    {
+      size_t parent = nodes[leaf].parent;
+      size_t prev = nodes[parent].parent;
+      size_t sibling = nodes[parent].childs[1-indexOf(leaf)];
+
+      if(prev != NULL_NODE)
+      {
+        nodes[prev].childs[indexOf(parent)] = sibling;
+        nodes[sibling].parent = prev;
+        deleteNode(parent);
+        while(prev != NULL_NODE)
+        {
+          BV new_bv = nodes[nodes[prev].childs[0]].bv + nodes[nodes[prev].childs[1]].bv;
+          if(!new_bv.equal(nodes[prev].bv))
+          {
+            nodes[prev].bv = new_bv;
+            prev = nodes[prev].parent;
+          }
+          else break;
+        }
+
+        return (prev != NULL_NODE) ? prev : root_node;
+      }
+      else
+      {
+        root_node = sibling;
+        nodes[sibling].parent = NULL_NODE;
+        deleteNode(parent);
+        return root_node;
+      }
+    }
+  }
+
+
+  void update_(size_t leaf, const BV& bv)
+  {
+    size_t root = removeLeaf(leaf);
+    if(root != NULL_NODE)
+    {
+      if(max_lookahead_level >= 0)
+      {
+        for(int i = 0; (i < max_lookahead_level) && (nodes[root].parent != NULL_NODE); ++i)
+          root = nodes[root].parent;
+      }
+      
+      nodes[leaf].bv = bv;
+      insertLeaf(root, leaf);
+    }
+  }
+
+  inline size_t indexOf(size_t node)
+  {
+    return (nodes[nodes[node].parent].childs[1] == node);
+  }
+
+
+  size_t allocateNode()
+  {
+    if(freelist == NULL_NODE)
+    {
+      NodeType* old_nodes = nodes;
+      n_nodes_alloc *= 2;
+      nodes = new NodeType[n_nodes_alloc];
+      memcpy(nodes, old_nodes, n_nodes * sizeof(NodeType));
+      delete [] old_nodes;
+      
+      for(size_t i = n_nodes; i < n_nodes_alloc - 1; ++i)
+        nodes[i].next = i + 1;
+      nodes[n_nodes_alloc - 1].next = NULL_NODE;
+      freelist = n_nodes;
+    }
+
+    size_t node_id = freelist;
+    freelist = nodes[node_id].next;
+    nodes[node_id].parent = NULL_NODE;
+    nodes[node_id].childs[0] = NULL_NODE;
+    nodes[node_id].childs[1] = NULL_NODE;
+    ++n_nodes;
+    return node_id;
+  }
+
+  size_t createNode(size_t parent, 
+                    const BV& bv1,
+                    const BV& bv2,
+                    void* data)
+  {
+    size_t node = allocateNode();
+    nodes[node].parent = parent;
+    nodes[node].data = data;
+    nodes[node].bv = bv1 + bv2;
+    return node;
+  }
+
+  size_t createNode(size_t parent,
+                    const BV& bv, 
+                    void* data)
+  {
+    size_t node = allocateNode();
+    nodes[node].parent = parent;
+    nodes[node].data = data;
+    nodes[node].bv = bv;
+    return node;
+  }
+
+  size_t createNode(size_t parent,
+                    void* data)
+  {
+    size_t node = allocateNode();
+    nodes[node].parent = parent;
+    nodes[node].data = data;
+    return node;
+  }
+
+  void deleteNode(size_t node)
+  {
+    nodes[node].next = freelist;
+    freelist = node;
+    --n_nodes;
+  }
+
+  void recurseRefit(size_t node)
+  {
+    if(!nodes[node].isLeaf())
+    {
+      recurseRefit(nodes[node].childs[0]);
+      recurseRefit(nodes[node].childs[1]);
+      nodes[node].bv = nodes[nodes[node].childs[0]].bv + nodes[nodes[node].childs[1]].bv;
+    }
+    else
+      return;
+  }
+
+  void fetchLeaves(size_t root, NodeType*& leaves, int depth = -1)
+  {
+    if((!nodes[root].isLeaf()) && depth)
+    {
+      fetchLeaves(nodes[root].childs[0], leaves, depth-1);
+      fetchLeaves(nodes[root].childs[1], leaves, depth-1);
+      deleteNode(root);
+    }
+    else
+    {
+      *leaves = nodes[root];
+      leaves++;
+    }
+  }
+
+
+
+protected:
+  size_t root_node;
+  NodeType* nodes;
+  size_t n_nodes;
+  size_t n_nodes_alloc;
+  
+  size_t n_leaves;
+  size_t freelist;
+  unsigned int opath;
+
+  int max_lookahead_level;
+
+public:
+  static const size_t NULL_NODE = -1;
+};
+
+template<typename BV>
+const size_t HierarchyTree<BV>::NULL_NODE;
+
+
+
+
+
+}
 
 
 

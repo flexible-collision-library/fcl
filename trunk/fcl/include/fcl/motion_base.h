@@ -55,10 +55,10 @@ public:
   virtual bool integrate(double dt) = 0;
 
   /** \brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects */
-  virtual BVH_REAL computeMotionBound(const BV& bv, const Vec3f& n) const = 0;
+  virtual FCL_REAL computeMotionBound(const BV& bv, const Vec3f& n) const = 0;
 
   /** \brief Compute the motion bound for a triangle, given the closest direction n between two query objects */
-  virtual BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const = 0;
+  virtual FCL_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const = 0;
 
   /** \brief Get the rotation and translation in current step */
   virtual void getCurrentTransform(Matrix3f& R, Vec3f& T) const = 0;

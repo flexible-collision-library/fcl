@@ -118,12 +118,12 @@ template<typename BV, typename OrientedNode>
 static inline bool setupPointCloudCollisionOrientedNode(OrientedNode& node, 
                                                         BVHModel<BV>& model1, const SimpleTransform& tf1,
                                                         BVHModel<BV>& model2, const SimpleTransform& tf2,
-                                                        BVH_REAL collision_prob_threshold,
+                                                        FCL_REAL collision_prob_threshold,
                                                         int leaf_size_threshold,
                                                         int num_max_contacts,
                                                         bool exhaustive,
                                                         bool enable_contact,
-                                                        BVH_REAL expand_r)
+                                                        FCL_REAL expand_r)
 {
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD)
       || !(model2.getModelType() == BVH_MODEL_TRIANGLES || model2.getModelType() == BVH_MODEL_POINTCLOUD))
@@ -162,12 +162,12 @@ static inline bool setupPointCloudCollisionOrientedNode(OrientedNode& node,
 bool initialize(PointCloudCollisionTraversalNodeOBB& node,
                 BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 BVHModel<OBB>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold,
+                FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
                 bool exhaustive,
                 bool enable_contact,
-                BVH_REAL expand_r)
+                FCL_REAL expand_r)
 {
   return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
 }
@@ -176,12 +176,12 @@ bool initialize(PointCloudCollisionTraversalNodeOBB& node,
 bool initialize(PointCloudCollisionTraversalNodeRSS& node,
                 BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 BVHModel<RSS>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold,
+                FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
                 bool exhaustive,
                 bool enable_contact,
-                BVH_REAL expand_r)
+                FCL_REAL expand_r)
 {
   return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
 }
@@ -193,12 +193,12 @@ template<typename BV, typename OrientedNode>
 static inline bool setupPointCloudMeshCollisionOrientedNode(OrientedNode& node,
                                                             BVHModel<BV>& model1, const SimpleTransform& tf1,
                                                             const BVHModel<BV>& model2, const SimpleTransform& tf2,
-                                                            BVH_REAL collision_prob_threshold,
+                                                            FCL_REAL collision_prob_threshold,
                                                             int leaf_size_threshold,
                                                             int num_max_contacts,
                                                             bool exhaustive,
                                                             bool enable_contact,
-                                                            BVH_REAL expand_r)
+                                                            FCL_REAL expand_r)
 {
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD) || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -233,12 +233,12 @@ static inline bool setupPointCloudMeshCollisionOrientedNode(OrientedNode& node,
 bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
                 BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBB>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold,
+                FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
                 bool exhaustive,
                 bool enable_contact,
-                BVH_REAL expand_r)
+                FCL_REAL expand_r)
 {
   return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
 }
@@ -247,12 +247,12 @@ bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
 bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
                 BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold,
+                FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
                 int num_max_contacts,
                 bool exhaustive,
                 bool enable_contact,
-                BVH_REAL expand_r)
+                FCL_REAL expand_r)
 {
   return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
 }

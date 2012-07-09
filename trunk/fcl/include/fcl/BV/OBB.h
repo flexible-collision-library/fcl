@@ -88,31 +88,31 @@ public:
   OBB operator + (const OBB& other) const;
 
   /** \brief Width of the OBB */
-  inline BVH_REAL width() const
+  inline FCL_REAL width() const
   {
     return 2 * extent[0];
   }
 
   /** \brief Height of the OBB */
-  inline BVH_REAL height() const
+  inline FCL_REAL height() const
   {
     return 2 * extent[1];
   }
 
   /** \brief Depth of the OBB */
-  inline BVH_REAL depth() const
+  inline FCL_REAL depth() const
   {
     return 2 * extent[2];
   }
 
   /** \brief Volume of the OBB */
-  inline BVH_REAL volume() const
+  inline FCL_REAL volume() const
   {
     return width() * height() * depth();
   }
 
   /** \brief Size of the OBB, for split order */
-  inline BVH_REAL size() const
+  inline FCL_REAL size() const
   {
     return extent.sqrLength();
   }
@@ -126,7 +126,7 @@ public:
   /** \brief The distance between two OBB
    * Not implemented
    */
-  BVH_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  FCL_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
 
 private:

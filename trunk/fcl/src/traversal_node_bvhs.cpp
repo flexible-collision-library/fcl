@@ -73,7 +73,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& q2 = vertices2[tri_id2[1]];
   const Vec3f& q3 = vertices2[tri_id2[2]];
 
-  BVH_REAL penetration;
+  FCL_REAL penetration;
   Vec3f normal;
   int n_contacts;
   Vec3f contacts[2];
@@ -117,7 +117,7 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
                                                        Vec3f& p2,
                                                        int& last_tri_id1,
                                                        int& last_tri_id2,
-                                                       BVH_REAL& min_distance)
+                                                       FCL_REAL& min_distance)
 {
   if(enable_statistics) num_leaf_tests++;
 
@@ -141,7 +141,7 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
   // nearest point pair
   Vec3f P1, P2;
 
-  BVH_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
+  FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
                                              R, T,
                                              P1, P2);
 
@@ -288,11 +288,11 @@ static inline void pointCloudCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                               Vec3f* vertices1, Vec3f* vertices2,
                                                               const Matrix3f& R, const Vec3f& T,
                                                               bool enable_statistics,
-                                                              BVH_REAL collision_prob_threshold,
+                                                              FCL_REAL collision_prob_threshold,
                                                               const boost::shared_arry<Uncertainty>& uc1, const boost::shared_array<Uncertainty>& uc2,
                                                               const CloudClassifierParam classifier_param,
                                                               int& num_leaf_tests,
-                                                              BVH_REAL& max_collision_prob,
+                                                              FCL_REAL& max_collision_prob,
                                                               std::vector<BVHPointCollisionPair>& pairs)
 {
   if(enable_statistics) num_leaf_tests++;
@@ -300,7 +300,7 @@ static inline void pointCloudCollisionOrientedNodeLeafTesting(int b1, int b2,
   const BVNode<BV>& node1 = model1->getBV(b1);
   const BVNode<BV>& node2 = model2->getBV(b2);
   
-  BVH_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
+  FCL_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
                                                              node1.num_primitives,
                                                              vertices2 + node2.first_primitive, uc2.get() + node2.first_primitive,
                                                              node2.num_primitives,
@@ -378,10 +378,10 @@ static inline void pointCloudMeshCollisionOrientedNodeLeafTesting(int b1, int b2
                                                                   Triangle* tri_indices2,
                                                                   const Matrix3f& R, const Vec3f& T,
                                                                   bool enable_statistics,
-                                                                  BVH_REAL collision_prob_threshold,
+                                                                  FCL_REAL collision_prob_threshold,
                                                                   const boost::shared_array<Uncertainty>& uc1,
                                                                   int& num_leaf_tests,
-                                                                  BVH_REAL& max_collision_prob,
+                                                                  FCL_REAL& max_collision_prob,
                                                                   std::vector<BVHPointCollisionPair>& pairs)
 {
   if(enable_statistics) num_leaf_tests++;
@@ -396,7 +396,7 @@ static inline void pointCloudMeshCollisionOrientedNodeLeafTesting(int b1, int b2
   const Vec3f& q2 = vertices2[tri_id2[1]];
   const Vec3f& q3 = vertices2[tri_id2[2]];
 
-  BVH_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
+  FCL_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
                                                                      node1.num_primitives,
                                                                      q1, q2, q3,
                                                                      R, T);
@@ -466,7 +466,7 @@ static inline void distance_preprocess(Vec3f* vertices1, Vec3f* vertices2,
                                        Triangle* tri_indices1, Triangle* tri_indices2,
                                        int last_tri_id1, int last_tri_id2,
                                        const Matrix3f& R, const Vec3f& T,
-                                       BVH_REAL& min_distance,
+                                       FCL_REAL& min_distance,
                                        Vec3f& p1,
                                        Vec3f& p2)
 {
@@ -516,7 +516,7 @@ void MeshDistanceTraversalNodeRSS::postprocess()
   distance_postprocess(R, T, p2);
 }
 
-BVH_REAL MeshDistanceTraversalNodeRSS::BVTesting(int b1, int b2) const
+FCL_REAL MeshDistanceTraversalNodeRSS::BVTesting(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
@@ -545,7 +545,7 @@ void MeshDistanceTraversalNodekIOS::postprocess()
   distance_postprocess(R, T, p2);
 }
 
-BVH_REAL MeshDistanceTraversalNodekIOS::BVTesting(int b1, int b2) const
+FCL_REAL MeshDistanceTraversalNodekIOS::BVTesting(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
@@ -574,7 +574,7 @@ void MeshDistanceTraversalNodeOBBRSS::postprocess()
   distance_postprocess(R, T, p2);
 }
 
-BVH_REAL MeshDistanceTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
+FCL_REAL MeshDistanceTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
   return distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
@@ -590,12 +590,12 @@ void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 
 /** for OBB and RSS, there is local coordinate of BV, so normal need to be transformed */
 template<>
-bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
+bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
 {
   if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
   {
     const ConservativeAdvancementStackData& data = stack.back();
-    BVH_REAL d = data.d;
+    FCL_REAL d = data.d;
     Vec3f n;
     int c1, c2;
 
@@ -619,12 +619,12 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
 
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[1] +  model1->getBV(c1).bv.axis[2] * n[2];
 
-    BVH_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
-    BVH_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
+    FCL_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
 
-    BVH_REAL bound = bound1 + bound2;
+    FCL_REAL bound = bound1 + bound2;
 
-    BVH_REAL cur_delta_t;
+    FCL_REAL cur_delta_t;
     if(bound <= c) cur_delta_t = 1;
     else cur_delta_t = c / bound;
 
@@ -638,7 +638,7 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
   else
   {
     const ConservativeAdvancementStackData& data = stack.back();
-    BVH_REAL d = data.d;
+    FCL_REAL d = data.d;
 
     if(d > c)
       stack[stack.size() - 2] = stack[stack.size() - 1];
@@ -650,12 +650,12 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const
 }
 
 template<>
-bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
+bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const
 {
   if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
   {
     const ConservativeAdvancementStackData& data = stack.back();
-    BVH_REAL d = data.d;
+    FCL_REAL d = data.d;
     Vec3f n;
     int c1, c2;
 
@@ -679,12 +679,12 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
 
     Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[1] +  model1->getBV(c1).bv.axis[2] * n[2];
 
-    BVH_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
-    BVH_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
+    FCL_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
 
-    BVH_REAL bound = bound1 + bound2;
+    FCL_REAL bound = bound1 + bound2;
 
-    BVH_REAL cur_delta_t;
+    FCL_REAL cur_delta_t;
     if(bound <= c) cur_delta_t = 1;
     else cur_delta_t = c / bound;
 
@@ -698,7 +698,7 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
   else
   {
     const ConservativeAdvancementStackData& data = stack.back();
-    BVH_REAL d = data.d;
+    FCL_REAL d = data.d;
 
     if(d > c)
       stack[stack.size() - 2] = stack[stack.size() - 1];
@@ -710,17 +710,17 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const
 }
 
 
-MeshConservativeAdvancementTraversalNodeRSS::MeshConservativeAdvancementTraversalNodeRSS(BVH_REAL w_) : MeshConservativeAdvancementTraversalNode<RSS>(w_)
+MeshConservativeAdvancementTraversalNodeRSS::MeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_) : MeshConservativeAdvancementTraversalNode<RSS>(w_)
 {
   R.setIdentity();
   // default T is 0
 }
 
-BVH_REAL MeshConservativeAdvancementTraversalNodeRSS::BVTesting(int b1, int b2) const
+FCL_REAL MeshConservativeAdvancementTraversalNodeRSS::BVTesting(int b1, int b2) const
 {
   if(enable_statistics) num_bv_tests++;
   Vec3f P1, P2;
-  BVH_REAL d = distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv, &P1, &P2);
+  FCL_REAL d = distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv, &P1, &P2);
 
   stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
@@ -752,7 +752,7 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
   // nearest point pair
   Vec3f P1, P2;
 
-  BVH_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
+  FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
                                              R, T,
                                              P1, P2);
 
@@ -775,12 +775,12 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
   motion1->getCurrentRotation(R0);
   Vec3f n_transformed = R0 * n;
   n_transformed.normalize();
-  BVH_REAL bound1 = motion1->computeMotionBound(t11, t12, t13, n_transformed);
-  BVH_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, -n_transformed);
+  FCL_REAL bound1 = motion1->computeMotionBound(t11, t12, t13, n_transformed);
+  FCL_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, -n_transformed);
 
-  BVH_REAL bound = bound1 + bound2;
+  FCL_REAL bound = bound1 + bound2;
 
-  BVH_REAL cur_delta_t;
+  FCL_REAL cur_delta_t;
   if(bound <= d) cur_delta_t = 1;
   else cur_delta_t = d / bound;
 
@@ -788,12 +788,12 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
     delta_t = cur_delta_t;
 }
 
-bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
+bool MeshConservativeAdvancementTraversalNodeRSS::canStop(FCL_REAL c) const
 {
   if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
   {
     const ConservativeAdvancementStackData& data = stack.back();
-    BVH_REAL d = data.d;
+    FCL_REAL d = data.d;
     Vec3f n;
     int c1, c2;
 
@@ -822,12 +822,12 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
     n_transformed = R0 * n_transformed;
     n_transformed.normalize();
 
-    BVH_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
-    BVH_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
+    FCL_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
 
-    BVH_REAL bound = bound1 + bound2;
+    FCL_REAL bound = bound1 + bound2;
 
-    BVH_REAL cur_delta_t;
+    FCL_REAL cur_delta_t;
     if(bound <= c) cur_delta_t = 1;
     else cur_delta_t = c / bound;
 
@@ -841,7 +841,7 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(BVH_REAL c) const
   else
   {
     const ConservativeAdvancementStackData& data = stack.back();
-    BVH_REAL d = data.d;
+    FCL_REAL d = data.d;
 
     if(d > c)
       stack[stack.size() - 2] = stack[stack.size() - 1];

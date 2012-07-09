@@ -37,10 +37,10 @@
 #ifndef FCL_BVH_INTERNAL_H
 #define FCL_BVH_INTERNAL_H
 
+#include "fcl/data_types.h"
+
 namespace fcl
 {
-
-typedef double BVH_REAL;
 
 /** \brief States for BVH construction
  * empty->begun->processed ->replace_begun->processed -> ......

@@ -12,7 +12,7 @@ namespace fcl
 
 struct Contact
 {
-  BVH_REAL penetration_depth;
+  FCL_REAL penetration_depth;
   Vec3f normal;
   Vec3f pos;
   const CollisionGeometry* o1;
@@ -37,7 +37,7 @@ struct Contact
   }
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_,
-          const Vec3f& pos_, const Vec3f& normal_, BVH_REAL depth_)
+          const Vec3f& pos_, const Vec3f& normal_, FCL_REAL depth_)
   {
     o1 = o1_;
     o2 = o2_;
@@ -73,11 +73,11 @@ struct DistanceData
 {
   DistanceData()
   {
-    min_distance = std::numeric_limits<BVH_REAL>::max();
+    min_distance = std::numeric_limits<FCL_REAL>::max();
     done = false;
   }
 
-  BVH_REAL min_distance;
+  FCL_REAL min_distance;
   bool done;
 };
 

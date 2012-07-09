@@ -91,27 +91,27 @@ public:
     return result;
   }
 
-  inline BVH_REAL width() const
+  inline FCL_REAL width() const
   {
     return obb.width();
   }
 
-  inline BVH_REAL height() const
+  inline FCL_REAL height() const
   {
     return obb.height();
   }
 
-  inline BVH_REAL depth() const
+  inline FCL_REAL depth() const
   {
     return obb.depth();
   }
 
-  inline BVH_REAL volume() const
+  inline FCL_REAL volume() const
   {
     return obb.volume();
   }
 
-  inline BVH_REAL size() const
+  inline FCL_REAL size() const
   {
     return obb.size();
   }
@@ -121,7 +121,7 @@ public:
     return obb.center();
   }
 
-  BVH_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
+  FCL_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
   {
     return rss.distance(other.rss, P, Q);
   }
@@ -130,7 +130,7 @@ public:
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2);
 
-BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
 
 }
 

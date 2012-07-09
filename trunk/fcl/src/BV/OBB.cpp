@@ -63,7 +63,7 @@ bool OBB::overlap(const OBB& other) const
 bool OBB::contain(const Vec3f& p) const
 {
   Vec3f local_p = p - To;
-  BVH_REAL proj = local_p.dot(axis[0]);
+  FCL_REAL proj = local_p.dot(axis[0]);
   if((proj > extent[0]) || (proj < -extent[0]))
     return false;
 
@@ -95,8 +95,8 @@ OBB& OBB::operator += (const Vec3f& p)
 OBB OBB::operator + (const OBB& other) const
 {
   Vec3f center_diff = To - other.To;
-  BVH_REAL max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
-  BVH_REAL max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
+  FCL_REAL max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
+  FCL_REAL max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
   if(center_diff.length() > 2 * (max_extent + max_extent2))
   {
     return merge_largedist(*this, other);
@@ -110,8 +110,8 @@ OBB OBB::operator + (const OBB& other) const
 
 bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b)
 {
-  register BVH_REAL t, s;
-  const BVH_REAL reps = 1e-6;
+  register FCL_REAL t, s;
+  const FCL_REAL reps = 1e-6;
 
   Matrix3f Bf = abs(B);
   Bf += reps;
@@ -259,7 +259,7 @@ OBB OBB::merge_largedist(const OBB& b1, const OBB& b2)
   b2.computeVertices(vertex + 8);
   Matrix3f M;
   Vec3f E[3];
-  BVH_REAL s[3] = {0, 0, 0};
+  FCL_REAL s[3] = {0, 0, 0};
 
   // obb axes
   Vec3f& R0 = b.axis[0];
@@ -308,13 +308,13 @@ OBB OBB::merge_smalldist(const OBB& b1, const OBB& b2)
     q1 = -q1;
 
   SimpleQuaternion q = q0 + q1;
-  BVH_REAL inv_length = 1.0 / sqrt(q.dot(q));
+  FCL_REAL inv_length = 1.0 / sqrt(q.dot(q));
   q = q * inv_length;
   q.toAxes(b.axis);
 
 
   Vec3f vertex[8], diff;
-  BVH_REAL real_max = std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
   Vec3f pmin(real_max, real_max, real_max);
   Vec3f pmax(-real_max, -real_max, -real_max);
 
@@ -324,7 +324,7 @@ OBB OBB::merge_smalldist(const OBB& b1, const OBB& b2)
     diff = vertex[i] - b.To;
     for(int j = 0; j < 3; ++j)
     {
-      BVH_REAL dot = diff.dot(b.axis[j]);
+      FCL_REAL dot = diff.dot(b.axis[j]);
       if(dot > pmax[j])
         pmax[j] = dot;
       else if(dot < pmin[j])
@@ -338,7 +338,7 @@ OBB OBB::merge_smalldist(const OBB& b1, const OBB& b2)
     diff = vertex[i] - b.To;
     for(int j = 0; j < 3; ++j)
     {
-      BVH_REAL dot = diff.dot(b.axis[j]);
+      FCL_REAL dot = diff.dot(b.axis[j]);
       if(dot > pmax[j])
         pmax[j] = dot;
       else if(dot < pmin[j])
@@ -356,7 +356,7 @@ OBB OBB::merge_smalldist(const OBB& b1, const OBB& b2)
 }
 
 
-BVH_REAL OBB::distance(const OBB& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL OBB::distance(const OBB& other, Vec3f* P, Vec3f* Q) const
 {
   std::cerr << "OBB distance not implemented!" << std::endl;
   return 0.0;

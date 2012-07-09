@@ -41,20 +41,20 @@
 
 namespace fcl
 {
-const BVH_REAL PolySolver::NEAR_ZERO_THRESHOLD = 1e-9;
+const FCL_REAL PolySolver::NEAR_ZERO_THRESHOLD = 1e-9;
 
 
-bool PolySolver::isZero(BVH_REAL v)
+bool PolySolver::isZero(FCL_REAL v)
 {
   return (v < NEAR_ZERO_THRESHOLD) && (v > -NEAR_ZERO_THRESHOLD);
 }
 
-bool PolySolver::cbrt(BVH_REAL v)
+bool PolySolver::cbrt(FCL_REAL v)
 {
   return powf(v, 1.0 / 3.0);
 }
 
-int PolySolver::solveLinear(BVH_REAL c[2], BVH_REAL s[1])
+int PolySolver::solveLinear(FCL_REAL c[2], FCL_REAL s[1])
 {
   if(isZero(c[1]))
     return 0;
@@ -62,9 +62,9 @@ int PolySolver::solveLinear(BVH_REAL c[2], BVH_REAL s[1])
   return 1;
 }
 
-int PolySolver::solveQuadric(BVH_REAL c[3], BVH_REAL s[2])
+int PolySolver::solveQuadric(FCL_REAL c[3], FCL_REAL s[2])
 {
-  BVH_REAL p, q, D;
+  FCL_REAL p, q, D;
 
   // make sure we have a d2 equation
 
@@ -78,7 +78,7 @@ int PolySolver::solveQuadric(BVH_REAL c[3], BVH_REAL s[2])
 
   if(isZero(D))
   {
-    // one BVH_REAL root
+    // one FCL_REAL root
     s[0] = s[1] = -p;
     return 1;
   }
@@ -89,19 +89,19 @@ int PolySolver::solveQuadric(BVH_REAL c[3], BVH_REAL s[2])
   else
   {
     // two real roots
-    BVH_REAL sqrt_D = sqrt(D);
+    FCL_REAL sqrt_D = sqrt(D);
     s[0] = sqrt_D - p;
     s[1] = -sqrt_D - p;
     return 2;
   }
 }
 
-int PolySolver::solveCubic(BVH_REAL c[4], BVH_REAL s[3])
+int PolySolver::solveCubic(FCL_REAL c[4], FCL_REAL s[3])
 {
   int i, num;
-  BVH_REAL sub, A, B, C, sq_A, p, q, cb_p, D;
-  const BVH_REAL ONE_OVER_THREE = 1 / 3.0;
-  const BVH_REAL PI = 3.14159265358979323846;
+  FCL_REAL sub, A, B, C, sq_A, p, q, cb_p, D;
+  const FCL_REAL ONE_OVER_THREE = 1 / 3.0;
+  const FCL_REAL PI = 3.14159265358979323846;
 
   // make sure we have a d2 equation
   if(isZero(c[3]))
@@ -131,8 +131,8 @@ int PolySolver::solveCubic(BVH_REAL c[4], BVH_REAL s[3])
     }
     else
     {
-      // one single and one BVH_REAL solution
-      BVH_REAL u = cbrt(-q);
+      // one single and one FCL_REAL solution
+      FCL_REAL u = cbrt(-q);
       s[0] = 2.0 * u;
       s[1] = -u;
       num = 2;
@@ -143,8 +143,8 @@ int PolySolver::solveCubic(BVH_REAL c[4], BVH_REAL s[3])
     if(D < 0.0)
     {
       // three real solutions
-      BVH_REAL phi = ONE_OVER_THREE * acos(-q / sqrt(-cb_p));
-      BVH_REAL t = 2.0 * sqrt(-p);
+      FCL_REAL phi = ONE_OVER_THREE * acos(-q / sqrt(-cb_p));
+      FCL_REAL t = 2.0 * sqrt(-p);
       s[0] = t * cos(phi);
       s[1] = -t * cos(phi + PI / 3.0);
       s[2] = -t * cos(phi - PI / 3.0);
@@ -153,8 +153,8 @@ int PolySolver::solveCubic(BVH_REAL c[4], BVH_REAL s[3])
     else
     {
       // one real solution
-      BVH_REAL sqrt_D = sqrt(D);
-      BVH_REAL u = cbrt(sqrt_D + fabs(q));
+      FCL_REAL sqrt_D = sqrt(D);
+      FCL_REAL u = cbrt(sqrt_D + fabs(q));
       if(q > 0.0)
         s[0] = - u + p / u ;
       else
@@ -280,12 +280,12 @@ CloudClassifierParam::CloudClassifierParam()
 
 #endif
 
-const BVH_REAL Intersect::EPSILON = 1e-5;
-const BVH_REAL Intersect::NEAR_ZERO_THRESHOLD = 1e-7;
-const BVH_REAL Intersect::CCD_RESOLUTION = 1e-7;
+const FCL_REAL Intersect::EPSILON = 1e-5;
+const FCL_REAL Intersect::NEAR_ZERO_THRESHOLD = 1e-7;
+const FCL_REAL Intersect::CCD_RESOLUTION = 1e-7;
 
 
-bool Intersect::isZero(BVH_REAL v)
+bool Intersect::isZero(FCL_REAL v)
 {
   return (v < NEAR_ZERO_THRESHOLD) && (v > -NEAR_ZERO_THRESHOLD);
 }
@@ -295,11 +295,11 @@ bool Intersect::isZero(BVH_REAL v)
  */
 bool Intersect::solveCubicWithIntervalNewton(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                                          const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                         BVH_REAL& l, BVH_REAL& r, bool bVF, BVH_REAL coeffs[], Vec3f* data)
+                                         FCL_REAL& l, FCL_REAL& r, bool bVF, FCL_REAL coeffs[], Vec3f* data)
 {
-  BVH_REAL v2[2]= {l*l,r*r};
-  BVH_REAL v[2]= {l,r};
-  BVH_REAL r_backup;
+  FCL_REAL v2[2]= {l*l,r*r};
+  FCL_REAL v[2]= {l,r};
+  FCL_REAL r_backup;
 
   unsigned char min3, min2, min1, max3, max2, max1;
 
@@ -309,25 +309,25 @@ bool Intersect::solveCubicWithIntervalNewton(const Vec3f& a0, const Vec3f& b0, c
 
   // bound the cubic
 
-  BVH_REAL minor = coeffs[3]*v2[min3]*v[min3]+coeffs[2]*v2[min2]+coeffs[1]*v[min1]+coeffs[0];
-  BVH_REAL major = coeffs[3]*v2[max3]*v[max3]+coeffs[2]*v2[max2]+coeffs[1]*v[max1]+coeffs[0];
+  FCL_REAL minor = coeffs[3]*v2[min3]*v[min3]+coeffs[2]*v2[min2]+coeffs[1]*v[min1]+coeffs[0];
+  FCL_REAL major = coeffs[3]*v2[max3]*v[max3]+coeffs[2]*v2[max2]+coeffs[1]*v[max1]+coeffs[0];
 
   if(major<0) return false;
   if(minor>0) return false;
 
   // starting here, the bounds have opposite values
-  BVH_REAL m = 0.5 * (r + l);
+  FCL_REAL m = 0.5 * (r + l);
 
   // bound the derivative
-  BVH_REAL dminor = 3.0*coeffs[3]*v2[min3]+2.0*coeffs[2]*v[min2]+coeffs[1];
-  BVH_REAL dmajor = 3.0*coeffs[3]*v2[max3]+2.0*coeffs[2]*v[max2]+coeffs[1];
+  FCL_REAL dminor = 3.0*coeffs[3]*v2[min3]+2.0*coeffs[2]*v[min2]+coeffs[1];
+  FCL_REAL dmajor = 3.0*coeffs[3]*v2[max3]+2.0*coeffs[2]*v[max2]+coeffs[1];
 
   if((dminor > 0)||(dmajor < 0)) // we can use Newton
   {
-    BVH_REAL m2 = m*m;
-    BVH_REAL fm = coeffs[3]*m2*m+coeffs[2]*m2+coeffs[1]*m+coeffs[0];
-    BVH_REAL nl = m;
-    BVH_REAL nu = m;
+    FCL_REAL m2 = m*m;
+    FCL_REAL fm = coeffs[3]*m2*m+coeffs[2]*m2+coeffs[1]*m+coeffs[0];
+    FCL_REAL nl = m;
+    FCL_REAL nu = m;
     if(fm>0)
     {
       nl-=(fm/dminor);
@@ -402,7 +402,7 @@ bool Intersect::insideLineSegment(const Vec3f& a, const Vec3f& b, const Vec3f& p
             Return FALSE if no solution exists.
 */
 bool Intersect::linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3, const Vec3f& p4,
-                              Vec3f* pa, Vec3f* pb, BVH_REAL* mua, BVH_REAL* mub)
+                              Vec3f* pa, Vec3f* pb, FCL_REAL* mua, FCL_REAL* mub)
 {
   Vec3f p31 = p1 - p3;
   Vec3f p34 = p4 - p3;
@@ -413,16 +413,16 @@ bool Intersect::linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f&
   if(fabs(p12[0]) < EPSILON && fabs(p12[1]) < EPSILON && fabs(p12[2]) < EPSILON)
     return false;
 
-  BVH_REAL d3134 = p31.dot(p34);
-  BVH_REAL d3412 = p34.dot(p12);
-  BVH_REAL d3112 = p31.dot(p12);
-  BVH_REAL d3434 = p34.dot(p34);
-  BVH_REAL d1212 = p12.dot(p12);
+  FCL_REAL d3134 = p31.dot(p34);
+  FCL_REAL d3412 = p34.dot(p12);
+  FCL_REAL d3112 = p31.dot(p12);
+  FCL_REAL d3434 = p34.dot(p34);
+  FCL_REAL d1212 = p12.dot(p12);
 
-  BVH_REAL denom = d1212 * d3434 - d3412 * d3412;
+  FCL_REAL denom = d1212 * d3434 - d3412 * d3412;
   if(fabs(denom) < EPSILON)
     return false;
-  BVH_REAL numer = d3134 * d3412 - d3112 * d3434;
+  FCL_REAL numer = d3134 * d3412 - d3112 * d3434;
 
   *mua = numer / denom;
   if(*mua < 0 || *mua > 1)
@@ -439,21 +439,21 @@ bool Intersect::linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f&
 
 bool Intersect::checkRootValidity_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                                  const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
-                                 BVH_REAL t)
+                                 FCL_REAL t)
 {
   return insideTriangle(a0 + va * t, b0 + vb * t, c0 + vc * t, p0 + vp * t);
 }
 
 bool Intersect::checkRootValidity_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                                  const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                 BVH_REAL t, Vec3f* q_i)
+                                 FCL_REAL t, Vec3f* q_i)
 {
   Vec3f a = a0 + va * t;
   Vec3f b = b0 + vb * t;
   Vec3f c = c0 + vc * t;
   Vec3f d = d0 + vd * t;
   Vec3f p1, p2;
-  BVH_REAL t_ab, t_cd;
+  FCL_REAL t_ab, t_cd;
   if(linelineIntersect(a, b, c, d, &p1, &p2, &t_ab, &t_cd))
   {
     if(q_i) *q_i = p1;
@@ -465,26 +465,26 @@ bool Intersect::checkRootValidity_EE(const Vec3f& a0, const Vec3f& b0, const Vec
 
 bool Intersect::checkRootValidity_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
                                  const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
-                                 BVH_REAL t)
+                                 FCL_REAL t)
 {
   return insideLineSegment(a0 + va * t, b0 + vb * t, p0 + vp * t);
 }
 
-bool Intersect::solveSquare(BVH_REAL a, BVH_REAL b, BVH_REAL c,
+bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
                         const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                         const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
                         bool bVF,
-                        BVH_REAL* ret)
+                        FCL_REAL* ret)
 {
-  BVH_REAL discriminant = b * b - 4 * a * c;
+  FCL_REAL discriminant = b * b - 4 * a * c;
   if(discriminant < 0)
     return false;
 
-  BVH_REAL sqrt_dis = sqrt(discriminant);
-  BVH_REAL r1 = (-b + sqrt_dis) / (2 * a);
+  FCL_REAL sqrt_dis = sqrt(discriminant);
+  FCL_REAL r1 = (-b + sqrt_dis) / (2 * a);
   bool v1 = (r1 >= 0.0 && r1 <= 1.0) ? ((bVF) ? checkRootValidity_VF(a0, b0, c0, d0, va, vb, vc, vd, r1) : checkRootValidity_EE(a0, b0, c0, d0, va, vb, vc, vd, r1)) : false;
 
-  BVH_REAL r2 = (-b - sqrt_dis) / (2 * a);
+  FCL_REAL r2 = (-b - sqrt_dis) / (2 * a);
   bool v2 = (r2 >= 0.0 && r2 <= 1.0) ? ((bVF) ? checkRootValidity_VF(a0, b0, c0, d0, va, vb, vc, vd, r2) : checkRootValidity_EE(a0, b0, c0, d0, va, vb, vc, vd, r2)) : false;
 
   if(v1 && v2)
@@ -506,27 +506,27 @@ bool Intersect::solveSquare(BVH_REAL a, BVH_REAL b, BVH_REAL c,
   return false;
 }
 
-bool Intersect::solveSquare(BVH_REAL a, BVH_REAL b, BVH_REAL c,
+bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
                         const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
                         const Vec3f& va, const Vec3f& vb, const Vec3f& vp)
 {
   if(isZero(a))
   {
-    BVH_REAL t = -c/b;
+    FCL_REAL t = -c/b;
     return (t >= 0 && t <= 1) ? checkRootValidity_VE(a0, b0, p0, va, vb, vp, t) : false;
   }
 
-  BVH_REAL discriminant = b*b-4*a*c;
+  FCL_REAL discriminant = b*b-4*a*c;
   if(discriminant < 0)
     return false;
 
-  BVH_REAL sqrt_dis = sqrt(discriminant);
+  FCL_REAL sqrt_dis = sqrt(discriminant);
 
-  BVH_REAL r1 = (-b+sqrt_dis) / (2 * a);
+  FCL_REAL r1 = (-b+sqrt_dis) / (2 * a);
   bool v1 = (r1 >= 0.0 && r1 <= 1.0) ? checkRootValidity_VE(a0, b0, p0, va, vb, vp, r1) : false;
   if(v1) return true;
 
-  BVH_REAL r2 = (-b-sqrt_dis) / (2 * a);
+  FCL_REAL r2 = (-b-sqrt_dis) / (2 * a);
   bool v2 = (r2 >= 0.0 && r2 <= 1.0) ? checkRootValidity_VE(a0, b0, p0, va, vb, vp, r2) : false;
   return v2;
 }
@@ -538,7 +538,7 @@ bool Intersect::solveSquare(BVH_REAL a, BVH_REAL b, BVH_REAL c,
  */
 void Intersect::computeCubicCoeff_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                                  const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
-                                 BVH_REAL* a, BVH_REAL* b, BVH_REAL* c, BVH_REAL* d)
+                                 FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
 {
   Vec3f vavb = vb - va;
   Vec3f vavc = vc - va;
@@ -560,7 +560,7 @@ void Intersect::computeCubicCoeff_VF(const Vec3f& a0, const Vec3f& b0, const Vec
 
 void Intersect::computeCubicCoeff_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                                  const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                 BVH_REAL* a, BVH_REAL* b, BVH_REAL* c, BVH_REAL* d)
+                                 FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
 {
   Vec3f vavb = vb - va;
   Vec3f vcvd = vd - vc;
@@ -582,7 +582,7 @@ void Intersect::computeCubicCoeff_EE(const Vec3f& a0, const Vec3f& b0, const Vec
 void Intersect::computeCubicCoeff_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
                                  const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
                                  const Vec3f& L,
-                                 BVH_REAL* a, BVH_REAL* b, BVH_REAL* c)
+                                 FCL_REAL* a, FCL_REAL* b, FCL_REAL* c)
 {
   Vec3f vbva = va - vb;
   Vec3f vbvp = vp - vb;
@@ -600,7 +600,7 @@ void Intersect::computeCubicCoeff_VE(const Vec3f& a0, const Vec3f& b0, const Vec
 
 bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                          const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                         BVH_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   *collision_time = 2.0;
 
@@ -610,7 +610,7 @@ bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   vb = b1 - b0;
   vc = c1 - c0;
 
-  BVH_REAL a, b, c, d;
+  FCL_REAL a, b, c, d;
   computeCubicCoeff_VF(a0, b0, c0, p0, va, vb, vc, vp, &a, &b, &c, &d);
 
   if(isZero(a) && isZero(b) && isZero(c) && isZero(d))
@@ -626,13 +626,13 @@ bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   */
 
 
-  BVH_REAL coeffs[4];
+  FCL_REAL coeffs[4];
   coeffs[3] = a, coeffs[2] = b, coeffs[1] = c, coeffs[0] = d;
 
   if(useNewton)
   {
-    BVH_REAL l = 0;
-    BVH_REAL r = 1;
+    FCL_REAL l = 0;
+    FCL_REAL r = 1;
 
     if(solveCubicWithIntervalNewton(a0, b0, c0, p0, va, vb, vc, vp, l, r, true, coeffs))
     {
@@ -641,11 +641,11 @@ bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   }
   else
   {
-    BVH_REAL roots[3];
+    FCL_REAL roots[3];
     int num = PolySolver::solveCubic(coeffs, roots);
     for(int i = 0; i < num; ++i)
     {
-      BVH_REAL r = roots[i];
+      FCL_REAL r = roots[i];
       if(r < 0 || r > 1) continue;
       if(checkRootValidity_VF(a0, b0, c0, p0, va, vb, vc, vp, r))
       {
@@ -666,7 +666,7 @@ bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
 
 bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                          const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                         BVH_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   *collision_time = 2.0;
 
@@ -676,7 +676,7 @@ bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   vc = c1 - c0;
   vd = d1 - d0;
 
-  BVH_REAL a, b, c, d;
+  FCL_REAL a, b, c, d;
   computeCubicCoeff_EE(a0, b0, c0, d0, va, vb, vc, vd, &a, &b, &c, &d);
 
   if(isZero(a) && isZero(b) && isZero(c) && isZero(d))
@@ -690,13 +690,13 @@ bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   }
   */
 
-  BVH_REAL coeffs[4];
+  FCL_REAL coeffs[4];
   coeffs[3] = a, coeffs[2] = b, coeffs[1] = c, coeffs[0] = d;
 
   if(useNewton)
   {
-    BVH_REAL l = 0;
-    BVH_REAL r = 1;
+    FCL_REAL l = 0;
+    FCL_REAL r = 1;
 
     if(solveCubicWithIntervalNewton(a0, b0, c0, d0, va, vb, vc, vd, l, r, false, coeffs, p_i))
     {
@@ -705,11 +705,11 @@ bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   }
   else
   {
-    BVH_REAL roots[3];
+    FCL_REAL roots[3];
     int num = PolySolver::solveCubic(coeffs, roots);
     for(int i = 0; i < num; ++i)
     {
-      BVH_REAL r = roots[i];
+      FCL_REAL r = roots[i];
       if(r < 0 || r > 1) continue;
 
       if(checkRootValidity_EE(a0, b0, c0, d0, va, vb, vc, vd, r, p_i))
@@ -738,7 +738,7 @@ bool Intersect::intersect_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
   vb = b1 - b0;
   vp = p1 - p0;
 
-  BVH_REAL a, b, c;
+  FCL_REAL a, b, c;
   computeCubicCoeff_VE(a0, b0, p0, va, vb, vp, L, &a, &b, &c);
 
   if(isZero(a) && isZero(b) && isZero(c))
@@ -764,12 +764,12 @@ bool Intersect::intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Ve
   Vec3f a0d0 = d0 - a0;
   Vec3f a1d1 = d1 - a1;
 
-  BVH_REAL A = n0.dot(a0d0);
-  BVH_REAL B = n1.dot(a1d1);
-  BVH_REAL C = nx.dot(a0d0);
-  BVH_REAL D = nx.dot(a1d1);
-  BVH_REAL E = n1.dot(a0d0);
-  BVH_REAL F = n0.dot(a1d1);
+  FCL_REAL A = n0.dot(a0d0);
+  FCL_REAL B = n1.dot(a1d1);
+  FCL_REAL C = nx.dot(a0d0);
+  FCL_REAL D = nx.dot(a1d1);
+  FCL_REAL E = n1.dot(a0d0);
+  FCL_REAL F = n0.dot(a1d1);
 
   if(A > 0 && B > 0 && (2*C +F) > 0 && (2*D+E) > 0)
     return false;
@@ -781,7 +781,7 @@ bool Intersect::intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Ve
 
 bool Intersect::intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
                          const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                         BVH_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   if(intersectPreFiltering(a0, b0, c0, p0, a1, b1, c1, p1))
   {
@@ -793,7 +793,7 @@ bool Intersect::intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Ve
 
 bool Intersect::intersect_EE_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
                          const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                         BVH_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   if(intersectPreFiltering(a0, b0, c0, d0, a1, b1, c1, d1))
   {
@@ -808,7 +808,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
                                    const Matrix3f& R, const Vec3f& T,
                                    Vec3f* contact_points,
                                    unsigned int* num_contact_points,
-                                   BVH_REAL* penetration_depth,
+                                   FCL_REAL* penetration_depth,
                                    Vec3f* normal)
 {
   Vec3f Q1_ = R * Q1 + T;
@@ -823,18 +823,18 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
                                    const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
                                    Vec3f* contact_points,
                                    unsigned int* num_contact_points,
-                                   BVH_REAL* penetration_depth,
+                                   FCL_REAL* penetration_depth,
                                    Vec3f* normal)
 {
 
 
   Vec3f n1;
-  BVH_REAL t1;
+  FCL_REAL t1;
   bool b1 = buildTrianglePlane(P1, P2, P3, &n1, &t1);
   if(!b1) return false;
 
   Vec3f n2;
-  BVH_REAL t2;
+  FCL_REAL t2;
   bool b2 = buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
   if(!b2) return false;
 
@@ -853,7 +853,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
   unsigned int num_deepest_points1 = 0;
   Vec3f deepest_points2[MAX_TRIANGLE_CLIPS];
   unsigned int num_deepest_points2 = 0;
-  BVH_REAL penetration_depth1 = -1, penetration_depth2 = -1;
+  FCL_REAL penetration_depth1 = -1, penetration_depth2 = -1;
 
   clipTriangleByTriangleAndEdgePlanes(Q1, Q2, Q3, P1, P2, P3, n1, t1, clipped_points2, &num_clipped_points2);
 
@@ -907,7 +907,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
                                    const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
                                    Vec3f* contact_points,
                                    unsigned int* num_contact_points,
-                                   BVH_REAL* penetration_depth,
+                                   FCL_REAL* penetration_depth,
                                    Vec3f* normal)
 {
   Vec3f p1 = P1 - P1;
@@ -977,7 +977,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
   if(contact_points && num_contact_points && penetration_depth && normal)
   {
     Vec3f n1, n2;
-    BVH_REAL t1, t2;
+    FCL_REAL t1, t2;
     buildTrianglePlane(P1, P2, P3, &n1, &t1);
     buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
 
@@ -985,7 +985,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
     unsigned int num_deepest_points1 = 0;
     Vec3f deepest_points2[3];
     unsigned int num_deepest_points2 = 0;
-    BVH_REAL penetration_depth1, penetration_depth2;
+    FCL_REAL penetration_depth1, penetration_depth2;
 
     Vec3f P[3] = {P1, P2, P3};
     Vec3f Q[3] = {Q1, Q2, Q3};
@@ -1023,10 +1023,10 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
 #endif
 
 
-void Intersect::computeDeepestPoints(Vec3f* clipped_points, unsigned int num_clipped_points, const Vec3f& n, BVH_REAL t, BVH_REAL* penetration_depth, Vec3f* deepest_points, unsigned int* num_deepest_points)
+void Intersect::computeDeepestPoints(Vec3f* clipped_points, unsigned int num_clipped_points, const Vec3f& n, FCL_REAL t, FCL_REAL* penetration_depth, Vec3f* deepest_points, unsigned int* num_deepest_points)
 {
   *num_deepest_points = 0;
-  BVH_REAL max_depth = -std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL max_depth = -std::numeric_limits<FCL_REAL>::max();
   unsigned int num_deepest_points_ = 0;
   unsigned int num_neg = 0;
   unsigned int num_pos = 0;
@@ -1034,7 +1034,7 @@ void Intersect::computeDeepestPoints(Vec3f* clipped_points, unsigned int num_cli
 
   for(unsigned int i = 0; i < num_clipped_points; ++i)
   {
-    BVH_REAL dist = -distanceToPlane(n, t, clipped_points[i]);
+    FCL_REAL dist = -distanceToPlane(n, t, clipped_points[i]);
     if(dist > EPSILON) num_pos++;
     else if(dist < -EPSILON) num_neg++;
     else num_zero++;
@@ -1063,7 +1063,7 @@ void Intersect::computeDeepestPoints(Vec3f* clipped_points, unsigned int num_cli
 
 void Intersect::clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3,
                                                     const Vec3f& t1, const Vec3f& t2, const Vec3f& t3,
-                                                    const Vec3f& tn, BVH_REAL to,
+                                                    const Vec3f& tn, FCL_REAL to,
                                                     Vec3f clipped_points[], unsigned int* num_clipped_points,
                                                     bool clip_triangle)
 {
@@ -1075,7 +1075,7 @@ void Intersect::clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f
   Vec3f v[3] = {v1, v2, v3};
 
   Vec3f plane_n;
-  BVH_REAL plane_dist;
+  FCL_REAL plane_dist;
 
   if(buildEdgePlane(t1, t2, tn, &plane_n, &plane_dist))
   {
@@ -1109,7 +1109,7 @@ void Intersect::clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f
   }
 }
 
-void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polygon_points, const Vec3f& n, BVH_REAL t, Vec3f clipped_points[], unsigned int* num_clipped_points)
+void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polygon_points, const Vec3f& n, FCL_REAL t, Vec3f clipped_points[], unsigned int* num_clipped_points)
 {
   *num_clipped_points = 0;
 
@@ -1120,7 +1120,7 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
   for(unsigned int i = 0; i <= num_polygon_points; ++i)
   {
     vi = (i % num_polygon_points);
-    BVH_REAL d = distanceToPlane(n, t, polygon_points[i]);
+    FCL_REAL d = distanceToPlane(n, t, polygon_points[i]);
     classify = ((d > EPSILON) ? 1 : 0);
     if(classify == 0)
     {
@@ -1191,20 +1191,20 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
   *num_clipped_points = num_clipped_points_;
 }
 
-void Intersect::clipSegmentByPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& n, BVH_REAL t, Vec3f* clipped_point)
+void Intersect::clipSegmentByPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& n, FCL_REAL t, Vec3f* clipped_point)
 {
-  BVH_REAL dist1 = distanceToPlane(n, t, v1);
+  FCL_REAL dist1 = distanceToPlane(n, t, v1);
   Vec3f tmp = v2 - v1;
-  BVH_REAL dist2 = tmp.dot(n);
+  FCL_REAL dist2 = tmp.dot(n);
   *clipped_point = tmp * (-dist1 / dist2) + v1;
 }
 
-BVH_REAL Intersect::distanceToPlane(const Vec3f& n, BVH_REAL t, const Vec3f& v)
+FCL_REAL Intersect::distanceToPlane(const Vec3f& n, FCL_REAL t, const Vec3f& v)
 {
   return n.dot(v) - t;
 }
 
-bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, BVH_REAL* t)
+bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t)
 {
   Vec3f n_ = (v2 - v1).cross(v3 - v1);
   if(n_.normalize())
@@ -1217,7 +1217,7 @@ bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f
   return false;
 }
 
-bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, BVH_REAL* t)
+bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, FCL_REAL* t)
 {
   Vec3f n_ = (v2 - v1).cross(tn);
   if(n_.normalize())
@@ -1230,11 +1230,11 @@ bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn
   return false;
 }
 
-bool Intersect::sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& n, BVH_REAL t)
+bool Intersect::sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& n, FCL_REAL t)
 {
-  BVH_REAL dist1 = distanceToPlane(n, t, v1);
-  BVH_REAL dist2 = dist1 * distanceToPlane(n, t, v2);
-  BVH_REAL dist3 = dist1 * distanceToPlane(n, t, v3);
+  FCL_REAL dist1 = distanceToPlane(n, t, v1);
+  FCL_REAL dist2 = dist1 * distanceToPlane(n, t, v2);
+  FCL_REAL dist3 = dist1 * distanceToPlane(n, t, v3);
   if((dist2 > 0) && (dist3 > 0))
     return true;
   return false;
@@ -1244,19 +1244,19 @@ int Intersect::project6(const Vec3f& ax,
                       const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
                       const Vec3f& q1, const Vec3f& q2, const Vec3f& q3)
 {
-  BVH_REAL P1 = ax.dot(p1);
-  BVH_REAL P2 = ax.dot(p2);
-  BVH_REAL P3 = ax.dot(p3);
-  BVH_REAL Q1 = ax.dot(q1);
-  BVH_REAL Q2 = ax.dot(q2);
-  BVH_REAL Q3 = ax.dot(q3);
+  FCL_REAL P1 = ax.dot(p1);
+  FCL_REAL P2 = ax.dot(p2);
+  FCL_REAL P3 = ax.dot(p3);
+  FCL_REAL Q1 = ax.dot(q1);
+  FCL_REAL Q2 = ax.dot(q2);
+  FCL_REAL Q3 = ax.dot(q3);
 
-  BVH_REAL mn1 = std::min(P1, std::min(P2, P3));
-  BVH_REAL mx2 = std::max(Q1, std::max(Q2, Q3));
+  FCL_REAL mn1 = std::min(P1, std::min(P2, P3));
+  FCL_REAL mx2 = std::max(Q1, std::max(Q2, Q3));
   if(mn1 > mx2) return 0;
 
-  BVH_REAL mx1 = std::max(P1, std::max(P2, P3));
-  BVH_REAL mn2 = std::min(Q1, std::min(Q2, Q3));
+  FCL_REAL mx1 = std::max(P1, std::max(P2, P3));
+  FCL_REAL mn2 = std::min(Q1, std::min(Q2, Q3));
 
   if(mn2 > mx1) return 0;
   return 1;
@@ -1319,7 +1319,7 @@ void Intersect::kernelGradient(KERNEL_PARM *kernel_parm, DOC *a, DOC *b, Vec3f& 
   }
 }
 
-BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                           Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
                                           const CloudClassifierParam& solver, bool scaling)
 {
@@ -1422,7 +1422,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
     }
   }
 
-  BVH_REAL S[3];
+  FCL_REAL S[3];
   S[0] = 1 / (bbmax[0] - bbmin[0]);
   S[1] = 1 / (bbmax[1] - bbmin[1]);
   S[2] = 1 / (bbmax[2] - bbmin[2]);
@@ -1431,7 +1431,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
   {
     for(int i = 0; i < totdoc; ++i)
     {
-      BVH_REAL f = docs[i]->fvec->words[0].weight;
+      FCL_REAL f = docs[i]->fvec->words[0].weight;
       docs[i]->fvec->words[0].weight = (f - bbmin[0]) * S[0];
       f = docs[i]->fvec->words[1].weight;
       docs[i]->fvec->words[1].weight = (f - bbmin[1]) * S[1];
@@ -1474,14 +1474,14 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
       if (i < nPositiveExamples)
       {
         double sigma = uc1[i].Sigma.quadraticForm(fgrad);
-        BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
+        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
       else
       {
         double sigma = uc2[i - nPositiveExamples].Sigma.quadraticForm(fgrad);
-        BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
+        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
@@ -1506,7 +1506,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
   return max_collision_prob;
 }
 
-BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                           Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
                                           const Matrix3f& R, const Vec3f& T, const CloudClassifierParam& solver, bool scaling)
 {
@@ -1610,7 +1610,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
     }
   }
 
-  BVH_REAL S[3];
+  FCL_REAL S[3];
   S[0] = 1 / (bbmax[0] - bbmin[0]);
   S[1] = 1 / (bbmax[1] - bbmin[1]);
   S[2] = 1 / (bbmax[2] - bbmin[2]);
@@ -1619,7 +1619,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
   {
     for(int i = 0; i < totdoc; ++i)
     {
-      BVH_REAL f = docs[i]->fvec->words[0].weight;
+      FCL_REAL f = docs[i]->fvec->words[0].weight;
       docs[i]->fvec->words[0].weight = (f - bbmin[0]) * S[0];
       f = docs[i]->fvec->words[1].weight;
       docs[i]->fvec->words[1].weight = (f - bbmin[1]) * S[1];
@@ -1662,7 +1662,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
       if (i < nPositiveExamples)
       {
         double sigma = uc1[i].Sigma.quadraticForm(fgrad);
-        BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
+        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
@@ -1670,7 +1670,7 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
       {
         Matrix3f rotatedSigma = R.tensorTransform(uc2[i - nPositiveExamples].Sigma);
         double sigma = rotatedSigma.quadraticForm(fgrad);
-        BVH_REAL col_prob = gaussianCDF(f / sqrt(sigma));
+        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
@@ -1696,11 +1696,11 @@ BVH_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 }
 
 
-BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                               const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3)
 {
   // get the plane x * n - t = 0 and the compute the projection matrix according to (I - nn^t) y + t * n = y'
-  BVH_REAL t;
+  FCL_REAL t;
   Vec3f n;
   bool b_plane = buildTrianglePlane(Q1, Q2, Q3, &n, &t);
   if(!b_plane)
@@ -1709,7 +1709,7 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
     return 0.0;
   }
 
-  BVH_REAL edge_t[3];
+  FCL_REAL edge_t[3];
   Vec3f edge_n[3];
 
   bool b_edge_plane1 = buildEdgePlane(Q1, Q2, n, edge_n + 0, edge_t + 0);
@@ -1739,7 +1739,7 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 
    Vec3f delta = n * t;
 
-   BVH_REAL max_prob = 0;
+   FCL_REAL max_prob = 0;
    for(int i = 0; i < size_cloud1; ++i)
    {
      Vec3f projected_p = P * cloud1[i] + delta;
@@ -1753,17 +1753,17 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 
      if(b_inside)
      {
-       BVH_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(newS.quadraticForm(edge_n[0])));
-       BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(newS.quadraticForm(edge_n[1])));
-       BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(newS.quadraticForm(edge_n[2])));
-       BVH_REAL prob = 1.0 - prob1 - prob2 - prob3;
+       FCL_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(newS.quadraticForm(edge_n[0])));
+       FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(newS.quadraticForm(edge_n[1])));
+       FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(newS.quadraticForm(edge_n[2])));
+       FCL_REAL prob = 1.0 - prob1 - prob2 - prob3;
        if(prob > max_prob) max_prob = prob;
      }
      else
      {
-       BVH_REAL d1 = projected_p.dot(edge_n[0]) - edge_t[0];
-       BVH_REAL d2 = projected_p.dot(edge_n[1]) - edge_t[1];
-       BVH_REAL d3 = projected_p.dot(edge_n[2]) - edge_t[2];
+       FCL_REAL d1 = projected_p.dot(edge_n[0]) - edge_t[0];
+       FCL_REAL d2 = projected_p.dot(edge_n[1]) - edge_t[1];
+       FCL_REAL d3 = projected_p.dot(edge_n[2]) - edge_t[2];
 
        std::vector<int> pos_plane;
        std::vector<int> neg_plane;
@@ -1774,29 +1774,29 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
        if(pos_plane.size() == 1)
        {
          int pos_id = pos_plane[0];
-         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(newS.quadraticForm(edge_n[pos_id])));
+         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(newS.quadraticForm(edge_n[pos_id])));
 
          int neg_id1 = neg_plane[0];
          int neg_id2 = neg_plane[1];
-         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
-         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
+         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
+         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
 
-         BVH_REAL prob = prob1 - prob2 - prob3;
+         FCL_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;
 
        }
        else if(pos_plane.size() == 2)
        {
          int neg_id = neg_plane[0];
-         BVH_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(newS.quadraticForm(edge_n[neg_id])));
+         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(newS.quadraticForm(edge_n[neg_id])));
 
          int pos_id1 = pos_plane[0];
          int pos_id2 = pos_plane[1];
 
-         BVH_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(newS.quadraticForm(edge_n[pos_id1])));
-         BVH_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(newS.quadraticForm(edge_n[pos_id2])));
+         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(newS.quadraticForm(edge_n[pos_id1])));
+         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(newS.quadraticForm(edge_n[pos_id2])));
 
-         BVH_REAL prob = prob1 - prob2 - prob3;
+         FCL_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;
        }
        else
@@ -1810,7 +1810,7 @@ BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 }
 
 
-BVH_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
                                               const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
                                               const Matrix3f& R, const Vec3f& T)
 {
@@ -1828,7 +1828,7 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
                                  Vec3f& VEC, Vec3f& X, Vec3f& Y)
 {
   Vec3f T;
-  BVH_REAL A_dot_A, B_dot_B, A_dot_B, A_dot_T, B_dot_T;
+  FCL_REAL A_dot_A, B_dot_B, A_dot_B, A_dot_T, B_dot_T;
   Vec3f TMP;
 
   T = Q - P;
@@ -1841,12 +1841,12 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
   // t parameterizes ray P,A
   // u parameterizes ray Q,B
 
-  BVH_REAL t, u;
+  FCL_REAL t, u;
 
   // compute t for the closest point on ray P,A to
   // ray Q,B
 
-  BVH_REAL denom = A_dot_A*B_dot_B - A_dot_B*A_dot_B;
+  FCL_REAL denom = A_dot_A*B_dot_B - A_dot_B*A_dot_B;
 
   t = (A_dot_T*B_dot_B - B_dot_T*A_dot_B) / denom;
 
@@ -1939,7 +1939,7 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
 }
 
 
-BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q)
 {
   // Compute vectors along the 6 sides
 
@@ -1964,7 +1964,7 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   // points found, and whether the triangles were shown disjoint
 
   Vec3f V, Z, minP, minQ;
-  BVH_REAL mindd;
+  FCL_REAL mindd;
   int shown_disjoint = 0;
 
   mindd = (S[0] - T[0]).sqrLength() + 1; // Set first minimum safely high
@@ -1978,7 +1978,7 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
       segPoints(S[i], Sv[i], T[j], Tv[j], VEC, P, Q);
 
       V = Q - P;
-      BVH_REAL dd = V.dot(V);
+      FCL_REAL dd = V.dot(V);
 
       // Verify this closest point pair only if the distance
       // squared is less than the minimum found thus far.
@@ -1990,13 +1990,13 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
         mindd = dd;
 
         Z = S[(i+2)%3] - P;
-        BVH_REAL a = Z.dot(VEC);
+        FCL_REAL a = Z.dot(VEC);
         Z = T[(j+2)%3] - Q;
-        BVH_REAL b = Z.dot(VEC);
+        FCL_REAL b = Z.dot(VEC);
 
         if((a <= 0) && (b >= 0)) return sqrt(dd);
 
-        BVH_REAL p = V.dot(VEC);
+        FCL_REAL p = V.dot(VEC);
 
         if(a < 0) a = 0;
         if(b > 0) b = 0;
@@ -2022,7 +2022,7 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   // First check for case 1
 
   Vec3f Sn;
-  BVH_REAL Snl;
+  FCL_REAL Snl;
 
   Sn = Sv[0].cross(Sv[1]); // Compute normal to S triangle
   Snl = Sn.dot(Sn);        // Compute square of length of normal
@@ -2092,7 +2092,7 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   }
 
   Vec3f Tn;
-  BVH_REAL Tnl;
+  FCL_REAL Tnl;
 
   Tn = Tv[0].cross(Tv[1]);
   Tnl = Tn.dot(Tn);
@@ -2162,7 +2162,7 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
 }
 
 
-BVH_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                                        const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
                                        Vec3f& P, Vec3f& Q)
 {
@@ -2174,7 +2174,7 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const V
   return triDistance(S, T, P, Q);
 }
 
-BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
+FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
                                        const Matrix3f& R, const Vec3f& Tl,
                                        Vec3f& P, Vec3f& Q)
 {
@@ -2186,7 +2186,7 @@ BVH_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
   return triDistance(S, T_transformed, P, Q);
 }
 
-BVH_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                                        const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
                                        const Matrix3f& R, const Vec3f& Tl,
                                        Vec3f& P, Vec3f& Q)

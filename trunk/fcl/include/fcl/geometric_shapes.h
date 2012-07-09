@@ -73,7 +73,7 @@ public:
 class Box : public ShapeBase
 {
 public:
-  Box(BVH_REAL x, BVH_REAL y, BVH_REAL z) : ShapeBase(), side(x, y, z) {}
+  Box(FCL_REAL x, FCL_REAL y, FCL_REAL z) : ShapeBase(), side(x, y, z) {}
 
   /** box side length */
   Vec3f side;
@@ -89,10 +89,10 @@ public:
 class Sphere : public ShapeBase
 {
 public:
-  Sphere(BVH_REAL radius_) : ShapeBase(), radius(radius_) {}
+  Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_) {}
   
   /** \brief Radius of the sphere */
-  BVH_REAL radius;
+  FCL_REAL radius;
 
   /** \brief Compute AABB */
   void computeLocalAABB();
@@ -105,13 +105,13 @@ public:
 class Capsule : public ShapeBase
 {
 public:
-  Capsule(BVH_REAL radius_, BVH_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
+  Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
 
   /** \brief Radius of capsule */
-  BVH_REAL radius;
+  FCL_REAL radius;
 
   /** \brief Length along z axis */
-  BVH_REAL lz;
+  FCL_REAL lz;
 
   /** \brief Compute AABB */
   void computeLocalAABB();
@@ -124,13 +124,13 @@ public:
 class Cone : public ShapeBase
 {
 public:
-  Cone(BVH_REAL radius_, BVH_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
+  Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
   
   /** \brief Radius of the cone */
-  BVH_REAL radius;
+  FCL_REAL radius;
 
   /** \brief Length along z axis */
-  BVH_REAL lz;
+  FCL_REAL lz;
 
   /** \brief Compute AABB */
   void computeLocalAABB();
@@ -143,13 +143,13 @@ public:
 class Cylinder : public ShapeBase
 {
 public:
-  Cylinder(BVH_REAL radius_, BVH_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
+  Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_) {}
   
   /** \brief Radius of the cylinder */
-  BVH_REAL radius;
+  FCL_REAL radius;
 
   /** \brief Length along z axis */
-  BVH_REAL lz;
+  FCL_REAL lz;
 
   /** \brief Compute AABB */
   void computeLocalAABB();
@@ -164,7 +164,7 @@ class Convex : public ShapeBase
 public:
   /** Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information */
   Convex(Vec3f* plane_normals_,
-         BVH_REAL* plane_dis_,
+         FCL_REAL* plane_dis_,
          int num_planes_,
          Vec3f* points_,
          int num_points_,
@@ -183,7 +183,7 @@ public:
       sum += points[i];
     }
 
-    center = sum * (BVH_REAL)(1.0 / num_points);
+    center = sum * (FCL_REAL)(1.0 / num_points);
 
     fillEdges();
   }
@@ -213,7 +213,7 @@ public:
 
   
   Vec3f* plane_normals;
-  BVH_REAL* plane_dis;
+  FCL_REAL* plane_dis;
 
   /** An array of indices to the points of each polygon, it should be the number of vertices
    * followed by that amount of indices to "points" in counter clockwise order
@@ -245,10 +245,10 @@ class Plane : public ShapeBase
 {
 public:
   /** \brief Construct a plane with normal direction and offset */
-  Plane(const Vec3f& n_, BVH_REAL d_) : ShapeBase(), n(n_), d(d_) { unitNormalTest(); }
+  Plane(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) { unitNormalTest(); }
   
   /** \brief Construct a plane with normal direction and offset */
-  Plane(BVH_REAL a, BVH_REAL b, BVH_REAL c, BVH_REAL d_) : n(a, b, c), d(d_)
+  Plane(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : n(a, b, c), d(d_)
   {
     unitNormalTest();
   }
@@ -263,7 +263,7 @@ public:
   Vec3f n;
 
   /** \brief Plane offset */
-  BVH_REAL d;
+  FCL_REAL d;
 
 protected:
   

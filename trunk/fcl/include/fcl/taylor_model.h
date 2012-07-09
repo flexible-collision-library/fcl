@@ -49,35 +49,35 @@ namespace fcl
 struct TaylorModel
 {
   /** \brief Coefficients of the cubic polynomial approximation */
-  BVH_REAL coeffs_[4];
+  FCL_REAL coeffs_[4];
 
   /** \brief interval remainder */
   Interval r_;
 
-  void setTimeInterval(BVH_REAL l, BVH_REAL r);
+  void setTimeInterval(FCL_REAL l, FCL_REAL r);
 
   TaylorModel();
-  TaylorModel(BVH_REAL coeff);
-  TaylorModel(BVH_REAL coeffs[3], const Interval& r);
-  TaylorModel(BVH_REAL c0, BVH_REAL c1, BVH_REAL c2, BVH_REAL c3, const Interval& r);
+  TaylorModel(FCL_REAL coeff);
+  TaylorModel(FCL_REAL coeffs[3], const Interval& r);
+  TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r);
 
   TaylorModel operator + (const TaylorModel& other) const;
   TaylorModel operator - (const TaylorModel& other) const;
   TaylorModel& operator += (const TaylorModel& other);
   TaylorModel& operator -= (const TaylorModel& other);
   TaylorModel operator * (const TaylorModel& other) const;
-  TaylorModel operator * (BVH_REAL d) const;
+  TaylorModel operator * (FCL_REAL d) const;
   TaylorModel operator - () const;
 
   void print() const;
 
   Interval getBound() const;
-  Interval getBound(BVH_REAL l, BVH_REAL r) const;
+  Interval getBound(FCL_REAL l, FCL_REAL r) const;
 
   Interval getTightBound() const;
-  Interval getTightBound(BVH_REAL l, BVH_REAL r) const;
+  Interval getTightBound(FCL_REAL l, FCL_REAL r) const;
 
-  Interval getBound(BVH_REAL t) const;
+  Interval getBound(FCL_REAL t) const;
 
   void setZero();
 
@@ -89,12 +89,12 @@ struct TaylorModel
   Interval t5_; // [t1, t2]^5
   Interval t6_; // [t1, t2]^6
 
-  static const BVH_REAL PI_;
+  static const FCL_REAL PI_;
 };
 
-void generateTaylorModelForCosFunc(TaylorModel& tm, BVH_REAL w, BVH_REAL q0);
-void generateTaylorModelForSinFunc(TaylorModel& tm, BVH_REAL w, BVH_REAL q0);
-void generateTaylorModelForLinearFunc(TaylorModel& tm, BVH_REAL p, BVH_REAL v);
+void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0);
+void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0);
+void generateTaylorModelForLinearFunc(TaylorModel& tm, FCL_REAL p, FCL_REAL v);
 
 }
 

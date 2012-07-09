@@ -100,7 +100,7 @@ public:
 
     Vec3f cur_T = Td[0] * getWeight0(dt) + Td[1] * getWeight1(dt) + Td[2] * getWeight2(dt) + Td[3] * getWeight3(dt);
     Vec3f cur_w = Rd[0] * getWeight0(dt) + Rd[1] * getWeight1(dt) + Rd[2] * getWeight2(dt) + Rd[3] * getWeight3(dt);
-    BVH_REAL cur_angle = cur_w.length();
+    FCL_REAL cur_angle = cur_w.length();
     cur_w.normalize();
 
     SimpleQuaternion cur_q;
@@ -116,20 +116,20 @@ public:
   /** \brief Compute the motion bound for a bounding volume along a given direction n
    * For general BV, not implemented so return trivial 0
    */
-  BVH_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
+  FCL_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
 
-  BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
+  FCL_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
   {
-    BVH_REAL T_bound = computeTBound(n);
+    FCL_REAL T_bound = computeTBound(n);
 
-    BVH_REAL R_bound = fabs(a.dot(n)) + a.length() + (a.cross(n)).length();
-    BVH_REAL R_bound_tmp = fabs(b.dot(n)) + b.length() + (b.cross(n)).length();
+    FCL_REAL R_bound = fabs(a.dot(n)) + a.length() + (a.cross(n)).length();
+    FCL_REAL R_bound_tmp = fabs(b.dot(n)) + b.length() + (b.cross(n)).length();
     if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
     R_bound_tmp = fabs(c.dot(n)) + c.length() + (c.cross(n)).length();
     if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
 
-    BVH_REAL dWdW_max = computeDWMax();
-    BVH_REAL ratio = std::min(1 - tf_t, dWdW_max);
+    FCL_REAL dWdW_max = computeDWMax();
+    FCL_REAL ratio = std::min(1 - tf_t, dWdW_max);
 
     R_bound *= 2 * ratio;
 
@@ -166,33 +166,33 @@ protected:
 
   }
 
-  BVH_REAL getWeight0(BVH_REAL t) const
+  FCL_REAL getWeight0(FCL_REAL t) const
   {
     return (1 - 3 * t + 3 * t * t - t * t * t) / 6.0;
   }
 
-  BVH_REAL getWeight1(BVH_REAL t) const
+  FCL_REAL getWeight1(FCL_REAL t) const
   {
     return (4 - 6 * t * t + 3 * t * t * t) / 6.0;
   }
 
-  BVH_REAL getWeight2(BVH_REAL t) const
+  FCL_REAL getWeight2(FCL_REAL t) const
   {
     return (1 + 3 * t + 3 * t * t - 3 * t * t * t) / 6.0;
   }
 
-  BVH_REAL getWeight3(BVH_REAL t) const
+  FCL_REAL getWeight3(FCL_REAL t) const
   {
     return t * t * t / 6.0;
   }
 
-  BVH_REAL computeTBound(const Vec3f& n) const
+  FCL_REAL computeTBound(const Vec3f& n) const
   {
-    BVH_REAL Ta = TA.dot(n);
-    BVH_REAL Tb = TB.dot(n);
-    BVH_REAL Tc = TC.dot(n);
+    FCL_REAL Ta = TA.dot(n);
+    FCL_REAL Tb = TB.dot(n);
+    FCL_REAL Tc = TC.dot(n);
 
-    std::vector<BVH_REAL> T_potential;
+    std::vector<FCL_REAL> T_potential;
     T_potential.push_back(tf_t);
     T_potential.push_back(1);
     if(Tb * Tb - 3 * Ta * Tc >= 0)
@@ -201,16 +201,16 @@ protected:
       {
         if(Tb != 0)
         {
-          BVH_REAL tmp = -Tc / (2 * Tb);
+          FCL_REAL tmp = -Tc / (2 * Tb);
           if(tmp < 1 && tmp > tf_t)
             T_potential.push_back(tmp);
         }
       }
       else
       {
-        BVH_REAL tmp_delta = sqrt(Tb * Tb - 3 * Ta * Tc);
-        BVH_REAL tmp1 = (-Tb + tmp_delta) / (3 * Ta);
-        BVH_REAL tmp2 = (-Tb - tmp_delta) / (3 * Ta);
+        FCL_REAL tmp_delta = sqrt(Tb * Tb - 3 * Ta * Tc);
+        FCL_REAL tmp1 = (-Tb + tmp_delta) / (3 * Ta);
+        FCL_REAL tmp2 = (-Tb - tmp_delta) / (3 * Ta);
         if(tmp1 < 1 && tmp1 > tf_t)
           T_potential.push_back(tmp1);
         if(tmp2 < 1 && tmp2 > tf_t)
@@ -218,15 +218,15 @@ protected:
       }
     }
 
-    BVH_REAL T_bound = Ta * T_potential[0] * T_potential[0] * T_potential[0] + Tb * T_potential[0] * T_potential[0] + Tc * T_potential[0];
+    FCL_REAL T_bound = Ta * T_potential[0] * T_potential[0] * T_potential[0] + Tb * T_potential[0] * T_potential[0] + Tc * T_potential[0];
     for(unsigned int i = 1; i < T_potential.size(); ++i)
     {
-      BVH_REAL T_bound_tmp = Ta * T_potential[i] * T_potential[i] * T_potential[i] + Tb * T_potential[i] * T_potential[i] + Tc * T_potential[i];
+      FCL_REAL T_bound_tmp = Ta * T_potential[i] * T_potential[i] * T_potential[i] + Tb * T_potential[i] * T_potential[i] + Tc * T_potential[i];
       if(T_bound_tmp > T_bound) T_bound = T_bound_tmp;
     }
 
 
-    BVH_REAL cur_delta = Ta * tf_t * tf_t * tf_t + Tb * tf_t * tf_t + Tc * tf_t;
+    FCL_REAL cur_delta = Ta * tf_t * tf_t * tf_t + Tb * tf_t * tf_t + Tc * tf_t;
 
     T_bound -= cur_delta;
     T_bound /= 6.0;
@@ -234,7 +234,7 @@ protected:
     return T_bound;
   }
 
-  BVH_REAL computeDWMax() const
+  FCL_REAL computeDWMax() const
   {
     // first compute ||w'||
     int a00[5] = {1,-4,6,-4,1};
@@ -248,7 +248,7 @@ protected:
     int a23[5] = {-3,2,1,0,0};
     int a33[5] = {1,0,0,0,0};
 
-    BVH_REAL a[5];
+    FCL_REAL a[5];
 
     for(int i = 0; i < 5; ++i)
     {
@@ -271,7 +271,7 @@ protected:
     int da23[4] = {-12,6,2,0};
     int da33[4] = {4,0,0,0};
 
-    BVH_REAL da[4];
+    FCL_REAL da[4];
     for(int i = 0; i < 4; ++i)
     {
       da[i] = Rd0Rd0 * da00[i] + Rd0Rd1 * da01[i] + Rd0Rd2 * da02[i] + Rd0Rd3 * da03[i]
@@ -281,20 +281,20 @@ protected:
       da[i] /= 4.0;
     }
 
-    BVH_REAL roots[3];
+    FCL_REAL roots[3];
 
     int root_num = PolySolver::solveCubic(da, roots);
 
-    BVH_REAL dWdW_max = a[0] * tf_t * tf_t * tf_t + a[1] * tf_t * tf_t * tf_t + a[2] * tf_t * tf_t + a[3] * tf_t + a[4];
-    BVH_REAL dWdW_1 = a[0] + a[1] + a[2] + a[3] + a[4];
+    FCL_REAL dWdW_max = a[0] * tf_t * tf_t * tf_t + a[1] * tf_t * tf_t * tf_t + a[2] * tf_t * tf_t + a[3] * tf_t + a[4];
+    FCL_REAL dWdW_1 = a[0] + a[1] + a[2] + a[3] + a[4];
     if(dWdW_max < dWdW_1) dWdW_max = dWdW_1;
     for(int i = 0; i < root_num; ++i)
     {
-      BVH_REAL v = roots[i];
+      FCL_REAL v = roots[i];
 
       if(v >= tf_t && v <= 1)
       {
-        BVH_REAL value = a[0] * v * v * v * v + a[1] * v * v * v + a[2] * v * v + a[3] * v + a[4];
+        FCL_REAL value = a[0] * v * v * v * v + a[1] * v * v * v + a[2] * v * v + a[3] * v + a[4];
         if(value > dWdW_max) dWdW_max = value;
       }
     }
@@ -308,12 +308,12 @@ protected:
   Vec3f TA, TB, TC;
   Vec3f RA, RB, RC;
 
-  BVH_REAL Rd0Rd0, Rd0Rd1, Rd0Rd2, Rd0Rd3, Rd1Rd1, Rd1Rd2, Rd1Rd3, Rd2Rd2, Rd2Rd3, Rd3Rd3;
+  FCL_REAL Rd0Rd0, Rd0Rd1, Rd0Rd2, Rd0Rd3, Rd1Rd1, Rd1Rd2, Rd1Rd3, Rd2Rd2, Rd2Rd3, Rd3Rd3;
   /** \brief The transformation at current time t */
   SimpleTransform tf;
 
   /** \brief The time related with tf */
-  BVH_REAL tf_t;
+  FCL_REAL tf_t;
 };
 
 template<typename BV>
@@ -364,12 +364,12 @@ public:
   /** \brief Compute the motion bound for a bounding volume along a given direction n
    * For general BV, not implemented so return trivial 0
    */
-  BVH_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
+  FCL_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
 
-  BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
+  FCL_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
   {
-    BVH_REAL proj_max = ((tf.getQuatRotation().transform(a) + tf.getTranslation() - p).cross(axis)).sqrLength();
-    BVH_REAL tmp;
+    FCL_REAL proj_max = ((tf.getQuatRotation().transform(a) + tf.getTranslation() - p).cross(axis)).sqrLength();
+    FCL_REAL tmp;
     tmp = ((tf.getQuatRotation().transform(b) + tf.getTranslation() - p).cross(axis)).sqrLength();
     if(tmp > proj_max) proj_max = tmp;
     tmp = ((tf.getQuatRotation().transform(c) + tf.getTranslation() - p).cross(axis)).sqrLength();
@@ -377,9 +377,9 @@ public:
 
     proj_max = sqrt(proj_max);
 
-    BVH_REAL v_dot_n = axis.dot(n) * linear_vel;
-    BVH_REAL w_cross_n = (axis.cross(n)).length() * angular_vel;
-    BVH_REAL mu = v_dot_n + w_cross_n * proj_max;
+    FCL_REAL v_dot_n = axis.dot(n) * linear_vel;
+    FCL_REAL w_cross_n = (axis.cross(n)).length() * angular_vel;
+    FCL_REAL mu = v_dot_n + w_cross_n * proj_max;
 
     return mu;
   }
@@ -432,14 +432,14 @@ protected:
     }
   }
 
-  SimpleQuaternion deltaRotation(BVH_REAL dt) const
+  SimpleQuaternion deltaRotation(FCL_REAL dt) const
   {
     SimpleQuaternion res;
-    res.fromAxisAngle(axis, (BVH_REAL)(dt * angular_vel));
+    res.fromAxisAngle(axis, (FCL_REAL)(dt * angular_vel));
     return res;
   }
 
-  SimpleQuaternion absoluteRotation(BVH_REAL dt) const
+  SimpleQuaternion absoluteRotation(FCL_REAL dt) const
   {
     SimpleQuaternion delta_t = deltaRotation(dt);
     return delta_t * tf1.getQuatRotation();
@@ -461,10 +461,10 @@ protected:
   Vec3f p;
 
   /** \brief linear velocity along the axis */
-  BVH_REAL linear_vel;
+  FCL_REAL linear_vel;
 
   /** \brief angular velocity */
-  BVH_REAL angular_vel;
+  FCL_REAL angular_vel;
 };
 
 
@@ -474,7 +474,7 @@ protected:
  * Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
  */
 template<>
-BVH_REAL ScrewMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const;
+FCL_REAL ScrewMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const;
 
 
 /** \brief Linear interpolation motion
@@ -549,17 +549,17 @@ public:
   /** \brief Compute the motion bound for a bounding volume along a given direction n
    * For general BV, not implemented so return trivial 0
    */
-  BVH_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
+  FCL_REAL computeMotionBound(const BV& bv, const Vec3f& n) const { return 0.0; }
 
   /** \brief Compute the motion bound for a triangle along a given direction n
    * according to mu < |v * n| + ||w x n||(max||ci*||) where ||ci*|| = ||R0(ci) x w|| / \|w\|. w is the angular velocity
    * and ci are the triangle vertex coordinates.
    * Notice that the triangle is in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
    */
-  BVH_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
+  FCL_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const
   {
-    BVH_REAL proj_max = ((tf.getQuatRotation().transform(a - reference_p)).cross(angular_axis)).sqrLength();
-    BVH_REAL tmp;
+    FCL_REAL proj_max = ((tf.getQuatRotation().transform(a - reference_p)).cross(angular_axis)).sqrLength();
+    FCL_REAL tmp;
     tmp = ((tf.getQuatRotation().transform(b - reference_p)).cross(angular_axis)).sqrLength();
     if(tmp > proj_max) proj_max = tmp;
     tmp = ((tf.getQuatRotation().transform(c - reference_p)).cross(angular_axis)).sqrLength();
@@ -567,9 +567,9 @@ public:
 
     proj_max = sqrt(proj_max);
 
-    BVH_REAL v_dot_n = linear_vel.dot(n);
-    BVH_REAL w_cross_n = (angular_axis.cross(n)).length() * angular_vel;
-    BVH_REAL mu = v_dot_n + w_cross_n * proj_max;
+    FCL_REAL v_dot_n = linear_vel.dot(n);
+    FCL_REAL w_cross_n = (angular_axis.cross(n)).length() * angular_vel;
+    FCL_REAL mu = v_dot_n + w_cross_n * proj_max;
 
     return mu;
   }
@@ -611,14 +611,14 @@ protected:
   }
 
 
-  SimpleQuaternion deltaRotation(BVH_REAL dt) const
+  SimpleQuaternion deltaRotation(FCL_REAL dt) const
   {
     SimpleQuaternion res;
-    res.fromAxisAngle(angular_axis, (BVH_REAL)(dt * angular_vel));
+    res.fromAxisAngle(angular_axis, (FCL_REAL)(dt * angular_vel));
     return res;
   }
 
-  SimpleQuaternion absoluteRotation(BVH_REAL dt) const
+  SimpleQuaternion absoluteRotation(FCL_REAL dt) const
   {
     SimpleQuaternion delta_t = deltaRotation(dt);
     return delta_t * tf1.getQuatRotation();
@@ -637,7 +637,7 @@ protected:
   Vec3f linear_vel;
 
   /** \brief Angular speed */
-  BVH_REAL angular_vel;
+  FCL_REAL angular_vel;
 
   /** \brief Angular velocity axis */
   Vec3f angular_axis;
@@ -653,7 +653,7 @@ protected:
  * Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
  */
 template<>
-BVH_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const;
+FCL_REAL InterpMotion<RSS>::computeMotionBound(const RSS& bv, const Vec3f& n) const;
 
 
 }

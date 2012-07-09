@@ -52,14 +52,14 @@ class kIOS
   struct kIOS_Sphere
   {
     Vec3f o;
-    BVH_REAL r;
+    FCL_REAL r;
   };
 
   static kIOS_Sphere encloseSphere(const kIOS_Sphere& s0, const kIOS_Sphere& s1)
   {
     Vec3f d = s1.o - s0.o;
-    BVH_REAL dist2 = d.sqrLength();
-    BVH_REAL diff_r = s1.r - s0.r;
+    FCL_REAL dist2 = d.sqrLength();
+    FCL_REAL diff_r = s1.r - s0.r;
       
     /** The sphere with the larger radius encloses the other */
     if(diff_r * diff_r >= dist2)
@@ -124,22 +124,22 @@ public:
   }
 
   /** \brief width of the kIOS */
-  BVH_REAL width() const;
+  FCL_REAL width() const;
 
   /** \brief height of the kIOS */
-  BVH_REAL height() const;
+  FCL_REAL height() const;
 
   /** \brief depth of the kIOS */
-  BVH_REAL depth() const;
+  FCL_REAL depth() const;
 
   /** \brief volume of the kIOS */
-  BVH_REAL volume() const;
+  FCL_REAL volume() const;
 
   /** \brief size of the kIOS, for split order */
-  BVH_REAL size() const;
+  FCL_REAL size() const;
 
   /** \brief The distance between two kIOS */
-  BVH_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  FCL_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
 private:    
     
@@ -147,7 +147,7 @@ private:
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2);
 
-BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
 
 }
 

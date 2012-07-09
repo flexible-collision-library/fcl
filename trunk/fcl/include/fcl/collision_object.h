@@ -75,7 +75,7 @@ public:
   Vec3f aabb_center;
 
   /** AABB radius */
-  BVH_REAL aabb_radius;
+  FCL_REAL aabb_radius;
 
   /** pointer to user defined data specific to this object */
   void *user_data;

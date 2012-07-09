@@ -60,12 +60,12 @@ namespace fcl
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
 /** \brief distance function for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now */
-bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, BVH_REAL& dist);
+bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
 
 /** \brief return value is whether can stop now */
 typedef bool (*CollisionCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
-typedef bool (*DistanceCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata, BVH_REAL& dist);
+typedef bool (*DistanceCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
 
 /** \brief Base class for broad phase collision */
 class BroadPhaseCollisionManager
@@ -218,7 +218,7 @@ protected:
 /** \brief Spatial hash function: hash an AABB to a set of integer values */
 struct SpatialHash
 {
-  SpatialHash(const AABB& scene_limit_, BVH_REAL cell_size_)
+  SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_)
   {
     cell_size = cell_size_;
     scene_limit = scene_limit_;
@@ -253,7 +253,7 @@ struct SpatialHash
 
 private:
 
-  BVH_REAL cell_size;
+  FCL_REAL cell_size;
   AABB scene_limit;
   unsigned int width[3];
 };
@@ -263,7 +263,7 @@ template<typename HashTable = SimpleHashTable<AABB, CollisionObject*, SpatialHas
 class SpatialHashingCollisionManager : public BroadPhaseCollisionManager
 {
 public:
-  SpatialHashingCollisionManager(BVH_REAL cell_size, const Vec3f& scene_min, const Vec3f& scene_max, unsigned int default_table_size = 1000)
+  SpatialHashingCollisionManager(FCL_REAL cell_size, const Vec3f& scene_min, const Vec3f& scene_max, unsigned int default_table_size = 1000)
   {
     scene_limit = AABB(scene_min, scene_max);
     SpatialHash hasher(scene_limit, cell_size);
@@ -341,7 +341,7 @@ protected:
   bool collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
   /** \brief perform distance computation between one object and all the objects belonging ot the manager */
-  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
 
   // all objects in the scene
@@ -496,7 +496,7 @@ void SpatialHashingCollisionManager<HashTable>::collide(CollisionObject* obj, vo
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
 {
-  BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
   distance_(obj, cdata, callback, min_dist);
 }
 
@@ -541,13 +541,13 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
 }
 
 template<typename HashTable>
-bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const
+bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
   if(size() == 0) return false;
 
   Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB aabb = obj->getAABB();
-  if(min_dist < std::numeric_limits<BVH_REAL>::max())
+  if(min_dist < std::numeric_limits<FCL_REAL>::max())
   {
     Vec3f min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
@@ -556,7 +556,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
   AABB overlap_aabb;
 
   int status = 1;
-  BVH_REAL old_min_distance;
+  FCL_REAL old_min_distance;
 
   while(1)
   {
@@ -632,7 +632,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<BVH_REAL>::max())
+      if(old_min_distance < std::numeric_limits<FCL_REAL>::max())
         break;
       else
       {
@@ -703,7 +703,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(void* cdata, DistanceCa
   enable_tested_set_ = true;
   tested_set.clear();
   
-  BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
   for(std::list<CollisionObject*>::const_iterator it = objs.begin(); it != objs.end(); ++it)
     if(distance_(*it, cdata, callback, min_dist)) break;
@@ -744,7 +744,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(BroadPhaseCollisionMana
     return;
   }
 
-  BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
+  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
   if(this->size() < other_manager->size())
   {
@@ -889,13 +889,13 @@ protected:
       else return aabb->cached.min_;
     }
 
-    inline BVH_REAL getVal(size_t i) const
+    inline FCL_REAL getVal(size_t i) const
     {
       if(minmax) return aabb->cached.max_[i];
       else return aabb->cached.min_[i];
     }
 
-    inline BVH_REAL& getVal(size_t i)
+    inline FCL_REAL& getVal(size_t i)
     {
       if(minmax) return aabb->cached.max_[i];
       else return aabb->cached.min_[i];
@@ -999,7 +999,7 @@ protected:
 
   std::map<CollisionObject*, SaPAABB*> obj_aabb_map;
 
-  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
   bool collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
@@ -1099,12 +1099,12 @@ protected:
   
   /** \brief check distance between one object and a list of objects, return value is whether stop is possible */
   bool checkDis(std::vector<CollisionObject*>::const_iterator pos_start, std::vector<CollisionObject*>::const_iterator pos_end,
-                CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+                CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
 
   bool collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
   
-  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
   static inline size_t selectOptimalAxis(const std::vector<CollisionObject*>& objs_x, const std::vector<CollisionObject*>& objs_y, const std::vector<CollisionObject*>& objs_z, std::vector<CollisionObject*>::const_iterator& it_beg, std::vector<CollisionObject*>::const_iterator& it_end)
   {
@@ -1226,7 +1226,7 @@ protected:
     CollisionObject* obj;
 
     /** \brief end point value */
-    BVH_REAL value;
+    FCL_REAL value;
 
     /** \brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi */
     char minmax;
@@ -1247,11 +1247,11 @@ protected:
 
   bool checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
-  bool checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+  bool checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
   bool collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
 
-  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
   /** \brief vector stores all the end points */
   std::vector<EndPoint> endpoints[3];
@@ -1328,7 +1328,7 @@ public:
   /** \brief perform distance computation between one object and all the objects belonging to the manager */
   void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
   {
-    BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
+    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
     distanceRecurse(dtree.getRoot(), obj, cdata, callback, min_dist);
   }
 
@@ -1341,7 +1341,7 @@ public:
   /** \brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance) */
   void distance(void* cdata, DistanceCallBack callback) const
   {
-    BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
+    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
     selfDistanceRecurse(dtree.getRoot(), cdata, callback, min_dist);
   }
 
@@ -1356,7 +1356,7 @@ public:
   void distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
   {
     DynamicAABBTreeCollisionManager* other_manager = static_cast<DynamicAABBTreeCollisionManager*>(other_manager_);
-    BVH_REAL min_dist = std::numeric_limits<BVH_REAL>::max();
+    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
     distanceRecurse(dtree.getRoot(), other_manager->dtree.getRoot(), cdata, callback, min_dist);
   }
   
@@ -1385,15 +1385,145 @@ private:
 
   bool selfCollisionRecurse(DynamicAABBNode* root, void* cdata, CollisionCallBack callback) const;
 
-  bool distanceRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+  bool distanceRecurse(DynamicAABBNode* root1, DynamicAABBNode* root2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
-  bool distanceRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;
+  bool distanceRecurse(DynamicAABBNode* root, CollisionObject* query, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
 
-  bool selfDistanceRecurse(DynamicAABBNode* root, void* cdata, DistanceCallBack callback, BVH_REAL& min_dist) const;  
+  bool selfDistanceRecurse(DynamicAABBNode* root, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;  
 
   void update_(CollisionObject* updated_obj);
 };
 
+
+
+
+class DynamicAABBTreeCollisionManager2 : public BroadPhaseCollisionManager
+{
+public:
+  typedef alternative::NodeBase<AABB> DynamicAABBNode;
+  typedef boost::unordered_map<CollisionObject*, size_t> DynamicAABBTable;
+
+  int max_tree_nonbalanced_level;
+  int tree_incremental_balance_pass;
+  int tree_topdown_balance_threshold;
+  
+  DynamicAABBTreeCollisionManager2()
+  {
+    max_tree_nonbalanced_level = 10;
+    tree_incremental_balance_pass = 10;
+    tree_topdown_balance_threshold = 2;
+    setup_ = false;
+  }
+
+  /** \brief add objects to the manager */
+  void registerObjects(const std::vector<CollisionObject*>& other_objs);
+  
+  /** \brief add one object to the manager */
+  void registerObject(CollisionObject* obj);
+
+  /** \brief remove one object from the manager */
+  void unregisterObject(CollisionObject* obj);
+
+  /** \brief initialize the manager, related with the specific type of manager */
+  void setup();
+
+  /** \brief update the condition of manager */
+  void update();
+
+  /** \brief update the manager by explicitly given the object updated */
+  void update(CollisionObject* updated_obj);
+
+  /** \brief update the manager by explicitly given the set of objects update */
+  void update(const std::vector<CollisionObject*>& updated_objs);
+
+  /** \brief clear the manager */
+  void clear()
+  {
+    dtree.clear();
+    table.clear();
+  }
+
+  /** \brief return the objects managed by the manager */
+  void getObjects(std::vector<CollisionObject*>& objs) const
+  {
+    objs.resize(this->size());
+    std::transform(table.begin(), table.end(), objs.begin(), boost::bind(&DynamicAABBTable::value_type::first, _1));
+  }
+
+  /** \brief perform collision test between one object and all the objects belonging to the manager */
+  void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
+  {
+    collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
+  }
+
+  /** \brief perform distance computation between one object and all the objects belonging to the manager */
+  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
+  {
+    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+    distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
+  }
+
+  /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
+  void collide(void* cdata, CollisionCallBack callback) const
+  {
+    selfCollisionRecurse(dtree.getNodes(), dtree.getRoot(), cdata, callback);
+  }
+
+  /** \brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance) */
+  void distance(void* cdata, DistanceCallBack callback) const
+  {
+    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+    selfDistanceRecurse(dtree.getNodes(), dtree.getRoot(), cdata, callback, min_dist);
+  }
+
+  /** \brief perform collision test with objects belonging to another manager */
+  void collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
+  {
+    DynamicAABBTreeCollisionManager2* other_manager = static_cast<DynamicAABBTreeCollisionManager2*>(other_manager_);
+    collisionRecurse(dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(), other_manager->dtree.getRoot(), cdata, callback);
+  }
+
+  /** \brief perform distance test with objects belonging to another manager */
+  void distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
+  {
+    DynamicAABBTreeCollisionManager2* other_manager = static_cast<DynamicAABBTreeCollisionManager2*>(other_manager_);
+    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+    distanceRecurse(dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(), other_manager->dtree.getRoot(), cdata, callback, min_dist);
+  }
+  
+  /** \brief whether the manager is empty */
+  bool empty() const
+  {
+    return dtree.empty();
+  }
+  
+  /** \brief the number of objects managed by the manager */
+  size_t size() const
+  {
+    return dtree.size();
+  }
+
+
+private:
+  alternative::HierarchyTree<AABB> dtree;
+  boost::unordered_map<CollisionObject*, size_t> table;
+
+  bool setup_;
+
+  bool collisionRecurse(DynamicAABBNode* nodes1, size_t root1, DynamicAABBNode* nodes2, size_t root2, void* cdata, CollisionCallBack callback) const;
+
+  bool collisionRecurse(DynamicAABBNode* nodes, size_t root, CollisionObject* query, void* cdata, CollisionCallBack callback) const;
+
+  bool selfCollisionRecurse(DynamicAABBNode* nodes, size_t root, void* cdata, CollisionCallBack callback) const;
+
+  bool distanceRecurse(DynamicAABBNode* nodes1, size_t root1, DynamicAABBNode* nodes2, size_t root2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
+
+  bool distanceRecurse(DynamicAABBNode* nodes, size_t root, CollisionObject* query, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
+
+  bool selfDistanceRecurse(DynamicAABBNode* nodes, size_t root, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;  
+
+  void update_(CollisionObject* updated_obj);
+};
 
 }
 

@@ -414,12 +414,12 @@ template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudCollisionTraversalNode<BV>& node,
                 BVHModel<BV>& model1, SimpleTransform& tf1,
                 BVHModel<BV>& model2, SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold = 0.5,
+                FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
                 bool exhaustive = false,
                 bool enable_contact = false,
-                BVH_REAL expand_r = 1)
+                FCL_REAL expand_r = 1)
 {
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD)
       || !(model2.getModelType() == BVH_MODEL_TRIANGLES || model2.getModelType() == BVH_MODEL_POINTCLOUD))
@@ -489,35 +489,35 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node,
 bool initialize(PointCloudCollisionTraversalNodeOBB& node,
                 BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 BVHModel<OBB>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold = 0.5,
+                FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
                 bool exhaustive = false,
                 bool enable_contact = false,
-                BVH_REAL expand_r = 1);
+                FCL_REAL expand_r = 1);
 
 /** \brief Initialize traversal node for collision between two point clouds, given current transforms, specialized for RSS type */
 bool initialize(PointCloudCollisionTraversalNodeRSS& node,
                 BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 BVHModel<RSS>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold = 0.5,
+                FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
                 bool exhaustive = false,
                 bool enable_contact = false,
-                BVH_REAL expand_r = 1);
+                FCL_REAL expand_r = 1);
 
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms */
 template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node,
                 BVHModel<BV>& model1, SimpleTransform& tf1,
                 BVHModel<BV>& model2, SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold = 0.5,
+                FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
                 bool exhaustive = false,
                 bool enable_contact = false,
-                BVH_REAL expand_r = 1)
+                FCL_REAL expand_r = 1)
 {
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD) || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -585,23 +585,23 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node,
 bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
                 BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBB>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold = 0.5,
+                FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
                 bool exhaustive = false,
                 bool enable_contact = false,
-                BVH_REAL expand_r = 1);
+                FCL_REAL expand_r = 1);
 
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms, specialized for RSS type */
 bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
                 BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2,
-                BVH_REAL collision_prob_threshold = 0.5,
+                FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
                 int num_max_contacts = 1,
                 bool exhaustive = false,
                 bool enable_contact = false,
-                BVH_REAL expand_r = 1);
+                FCL_REAL expand_r = 1);
 
 #endif
 
@@ -995,7 +995,7 @@ template<typename BV>
 bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
                 BVHModel<BV>& model1,
                 BVHModel<BV>& model2,
-                const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, BVH_REAL w = 1,
+                const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, FCL_REAL w = 1,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -1043,7 +1043,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
 
 /** \brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms, specialized for RSS */
 inline bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, BVH_REAL w = 1)
+                const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, FCL_REAL w = 1)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;

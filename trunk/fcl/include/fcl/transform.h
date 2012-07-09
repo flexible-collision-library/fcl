@@ -57,7 +57,7 @@ public:
     data[3] = 0;
   }
 
-  SimpleQuaternion(BVH_REAL a, BVH_REAL b, BVH_REAL c, BVH_REAL d)
+  SimpleQuaternion(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
   {
     data[0] = a; // w
     data[1] = b; // x
@@ -78,13 +78,13 @@ public:
   void toAxes(Vec3f axis[3]) const;
 
   /** \brief Axis and angle to quaternion */
-  void fromAxisAngle(const Vec3f& axis, BVH_REAL angle);
+  void fromAxisAngle(const Vec3f& axis, FCL_REAL angle);
 
   /** \brief Quaternion to axis and angle */
-  void toAxisAngle(Vec3f& axis, BVH_REAL& angle) const;
+  void toAxisAngle(Vec3f& axis, FCL_REAL& angle) const;
 
   /** \brief Dot product between quaternions */
-  BVH_REAL dot(const SimpleQuaternion& other) const;
+  FCL_REAL dot(const SimpleQuaternion& other) const;
 
   /** \brief addition */
   SimpleQuaternion operator + (const SimpleQuaternion& other) const;
@@ -102,8 +102,8 @@ public:
   SimpleQuaternion operator - () const;
 
   /** \brief scalar multiplication */
-  SimpleQuaternion operator * (BVH_REAL t) const;
-  const SimpleQuaternion& operator *= (BVH_REAL t);
+  SimpleQuaternion operator * (FCL_REAL t) const;
+  const SimpleQuaternion& operator *= (FCL_REAL t);
 
   /** \brief conjugate */
   SimpleQuaternion conj() const;
@@ -114,19 +114,19 @@ public:
   /** \brief rotate a vector */
   Vec3f transform(const Vec3f& v) const;
 
-  inline const BVH_REAL& getW() const { return data[0]; }
-  inline const BVH_REAL& getX() const { return data[1]; }
-  inline const BVH_REAL& getY() const { return data[2]; }
-  inline const BVH_REAL& getZ() const { return data[3]; }
+  inline const FCL_REAL& getW() const { return data[0]; }
+  inline const FCL_REAL& getX() const { return data[1]; }
+  inline const FCL_REAL& getY() const { return data[2]; }
+  inline const FCL_REAL& getZ() const { return data[3]; }
 
-  inline BVH_REAL& getW() { return data[0]; }
-  inline BVH_REAL& getX() { return data[1]; }
-  inline BVH_REAL& getY() { return data[2]; }
-  inline BVH_REAL& getZ() { return data[3]; }
+  inline FCL_REAL& getW() { return data[0]; }
+  inline FCL_REAL& getX() { return data[1]; }
+  inline FCL_REAL& getY() { return data[2]; }
+  inline FCL_REAL& getZ() { return data[3]; }
 
 private:
 
-  BVH_REAL data[4];
+  FCL_REAL data[4];
 };
 
 /** \brief Simple transform class used locally by InterpMotion */

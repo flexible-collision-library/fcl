@@ -50,7 +50,7 @@ Matrix3f& Matrix3f::operator *= (const Matrix3f& other)
   return *this;
 }
 
-Matrix3f& Matrix3f::operator += (BVH_REAL c)
+Matrix3f& Matrix3f::operator += (FCL_REAL c)
 {
   setValue(v_[0][0] + c, v_[0][1] + c, v_[0][2] + c,
            v_[1][0] + c, v_[1][1] + c, v_[1][2] + c,
@@ -59,7 +59,7 @@ Matrix3f& Matrix3f::operator += (BVH_REAL c)
 }
 
 
-BVH_REAL Matrix3f::determinant() const
+FCL_REAL Matrix3f::determinant() const
 {
   return triple(v_[0], v_[1], v_[2]);
 }
@@ -73,8 +73,8 @@ Matrix3f Matrix3f::transpose() const
 
 Matrix3f Matrix3f::inverse() const
 {
-  BVH_REAL det = determinant();
-  BVH_REAL inv_det = 1.0 / det;
+  FCL_REAL det = determinant();
+  FCL_REAL inv_det = 1.0 / det;
 
   return Matrix3f((v_[1][1] * v_[2][2] - v_[1][2] * v_[2][1]) * inv_det,
                   (v_[0][2] * v_[2][1] - v_[0][1] * v_[2][2]) * inv_det,
@@ -139,17 +139,17 @@ void relativeTransform(const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, 
   T = R1.transposeTimes(temp);
 }
 
-void matEigen(const Matrix3f& m, BVH_REAL dout[3], Vec3f vout[3])
+void matEigen(const Matrix3f& m, FCL_REAL dout[3], Vec3f vout[3])
 {
   Matrix3f R(m);
   int n = 3;
   int j, iq, ip, i;
-  BVH_REAL tresh, theta, tau, t, sm, s, h, g, c;
+  FCL_REAL tresh, theta, tau, t, sm, s, h, g, c;
   int nrot;
-  BVH_REAL b[3];
-  BVH_REAL z[3];
-  BVH_REAL v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-  BVH_REAL d[3];
+  FCL_REAL b[3];
+  FCL_REAL z[3];
+  FCL_REAL v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  FCL_REAL d[3];
 
   for(ip = 0; ip < n; ++ip)
   {

@@ -44,7 +44,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS
   return overlap(R0, T0, b1.obb, b2.obb);
 }
 
-BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P, Vec3f* Q)
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P, Vec3f* Q)
 {
   return distance(R0, T0, b1.rss, b2.rss, P, Q);
 }

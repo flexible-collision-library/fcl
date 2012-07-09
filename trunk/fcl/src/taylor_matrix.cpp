@@ -115,7 +115,7 @@ TaylorModel& TMatrix3::operator () (size_t i, size_t j)
 TMatrix3 TMatrix3::operator * (const Matrix3f& m) const
 {
   TaylorModel res[3][3];
-  register BVH_REAL temp;
+  register FCL_REAL temp;
 
   temp = m[0][0];
   res[0][0].coeffs_[0] = i_[0][0].coeffs_[0] * temp; res[0][0].coeffs_[1] = i_[0][0].coeffs_[1] * temp; res[0][0].coeffs_[2] = i_[0][0].coeffs_[2] * temp; res[0][0].coeffs_[3] = i_[0][0].coeffs_[3] * temp; res[1][0].coeffs_[0] = i_[1][0].coeffs_[0] * temp; res[1][0].coeffs_[1] = i_[1][0].coeffs_[1] * temp; res[1][0].coeffs_[2] = i_[1][0].coeffs_[2] * temp; res[1][0].coeffs_[3] = i_[1][0].coeffs_[3] * temp; res[2][0].coeffs_[0] = i_[2][0].coeffs_[0] * temp; res[2][0].coeffs_[1] = i_[2][0].coeffs_[1] * temp; res[2][0].coeffs_[2] = i_[2][0].coeffs_[2] * temp; res[2][0].coeffs_[3] = i_[2][0].coeffs_[3] * temp;
@@ -224,7 +224,7 @@ TVector3 TMatrix3::operator * (const Vec3f& v) const
 {
   TaylorModel res[3];
 
-  register BVH_REAL temp;
+  register FCL_REAL temp;
 
   temp = v[0];
   res[0].coeffs_[0] = i_[0][0].coeffs_[0] * temp; res[0].coeffs_[1] = i_[0][0].coeffs_[1] * temp; res[0].coeffs_[2] = i_[0][0].coeffs_[2] * temp; res[0].coeffs_[3] = i_[0][0].coeffs_[3] * temp; res[1].coeffs_[0] = i_[1][0].coeffs_[0] * temp; res[1].coeffs_[1] = i_[1][0].coeffs_[1] * temp; res[1].coeffs_[2] = i_[1][0].coeffs_[2] * temp; res[1].coeffs_[3] = i_[1][0].coeffs_[3] * temp; res[2].coeffs_[0] = i_[2][0].coeffs_[0] * temp; res[2].coeffs_[1] = i_[2][0].coeffs_[1] * temp; res[2].coeffs_[2] = i_[2][0].coeffs_[2] * temp; res[2].coeffs_[3] = i_[2][0].coeffs_[3] * temp;
@@ -354,12 +354,12 @@ IMatrix3 TMatrix3::getBound() const
   return IMatrix3(res);
 }
 
-BVH_REAL TMatrix3::diameter() const
+FCL_REAL TMatrix3::diameter() const
 {
-  BVH_REAL d = 0;
+  FCL_REAL d = 0;
 
 
-  BVH_REAL tmp = i_[0][0].r_.diameter();
+  FCL_REAL tmp = i_[0][0].r_.diameter();
   if(tmp > d) d = tmp;
   tmp = i_[0][1].r_.diameter();
   if(tmp > d) d = tmp;

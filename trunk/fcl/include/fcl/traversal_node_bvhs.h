@@ -85,8 +85,8 @@ public:
   /** \brief Determine the traversal order, is the first BVTT subtree better */
   bool firstOverSecond(int b1, int b2) const
   {
-    BVH_REAL sz1 = model1->getBV(b1).bv.size();
-    BVH_REAL sz2 = model2->getBV(b2).bv.size();
+    FCL_REAL sz1 = model1->getBV(b1).bv.size();
+    FCL_REAL sz2 = model2->getBV(b2).bv.size();
 
     bool l1 = model1->getBV(b1).isLeaf();
     bool l2 = model2->getBV(b2).isLeaf();
@@ -135,7 +135,7 @@ public:
   /** \brief statistical information */
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable BVH_REAL query_time_seconds;
+  mutable FCL_REAL query_time_seconds;
 
 };
 
@@ -147,7 +147,7 @@ struct BVHCollisionPair
 
   BVHCollisionPair(int id1_, int id2_) : id1(id1_), id2(id2_) {}
 
-  BVHCollisionPair(int id1_, int id2_, const Vec3f& contactp, const Vec3f& n, BVH_REAL depth) : id1(id1_),
+  BVHCollisionPair(int id1_, int id2_, const Vec3f& contactp, const Vec3f& n, FCL_REAL depth) : id1(id1_),
       id2(id2_), contact_point(contactp), normal(n), penetration_depth(depth) {}
 
   /** \brief The index of one in-collision primitive */
@@ -163,7 +163,7 @@ struct BVHCollisionPair
   Vec3f normal;
 
   /** \brief Penetration depth for two triangles */
-  BVH_REAL penetration_depth;
+  FCL_REAL penetration_depth;
 };
 
 /** \brief Sorting rule between two BVHCollisionPair, for testing */
@@ -215,7 +215,7 @@ public:
     const Vec3f& q2 = vertices2[tri_id2[1]];
     const Vec3f& q3 = vertices2[tri_id2[2]];
 
-    BVH_REAL penetration;
+    FCL_REAL penetration;
     Vec3f normal;
     int n_contacts;
     Vec3f contacts[2];
@@ -333,7 +333,7 @@ struct BVHPointCollisionPair
 {
   BVHPointCollisionPair() {}
 
-  BVHPointCollisionPair(int id1_start_, int id1_num_, int id2_start_, int id2_num_, BVH_REAL collision_prob_)
+  BVHPointCollisionPair(int id1_start_, int id1_num_, int id2_start_, int id2_num_, FCL_REAL collision_prob_)
     : id1_start(id1_start_), id1_num(id1_num_), id2_start(id2_start_), id2_num(id2_num_), collision_prob(collision_prob_) {}
 
   int id1_start;
@@ -342,7 +342,7 @@ struct BVHPointCollisionPair
   int id2_start;
   int id2_num;
 
-  BVH_REAL collision_prob;
+  FCL_REAL collision_prob;
 };
 
 struct BVHPointCollisionPairComp
@@ -393,7 +393,7 @@ public:
     const BVNode<BV>& node1 = this->model1->getBV(b1);
     const BVNode<BV>& node2 = this->model2->getBV(b2);
 
-    BVH_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
+    FCL_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
                                                                node1.num_primitives,
                                                                vertices2 + node2.first_primitive, uc2.get() + node2.first_primitive,
                                                                node2.num_primitives,
@@ -426,9 +426,9 @@ public:
 
   int leaf_size_threshold;
 
-  BVH_REAL collision_prob_threshold;
+  FCL_REAL collision_prob_threshold;
 
-  mutable BVH_REAL max_collision_prob;
+  mutable FCL_REAL max_collision_prob;
 
   CloudClassifierParam classifier_param;
 };
@@ -502,7 +502,7 @@ public:
     const Vec3f& q2 = vertices2[tri_id2[1]];
     const Vec3f& q3 = vertices2[tri_id2[2]];
 
-    BVH_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
+    FCL_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
                                                                        node1.num_primitives,
                                                                        q1, q2, q3);
 
@@ -532,9 +532,9 @@ public:
 
   int leaf_size_threshold;
 
-  BVH_REAL collision_prob_threshold;
+  FCL_REAL collision_prob_threshold;
 
-  mutable BVH_REAL max_collision_prob;
+  mutable FCL_REAL max_collision_prob;
 };
 
 
@@ -570,7 +570,7 @@ struct BVHContinuousCollisionPair
 {
   BVHContinuousCollisionPair() {}
 
-  BVHContinuousCollisionPair(int id1_, int id2_, BVH_REAL time) : id1(id1_), id2(id2_), collision_time(time) {}
+  BVHContinuousCollisionPair(int id1_, int id2_, FCL_REAL time) : id1(id1_), id2(id2_), collision_time(time) {}
 
   /** \brief The index of one in-collision primitive */
   int id1;
@@ -579,7 +579,7 @@ struct BVHContinuousCollisionPair
   int id2;
 
   /** \brief Collision time normalized in [0, 1]. The collision time out of [0, 1] means collision-free */
-  BVH_REAL collision_time;
+  FCL_REAL collision_time;
 };
 
 
@@ -611,7 +611,7 @@ public:
     const BVNode<BV>& node1 = this->model1->getBV(b1);
     const BVNode<BV>& node2 = this->model2->getBV(b2);
 
-    BVH_REAL collision_time = 2;
+    FCL_REAL collision_time = 2;
     Vec3f collision_pos;
 
     int primitive_id1 = node1.primitiveId();
@@ -634,7 +634,7 @@ public:
       T1[i] = vertices2 + tri_id2[i];
     }
 
-    BVH_REAL tmp;
+    FCL_REAL tmp;
     Vec3f tmpv;
 
     // 6 VF checks
@@ -737,7 +737,7 @@ public:
     const BVNode<BV>& node1 = this->model1->getBV(b1);
     const BVNode<BV>& node2 = this->model2->getBV(b2);
 
-    BVH_REAL collision_time = 2;
+    FCL_REAL collision_time = 2;
     Vec3f collision_pos;
 
     int primitive_id1 = node1.primitiveId();
@@ -757,7 +757,7 @@ public:
     Vec3f* T0 = prev_vertices2 + vertex_id2;
     Vec3f* T1 = vertices2 + vertex_id2;
 
-    BVH_REAL tmp;
+    FCL_REAL tmp;
     Vec3f tmpv;
 
     // 3 VF checks
@@ -828,7 +828,7 @@ public:
     const BVNode<BV>& node1 = this->model1->getBV(b1);
     const BVNode<BV>& node2 = this->model2->getBV(b2);
 
-    BVH_REAL collision_time = 2;
+    FCL_REAL collision_time = 2;
     Vec3f collision_pos;
 
     int primitive_id1 = node1.primitiveId();
@@ -848,7 +848,7 @@ public:
       T1[i] = vertices2 + tri_id2[i];
     }
 
-    BVH_REAL tmp;
+    FCL_REAL tmp;
     Vec3f tmpv;
 
     // 3 VF checks
@@ -921,8 +921,8 @@ public:
 
   bool firstOverSecond(int b1, int b2) const
   {
-    BVH_REAL sz1 = model1->getBV(b1).bv.size();
-    BVH_REAL sz2 = model2->getBV(b2).bv.size();
+    FCL_REAL sz1 = model1->getBV(b1).bv.size();
+    FCL_REAL sz2 = model2->getBV(b2).bv.size();
 
     bool l1 = model1->getBV(b1).isLeaf();
     bool l2 = model2->getBV(b2).isLeaf();
@@ -952,7 +952,7 @@ public:
     return model2->getBV(b).rightChild();
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     return model1->getBV(b1).distance(model2->getBV(b2));
@@ -963,7 +963,7 @@ public:
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable BVH_REAL query_time_seconds;
+  mutable FCL_REAL query_time_seconds;
 
 };
 
@@ -986,7 +986,7 @@ public:
     rel_err = 0;
     abs_err = 0;
 
-    min_distance = std::numeric_limits<BVH_REAL>::max();
+    min_distance = std::numeric_limits<FCL_REAL>::max();
   }
 
   void leafTesting(int b1, int b2) const
@@ -1013,7 +1013,7 @@ public:
     // nearest point pair
     Vec3f P1, P2;
 
-    BVH_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
+    FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
                                                P1, P2);
 
     if(d < min_distance)
@@ -1028,7 +1028,7 @@ public:
     }
   }
 
-  bool canStop(BVH_REAL c) const
+  bool canStop(FCL_REAL c) const
   {
     if((c >= min_distance - abs_err) && (c * (1 + rel_err) >= min_distance))
       return true;
@@ -1042,13 +1042,13 @@ public:
   Triangle* tri_indices2;
 
   /** \brief relative and absolute error, default value is 0.01 for both terms */
-  BVH_REAL rel_err;
-  BVH_REAL abs_err;
+  FCL_REAL rel_err;
+  FCL_REAL abs_err;
 
   /** \brief distance and points establishing the minimum distance for the models, within the relative and absolute error bounds specified.
    * p1 is in model1's local coordinate system while p2 is in model2's local coordinate system
    */
-  mutable BVH_REAL min_distance;
+  mutable FCL_REAL min_distance;
   mutable Vec3f p1;
   mutable Vec3f p2;
 
@@ -1067,7 +1067,7 @@ public:
 
   void postprocess();
 
-  BVH_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -1085,7 +1085,7 @@ public:
   
   void postprocess();
 
-  BVH_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -1102,7 +1102,7 @@ public:
 
   void postprocess();
 
-  BVH_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -1113,13 +1113,13 @@ public:
 
 struct ConservativeAdvancementStackData
 {
-  ConservativeAdvancementStackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, BVH_REAL d_) : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
+  ConservativeAdvancementStackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, FCL_REAL d_) : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
 
   Vec3f P1;
   Vec3f P2;
   int c1;
   int c2;
-  BVH_REAL d;
+  FCL_REAL d;
 };
 
 // when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
@@ -1127,11 +1127,11 @@ template<typename BV>
 class MeshConservativeAdvancementTraversalNode : public MeshDistanceTraversalNode<BV>
 {
 public:
-  MeshConservativeAdvancementTraversalNode(BVH_REAL w_ = 1) : MeshDistanceTraversalNode<BV>()
+  MeshConservativeAdvancementTraversalNode(FCL_REAL w_ = 1) : MeshDistanceTraversalNode<BV>()
   {
     delta_t = 1;
     toc = 0;
-    t_err = (BVH_REAL)0.00001;
+    t_err = (FCL_REAL)0.00001;
 
     w = w_;
 
@@ -1139,11 +1139,11 @@ public:
     motion2 = NULL;
   }
 
-  BVH_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     Vec3f P1, P2;
-    BVH_REAL d = this->model1->getBV(b1).distance(this->model2->getBV(b2), &P1, &P2);
+    FCL_REAL d = this->model1->getBV(b1).distance(this->model2->getBV(b2), &P1, &P2);
 
     stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
@@ -1174,7 +1174,7 @@ public:
     // nearest point pair
     Vec3f P1, P2;
 
-    BVH_REAL d = TriangleDistance::triDistance(p1, p2, p3, q1, q2, q3,
+    FCL_REAL d = TriangleDistance::triDistance(p1, p2, p3, q1, q2, q3,
                                                P1, P2);
 
     if(d < this->min_distance)
@@ -1192,12 +1192,12 @@ public:
     // n is the local frame of object 1
     Vec3f n = P2 - P1;
     // here n is already in global frame as we assume the body is in original configuration (I, 0) for general BVH
-    BVH_REAL bound1 = motion1->computeMotionBound(p1, p2, p3, n);
-    BVH_REAL bound2 = motion2->computeMotionBound(q1, q2, q3, n);
+    FCL_REAL bound1 = motion1->computeMotionBound(p1, p2, p3, n);
+    FCL_REAL bound2 = motion2->computeMotionBound(q1, q2, q3, n);
 
-    BVH_REAL bound = bound1 + bound2;
+    FCL_REAL bound = bound1 + bound2;
 
-    BVH_REAL cur_delta_t;
+    FCL_REAL cur_delta_t;
     if(bound <= d) cur_delta_t = 1;
     else cur_delta_t = d / bound;
 
@@ -1206,12 +1206,12 @@ public:
   }
 
 
-  bool canStop(BVH_REAL c) const
+  bool canStop(FCL_REAL c) const
   {
     if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
     {
       const ConservativeAdvancementStackData& data = stack.back();
-      BVH_REAL d = data.d;
+      FCL_REAL d = data.d;
       Vec3f n;
       int c1, c2;
 
@@ -1233,12 +1233,12 @@ public:
 
       assert(c == d);
 
-      BVH_REAL bound1 = motion1->computeMotionBound((this->tree1 + c1)->bv, n);
-      BVH_REAL bound2 = motion2->computeMotionBound((this->tree2 + c2)->bv, n);
+      FCL_REAL bound1 = motion1->computeMotionBound((this->tree1 + c1)->bv, n);
+      FCL_REAL bound2 = motion2->computeMotionBound((this->tree2 + c2)->bv, n);
 
-      BVH_REAL bound = bound1 + bound2;
+      FCL_REAL bound = bound1 + bound2;
 
-      BVH_REAL cur_delta_t;
+      FCL_REAL cur_delta_t;
       if(bound <= c) cur_delta_t = 1;
       else cur_delta_t = c / bound;
 
@@ -1252,7 +1252,7 @@ public:
     else
     {
       const ConservativeAdvancementStackData& data = stack.back();
-      BVH_REAL d = data.d;
+      FCL_REAL d = data.d;
 
       if(d > c)
         stack[stack.size() - 2] = stack[stack.size() - 1];
@@ -1265,14 +1265,14 @@ public:
 
 
   /** \brief CA controlling variable: early stop for the early iterations of CA */
-  BVH_REAL w;
+  FCL_REAL w;
 
   /** \brief The time from beginning point */
-  BVH_REAL toc;
-  BVH_REAL t_err;
+  FCL_REAL toc;
+  FCL_REAL t_err;
 
   /** \brief The delta_t each step */
-  mutable BVH_REAL delta_t;
+  mutable FCL_REAL delta_t;
 
   /** \brief Motions for the two objects in query */
   MotionBase<BV>* motion1;
@@ -1284,22 +1284,22 @@ public:
 
 /** for OBB and RSS, there is local coordinate of BV, so normal need to be transformed */
 template<>
-bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(BVH_REAL c) const;
+bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const;
 
 template<>
-bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(BVH_REAL c) const;
+bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const;
 
 
 class MeshConservativeAdvancementTraversalNodeRSS : public MeshConservativeAdvancementTraversalNode<RSS>
 {
 public:
-  MeshConservativeAdvancementTraversalNodeRSS(BVH_REAL w_ = 1);
+  MeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_ = 1);
 
-  BVH_REAL BVTesting(int b1, int b2) const;
+  FCL_REAL BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
-  bool canStop(BVH_REAL c) const;
+  bool canStop(FCL_REAL c) const;
 
   Matrix3f R;
   Vec3f T;

@@ -87,19 +87,19 @@ void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3f& split_vector)
 }
 
 template<typename BV>
-void computeSplitValue_bvcenter(const BV& bv, BVH_REAL& split_value)
+void computeSplitValue_bvcenter(const BV& bv, FCL_REAL& split_value)
 {
   Vec3f center = bv.center();
   split_value = center[0];
 }
 
 template<typename BV>
-void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, BVH_REAL& split_value)
+void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
 {
-  BVH_REAL sum = 0.0;
+  FCL_REAL sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
   {
-    BVH_REAL c[3] = {0.0, 0.0, 0.0};
+    FCL_REAL c[3] = {0.0, 0.0, 0.0};
 
     for(int i = 0; i < num_primitives; ++i)
     {
@@ -128,9 +128,9 @@ void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, 
 }
 
 template<typename BV>
-void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, BVH_REAL& split_value)
+void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
 {
-  std::vector<BVH_REAL> proj(num_primitives);
+  std::vector<FCL_REAL> proj(num_primitives);
 
   if(type == BVH_MODEL_TRIANGLES)
   {

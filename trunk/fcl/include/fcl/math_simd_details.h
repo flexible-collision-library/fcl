@@ -38,6 +38,8 @@
 #ifndef FCL_MATH_SIMD_DETAILS_H
 #define FCL_MATH_SIMD_DETAILS_H
 
+#include "fcl/data_types.h"
+
 #include <xmmintrin.h>
 #if defined (__SSE3__)
 #include <pmmintrin.h>
@@ -105,6 +107,18 @@ struct sse_meta_f4
   inline void setValue(float x) { v = _mm_set1_ps(x); }
   inline void setValue(__m128 x) { v = x; }
   inline void negate() { v = _mm_sub_ps(xmms_0, v); }
+
+  inline sse_meta_f4& ubound(const sse_meta_f4& u)
+  {
+    v = _mm_min_ps(v, u.v);
+    return *this;
+  }
+
+  inline sse_meta_f4& lbound(const sse_meta_f4& l)
+  {
+    v = _mm_max_ps(v, l.v);
+    return *this;
+  }
   
   inline void* operator new [] (size_t n) { return _mm_malloc(n, 16); }
   inline void operator delete [] (void* x) { if(x) _mm_free(x); }
@@ -190,6 +204,20 @@ struct sse_meta_d4
     v[1] = _mm_sub_pd(xmmd_0, v[1]);
   }
 
+  inline sse_meta_d4& ubound(const sse_meta_d4& u)
+  {
+    v[0] = _mm_min_pd(v[0], u.v[0]);
+    v[1] = _mm_min_pd(v[1], u.v[1]);
+    return *this;
+  }
+
+  inline sse_meta_d4& lbound(const sse_meta_d4& l)
+  {
+    v[0] = _mm_max_pd(v[0], l.v[0]);
+    v[1] = _mm_max_pd(v[1], l.v[1]);
+    return *this;
+  }
+
   inline void* operator new [] (size_t n)
   {
     return _mm_malloc(n, 16);
@@ -221,7 +249,7 @@ struct sse_meta_d4
   inline sse_meta_d4& operator /= (double t) { register __m128d d = _mm_set1_pd(t); v[0] = _mm_div_pd(v[0], d); v[1] = _mm_div_pd(v[1], d); return *this; }
   inline sse_meta_d4 operator - () const 
   {
-    static const union { int64_t i[2]; __m128d m; } negativemask __attribute__ ((aligned(16))) = {{0x8000000000000000, 0x8000000000000000}};
+    static const union { FCL_INT64 i[2]; __m128d m; } negativemask __attribute__ ((aligned(16))) = {{0x8000000000000000, 0x8000000000000000}};
     return sse_meta_d4(_mm_xor_pd(v[0], negativemask.m), _mm_xor_pd(v[1], negativemask.m));
   }
 } __attribute__ ((aligned (16)));
@@ -376,7 +404,7 @@ static inline sse_meta_f4 abs(const sse_meta_f4& x)
 
 static inline sse_meta_d4 abs(const sse_meta_d4& x)
 {
-  static const union { int64_t i[2]; __m128d m; } abs2mask __attribute__ ((aligned (16))) = {{0x7fffffffffffffff, 0x7fffffffffffffff}};
+  static const union { FCL_INT64 i[2]; __m128d m; } abs2mask __attribute__ ((aligned (16))) = {{0x7fffffffffffffff, 0x7fffffffffffffff}};
   return sse_meta_d4(_mm_and_pd(x.v[0], abs2mask.m), _mm_and_pd(x.v[1], abs2mask.m));
 }
 

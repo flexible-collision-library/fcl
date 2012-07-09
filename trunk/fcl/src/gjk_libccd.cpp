@@ -686,8 +686,8 @@ static void centerTriangle(const void* obj, ccd_vec3_t* c)
 
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
-                unsigned int max_iterations, BVH_REAL tolerance,
-                Vec3f* contact_points, BVH_REAL* penetration_depth, Vec3f* normal)
+                unsigned int max_iterations, FCL_REAL tolerance,
+                Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
   ccd_t ccd;
   int res;
@@ -724,8 +724,8 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
 
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
-                 unsigned int max_iterations, BVH_REAL tolerance_,
-                 BVH_REAL* res)
+                 unsigned int max_iterations, FCL_REAL tolerance_,
+                 FCL_REAL* res)
 {
   ccd_t ccd;
   ccd_real_t dist;

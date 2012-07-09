@@ -84,6 +84,22 @@ struct Vec3Data
     vs[0] = -vs[0]; vs[1] = -vs[1]; vs[2] = -vs[2];
   }
 
+  inline Vec3Data<T>& ubound(const Vec3Data<T>& u) 
+  {
+    vs[0] = std::min(vs[0], u.vs[0]);
+    vs[1] = std::min(vs[1], u.vs[1]);
+    vs[2] = std::min(vs[2], u.vs[2]);
+    return *this;
+  }
+
+  inline Vec3Data<T>& lbound(const Vec3Data<T>& l)
+  {
+    vs[0] = std::max(vs[0], l.vs[0]);
+    vs[1] = std::max(vs[1], l.vs[1]);
+    vs[2] = std::max(vs[2], l.vs[2]);
+    return *this;
+  }
+
   T operator [] (size_t i) const { return vs[i]; }
   T& operator [] (size_t i) { return vs[i]; }
 

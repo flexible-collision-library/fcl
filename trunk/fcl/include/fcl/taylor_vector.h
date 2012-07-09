@@ -53,7 +53,7 @@ struct TVector3
   TVector3(const Vec3f& v);
 
   TVector3 operator + (const TVector3& other) const;
-  TVector3 operator + (BVH_REAL d) const;
+  TVector3 operator + (FCL_REAL d) const;
   TVector3& operator += (const TVector3& other);
   TVector3 operator - (const TVector3& other) const;
   TVector3& operator -= (const TVector3& other);
@@ -66,10 +66,10 @@ struct TVector3
   TVector3 cross(const TVector3& other) const;
 
   IVector3 getBound() const;
-  IVector3 getBound(BVH_REAL t) const;
+  IVector3 getBound(FCL_REAL t) const;
 
   void print() const;
-  BVH_REAL volumn() const;
+  FCL_REAL volumn() const;
   void setZero();
 
   TaylorModel squareLength() const;

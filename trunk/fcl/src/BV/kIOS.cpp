@@ -50,8 +50,8 @@ bool kIOS::overlap(const kIOS& other) const
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
     {
-      BVH_REAL o_dist = (spheres[i].o - other.spheres[j].o).sqrLength();
-      BVH_REAL sum_r = spheres[i].r + other.spheres[j].r;
+      FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).sqrLength();
+      FCL_REAL sum_r = spheres[i].r + other.spheres[j].r;
       if(o_dist > sum_r * sum_r)
         return false;
     }
@@ -67,7 +67,7 @@ bool kIOS::contain(const Vec3f& p) const
 {
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
-    BVH_REAL r = spheres[i].r;
+    FCL_REAL r = spheres[i].r;
     if((spheres[i].o - p).sqrLength() > r * r)
       return false;
   }
@@ -79,8 +79,8 @@ kIOS& kIOS::operator += (const Vec3f& p)
 {
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
-    BVH_REAL r = spheres[i].r;
-    BVH_REAL new_r_sqr = (p - spheres[i].o).sqrLength();
+    FCL_REAL r = spheres[i].r;
+    FCL_REAL new_r_sqr = (p - spheres[i].o).sqrLength();
     if(new_r_sqr > r * r)
     {
       spheres[i].r = sqrt(new_r_sqr);
@@ -107,40 +107,40 @@ kIOS kIOS::operator + (const kIOS& other) const
   return result;
 }
 
-BVH_REAL kIOS::width() const
+FCL_REAL kIOS::width() const
 {
   return obb_bv.width();
 }
 
-BVH_REAL kIOS::height() const
+FCL_REAL kIOS::height() const
 {
   return obb_bv.height();
 }
   
-BVH_REAL kIOS::depth() const
+FCL_REAL kIOS::depth() const
 {
   return obb_bv.depth();
 }
 
-BVH_REAL kIOS::volume() const
+FCL_REAL kIOS::volume() const
 {
   return obb_bv.volume();
 }
 
-BVH_REAL kIOS::size() const
+FCL_REAL kIOS::size() const
 {
   return volume();
 }
 
-BVH_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
 {
-  BVH_REAL d_max = 0;
+  FCL_REAL d_max = 0;
   unsigned int id_a = -1, id_b = -1;
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
     {
-      BVH_REAL d = (spheres[i].o - other.spheres[j].o).length() - (spheres[i].r + other.spheres[j].r);
+      FCL_REAL d = (spheres[i].o - other.spheres[j].o).length() - (spheres[i].r + other.spheres[j].r);
       if(d_max < d)
       {
         d_max = d;
@@ -157,7 +157,7 @@ BVH_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
     if(id_a != -1 && id_b != -1)
     {
       Vec3f v = spheres[id_a].o - spheres[id_b].o;
-      BVH_REAL len_v = v.length();
+      FCL_REAL len_v = v.length();
       *P = spheres[id_a].o - v * (spheres[id_a].r / len_v);
       *Q = spheres[id_b].o + v * (spheres[id_b].r / len_v);
     }
@@ -185,7 +185,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2
   return b1.overlap(b2_temp);
 }
 
-BVH_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P, Vec3f* Q)
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P, Vec3f* Q)
 {
   kIOS b2_temp = b2;
   for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)

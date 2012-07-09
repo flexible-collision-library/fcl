@@ -44,8 +44,8 @@ void SimpleQuaternion::fromRotation(const Matrix3f& R)
 {
   const int next[3] = {1, 2, 0};
 
-  BVH_REAL trace = R[0][0] + R[1][1] + R[2][2];
-  BVH_REAL root;
+  FCL_REAL trace = R[0][0] + R[1][1] + R[2][2];
+  FCL_REAL root;
 
   if(trace > 0.0)
   {
@@ -73,7 +73,7 @@ void SimpleQuaternion::fromRotation(const Matrix3f& R)
     int k = next[j];
 
     root = sqrt(R[i][i] - R[j][j] - R[k][k] + 1.0);
-    BVH_REAL* quat[3] = { &data[1], &data[2], &data[3] };
+    FCL_REAL* quat[3] = { &data[1], &data[2], &data[3] };
     *quat[i] = 0.5 * root;
     root = 0.5 / root;
     data[0] = (R[k][j] - R[j][k]) * root;
@@ -84,18 +84,18 @@ void SimpleQuaternion::fromRotation(const Matrix3f& R)
 
 void SimpleQuaternion::toRotation(Matrix3f& R) const
 {
-  BVH_REAL twoX  = 2.0*data[1];
-  BVH_REAL twoY  = 2.0*data[2];
-  BVH_REAL twoZ  = 2.0*data[3];
-  BVH_REAL twoWX = twoX*data[0];
-  BVH_REAL twoWY = twoY*data[0];
-  BVH_REAL twoWZ = twoZ*data[0];
-  BVH_REAL twoXX = twoX*data[1];
-  BVH_REAL twoXY = twoY*data[1];
-  BVH_REAL twoXZ = twoZ*data[1];
-  BVH_REAL twoYY = twoY*data[2];
-  BVH_REAL twoYZ = twoZ*data[2];
-  BVH_REAL twoZZ = twoZ*data[3];
+  FCL_REAL twoX  = 2.0*data[1];
+  FCL_REAL twoY  = 2.0*data[2];
+  FCL_REAL twoZ  = 2.0*data[3];
+  FCL_REAL twoWX = twoX*data[0];
+  FCL_REAL twoWY = twoY*data[0];
+  FCL_REAL twoWZ = twoZ*data[0];
+  FCL_REAL twoXX = twoX*data[1];
+  FCL_REAL twoXY = twoY*data[1];
+  FCL_REAL twoXZ = twoZ*data[1];
+  FCL_REAL twoYY = twoY*data[2];
+  FCL_REAL twoYZ = twoZ*data[2];
+  FCL_REAL twoZZ = twoZ*data[3];
 
   R.setValue(1.0 - (twoYY + twoZZ), twoXY - twoWZ, twoXZ + twoWY,
              twoXY + twoWZ, 1.0 - (twoXX + twoZZ), twoYZ - twoWX,
@@ -110,8 +110,8 @@ void SimpleQuaternion::fromAxes(const Vec3f axis[3])
 
   const int next[3] = {1, 2, 0};
 
-  BVH_REAL trace = axis[0][0] + axis[1][1] + axis[2][2];
-  BVH_REAL root;
+  FCL_REAL trace = axis[0][0] + axis[1][1] + axis[2][2];
+  FCL_REAL root;
 
   if(trace > 0.0)
   {
@@ -139,7 +139,7 @@ void SimpleQuaternion::fromAxes(const Vec3f axis[3])
     int k = next[j];
 
     root = sqrt(axis[i][i] - axis[j][j] - axis[k][k] + 1.0);
-    BVH_REAL* quat[3] = { &data[1], &data[2], &data[3] };
+    FCL_REAL* quat[3] = { &data[1], &data[2], &data[3] };
     *quat[i] = 0.5 * root;
     root = 0.5 / root;
     data[0] = (axis[j][k] - axis[k][j]) * root;
@@ -150,18 +150,18 @@ void SimpleQuaternion::fromAxes(const Vec3f axis[3])
 
 void SimpleQuaternion::toAxes(Vec3f axis[3]) const
 {
-  BVH_REAL twoX  = 2.0*data[1];
-  BVH_REAL twoY  = 2.0*data[2];
-  BVH_REAL twoZ  = 2.0*data[3];
-  BVH_REAL twoWX = twoX*data[0];
-  BVH_REAL twoWY = twoY*data[0];
-  BVH_REAL twoWZ = twoZ*data[0];
-  BVH_REAL twoXX = twoX*data[1];
-  BVH_REAL twoXY = twoY*data[1];
-  BVH_REAL twoXZ = twoZ*data[1];
-  BVH_REAL twoYY = twoY*data[2];
-  BVH_REAL twoYZ = twoZ*data[2];
-  BVH_REAL twoZZ = twoZ*data[3];
+  FCL_REAL twoX  = 2.0*data[1];
+  FCL_REAL twoY  = 2.0*data[2];
+  FCL_REAL twoZ  = 2.0*data[3];
+  FCL_REAL twoWX = twoX*data[0];
+  FCL_REAL twoWY = twoY*data[0];
+  FCL_REAL twoWZ = twoZ*data[0];
+  FCL_REAL twoXX = twoX*data[1];
+  FCL_REAL twoXY = twoY*data[1];
+  FCL_REAL twoXZ = twoZ*data[1];
+  FCL_REAL twoYY = twoY*data[2];
+  FCL_REAL twoYZ = twoZ*data[2];
+  FCL_REAL twoZZ = twoZ*data[3];
 
   axis[0].setValue(1.0 - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY);
   axis[1].setValue(twoXY - twoWZ, 1.0 - (twoXX + twoZZ), twoYZ + twoWX);
@@ -169,17 +169,17 @@ void SimpleQuaternion::toAxes(Vec3f axis[3]) const
 }
 
 
-void SimpleQuaternion::fromAxisAngle(const Vec3f& axis, BVH_REAL angle)
+void SimpleQuaternion::fromAxisAngle(const Vec3f& axis, FCL_REAL angle)
 {
-  BVH_REAL half_angle = 0.5 * angle;
-  BVH_REAL sn = sin((double)half_angle);
+  FCL_REAL half_angle = 0.5 * angle;
+  FCL_REAL sn = sin((double)half_angle);
   data[0] = cos((double)half_angle);
   data[1] = sn * axis[0];
   data[2] = sn * axis[1];
   data[3] = sn * axis[2];
 }
 
-void SimpleQuaternion::toAxisAngle(Vec3f& axis, BVH_REAL& angle) const
+void SimpleQuaternion::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
 {
   double sqr_length = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
   if(sqr_length > 0)
@@ -199,7 +199,7 @@ void SimpleQuaternion::toAxisAngle(Vec3f& axis, BVH_REAL& angle) const
   }
 }
 
-BVH_REAL SimpleQuaternion::dot(const SimpleQuaternion& other) const
+FCL_REAL SimpleQuaternion::dot(const SimpleQuaternion& other) const
 {
   return data[0] * other.data[0] + data[1] * other.data[1] + data[2] * other.data[2] + data[3] * other.data[3];
 }
@@ -247,10 +247,10 @@ SimpleQuaternion SimpleQuaternion::operator * (const SimpleQuaternion& other) co
 
 const SimpleQuaternion& SimpleQuaternion::operator *= (const SimpleQuaternion& other)
 {
-  BVH_REAL a = data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3];
-  BVH_REAL b = data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2];
-  BVH_REAL c = data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1];
-  BVH_REAL d = data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0];
+  FCL_REAL a = data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3];
+  FCL_REAL b = data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2];
+  FCL_REAL c = data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1];
+  FCL_REAL d = data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0];
 
   data[0] = a;
   data[1] = b;
@@ -264,12 +264,12 @@ SimpleQuaternion SimpleQuaternion::operator - () const
   return SimpleQuaternion(-data[0], -data[1], -data[2], -data[3]);
 }
 
-SimpleQuaternion SimpleQuaternion::operator * (BVH_REAL t) const
+SimpleQuaternion SimpleQuaternion::operator * (FCL_REAL t) const
 {
   return SimpleQuaternion(data[0] * t, data[1] * t, data[2] * t, data[3] * t);
 }
 
-const SimpleQuaternion& SimpleQuaternion::operator *= (BVH_REAL t)
+const SimpleQuaternion& SimpleQuaternion::operator *= (FCL_REAL t)
 {
   data[0] *= t;
   data[1] *= t;

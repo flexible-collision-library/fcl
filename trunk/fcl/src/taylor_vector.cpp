@@ -78,7 +78,7 @@ TVector3 TVector3::operator + (const TVector3& other) const
   return TVector3(res);
 }
 
-TVector3 TVector3::operator + (BVH_REAL d) const
+TVector3 TVector3::operator + (FCL_REAL d) const
 {
   TaylorModel res[3];
   res[0] = i_[0];
@@ -147,7 +147,7 @@ TVector3 TVector3::cross(const TVector3& other) const
   return TVector3(res);
 }
 
-BVH_REAL TVector3::volumn() const
+FCL_REAL TVector3::volumn() const
 {
   return i_[0].getBound().diameter() * i_[1].getBound().diameter() * i_[2].getBound().diameter();
 }
@@ -169,7 +169,7 @@ void TVector3::print() const
   i_[2].print();
 }
 
-IVector3 TVector3::getBound(BVH_REAL t) const
+IVector3 TVector3::getBound(FCL_REAL t) const
 {
   return IVector3(i_[0].getBound(t), i_[1].getBound(t), i_[2].getBound(t));
 }

@@ -103,16 +103,16 @@ DistanceTraversalNodeBase::~DistanceTraversalNodeBase()
 {
 }
 
-BVH_REAL DistanceTraversalNodeBase::BVTesting(int b1, int b2) const
+FCL_REAL DistanceTraversalNodeBase::BVTesting(int b1, int b2) const
 {
-  return std::numeric_limits<BVH_REAL>::max();
+  return std::numeric_limits<FCL_REAL>::max();
 }
 
 void DistanceTraversalNodeBase::leafTesting(int b1, int b2) const
 {
 }
 
-bool DistanceTraversalNodeBase::canStop(BVH_REAL c) const
+bool DistanceTraversalNodeBase::canStop(FCL_REAL c) const
 {
   return false;
 }

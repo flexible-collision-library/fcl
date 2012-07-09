@@ -80,7 +80,7 @@ public:
 
   mutable Vec3f contact_point;
 
-  mutable BVH_REAL penetration_depth;
+  mutable FCL_REAL penetration_depth;
 
   bool enable_contact;
 
@@ -101,7 +101,7 @@ public:
     nsolver = NULL;
   }
 
-  BVH_REAL BVTesting(int, int) const
+  FCL_REAL BVTesting(int, int) const
   {
     return -1; // should not be used 
   }
@@ -114,7 +114,7 @@ public:
   const S1* model1;
   const S2* model2;
 
-  mutable BVH_REAL min_distance;
+  mutable FCL_REAL min_distance;
   mutable Vec3f p1;
   mutable Vec3f p2;
 

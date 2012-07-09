@@ -49,7 +49,7 @@ namespace fcl
 {
 
 /** \brief Find the smaller and larger one of two values */
-inline void minmax(BVH_REAL a, BVH_REAL b, BVH_REAL& minv, BVH_REAL& maxv)
+inline void minmax(FCL_REAL a, FCL_REAL b, FCL_REAL& minv, FCL_REAL& maxv)
 {
   if(a > b)
   {
@@ -63,7 +63,7 @@ inline void minmax(BVH_REAL a, BVH_REAL b, BVH_REAL& minv, BVH_REAL& maxv)
   }
 }
 /** \brief Merge the interval [minv, maxv] and value p */
-inline void minmax(BVH_REAL p, BVH_REAL& minv, BVH_REAL& maxv)
+inline void minmax(FCL_REAL p, FCL_REAL& minv, FCL_REAL& maxv)
 {
   if(p > maxv) maxv = p;
   if(p < minv) minv = p;
@@ -72,11 +72,11 @@ inline void minmax(BVH_REAL p, BVH_REAL& minv, BVH_REAL& maxv)
 
 /** \brief Compute the distances to planes with normals from KDOP vectors except those of AABB face planes */
 template<size_t N>
-void getDistances(const Vec3f& p, BVH_REAL d[]) {}
+void getDistances(const Vec3f& p, FCL_REAL d[]) {}
 
 /** \brief Specification of getDistances */
 template<>
-inline void getDistances<5>(const Vec3f& p, BVH_REAL d[])
+inline void getDistances<5>(const Vec3f& p, FCL_REAL d[])
 {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
@@ -86,7 +86,7 @@ inline void getDistances<5>(const Vec3f& p, BVH_REAL d[])
 }
 
 template<>
-inline void getDistances<6>(const Vec3f& p, BVH_REAL d[])
+inline void getDistances<6>(const Vec3f& p, FCL_REAL d[])
 {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
@@ -97,7 +97,7 @@ inline void getDistances<6>(const Vec3f& p, BVH_REAL d[])
 }
 
 template<>
-inline void getDistances<9>(const Vec3f& p, BVH_REAL d[])
+inline void getDistances<9>(const Vec3f& p, FCL_REAL d[])
 {
   d[0] = p[0] + p[1];
   d[1] = p[0] + p[2];
@@ -130,7 +130,7 @@ class KDOP
 public:
   KDOP()
   {
-    BVH_REAL real_max = std::numeric_limits<BVH_REAL>::max();
+    FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
     for(size_t i = 0; i < N / 2; ++i)
     {
       dist_[i] = real_max;
@@ -146,7 +146,7 @@ public:
       dist_[i] = dist_[N / 2 + i] = v[i];
     }
 
-    BVH_REAL d[(N - 6) / 2];
+    FCL_REAL d[(N - 6) / 2];
     getDistances<(N - 6) / 2>(v, d);
     for(size_t i = 0; i < (N - 6) / 2; ++i)
     {
@@ -161,7 +161,7 @@ public:
       minmax(a[i], b[i], dist_[i], dist_[i + N / 2]);
     }
 
-    BVH_REAL ad[(N - 6) / 2], bd[(N - 6) / 2];
+    FCL_REAL ad[(N - 6) / 2], bd[(N - 6) / 2];
     getDistances<(N - 6) / 2>(a, ad);
     getDistances<(N - 6) / 2>(b, bd);
     for(size_t i = 0; i < (N - 6) / 2; ++i)
@@ -191,7 +191,7 @@ public:
         return false;
     }
 
-    BVH_REAL d[(N - 6) / 2];
+    FCL_REAL d[(N - 6) / 2];
     getDistances(p, d);
     for(size_t i = 0; i < (N - 6) / 2; ++i)
     {
@@ -210,7 +210,7 @@ public:
       minmax(p[i], dist_[i], dist_[N / 2 + i]);
     }
     
-    BVH_REAL pd[(N - 6) / 2];
+    FCL_REAL pd[(N - 6) / 2];
     getDistances<(N - 6) / 2>(p, pd);
     for(size_t i = 0; i < (N - 6) / 2; ++i)
     {
@@ -239,30 +239,30 @@ public:
   }
 
   /** \brief The (AABB) width */
-  inline BVH_REAL width() const
+  inline FCL_REAL width() const
   {
     return dist_[N / 2] - dist_[0];
   }
 
   /** \brief The (AABB) height */
-  inline BVH_REAL height() const
+  inline FCL_REAL height() const
   {
     return dist_[N / 2 + 1] - dist_[1];
   }
 
   /** \brief The (AABB) depth */
-  inline BVH_REAL depth() const
+  inline FCL_REAL depth() const
   {
     return dist_[N / 2 + 2] - dist_[2];
   }
 
   /** \brief The (AABB) volume */
-  inline BVH_REAL volume() const
+  inline FCL_REAL volume() const
   {
     return width() * height() * depth();
   }
 
-  inline BVH_REAL size() const
+  inline FCL_REAL size() const
   {
     return width() * width() + height() * height() + depth() * depth();
   }
@@ -276,7 +276,7 @@ public:
   /** \brief The distance between two KDOP<N>
    * Not implemented.
    */
-  BVH_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
+  FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
   {
     std::cerr << "KDOP distance not implemented!" << std::endl;
     return 0.0;
@@ -284,7 +284,7 @@ public:
 
 private:
   /** \brief distances to N KDOP planes */
-  BVH_REAL dist_[N];
+  FCL_REAL dist_[N];
 
 
 };

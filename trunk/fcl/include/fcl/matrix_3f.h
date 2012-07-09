@@ -49,9 +49,9 @@ namespace fcl
     /** \brief All zero matrix */
     Matrix3f() {}
 
-    Matrix3f(BVH_REAL xx, BVH_REAL xy, BVH_REAL xz,
-             BVH_REAL yx, BVH_REAL yy, BVH_REAL yz,
-             BVH_REAL zx, BVH_REAL zy, BVH_REAL zz)
+    Matrix3f(FCL_REAL xx, FCL_REAL xy, FCL_REAL xz,
+             FCL_REAL yx, FCL_REAL yy, FCL_REAL yz,
+             FCL_REAL zx, FCL_REAL zy, FCL_REAL zz)
     {
       setValue(xx, xy, xz,
                yx, yy, yz,
@@ -100,41 +100,41 @@ namespace fcl
       return v_[i];
     }
 
-    inline BVH_REAL operator () (size_t i, size_t j) const
+    inline FCL_REAL operator () (size_t i, size_t j) const
     {
       return v_[i][j];
     }
 
-    inline BVH_REAL& operator() (size_t i, size_t j)
+    inline FCL_REAL& operator() (size_t i, size_t j)
     {
       return v_[i][j];
     }
 
     Matrix3f& operator *= (const Matrix3f& other);
 
-    Matrix3f& operator += (BVH_REAL c);
+    Matrix3f& operator += (FCL_REAL c);
 
     void setIdentity()
     {
-      setValue((BVH_REAL)1.0, (BVH_REAL)0.0, (BVH_REAL)0.0,
-               (BVH_REAL)0.0, (BVH_REAL)1.0, (BVH_REAL)0.0,
-               (BVH_REAL)0.0, (BVH_REAL)0.0, (BVH_REAL)1.0);
+      setValue((FCL_REAL)1.0, (FCL_REAL)0.0, (FCL_REAL)0.0,
+               (FCL_REAL)0.0, (FCL_REAL)1.0, (FCL_REAL)0.0,
+               (FCL_REAL)0.0, (FCL_REAL)0.0, (FCL_REAL)1.0);
     }
 
     void setZero()
     {
-      setValue((BVH_REAL)0.0);
+      setValue((FCL_REAL)0.0);
     }
 
     static const Matrix3f& getIdentity()
     {
-      static const Matrix3f I((BVH_REAL)1.0, (BVH_REAL)0.0, (BVH_REAL)0.0,
-                              (BVH_REAL)0.0, (BVH_REAL)1.0, (BVH_REAL)0.0,
-                              (BVH_REAL)0.0, (BVH_REAL)0.0, (BVH_REAL)1.0);
+      static const Matrix3f I((FCL_REAL)1.0, (FCL_REAL)0.0, (FCL_REAL)0.0,
+                              (FCL_REAL)0.0, (FCL_REAL)1.0, (FCL_REAL)0.0,
+                              (FCL_REAL)0.0, (FCL_REAL)0.0, (FCL_REAL)1.0);
       return I;
     }
 
-    BVH_REAL determinant() const;
+    FCL_REAL determinant() const;
     Matrix3f transpose() const;
     Matrix3f inverse() const;
 
@@ -145,7 +145,7 @@ namespace fcl
     Vec3f operator * (const Vec3f& v) const;
     Vec3f transposeTimes(const Vec3f& v) const;
 
-    inline BVH_REAL quadraticForm(const Vec3f& v) const
+    inline FCL_REAL quadraticForm(const Vec3f& v) const
     {
       return v[0] * v[0] * v_[0][0] + v[0] * v[1] * v_[0][1] + v[0] * v[2] * v_[0][2] +
           v[1] * v[0] * v_[1][0] + v[1] * v[1] * v_[1][1] + v[1] * v[2] * v_[1][2] +
@@ -155,36 +155,36 @@ namespace fcl
     /** S * M * S' */
     Matrix3f tensorTransform(const Matrix3f& m) const;
 
-    inline BVH_REAL transposeDotX(const Vec3f& v) const
+    inline FCL_REAL transposeDotX(const Vec3f& v) const
     {
       return v_[0][0] * v[0] + v_[1][0] * v[1] + v_[2][0] * v[2];
     }
 
-    inline BVH_REAL transposeDotY(const Vec3f& v) const
+    inline FCL_REAL transposeDotY(const Vec3f& v) const
     {
       return v_[0][1] * v[0] + v_[1][1] * v[1] + v_[2][1] * v[2];
     }
 
-    inline BVH_REAL transposeDotZ(const Vec3f& v) const
+    inline FCL_REAL transposeDotZ(const Vec3f& v) const
     {
       return v_[0][2] * v[0] + v_[1][2] * v[1] + v_[2][2] * v[2];
     }
 
-    inline BVH_REAL transposeDot(size_t i, const Vec3f& v) const
+    inline FCL_REAL transposeDot(size_t i, const Vec3f& v) const
     {
       return v_[0][i] * v[0] + v_[1][i] * v[1] + v_[2][i] * v[2];
     }
     
-    inline void setValue(BVH_REAL xx, BVH_REAL xy, BVH_REAL xz,
-                         BVH_REAL yx, BVH_REAL yy, BVH_REAL yz,
-                         BVH_REAL zx, BVH_REAL zy, BVH_REAL zz)
+    inline void setValue(FCL_REAL xx, FCL_REAL xy, FCL_REAL xz,
+                         FCL_REAL yx, FCL_REAL yy, FCL_REAL yz,
+                         FCL_REAL zx, FCL_REAL zy, FCL_REAL zz)
     {
       v_[0].setValue(xx, xy, xz);
       v_[1].setValue(yx, yy, yz);
       v_[2].setValue(zx, zy, zz);
     }
     
-    inline void setValue(BVH_REAL x)
+    inline void setValue(FCL_REAL x)
     {
       v_[0].setValue(x);
       v_[1].setValue(x);
@@ -194,7 +194,7 @@ namespace fcl
 
   void relativeTransform(const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, Matrix3f& R, Vec3f& T);
 
-  void matEigen(const Matrix3f& R, BVH_REAL dout[3], Vec3f vout[3]);
+  void matEigen(const Matrix3f& R, FCL_REAL dout[3], Vec3f vout[3]);
 
   Matrix3f abs(const Matrix3f& R);
 }

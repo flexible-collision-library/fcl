@@ -46,35 +46,35 @@ namespace fcl
 
 struct Interval
 {
-  BVH_REAL i_[2];
+  FCL_REAL i_[2];
 
   Interval() {}
-  Interval(BVH_REAL v)
+  Interval(FCL_REAL v)
   {
     i_[0] = i_[1] = v;
   }
 
-  Interval(BVH_REAL left, BVH_REAL right)
+  Interval(FCL_REAL left, FCL_REAL right)
   {
     i_[0] = left; i_[1] = right;
   }
 
-  inline void setValue(BVH_REAL a, BVH_REAL b)
+  inline void setValue(FCL_REAL a, FCL_REAL b)
   {
     i_[0] = a; i_[1] = b;
   }
 
-  inline void setValue(BVH_REAL x)
+  inline void setValue(FCL_REAL x)
   {
     i_[0] = i_[1] = x;
   }
 
-  inline BVH_REAL operator [] (size_t i) const
+  inline FCL_REAL operator [] (size_t i) const
   {
     return i_[i];
   }
 
-  inline BVH_REAL& operator [] (size_t i)
+  inline FCL_REAL& operator [] (size_t i)
   {
     return i_[i];
   }
@@ -112,13 +112,13 @@ struct Interval
 
   Interval operator * (const Interval& other) const;
 
-  inline Interval operator * (BVH_REAL d) const
+  inline Interval operator * (FCL_REAL d) const
   {
     if(d >= 0) return Interval(i_[0] * d, i_[1] * d);
     return Interval(i_[1] * d, i_[0] * d);
   }
 
-  inline Interval& operator *= (BVH_REAL d)
+  inline Interval& operator *= (FCL_REAL d)
   {
     if(d >= 0)
     {
@@ -127,7 +127,7 @@ struct Interval
     }
     else
     {
-      BVH_REAL tmp = i_[0];
+      FCL_REAL tmp = i_[0];
       i_[0] = i_[1] * d;
       i_[1] = tmp * d;
     }
@@ -161,7 +161,7 @@ struct Interval
   }
 
   /** \brief Return the nearest distance for points within the interval to zero */
-  inline BVH_REAL getAbsLower() const
+  inline FCL_REAL getAbsLower() const
   {
     if(i_[0] >= 0) return i_[0];
     if(i_[1] >= 0) return 0;
@@ -169,14 +169,14 @@ struct Interval
   }
 
   /** \brief Return the farthest distance for points within the interval to zero */
-  inline BVH_REAL getAbsUpper() const
+  inline FCL_REAL getAbsUpper() const
   {
     if(i_[0] + i_[1] >= 0) return i_[1];
     return i_[0];
   }
 
 
-  inline bool contains(BVH_REAL v) const
+  inline bool contains(FCL_REAL v) const
   {
     if(v < i_[0]) return false;
     if(v > i_[1]) return false;
@@ -184,13 +184,13 @@ struct Interval
   }
 
   /** \brief Compute the minimum interval contains v and original interval */
-  inline void bound(BVH_REAL v)
+  inline void bound(FCL_REAL v)
   {
     if(v < i_[0]) i_[0] = v;
     if(v > i_[1]) i_[1] = v;
   }
 
-  inline Interval bounded(BVH_REAL v) const
+  inline Interval bounded(FCL_REAL v) const
   {
     Interval res = *this;
     if(v < res.i_[0]) res.i_[0] = v;
@@ -214,8 +214,8 @@ struct Interval
   }
 
   void print() const;
-  inline BVH_REAL center() const { return 0.5 * (i_[0] + i_[1]); }
-  inline BVH_REAL diameter() const { return i_[1] -i_[0]; }
+  inline FCL_REAL center() const { return 0.5 * (i_[0] + i_[1]); }
+  inline FCL_REAL diameter() const { return i_[1] -i_[0]; }
 };
 
 }

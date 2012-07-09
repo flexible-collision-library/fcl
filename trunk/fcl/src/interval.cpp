@@ -58,18 +58,18 @@ Interval Interval::operator * (const Interval& other) const
   if(i_[0] >= 0) return Interval(i_[1] * other.i_[0], i_[1] * other.i_[1]);
   if(i_[1] <= 0) return Interval(i_[0] * other.i_[1], i_[0] * other.i_[0]);
 
-  BVH_REAL v00 = i_[0] * other.i_[0];
-  BVH_REAL v11 = i_[1] * other.i_[1];
+  FCL_REAL v00 = i_[0] * other.i_[0];
+  FCL_REAL v11 = i_[1] * other.i_[1];
   if(v00 <= v11)
   {
-    BVH_REAL v01 = i_[0] * other.i_[1];
-    BVH_REAL v10 = i_[1] * other.i_[0];
+    FCL_REAL v01 = i_[0] * other.i_[1];
+    FCL_REAL v10 = i_[1] * other.i_[0];
     if(v01 < v10) return Interval(v01, v11);
     return Interval(v10, v11);
   }
 
-  BVH_REAL v01 = i_[0] * other.i_[1];
-  BVH_REAL v10 = i_[1] * other.i_[0];
+  FCL_REAL v01 = i_[0] * other.i_[1];
+  FCL_REAL v10 = i_[1] * other.i_[0];
   if(v01 < v10) return Interval(v01, v00);
   return Interval(v10, v00);
 }

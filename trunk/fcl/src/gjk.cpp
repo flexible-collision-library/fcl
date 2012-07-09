@@ -49,9 +49,9 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_TRIANGLE:
     {
       const Triangle2* triangle = static_cast<const Triangle2*>(shape);
-      BVH_REAL dota = dir.dot(triangle->a);
-      BVH_REAL dotb = dir.dot(triangle->b);
-      BVH_REAL dotc = dir.dot(triangle->c);
+      FCL_REAL dota = dir.dot(triangle->a);
+      FCL_REAL dotb = dir.dot(triangle->b);
+      FCL_REAL dotc = dir.dot(triangle->c);
       if(dota > dotb)
       {
         if(dotc > dota)
@@ -85,7 +85,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_CAPSULE:
     {
       const Capsule* capsule = static_cast<const Capsule*>(shape);
-      BVH_REAL half_h = capsule->lz * 0.5;
+      FCL_REAL half_h = capsule->lz * 0.5;
       Vec3f pos1(0, 0, half_h);
       Vec3f pos2(0, 0, -half_h);
       Vec3f v = dir * capsule->radius;
@@ -99,20 +99,20 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_CONE:
     {
       const Cone* cone = static_cast<const Cone*>(shape);
-      BVH_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
-      BVH_REAL len = zdist + dir[2] * dir[2];
+      FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
+      FCL_REAL len = zdist + dir[2] * dir[2];
       zdist = std::sqrt(zdist);
       len = std::sqrt(len);
-      BVH_REAL half_h = cone->lz * 0.5;
-      BVH_REAL radius = cone->radius;
+      FCL_REAL half_h = cone->lz * 0.5;
+      FCL_REAL radius = cone->radius;
 
-      BVH_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
+      FCL_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
 
       if(dir[2] > len * sin_a)
         return Vec3f(0, 0, half_h);
       else if(zdist > 0)
       {
-        BVH_REAL rad = radius / zdist;
+        FCL_REAL rad = radius / zdist;
         return Vec3f(rad * dir[0], rad * dir[1], -half_h);
       }
       else
@@ -122,15 +122,15 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_CYLINDER:
     {
       const Cylinder* cylinder = static_cast<const Cylinder*>(shape);
-      BVH_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
-      BVH_REAL half_h = cylinder->lz * 0.5;
+      FCL_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
+      FCL_REAL half_h = cylinder->lz * 0.5;
       if(zdist == 0.0)
       {
         return Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
       }
       else
       {
-        BVH_REAL d = cylinder->radius / zdist;
+        FCL_REAL d = cylinder->radius / zdist;
         return Vec3f(d * dir[0], d * dir[1], (dir[2]>0)?half_h:-half_h);
       }
     }
@@ -138,12 +138,12 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_CONVEX:
     {
       const Convex* convex = static_cast<const Convex*>(shape);
-      BVH_REAL maxdot = - std::numeric_limits<BVH_REAL>::max();
+      FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
       Vec3f* curp = convex->points;
       Vec3f bestv;
       for(size_t i = 0; i < convex->num_points; ++i, curp+=1)
       {
-        BVH_REAL dot = dir.dot(*curp);
+        FCL_REAL dot = dir.dot(*curp);
         if(dot > maxdot)
         {
           bestv = *curp;
@@ -164,13 +164,13 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 }
 
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, BVH_REAL* w, size_t& m)
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, FCL_REAL* w, size_t& m)
 {
   const Vec3f d = b - a;
-  const BVH_REAL l = d.sqrLength();
+  const FCL_REAL l = d.sqrLength();
   if(l > 0)
   {
-    const BVH_REAL t(l > 0 ? - a.dot(d) / l : 0);
+    const FCL_REAL t(l > 0 ? - a.dot(d) / l : 0);
     if(t >= 1) { w[0] = 0; w[1] = 1; m = 2; return b.sqrLength(); } // m = 0x10 
     else if(t <= 0) { w[0] = 1; w[1] = 0; m = 1; return a.sqrLength(); } // m = 0x01
     else { w[0] = 1 - (w[1] = t); m = 3; return (a + d * t).sqrLength(); } // m = 0x11
@@ -179,25 +179,25 @@ BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, BVH_REAL* w, size_t& m)
   return -1;
 }
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, BVH_REAL* w, size_t& m)
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, FCL_REAL* w, size_t& m)
 {
   static const size_t nexti[3] = {1, 2, 0};
   const Vec3f* vt[] = {&a, &b, &c};
   const Vec3f dl[] = {a - b, b - c, c - a};
   const Vec3f& n = dl[0].cross(dl[1]);
-  const BVH_REAL l = n.sqrLength();
+  const FCL_REAL l = n.sqrLength();
 
   if(l > 0)
   {
-    BVH_REAL mindist = -1;
-    BVH_REAL subw[2] = {0, 0};
+    FCL_REAL mindist = -1;
+    FCL_REAL subw[2] = {0, 0};
     size_t subm = 0;
     for(size_t i = 0; i < 3; ++i)
     {
       if(vt[i]->dot(dl[i].cross(n)) > 0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
       {
         size_t j = nexti[i];
-        BVH_REAL subd = projectOrigin(*vt[i], *vt[j], subw, subm);
+        FCL_REAL subd = projectOrigin(*vt[i], *vt[j], subw, subm);
         if(mindist < 0 || subd < mindist)
         {
           mindist = subd;
@@ -211,8 +211,8 @@ BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, BVH_REAL*
     
     if(mindist < 0) // the origin project is within the triangle
     {
-      BVH_REAL d = a.dot(n);
-      BVH_REAL s = sqrt(l);
+      FCL_REAL d = a.dot(n);
+      FCL_REAL s = sqrt(l);
       Vec3f p = n * (d / l);
       mindist = p.sqrLength();
       m = 7; // m = 0x111
@@ -226,25 +226,25 @@ BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, BVH_REAL*
   return -1;
 }
 
-BVH_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, BVH_REAL* w, size_t& m)
+FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, FCL_REAL* w, size_t& m)
 {
   static const size_t nexti[] = {1, 2, 0};
   const Vec3f* vt[] = {&a, &b, &c, &d};
   const Vec3f dl[3] = {a-d, b-d, c-d};
-  BVH_REAL vl = triple(dl[0], dl[1], dl[2]); 
+  FCL_REAL vl = triple(dl[0], dl[1], dl[2]); 
   bool ng = (vl * a.dot((b-c).cross(a-b))) <= 0;
   if(ng && std::abs(vl) > 0) // abs(vl) == 0, the tetrahedron is degenerated; if ng is false, then the last vertex in the tetrahedron does not grow toward the origin (in fact origin is on the other side of the abc face)
   {
-    BVH_REAL mindist = -1;
-    BVH_REAL subw[3] = {0, 0, 0};
+    FCL_REAL mindist = -1;
+    FCL_REAL subw[3] = {0, 0, 0};
     size_t subm = 0;
     for(size_t i = 0; i < 3; ++i)
     {
       size_t j = nexti[i];
-      BVH_REAL s = vl * d.dot(dl[i].cross(dl[j]));
+      FCL_REAL s = vl * d.dot(dl[i].cross(dl[j]));
       if(s > 0) // the origin is to the outside part of a triangle face, then the optimal can only be on the triangle face
       {
-        BVH_REAL subd = projectOrigin(*vt[i], *vt[j], d, subw, subm);
+        FCL_REAL subd = projectOrigin(*vt[i], *vt[j], d, subw, subm);
         if(mindist < 0 || subd < mindist)
         {
           mindist = subd;
@@ -285,8 +285,8 @@ void GJK::initialize()
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 {
   size_t iterations = 0;
-  BVH_REAL sqdist = 0;
-  BVH_REAL alpha = 0;
+  FCL_REAL sqdist = 0;
+  FCL_REAL alpha = 0;
   Vec3f lastw[4];
   size_t clastw = 0;
     
@@ -303,7 +303,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplices[0].rank = 0;
   ray = guess;
     
-  BVH_REAL sqrl = ray.sqrLength();
+  FCL_REAL sqrl = ray.sqrLength();
   appendVertex(simplices[0], (sqrl>0) ? -ray : Vec3f(1, 0, 0));
   simplices[0].p[0] = 1;
   ray = simplices[0].c[0]->w;
@@ -316,7 +316,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     Simplex& curr_simplex = simplices[current];
     Simplex& next_simplex = simplices[next];
       
-    BVH_REAL rl = ray.sqrLength();
+    FCL_REAL rl = ray.sqrLength();
     if(rl < tolerance) // means origin is near the face of original simplex, return touch
     {
       status = Inside;
@@ -346,7 +346,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     }
 
     // check for termination, from bullet
-    BVH_REAL omega = ray.dot(w) / rl;
+    FCL_REAL omega = ray.dot(w) / rl;
     alpha = std::max(alpha, omega);
     if((rl - alpha) - tolerance * rl <= 0)
     {
@@ -355,7 +355,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     }
 
     // reduce simplex and decide the extend direction
-    BVH_REAL weights[4];
+    FCL_REAL weights[4];
     size_t mask = 0; // decide the simplex vertices that compose the minimal distance
     switch(curr_simplex.rank)
     {
@@ -499,20 +499,20 @@ void EPA::initialize()
     stock.append(&fc_store[max_face_num-i-1]);
 }
 
-bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, BVH_REAL& dist)
+bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist)
 {
   Vec3f ba = b->w - a->w;
   Vec3f n_ab = ba.cross(face->n);
-  BVH_REAL a_dot_nab = a->w.dot(n_ab);
+  FCL_REAL a_dot_nab = a->w.dot(n_ab);
 
   if(a_dot_nab < 0) // the origin is on the outside part of ab
   {
-    BVH_REAL ba_l2 = ba.sqrLength();
+    FCL_REAL ba_l2 = ba.sqrLength();
 
     // following is similar to projectOrigin for two points
     // however, as we dont need to compute the parameterization, dont need to compute 0 or 1
-    BVH_REAL a_dot_ba = a->w.dot(ba); 
-    BVH_REAL b_dot_ba = b->w.dot(ba);
+    FCL_REAL a_dot_ba = a->w.dot(ba); 
+    FCL_REAL b_dot_ba = b->w.dot(ba);
 
     if(a_dot_ba > 0) 
       dist = a->w.length();
@@ -520,8 +520,8 @@ bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, BVH_REAL& dist)
       dist = b->w.length();
     else
     {
-      BVH_REAL a_dot_b = a->w.dot(b->w);
-      dist = std::sqrt(std::max(a->w.sqrLength() * b->w.sqrLength() - a_dot_b * a_dot_b, (BVH_REAL)0));
+      FCL_REAL a_dot_b = a->w.dot(b->w);
+      dist = std::sqrt(std::max(a->w.sqrLength() * b->w.sqrLength() - a_dot_b * a_dot_b, (FCL_REAL)0));
     }
 
     return true;
@@ -542,7 +542,7 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
     face->c[1] = b;
     face->c[2] = c;
     face->n = (b->w - a->w).cross(c->w - a->w);
-    BVH_REAL l = face->n.length();
+    FCL_REAL l = face->n.length();
       
     if(l > tolerance)
     {
@@ -575,10 +575,10 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
 EPA::SimplexF* EPA::findBest()
 {
   SimplexF* minf = hull.root;
-  BVH_REAL mind = minf->d * minf->d;
+  FCL_REAL mind = minf->d * minf->d;
   for(SimplexF* f = minf->l[1]; f; f = f->l[1])
   {
-    BVH_REAL sqd = f->d * f->d;
+    FCL_REAL sqd = f->d * f->d;
     if(sqd < mind)
     {
       minf = f;
@@ -609,7 +609,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
       simplex.c[0] = simplex.c[1];
       simplex.c[1] = tmp;
 
-      BVH_REAL tmpv = simplex.p[0];
+      FCL_REAL tmpv = simplex.p[0];
       simplex.p[0] = simplex.p[1];
       simplex.p[1] = tmpv;
     }
@@ -644,7 +644,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
           bool valid = true;
           best->pass = ++pass;
           gjk.getSupport(best->n, *w);
-          BVH_REAL wdist = best->n.dot(w->w) - best->d;
+          FCL_REAL wdist = best->n.dot(w->w) - best->d;
           if(wdist > tolerance)
           {
             for(size_t j = 0; (j < 3) && valid; ++j)
@@ -689,7 +689,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
       result.p[1] = ((outer.c[2]->w - projection).cross(outer.c[0]->w - projection)).length();
       result.p[2] = ((outer.c[0]->w - projection).cross(outer.c[1]->w - projection)).length();
 
-      BVH_REAL sum = result.p[0] + result.p[1] + result.p[2];
+      FCL_REAL sum = result.p[0] + result.p[1] + result.p[2];
       result.p[0] /= sum;
       result.p[1] /= sum;
       result.p[2] /= sum;
@@ -699,7 +699,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
 
   status = FallBack;
   normal = -guess;
-  BVH_REAL nl = normal.length();
+  FCL_REAL nl = normal.length();
   if(nl > 0) normal /= nl;
   else normal = Vec3f(1, 0, 0);
   depth = 0;

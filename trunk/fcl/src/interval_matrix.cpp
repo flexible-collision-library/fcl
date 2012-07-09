@@ -45,7 +45,7 @@ IMatrix3::IMatrix3()
   i_[0][0] = i_[0][1] = i_[0][2] = i_[1][0] = i_[1][1] = i_[1][2] = i_[2][0] = i_[2][1] = i_[2][2] = 0;
 }
 
-IMatrix3::IMatrix3(BVH_REAL v)
+IMatrix3::IMatrix3(FCL_REAL v)
 {
   i_[0][0] = i_[0][1] = i_[0][2] = i_[1][0] = i_[1][1] = i_[1][2] = i_[2][0] = i_[2][1] = i_[2][2] = v;
 }
@@ -65,7 +65,7 @@ IMatrix3::IMatrix3(const Matrix3f& m)
   i_[2][2] = m[2][2];
 }
 
-IMatrix3::IMatrix3(BVH_REAL m[3][3][2])
+IMatrix3::IMatrix3(FCL_REAL m[3][3][2])
 {
   i_[0][0].setValue(m[0][0][0], m[0][0][1]);
   i_[0][1].setValue(m[0][1][0], m[0][1][1]);
@@ -80,7 +80,7 @@ IMatrix3::IMatrix3(BVH_REAL m[3][3][2])
   i_[2][2].setValue(m[2][2][0], m[2][2][1]);
 }
 
-IMatrix3::IMatrix3(BVH_REAL m[3][3])
+IMatrix3::IMatrix3(FCL_REAL m[3][3])
 {
   i_[0][0].setValue(m[0][0]);
   i_[0][1].setValue(m[0][1]);
@@ -147,7 +147,7 @@ Vec3f IMatrix3::getRealRow(size_t i) const
 
 IMatrix3 IMatrix3::operator * (const Matrix3f& m) const
 {
-  BVH_REAL res[3][3][2];
+  FCL_REAL res[3][3][2];
 
   if(m[0][0] < 0)
   {
@@ -325,7 +325,7 @@ IMatrix3 IMatrix3::operator * (const Matrix3f& m) const
 
 IVector3 IMatrix3::operator * (const Vec3f& v) const
 {
-  BVH_REAL res[3][2];
+  FCL_REAL res[3][2];
 
   if(v[0] < 0)
   {
@@ -390,7 +390,7 @@ IVector3 IMatrix3::operator * (const Vec3f& v) const
 
 IMatrix3 IMatrix3::nonIntervalAddMatrix(const IMatrix3& m) const
 {
-  BVH_REAL res[3][3];
+  FCL_REAL res[3][3];
 
   res[0][0] = i_[0][0][0] + m.i_[0][0][0];
   res[0][1] = i_[0][1][0] + m.i_[0][1][0];
@@ -409,8 +409,8 @@ IMatrix3 IMatrix3::nonIntervalAddMatrix(const IMatrix3& m) const
 
 IVector3 IMatrix3::operator * (const IVector3& v) const
 {
-  BVH_REAL xl, xu, yl, yu, zl, zu;
-  register BVH_REAL temp, vmin, vmax;
+  FCL_REAL xl, xu, yl, yu, zl, zu;
+  register FCL_REAL temp, vmin, vmax;
 
   // r.v.i_[0]
   vmin = vmax = i_[0][0][0] * v.i_[0][0];
@@ -532,8 +532,8 @@ IVector3 IMatrix3::operator * (const IVector3& v) const
 IMatrix3 IMatrix3::operator * (const IMatrix3& m) const
 {
 
-  register BVH_REAL temp, vmin, vmax;
-  BVH_REAL res[3][3][2];
+  register FCL_REAL temp, vmin, vmax;
+  FCL_REAL res[3][3][2];
 
   // res[0][0]
 
@@ -720,7 +720,7 @@ IMatrix3 IMatrix3::operator * (const IMatrix3& m) const
 
 IMatrix3 IMatrix3::operator + (const IMatrix3& m) const
 {
-  BVH_REAL res[3][3][2];
+  FCL_REAL res[3][3][2];
   res[0][0][0] = i_[0][0][0] + m.i_[0][0][0]; res[0][0][1] = i_[0][0][1] + m.i_[0][0][1]; res[0][1][0] = i_[0][1][0] + m.i_[0][1][0]; res[0][1][1] = i_[0][1][1] + m.i_[0][1][1]; res[0][2][0] = i_[0][2][0] + m.i_[0][2][0]; res[0][2][1] = i_[0][2][1] + m.i_[0][2][1];
   res[1][0][0] = i_[1][0][0] + m.i_[1][0][0]; res[1][0][1] = i_[1][0][1] + m.i_[1][0][1]; res[1][1][0] = i_[1][1][0] + m.i_[1][1][0]; res[1][1][1] = i_[1][1][1] + m.i_[1][1][1]; res[1][2][0] = i_[1][2][0] + m.i_[1][2][0]; res[1][2][1] = i_[1][2][1] + m.i_[1][2][1];
   res[2][0][0] = i_[2][0][0] + m.i_[2][0][0]; res[2][0][1] = i_[2][0][1] + m.i_[2][0][1]; res[2][1][0] = i_[2][1][0] + m.i_[2][1][0]; res[2][1][1] = i_[2][1][1] + m.i_[2][1][1]; res[2][2][0] = i_[2][2][0] + m.i_[2][2][0]; res[2][2][1] = i_[2][2][1] + m.i_[2][2][1];

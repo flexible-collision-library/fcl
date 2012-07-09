@@ -89,7 +89,7 @@ struct Uncertainty
   Matrix3f Sigma;
 
   /** \brief Variations along the eigen axes */
-  BVH_REAL sigma[3];
+  FCL_REAL sigma[3];
 
   /** \brief eigen axes of uncertainty matrix */
   Vec3f axis[3];

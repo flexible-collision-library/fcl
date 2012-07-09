@@ -109,11 +109,11 @@ public:
 
   virtual ~DistanceTraversalNodeBase();
 
-  virtual BVH_REAL BVTesting(int b1, int b2) const;
+  virtual FCL_REAL BVTesting(int b1, int b2) const;
 
   virtual void leafTesting(int b1, int b2) const;
 
-  virtual bool canStop(BVH_REAL c) const;
+  virtual bool canStop(FCL_REAL c) const;
 };
 
 }

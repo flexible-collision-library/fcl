@@ -71,7 +71,7 @@ struct TMatrix3
   void print() const;
   void setIdentity();
   void setZero();
-  BVH_REAL diameter() const;
+  FCL_REAL diameter() const;
 };
 
 }

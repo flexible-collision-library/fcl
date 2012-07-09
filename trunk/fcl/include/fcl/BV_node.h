@@ -91,7 +91,7 @@ struct BVNode : public BVNodeBase
     return bv.overlap(other.bv);
   }
 
-  BVH_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
+  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
   {
     return bv.distance(other.bv, P1, P2);
   }
@@ -114,7 +114,7 @@ struct BVNode<OBB> : public BVNodeBase
     return bv.overlap(other.bv);
   }
 
-  BVH_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
+  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
   {
     return bv.distance(other.bv, P1, P2);
   }
@@ -148,7 +148,7 @@ struct BVNode<RSS> : public BVNodeBase
     return bv.overlap(other.bv);
   }
 
-  BVH_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
+  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
   {
     return bv.distance(other.bv, P1, P2);
   }

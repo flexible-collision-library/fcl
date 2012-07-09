@@ -707,9 +707,9 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
         const Vec3f& p1 = vertices[t[0]];
         const Vec3f& p2 = vertices[t[1]];
         const Vec3f& p3 = vertices[t[2]];
-        BVH_REAL x = (p1[0] + p2[0] + p3[0]) / 3.0;
-        BVH_REAL y = (p1[1] + p2[1] + p3[1]) / 3.0;
-        BVH_REAL z = (p1[2] + p2[2] + p3[2]) / 3.0;
+        FCL_REAL x = (p1[0] + p2[0] + p3[0]) / 3.0;
+        FCL_REAL y = (p1[1] + p2[1] + p3[1]) / 3.0;
+        FCL_REAL z = (p1[2] + p2[2] + p3[2]) / 3.0;
         p.setValue(x, y, z);
       }
       else
@@ -866,7 +866,7 @@ void BVHModel<BV>::computeLocalAABB()
   aabb_radius = 0;
   for(int i = 0; i < num_vertices; ++i)
   {
-    BVH_REAL r = (aabb_center - vertices[i]).sqrLength();
+    FCL_REAL r = (aabb_center - vertices[i]).sqrLength();
     if(r > aabb_radius) aabb_radius = r;
   }
 
