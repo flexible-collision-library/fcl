@@ -1274,13 +1274,19 @@ public:
 
   int max_tree_nonbalanced_level;
   int tree_incremental_balance_pass;
-  int tree_topdown_balance_threshold;
+  int& tree_topdown_balance_threshold;
+  int& tree_topdown_level;
+  int tree_init_level;
+
   
-  DynamicAABBTreeCollisionManager()
+  DynamicAABBTreeCollisionManager() : tree_topdown_balance_threshold(dtree.bu_threshold),
+                                      tree_topdown_level(dtree.topdown_level)
   {
     max_tree_nonbalanced_level = 10;
     tree_incremental_balance_pass = 10;
     tree_topdown_balance_threshold = 2;
+    tree_topdown_level = 0;
+    tree_init_level = 0;
     setup_ = false;
   }
 
@@ -1405,13 +1411,18 @@ public:
 
   int max_tree_nonbalanced_level;
   int tree_incremental_balance_pass;
-  int tree_topdown_balance_threshold;
+  int& tree_topdown_balance_threshold;
+  int& tree_topdown_level;
+  int tree_init_level;
   
-  DynamicAABBTreeCollisionManager2()
+  DynamicAABBTreeCollisionManager2() : tree_topdown_balance_threshold(dtree.bu_threshold),
+                                       tree_topdown_level(dtree.topdown_level)
   {
     max_tree_nonbalanced_level = 10;
     tree_incremental_balance_pass = 10;
     tree_topdown_balance_threshold = 2;
+    tree_topdown_level = 0;
+    tree_init_level = 0;
     setup_ = false;
   }
 

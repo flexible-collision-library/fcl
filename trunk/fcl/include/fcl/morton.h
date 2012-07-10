@@ -104,6 +104,8 @@ struct morton_functor<FCL_UINT32>
 
   const Vec3f base;
   const Vec3f inv;
+
+  size_t bits() const { return 30; }
 };
 
 
@@ -127,6 +129,8 @@ struct morton_functor<FCL_UINT64>
 
   const Vec3f base;
   const Vec3f inv;
+
+  size_t bits() const { return 60; }
 };
 
 template<>
@@ -167,6 +171,8 @@ struct morton_functor<boost::dynamic_bitset<> >
   const Vec3f base;
   const Vec3f inv;
   const size_t bit_num;
+
+  size_t bits() const { return bit_num * 3; }
 };
 
 }

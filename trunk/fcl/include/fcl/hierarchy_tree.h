@@ -38,10 +38,12 @@
 #define FCL_HIERARCHY_TREE_H
 
 #include <vector>
+#include <map>
 #include "fcl/BV/AABB.h"
 #include "fcl/vec_3f.h"
 #include "fcl/morton.h"
 #include <boost/bind.hpp>
+#include <boost/iterator/zip_iterator.hpp>
 
 namespace fcl
 {
@@ -59,6 +61,8 @@ struct NodeBase
     NodeBase<BV>* childs[2];
     void* data;
   };
+
+  FCL_UINT32 code;
 };
 
 template<typename BV>
@@ -93,15 +97,27 @@ class HierarchyTree
 {
   typedef NodeBase<BV> NodeType;
   typedef typename std::vector<NodeBase<BV>* >::iterator NodeVecIterator;
+  typedef typename std::vector<NodeBase<BV>* >::const_iterator NodeVecConstIterator;
+
+  struct SortByMorton
+  {
+    bool operator() (NodeType* a, NodeType* b) const
+    {
+      return a->code < b->code;
+    }
+  };
+
 public:
 
-  HierarchyTree()
+  HierarchyTree(int bu_threshold_ = 16, int topdown_level_ = 0)
   {
     root_node = NULL;
     n_leaves = 0;
     free_node = NULL;
     max_lookahead_level = -1;
     opath = 0;
+    bu_threshold = bu_threshold_;
+    topdown_level = topdown_level_;
   }
 
   ~HierarchyTree()
@@ -109,14 +125,25 @@ public:
     clear();
   }
 
-  void init(std::vector<NodeType*>& leaves, int bu_threshold)
+  void init(std::vector<NodeType*>& leaves, int level = 0)
   {
-    clear();
-    root_node = topdown(leaves.begin(), leaves.end(), bu_threshold);
-    n_leaves = leaves.size();
-    free_node = NULL;
-    max_lookahead_level = -1;
-    opath = 0;
+    switch(level)
+    {
+    case 0:
+      init_0(leaves);
+      break;
+    case 1:
+      init_1(leaves);
+      break;
+    case 2:
+      init_2(leaves);
+      break;
+    case 3:
+      init_3(leaves);
+      break;
+    default:
+      init_0(leaves);
+    }
   }
 
   /** \brief Insest a node */
@@ -199,28 +226,11 @@ public:
     return getMaxHeight(root_node);
   }
 
-
-  size_t getMaxHeight(NodeType* node) const
+  size_t getMaxDepth() const
   {
-    if(!node->isLeaf())
-    {
-      size_t height1 = getMaxHeight(node->childs[0]);
-      size_t height2 = getMaxHeight(node->childs[1]);
-      return std::max(height1, height2) + 1;
-    }
-    else
-      return 0;
-  }
-
-  void getMaxDepth(NodeType* node, size_t depth, size_t& max_depth) const
-  {
-    if(!node->isLeaf())
-    {
-      getMaxDepth(node->childs[0], depth+1, max_depth);
-      getMaxDepth(node->childs[1], depth+1, max_depth);
-    }
-    else
-      max_depth = std::max(max_depth, depth);
+    size_t max_depth;
+    getMaxDepth(root_node, 0, max_depth);
+    return max_depth;
   }
 
   /** \brief balance the tree from bottom */
@@ -237,18 +247,18 @@ public:
   }
 
   /** \brief balance the tree from top */
-  void balanceTopdown(int bu_threshold = 128)
+  void balanceTopdown()
   {
     if(root_node)
     {
       std::vector<NodeType*> leaves;
       leaves.reserve(n_leaves);
       fetchLeaves(root_node, leaves);
-      root_node = topdown(leaves.begin(), leaves.end(), bu_threshold);
+      root_node = topdown(leaves.begin(), leaves.end());
     }
   }
 
-
+  
   /** \brief balance the tree in an incremental way */
   void balanceIncremental(int iterations)
   {
@@ -269,7 +279,7 @@ public:
       }
     }
   }
-
+  
   /** \brief refit */
   void refit()
   {
@@ -319,6 +329,10 @@ public:
     }
   }
 
+
+  
+private:
+
   /** \brief construct a tree for a set of leaves from bottom -- very heavy way */
   void bottomup(const NodeVecIterator lbeg, const NodeVecIterator lend)
   {
@@ -356,7 +370,47 @@ public:
   }
 
   /** \brief construct a tree for a set of leaves from top */
-  NodeType* topdown(const NodeVecIterator lbeg, const NodeVecIterator lend, int bu_threshold)
+  NodeType* topdown(const NodeVecIterator lbeg, const NodeVecIterator lend)
+  {
+    switch(topdown_level)
+    {
+    case 0:
+      return topdown_0(lbeg, lend);
+      break;
+    case 1:
+      return topdown_1(lbeg, lend);
+      break;
+    default:
+      return topdown_0(lbeg, lend);
+    }
+  }
+
+
+  size_t getMaxHeight(NodeType* node) const
+  {
+    if(!node->isLeaf())
+    {
+      size_t height1 = getMaxHeight(node->childs[0]);
+      size_t height2 = getMaxHeight(node->childs[1]);
+      return std::max(height1, height2) + 1;
+    }
+    else
+      return 0;
+  }
+
+  void getMaxDepth(NodeType* node, size_t depth, size_t& max_depth) const
+  {
+    if(!node->isLeaf())
+    {
+      getMaxDepth(node->childs[0], depth+1, max_depth);
+      getMaxDepth(node->childs[1], depth+1, max_depth);
+    }
+    else
+      max_depth = std::max(max_depth, depth);
+  }
+
+
+  NodeType* topdown_0(const NodeVecIterator lbeg, const NodeVecIterator lend)
   {
     int num_leaves = lend - lbeg;
     if(num_leaves > 1)
@@ -377,8 +431,8 @@ public:
         std::nth_element(lbeg, lcenter, lend, boost::bind(&nodeBaseLess<BV>, _1, _2, boost::ref(best_axis)));
 
         NodeType* node = createNode(NULL, vol, NULL);
-        node->childs[0] = topdown(lbeg, lcenter, bu_threshold);
-        node->childs[1] = topdown(lcenter, lend, bu_threshold);
+        node->childs[0] = topdown_0(lbeg, lcenter);
+        node->childs[1] = topdown_0(lcenter, lend);
         node->childs[0]->parent = node;
         node->childs[1]->parent = node;
         return node;
@@ -393,7 +447,7 @@ public:
   }
 
 
-  NodeType* topdown2(const NodeVecIterator lbeg, const NodeVecIterator lend, int bu_threshold)
+  NodeType* topdown_1(const NodeVecIterator lbeg, const NodeVecIterator lend)
   {
     int num_leaves = lend - lbeg;
     if(num_leaves > 1)
@@ -448,8 +502,8 @@ public:
         }
 
         NodeType* node = createNode(NULL, vol, NULL);
-        node->childs[0] = topdown2(lbeg, lcenter, bu_threshold);
-        node->childs[1] = topdown2(lcenter, lend, bu_threshold);
+        node->childs[0] = topdown_1(lbeg, lcenter);
+        node->childs[1] = topdown_1(lcenter, lend);
         node->childs[0]->parent = node;
         node->childs[1]->parent = node;
         return node;
@@ -463,12 +517,205 @@ public:
     return *lbeg;
   }
 
-  NodeType* topdown_morton(const NodeVecIterator lbeg, const NodeVecIterator lend, int bu_threshold)
+
+  void init_0(std::vector<NodeType*>& leaves)
   {
-    return NULL;
+    clear();
+    root_node = topdown(leaves.begin(), leaves.end());
+    n_leaves = leaves.size();
+    max_lookahead_level = -1;
+    opath = 0;
   }
+
+  void init_1(std::vector<NodeType*>& leaves)
+  {
+    clear();
+     
+    BV bound_bv;
+    if(leaves.size() > 0)
+      bound_bv = leaves[0]->bv;
+    for(size_t i = 1; i < leaves.size(); ++i)
+      bound_bv += leaves[i]->bv;
+    
+    morton_functor<FCL_UINT32> coder(bound_bv);
+    for(size_t i = 0; i < leaves.size(); ++i)
+      leaves[i]->code = coder(leaves[i]->bv.center());
+
+    std::sort(leaves.begin(), leaves.end(), SortByMorton());
+    
+    root_node = mortonRecurse_0(leaves.begin(), leaves.end(), (1 << (coder.bits()-1)), coder.bits()-1);
+     
+    refit();
+    n_leaves = leaves.size();
+    max_lookahead_level = -1;
+    opath = 0;
+  }
+
+  void init_2(std::vector<NodeType*>& leaves)
+  {
+    clear();
+     
+    BV bound_bv;
+    if(leaves.size() > 0)
+      bound_bv = leaves[0]->bv;
+    for(size_t i = 1; i < leaves.size(); ++i)
+      bound_bv += leaves[i]->bv;
+    
+    morton_functor<FCL_UINT32> coder(bound_bv);
+    for(size_t i = 0; i < leaves.size(); ++i)
+      leaves[i]->code = coder(leaves[i]->bv.center());
+
+    std::sort(leaves.begin(), leaves.end(), SortByMorton());
+    
+    root_node = mortonRecurse_1(leaves.begin(), leaves.end(), (1 << (coder.bits()-1)), coder.bits()-1);
+     
+    refit();
+    n_leaves = leaves.size();
+    max_lookahead_level = -1;
+    opath = 0;
+  }
+
+  void init_3(std::vector<NodeType*>& leaves)
+  {
+    clear();
+     
+    BV bound_bv;
+    if(leaves.size() > 0)
+      bound_bv = leaves[0]->bv;
+    for(size_t i = 1; i < leaves.size(); ++i)
+      bound_bv += leaves[i]->bv;
+    
+    morton_functor<FCL_UINT32> coder(bound_bv);
+    for(size_t i = 0; i < leaves.size(); ++i)
+      leaves[i]->code = coder(leaves[i]->bv.center());
+
+    std::sort(leaves.begin(), leaves.end(), SortByMorton());
+    
+    root_node = mortonRecurse_2(leaves.begin(), leaves.end());
+     
+    refit();
+    n_leaves = leaves.size();
+    max_lookahead_level = -1;
+    opath = 0;
+  }
+
   
-private:
+  NodeType* mortonRecurse_0(const NodeVecIterator lbeg, const NodeVecIterator lend, const FCL_UINT32& split, int bits)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      if(bits > 0)
+      {
+        NodeType dummy;
+        dummy.code = split;
+        NodeVecIterator lcenter = std::lower_bound(lbeg, lend, &dummy, SortByMorton());
+        
+        if(lcenter == lbeg)
+        {
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+          return mortonRecurse_0(lbeg, lend, split2, bits - 1);
+        }
+        else if(lcenter == lend)
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          return mortonRecurse_0(lbeg, lend, split1, bits - 1);
+        }
+        else
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+        
+          NodeType* child1 = mortonRecurse_0(lbeg, lcenter, split1, bits - 1);
+          NodeType* child2 = mortonRecurse_0(lcenter, lend, split2, bits - 1);
+          NodeType* node = createNode(NULL, NULL);
+          node->childs[0] = child1;
+          node->childs[1] = child2;
+          child1->parent = node;
+          child2->parent = node;
+          return node;
+        }        
+      }
+      else
+      {
+        NodeType* node = topdown(lbeg, lend);
+        return node;
+      }
+    }
+    else
+      return *lbeg;
+  }
+
+  NodeType* mortonRecurse_1(const NodeVecIterator lbeg, const NodeVecIterator lend, const FCL_UINT32& split, int bits)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      if(bits > 0)
+      {
+        NodeType dummy;
+        dummy.code = split;
+        NodeVecIterator lcenter = std::lower_bound(lbeg, lend, &dummy, SortByMorton());
+        
+        if(lcenter == lbeg)
+        {
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+          return mortonRecurse_1(lbeg, lend, split2, bits - 1);
+        }
+        else if(lcenter == lend)
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          return mortonRecurse_1(lbeg, lend, split1, bits - 1);
+        }
+        else
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+        
+          NodeType* child1 = mortonRecurse_1(lbeg, lcenter, split1, bits - 1);
+          NodeType* child2 = mortonRecurse_1(lcenter, lend, split2, bits - 1);
+          NodeType* node = createNode(NULL, NULL);
+          node->childs[0] = child1;
+          node->childs[1] = child2;
+          child1->parent = node;
+          child2->parent = node;
+          return node;
+        }        
+      }
+      else
+      {
+        NodeType* child1 = mortonRecurse_1(lbeg, lbeg + num_leaves / 2, 0, bits - 1);
+        NodeType* child2 = mortonRecurse_1(lbeg + num_leaves / 2, lend, 0, bits - 1);
+        NodeType* node = createNode(NULL, NULL);
+        node->childs[0] = child1;
+        node->childs[1] = child2;
+        child1->parent = node;
+        child2->parent = node;
+        return node;
+      }
+    }
+    else
+      return *lbeg;
+  }
+
+  NodeType* mortonRecurse_2(const NodeVecIterator lbeg, const NodeVecIterator lend)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      NodeType* child1 = mortonRecurse_2(lbeg, lbeg + num_leaves / 2);
+      NodeType* child2 = mortonRecurse_2(lbeg + num_leaves / 2, lend);
+      NodeType* node = createNode(NULL, NULL);
+      node->childs[0] = child1;
+      node->childs[1] = child2;
+      child1->parent = node;
+      child2->parent = node;
+      return node;
+    }
+    else
+      return *lbeg;
+  }
+
 
   /** \brief update one leaf node's bounding volume */
   void update_(NodeType* leaf, const BV& bv)
@@ -717,7 +964,7 @@ private:
 
     return bv;
   }
-  
+
 protected:
   NodeType* root_node;
   size_t n_leaves;
@@ -727,6 +974,11 @@ protected:
   NodeType* free_node; // This is a one NodeType cache, the reason is that we need to remove a node and then add it again frequently. 
 
   int max_lookahead_level;
+  
+public:
+
+  int topdown_level;
+  int bu_threshold;
 
 
 };
@@ -758,6 +1010,8 @@ struct NodeBase
     size_t childs[2];
     void* data;
   };
+
+  FCL_UINT32 code;
   
   bool isLeaf() const { return (childs[1] == (size_t)(-1)); }
   bool isInternal() const { return !isLeaf(); }
@@ -809,8 +1063,32 @@ template<typename BV>
 class HierarchyTree
 {
   typedef NodeBase<BV> NodeType;
+  
+  struct SortByMorton
+  {
+    bool operator() (size_t a, size_t b) const
+    {
+      if((a != NULL_NODE) && (b != NULL_NODE))
+      {
+        return nodes[a].code < nodes[b].code;
+      }
+      else if(a == NULL_NODE)
+      {
+        return split < nodes[b].code;
+      }
+      else if(b == NULL_NODE)
+      {
+        return nodes[a].code < split;
+      }
+      return false;
+    }
+
+    NodeType* nodes;
+    FCL_UINT32 split;
+  };
+
 public:
-  HierarchyTree()
+  HierarchyTree(int bu_threshold_ = 16, int topdown_level_ = 0)
   {
     root_node = NULL_NODE;
     n_nodes = 0;
@@ -823,6 +1101,8 @@ public:
     freelist = 0;
     opath = 0;
     max_lookahead_level = -1;
+    bu_threshold = bu_threshold_;
+    topdown_level = topdown_level_;
   }
 
   ~HierarchyTree()
@@ -830,8 +1110,31 @@ public:
     delete [] nodes;
   }
 
-  void init(NodeType* leaves, int n_leaves_, int bu_threshold = 128)
+  void init(NodeType* leaves, int n_leaves_, int level = 0)
   {
+    switch(level)
+    {
+    case 0: 
+      init_0(leaves, n_leaves_);
+      break;
+    case 1:
+      init_1(leaves, n_leaves_);
+      break;
+    case 2:
+      init_2(leaves, n_leaves_);
+      break;
+    case 3:
+      init_3(leaves, n_leaves_);
+      break;
+    default:
+      init_0(leaves, n_leaves_);
+    }
+  }
+
+  void init_0(NodeType* leaves, int n_leaves_)
+  {
+    clear();
+
     n_leaves = n_leaves_;
     root_node = NULL_NODE;
     nodes = new NodeType[n_leaves * 2];
@@ -847,9 +1150,143 @@ public:
     for(size_t i = 0; i < n_leaves; ++i)
       ids[i] = i;
     
-    root_node = topdown(ids, ids + n_leaves, bu_threshold);
+    root_node = topdown(ids, ids + n_leaves);
     delete [] ids;
+
+    opath = 0;
+    max_lookahead_level = -1;
   }
+
+  void init_1(NodeType* leaves, int n_leaves_)
+  {
+    clear();
+    
+    n_leaves = n_leaves_;    
+    root_node = NULL_NODE;
+    nodes = new NodeType[n_leaves * 2];
+    memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+    freelist = n_leaves;
+    n_nodes = n_leaves;
+    n_nodes_alloc = 2 * n_leaves;
+    for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
+      nodes[i].next = i + 1;
+    nodes[n_nodes_alloc - 1].next = NULL_NODE;
+
+
+    BV bound_bv;
+    if(n_leaves > 0)
+      bound_bv = nodes[0].bv;
+    for(size_t i = 1; i < n_leaves; ++i)
+      bound_bv += nodes[i].bv;
+
+    morton_functor<FCL_UINT32> coder(bound_bv);
+    for(size_t i = 0; i < n_leaves; ++i)
+      nodes[i].code = coder(nodes[i].bv.center());
+
+    
+    size_t* ids = new size_t[n_leaves];
+    for(size_t i = 0; i < n_leaves; ++i)
+      ids[i] = i;
+
+    SortByMorton comp;
+    comp.nodes = nodes;
+    std::sort(ids, ids + n_leaves, comp);
+    root_node = mortonRecurse_0(ids, ids + n_leaves, (1 << coder.bits()-1), coder.bits()-1);
+    delete [] ids;
+
+    refit();
+
+    opath = 0;
+    max_lookahead_level = -1;
+  }
+
+  void init_2(NodeType* leaves, int n_leaves_)
+  {
+    clear();
+    
+    n_leaves = n_leaves_;    
+    root_node = NULL_NODE;
+    nodes = new NodeType[n_leaves * 2];
+    memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+    freelist = n_leaves;
+    n_nodes = n_leaves;
+    n_nodes_alloc = 2 * n_leaves;
+    for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
+      nodes[i].next = i + 1;
+    nodes[n_nodes_alloc - 1].next = NULL_NODE;
+
+
+    BV bound_bv;
+    if(n_leaves > 0)
+      bound_bv = nodes[0].bv;
+    for(size_t i = 1; i < n_leaves; ++i)
+      bound_bv += nodes[i].bv;
+
+    morton_functor<FCL_UINT32> coder(bound_bv);
+    for(size_t i = 0; i < n_leaves; ++i)
+      nodes[i].code = coder(nodes[i].bv.center());
+
+    
+    size_t* ids = new size_t[n_leaves];
+    for(size_t i = 0; i < n_leaves; ++i)
+      ids[i] = i;
+
+    SortByMorton comp;
+    comp.nodes = nodes;
+    std::sort(ids, ids + n_leaves, comp);
+    root_node = mortonRecurse_1(ids, ids + n_leaves, (1 << coder.bits()-1), coder.bits()-1);
+    delete [] ids;
+
+    refit();
+
+    opath = 0;
+    max_lookahead_level = -1;
+  }
+
+  void init_3(NodeType* leaves, int n_leaves_)
+  {
+    clear();
+    
+    n_leaves = n_leaves_;    
+    root_node = NULL_NODE;
+    nodes = new NodeType[n_leaves * 2];
+    memcpy(nodes, leaves, sizeof(NodeType) * n_leaves);
+    freelist = n_leaves;
+    n_nodes = n_leaves;
+    n_nodes_alloc = 2 * n_leaves;
+    for(size_t i = n_leaves; i < n_nodes_alloc; ++i)
+      nodes[i].next = i + 1;
+    nodes[n_nodes_alloc - 1].next = NULL_NODE;
+
+
+    BV bound_bv;
+    if(n_leaves > 0)
+      bound_bv = nodes[0].bv;
+    for(size_t i = 1; i < n_leaves; ++i)
+      bound_bv += nodes[i].bv;
+
+    morton_functor<FCL_UINT32> coder(bound_bv);
+    for(size_t i = 0; i < n_leaves; ++i)
+      nodes[i].code = coder(nodes[i].bv.center());
+
+    
+    size_t* ids = new size_t[n_leaves];
+    for(size_t i = 0; i < n_leaves; ++i)
+      ids[i] = i;
+
+    SortByMorton comp;
+    comp.nodes = nodes;
+    std::sort(ids, ids + n_leaves, comp);
+    root_node = mortonRecurse_2(ids, ids + n_leaves);
+    delete [] ids;
+
+    refit();
+
+    opath = 0;
+    max_lookahead_level = -1;
+  }
+
+
   
 
   size_t insert(const BV& bv, void* data)
@@ -932,27 +1369,11 @@ public:
     return getMaxHeight(root_node);
   }
 
-  size_t getMaxHeight(size_t node) const
+  size_t getMaxDepth() const
   {
-    if(!nodes[node].isLeaf())
-    {
-      size_t height1 = getMaxHeight(nodes[node].childs[0]);
-      size_t height2 = getMaxHeight(nodes[node].childs[1]);
-      return std::max(height1, height2) + 1;
-    }
-    else
-      return 0;
-  }
-
-  void getMaxDepth(size_t node, size_t depth, size_t& max_depth) const
-  {
-    if(!nodes[node].isLeaf())
-    {
-      getMaxDepth(nodes[node].childs[0], depth+1, max_depth);
-      getmaxDepth(nodes[node].childs[1], depth+1, max_depth);
-    }
-    else
-      max_depth = std::max(max_depth, depth);
+    size_t max_depth;
+    getMaxDepth(root_node, 0, max_depth);
+    return max_depth;
   }
 
   void balanceBottomup()
@@ -982,7 +1403,7 @@ public:
     }
   }
 
-  void balanceTopdown(int bu_threshold = 128)
+  void balanceTopdown()
   {
     if(root_node != NULL_NODE)
     {
@@ -1001,7 +1422,7 @@ public:
       for(size_t i = 0; i < n_leaves; ++i)
         ids[i] = i;
 
-      root_node = topdown(ids, ids + n_leaves, bu_threshold);
+      root_node = topdown(ids, ids + n_leaves);
       delete [] ids;
     }
   }
@@ -1077,6 +1498,34 @@ public:
     }
   }
 
+
+
+private:
+
+  size_t getMaxHeight(size_t node) const
+  {
+    if(!nodes[node].isLeaf())
+    {
+      size_t height1 = getMaxHeight(nodes[node].childs[0]);
+      size_t height2 = getMaxHeight(nodes[node].childs[1]);
+      return std::max(height1, height2) + 1;
+    }
+    else
+      return 0;
+  }
+
+  void getMaxDepth(size_t node, size_t depth, size_t& max_depth) const
+  {
+    if(!nodes[node].isLeaf())
+    {
+      getMaxDepth(nodes[node].childs[0], depth+1, max_depth);
+      getmaxDepth(nodes[node].childs[1], depth+1, max_depth);
+    }
+    else
+      max_depth = std::max(max_depth, depth);
+  }
+
+
   void bottomup(size_t* lbeg, size_t* lend)
   {
     size_t* lcur_end = lend;
@@ -1110,8 +1559,25 @@ public:
       *lcur_end = tmp;
     }
   }
+  
+  size_t topdown(size_t* lbeg, size_t* lend)
+  {
+    switch(topdown_level)
+    {
+    case 0:
+      return topdown_0(lbeg, lend);
+      break;
+    case 1:
+      return topdown_1(lbeg, lend);
+      break;
+    default:
+      return topdown_0(lbeg, lend);
+    }
+  }
 
-  size_t topdown(size_t* lbeg, size_t* lend, int bu_threshold)
+
+
+  size_t topdown_0(size_t* lbeg, size_t* lend)
   {
     int num_leaves = lend - lbeg;
     if(num_leaves > 1)
@@ -1127,13 +1593,13 @@ public:
         if(extent[1] > extent[0]) best_axis = 1;
         if(extent[2] > extent[best_axis]) best_axis = 2;
 
-        nodeBaseLess<BV> less_functor(nodes, best_axis);
+        nodeBaseLess<BV> comp(nodes, best_axis);
         size_t* lcenter = lbeg + num_leaves / 2;
-        std::nth_element(lbeg, lcenter, lend, less_functor);
+        std::nth_element(lbeg, lcenter, lend, comp);
 
         size_t node = createNode(NULL_NODE, vol, NULL);
-        nodes[node].childs[0] = topdown(lbeg, lcenter, bu_threshold);
-        nodes[node].childs[1] = topdown(lcenter, lend, bu_threshold);
+        nodes[node].childs[0] = topdown_0(lbeg, lcenter);
+        nodes[node].childs[1] = topdown_0(lcenter, lend);
         nodes[nodes[node].childs[0]].parent = node;
         nodes[nodes[node].childs[1]].parent = node;
         return node;
@@ -1147,7 +1613,7 @@ public:
     return *lbeg;
   }
 
-  size_t topdown2(size_t* lbeg, size_t* lend, int bu_threshold)
+  size_t topdown_1(size_t* lbeg, size_t* lend)
   {
     int num_leaves = lend - lbeg;
     if(num_leaves > 1)
@@ -1201,8 +1667,8 @@ public:
         }
 
         size_t node = createNode(NULL_NODE, vol, NULL);
-        nodes[node].childs[0] = topdown2(lbeg, lcenter, bu_threshold);
-        nodes[node].childs[1] = topdown2(lcenter, lend, bu_threshold);
+        nodes[node].childs[0] = topdown_1(lbeg, lcenter);
+        nodes[node].childs[1] = topdown_1(lcenter, lend);
         nodes[nodes[node].childs[0]].parent = node;
         nodes[nodes[node].childs[1]].parent = node;
         return node;
@@ -1216,8 +1682,124 @@ public:
     return *lbeg;
   }
 
+  size_t mortonRecurse_0(size_t* lbeg, size_t* lend, const FCL_UINT32& split, int bits)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      if(bits > 0)
+      {
+        SortByMorton comp;
+        comp.nodes = nodes;
+        comp.split = split;
+        size_t* lcenter = std::lower_bound(lbeg, lend, NULL_NODE, comp);
 
-private:
+        if(lcenter == lbeg)
+        {
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+          return mortonRecurse_0(lbeg, lend, split2, bits - 1);
+        }
+        else if(lcenter == lend)
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          return mortonRecurse_0(lbeg, lend, split1, bits - 1);
+        }
+        else
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+        
+          size_t child1 = mortonRecurse_0(lbeg, lcenter, split1, bits - 1);
+          size_t child2 = mortonRecurse_0(lcenter, lend, split2, bits - 1);
+          size_t node = createNode(NULL_NODE, NULL);
+          nodes[node].childs[0] = child1;
+          nodes[node].childs[1] = child2;
+          nodes[child1].parent = node;
+          nodes[child2].parent = node;
+          return node;
+        }        
+      }
+      else
+      {
+        size_t node = topdown(lbeg, lend);
+        return node;        
+      }
+    }
+    else
+      return *lbeg;
+  }
+
+  size_t mortonRecurse_1(size_t* lbeg, size_t* lend, const FCL_UINT32& split, int bits)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {
+      if(bits > 0)
+      {
+        SortByMorton comp;
+        comp.nodes = nodes;
+        comp.split = split;
+        size_t* lcenter = std::lower_bound(lbeg, lend, NULL_NODE, comp);
+
+        if(lcenter == lbeg)
+        {
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+          return mortonRecurse_1(lbeg, lend, split2, bits - 1);
+        }
+        else if(lcenter == lend)
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          return mortonRecurse_1(lbeg, lend, split1, bits - 1);
+        }
+        else
+        {
+          FCL_UINT32 split1 = (split & (~(1 << bits))) | (1 << (bits - 1));
+          FCL_UINT32 split2 = split | (1 << (bits - 1));
+        
+          size_t child1 = mortonRecurse_1(lbeg, lcenter, split1, bits - 1);
+          size_t child2 = mortonRecurse_1(lcenter, lend, split2, bits - 1);
+          size_t node = createNode(NULL_NODE, NULL);
+          nodes[node].childs[0] = child1;
+          nodes[node].childs[1] = child2;
+          nodes[child1].parent = node;
+          nodes[child2].parent = node;
+          return node;
+        }        
+      }
+      else
+      {
+        size_t child1 = mortonRecurse_1(lbeg, lbeg + num_leaves / 2, 0, bits - 1);
+        size_t child2 = mortonRecurse_1(lbeg + num_leaves / 2, lend, 0, bits - 1);
+        size_t node = createNode(NULL_NODE, NULL);
+        nodes[node].childs[0] = child1;
+        nodes[node].childs[1] = child2;
+        nodes[child1].parent = node;
+        nodes[child2].parent = node;
+        return node;
+      }
+    }
+    else
+      return *lbeg;
+  }
+
+  size_t mortonRecurse_2(size_t* lbeg, size_t* lend)
+  {
+    int num_leaves = lend - lbeg;
+    if(num_leaves > 1)
+    {        
+      size_t child1 = mortonRecurse_2(lbeg, lbeg + num_leaves / 2);
+      size_t child2 = mortonRecurse_2(lbeg + num_leaves / 2, lend);
+      size_t node = createNode(NULL_NODE, NULL);
+      nodes[node].childs[0] = child1;
+      nodes[node].childs[1] = child2;
+      nodes[child1].parent = node;
+      nodes[child2].parent = node;
+      return node;
+    }
+    else
+      return *lbeg;
+  }
+
 
   void insertLeaf(size_t root, size_t leaf)
   {
@@ -1430,6 +2012,10 @@ protected:
   unsigned int opath;
 
   int max_lookahead_level;
+
+public:
+  int bu_threshold;
+  int topdown_level;
 
 public:
   static const size_t NULL_NODE = -1;

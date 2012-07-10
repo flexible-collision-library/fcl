@@ -2032,8 +2032,7 @@ void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<Collisio
       leaves[i] = node;
     }
    
-   
-    dtree.init(leaves, tree_topdown_balance_threshold);
+    dtree.init(leaves, tree_init_level);
    
     setup_ = true;
   }
@@ -2060,9 +2059,9 @@ void DynamicAABBTreeCollisionManager::setup()
     int num = dtree.size();
     
     if(height - std::log((FCL_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
-      dtree.balanceIncremental(10);
+      dtree.balanceIncremental(tree_incremental_balance_pass);
     else
-      dtree.balanceTopdown(tree_topdown_balance_threshold);
+      dtree.balanceTopdown();
 
     setup_ = true;
   }
@@ -2341,7 +2340,8 @@ void DynamicAABBTreeCollisionManager2::registerObjects(const std::vector<Collisi
     }
    
     int n_leaves = other_objs.size();
-    dtree.init(leaves, n_leaves, tree_topdown_balance_threshold);
+
+    dtree.init(leaves, n_leaves, tree_init_level);
    
     setup_ = true;
   }
@@ -2369,9 +2369,9 @@ void DynamicAABBTreeCollisionManager2::setup()
     int num = dtree.size();
     
     if(height - std::log((FCL_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
-      dtree.balanceIncremental(10);
+      dtree.balanceIncremental(tree_incremental_balance_pass);
     else
-      dtree.balanceTopdown(tree_topdown_balance_threshold);
+      dtree.balanceTopdown();
 
     setup_ = true;
   }
