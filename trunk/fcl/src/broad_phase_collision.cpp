@@ -191,6 +191,8 @@ void NaiveCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, 
 {
   NaiveCollisionManager* other_manager = static_cast<NaiveCollisionManager*>(other_manager_);
   
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
   if(this == other_manager) 
   {
     collide(cdata, callback);
@@ -213,6 +215,8 @@ void NaiveCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, 
 void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
 {
   NaiveCollisionManager* other_manager = static_cast<NaiveCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
 
   if(this == other_manager)
   {
@@ -414,13 +418,13 @@ bool SSaPCollisionManager::checkDis(std::vector<CollisionObject*>::const_iterato
 
 void SSaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
+
   collide_(obj, cdata, callback);
 }
 
 bool SSaPCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
-  if(size() == 0) return false;
-
   static const unsigned int CUTOFF = 100;
 
   DummyCollisionObject dummyHigh(AABB(obj->getAABB().max_));
@@ -469,14 +473,14 @@ bool SSaPCollisionManager::collide_(CollisionObject* obj, void* cdata, Collision
 
 void SSaPCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
+
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
   distance_(obj, cdata, callback, min_dist); 
 }
 
 bool SSaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
-  if(size() == 0) return false;
-
   static const unsigned int CUTOFF = 100;
   Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   Vec3f dummy_vector = obj->getAABB().max_;
@@ -574,8 +578,7 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, void* cdata, Distance
 
 void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
-  if(size() == 0)
-    return;
+  if(size() == 0) return;
 
   std::vector<CollisionObject*>::const_iterator pos, run_pos, pos_end;
   size_t axis = selectOptimalAxis(objs_x, objs_y, objs_z, 
@@ -631,8 +634,7 @@ void SSaPCollisionManager::collide(void* cdata, CollisionCallBack callback) cons
 
 void SSaPCollisionManager::distance(void* cdata, DistanceCallBack callback) const
 {
-  if(size() == 0)
-    return;
+  if(size() == 0) return;
 
   std::vector<CollisionObject*>::const_iterator it, it_end;
   size_t axis = selectOptimalAxis(objs_x, objs_y, objs_z, it, it_end);
@@ -648,6 +650,9 @@ void SSaPCollisionManager::distance(void* cdata, DistanceCallBack callback) cons
 void SSaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
 {
   SSaPCollisionManager* other_manager = static_cast<SSaPCollisionManager*>(other_manager_);
+  
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
   if(this == other_manager)
   {
     collide(cdata, callback);
@@ -671,6 +676,9 @@ void SSaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, v
 void SSaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
 {
   SSaPCollisionManager* other_manager = static_cast<SSaPCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
   if(this == other_manager)
   {
     distance(cdata, callback);
@@ -1348,6 +1356,9 @@ void SaPCollisionManager::distance(void* cdata, DistanceCallBack callback) const
 void SaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
 {
   SaPCollisionManager* other_manager = static_cast<SaPCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
   if(this == other_manager)
   {
     collide(cdata, callback);
@@ -1375,6 +1386,9 @@ void SaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, vo
 void SaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
 {
   SaPCollisionManager* other_manager = static_cast<SaPCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
   if(this == other_manager)
   {
     distance(cdata, callback);
@@ -1701,13 +1715,12 @@ void IntervalTreeCollisionManager::getObjects(std::vector<CollisionObject*>& obj
 
 void IntervalTreeCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
+  if(size() == 0) return;
   collide_(obj, cdata, callback);
 }
 
 bool IntervalTreeCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
-  if(size() == 0) return false;
-
   static const unsigned int CUTOFF = 100;
 
   std::deque<SimpleInterval*> results0, results1, results2;
@@ -1744,14 +1757,13 @@ bool IntervalTreeCollisionManager::collide_(CollisionObject* obj, void* cdata, C
 
 void IntervalTreeCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
   distance_(obj, cdata, callback, min_dist);
 }
 
 bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
-  if(size() == 0) return false;
-
   static const unsigned int CUTOFF = 100;
 
   Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
@@ -1895,6 +1907,8 @@ void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callba
 
 void IntervalTreeCollisionManager::distance(void* cdata, DistanceCallBack callback) const
 {
+  if(size() == 0) return;
+
   enable_tested_set_ = true;
   tested_set.clear();
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
@@ -1909,6 +1923,9 @@ void IntervalTreeCollisionManager::distance(void* cdata, DistanceCallBack callba
 void IntervalTreeCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, void* cdata, CollisionCallBack callback) const
 {
   IntervalTreeCollisionManager* other_manager = static_cast<IntervalTreeCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
   if(this == other_manager)
   {
     collide(cdata, callback);
@@ -1930,6 +1947,9 @@ void IntervalTreeCollisionManager::collide(BroadPhaseCollisionManager* other_man
 void IntervalTreeCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, void* cdata, DistanceCallBack callback) const
 {
   IntervalTreeCollisionManager* other_manager = static_cast<IntervalTreeCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
   if(this == other_manager)
   {
     distance(cdata, callback);
@@ -2055,8 +2075,15 @@ void DynamicAABBTreeCollisionManager::setup()
 {
   if(!setup_)
   {
-    int height = dtree.getMaxHeight();
     int num = dtree.size();
+    if(num == 0) 
+    {
+      setup_ = true; 
+      return;
+    }
+    
+    int height = dtree.getMaxHeight();
+
     
     if(height - std::log((FCL_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
       dtree.balanceIncremental(tree_incremental_balance_pass);
@@ -2365,8 +2392,15 @@ void DynamicAABBTreeCollisionManager2::setup()
 {
   if(!setup_)
   {
-    int height = dtree.getMaxHeight();
     int num = dtree.size();
+    if(num == 0) 
+    {
+      setup_ = true;
+      return;
+    }
+
+    int height = dtree.getMaxHeight();
+
     
     if(height - std::log((FCL_REAL)num) / std::log(2.0) < max_tree_nonbalanced_level)
       dtree.balanceIncremental(tree_incremental_balance_pass);

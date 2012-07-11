@@ -491,7 +491,7 @@ static void convexToGJK(const Convex& s, const SimpleTransform& tf, ccd_convex_t
 /** Support functions */
 static void supportBox(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const ccd_box_t* o = (const ccd_box_t*)obj;
+  const ccd_box_t* o = static_cast<const ccd_box_t*>(obj);
   ccd_vec3_t dir;
   ccdVec3Copy(&dir, dir_);
   ccdQuatRotVec(&dir, &o->rot_inv);
@@ -504,7 +504,7 @@ static void supportBox(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 
 static void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const ccd_cap_t* o = (const ccd_cap_t*)obj;
+  const ccd_cap_t* o = static_cast<const ccd_cap_t*>(obj);
   ccd_vec3_t dir, pos1, pos2;
 
   ccdVec3Copy(&dir, dir_);
@@ -530,7 +530,7 @@ static void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 
 static void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const ccd_cyl_t* cyl = (const ccd_cyl_t*)obj;
+  const ccd_cyl_t* cyl = static_cast<const ccd_cyl_t*>(obj);
   ccd_vec3_t dir;
   double zdist, rad;
 
@@ -557,7 +557,7 @@ static void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 
 static void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const ccd_cone_t* cone = (const ccd_cone_t*)obj;
+  const ccd_cone_t* cone = static_cast<const ccd_cone_t*>(obj);
   ccd_vec3_t dir;
 
   ccdVec3Copy(&dir, dir_);
@@ -588,7 +588,7 @@ static void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 
 static void supportSphere(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const ccd_sphere_t* s = (const ccd_sphere_t*)obj;
+  const ccd_sphere_t* s = static_cast<const ccd_sphere_t*>(obj);
   ccd_vec3_t dir;
 
   ccdVec3Copy(&dir, dir_);
@@ -636,7 +636,7 @@ static void supportConvex(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v
 
 static void supportTriangle(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const ccd_triangle_t* tri = (const ccd_triangle_t*)obj;
+  const ccd_triangle_t* tri = static_cast<const ccd_triangle_t*>(obj);
   ccd_vec3_t dir, p;
   ccd_real_t maxdot, dot;
   int i;
@@ -664,13 +664,13 @@ static void supportTriangle(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t*
 
 static void centerShape(const void* obj, ccd_vec3_t* c)
 {
-    const ccd_obj_t *o = (const ccd_obj_t*)obj;
+  const ccd_obj_t *o = static_cast<const ccd_obj_t*>(obj);
     ccdVec3Copy(c, &o->pos);
 }
 
 static void centerConvex(const void* obj, ccd_vec3_t* c)
 {
-  const ccd_convex_t *o = (const ccd_convex_t*)obj;
+  const ccd_convex_t *o = static_cast<const ccd_convex_t*>(obj);
   ccdVec3Set(c, o->convex->center[0], o->convex->center[1], o->convex->center[2]);
   ccdQuatRotVec(c, &o->rot);
   ccdVec3Add(c, &o->pos);
@@ -678,7 +678,7 @@ static void centerConvex(const void* obj, ccd_vec3_t* c)
 
 static void centerTriangle(const void* obj, ccd_vec3_t* c)
 {
-    const ccd_triangle_t *o = (const ccd_triangle_t*)obj;
+  const ccd_triangle_t *o = static_cast<const ccd_triangle_t*>(obj);
     ccdVec3Copy(c, &o->c);
     ccdQuatRotVec(c, &o->rot);
     ccdVec3Add(c, &o->pos);
@@ -722,6 +722,7 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   return false;
 }
 
+/*
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, FCL_REAL tolerance_,
@@ -729,7 +730,6 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
 {
   ccd_t ccd;
   ccd_real_t dist;
-  ccd_vec3_t dir, pos;
   CCD_INIT(&ccd);
   ccd.support1 = supp1;
   ccd.support2 = supp2;
@@ -740,11 +740,36 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
 
   ccd_simplex_t simplex;
   dist = __ccdGJKDist(obj1, obj2, &ccd, &simplex, tolerance);
+  
+  if(dist > 0)
+  {
+    *res = std::sqrt(dist);
+    return true;
+  }
+  else
+    return false;
+}
+*/
+
+bool GJKDistance(void* obj1, ccd_support_fn supp1,
+                 void* obj2, ccd_support_fn supp2,
+                 unsigned int max_iterations, FCL_REAL tolerance,
+                 FCL_REAL* res)
+{
+  ccd_t ccd;
+  ccd_real_t dist;
+  CCD_INIT(&ccd);
+  ccd.support1 = supp1;
+  ccd.support2 = supp2;
+  
+  ccd.max_iterations = max_iterations;
+  ccd.dist_tolerance = tolerance;
+
+  dist = ccdGJKDist(obj1, obj2, &ccd);
   *res = dist;
   if(dist < 0) return false;
   else return true;
 }
-
 
 GJKSupportFunction GJKInitializer<Cylinder>::getSupportFunction()
 {
@@ -768,7 +793,7 @@ void* GJKInitializer<Cylinder>::createGJKObject(const Cylinder& s, const SimpleT
 
 void GJKInitializer<Cylinder>::deleteGJKObject(void* o_)
 {
-  ccd_cyl_t* o = (ccd_cyl_t*)o_;
+  ccd_cyl_t* o = static_cast<ccd_cyl_t*>(o_);
   delete o;
 }
 
@@ -794,7 +819,7 @@ void* GJKInitializer<Sphere>::createGJKObject(const Sphere& s, const SimpleTrans
 
 void GJKInitializer<Sphere>::deleteGJKObject(void* o_)
 {
-  ccd_sphere_t* o = (ccd_sphere_t*)o_;
+  ccd_sphere_t* o = static_cast<ccd_sphere_t*>(o_);
   delete o;
 }
 
@@ -820,7 +845,7 @@ void* GJKInitializer<Box>::createGJKObject(const Box& s, const SimpleTransform& 
 
 void GJKInitializer<Box>::deleteGJKObject(void* o_)
 {
-  ccd_box_t* o = (ccd_box_t*)o_;
+  ccd_box_t* o = static_cast<ccd_box_t*>(o_);
   delete o;
 }
 
@@ -847,7 +872,7 @@ void* GJKInitializer<Capsule>::createGJKObject(const Capsule& s, const SimpleTra
 
 void GJKInitializer<Capsule>::deleteGJKObject(void* o_)
 {
-  ccd_cap_t* o = (ccd_cap_t*)o_;
+  ccd_cap_t* o = static_cast<ccd_cap_t*>(o_);
   delete o;
 }
 
@@ -874,7 +899,7 @@ void* GJKInitializer<Cone>::createGJKObject(const Cone& s, const SimpleTransform
 
 void GJKInitializer<Cone>::deleteGJKObject(void* o_)
 {
-  ccd_cone_t* o = (ccd_cone_t*)o_;
+  ccd_cone_t* o = static_cast<ccd_cone_t*>(o_);
   delete o;
 }
 
@@ -901,7 +926,7 @@ void* GJKInitializer<Convex>::createGJKObject(const Convex& s, const SimpleTrans
 
 void GJKInitializer<Convex>::deleteGJKObject(void* o_)
 {
-  ccd_convex_t* o = (ccd_convex_t*)o_;
+  ccd_convex_t* o = static_cast<ccd_convex_t*>(o_);
   delete o;
 }
 
@@ -954,7 +979,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, cons
 
 void triDeleteGJKObject(void* o_)
 {
-  ccd_triangle_t* o = (ccd_triangle_t*)o_;
+  ccd_triangle_t* o = static_cast<ccd_triangle_t*>(o_);
   delete o;
 }
 

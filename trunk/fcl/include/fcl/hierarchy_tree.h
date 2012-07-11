@@ -63,6 +63,13 @@ struct NodeBase
   };
 
   FCL_UINT32 code;
+
+  NodeBase()
+  {
+    parent = NULL;
+    childs[0] = NULL;
+    childs[1] = NULL;
+  }
 };
 
 template<typename BV>
@@ -223,11 +230,15 @@ public:
 
   size_t getMaxHeight() const
   {
+    if(!root_node)
+      return 0;
     return getMaxHeight(root_node);
   }
 
   size_t getMaxDepth() const
   {
+    if(!root_node) return 0;
+
     size_t max_depth;
     getMaxDepth(root_node, 0, max_depth);
     return max_depth;
@@ -1366,11 +1377,15 @@ public:
 
   size_t getMaxHeight() const
   {
+    if(root_node == NULL_NODE) return 0;
+    
     return getMaxHeight(root_node);
   }
 
   size_t getMaxDepth() const
   {
+    if(root_node == NULL_NODE) return 0;
+    
     size_t max_depth;
     getMaxDepth(root_node, 0, max_depth);
     return max_depth;

@@ -121,8 +121,6 @@ struct GJKSolver_libccd
                                      max_distance_iterations, distance_tolerance,
                                      dist);
 
-    if(*dist > 0) *dist = std::sqrt(*dist);
-
     details::GJKInitializer<S1>::deleteGJKObject(o1);
     details::GJKInitializer<S2>::deleteGJKObject(o2);
 
@@ -143,8 +141,6 @@ struct GJKSolver_libccd
                                     o2, details::triGetSupportFunction(),
                                     max_distance_iterations, distance_tolerance,
                                     dist);
-
-    if(*dist > 0) *dist = std::sqrt(*dist);
   
     details::GJKInitializer<S>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
@@ -165,8 +161,6 @@ struct GJKSolver_libccd
                                     o2, details::triGetSupportFunction(),
                                     max_distance_iterations, distance_tolerance,
                                     dist);
-
-    if(*dist > 0) *dist = std::sqrt(*dist);
   
     details::GJKInitializer<S>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
@@ -178,7 +172,7 @@ struct GJKSolver_libccd
   GJKSolver_libccd()
   {
     max_collision_iterations = 500;
-    max_distance_iterations = 500;
+    max_distance_iterations = 1000;
     collision_tolerance = 1e-6;
     distance_tolerance = 1e-6;
   }
