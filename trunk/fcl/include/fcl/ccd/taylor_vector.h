@@ -37,8 +37,8 @@
 #ifndef FCL_TAYLOR_VECTOR_H
 #define FCL_TAYLOR_VECTOR_H
 
-#include "fcl/interval_vector.h"
-#include "fcl/taylor_model.h"
+#include "fcl/ccd/interval_vector.h"
+#include "fcl/ccd/taylor_model.h"
 
 namespace fcl
 {

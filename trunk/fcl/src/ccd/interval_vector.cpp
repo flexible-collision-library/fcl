@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/interval_vector.h"
+#include "fcl/ccd/interval_vector.h"
 #include <iostream>
 
 namespace fcl

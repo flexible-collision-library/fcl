@@ -37,7 +37,7 @@
 #ifndef FCL_TAYLOR_MODEL_H
 #define FCL_TAYLOR_MODEL_H
 
-#include "fcl/interval.h"
+#include "fcl/ccd/interval.h"
 
 namespace fcl
 {

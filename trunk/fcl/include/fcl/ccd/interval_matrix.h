@@ -38,9 +38,9 @@
 #ifndef FCL_INTERVAL_MATRIX_H
 #define FCL_INTERVAL_MATRIX_H
 
-#include "fcl/interval.h"
+#include "fcl/ccd/interval.h"
+#include "fcl/ccd/interval_vector.h"
 #include "fcl/matrix_3f.h"
-#include "fcl/interval_vector.h"
 
 namespace fcl
 {

@@ -34,61 +34,44 @@
 
 /** \author Jia Pan */
 
+#ifndef FCL_TAYLOR_MATRIX_H
+#define FCL_TAYLOR_MATRIX_H
 
-#ifndef FCL_INTERVAL_VECTOR_H
-#define FCL_INTERVAL_VECTOR_H
 
-#include "fcl/interval.h"
-#include "fcl/vec_3f.h"
+#include "fcl/matrix_3f.h"
+#include "fcl/ccd/taylor_vector.h"
+#include "fcl/ccd/interval_matrix.h"
 
 namespace fcl
 {
 
-struct IVector3
+struct TMatrix3
 {
-  Interval i_[3];
+  TaylorModel i_[3][3];
 
-  IVector3();
-  IVector3(FCL_REAL v);
-  IVector3(FCL_REAL x, FCL_REAL y, FCL_REAL z);
-  IVector3(FCL_REAL xl, FCL_REAL xu, FCL_REAL yl, FCL_REAL yu, FCL_REAL zl, FCL_REAL zu);
-  IVector3(Interval v[3]);
-  IVector3(FCL_REAL v[3][2]);
-  IVector3(const Interval& v1, const Interval& v2, const Interval& v3);
-  IVector3(const Vec3f& v);
+  TMatrix3();
+  TMatrix3(TaylorModel m[3][3]);
+  TMatrix3(const Matrix3f& m);
 
-  IVector3 operator + (const IVector3& other) const;
-  IVector3& operator += (const IVector3& other);
-  IVector3 operator - (const IVector3& other) const;
-  IVector3& operator -= (const IVector3& other);
-  IVector3& operator = (const Vec3f& other);
-  Interval dot(const IVector3& other) const;
-  IVector3 cross(const IVector3& other) const;
+  TVector3 getColumn(size_t i) const;
+  TVector3 getRow(size_t i) const;
 
-  inline const Interval& operator [] (size_t i) const
-  {
-    return i_[i];
-  }
+  const TaylorModel& operator () (size_t i, size_t j) const;
+  TaylorModel& operator () (size_t i, size_t j);
 
-  inline Interval& operator [] (size_t i)
-  {
-    return i_[i];
-  }
+  TVector3 operator * (const Vec3f& v) const;
+  TVector3 operator * (const TVector3& v) const;
+  TMatrix3 operator * (const Matrix3f& m) const;
+  TMatrix3 operator * (const TMatrix3& m) const;
+  TMatrix3 operator * (const TaylorModel& d) const;
+  TMatrix3 operator + (const TMatrix3& m) const;
+  TMatrix3& operator += (const TMatrix3& m);
 
+  IMatrix3 getBound() const;
   void print() const;
-  Vec3f center() const;
-  FCL_REAL volumn() const;
+  void setIdentity();
   void setZero();
-
-  void bound(const Vec3f& v);
-  void bound(const IVector3& v);
-
-  IVector3 bounded(const Vec3f& v) const;
-  IVector3 bounded(const IVector3& v) const;
-
-  bool overlap(const IVector3& v) const;
-  bool contain(const IVector3& v) const;
-  void normalize();
+  FCL_REAL diameter() const;
 };
 
 }

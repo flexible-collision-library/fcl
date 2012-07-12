@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/taylor_matrix.h"
+#include "fcl/ccd/taylor_matrix.h"
 
 namespace fcl
 {

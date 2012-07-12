@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/taylor_model.h"
+#include "fcl/ccd/taylor_model.h"
 #include <cassert>
 #include <iostream>
 #include <cmath>
