@@ -39,6 +39,7 @@
 
 #include "fcl/BVH_internal.h"
 #include "fcl/math_details.h"
+#include "fcl/math_simd_details.h"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -81,25 +82,31 @@ public:
   inline Vec3fX operator - () const { return Vec3fX(-data); }
   inline Vec3fX cross(const Vec3fX& other) const { return Vec3fX(details::cross_prod(data, other.data)); }
   inline U dot(const Vec3fX& other) const { return details::dot_prod3(data, other.data); }
-  inline bool normalize()
+  inline Vec3fX& normalize()
+  {
+    U sqr_length = details::dot_prod3(data, data);
+    if(sqr_length > 0)
+      *this /= (U)sqrt(sqr_length);
+    return *this;
+  }
+
+  inline Vec3fX& normalize(bool* signal)
   {
     U sqr_length = details::dot_prod3(data, data);
     if(sqr_length > 0)
     {
       *this /= (U)sqrt(sqr_length);
-      return true;
+      *signal = true;
     }
     else
-      return false;
+      *signal = false;
+    return *this;
   }
 
-  inline Vec3fX normalized() const
+  inline Vec3fX& abs() 
   {
-    U sqr_length = details::dot_prod3(data, data);
-    if(sqr_length > 0)
-      return *this / (U)sqrt(sqr_length);
-    else
-      return *this;
+    data = abs(data);
+    return *this;
   }
 
   inline U length() const { return sqrt(details::dot_prod3(data, data)); }
@@ -107,7 +114,7 @@ public:
   inline void setValue(U x, U y, U z) { data.setValue(x, y, z); }
   inline void setValue(U x) { data.setValue(x); }
   inline bool equal(const Vec3fX& other, U epsilon = std::numeric_limits<U>::epsilon() * 100) const { return details::equal(data, other.data, epsilon); }
-  inline void negate() { data.negate(); }
+  inline Vec3fX<T>& negate() { data.negate(); return *this; }
 
   inline Vec3fX<T>& ubound(const Vec3fX<T>& u)
   {
@@ -120,7 +127,18 @@ public:
     data.lbound(l.data);
     return *this;
   }
+
 };
+
+template<typename T>
+static inline Vec3fX<T> normalize(const Vec3fX<T>& v)
+{
+  typename T::meta_type sqr_length = details::dot_prod3(v.data, v.data);
+  if(sqr_length > 0)
+    return v / (typename T::meta_type)sqrt(sqr_length);
+  else
+    return v;
+}
 
 template <typename T>
 static inline typename T::meta_type triple(const Vec3fX<T>& x, const Vec3fX<T>& y, const Vec3fX<T>& z)
@@ -182,6 +200,7 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
 
 
 typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;
+//typedef Vec3fX<details::sse_meta_f4> Vec3f;
 
 
 }

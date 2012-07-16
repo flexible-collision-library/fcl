@@ -58,9 +58,9 @@ bool RSS::overlap(const RSS& other) const
 
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 {
-  Matrix3f R0b2(R0[0].dot(b2.axis[0]), R0[0].dot(b2.axis[1]), R0[0].dot(b2.axis[2]),
-                R0[1].dot(b2.axis[0]), R0[1].dot(b2.axis[1]), R0[1].dot(b2.axis[2]),
-                R0[2].dot(b2.axis[0]), R0[2].dot(b2.axis[1]), R0[2].dot(b2.axis[2]));
+  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
+                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
+                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
 
   Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
              R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
@@ -299,7 +299,7 @@ RSS RSS::operator + (const RSS& other) const
   FCL_REAL s[3] = {0, 0, 0};
 
   getCovariance(v, NULL, NULL, NULL, 16, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
 
   int min, mid, max;
   if(s[0] > s[1]) { max = 0; min = 1; }
@@ -339,9 +339,9 @@ FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
 
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
 {
-  Matrix3f R0b2(R0[0].dot(b2.axis[0]), R0[0].dot(b2.axis[1]), R0[0].dot(b2.axis[2]),
-                R0[1].dot(b2.axis[0]), R0[1].dot(b2.axis[1]), R0[1].dot(b2.axis[2]),
-                R0[2].dot(b2.axis[0]), R0[2].dot(b2.axis[1]), R0[2].dot(b2.axis[2]));
+  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
+                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
+                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
 
   Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
              R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
@@ -361,10 +361,10 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
 {
   FCL_REAL A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
 
-  A0_dot_B0 = Rab[0][0];
-  A0_dot_B1 = Rab[0][1];
-  A1_dot_B0 = Rab[1][0];
-  A1_dot_B1 = Rab[1][1];
+  A0_dot_B0 = Rab(0, 0);
+  A0_dot_B1 = Rab(0, 1);
+  A1_dot_B0 = Rab(1, 0);
+  A1_dot_B1 = Rab(1, 1);
 
   FCL_REAL aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
   FCL_REAL bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
@@ -437,17 +437,17 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
         inVoronoi(b[1], a[1], A1_dot_B0, aA0_dot_B0 - b[0] - Tba[0],
                   A1_dot_B1, aA0_dot_B1 - Tba[1],
                   -Tab[1] - bA1_dot_B0))
-            &&
-            ((UB1_lx > a[0]) ||
-             inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0 - a[0],
-                       A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1] - aA0_dot_B1)))
+       &&
+       ((UB1_lx > a[0]) ||
+        inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0 - a[0],
+                  A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1] - aA0_dot_B1)))
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0,
                 Tba[1] - aA0_dot_B1);
 
-      S[0] = Tab[0] + Rab[0][0] * b[0] + Rab[0][1] * u - a[0] ;
-      S[1] = Tab[1] + Rab[1][0] * b[0] + Rab[1][1] * u - t;
-      S[2] = Tab[2] + Rab[2][0] * b[0] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - a[0] ;
+      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
+      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -467,16 +467,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((UA1_ux < 0) ||
         inVoronoi(b[1], a[1], -A1_dot_B0, Tba[0] - aA0_dot_B0,
                   A1_dot_B1, aA0_dot_B1 - Tba[1], -Tab[1]))
-        &&
-        ((LB1_lx > a[0]) ||
-         inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] - a[0],
-                   A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1)))
+       &&
+       ((LB1_lx > a[0]) ||
+        inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] - a[0],
+                  A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1)))
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1);
 
-      S[0] = Tab[0] + Rab[0][1] * u - a[0];
-      S[1] = Tab[1] + Rab[1][1] * u - t;
-      S[2] = Tab[2] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 1) * u - a[0];
+      S[1] = Tab[1] + Rab(1, 1) * u - t;
+      S[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -495,16 +495,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((LA1_lx > b[0]) ||
         inVoronoi(b[1], a[1], A1_dot_B0, -Tba[0] - b[0],
                   A1_dot_B1, -Tba[1], -Tab[1] - bA1_dot_B0))
-        &&
-        ((UB1_ux < 0) ||
-         inVoronoi(a[1], b[1], -A0_dot_B1, -Tab[0] - bA0_dot_B0,
-                   A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1])))
+       &&
+       ((UB1_ux < 0) ||
+        inVoronoi(a[1], b[1], -A0_dot_B1, -Tab[0] - bA0_dot_B0,
+                  A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1])))
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1]);
 
-      S[0] = Tab[0] + Rab[0][0] * b[0] + Rab[0][1] * u;
-      S[1] = Tab[1] + Rab[1][0] * b[0] + Rab[1][1] * u - t;
-      S[2] = Tab[2] + Rab[2][0] * b[0] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u;
+      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
+      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -521,8 +521,8 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
   if((LA1_lx < 0) && (LB1_lx < 0))
   {
     if (((LA1_ux < 0) ||
-        inVoronoi(b[1], a[1], -A1_dot_B0, Tba[0], A1_dot_B1,
-                  -Tba[1], -Tab[1]))
+         inVoronoi(b[1], a[1], -A1_dot_B0, Tba[0], A1_dot_B1,
+                   -Tba[1], -Tab[1]))
         &&
         ((LB1_ux < 0) ||
          inVoronoi(a[1], b[1], -A0_dot_B1, -Tab[0], A1_dot_B1,
@@ -530,9 +530,9 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1]);
 
-      S[0] = Tab[0] + Rab[0][1] * u;
-      S[1] = Tab[1] + Rab[1][1] * u - t;
-      S[2] = Tab[2] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 1) * u;
+      S[1] = Tab[1] + Rab(1, 1) * u - t;
+      S[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -590,17 +590,17 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((UA1_ly > b[1]) ||
         inVoronoi(b[0], a[1], A1_dot_B1, aA0_dot_B1 - Tba[1] - b[1],
                   A1_dot_B0, aA0_dot_B0 - Tba[0], -Tab[1] - bA1_dot_B1))
-        &&
-        ((UB0_lx > a[0]) ||
-         inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0] + bA0_dot_B1,
-                   A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0] - aA0_dot_B0)))
+       &&
+       ((UB0_lx > a[0]) ||
+        inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0] + bA0_dot_B1,
+                  A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0] - aA0_dot_B0)))
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1,
                 Tba[0] - aA0_dot_B0);
 
-      S[0] = Tab[0] + Rab[0][1] * b[1] + Rab[0][0] * u - a[0] ;
-      S[1] = Tab[1] + Rab[1][1] * b[1] + Rab[1][0] * u - t;
-      S[2] = Tab[2] + Rab[2][1] * b[1] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - a[0] ;
+      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
+      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
       if(P && Q)
       {
@@ -619,16 +619,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((UA1_uy < 0) ||
         inVoronoi(b[0], a[1], -A1_dot_B1, Tba[1] - aA0_dot_B1, A1_dot_B0,
                   aA0_dot_B0 - Tba[0], -Tab[1]))
-        &&
-        ((LB0_lx > a[0]) ||
-         inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0],
-                   A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0)))
+       &&
+       ((LB0_lx > a[0]) ||
+        inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0],
+                  A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0)))
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0);
 
-      S[0] = Tab[0] + Rab[0][0] * u - a[0];
-      S[1] = Tab[1] + Rab[1][0] * u - t;
-      S[2] = Tab[2] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 0) * u - a[0];
+      S[1] = Tab[1] + Rab(1, 0) * u - t;
+      S[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P && Q)
       {
@@ -647,17 +647,17 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((LA1_ly > b[1]) ||
         inVoronoi(b[0], a[1], A1_dot_B1, -Tba[1] - b[1],
                   A1_dot_B0, -Tba[0], -Tab[1] - bA1_dot_B1))
-        &&
+       &&
 
-        ((UB0_ux < 0) ||
-         inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0] - bA0_dot_B1, A1_dot_B0,
-                   Tab[1] + bA1_dot_B1, Tba[0])))
+       ((UB0_ux < 0) ||
+        inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0] - bA0_dot_B1, A1_dot_B0,
+                  Tab[1] + bA1_dot_B1, Tba[0])))
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0]);
 
-      S[0] = Tab[0] + Rab[0][1] * b[1] + Rab[0][0] * u;
-      S[1] = Tab[1] + Rab[1][1] * b[1] + Rab[1][0] * u - t;
-      S[2] = Tab[2] + Rab[2][1] * b[1] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u;
+      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
+      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
       if(P && Q)
       {
@@ -677,16 +677,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((LA1_uy < 0) ||
         inVoronoi(b[0], a[1], -A1_dot_B1, Tba[1], A1_dot_B0,
                   -Tba[0], -Tab[1]))
-        &&
-        ((LB0_ux < 0) ||
-         inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0], A1_dot_B0,
-                   Tab[1], Tba[0])))
+       &&
+       ((LB0_ux < 0) ||
+        inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0], A1_dot_B0,
+                  Tab[1], Tba[0])))
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0]);
 
-      S[0] = Tab[0] + Rab[0][0] * u;
-      S[1] = Tab[1] + Rab[1][0] * u - t;
-      S[2] = Tab[2] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 0) * u;
+      S[1] = Tab[1] + Rab(1, 0) * u - t;
+      S[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P&& Q)
       {
@@ -744,17 +744,17 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((UA0_lx > b[0]) ||
         inVoronoi(b[1], a[0], A0_dot_B0, aA1_dot_B0 - Tba[0] - b[0],
                   A0_dot_B1, aA1_dot_B1 - Tba[1], -Tab[0] - bA0_dot_B0))
-        &&
-        ((UB1_ly > a[1]) ||
-         inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1] + bA1_dot_B0,
-                   A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1] - aA1_dot_B1)))
+       &&
+       ((UB1_ly > a[1]) ||
+        inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1] + bA1_dot_B0,
+                  A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1] - aA1_dot_B1)))
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0,
                 Tba[1] - aA1_dot_B1);
 
-      S[0] = Tab[0] + Rab[0][0] * b[0] + Rab[0][1] * u - t;
-      S[1] = Tab[1] + Rab[1][0] * b[0] + Rab[1][1] * u - a[1];
-      S[2] = Tab[2] + Rab[2][0] * b[0] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
+      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - a[1];
+      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -773,16 +773,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((UA0_ux < 0) ||
         inVoronoi(b[1], a[0], -A0_dot_B0, Tba[0] - aA1_dot_B0, A0_dot_B1,
                   aA1_dot_B1 - Tba[1], -Tab[0]))
-        &&
-        ((LB1_ly > a[1]) ||
-         inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1], A0_dot_B1, Tab[0],
-                   Tba[1] - aA1_dot_B1)))
+       &&
+       ((LB1_ly > a[1]) ||
+        inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1], A0_dot_B1, Tab[0],
+                  Tba[1] - aA1_dot_B1)))
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1] - aA1_dot_B1);
 
-      S[0] = Tab[0] + Rab[0][1] * u - t;
-      S[1] = Tab[1] + Rab[1][1] * u - a[1];
-      S[2] = Tab[2] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 1) * u - t;
+      S[1] = Tab[1] + Rab(1, 1) * u - a[1];
+      S[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -801,16 +801,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((LA0_lx > b[0]) ||
         inVoronoi(b[1], a[0], A0_dot_B0, -b[0] - Tba[0], A0_dot_B1, -Tba[1],
                   -bA0_dot_B0 - Tab[0]))
-        &&
-        ((UB1_uy < 0) ||
-         inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1] - bA1_dot_B0, A0_dot_B1,
-                   Tab[0] + bA0_dot_B0, Tba[1])))
+       &&
+       ((UB1_uy < 0) ||
+        inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1] - bA1_dot_B0, A0_dot_B1,
+                  Tab[0] + bA0_dot_B0, Tba[1])))
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1]);
 
-      S[0] = Tab[0] + Rab[0][0] * b[0] + Rab[0][1] * u - t;
-      S[1] = Tab[1] + Rab[1][0] * b[0] + Rab[1][1] * u;
-      S[2] = Tab[2] + Rab[2][0] * b[0] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
+      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u;
+      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -829,16 +829,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((LA0_ux < 0) ||
         inVoronoi(b[1], a[0], -A0_dot_B0, Tba[0], A0_dot_B1, -Tba[1],
                   -Tab[0]))
-        &&
-        ((LB1_uy < 0) ||
-         inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1], A0_dot_B1,
-                   Tab[0], Tba[1])))
+       &&
+       ((LB1_uy < 0) ||
+        inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1], A0_dot_B1,
+                  Tab[0], Tba[1])))
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1]);
 
-      S[0] = Tab[0] + Rab[0][1] * u - t;
-      S[1] = Tab[1] + Rab[1][1] * u;
-      S[2] = Tab[2] + Rab[2][1] * u;
+      S[0] = Tab[0] + Rab(0, 1) * u - t;
+      S[1] = Tab[1] + Rab(1, 1) * u;
+      S[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
@@ -889,17 +889,17 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((UA0_ly > b[1]) ||
         inVoronoi(b[0], a[0], A0_dot_B1, aA1_dot_B1 - Tba[1] - b[1],
                   A0_dot_B0, aA1_dot_B0 - Tba[0], -Tab[0] - bA0_dot_B1))
-        &&
-        ((UB0_ly > a[1]) ||
-         inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1] + bA1_dot_B1, A0_dot_B0,
-                   Tab[0] + bA0_dot_B1, Tba[0] - aA1_dot_B0)))
+       &&
+       ((UB0_ly > a[1]) ||
+        inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1] + bA1_dot_B1, A0_dot_B0,
+                  Tab[0] + bA0_dot_B1, Tba[0] - aA1_dot_B0)))
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1,
                 Tba[0] - aA1_dot_B0);
 
-      S[0] = Tab[0] + Rab[0][1] * b[1] + Rab[0][0] * u - t;
-      S[1] = Tab[1] + Rab[1][1] * b[1] + Rab[1][0] * u - a[1];
-      S[2] = Tab[2] + Rab[2][1] * b[1] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
+      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - a[1];
+      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
       if(P && Q)
       {
@@ -918,16 +918,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((UA0_uy < 0) ||
         inVoronoi(b[0], a[0], -A0_dot_B1, Tba[1] - aA1_dot_B1, A0_dot_B0,
                   aA1_dot_B0 - Tba[0], -Tab[0]))
-        &&
-        ((LB0_ly > a[1]) ||
-         inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1],
-                   A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0)))
+       &&
+       ((LB0_ly > a[1]) ||
+        inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1],
+                  A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0)))
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0);
 
-      S[0] = Tab[0] + Rab[0][0] * u - t;
-      S[1] = Tab[1] + Rab[1][0] * u - a[1];
-      S[2] = Tab[2] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 0) * u - t;
+      S[1] = Tab[1] + Rab(1, 0) * u - a[1];
+      S[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P && Q)
       {
@@ -946,25 +946,25 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((LA0_ly > b[1]) ||
         inVoronoi(b[0], a[0], A0_dot_B1, -Tba[1] - b[1], A0_dot_B0, -Tba[0],
                   -Tab[0] - bA0_dot_B1))
-        &&
+       &&
 
-        ((UB0_uy < 0) ||
-         inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1] - bA1_dot_B1, A0_dot_B0,
-                   Tab[0] + bA0_dot_B1, Tba[0])))
+       ((UB0_uy < 0) ||
+        inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1] - bA1_dot_B1, A0_dot_B0,
+                  Tab[0] + bA0_dot_B1, Tba[0])))
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1, Tba[0]);
 
-       S[0] = Tab[0] + Rab[0][1] * b[1] + Rab[0][0] * u - t;
-       S[1] = Tab[1] + Rab[1][1] * b[1] + Rab[1][0] * u;
-       S[2] = Tab[2] + Rab[2][1] * b[1] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
+      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u;
+      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
-       if(P && Q)
-       {
-         P->setValue(t, 0, 0);
-         *Q = S + (*P);
-       }
+      if(P && Q)
+      {
+        P->setValue(t, 0, 0);
+        *Q = S + (*P);
+      }
 
-       return S.length();
+      return S.length();
     }
   }
 
@@ -975,16 +975,16 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     if(((LA0_uy < 0) ||
         inVoronoi(b[0], a[0], -A0_dot_B1, Tba[1], A0_dot_B0,
                   -Tba[0], -Tab[0]))
-        &&
-        ((LB0_uy < 0) ||
-         inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1], A0_dot_B0,
-                   Tab[0], Tba[0])))
+       &&
+       ((LB0_uy < 0) ||
+        inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1], A0_dot_B0,
+                  Tab[0], Tba[0])))
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0]);
 
-      S[0] = Tab[0] + Rab[0][0] * u - t;
-      S[1] = Tab[1] + Rab[1][0] * u;
-      S[2] = Tab[2] + Rab[2][0] * u;
+      S[0] = Tab[0] + Rab(0, 0) * u - t;
+      S[1] = Tab[1] + Rab(1, 0) * u;
+      S[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P && Q)
       {
@@ -1003,27 +1003,27 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
   if(Tab[2] > 0.0)
   {
     sep1 = Tab[2];
-    if (Rab[2][0] < 0.0) sep1 += b[0] * Rab[2][0];
-    if (Rab[2][1] < 0.0) sep1 += b[1] * Rab[2][1];
+    if (Rab(2, 0) < 0.0) sep1 += b[0] * Rab(2, 0);
+    if (Rab(2, 1) < 0.0) sep1 += b[1] * Rab(2, 1);
   }
   else
   {
     sep1 = -Tab[2];
-    if (Rab[2][0] > 0.0) sep1 -= b[0] * Rab[2][0];
-    if (Rab[2][1] > 0.0) sep1 -= b[1] * Rab[2][1];
+    if (Rab(2, 0) > 0.0) sep1 -= b[0] * Rab(2, 0);
+    if (Rab(2, 1) > 0.0) sep1 -= b[1] * Rab(2, 1);
   }
 
   if(Tba[2] < 0)
   {
     sep2 = -Tba[2];
-    if (Rab[0][2] < 0.0) sep2 += a[0] * Rab[0][2];
-    if (Rab[1][2] < 0.0) sep2 += a[1] * Rab[1][2];
+    if (Rab(0, 2) < 0.0) sep2 += a[0] * Rab(0, 2);
+    if (Rab(1, 2) < 0.0) sep2 += a[1] * Rab(1, 2);
   }
   else
   {
     sep2 = Tba[2];
-    if (Rab[0][2] > 0.0) sep2 -= a[0] * Rab[0][2];
-    if (Rab[1][2] > 0.0) sep2 -= a[1] * Rab[1][2];
+    if (Rab(0, 2) > 0.0) sep2 -= a[0] * Rab(0, 2);
+    if (Rab(1, 2) > 0.0) sep2 -= a[1] * Rab(1, 2);
   }
 
   if(sep1 >= sep2 && sep1 >= 0)
@@ -1046,15 +1046,15 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
     Vec3f P_;
     if(Tba[2] < 0)
     {
-      P_[0] = Rab[0][2] * sep2 + Tab[0];
-      P_[1] = Rab[1][2] * sep2 + Tab[1];
-      P_[2] = Rab[2][2] * sep2 + Tab[2];
+      P_[0] = Rab(0, 2) * sep2 + Tab[0];
+      P_[1] = Rab(1, 2) * sep2 + Tab[1];
+      P_[2] = Rab(2, 2) * sep2 + Tab[2];
     }
     else
     {
-      P_[0] = -Rab[0][2] * sep2 + Tab[0];
-      P_[1] = -Rab[1][2] * sep2 + Tab[1];
-      P_[2] = -Rab[2][2] * sep2 + Tab[2];
+      P_[0] = -Rab(0, 2) * sep2 + Tab[0];
+      P_[1] = -Rab(1, 2) * sep2 + Tab[1];
+      P_[2] = -Rab(2, 2) * sep2 + Tab[2];
     }
 
     S = Q_ - P_;

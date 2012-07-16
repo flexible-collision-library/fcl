@@ -179,7 +179,7 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
       for(int k = 0; k < dim; ++k)
       {
         C[j][k] /= weight_sum;
-        ucs[i].Sigma[j][k] = C[j][k];
+        ucs[i].Sigma(j, k) = C[j][k];
       }
     }
 
@@ -192,91 +192,6 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
   delete [] query.ptr();
   delete [] indices.ptr();
   delete [] dists.ptr();
-
-  /*
-  int nPts = num_vertices;
-  ANNpointArray dataPts;
-  ANNpoint queryPt;
-
-  ANNidxArray nnIdx;
-  ANNdistArray dists;
-  ANNkd_tree* kdTree;
-
-  int knn_k = 10;
-  if(knn_k > nPts) knn_k = nPts;
-  int dim = 3;
-
-  queryPt = annAllocPt(dim);
-  dataPts = annAllocPts(nPts, dim);
-  nnIdx = new ANNidx[knn_k];
-  dists = new ANNdist[knn_k];
-
-  for(int i = 0; i < nPts; ++i)
-  {
-    for(int j = 0; j < dim; ++j)
-      dataPts[i][j] = vertices[i][j];
-  }
-
-  kdTree = new ANNkd_tree(dataPts, nPts, dim);
-
-  double eps = 0;
-  double scale = 2;
-
-  for(int i = 0; i < nPts; ++i)
-  {
-    float C[3][3];
-    for(int j = 0; j < 3; ++j)
-    {
-      for(int k = 0; k < 3; ++k)
-        C[j][k] = 0;
-    }
-
-    for(int j = 0; j < 3; ++j)
-      queryPt[j] = vertices[i][j];
-
-    kdTree->annkSearch(queryPt, knn_k, nnIdx, dists, eps);
-
-    for(int j = 0; j < knn_k; ++j)
-      dists[j] = sqrt(dists[j]);
-
-    double r = dists[knn_k - 1];
-    double sigma = scale * r;
-
-    double weight_sum = 0;
-    for(int j = 1; j < knn_k; ++j)
-    {
-      int id = nnIdx[j];
-      Vec3f p = vertices[i] - vertices[id];
-      double norm2p = p.sqrLength();
-      double weight = exp(-norm2p / (sigma * sigma));
-
-      weight_sum += weight;
-
-      for(int k = 0; k < 3; ++k)
-      {
-        for(int l = 0; l < 3; ++l)
-          C[k][l] += p[k] * p[l] * weight;
-      }
-    }
-
-    for(int j = 0; j < 3; ++j)
-    {
-      for(int k = 0; k < 3; ++k)
-      {
-        C[j][k] /= weight_sum;
-        ucs[i].Sigma[j][k] = C[j][k];
-      }
-    }
-
-    ucs[i].preprocess();
-    ucs[i].sqrt();
-  }
-
-  delete [] nnIdx;
-  delete [] dists;
-  delete kdTree;
-  annClose();
-  */
 }
 
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M)
@@ -352,15 +267,15 @@ void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, i
 
   int n_points = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
 
-  M[0][0] = S2[0][0] - S1[0]*S1[0] / n_points;
-  M[1][1] = S2[1][1] - S1[1]*S1[1] / n_points;
-  M[2][2] = S2[2][2] - S1[2]*S1[2] / n_points;
-  M[0][1] = S2[0][1] - S1[0]*S1[1] / n_points;
-  M[1][2] = S2[1][2] - S1[1]*S1[2] / n_points;
-  M[0][2] = S2[0][2] - S1[0]*S1[2] / n_points;
-  M[1][0] = M[0][1];
-  M[2][0] = M[0][2];
-  M[2][1] = M[1][2];
+  M(0, 0) = S2[0][0] - S1[0]*S1[0] / n_points;
+  M(1, 1) = S2[1][1] - S1[1]*S1[1] / n_points;
+  M(2, 2) = S2[2][2] - S1[2]*S1[2] / n_points;
+  M(0, 1) = S2[0][1] - S1[0]*S1[1] / n_points;
+  M(1, 2) = S2[1][2] - S1[1]*S1[2] / n_points;
+  M(0, 2) = S2[0][2] - S1[0]*S1[2] / n_points;
+  M(1, 0) = M(0, 1);
+  M(2, 0) = M(0, 2);
+  M(2, 1) = M(1, 2);
 }
 
 
@@ -478,9 +393,9 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
   FCL_REAL x, dz;
   dz = P[minindex][2] - cz;
-  minx = P[minindex][0] + sqrt(std::max(radsqr - dz * dz, 0.0));
+  minx = P[minindex][0] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
   dz = P[maxindex][2] - cz;
-  maxx = P[maxindex][0] - sqrt(std::max(radsqr - dz * dz, 0.0));
+  maxx = P[maxindex][0] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
 
 
   // grow minx
@@ -490,7 +405,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     if(P[i][0] < minx)
     {
       dz = P[i][2] - cz;
-      x = P[i][0] + sqrt(std::max(radsqr - dz * dz, 0.0));
+      x = P[i][0] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
       if(x < minx) minx = x;
     }
   }
@@ -502,7 +417,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     if(P[i][0] > maxx)
     {
       dz = P[i][2] - cz;
-      x = P[i][0] - sqrt(std::max(radsqr - dz * dz, 0.0));
+      x = P[i][0] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
       if(x > maxx) maxx = x;
     }
   }
@@ -530,9 +445,9 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
 
   FCL_REAL y;
   dz = P[minindex][2] - cz;
-  miny = P[minindex][1] + sqrt(std::max(radsqr - dz * dz, 0.0));
+  miny = P[minindex][1] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
   dz = P[maxindex][2] - cz;
-  maxy = P[maxindex][1] - sqrt(std::max(radsqr - dz * dz, 0.0));
+  maxy = P[maxindex][1] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
 
   // grow miny
 
@@ -541,7 +456,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     if(P[i][1] < miny)
     {
       dz = P[i][2] - cz;
-      y = P[i][1] + sqrt(std::max(radsqr - dz * dz, 0.0));
+      y = P[i][1] + std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
       if(y < miny) miny = y;
     }
   }
@@ -553,7 +468,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
     if(P[i][1] > maxy)
     {
       dz = P[i][2] - cz;
-      y = P[i][1] - sqrt(std::max(radsqr - dz * dz, 0.0));
+      y = P[i][1] - std::sqrt(std::max<FCL_REAL>(radsqr - dz * dz, 0));
       if(y > maxy) maxy = y;
     }
   }
@@ -561,7 +476,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
   // corners may have some points which are not covered - grow lengths if necessary
   // quite conservative (can be improved)
   FCL_REAL dx, dy, u, t;
-  FCL_REAL a = sqrt((FCL_REAL)0.5);
+  FCL_REAL a = std::sqrt((FCL_REAL)0.5);
   for(int i = 0; i < size_P; ++i)
   {
     if(P[i][0] > maxx)
@@ -574,7 +489,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         t = (a*u - dx)*(a*u - dx) +
             (a*u - dy)*(a*u - dy) +
             (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
+        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
         if(u > 0)
         {
           maxx += u*a;
@@ -589,7 +504,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         t = (a*u - dx)*(a*u - dx) +
             (-a*u - dy)*(-a*u - dy) +
             (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
+        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
         if(u > 0)
         {
           maxx += u*a;
@@ -607,7 +522,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         t = (-a*u - dx)*(-a*u - dx) +
             (a*u - dy)*(a*u - dy) +
             (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
+        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
         if(u > 0)
         {
           minx -= u*a;
@@ -622,7 +537,7 @@ void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, uns
         t = (-a*u - dx)*(-a*u - dx) +
             (-a*u - dy)*(-a*u - dy) +
             (cz - P[i][2])*(cz - P[i][2]);
-        u = u - sqrt(std::max(radsqr - t, 0.0));
+        u = u - std::sqrt(std::max<FCL_REAL>(radsqr - t, 0));
         if (u > 0)
         {
           minx -= u*a;
@@ -787,7 +702,7 @@ void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec
   Vec3f e3 = e1.cross(e2);
   FCL_REAL e3_len2 = e3.sqrLength();
   radius = e1_len2 * e2_len2 * (e1 - e2).sqrLength() / e3_len2;
-  radius = sqrt(radius) * 0.5;
+  radius = std::sqrt(radius) * 0.5;
 
   center = (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2) + c;
 }
@@ -826,7 +741,7 @@ static inline FCL_REAL maximumDistance_mesh(Vec3f* ps, Vec3f* ps2, Triangle* ts,
     }
   }
 
-  return sqrt(maxD);
+  return std::sqrt(maxD);
 }
 
 static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigned int* indices, int n, const Vec3f& query)
@@ -851,7 +766,7 @@ static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigne
     }
   }
 
-  return sqrt(maxD);
+  return std::sqrt(maxD);
 }
 
 FCL_REAL maximumDistance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Vec3f& query)

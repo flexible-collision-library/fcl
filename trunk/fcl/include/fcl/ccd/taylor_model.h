@@ -38,9 +38,21 @@
 #define FCL_TAYLOR_MODEL_H
 
 #include "fcl/ccd/interval.h"
+#include <boost/shared_ptr.hpp>
 
 namespace fcl
 {
+
+struct TimeInterval
+{
+  /** \brief time interval and different powers */
+  Interval t_; // [t1, t2]
+  Interval t2_; // [t1, t2]^2
+  Interval t3_; // [t1, t2]^3
+  Interval t4_; // [t1, t2]^4
+  Interval t5_; // [t1, t2]^5
+  Interval t6_; // [t1, t2]^6
+};
 
 /** \brief TaylorModel implements a third order Taylor model, i.e., a cubic approximation of a function
  * over a time interval, with an interval remainder.
@@ -48,6 +60,9 @@ namespace fcl
  */
 struct TaylorModel
 {
+  /** \brief time interval */
+  boost::shared_ptr<TimeInterval> time_interval_;
+
   /** \brief Coefficients of the cubic polynomial approximation */
   FCL_REAL coeffs_[4];
 
@@ -55,18 +70,31 @@ struct TaylorModel
   Interval r_;
 
   void setTimeInterval(FCL_REAL l, FCL_REAL r);
+  void setTimeInterval(const boost::shared_ptr<TimeInterval> time_interval)
+  {
+    time_interval_ = time_interval;
+  }
 
   TaylorModel();
-  TaylorModel(FCL_REAL coeff);
-  TaylorModel(FCL_REAL coeffs[3], const Interval& r);
-  TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r);
+  TaylorModel(const boost::shared_ptr<TimeInterval>& time_interval);
+  TaylorModel(FCL_REAL coeff, const boost::shared_ptr<TimeInterval>& time_interval);
+  TaylorModel(FCL_REAL coeffs[3], const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval);
+  TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval);
 
   TaylorModel operator + (const TaylorModel& other) const;
-  TaylorModel operator - (const TaylorModel& other) const;
   TaylorModel& operator += (const TaylorModel& other);
+
+  TaylorModel operator - (const TaylorModel& other) const;
   TaylorModel& operator -= (const TaylorModel& other);
+
+  TaylorModel operator + (FCL_REAL d) const;
+  TaylorModel& operator += (FCL_REAL d);
+
   TaylorModel operator * (const TaylorModel& other) const;
   TaylorModel operator * (FCL_REAL d) const;
+  TaylorModel& operator *= (const TaylorModel& other);
+  TaylorModel& operator *= (FCL_REAL d);
+
   TaylorModel operator - () const;
 
   void print() const;
@@ -80,16 +108,6 @@ struct TaylorModel
   Interval getBound(FCL_REAL t) const;
 
   void setZero();
-
-  /** \brief time interval and different powers */
-  Interval t_; // [t1, t2]
-  Interval t2_; // [t1, t2]^2
-  Interval t3_; // [t1, t2]^3
-  Interval t4_; // [t1, t2]^4
-  Interval t5_; // [t1, t2]^5
-  Interval t6_; // [t1, t2]^6
-
-  static const FCL_REAL PI_;
 };
 
 void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0);

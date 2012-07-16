@@ -44,7 +44,7 @@ void SimpleQuaternion::fromRotation(const Matrix3f& R)
 {
   const int next[3] = {1, 2, 0};
 
-  FCL_REAL trace = R[0][0] + R[1][1] + R[2][2];
+  FCL_REAL trace = R(0, 0) + R(1, 1) + R(2, 2);
   FCL_REAL root;
 
   if(trace > 0.0)
@@ -53,32 +53,32 @@ void SimpleQuaternion::fromRotation(const Matrix3f& R)
     root = sqrt(trace + 1.0);  // 2w
     data[0] = 0.5 * root;
     root = 0.5 / root;  // 1/(4w)
-    data[1] = (R[2][1] - R[1][2])*root;
-    data[2] = (R[0][2] - R[2][0])*root;
-    data[3] = (R[1][0] - R[0][1])*root;
+    data[1] = (R(2, 1) - R(1, 2))*root;
+    data[2] = (R(0, 2) - R(2, 0))*root;
+    data[3] = (R(1, 0) - R(0, 1))*root;
   }
   else
   {
     // |w| <= 1/2
     int i = 0;
-    if(R[1][1] > R[0][0])
+    if(R(1, 1) > R(0, 0))
     {
         i = 1;
     }
-    if(R[2][2] > R[i][i])
+    if(R(2, 2) > R(i, i))
     {
         i = 2;
     }
     int j = next[i];
     int k = next[j];
 
-    root = sqrt(R[i][i] - R[j][j] - R[k][k] + 1.0);
+    root = sqrt(R(i, i) - R(j, j) - R(k, k) + 1.0);
     FCL_REAL* quat[3] = { &data[1], &data[2], &data[3] };
     *quat[i] = 0.5 * root;
     root = 0.5 / root;
-    data[0] = (R[k][j] - R[j][k]) * root;
-    *quat[j] = (R[j][i] + R[i][j]) * root;
-    *quat[k] = (R[k][i] + R[i][k]) * root;
+    data[0] = (R(k, j) - R(j, k)) * root;
+    *quat[j] = (R(j, i) + R(i, j)) * root;
+    *quat[k] = (R(k, i) + R(i, k)) * root;
   }
 }
 

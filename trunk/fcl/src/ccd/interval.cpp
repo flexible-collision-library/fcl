@@ -40,6 +40,22 @@
 namespace fcl
 {
 
+Interval bound(const Interval& i, FCL_REAL v)
+{
+  Interval res = i;
+  if(v < res.i_[0]) res.i_[0] = v;
+  if(v > res.i_[1]) res.i_[1] = v;
+  return res;
+}
+
+Interval bound(const Interval& i, const Interval& other)
+{
+  Interval res = i;
+  if(other.i_[0] < res.i_[0]) res.i_[0] = other.i_[0];
+  if(other.i_[1] > res.i_[1]) res.i_[1] = other.i_[1];
+  return res;
+}
+
 Interval Interval::operator * (const Interval& other) const
 {
   if(other.i_[0] >= 0)
@@ -74,9 +90,109 @@ Interval Interval::operator * (const Interval& other) const
   return Interval(v10, v00);
 }
 
+Interval& Interval::operator *= (const Interval& other)
+{
+  if(other.i_[0] >= 0)
+  {
+    if(i_[0] >= 0) 
+    {
+      i_[0] *= other.i_[0];
+      i_[1] *= other.i_[1];
+    }
+    else if(i_[1] <= 0)
+    {
+      i_[0] *= other.i_[1];
+      i_[1] *= other.i_[0];
+    }
+    else
+    {
+      i_[0] *= other.i_[1];
+      i_[1] *= other.i_[1];
+    }
+    return *this;
+  }
+
+  if(other.i_[1] <= 0)
+  {
+    if(i_[0] >= 0)
+    {
+      FCL_REAL tmp = i_[0];
+      i_[0] = i_[1] * other.i_[0];
+      i_[1] = tmp * other.i_[1];
+    }
+    else if(i_[1] <= 0)
+    {
+      FCL_REAL tmp = i_[0];
+      i_[0] = i_[1] * other.i_[1];
+      i_[1] = tmp * other.i_[0];
+    }
+    else
+    {
+      FCL_REAL tmp = i_[0];
+      i_[0] = i_[1] * other.i_[0];
+      i_[1] = tmp * other.i_[0];  
+    }
+    return *this;
+  }
+
+  if(i_[0] >= 0) 
+  {
+    i_[0] = i_[1] * other.i_[0];
+    i_[1] *= other.i_[1];
+    return *this;
+  }
+
+  if(i_[1] <= 0) 
+  {
+    i_[1] = i_[0] * other.i_[0];
+    i_[0] *= other.i_[1];
+    return *this;
+  }
+
+  FCL_REAL v00 = i_[0] * other.i_[0];
+  FCL_REAL v11 = i_[1] * other.i_[1];
+  if(v00 <= v11)
+  {
+    FCL_REAL v01 = i_[0] * other.i_[1];
+    FCL_REAL v10 = i_[1] * other.i_[0];
+    if(v01 < v10)
+    {
+      i_[0] = v01;
+      i_[1] = v11;
+    }
+    else
+    {
+      i_[0] = v10;
+      i_[1] = v11;
+    }
+    return *this;
+  }
+
+  FCL_REAL v01 = i_[0] * other.i_[1];
+  FCL_REAL v10 = i_[1] * other.i_[0];
+  if(v01 < v10)
+  {
+    i_[0] = v01;
+    i_[1] = v00;
+  }
+  else
+  {
+    i_[0] = v10;
+    i_[1] = v00;
+  }
+
+  return *this;
+}
+
 Interval Interval::operator / (const Interval& other) const
 {
   return *this * Interval(1.0 / other.i_[1], 1.0 / other.i_[0]);
+}
+
+Interval& Interval::operator /= (const Interval& other)
+{
+  *this *= Interval(1.0 / other.i_[1], 1.0 / other.i_[0]);
+  return *this;
 }
 
 void Interval::print() const

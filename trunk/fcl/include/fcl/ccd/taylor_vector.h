@@ -48,22 +48,32 @@ struct TVector3
   TaylorModel i_[3];
 
   TVector3();
+  TVector3(const boost::shared_ptr<TimeInterval>& time_interval);
   TVector3(TaylorModel v[3]);
   TVector3(const TaylorModel& v0, const TaylorModel& v1, const TaylorModel& v2);
-  TVector3(const Vec3f& v);
+  TVector3(const Vec3f& v, const boost::shared_ptr<TimeInterval>& time_interval);
 
   TVector3 operator + (const TVector3& other) const;
-  TVector3 operator + (FCL_REAL d) const;
   TVector3& operator += (const TVector3& other);
+
+  TVector3 operator + (FCL_REAL d) const;
+  TVector3& operator += (FCL_REAL d);
+
   TVector3 operator - (const TVector3& other) const;
   TVector3& operator -= (const TVector3& other);
-  TVector3& operator = (const Vec3f& u);
+
+  TVector3 operator * (const TaylorModel& d) const;
+  TVector3& operator *= (const TaylorModel& d);
+  TVector3 operator * (FCL_REAL d) const;
+  TVector3& operator *= (FCL_REAL d);
 
   const TaylorModel& operator [] (size_t i) const;
   TaylorModel& operator [] (size_t i);
 
   TaylorModel dot(const TVector3& other) const;
   TVector3 cross(const TVector3& other) const;
+  TaylorModel dot(const Vec3f& other) const;
+  TVector3 cross(const Vec3f& other) const;
 
   IVector3 getBound() const;
   IVector3 getBound(FCL_REAL t) const;
@@ -73,6 +83,8 @@ struct TVector3
   void setZero();
 
   TaylorModel squareLength() const;
+
+  void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
 };
 
 void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity);

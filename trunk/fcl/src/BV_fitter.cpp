@@ -140,7 +140,7 @@ void fitn(Vec3f* ps, int n, OBB& bv)
   FCL_REAL s[3] = {0, 0, 0}; // three eigen values
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
   axisFromEigen(E, s, bv.axis);
 
   // set obb centers and extensions
@@ -226,7 +226,7 @@ void fitn(Vec3f* ps, int n, RSS& bv)
   FCL_REAL s[3] = {0, 0, 0};
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
   axisFromEigen(E, s, bv.axis);
 
   // set rss origin, rectangle size and radius
@@ -343,7 +343,7 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
   FCL_REAL s[3] = {0, 0, 0}; // three eigen values;
 
   getCovariance(ps, NULL, NULL, NULL, n, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
   
   Vec3f* axis = bv.obb_bv.axis;
   axisFromEigen(E, s, axis);
@@ -525,7 +525,7 @@ OBB BVFitter<OBB>::fit(unsigned int* primitive_indices, int num_primitives)
   FCL_REAL s[3]; // three eigen values
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
 
   axisFromEigen(E, s, bv.axis);
 
@@ -543,7 +543,7 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   FCL_REAL s[3];
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
 
   axisFromEigen(E, s, bv.obb.axis);
   bv.rss.axis[0] = bv.obb.axis[0];
@@ -573,7 +573,7 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
   Vec3f E[3]; // row first eigen-vectors
   FCL_REAL s[3]; // three eigen values
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
   axisFromEigen(E, s, bv.axis);
 
   // set rss origin, rectangle size and radius
@@ -602,7 +602,7 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   FCL_REAL s[3];
   
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
 
   Vec3f* axis = bv.obb_bv.axis;
   axisFromEigen(E, s, axis);

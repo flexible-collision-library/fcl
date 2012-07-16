@@ -57,13 +57,73 @@ struct IVector3
   IVector3(const Interval& v1, const Interval& v2, const Interval& v3);
   IVector3(const Vec3f& v);
 
+  inline void setValue(FCL_REAL v)
+  {
+    i_[0].setValue(v);
+    i_[1].setValue(v);
+    i_[2].setValue(v);
+  }
+
+  inline void setValue(FCL_REAL x, FCL_REAL y, FCL_REAL z)
+  {
+    i_[0].setValue(x);
+    i_[1].setValue(y);
+    i_[2].setValue(z);
+  }
+
+  inline void setValue(FCL_REAL xl, FCL_REAL xu, FCL_REAL yl, FCL_REAL yu, FCL_REAL zl, FCL_REAL zu)
+  {
+    i_[0].setValue(xl, xu);
+    i_[1].setValue(yl, yu);
+    i_[2].setValue(zl, zu);
+  }
+
+  inline void setValue(FCL_REAL v[3][2])
+  {
+    i_[0].setValue(v[0][0], v[0][1]);
+    i_[1].setValue(v[1][0], v[1][1]);
+    i_[2].setValue(v[2][0], v[2][1]);
+  }
+
+  inline void setValue(Interval v[3])
+  {
+    i_[0] = v[0];
+    i_[1] = v[1];
+    i_[2] = v[2];
+  }
+
+  inline void setValue(const Interval& v1, const Interval& v2, const Interval& v3)
+  {
+    i_[0] = v1;
+    i_[1] = v2;
+    i_[2] = v3;
+  }
+
+  inline void setValue(const Vec3f& v)
+  {
+    i_[0].setValue(v[0]);
+    i_[1].setValue(v[1]);
+    i_[2].setValue(v[2]);
+  }
+
+  inline void setValue(FCL_REAL v[3])
+  {
+    i_[0].setValue(v[0]);
+    i_[1].setValue(v[1]);
+    i_[2].setValue(v[2]);
+  }
+  
   IVector3 operator + (const IVector3& other) const;
   IVector3& operator += (const IVector3& other);
+
   IVector3 operator - (const IVector3& other) const;
   IVector3& operator -= (const IVector3& other);
-  IVector3& operator = (const Vec3f& other);
+
   Interval dot(const IVector3& other) const;
   IVector3 cross(const IVector3& other) const;
+
+  Interval dot(const Vec3f& other) const;
+  IVector3 cross(const Vec3f& other) const;
 
   inline const Interval& operator [] (size_t i) const
   {
@@ -75,6 +135,16 @@ struct IVector3
     return i_[i];
   }
 
+  inline Vec3f getLow() const 
+  {
+    return Vec3f(i_[0][0], i_[1][0], i_[2][0]);
+  }
+  
+  inline Vec3f getHigh() const
+  {
+    return Vec3f(i_[0][1], i_[1][1], i_[2][1]);
+  }
+
   void print() const;
   Vec3f center() const;
   FCL_REAL volumn() const;
@@ -83,13 +153,13 @@ struct IVector3
   void bound(const Vec3f& v);
   void bound(const IVector3& v);
 
-  IVector3 bounded(const Vec3f& v) const;
-  IVector3 bounded(const IVector3& v) const;
-
   bool overlap(const IVector3& v) const;
   bool contain(const IVector3& v) const;
-  void normalize();
 };
+
+IVector3 bound(const IVector3& i, const Vec3f& v);
+
+IVector3 bound(const IVector3& i, const IVector3& v);
 
 }
 

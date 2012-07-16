@@ -1390,6 +1390,8 @@ public:
     return dtree.size();
   }
 
+  const HierarchyTree<AABB>& getTree() const { return dtree; }
+
 
 private:
   HierarchyTree<AABB> dtree;
@@ -1532,6 +1534,8 @@ public:
     return dtree.size();
   }
 
+
+  const alternative::HierarchyTree<AABB>& getTree() const { return dtree; }
 
 private:
   alternative::HierarchyTree<AABB> dtree;

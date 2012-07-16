@@ -41,162 +41,376 @@
 
 namespace fcl
 {
-  class Matrix3f
+
+
+template<typename T>
+class Matrix3fX
+{
+public:
+  typedef typename T::meta_type U;
+  typedef typename T::vector_type S;
+  T data;
+  
+  Matrix3fX() {}
+  Matrix3fX(U xx, U xy, U xz,
+            U yx, U yy, U yz,
+            U zx, U zy, U zz) : data(xx, xy, xz, yx, yy, yz, zx, zy, zz)
+  {}
+
+  Matrix3fX(const Vec3fX<S>& v1, const Vec3fX<S>& v2, const Vec3fX<S>& v3)
+    : data(v1.data, v2.data, v3.data) {}
+  
+  Matrix3fX(const Matrix3fX<T>& other) : data(other.data) {}
+
+  Matrix3fX(const T& data_) : data(data_) {}
+  
+  inline Vec3fX<S> getColumn(size_t i) const
   {
-  public:
-    Vec3f v_[3];
+    return Vec3fX<S>(data.getColumn(i));
+  }
 
-    /** \brief All zero matrix */
-    Matrix3f() {}
+  inline Vec3fX<S> getRow(size_t i) const
+  {
+    return Vec3fX<S>(data.getRow(i));
+  }
 
-    Matrix3f(FCL_REAL xx, FCL_REAL xy, FCL_REAL xz,
-             FCL_REAL yx, FCL_REAL yy, FCL_REAL yz,
-             FCL_REAL zx, FCL_REAL zy, FCL_REAL zz)
-    {
-      setValue(xx, xy, xz,
-               yx, yy, yz,
-               zx, zy, zz);
-    }
+  inline U operator () (size_t i, size_t j) const
+  {
+    return data(i, j);
+  }
 
-    Matrix3f(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3)
-    {
-      v_[0] = v1;
-      v_[1] = v2;
-      v_[2] = v3;
-    }
+  inline U& operator () (size_t i, size_t j)
+  {
+    return data(i, j);
+  }
 
-    Matrix3f(const Matrix3f& other)
-    {
-      v_[0] = other.v_[0];
-      v_[1] = other.v_[1];
-      v_[2] = other.v_[2];
-    }
+  inline Vec3fX<S> operator * (const Vec3fX<S>& v) const
+  {
+    return Vec3fX<S>(data * v.data);
+  }
 
-    Matrix3f& operator = (const Matrix3f& other)
-    {
-      v_[0] = other.v_[0];
-      v_[1] = other.v_[1];
-      v_[2] = other.v_[2];
-      return *this;
-    }
+  inline Matrix3fX<T> operator * (const Matrix3fX<T>& m) const
+  {
+    return Matrix3fX<T>(data * m.data);
+  }
 
-    inline Vec3f getColumn(size_t i) const
-    {
-      return Vec3f(v_[0][i], v_[1][i], v_[2][i]);
-    }
+  inline Matrix3fX<T> operator + (const Matrix3fX<T>& other) const
+  {
+    return Matrix3fX<T>(data + other.data);
+  }
 
-    inline const Vec3f& getRow(size_t i) const
-    {
-      return v_[i];
-    }
+  inline Matrix3fX<T> operator - (const Matrix3fX<T>& other) const
+  {
+    return Matrix3fX<T>(data - other.data);
+  }
 
-    inline Vec3f& operator [](size_t i)
-    {
-      return v_[i];
-    }
+  inline Matrix3fX<T> operator + (U c) const
+  {
+    return Matrix3fX<T>(data + c);
+  }
 
-    inline const Vec3f& operator [](size_t i) const
-    {
-      return v_[i];
-    }
+  inline Matrix3fX<T> operator - (U c) const
+  {
+    return Matrix3fX<T>(data - c);
+  }
 
-    inline FCL_REAL operator () (size_t i, size_t j) const
-    {
-      return v_[i][j];
-    }
+  inline Matrix3fX<T> operator * (U c) const
+  {
+    return Matrix3fX<T>(data * c);
+  }
 
-    inline FCL_REAL& operator() (size_t i, size_t j)
-    {
-      return v_[i][j];
-    }
+  inline Matrix3fX<T> operator / (U c) const
+  {
+    return Matrix3fX<T>(data / c);
+  }
 
-    Matrix3f& operator *= (const Matrix3f& other);
+  inline Matrix3fX<T>& operator *= (const Matrix3fX<T>& other)
+  {
+    data *= other.data;
+    return *this;
+  }
 
-    Matrix3f& operator += (FCL_REAL c);
+  inline Matrix3fX<T>& operator += (const Matrix3fX<T>& other)
+  {
+    data += other.data;
+    return *this;
+  }
 
-    void setIdentity()
-    {
-      setValue((FCL_REAL)1.0, (FCL_REAL)0.0, (FCL_REAL)0.0,
-               (FCL_REAL)0.0, (FCL_REAL)1.0, (FCL_REAL)0.0,
-               (FCL_REAL)0.0, (FCL_REAL)0.0, (FCL_REAL)1.0);
-    }
+  inline Matrix3fX<T>& operator -= (const Matrix3fX<T>& other)
+  {
+    data -= other.data;
+    return *this;
+  }
 
-    void setZero()
-    {
-      setValue((FCL_REAL)0.0);
-    }
+  inline Matrix3fX<T>& operator += (U c) 
+  {
+    data += c;
+    return *this;
+  }
 
-    static const Matrix3f& getIdentity()
-    {
-      static const Matrix3f I((FCL_REAL)1.0, (FCL_REAL)0.0, (FCL_REAL)0.0,
-                              (FCL_REAL)0.0, (FCL_REAL)1.0, (FCL_REAL)0.0,
-                              (FCL_REAL)0.0, (FCL_REAL)0.0, (FCL_REAL)1.0);
-      return I;
-    }
+  inline Matrix3fX<T>& operator -= (U c)
+  {
+    data -= c;
+    return *this;
+  }
 
-    FCL_REAL determinant() const;
-    Matrix3f transpose() const;
-    Matrix3f inverse() const;
+  inline Matrix3fX<T>& operator *= (U c)
+  {
+    data *= c;
+    return *this;
+  }
 
-    Matrix3f transposeTimes(const Matrix3f& m) const;
-    Matrix3f timesTranspose(const Matrix3f& m) const;
-    Matrix3f operator * (const Matrix3f& m) const;
+  inline Matrix3fX<T>& operator /= (U c)
+  {
+    data /= c;
+    return *this;
+  }
 
-    Vec3f operator * (const Vec3f& v) const;
-    Vec3f transposeTimes(const Vec3f& v) const;
+  inline void setIdentity()
+  {
+    data.setIdentity();
+  }
 
-    inline FCL_REAL quadraticForm(const Vec3f& v) const
-    {
-      return v[0] * v[0] * v_[0][0] + v[0] * v[1] * v_[0][1] + v[0] * v[2] * v_[0][2] +
-          v[1] * v[0] * v_[1][0] + v[1] * v[1] * v_[1][1] + v[1] * v[2] * v_[1][2] +
-          v[2] * v[0] * v_[2][0] + v[2] * v[1] * v_[2][1] + v[2] * v[2] * v_[2][2];
-    }
+  inline void setZero()
+  {
+    data.setZero();
+  }
 
-    /** S * M * S' */
-    Matrix3f tensorTransform(const Matrix3f& m) const;
+  inline U determinant() const
+  {
+    return data.determinant();
+  }
 
-    inline FCL_REAL transposeDotX(const Vec3f& v) const
-    {
-      return v_[0][0] * v[0] + v_[1][0] * v[1] + v_[2][0] * v[2];
-    }
+  Matrix3fX<T>& transpose() 
+  {
+    data.transpose();
+    return *this;
+  }
 
-    inline FCL_REAL transposeDotY(const Vec3f& v) const
-    {
-      return v_[0][1] * v[0] + v_[1][1] * v[1] + v_[2][1] * v[2];
-    }
+  Matrix3fX<T>& inverse()
+  {
+    data.inverse();
+    return *this;
+  }
 
-    inline FCL_REAL transposeDotZ(const Vec3f& v) const
-    {
-      return v_[0][2] * v[0] + v_[1][2] * v[1] + v_[2][2] * v[2];
-    }
+  Matrix3fX<T>& abs()
+  {
+    data.abs();
+    return *this;
+  }
 
-    inline FCL_REAL transposeDot(size_t i, const Vec3f& v) const
-    {
-      return v_[0][i] * v[0] + v_[1][i] * v[1] + v_[2][i] * v[2];
-    }
-    
-    inline void setValue(FCL_REAL xx, FCL_REAL xy, FCL_REAL xz,
-                         FCL_REAL yx, FCL_REAL yy, FCL_REAL yz,
-                         FCL_REAL zx, FCL_REAL zy, FCL_REAL zz)
-    {
-      v_[0].setValue(xx, xy, xz);
-      v_[1].setValue(yx, yy, yz);
-      v_[2].setValue(zx, zy, zz);
-    }
-    
-    inline void setValue(FCL_REAL x)
-    {
-      v_[0].setValue(x);
-      v_[1].setValue(x);
-      v_[2].setValue(x);
-    }
-  };
+  static const Matrix3fX<T>& getIdentity()
+  {
+    static const Matrix3fX<T> I((U)1, (U)0, (U)0,
+                                (U)0, (U)1, (U)0,
+                                (U)0, (U)0, (U)1);
+    return I;
+  }
 
-  void relativeTransform(const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, Matrix3f& R, Vec3f& T);
+  Matrix3fX<T> transposeTimes(const Matrix3fX<T>& other) const
+  {
+    return Matrix3fX<T>(data.transposeTimes(other.data));
+  }
 
-  void matEigen(const Matrix3f& R, FCL_REAL dout[3], Vec3f vout[3]);
+  Matrix3fX<T> timesTranspose(const Matrix3fX<T>& other) const
+  {
+    return Matrix3fX<T>(data.timesTranspose(other.data));
+  }
 
-  Matrix3f abs(const Matrix3f& R);
+  Vec3fX<S> transposeTimes(const Vec3fX<S>& v) const
+  {
+    return Vec3fX<S>(data.transposeTimes(v.data));
+  }
+
+  Matrix3fX<T> tensorTransform(const Matrix3fX<T>& m) const
+  {
+    Matrix3fX<T> res(*this);
+    res *= m;
+    return res.timesTranspose(*this);
+  }
+
+  inline U transposeDotX(const Vec3fX<S>& v) const
+  {
+    return data.transposeDot(0, v.data);
+  }
+
+  inline U transposeDotY(const Vec3fX<S>& v) const
+  {
+    return data.transposeDot(1, v.data);
+  }
+
+  inline U transposeDotZ(const Vec3fX<S>& v) const
+  {
+    return data.transposeDot(2, v.data);
+  }
+
+  inline U transposeDot(size_t i, const Vec3fX<S>& v) const
+  {
+    return data.transposeDot(i, v.data);
+  }
+
+  inline U dotX(const Vec3fX<S>& v) const
+  {
+    return data.dot(0, v.data);
+  }
+
+  inline U dotY(const Vec3fX<S>& v) const
+  {
+    return data.dot(1, v.data);
+  }
+
+  inline U dotZ(const Vec3fX<S>& v) const
+  {
+    return data.dot(2, v.data);
+  }
+
+  inline U dot(size_t i, const Vec3fX<S>& v) const
+  {
+    return data.dot(i, v.data);
+  }
+
+  inline void setValue(U xx, U xy, U xz,
+                       U yx, U yy, U yz,
+                       U zx, U zy, U zz)
+  {
+    data.setValue(xx, xy, xz, 
+                  yx, yy, yz,
+                  zx, zy, zz);
+  }
+
+  inline void setValue(U x)
+  {
+    data.setValue(x);
+  }
+};
+
+template<typename T>
+void relativeTransform(const Matrix3fX<T>& R1, const Vec3fX<typename T::vector_type>& t1,
+                       const Matrix3fX<T>& R2, const Vec3fX<typename T::vector_type>& t2,
+                       Matrix3fX<T>& R, Vec3fX<typename T::vector_type>& t)
+{
+  R = R1.transposeTimes(R2);
+  t = R1.transposeTimes(t2 - t1);
 }
+
+template<typename T>
+void eigen(const Matrix3fX<T>& m, typename T::meta_type dout[3], Vec3fX<typename T::vector_type> vout[3])
+{
+  Matrix3fX<T> R(m);
+  int n = 3;
+  int j, iq, ip, i;
+  typename T::meta_type tresh, theta, tau, t, sm, s, h, g, c;
+  int nrot;
+  typename T::meta_type b[3];
+  typename T::meta_type z[3];
+  typename T::meta_type v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  typename T::meta_type d[3];
+
+  for(ip = 0; ip < n; ++ip)
+  {
+    b[ip] = d[ip] = R(ip, ip);
+    z[ip] = 0;
+  }
+
+  nrot = 0;
+
+  for(i = 0; i < 50; ++i)
+  {
+    sm = 0;
+    for(ip = 0; ip < n; ++ip)
+      for(iq = ip + 1; iq < n; ++iq)
+        sm += std::abs(R(ip, iq));
+    if(sm == 0.0)
+    {
+      vout[0].setValue(v[0][0], v[0][1], v[0][2]);
+      vout[1].setValue(v[1][0], v[1][1], v[1][2]);
+      vout[2].setValue(v[2][0], v[2][1], v[2][2]);
+      dout[0] = d[0]; dout[1] = d[1]; dout[2] = d[2];
+      return;
+    }
+
+    if(i < 3) tresh = 0.2 * sm / (n * n);
+    else tresh = 0.0;
+
+    for(ip = 0; ip < n; ++ip)
+    {
+      for(iq= ip + 1; iq < n; ++iq)
+      {
+        g = 100.0 * std::abs(R(ip, iq));
+        if(i > 3 &&
+           std::abs(d[ip]) + g == std::abs(d[ip]) &&
+           std::abs(d[iq]) + g == std::abs(d[iq]))
+          R(ip, iq) = 0.0;
+        else if(std::abs(R(ip, iq)) > tresh)
+        {
+          h = d[iq] - d[ip];
+          if(std::abs(h) + g == std::abs(h)) t = (R(ip, iq)) / h;
+          else
+          {
+            theta = 0.5 * h / (R(ip, iq));
+            t = 1.0 /(std::abs(theta) + std::sqrt(1.0 + theta * theta));
+            if(theta < 0.0) t = -t;
+          }
+          c = 1.0 / std::sqrt(1 + t * t);
+          s = t * c;
+          tau = s / (1.0 + c);
+          h = t * R(ip, iq);
+          z[ip] -= h;
+          z[iq] += h;
+          d[ip] -= h;
+          d[iq] += h;
+          R(ip, iq) = 0.0;
+          for(j = 0; j < ip; ++j) { g = R(j, ip); h = R(j, iq); R(j, ip) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
+          for(j = ip + 1; j < iq; ++j) { g = R(ip, j); h = R(j, iq); R(ip, j) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
+          for(j = iq + 1; j < n; ++j) { g = R(ip, j); h = R(iq, j); R(ip, j) = g - s * (h + g * tau); R(iq, j) = h + s * (g - h * tau); }
+          for(j = 0; j < n; ++j) { g = v[j][ip]; h = v[j][iq]; v[j][ip] = g - s * (h + g * tau); v[j][iq] = h + s * (g - h * tau); }
+          nrot++;
+        }
+      }
+    }
+    for(ip = 0; ip < n; ++ip)
+    {
+      b[ip] += z[ip];
+      d[ip] = b[ip];
+      z[ip] = 0.0;
+    }
+  }
+
+  std::cerr << "eigen: too many iterations in Jacobi transform." << std::endl;
+
+  return;
+}
+
+template<typename T>
+Matrix3fX<T> abs(const Matrix3fX<T>& R) 
+{
+  return Matrix3fX<T>(abs(R.data));
+}
+
+template<typename T>
+Matrix3fX<T> transpose(const Matrix3fX<T>& R)
+{
+  return Matrix3fX<T>(transpose(R.data));
+}
+
+template<typename T>
+Matrix3fX<T> inverse(const Matrix3fX<T>& R)
+{
+  return Matrix3fX<T>(inverse(R.data));
+}
+
+template<typename T>
+typename T::meta_type quadraticForm(const Matrix3fX<T>& R, const Vec3fX<typename T::vector_type>& v)
+{
+  return v.dot(R * v);
+}
+
+
+typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
+//typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
+
+}
+
+
 
 #endif

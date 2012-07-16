@@ -121,7 +121,7 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
   // A1 x A2 = A0
   t = ((T[0] < 0.0) ? -T[0] : T[0]);
 
-  if(t > (a[0] + b.dot(Bf[0])))
+  if(t > (a[0] + Bf.dotX(b)))
     return true;
 
   // B1 x B2 = B0
@@ -134,13 +134,13 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
   // A2 x A0 = A1
   t = ((T[1] < 0.0) ? -T[1] : T[1]);
 
-  if(t > (a[1] + b.dot(Bf[1])))
+  if(t > (a[1] + Bf.dotY(b)))
     return true;
 
   // A0 x A1 = A2
   t =((T[2] < 0.0) ? -T[2] : T[2]);
 
-  if(t > (a[2] + b.dot(Bf[2])))
+  if(t > (a[2] + Bf.dotZ(b)))
     return true;
 
   // B2 x B0 = B1
@@ -158,75 +158,75 @@ bool OBB::obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const V
     return true;
 
   // A0 x B0
-  s = T[2] * B[1][0] - T[1] * B[2][0];
+  s = T[2] * B(1, 0) - T[1] * B(2, 0);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[1] * Bf[2][0] + a[2] * Bf[1][0] +
-          b[1] * Bf[0][2] + b[2] * Bf[0][1]))
+  if(t > (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) +
+          b[1] * Bf(0, 2) + b[2] * Bf(0, 1)))
     return true;
 
   // A0 x B1
-  s = T[2] * B[1][1] - T[1] * B[2][1];
+  s = T[2] * B(1, 1) - T[1] * B(2, 1);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[1] * Bf[2][1] + a[2] * Bf[1][1] +
-          b[0] * Bf[0][2] + b[2] * Bf[0][0]))
+  if(t > (a[1] * Bf(2, 1) + a[2] * Bf(1, 1) +
+          b[0] * Bf(0, 2) + b[2] * Bf(0, 0)))
     return true;
 
   // A0 x B2
-  s = T[2] * B[1][2] - T[1] * B[2][2];
+  s = T[2] * B(1, 2) - T[1] * B(2, 2);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[1] * Bf[2][2] + a[2] * Bf[1][2] +
-          b[0] * Bf[0][1] + b[1] * Bf[0][0]))
+  if(t > (a[1] * Bf(2, 2) + a[2] * Bf(1, 2) +
+          b[0] * Bf(0, 1) + b[1] * Bf(0, 0)))
     return true;
 
   // A1 x B0
-  s = T[0] * B[2][0] - T[2] * B[0][0];
+  s = T[0] * B(2, 0) - T[2] * B(0, 0);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[0] * Bf[2][0] + a[2] * Bf[0][0] +
-          b[1] * Bf[1][2] + b[2] * Bf[1][1]))
+  if(t > (a[0] * Bf(2, 0) + a[2] * Bf(0, 0) +
+          b[1] * Bf(1, 2) + b[2] * Bf(1, 1)))
     return true;
 
   // A1 x B1
-  s = T[0] * B[2][1] - T[2] * B[0][1];
+  s = T[0] * B(2, 1) - T[2] * B(0, 1);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[0] * Bf[2][1] + a[2] * Bf[0][1] +
-          b[0] * Bf[1][2] + b[2] * Bf[1][0]))
+  if(t > (a[0] * Bf(2, 1) + a[2] * Bf(0, 1) +
+          b[0] * Bf(1, 2) + b[2] * Bf(1, 0)))
     return true;
 
   // A1 x B2
-  s = T[0] * B[2][2] - T[2] * B[0][2];
+  s = T[0] * B(2, 2) - T[2] * B(0, 2);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[0] * Bf[2][2] + a[2] * Bf[0][2] +
-          b[0] * Bf[1][1] + b[1] * Bf[1][0]))
+  if(t > (a[0] * Bf(2, 2) + a[2] * Bf(0, 2) +
+          b[0] * Bf(1, 1) + b[1] * Bf(1, 0)))
     return true;
 
   // A2 x B0
-  s = T[1] * B[0][0] - T[0] * B[1][0];
+  s = T[1] * B(0, 0) - T[0] * B(1, 0);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[0] * Bf[1][0] + a[1] * Bf[0][0] +
-          b[1] * Bf[2][2] + b[2] * Bf[2][1]))
+  if(t > (a[0] * Bf(1, 0) + a[1] * Bf(0, 0) +
+          b[1] * Bf(2, 2) + b[2] * Bf(2, 1)))
     return true;
 
   // A2 x B1
-  s = T[1] * B[0][1] - T[0] * B[1][1];
+  s = T[1] * B(0, 1) - T[0] * B(1, 1);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[0] * Bf[1][1] + a[1] * Bf[0][1] +
-          b[0] * Bf[2][2] + b[2] * Bf[2][0]))
+  if(t > (a[0] * Bf(1, 1) + a[1] * Bf(0, 1) +
+          b[0] * Bf(2, 2) + b[2] * Bf(2, 0)))
     return true;
 
   // A2 x B2
-  s = T[1] * B[0][2] - T[0] * B[1][2];
+  s = T[1] * B(0, 2) - T[0] * B(1, 2);
   t = ((s < 0.0) ? -s : s);
 
-  if(t > (a[0] * Bf[1][2] + a[1] * Bf[0][2] +
-          b[0] * Bf[2][1] + b[1] * Bf[2][0]))
+  if(t > (a[0] * Bf(1, 2) + a[1] * Bf(0, 2) +
+          b[0] * Bf(2, 1) + b[1] * Bf(2, 0)))
     return true;
 
   return false;
@@ -274,7 +274,7 @@ OBB OBB::merge_largedist(const OBB& b1, const OBB& b2)
     vertex_proj[i] = vertex[i] - R0 * vertex[i].dot(R0);
 
   getCovariance(vertex_proj, NULL, NULL, NULL, 16, M);
-  matEigen(M, s, E);
+  eigen(M, s, E);
 
   int min, mid, max;
   if (s[0] > s[1]) { max = 0; min = 1; }
@@ -365,9 +365,9 @@ FCL_REAL OBB::distance(const OBB& other, Vec3f* P, Vec3f* Q) const
 // R is row first
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
 {
-  Matrix3f R0b2(R0[0].dot(b2.axis[0]), R0[0].dot(b2.axis[1]), R0[0].dot(b2.axis[2]),
-                R0[1].dot(b2.axis[0]), R0[1].dot(b2.axis[1]), R0[1].dot(b2.axis[2]),
-                R0[2].dot(b2.axis[0]), R0[2].dot(b2.axis[1]), R0[2].dot(b2.axis[2]));
+  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
+                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
+                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
 
   Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
              R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),

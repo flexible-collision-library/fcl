@@ -223,7 +223,7 @@ public:
 
   SimpleTransform inverse() const
   {
-    Matrix3f Rinv = R.transpose();
+    Matrix3f Rinv = transpose(R);
     return SimpleTransform(Rinv, Rinv * (-T));
   }
 
@@ -254,8 +254,11 @@ public:
 
   bool isIdentity() const
   {
-    return (R[0][0] == 1) && (R[0][1] == 0) && (R[0][2] == 0) && (R[1][0] == 0) && (R[1][1] == 1) && (R[1][2] == 0) && (R[2][0] == 0) && (R[2][1] == 0) && (R[2][2] == 1)
-        && (T[0] == 0) && (T[1] == 0) && (T[2] == 0);
+    return 
+      (R(0, 0) == 1) && (R(0, 1) == 0) && (R(0, 2) == 0) && 
+      (R(1, 0) == 0) && (R(1, 1) == 1) && (R(1, 2) == 0) && 
+      (R(2, 0) == 0) && (R(2, 1) == 0) && (R(2, 2) == 1) && 
+      (T[0] == 0) && (T[1] == 0) && (T[2] == 0);
   }
 
   void setIdentity()

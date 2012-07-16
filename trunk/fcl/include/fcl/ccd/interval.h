@@ -48,8 +48,8 @@ struct Interval
 {
   FCL_REAL i_[2];
 
-  Interval() {}
-  Interval(FCL_REAL v)
+  Interval() { i_[0] = i_[1] = 0; }
+  explicit Interval(FCL_REAL v)
   {
     i_[0] = i_[1] = v;
   }
@@ -112,6 +112,8 @@ struct Interval
 
   Interval operator * (const Interval& other) const;
 
+  Interval& operator *= (const Interval& other);
+
   inline Interval operator * (FCL_REAL d) const
   {
     if(d >= 0) return Interval(i_[0] * d, i_[1] * d);
@@ -138,6 +140,8 @@ struct Interval
   /** \brief other must not contain 0 */
   Interval operator / (const Interval& other) const;
 
+  Interval& operator /= (const Interval& other);
+
   /** \brief determine whether the intersection between intervals is empty */
   inline bool overlap(const Interval& other) const
   {
@@ -146,13 +150,13 @@ struct Interval
     return true;
   }
 
-  inline void intersect(const Interval& other)
+  inline bool intersect(const Interval& other)
   {
-    if(i_[1] < other.i_[0]) return;
-    if(i_[0] > other.i_[1]) return;
+    if(i_[1] < other.i_[0]) return false;
+    if(i_[0] > other.i_[1]) return false;
     if(i_[1] > other.i_[1]) i_[1] = other.i_[1];
     if(i_[0] < other.i_[0]) i_[0] = other.i_[0];
-    return;
+    return true;
   }
 
   inline Interval operator - () const
@@ -184,39 +188,31 @@ struct Interval
   }
 
   /** \brief Compute the minimum interval contains v and original interval */
-  inline void bound(FCL_REAL v)
+  inline Interval& bound(FCL_REAL v)
   {
     if(v < i_[0]) i_[0] = v;
     if(v > i_[1]) i_[1] = v;
+    return *this;
   }
 
-  inline Interval bounded(FCL_REAL v) const
-  {
-    Interval res = *this;
-    if(v < res.i_[0]) res.i_[0] = v;
-    if(v > res.i_[1]) res.i_[1] = v;
-    return res;
-  }
 
   /** \brief Compute the minimum interval contains other and original interval */
-  inline void bound(const Interval& other)
+  inline Interval& bound(const Interval& other)
   {
     if(other.i_[0] < i_[0]) i_[0] = other.i_[0];
     if(other.i_[1] > i_[1]) i_[1] = other.i_[1];
+    return *this;
   }
 
-  inline Interval bounded(const Interval& other) const
-  {
-    Interval res = *this;
-    if(other.i_[0] < res.i_[0]) res.i_[0] = other.i_[0];
-    if(other.i_[1] > res.i_[1]) res.i_[1] = other.i_[1];
-    return res;
-  }
 
   void print() const;
   inline FCL_REAL center() const { return 0.5 * (i_[0] + i_[1]); }
   inline FCL_REAL diameter() const { return i_[1] -i_[0]; }
 };
+
+Interval bound(const Interval& i, FCL_REAL v);
+
+Interval bound(const Interval& i, const Interval& other);
 
 }
 #endif

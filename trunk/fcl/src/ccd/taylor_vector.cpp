@@ -39,7 +39,15 @@
 namespace fcl
 {
 
-TVector3::TVector3() {}
+TVector3::TVector3()
+{
+}
+
+TVector3::TVector3(const boost::shared_ptr<TimeInterval>& time_interval)
+{
+  setTimeInterval(time_interval);
+}
+
 TVector3::TVector3(TaylorModel v[3])
 {
   i_[0] = v[0];
@@ -54,48 +62,39 @@ TVector3::TVector3(const TaylorModel& v1, const TaylorModel& v2, const TaylorMod
   i_[2] = v3;
 }
 
-TVector3::TVector3(const Vec3f& v)
+TVector3::TVector3(const Vec3f& v, const boost::shared_ptr<TimeInterval>& time_interval)
 {
-  i_[0] = TaylorModel(v[0]);
-  i_[1] = TaylorModel(v[1]);
-  i_[2] = TaylorModel(v[2]);
+  i_[0] = TaylorModel(v[0], time_interval);
+  i_[1] = TaylorModel(v[1], time_interval);
+  i_[2] = TaylorModel(v[2], time_interval);
 }
 
 void TVector3::setZero()
 {
-  i_[0] = TaylorModel(0);
-  i_[1] = TaylorModel(0);
-  i_[2] = TaylorModel(0);
+  i_[0].setZero();
+  i_[1].setZero();
+  i_[2].setZero();
 }
 
 TVector3 TVector3::operator + (const TVector3& other) const
 {
-  TaylorModel res[3];
-  res[0] = i_[0] + other.i_[0];
-  res[1] = i_[1] + other.i_[1];
-  res[2] = i_[2] + other.i_[2];
-
-  return TVector3(res);
+  return TVector3(i_[0] + other.i_[0], i_[1] + other.i_[1], i_[2] + other.i_[2]);
 }
 
 TVector3 TVector3::operator + (FCL_REAL d) const
 {
-  TaylorModel res[3];
-  res[0] = i_[0];
-  res[1] = i_[1];
-  res[2] = i_[2];
-  res[0].coeffs_[0] += d;
-  return TVector3(res);
+  return TVector3(i_[0], i_[1], i_[2] + d);
+}
+
+TVector3& TVector3::operator += (FCL_REAL d)
+{
+  i_[2] += d;
+  return *this;
 }
 
 TVector3 TVector3::operator - (const TVector3& other) const
 {
-  TaylorModel res[3];
-  res[0] = i_[0] - other.i_[0];
-  res[1] = i_[1] - other.i_[1];
-  res[2] = i_[2] - other.i_[2];
-
-  return TVector3(res);
+  return TVector3(i_[0] - other.i_[0], i_[1] - other.i_[1], i_[2] - other.i_[2]);
 }
 
 TVector3& TVector3::operator += (const TVector3& other)
@@ -114,11 +113,29 @@ TVector3& TVector3::operator -= (const TVector3& other)
   return *this;
 }
 
-TVector3& TVector3::operator = (const Vec3f& other)
+TVector3 TVector3::operator * (const TaylorModel& d) const
 {
-  i_[0] = TaylorModel(other[0]);
-  i_[1] = TaylorModel(other[1]);
-  i_[2] = TaylorModel(other[2]);
+  return TVector3(i_[0] * d, i_[1] * d, i_[2] * d);
+}
+
+TVector3& TVector3::operator *= (const TaylorModel& d)
+{
+  i_[0] *= d;
+  i_[1] *= d;
+  i_[2] *= d;
+  return *this;
+}
+
+TVector3 TVector3::operator * (FCL_REAL d) const
+{
+  return TVector3(i_[0] * d, i_[1] * d, i_[2] * d);
+}
+
+TVector3& TVector3::operator *= (FCL_REAL d)
+{
+  i_[0] *= d;
+  i_[1] *= d;
+  i_[2] *= d;
   return *this;
 }
 
@@ -139,12 +156,21 @@ TaylorModel TVector3::dot(const TVector3& other) const
 
 TVector3 TVector3::cross(const TVector3& other) const
 {
-  TaylorModel res[3];
-  res[0] = i_[1] * other.i_[2] - i_[2] * other.i_[1];
-  res[1] = i_[2] * other.i_[0] - i_[0] * other.i_[2];
-  res[2] = i_[0] * other.i_[1] - i_[1] * other.i_[0];
+  return TVector3(i_[1] * other.i_[2] - i_[2] * other.i_[1], 
+                  i_[2] * other.i_[0] - i_[0] * other.i_[2],
+                  i_[0] * other.i_[1] - i_[1] * other.i_[0]);
+}
 
-  return TVector3(res);
+TaylorModel TVector3::dot(const Vec3f& other) const
+{
+  return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
+}
+
+TVector3 TVector3::cross(const Vec3f& other) const
+{
+  return TVector3(i_[1] * other[2] - i_[2] * other[1], 
+                  i_[2] * other[0] - i_[0] * other[2],
+                  i_[0] * other[1] - i_[1] * other[0]);
 }
 
 FCL_REAL TVector3::volumn() const
@@ -154,12 +180,7 @@ FCL_REAL TVector3::volumn() const
 
 IVector3 TVector3::getBound() const
 {
-  Interval res[3];
-  res[0] = i_[0].getBound();
-  res[1] = i_[1].getBound();
-  res[2] = i_[2].getBound();
-
-  return IVector3(res);
+  return IVector3(i_[0].getBound(), i_[1].getBound(), i_[2].getBound());
 }
 
 void TVector3::print() const
@@ -177,6 +198,13 @@ IVector3 TVector3::getBound(FCL_REAL t) const
 TaylorModel TVector3::squareLength() const
 {
   return i_[0] * i_[0] + i_[1] * i_[1] + i_[2] * i_[2];
+}
+
+void TVector3::setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval)
+{
+  i_[0].setTimeInterval(time_interval);
+  i_[1].setTimeInterval(time_interval);
+  i_[2].setTimeInterval(time_interval);
 }
 
 void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity)

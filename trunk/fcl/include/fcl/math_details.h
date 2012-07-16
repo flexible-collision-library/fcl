@@ -167,6 +167,334 @@ static inline bool equal(const Vec3Data<T>& x, const Vec3Data<T>& y, T epsilon)
           (x.vs[2] - y.vs[2] > -epsilon));
 }
 
+
+template<typename T>
+struct Matrix3Data
+{
+  typedef T meta_type;
+  typedef Vec3Data<T> vector_type;
+  
+  Vec3Data<T> rs[3];
+  Matrix3Data() {};
+
+  Matrix3Data(T xx, T xy, T xz,
+              T yx, T yy, T yz,
+              T zx, T zy, T zz)
+  {
+    setValue(xx, xy, xz,
+             yx, yy, yz,
+             zx, zy, zz);
+  }
+
+  Matrix3Data(const Vec3Data<T>& v1, const Vec3Data<T>& v2, const Vec3Data<T>& v3)
+  {
+    rs[0] = v1;
+    rs[1] = v2;
+    rs[2] = v3;
+  }
+
+  Matrix3Data(const Matrix3Data<T>& other)
+  {
+    rs[0] = other.rs[0];
+    rs[1] = other.rs[1];
+    rs[2] = other.rs[2];
+  }
+
+  inline Vec3Data<T> getColumn(size_t i) const
+  {
+    return Vec3Data<T>(rs[0][i], rs[1][i], rs[2][i]);
+  }
+
+  inline const Vec3Data<T>& getRow(size_t i) const
+  {
+    return rs[i];
+  }
+
+  inline T operator() (size_t i, size_t j) const 
+  {
+    return rs[i][j];
+  }
+
+  inline T& operator() (size_t i, size_t j)
+  {
+    return rs[i][j];
+  }
+
+  inline Vec3Data<T> operator * (const Vec3Data<T>& v) const
+  {
+    return Vec3Data<T>(dot_prod3(rs[0], v), dot_prod3(rs[1], v), dot_prod3(rs[2], v));
+  }
+
+  inline Matrix3Data<T> operator * (const Matrix3Data<T>& other) const
+  {
+    return Matrix3Data<T>(other.transposeDotX(rs[0]), other.transposeDotY(rs[0]), other.transposeDotZ(rs[0]),
+                          other.transposeDotX(rs[1]), other.transposeDotY(rs[1]), other.transposeDotZ(rs[1]),
+                          other.transposeDotX(rs[2]), other.transposeDotY(rs[2]), other.transposeDotZ(rs[2]));
+  }
+
+  inline Matrix3Data<T> operator + (const Matrix3Data<T>& other) const
+  {
+    return Matrix3Data<T>(rs[0] + other.rs[0], rs[1] + other.rs[1], rs[2] + other.rs[2]);
+  }
+
+  inline Matrix3Data<T> operator - (const Matrix3Data<T>& other) const
+  {
+    return Matrix3Data<T>(rs[0] - other.rs[0], rs[1] - other.rs[1], rs[2] - other.rs[2]);
+  }
+
+  inline Matrix3Data<T> operator + (T c) const
+  {
+    return Matrix3Data<T>(rs[0] + c, rs[1] + c, rs[2] + c);
+  }
+
+  inline Matrix3Data<T> operator - (T c) const
+  {
+    return Matrix3Data<T>(rs[0] - c, rs[1] - c, rs[2] - c);
+  }
+
+  inline Matrix3Data<T> operator * (T c) const
+  {
+    return Matrix3Data<T>(rs[0] * c, rs[1] * c, rs[2] * c);
+  }
+
+  inline Matrix3Data<T> operator / (T c) const
+  {
+    return Matrix3Data<T>(rs[0] / c, rs[1] / c, rs[2] / c);
+  }
+
+  inline Matrix3Data<T>& operator *= (const Matrix3Data<T>& other)
+  {
+    rs[0].setValue(other.transposeDotX(rs[0]), other.transposeDotY(rs[0]), other.transposeDotZ(rs[0]));
+    rs[1].setValue(other.transposeDotX(rs[1]), other.transposeDotY(rs[1]), other.transposeDotZ(rs[1]));
+    rs[2].setValue(other.transposeDotX(rs[2]), other.transposeDotY(rs[2]), other.transposeDotZ(rs[2]));
+    return *this;
+  }
+
+  inline Matrix3Data<T>& operator += (const Matrix3Data<T>& other)
+  {
+    rs[0] += other.rs[0];
+    rs[1] += other.rs[1];
+    rs[2] += other.rs[2];
+    return *this;
+  }
+
+  inline Matrix3Data<T>& operator -= (const Matrix3Data<T>& other)
+  {
+    rs[0] -= other.rs[0];
+    rs[1] -= other.rs[1];
+    rs[2] -= other.rs[2];
+    return *this;
+  }
+
+  inline Matrix3Data<T>& operator += (T c)
+  {
+    rs[0] += c;
+    rs[1] += c;
+    rs[2] += c;
+    return *this;
+  }
+
+  inline Matrix3Data<T>& operator - (T c)
+  {
+    rs[0] -= c;
+    rs[1] -= c;
+    rs[2] -= c;
+    return *this;
+  }
+
+  inline Matrix3Data<T>& operator * (T c)
+  {
+    rs[0] *= c;
+    rs[1] *= c;
+    rs[2] *= c;
+    return *this;
+  }
+
+  inline Matrix3Data<T>& operator / (T c)
+  {
+    rs[0] /= c;
+    rs[1] /= c;
+    rs[2] /= c;
+    return *this;
+  }
+
+
+  void setIdentity() 
+  {
+    setValue((T)1, (T)0, (T)0,
+             (T)0, (T)1, (T)0,
+             (T)0, (T)0, (T)1);
+  }
+
+  void setZero()
+  {
+    setValue((T)0);
+  }
+
+  static const Matrix3Data<T>& getIdentity()
+  {
+    static const Matrix3Data<T> I((T)1, (T)0, (T)0,
+                                  (T)0, (T)1, (T)0,
+                                  (T)0, (T)0, (T)1);
+    return I;
+  }
+
+  T determinant() const
+  {
+    return dot_prod3(rs[0], cross_prod(rs[1], rs[2]));
+  }
+
+  Matrix3Data<T>& transpose()
+  {
+    register T tmp = rs[0][1];
+    rs[0][1] = rs[1][0];
+    rs[1][0] = tmp;
+    
+    tmp = rs[0][2];
+    rs[0][2] = rs[2][0];
+    rs[2][0] = tmp;
+    
+    tmp = rs[2][1];
+    rs[2][1] = rs[1][2];
+    rs[1][2] = tmp;
+    return *this;
+  }
+
+  Matrix3Data<T>& inverse()
+  {
+    T det = determinant();
+    register T inrsdet = 1 / det;
+    
+    setValue((rs[1][1] * rs[2][2] - rs[1][2] * rs[2][1]) * inrsdet,
+             (rs[0][2] * rs[2][1] - rs[0][1] * rs[2][2]) * inrsdet,
+             (rs[0][1] * rs[1][2] - rs[0][2] * rs[1][1]) * inrsdet,
+             (rs[1][2] * rs[2][0] - rs[1][0] * rs[2][2]) * inrsdet,
+             (rs[0][0] * rs[2][2] - rs[0][2] * rs[2][0]) * inrsdet,
+             (rs[0][2] * rs[1][0] - rs[0][0] * rs[1][2]) * inrsdet,
+             (rs[1][0] * rs[2][1] - rs[1][1] * rs[2][0]) * inrsdet,
+             (rs[0][1] * rs[2][0] - rs[0][0] * rs[2][1]) * inrsdet,
+             (rs[0][0] * rs[1][1] - rs[0][1] * rs[1][0]) * inrsdet);
+
+    return *this;
+  }
+
+  Matrix3Data<T> transposeTimes(const Matrix3Data<T>& m) const
+  {
+    return Matrix3Data<T>(rs[0][0] * m.rs[0][0] + rs[1][0] * m.rs[1][0] + rs[2][0] * m.rs[2][0],
+                          rs[0][0] * m.rs[0][1] + rs[1][0] * m.rs[1][1] + rs[2][0] * m.rs[2][1],
+                          rs[0][0] * m.rs[0][2] + rs[1][0] * m.rs[1][2] + rs[2][0] * m.rs[2][2],
+                          rs[0][1] * m.rs[0][0] + rs[1][1] * m.rs[1][0] + rs[2][1] * m.rs[2][0],
+                          rs[0][1] * m.rs[0][1] + rs[1][1] * m.rs[1][1] + rs[2][1] * m.rs[2][1],
+                          rs[0][1] * m.rs[0][2] + rs[1][1] * m.rs[1][2] + rs[2][1] * m.rs[2][2],
+                          rs[0][2] * m.rs[0][0] + rs[1][2] * m.rs[1][0] + rs[2][2] * m.rs[2][0],
+                          rs[0][2] * m.rs[0][1] + rs[1][2] * m.rs[1][1] + rs[2][2] * m.rs[2][1],
+                          rs[0][2] * m.rs[0][2] + rs[1][2] * m.rs[1][2] + rs[2][2] * m.rs[2][2]);
+  }
+   
+  Matrix3Data<T> timesTranspose(const Matrix3Data<T>& m) const
+  {
+    return Matrix3Data<T>(dot_prod3(rs[0], m[0]), dot_prod3(rs[0], m[1]), dot_prod3(rs[0], m[2]),
+                          dot_prod3(rs[1], m[0]), dot_prod3(rs[1], m[1]), dot_prod3(rs[1], m[2]),
+                          dot_prod3(rs[2], m[0]), dot_prod3(rs[2], m[1]), dot_prod3(rs[2], m[2]));
+  }
+
+
+  Vec3Data<T> transposeTimes(const Vec3Data<T>& v) const
+  {
+    return Vec3Data<T>(transposeDotX(v), transposeDotY(v), transposeDotZ(v));
+  }
+
+  inline T transposeDotX(const Vec3Data<T>& v) const
+  {
+    return rs[0][0] * v[0] + rs[1][0] * v[1] + rs[2][0] * v[2];
+  }
+
+  inline T transposeDotY(const Vec3Data<T>& v) const
+  {
+    return rs[0][1] * v[0] + rs[1][1] * v[1] + rs[2][1] * v[2];
+  }
+
+  inline T transposeDotZ(const Vec3Data<T>& v) const
+  {
+    return rs[0][2] * v[0] + rs[1][2] * v[1] + rs[2][2] * v[2];
+  }
+
+  inline T transposeDot(size_t i, const Vec3Data<T>& v) const
+  {
+    return rs[0][i] * v[0] + rs[1][i] * v[1] + rs[2][i] * v[2];
+  }
+
+  inline T dotX(const Vec3Data<T>& v) const
+  {
+    return rs[0][0] * v[0] + rs[0][1] * v[1] + rs[0][2] * v[2];
+  }
+
+  inline T dotY(const Vec3Data<T>& v) const
+  {
+    return rs[1][0] * v[0] + rs[1][1] * v[1] + rs[1][2] * v[2];
+  }
+
+  inline T dotZ(const Vec3Data<T>& v) const
+  {
+    return rs[2][0] * v[0] + rs[2][1] * v[1] + rs[2][2] * v[2];
+  }
+
+  inline T dot(size_t i, const Vec3Data<T>& v) const
+  {
+    return rs[i][0] * v[0] + rs[i][1] * v[1] + rs[i][2] * v[2];
+  }
+    
+  inline void setValue(T xx, T xy, T xz,
+                       T yx, T yy, T yz,
+                       T zx, T zy, T zz)
+  {
+    rs[0].setValue(xx, xy, xz);
+    rs[1].setValue(yx, yy, yz);
+    rs[2].setValue(zx, zy, zz);
+  }
+    
+  inline void setValue(T x)
+  {
+    rs[0].setValue(x);
+    rs[1].setValue(x);
+    rs[2].setValue(x);
+  }
+};
+
+
+
+template<typename T>
+Matrix3Data<T> abs(const Matrix3Data<T>& m)
+{
+  return Matrix3Data<T>(abs(m.rs[0]), abs(m.rs[1]), abs(m.rs[2]));
+}
+
+template<typename T>
+Matrix3Data<T> transpose(const Matrix3Data<T>& m)
+{
+  return Matrix3Data<T>(m.rs[0][0], m.rs[1][0], m.rs[2][0],
+                        m.rs[0][1], m.rs[1][1], m.rs[2][1],
+                        m.rs[0][2], m.rs[1][2], m.rs[2][2]);
+}
+
+
+template<typename T>
+Matrix3Data<T> inverse(const Matrix3Data<T>& m)
+{
+  T det = m.determinant();
+  T inrsdet = 1 / det;
+
+  return Matrix3Data<T>((m.rs[1][1] * m.rs[2][2] - m.rs[1][2] * m.rs[2][1]) * inrsdet,
+                        (m.rs[0][2] * m.rs[2][1] - m.rs[0][1] * m.rs[2][2]) * inrsdet,
+                        (m.rs[0][1] * m.rs[1][2] - m.rs[0][2] * m.rs[1][1]) * inrsdet,
+                        (m.rs[1][2] * m.rs[2][0] - m.rs[1][0] * m.rs[2][2]) * inrsdet,
+                        (m.rs[0][0] * m.rs[2][2] - m.rs[0][2] * m.rs[2][0]) * inrsdet,
+                        (m.rs[0][2] * m.rs[1][0] - m.rs[0][0] * m.rs[1][2]) * inrsdet,
+                        (m.rs[1][0] * m.rs[2][1] - m.rs[1][1] * m.rs[2][0]) * inrsdet,
+                        (m.rs[0][1] * m.rs[2][0] - m.rs[0][0] * m.rs[2][1]) * inrsdet,
+                        (m.rs[0][0] * m.rs[1][1] - m.rs[0][1] * m.rs[1][0]) * inrsdet);
+}
+
 }
 
 }

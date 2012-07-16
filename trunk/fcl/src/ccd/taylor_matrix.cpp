@@ -39,292 +39,180 @@
 namespace fcl
 {
 
-TMatrix3::TMatrix3() {}
+TMatrix3::TMatrix3()
+{
+}
+
+TMatrix3::TMatrix3(const boost::shared_ptr<TimeInterval>& time_interval)
+{
+  setTimeInterval(time_interval);
+}
+
 TMatrix3::TMatrix3(TaylorModel m[3][3])
 {
-  i_[0][0] = m[0][0];
-  i_[0][1] = m[0][1];
-  i_[0][2] = m[0][2];
-  i_[1][0] = m[1][0];
-  i_[1][1] = m[1][1];
-  i_[1][2] = m[1][2];
-  i_[2][0] = m[2][0];
-  i_[2][1] = m[2][1];
-  i_[2][2] = m[2][2];
+  v_[0] = TVector3(m[0]);
+  v_[1] = TVector3(m[1]);
+  v_[2] = TVector3(m[2]);
+}
+
+TMatrix3::TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3)
+{
+  v_[0] = v1;
+  v_[1] = v2;
+  v_[2] = v3;
 }
 
 
-TMatrix3::TMatrix3(const Matrix3f& m)
+TMatrix3::TMatrix3(const Matrix3f& m, const boost::shared_ptr<TimeInterval>& time_interval)
 {
-  setZero();
-  i_[0][0].coeffs_[0] = m(0, 0);
-  i_[0][1].coeffs_[0] = m(0, 1);
-  i_[0][2].coeffs_[0] = m(0, 2);
-
-  i_[1][0].coeffs_[0] = m(1, 0);
-  i_[1][1].coeffs_[0] = m(1, 1);
-  i_[1][2].coeffs_[0] = m(1, 2);
-
-  i_[2][0].coeffs_[0] = m(2, 0);
-  i_[2][1].coeffs_[0] = m(2, 1);
-  i_[2][2].coeffs_[0] = m(2, 2);
+  v_[0] = TVector3(m.getRow(0), time_interval);
+  v_[1] = TVector3(m.getRow(1), time_interval);
+  v_[2] = TVector3(m.getRow(2), time_interval);
 }
 
 void TMatrix3::setIdentity()
 {
   setZero();
-  i_[0][0].coeffs_[0] = 1;
-  i_[1][0].coeffs_[0] = 1;
-  i_[2][2].coeffs_[0] = 1;
+  v_[0][0].coeffs_[0] = 1;
+  v_[1][1].coeffs_[0] = 1;
+  v_[2][2].coeffs_[0] = 1;
 
 }
 
 void TMatrix3::setZero()
 {
-  i_[0][0].setZero();
-  i_[0][1].setZero();
-  i_[0][2].setZero();
-  i_[1][0].setZero();
-  i_[1][1].setZero();
-  i_[1][2].setZero();
-  i_[2][0].setZero();
-  i_[2][1].setZero();
-  i_[2][2].setZero();
+  v_[0].setZero();
+  v_[1].setZero();
+  v_[2].setZero();
 }
 
 TVector3 TMatrix3::getColumn(size_t i) const
 {
-  return TVector3(i_[0][i], i_[1][i], i_[2][i]);
+  return TVector3(v_[0][i], v_[1][i], v_[2][i]);
 }
 
-TVector3 TMatrix3::getRow(size_t i) const
+const TVector3& TMatrix3::getRow(size_t i) const
 {
-  return TVector3(i_[i][0], i_[i][1], i_[i][2]);
+  return v_[i];
 }
 
-const TaylorModel& TMatrix3::operator () (size_t i, size_t j) const
+const TVector3& TMatrix3::operator [] (size_t i) const
 {
-  return i_[i][j];
+  return v_[i];
 }
 
-TaylorModel& TMatrix3::operator () (size_t i, size_t j)
+TVector3& TMatrix3::operator [] (size_t i)
 {
-  return i_[i][j];
+  return v_[i];
 }
 
 TMatrix3 TMatrix3::operator * (const Matrix3f& m) const
 {
-  TaylorModel res[3][3];
-  register FCL_REAL temp;
+  const Vec3f& mc0 = m.getColumn(0);
+  const Vec3f& mc1 = m.getColumn(1);
+  const Vec3f& mc2 = m.getColumn(2);
 
-  temp = m[0][0];
-  res[0][0].coeffs_[0] = i_[0][0].coeffs_[0] * temp; res[0][0].coeffs_[1] = i_[0][0].coeffs_[1] * temp; res[0][0].coeffs_[2] = i_[0][0].coeffs_[2] * temp; res[0][0].coeffs_[3] = i_[0][0].coeffs_[3] * temp; res[1][0].coeffs_[0] = i_[1][0].coeffs_[0] * temp; res[1][0].coeffs_[1] = i_[1][0].coeffs_[1] * temp; res[1][0].coeffs_[2] = i_[1][0].coeffs_[2] * temp; res[1][0].coeffs_[3] = i_[1][0].coeffs_[3] * temp; res[2][0].coeffs_[0] = i_[2][0].coeffs_[0] * temp; res[2][0].coeffs_[1] = i_[2][0].coeffs_[1] * temp; res[2][0].coeffs_[2] = i_[2][0].coeffs_[2] * temp; res[2][0].coeffs_[3] = i_[2][0].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][0].r_[0] = i_[0][0].r_[0] * temp; res[0][0].r_[1] = i_[0][0].r_[1] * temp; res[1][0].r_[0] = i_[1][0].r_[0] * temp; res[1][0].r_[1] = i_[1][0].r_[1] * temp; res[2][0].r_[0] = i_[2][0].r_[0] * temp; res[2][0].r_[1] = i_[2][0].r_[1] * temp;
-  }
-  else
-  {
-    res[0][0].r_[0] = i_[0][0].r_[1] * temp; res[0][0].r_[1] = i_[0][0].r_[0] * temp; res[1][0].r_[0] = i_[1][0].r_[1] * temp; res[1][0].r_[1] = i_[1][0].r_[0] * temp; res[2][0].r_[0] = i_[2][0].r_[1] * temp; res[2][0].r_[1] = i_[2][0].r_[0] * temp;
-  }
-
-  temp = m[0][1];
-  res[0][1].coeffs_[0] = i_[0][0].coeffs_[0] * temp; res[0][1].coeffs_[1] = i_[0][0].coeffs_[1] * temp; res[0][1].coeffs_[2] = i_[0][0].coeffs_[2] * temp; res[0][1].coeffs_[3] = i_[0][0].coeffs_[3] * temp; res[1][1].coeffs_[0] = i_[1][0].coeffs_[0] * temp; res[1][1].coeffs_[1] = i_[1][0].coeffs_[1] * temp; res[1][1].coeffs_[2] = i_[1][0].coeffs_[2] * temp; res[1][1].coeffs_[3] = i_[1][0].coeffs_[3] * temp; res[2][1].coeffs_[0] = i_[2][0].coeffs_[0] * temp; res[2][1].coeffs_[1] = i_[2][0].coeffs_[1] * temp; res[2][1].coeffs_[2] = i_[2][0].coeffs_[2] * temp; res[2][1].coeffs_[3] = i_[2][0].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][1].r_[0] = i_[0][0].r_[0] * temp; res[0][1].r_[1] = i_[0][0].r_[1] * temp; res[1][1].r_[0] = i_[1][0].r_[0] * temp; res[1][1].r_[1] = i_[1][0].r_[1] * temp; res[2][1].r_[0] = i_[2][0].r_[0] * temp; res[2][1].r_[1] = i_[2][0].r_[1] * temp;
-  }
-  else
-  {
-    res[0][1].r_[0] = i_[0][0].r_[1] * temp; res[0][1].r_[1] = i_[0][0].r_[0] * temp; res[1][1].r_[0] = i_[1][0].r_[1] * temp; res[1][1].r_[1] = i_[1][0].r_[0] * temp; res[2][1].r_[0] = i_[2][0].r_[1] * temp; res[2][1].r_[1] = i_[2][0].r_[0] * temp;
-  }
-
-  temp = m[0][2];
-  res[0][2].coeffs_[0] = i_[0][0].coeffs_[0] * temp; res[0][2].coeffs_[1] = i_[0][0].coeffs_[1] * temp; res[0][2].coeffs_[2] = i_[0][0].coeffs_[2] * temp; res[0][2].coeffs_[3] = i_[0][0].coeffs_[3] * temp; res[1][2].coeffs_[0] = i_[1][0].coeffs_[0] * temp; res[1][2].coeffs_[1] = i_[1][0].coeffs_[1] * temp; res[1][2].coeffs_[2] = i_[1][0].coeffs_[2] * temp; res[1][2].coeffs_[3] = i_[1][0].coeffs_[3] * temp; res[2][2].coeffs_[0] = i_[2][0].coeffs_[0] * temp; res[2][2].coeffs_[1] = i_[2][0].coeffs_[1] * temp; res[2][2].coeffs_[2] = i_[2][0].coeffs_[2] * temp; res[2][2].coeffs_[3] = i_[2][0].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][2].r_[0] = i_[0][0].r_[0] * temp; res[0][2].r_[1] = i_[0][0].r_[1] * temp; res[1][2].r_[0] = i_[1][0].r_[0] * temp; res[1][2].r_[1] = i_[1][0].r_[1] * temp; res[2][2].r_[0] = i_[2][0].r_[0] * temp; res[2][2].r_[1] = i_[2][0].r_[1] * temp;
-  }
-  else
-  {
-    res[0][2].r_[0] = i_[0][0].r_[1] * temp; res[0][2].r_[1] = i_[0][0].r_[0] * temp; res[1][2].r_[0] = i_[1][0].r_[1] * temp; res[1][2].r_[1] = i_[1][0].r_[0] * temp; res[2][2].r_[0] = i_[2][0].r_[1] * temp; res[2][2].r_[1] = i_[2][0].r_[0] * temp;
-  }
-
-  temp = m[1][0];
-  res[0][0].coeffs_[0] += i_[0][1].coeffs_[0] * temp; res[0][0].coeffs_[1] += i_[0][1].coeffs_[1] * temp; res[0][0].coeffs_[2] += i_[0][1].coeffs_[2] * temp; res[0][0].coeffs_[3] += i_[0][1].coeffs_[3] * temp; res[1][0].coeffs_[0] += i_[1][1].coeffs_[0] * temp; res[1][0].coeffs_[1] += i_[1][1].coeffs_[1] * temp; res[1][0].coeffs_[2] += i_[1][1].coeffs_[2] * temp; res[1][0].coeffs_[3] += i_[1][1].coeffs_[3] * temp; res[2][0].coeffs_[0] += i_[2][1].coeffs_[0] * temp; res[2][0].coeffs_[1] += i_[2][1].coeffs_[1] * temp; res[2][0].coeffs_[2] += i_[2][1].coeffs_[2] * temp; res[2][0].coeffs_[3] += i_[2][1].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][0].r_[0] += i_[0][1].r_[0] * temp; res[0][0].r_[1] += i_[0][1].r_[1] * temp; res[1][0].r_[0] += i_[1][1].r_[0] * temp; res[1][0].r_[1] += i_[1][1].r_[1] * temp; res[2][0].r_[0] += i_[2][1].r_[0] * temp; res[2][0].r_[1] += i_[2][1].r_[1] * temp;
-  }
-  else
-  {
-    res[0][0].r_[0] += i_[0][1].r_[1] * temp; res[0][0].r_[1] += i_[0][1].r_[0] * temp; res[1][0].r_[0] += i_[1][1].r_[1] * temp; res[1][0].r_[1] += i_[1][1].r_[0] * temp; res[2][0].r_[0] += i_[2][1].r_[1] * temp; res[2][0].r_[1] += i_[2][1].r_[0] * temp;
-  }
-
-  temp = m[1][1];
-  res[0][1].coeffs_[0] += i_[0][1].coeffs_[0] * temp; res[0][1].coeffs_[1] += i_[0][1].coeffs_[1] * temp; res[0][1].coeffs_[2] += i_[0][1].coeffs_[2] * temp; res[0][1].coeffs_[3] += i_[0][1].coeffs_[3] * temp; res[1][1].coeffs_[0] += i_[1][1].coeffs_[0] * temp; res[1][1].coeffs_[1] += i_[1][1].coeffs_[1] * temp; res[1][1].coeffs_[2] += i_[1][1].coeffs_[2] * temp; res[1][1].coeffs_[3] += i_[1][1].coeffs_[3] * temp; res[2][1].coeffs_[0] += i_[2][1].coeffs_[0] * temp; res[2][1].coeffs_[1] += i_[2][1].coeffs_[1] * temp; res[2][1].coeffs_[2] += i_[2][1].coeffs_[2] * temp; res[2][1].coeffs_[3] += i_[2][1].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][1].r_[0] += i_[0][1].r_[0] * temp; res[0][1].r_[1] += i_[0][1].r_[1] * temp; res[1][1].r_[0] += i_[1][1].r_[0] * temp; res[1][1].r_[1] += i_[1][1].r_[1] * temp; res[2][1].r_[0] += i_[2][1].r_[0] * temp; res[2][1].r_[1] += i_[2][1].r_[1] * temp;
-  }
-  else
-  {
-    res[0][1].r_[0] += i_[0][1].r_[1] * temp; res[0][1].r_[1] += i_[0][1].r_[0] * temp; res[1][1].r_[0] += i_[1][1].r_[1] * temp; res[1][1].r_[1] += i_[1][1].r_[0] * temp; res[2][1].r_[0] += i_[2][1].r_[1] * temp; res[2][1].r_[1] += i_[2][1].r_[0] * temp;
-  }
-
-  temp = m[1][2];
-  res[0][2].coeffs_[0] += i_[0][1].coeffs_[0] * temp; res[0][2].coeffs_[1] += i_[0][1].coeffs_[1] * temp; res[0][2].coeffs_[2] += i_[0][1].coeffs_[2] * temp; res[0][2].coeffs_[3] += i_[0][1].coeffs_[3] * temp; res[1][2].coeffs_[0] += i_[1][1].coeffs_[0] * temp; res[1][2].coeffs_[1] += i_[1][1].coeffs_[1] * temp; res[1][2].coeffs_[2] += i_[1][1].coeffs_[2] * temp; res[1][2].coeffs_[3] += i_[1][1].coeffs_[3] * temp; res[2][2].coeffs_[0] += i_[2][1].coeffs_[0] * temp; res[2][2].coeffs_[1] += i_[2][1].coeffs_[1] * temp; res[2][2].coeffs_[2] += i_[2][1].coeffs_[2] * temp; res[2][2].coeffs_[3] += i_[2][1].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][2].r_[0] += i_[0][1].r_[0] * temp; res[0][2].r_[1] += i_[0][1].r_[1] * temp; res[1][2].r_[0] += i_[1][1].r_[0] * temp; res[1][2].r_[1] += i_[1][1].r_[1] * temp; res[2][2].r_[0] += i_[2][1].r_[0] * temp; res[2][2].r_[1] += i_[2][1].r_[1] * temp;
-  }
-  else
-  {
-    res[0][2].r_[0] += i_[0][1].r_[1] * temp; res[0][2].r_[1] += i_[0][1].r_[0] * temp; res[1][2].r_[0] += i_[1][1].r_[1] * temp; res[1][2].r_[1] += i_[1][1].r_[0] * temp; res[2][2].r_[0] += i_[2][1].r_[1] * temp; res[2][2].r_[1] += i_[2][1].r_[0] * temp;
-  }
-
-  temp = m[2][0];
-  res[0][0].coeffs_[0] += i_[0][2].coeffs_[0] * temp; res[0][0].coeffs_[1] += i_[0][2].coeffs_[1] * temp; res[0][0].coeffs_[2] += i_[0][2].coeffs_[2] * temp; res[0][0].coeffs_[3] += i_[0][2].coeffs_[3] * temp; res[1][0].coeffs_[0] += i_[1][2].coeffs_[0] * temp; res[1][0].coeffs_[1] += i_[1][2].coeffs_[1] * temp; res[1][0].coeffs_[2] += i_[1][2].coeffs_[2] * temp; res[1][0].coeffs_[3] += i_[1][2].coeffs_[3] * temp; res[2][0].coeffs_[0] += i_[2][2].coeffs_[0] * temp; res[2][0].coeffs_[1] += i_[2][2].coeffs_[1] * temp; res[2][0].coeffs_[2] += i_[2][2].coeffs_[2] * temp; res[2][0].coeffs_[3] += i_[2][2].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][0].r_[0] += i_[0][2].r_[0] * temp; res[0][0].r_[1] += i_[0][2].r_[1] * temp; res[1][0].r_[0] += i_[1][2].r_[0] * temp; res[1][0].r_[1] += i_[1][2].r_[1] * temp; res[2][0].r_[0] += i_[2][2].r_[0] * temp; res[2][0].r_[1] += i_[2][2].r_[1] * temp;
-  }
-  else
-  {
-    res[0][0].r_[0] += i_[0][2].r_[1] * temp; res[0][0].r_[1] += i_[0][2].r_[0] * temp; res[1][0].r_[0] += i_[1][2].r_[1] * temp; res[1][0].r_[1] += i_[1][2].r_[0] * temp; res[2][0].r_[0] += i_[2][2].r_[1] * temp; res[2][0].r_[1] += i_[2][2].r_[0] * temp;
-  }
-
-  temp = m[2][1];
-  res[0][1].coeffs_[0] += i_[0][2].coeffs_[0] * temp; res[0][1].coeffs_[1] += i_[0][2].coeffs_[1] * temp; res[0][1].coeffs_[2] += i_[0][2].coeffs_[2] * temp; res[0][1].coeffs_[3] += i_[0][2].coeffs_[3] * temp; res[1][1].coeffs_[0] += i_[1][2].coeffs_[0] * temp; res[1][1].coeffs_[1] += i_[1][2].coeffs_[1] * temp; res[1][1].coeffs_[2] += i_[1][2].coeffs_[2] * temp; res[1][1].coeffs_[3] += i_[1][2].coeffs_[3] * temp; res[2][1].coeffs_[0] += i_[2][2].coeffs_[0] * temp; res[2][1].coeffs_[1] += i_[2][2].coeffs_[1] * temp; res[2][1].coeffs_[2] += i_[2][2].coeffs_[2] * temp; res[2][1].coeffs_[3] += i_[2][2].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][1].r_[0] += i_[0][2].r_[0] * temp; res[0][1].r_[1] += i_[0][2].r_[1] * temp; res[1][1].r_[0] += i_[1][2].r_[0] * temp; res[1][1].r_[1] += i_[1][2].r_[1] * temp; res[2][1].r_[0] += i_[2][2].r_[0] * temp; res[2][1].r_[1] += i_[2][2].r_[1] * temp;
-  }
-  else
-  {
-    res[0][1].r_[0] += i_[0][2].r_[1] * temp; res[0][1].r_[1] += i_[0][2].r_[0] * temp; res[1][1].r_[0] += i_[1][2].r_[1] * temp; res[1][1].r_[1] += i_[1][2].r_[0] * temp; res[2][1].r_[0] += i_[2][2].r_[1] * temp; res[2][1].r_[1] += i_[2][2].r_[0] * temp;
-  }
-
-  temp = m[2][2];
-  res[0][2].coeffs_[0] += i_[0][2].coeffs_[0] * temp; res[0][2].coeffs_[1] += i_[0][2].coeffs_[1] * temp; res[0][2].coeffs_[2] += i_[0][2].coeffs_[2] * temp; res[0][2].coeffs_[3] += i_[0][2].coeffs_[3] * temp; res[1][2].coeffs_[0] += i_[1][2].coeffs_[0] * temp; res[1][2].coeffs_[1] += i_[1][2].coeffs_[1] * temp; res[1][2].coeffs_[2] += i_[1][2].coeffs_[2] * temp; res[1][2].coeffs_[3] += i_[1][2].coeffs_[3] * temp; res[2][2].coeffs_[0] += i_[2][2].coeffs_[0] * temp; res[2][2].coeffs_[1] += i_[2][2].coeffs_[1] * temp; res[2][2].coeffs_[2] += i_[2][2].coeffs_[2] * temp; res[2][2].coeffs_[3] += i_[2][2].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0][2].r_[0] += i_[0][2].r_[0] * temp; res[0][2].r_[1] += i_[0][2].r_[1] * temp; res[1][2].r_[0] += i_[1][2].r_[0] * temp; res[1][2].r_[1] += i_[1][2].r_[1] * temp; res[2][2].r_[0] += i_[2][2].r_[0] * temp; res[2][2].r_[1] += i_[2][2].r_[1] * temp;
-  }
-  else
-  {
-    res[0][2].r_[0] += i_[0][2].r_[1] * temp; res[0][2].r_[1] += i_[0][2].r_[0] * temp; res[1][2].r_[0] += i_[1][2].r_[1] * temp; res[1][2].r_[1] += i_[1][2].r_[0] * temp; res[2][2].r_[0] += i_[2][2].r_[1] * temp; res[2][2].r_[1] += i_[2][2].r_[0] * temp;
-  }
-
-  return TMatrix3(res);
+  return TMatrix3(TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
+                  TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
+                  TVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
 }
 
 
 TVector3 TMatrix3::operator * (const Vec3f& v) const
 {
-  TaylorModel res[3];
-
-  register FCL_REAL temp;
-
-  temp = v[0];
-  res[0].coeffs_[0] = i_[0][0].coeffs_[0] * temp; res[0].coeffs_[1] = i_[0][0].coeffs_[1] * temp; res[0].coeffs_[2] = i_[0][0].coeffs_[2] * temp; res[0].coeffs_[3] = i_[0][0].coeffs_[3] * temp; res[1].coeffs_[0] = i_[1][0].coeffs_[0] * temp; res[1].coeffs_[1] = i_[1][0].coeffs_[1] * temp; res[1].coeffs_[2] = i_[1][0].coeffs_[2] * temp; res[1].coeffs_[3] = i_[1][0].coeffs_[3] * temp; res[2].coeffs_[0] = i_[2][0].coeffs_[0] * temp; res[2].coeffs_[1] = i_[2][0].coeffs_[1] * temp; res[2].coeffs_[2] = i_[2][0].coeffs_[2] * temp; res[2].coeffs_[3] = i_[2][0].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0].r_[0] = i_[0][0].r_[0] * temp; res[0].r_[1] = i_[0][0].r_[1] * temp; res[1].r_[0] = i_[1][0].r_[0] * temp; res[1].r_[1] = i_[1][0].r_[1] * temp; res[2].r_[0] = i_[2][0].r_[0] * temp; res[2].r_[1] = i_[2][0].r_[1] * temp;
-  }
-  else
-  {
-    res[0].r_[0] = i_[0][0].r_[1] * temp; res[0].r_[1] = i_[0][0].r_[0] * temp; res[1].r_[0] = i_[1][0].r_[1] * temp; res[1].r_[1] = i_[1][0].r_[0] * temp; res[2].r_[0] = i_[2][0].r_[1] * temp; res[2].r_[1] = i_[2][0].r_[0] * temp;
-  }
-
-  temp = v[1];
-  res[0].coeffs_[0] += i_[0][1].coeffs_[0] * temp; res[0].coeffs_[1] += i_[0][1].coeffs_[1] * temp; res[0].coeffs_[2] += i_[0][1].coeffs_[2] * temp; res[0].coeffs_[3] += i_[0][1].coeffs_[3] * temp; res[1].coeffs_[0] += i_[1][1].coeffs_[0] * temp; res[1].coeffs_[1] += i_[1][1].coeffs_[1] * temp; res[1].coeffs_[2] += i_[1][1].coeffs_[2] * temp; res[1].coeffs_[3] += i_[1][1].coeffs_[3] * temp; res[2].coeffs_[0] += i_[2][1].coeffs_[0] * temp; res[2].coeffs_[1] += i_[2][1].coeffs_[1] * temp; res[2].coeffs_[2] += i_[2][1].coeffs_[2] * temp; res[2].coeffs_[3] += i_[2][1].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0].r_[0] += i_[0][1].r_[0] * temp; res[0].r_[1] += i_[0][1].r_[1] * temp; res[1].r_[0] += i_[1][1].r_[0] * temp; res[1].r_[1] += i_[1][1].r_[1] * temp; res[2].r_[0] += i_[2][1].r_[0] * temp; res[2].r_[1] += i_[2][1].r_[1] * temp;
-  }
-  else
-  {
-    res[0].r_[0] += i_[0][1].r_[1] * temp; res[0].r_[1] += i_[0][1].r_[0] * temp; res[1].r_[0] += i_[1][1].r_[1] * temp; res[1].r_[1] += i_[1][1].r_[0] * temp; res[2].r_[0] += i_[2][1].r_[1] * temp; res[2].r_[1] += i_[2][1].r_[0] * temp;  \
-  }
-
-  temp = v[2];
-  res[0].coeffs_[0] += i_[0][2].coeffs_[0] * temp; res[0].coeffs_[1] += i_[0][2].coeffs_[1] * temp; res[0].coeffs_[2] += i_[0][2].coeffs_[2] * temp; res[0].coeffs_[3] += i_[0][2].coeffs_[3] * temp; res[1].coeffs_[0] += i_[1][2].coeffs_[0] * temp; res[1].coeffs_[1] += i_[1][2].coeffs_[1] * temp; res[1].coeffs_[2] += i_[1][2].coeffs_[2] * temp; res[1].coeffs_[3] += i_[1][2].coeffs_[3] * temp; res[2].coeffs_[0] += i_[2][2].coeffs_[0] * temp; res[2].coeffs_[1] += i_[2][2].coeffs_[1] * temp; res[2].coeffs_[2] += i_[2][2].coeffs_[2] * temp; res[2].coeffs_[3] += i_[2][2].coeffs_[3] * temp;
-  if(temp >= 0)
-  {
-    res[0].r_[0] += i_[0][2].r_[0] * temp; res[0].r_[1] += i_[0][2].r_[1] * temp; res[1].r_[0] += i_[1][2].r_[0] * temp; res[1].r_[1] += i_[1][2].r_[1] * temp; res[2].r_[0] += i_[2][2].r_[0] * temp; res[2].r_[1] += i_[2][2].r_[1] * temp;
-  }
-  else
-  {
-    res[0].r_[0] += i_[0][2].r_[1] * temp; res[0].r_[1] += i_[0][2].r_[0] * temp; res[1].r_[0] += i_[1][2].r_[1] * temp; res[1].r_[1] += i_[1][2].r_[0] * temp; res[2].r_[0] += i_[2][2].r_[1] * temp; res[2].r_[1] += i_[2][2].r_[0] * temp;
-  }
-
-  return TVector3(res);
+  return TVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 TVector3 TMatrix3::operator * (const TVector3& v) const
 {
-  TaylorModel res[3];
-
-  res[0] = i_[0][0] * v[0] + i_[0][1] * v[1] + i_[0][2] * v[2];
-  res[1] = i_[1][0] * v[0] + i_[1][1] * v[1] + i_[1][2] * v[2];
-  res[2] = i_[2][0] * v[0] + i_[2][1] * v[1] + i_[2][2] * v[2];
-
-  return TVector3(res);
+  return TVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 TMatrix3 TMatrix3::operator * (const TMatrix3& m) const
 {
-  TaylorModel res[3][3];
+  const TVector3& mc0 = m.getColumn(0);
+  const TVector3& mc1 = m.getColumn(1);
+  const TVector3& mc2 = m.getColumn(2);
 
-  res[0][0] = i_[0][0] * m.i_[0][0] + i_[0][1] * m.i_[1][0] + i_[0][2] * m.i_[2][0];
-  res[0][1] = i_[0][0] * m.i_[0][1] + i_[0][1] * m.i_[1][1] + i_[0][2] * m.i_[2][1];
-  res[0][2] = i_[0][0] * m.i_[0][2] + i_[0][1] * m.i_[1][2] + i_[0][2] * m.i_[2][2];
+  return TMatrix3(TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
+                  TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
+                  TVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
+}
 
-  res[1][0] = i_[1][0] * m.i_[0][0] + i_[1][1] * m.i_[1][0] + i_[1][2] * m.i_[2][0];
-  res[1][1] = i_[1][0] * m.i_[0][1] + i_[1][1] * m.i_[1][1] + i_[1][2] * m.i_[2][1];
-  res[1][2] = i_[1][0] * m.i_[0][2] + i_[1][1] * m.i_[1][2] + i_[1][2] * m.i_[2][2];
+TMatrix3 TMatrix3::operator * (const TaylorModel& d) const
+{
+  return TMatrix3(v_[0] * d, v_[1] * d, v_[2] * d);
+}
 
-  res[2][0] = i_[2][0] * m.i_[0][0] + i_[2][1] * m.i_[1][0] + i_[2][2] * m.i_[2][0];
-  res[2][1] = i_[2][0] * m.i_[0][1] + i_[2][1] * m.i_[1][1] + i_[2][2] * m.i_[2][1];
-  res[2][2] = i_[2][0] * m.i_[0][2] + i_[2][1] * m.i_[1][2] + i_[2][2] * m.i_[2][2];
+TMatrix3 TMatrix3::operator * (FCL_REAL d) const
+{
+  return TMatrix3(v_[0] * d, v_[1] * d, v_[2] * d);
+}
 
-  return TMatrix3(res);
+
+TMatrix3& TMatrix3::operator *= (const Matrix3f& m)
+{
+  const Vec3f& mc0 = m.getColumn(0);
+  const Vec3f& mc1 = m.getColumn(1);
+  const Vec3f& mc2 = m.getColumn(2);
+  
+  v_[0] = TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
+  v_[1] = TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
+  v_[2] = TVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+  return *this;
+}
+
+TMatrix3& TMatrix3::operator *= (const TMatrix3& m)
+{
+  const TVector3& mc0 = m.getColumn(0);
+  const TVector3& mc1 = m.getColumn(1);
+  const TVector3& mc2 = m.getColumn(2);
+  
+  v_[0] = TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
+  v_[1] = TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
+  v_[2] = TVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+  return *this;
+}
+
+TMatrix3& TMatrix3::operator *= (const TaylorModel& d)
+{
+  v_[0] *= d;
+  v_[1] *= d;
+  v_[2] *= d;
+  return *this;
+}
+
+TMatrix3& TMatrix3::operator *= (FCL_REAL d)
+{
+  v_[0] *= d;
+  v_[1] *= d;
+  v_[2] *= d;
+  return *this;
 }
 
 TMatrix3 TMatrix3::operator + (const TMatrix3& m) const
 {
-  TaylorModel res[3][3];
-
-  res[0][0] = i_[0][0] + m.i_[0][0];
-  res[0][1] = i_[0][1] + m.i_[0][1];
-  res[0][2] = i_[0][2] + m.i_[0][2];
-
-  res[1][0] = i_[1][0] + m.i_[1][0];
-  res[1][1] = i_[1][1] + m.i_[1][1];
-  res[1][2] = i_[1][2] + m.i_[1][2];
-
-  res[2][0] = i_[2][0] + m.i_[2][0];
-  res[2][1] = i_[2][1] + m.i_[2][1];
-  res[2][2] = i_[2][2] + m.i_[2][2];
-
-  return TMatrix3(res);
+  return TMatrix3(v_[0] + m.v_[0], v_[1] + m.v_[1], v_[2] + m.v_[2]);
 }
 
 TMatrix3& TMatrix3::operator += (const TMatrix3& m)
 {
-  i_[0][0] += m.i_[0][0];
-  i_[0][1] += m.i_[0][1];
-  i_[0][2] += m.i_[0][2];
+  v_[0] += m.v_[0];
+  v_[1] += m.v_[1];
+  v_[2] += m.v_[2];
+  return *this;
+}
 
-  i_[1][0] += m.i_[1][0];
-  i_[1][1] += m.i_[1][1];
-  i_[1][2] += m.i_[1][2];
+TMatrix3 TMatrix3::operator - (const TMatrix3& m) const
+{
+  return TMatrix3(v_[0] - m.v_[0], v_[1] - m.v_[1], v_[2] - m.v_[2]);
+}
 
-  i_[2][0] += m.i_[2][0];
-  i_[2][1] += m.i_[2][1];
-  i_[2][2] += m.i_[2][2];
-
+TMatrix3& TMatrix3::operator -= (const TMatrix3& m)
+{
+  v_[0] -= m.v_[0];
+  v_[1] -= m.v_[1];
+  v_[2] -= m.v_[2];
   return *this;
 }
 
@@ -337,50 +225,43 @@ void TMatrix3::print() const
 
 IMatrix3 TMatrix3::getBound() const
 {
-  Interval res[3][3];
-
-  res[0][0] = i_[0][0].getBound();
-  res[0][1] = i_[0][1].getBound();
-  res[0][2] = i_[0][2].getBound();
-
-  res[1][0] = i_[1][0].getBound();
-  res[1][1] = i_[1][1].getBound();
-  res[1][2] = i_[1][2].getBound();
-
-  res[2][0] = i_[2][0].getBound();
-  res[2][1] = i_[2][1].getBound();
-  res[2][2] = i_[2][2].getBound();
-
-  return IMatrix3(res);
+  return IMatrix3(v_[0].getBound(), v_[1].getBound(), v_[2].getBound());
 }
 
 FCL_REAL TMatrix3::diameter() const
 {
   FCL_REAL d = 0;
 
-
-  FCL_REAL tmp = i_[0][0].r_.diameter();
+  FCL_REAL tmp = v_[0][0].r_.diameter();
   if(tmp > d) d = tmp;
-  tmp = i_[0][1].r_.diameter();
+  tmp = v_[0][1].r_.diameter();
   if(tmp > d) d = tmp;
-  tmp = i_[0][2].r_.diameter();
-  if(tmp > d) d = tmp;
-
-  tmp = i_[1][0].r_.diameter();
-  if(tmp > d) d = tmp;
-  tmp = i_[1][1].r_.diameter();
-  if(tmp > d) d = tmp;
-  tmp = i_[1][2].r_.diameter();
+  tmp = v_[0][2].r_.diameter();
   if(tmp > d) d = tmp;
 
-  tmp = i_[2][0].r_.diameter();
+  tmp = v_[1][0].r_.diameter();
   if(tmp > d) d = tmp;
-  tmp = i_[2][1].r_.diameter();
+  tmp = v_[1][1].r_.diameter();
   if(tmp > d) d = tmp;
-  tmp = i_[2][2].r_.diameter();
+  tmp = v_[1][2].r_.diameter();
+  if(tmp > d) d = tmp;
+
+  tmp = v_[2][0].r_.diameter();
+  if(tmp > d) d = tmp;
+  tmp = v_[2][1].r_.diameter();
+  if(tmp > d) d = tmp;
+  tmp = v_[2][2].r_.diameter();
   if(tmp > d) d = tmp;
 
   return d;
 }
+
+void TMatrix3::setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval)
+{
+  v_[0].setTimeInterval(time_interval);
+  v_[1].setTimeInterval(time_interval);
+  v_[2].setTimeInterval(time_interval);
+}
+
 
 }

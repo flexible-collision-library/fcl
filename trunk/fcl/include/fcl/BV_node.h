@@ -130,9 +130,9 @@ struct BVNode<OBB> : public BVNodeBase
   }
   void setOrientation(const Matrix3f& m)
   {
-    bv.axis[0].setValue(m[0][0], m[1][0], m[2][0]);
-    bv.axis[1].setValue(m[0][1], m[1][1], m[2][1]);
-    bv.axis[2].setValue(m[0][2], m[1][2], m[2][2]);
+    bv.axis[0].setValue(m(0, 0), m(1, 0), m(2, 0));
+    bv.axis[1].setValue(m(0, 1), m(1, 1), m(2, 1));
+    bv.axis[2].setValue(m(0, 2), m(1, 2), m(2, 2));
   }
 };
 
@@ -165,9 +165,9 @@ struct BVNode<RSS> : public BVNodeBase
 
   void setOrientation(const Matrix3f& m)
   {
-    bv.axis[0].setValue(m[0][0], m[1][0], m[2][0]);
-    bv.axis[1].setValue(m[0][1], m[1][1], m[2][1]);
-    bv.axis[2].setValue(m[0][2], m[1][2], m[2][2]);
+    bv.axis[0].setValue(m(0, 0), m(1, 0), m(2, 0));
+    bv.axis[1].setValue(m(0, 1), m(1, 1), m(2, 1));
+    bv.axis[2].setValue(m(0, 2), m(1, 2), m(2, 2));
   }
 };
 

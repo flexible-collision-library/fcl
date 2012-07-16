@@ -406,7 +406,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
 void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
 {
-  sv.d = d.normalized();
+  sv.d = normalize(d);
   sv.w = shape.support(sv.d);
 }
 

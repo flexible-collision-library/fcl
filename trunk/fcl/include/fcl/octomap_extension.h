@@ -35,69 +35,33 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_INTERVAL_MATRIX_H
-#define FCL_INTERVAL_MATRIX_H
+#ifndef FCL_OCTOMAP_EXTENSION_H
+#define FCL_OCTOMAP_EXTENSION_H
 
-#include "fcl/ccd/interval.h"
-#include "fcl/ccd/interval_vector.h"
-#include "fcl/matrix_3f.h"
+#include <set>
+#include <octomap/octomap.h>
+#include "fcl/broad_phase_collision.h"
 
 namespace fcl
 {
 
-struct IMatrix3
-{
-  IVector3 v_[3];
 
-  IMatrix3();
-  IMatrix3(FCL_REAL v);
-  IMatrix3(const Matrix3f& m);
-  IMatrix3(FCL_REAL m[3][3][2]);
-  IMatrix3(FCL_REAL m[3][3]);
-  IMatrix3(Interval m[3][3]);
-  IMatrix3(const IVector3& v1, const IVector3& v2, const IVector3& v3);
+bool defaultCollisionCostFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& cost);
 
-  void setIdentity();
-
-  IVector3 getColumn(size_t i) const;
-  const IVector3& getRow(size_t i) const;
-
-  Vec3f getColumnLow(size_t i) const;
-  Vec3f getRowLow(size_t i) const;
-
-  Vec3f getColumnHigh(size_t i) const;
-  Vec3f getRowHigh(size_t i) const;
-
-  Matrix3f getLow() const;
-  Matrix3f getHigh() const;
-
-  inline const IVector3& operator [] (size_t i) const
-  {
-    return v_[i];
-  }
-
-  inline IVector3& operator [] (size_t i)
-  {
-    return v_[i];
-  }
-
-  IMatrix3 operator + (const IMatrix3& m) const;
-  IMatrix3& operator += (const IMatrix3& m);
-
-  IMatrix3 operator - (const IMatrix3& m) const;
-  IMatrix3& operator -= (const IMatrix3& m);
-
-  IVector3 operator * (const Vec3f& v) const;
-  IVector3 operator * (const IVector3& v) const;
-  IMatrix3 operator * (const IMatrix3& m) const;
-  IMatrix3 operator * (const Matrix3f& m) const;
-
-  IMatrix3& operator *= (const IMatrix3& m);
-  IMatrix3& operator *= (const Matrix3f& m);
+bool defaultCollisionCostExtFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& cost, std::set<octomap::OcTreeNode*>& nodes);
 
 
-  void print() const;
-};
+typedef bool (*CollisionCostCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& cost);
+
+typedef bool (*CollisionCostCallBackExt)(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& cost, std::set<octomap::OcTreeNode*>& nodes);
+
+
+void collide(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCallBack callback);
+
+FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostCallBack callback);
+
+FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostCallBackExt callback, std::set<octomap::OcTreeNode*>& nodes);
+
 
 }
 

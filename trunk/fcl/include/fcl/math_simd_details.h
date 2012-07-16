@@ -63,6 +63,15 @@ static inline __m128 vec_sel(__m128 a, __m128 b, __m128 mask)
 {
   return _mm_or_ps(_mm_and_ps(mask, b), _mm_andnot_ps(mask, a));
 }
+static inline __m128 vec_sel(__m128 a, __m128 b, const unsigned int* mask)
+{
+  return vec_sel(a, b, _mm_load_ps((float*)mask));
+}
+
+static inline __m128 vec_sel(__m128 a, __m128 b, unsigned int mask)
+{
+  return vec_sel(a, b, _mm_set1_ps(*(float*)&mask));
+}
 
 static inline __m128 vec_splat(__m128 a, int e)
 {
@@ -444,15 +453,48 @@ static inline sse_meta_f4 normalize3_approx(const sse_meta_f4& x)
 }
 
 
+static inline void transpose(__m128 c0, __m128 c1, __m128 c2, __m128* r0, __m128* r1, __m128* r2)
+{
+  static const union { unsigned int i[4]; __m128 m; } selectmask __attribute__ ((aligned(16))) = {{0, 0xffffffff, 0, 0}};
+  register __m128 t0, t1;
+  t0 = _mm_unpacklo_ps(c0, c2);
+  t1 = _mm_unpackhi_ps(c0, c2);
+  *r0 = _mm_unpacklo_ps(t0, c1);
+  *r1 = _mm_shuffle_ps(t0, t0, _MM_SHUFFLE(0, 3, 2, 2));
+  *r1 = vec_sel(*r1, c1, selectmask.i);
+  *r2 = _mm_shuffle_ps(t1, t1, _MM_SHUFFLE(0, 1, 1, 0));
+  *r2 = vec_sel(*r2, vec_splat(c1, 2), selectmask.i);
+}
+
+
+static inline void inverse(__m128 c0, __m128 c1, __m128 c2, __m128* i0, __m128* i1, __m128* i2)
+{
+  __m128 t0, t1, t2, d, invd;
+  t2 = cross_prod(c0, c1);
+  t0 = cross_prod(c1, c2);
+  t1 = cross_prod(c2, c0);
+  d = dot_prod3(t2, c2);
+  d = vec_splat(d, 0);
+  invd = _mm_rcp_ps(d); // approximate inverse
+  transpose(t0, t1, t2, i0, i1, i2);
+  *i0 = _mm_mul_ps(*i0, invd);
+  *i1 = _mm_mul_ps(*i1, invd);
+  *i2 = _mm_mul_ps(*i2, invd);
+}
+
+
 struct sse_meta_f12
 {
   typedef float meta_type;
+  typedef sse_meta_f4 vector_type;
   sse_meta_f4 c[3];
+
+  sse_meta_f12() { setZero(); }
 
   sse_meta_f12(float xx, float xy, float xz,
                float yx, float yy, float yz,
                float zx, float zy, float zz)
-  { setValue(xx, xy, xz, yz, yy, yz, zx, zy, zz); }
+  { setValue(xx, xy, xz, yx, yy, yz, zx, zy, zz); }
 
   sse_meta_f12(const sse_meta_f4& x, const sse_meta_f4& y, const sse_meta_f4& z)
   { setColumn(x, y, z); }
@@ -467,6 +509,20 @@ struct sse_meta_f12
     c[0].setValue(xx, yx, zx, 0);
     c[1].setValue(xy, yy, zy, 0);
     c[2].setValue(xz, yz, zz, 0);
+  }
+
+  inline void setIdentity()
+  {
+    c[0].setValue(1, 0, 0, 0);
+    c[1].setValue(0, 1, 0, 0);
+    c[2].setValue(0, 0, 1, 0);
+  }
+
+  inline void setZero()
+  {
+    c[0].setValue(0);
+    c[1].setValue(0);
+    c[2].setValue(0);
   }
 
   inline void setColumn(const sse_meta_f4& x, const sse_meta_f4& y, const sse_meta_f4& z)
@@ -514,6 +570,16 @@ struct sse_meta_f12
     return sse_meta_f12((*this) * mat.c[0], (*this) * mat.c[1], (*this) * mat.c[2]);
   }
 
+  inline sse_meta_f12 operator + (const sse_meta_f12& mat) const
+  {
+    return sse_meta_f12(c[0] + mat.c[0], c[1] + mat.c[1], c[2] + mat.c[2]);
+  }
+
+  inline sse_meta_f12 operator - (const sse_meta_f12& mat) const
+  {
+    return sse_meta_f12(c[0] - mat.c[0], c[1] - mat.c[1], c[2] - mat.c[2]);
+  }
+
   inline sse_meta_f12 operator + (float t_) const
   {
     sse_meta_f4 t(t_);
@@ -538,6 +604,27 @@ struct sse_meta_f12
     return sse_meta_f12(c[0] / t, c[1] / t, c[2] / t);
   }
 
+  inline sse_meta_f12& operator *= (const sse_meta_f12& mat)
+  {
+    setColumn((*this) * mat.c[0], (*this) * mat.c[1], (*this) * mat.c[2]);
+    return *this;
+  }
+
+  inline sse_meta_f12& operator += (const sse_meta_f12& mat)
+  {
+    c[0] += mat.c[0];
+    c[1] += mat.c[1];
+    c[2] += mat.c[2];
+    return *this;
+  }
+
+  inline sse_meta_f12& operator -= (const sse_meta_f12& mat)
+  {
+    c[0] -= mat.c[0];
+    c[1] -= mat.c[1];
+    c[2] -= mat.c[2];
+    return *this;
+  }
 
   inline sse_meta_f12& operator += (float t_)
   {
@@ -575,20 +662,68 @@ struct sse_meta_f12
     return *this;
   }
 
+  inline sse_meta_f12& inverse()
+  {
+    __m128 inv0, inv1, inv2;
+    details::inverse(c[0].v, c[1].v, c[2].v, &inv0, &inv1, &inv2);
+    setColumn(inv0, inv1, inv2);
+    return *this;
+  }
+
+  inline sse_meta_f12& transpose()
+  {
+    __m128 r0, r1, r2;
+    details::transpose(c[0].v, c[1].v, c[2].v, &r0, &r1, &r2);
+    setColumn(r0, r1, r2);
+    return *this;
+  }
+
+  inline sse_meta_f12& abs()
+  {
+    c[0] = details::abs(c[0]);
+    c[1] = details::abs(c[1]);
+    c[2] = details::abs(c[2]);
+    return *this;
+  }
+
+  inline float determinant() const
+  {
+    return _mm_cvtss_f32(dot_prod3(c[2].v, cross_prod(c[0].v, c[1].v)));
+  }
+
+  inline sse_meta_f12 transposeTimes(const sse_meta_f12& other) const
+  {
+    return sse_meta_f12(dot_prod3(c[0], other.c[0]), dot_prod3(c[0], other.c[1]), dot_prod3(c[0], other.c[2]),
+                        dot_prod3(c[1], other.c[0]), dot_prod3(c[1], other.c[1]), dot_prod3(c[1], other.c[2]),
+                        dot_prod3(c[2], other.c[0]), dot_prod3(c[2], other.c[1]), dot_prod3(c[2], other.c[2]));
+  }
+
+  inline sse_meta_f12 timesTranspose(const sse_meta_f12& m) const
+  {
+    sse_meta_f12 tmp(m);
+    return (*this) * tmp.transpose();
+  }
+
+  inline sse_meta_f4 transposeTimes(const sse_meta_f4& v) const
+  {
+    return sse_meta_f4(dot_prod3(c[0], v), dot_prod3(c[1], v), dot_prod3(c[2], v));
+  }
+
+  inline float transposeDot(size_t i, const sse_meta_f4& v) const
+  {
+    return dot_prod3(c[i], v);
+  }
+
+  inline float dot(size_t i, const sse_meta_f4& v) const
+  {
+    return v[0] * c[0][i] + v[1] * c[1][i] + v[2] * c[2][i];
+  }
+
 };
 
-
-static inline void transpose(__m128 c0, __m128 c1, __m128 c2, __m128* r0, __m128* r1, __m128* r2)
+static inline sse_meta_f12 abs(const sse_meta_f12& mat)
 {
-  static const union { int i[4]; __m128 m; } selectmask __attribute__ ((aligned(16))) = {{0, 0xffffffff, 0, 0}};
-  register __m128 t0, t1;
-  t0 = _mm_unpackhi_ps(c0, c2);
-  t1 = _mm_unpacklo_ps(c0, c2);
-  *r0 = _mm_unpackhi_ps(t0, c1);
-  *r1 = _mm_shuffle_ps(t0, t0, _MM_SHUFFLE(0, 3, 2, 2));
-  *r1 = vec_sel(*r1, c1, selectmask.m);
-  *r2 = _mm_shuffle_ps(t1, t1, _MM_SHUFFLE(0, 1, 1, 0));
-  *r2 = vec_sel(*r2, vec_splat(c1, 1), selectmask.m);
+  return sse_meta_f12(abs(mat.getColumn(0)), abs(mat.getColumn(1)), abs(mat.getColumn(2)));
 }
 
 static inline sse_meta_f12 transpose(const sse_meta_f12& mat)
@@ -598,20 +733,6 @@ static inline sse_meta_f12 transpose(const sse_meta_f12& mat)
   return sse_meta_f12(r0, r1, r2);
 }
 
-static inline void inverse(__m128 c0, __m128 c1, __m128 c2, __m128* i0, __m128* i1, __m128* i2)
-{
-  __m128 t0, t1, t2, d, invd;
-  t2 = cross_prod(c0, c1);
-  t0 = cross_prod(c1, c2);
-  t1 = cross_prod(c2, c0);
-  d = dot_prod3(t2, c2);
-  d = _mm_shuffle_ps(d, d, _MM_SHUFFLE(0, 0, 0, 0));
-  invd = _mm_rcp_ps(d); // approximate inverse
-  transpose(t0, t1, t2, i0, i1, i2);
-  *i0 = _mm_mul_ps(*i0, invd);
-  *i1 = _mm_mul_ps(*i1, invd);
-  *i2 = _mm_mul_ps(*i2, invd);
-}
 
 static inline sse_meta_f12 inverse(const sse_meta_f12& mat)
 {
@@ -620,16 +741,114 @@ static inline sse_meta_f12 inverse(const sse_meta_f12& mat)
   return sse_meta_f12(inv0, inv1, inv2);
 }
 
-static inline float determinant(const sse_meta_f12& mat)
+
+static inline void transpose(__m128 c0, __m128 c1, __m128 c2, __m128 c3,
+                             __m128* r0, __m128* r1, __m128* r2, __m128* r3)
 {
-  return _mm_cvtss_f32(dot_prod3(mat.getColumn(2).v, cross_prod(mat.getColumn(0).v, mat.getColumn(1).v)));
+  __m128 tmp0 = _mm_unpacklo_ps(c0, c2);
+  __m128 tmp1 = _mm_unpacklo_ps(c1, c3);
+  __m128 tmp2 = _mm_unpackhi_ps(c0, c2);
+  __m128 tmp3 = _mm_unpackhi_ps(c1, c3);
+  *r0 = _mm_unpacklo_ps(tmp0, tmp1);
+  *r1 = _mm_unpackhi_ps(tmp0, tmp1);
+  *r2 = _mm_unpacklo_ps(tmp2, tmp3);
+  *r3 = _mm_unpackhi_ps(tmp2, tmp3);
+}
+
+
+static inline void inverse(__m128 c0, __m128 c1, __m128 c2, __m128 c3,
+                           __m128* res0, __m128* res1, __m128* res2, __m128* res3)
+{
+  __m128 Va, Vb, Vc;
+  __m128 r1, r2, r3, tt, tt2;
+  __m128 sum, Det, RDet;
+  __m128 trns0, trns1, trns2, trns3;
+
+  // Calculating the minterms for the first line.
+
+  tt = c3; tt2 = _mm_ror_ps(c2,1); 
+  Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'\B7V4
+  Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'\B7V4"
+  Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3'\B7V4^
+
+  r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"\B7V4^ - V3^\B7V4"
+  r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^\B7V4' - V3'\B7V4^
+  r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'\B7V4" - V3"\B7V4'
+
+  tt = c1;
+  Va = _mm_ror_ps(tt,1);		sum = _mm_mul_ps(Va,r1);
+  Vb = _mm_ror_ps(tt,2);		sum = _mm_add_ps(sum,_mm_mul_ps(Vb,r2));
+  Vc = _mm_ror_ps(tt,3);		sum = _mm_add_ps(sum,_mm_mul_ps(Vc,r3));
+
+  // Calculating the determinant.
+  Det = _mm_mul_ps(sum,c0);
+  Det = _mm_add_ps(Det,_mm_movehl_ps(Det,Det));
+
+  static const union { int i[4]; __m128 m; } Sign_PNPN __attribute__ ((aligned(16))) = {{0x00000000, 0x80000000, 0x00000000, 0x80000000}};
+  static const union { int i[4]; __m128 m; } Sign_NPNP __attribute__ ((aligned(16))) = {{0x80000000, 0x00000000, 0x80000000, 0x00000000}};
+  static const union { float i[4]; __m128 m; } ZERONE __attribute__ ((aligned(16))) = {{1.0f, 0.0f, 0.0f, 1.0f}};
+
+  __m128 mtL1 = _mm_xor_ps(sum,Sign_PNPN.m);
+
+  // Calculating the minterms of the second line (using previous results).
+  tt = _mm_ror_ps(c0,1);		sum = _mm_mul_ps(tt,r1);
+  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
+  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r3));
+  __m128 mtL2 = _mm_xor_ps(sum,Sign_NPNP.m);
+
+  // Testing the determinant.
+  Det = _mm_sub_ss(Det,_mm_shuffle_ps(Det,Det,1));
+
+  // Calculating the minterms of the third line.
+  tt = _mm_ror_ps(c0,1);
+  Va = _mm_mul_ps(tt,Vb);									// V1'\B7V2"
+  Vb = _mm_mul_ps(tt,Vc);									// V1'\B7V2^
+  Vc = _mm_mul_ps(tt,c1);								// V1'\B7V2
+
+  r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V1"\B7V2^ - V1^\B7V2"
+  r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V1^\B7V2' - V1'\B7V2^
+  r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V1'\B7V2" - V1"\B7V2'
+
+  tt = _mm_ror_ps(c3,1);		sum = _mm_mul_ps(tt,r1);
+  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
+  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r3));
+  __m128 mtL3 = _mm_xor_ps(sum,Sign_PNPN.m);
+
+  // Dividing is FASTER than rcp_nr! (Because rcp_nr causes many register-memory RWs).
+  RDet = _mm_div_ss(ZERONE.m, Det); // TODO: just 1.0f?
+  RDet = _mm_shuffle_ps(RDet,RDet,0x00);
+
+  // Devide the first 12 minterms with the determinant.
+  mtL1 = _mm_mul_ps(mtL1, RDet);
+  mtL2 = _mm_mul_ps(mtL2, RDet);
+  mtL3 = _mm_mul_ps(mtL3, RDet);
+
+  // Calculate the minterms of the forth line and devide by the determinant.
+  tt = _mm_ror_ps(c2,1);		sum = _mm_mul_ps(tt,r1);
+  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
+  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r3));
+  __m128 mtL4 = _mm_xor_ps(sum,Sign_NPNP.m);
+  mtL4 = _mm_mul_ps(mtL4, RDet);
+
+  // Now we just have to transpose the minterms matrix.
+  trns0 = _mm_unpacklo_ps(mtL1,mtL2);
+  trns1 = _mm_unpacklo_ps(mtL3,mtL4);
+  trns2 = _mm_unpackhi_ps(mtL1,mtL2);
+  trns3 = _mm_unpackhi_ps(mtL3,mtL4);
+  *res0 = _mm_movelh_ps(trns0,trns1);
+  *res1 = _mm_movehl_ps(trns1,trns0);
+  *res2 = _mm_movelh_ps(trns2,trns3);
+  *res3 = _mm_movehl_ps(trns3,trns2);
 }
 
 
 struct sse_meta_f16
 {
   typedef float meta_type;
+  typedef sse_meta_f4 vector_type;
   sse_meta_f4 c[4];
+
+  sse_meta_f16() { setZero(); }
   
   sse_meta_f16(float xx, float xy, float xz, float xw,
                float yx, float yy, float yz, float yw,
@@ -648,7 +867,7 @@ struct sse_meta_f16
                        float zx, float zy, float zz, float zw,
                        float wx, float wy, float wz, float ww)
   {
-    c[0].setValue(xx, yz, zx, wx);
+    c[0].setValue(xx, yx, zx, wx);
     c[1].setValue(xy, yy, zy, wy);
     c[2].setValue(xz, yz, zz, wz);
     c[3].setValue(xw, yw, zw, ww);
@@ -662,6 +881,22 @@ struct sse_meta_f16
   inline void setColumn(__m128 x, __m128 y, __m128 z, __m128 w)
   {
     c[0].setValue(x); c[1].setValue(y); c[2].setValue(z); c[3].setValue(w);
+  }
+
+  inline void setIdentity()
+  {
+    c[0].setValue(1, 0, 0, 0);
+    c[1].setValue(0, 1, 0, 0);
+    c[2].setValue(0, 0, 1, 0);
+    c[3].setValue(0, 0, 0, 1);
+  }
+
+  inline void setZero()
+  {
+    c[0].setValue(0);
+    c[1].setValue(0);
+    c[2].setValue(0);
+    c[3].setValue(0);
   }
 
   inline const sse_meta_f4& getColumn(size_t i) const
@@ -701,6 +936,17 @@ struct sse_meta_f16
     return sse_meta_f16((*this) * mat.c[0], (*this) * mat.c[1], (*this) * mat.c[2], (*this) * mat.c[3]);
   }
 
+
+  inline sse_meta_f16 operator + (const sse_meta_f16& mat) const
+  {
+    return sse_meta_f16(c[0] + mat.c[0], c[1] + mat.c[1], c[2] + mat.c[2], c[3] + mat.c[3]);
+  }
+
+  inline sse_meta_f16 operator - (const sse_meta_f16& mat) const
+  {
+    return sse_meta_f16(c[0] - mat.c[0], c[1] - mat.c[1], c[2] - mat.c[2], c[3] - mat.c[3]);
+  }
+
   inline sse_meta_f16 operator + (float t_) const
   {
     sse_meta_f4 t(t_);
@@ -725,6 +971,29 @@ struct sse_meta_f16
     return sse_meta_f16(c[0] / t, c[1] / t, c[2] / t, c[3] / t);
   }
 
+  inline sse_meta_f16& operator *= (const sse_meta_f16& mat)
+  {
+    setColumn((*this) * mat.c[0], (*this) * mat.c[1], (*this) * mat.c[2], (*this) * mat.c[3]);
+    return *this;
+  }
+
+  inline sse_meta_f16& operator += (const sse_meta_f16& mat)
+  {
+    c[0] += mat.c[0];
+    c[1] += mat.c[1];
+    c[2] += mat.c[2];
+    c[3] += mat.c[3];
+    return *this;
+  }
+
+  inline sse_meta_f16& operator -= (const sse_meta_f16& mat)
+  {
+    c[0] -= mat.c[0];
+    c[1] -= mat.c[1];
+    c[2] -= mat.c[2];
+    c[3] -= mat.c[3];
+    return *this;
+  }
 
   inline sse_meta_f16& operator += (float t_)
   {
@@ -766,107 +1035,121 @@ struct sse_meta_f16
     return *this;
   }
 
+  inline sse_meta_f16& abs()
+  {
+    c[0] = details::abs(c[0]);
+    c[1] = details::abs(c[1]);
+    c[2] = details::abs(c[2]);
+    c[3] = details::abs(c[3]);
+    return *this;
+  }
+
+  inline sse_meta_f16& inverse() 
+  {
+    __m128 r0, r1, r2, r3;
+    details::inverse(c[0].v, c[1].v, c[2].v, c[3].v, &r0, &r1, &r2, &r3);
+    setColumn(r0, r1, r2, r3);
+    return *this;
+  }
+
+  inline sse_meta_f16& transpose() 
+  {
+    __m128 r0, r1, r2, r3;
+    details::transpose(c[0].v, c[1].v, c[2].v, c[3].v, &r0, &r1, &r2, &r3);
+    setColumn(r0, r1, r2, r3);
+    return *this;
+  }
+
+  inline float determinant() const
+  {
+    __m128 Va, Vb, Vc;
+    __m128 r1, r2, r3, tt, tt2;
+    __m128 sum, Det;
+
+    __m128 _L1 = c[0].v;
+    __m128 _L2 = c[1].v;
+    __m128 _L3 = c[2].v;
+    __m128 _L4 = c[3].v;
+    // Calculating the minterms for the first line.
+
+    // _mm_ror_ps is just a macro using _mm_shuffle_ps().
+    tt = _L4; tt2 = _mm_ror_ps(_L3,1); 
+    Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'·V4
+    Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'·V4"
+    Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3'·V4^
+
+    r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"·V4^ - V3^·V4"
+    r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^·V4' - V3'·V4^
+    r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'·V4" - V3"·V4'
+
+    tt = _L2;
+    Va = _mm_ror_ps(tt,1);		sum = _mm_mul_ps(Va,r1);
+    Vb = _mm_ror_ps(tt,2);		sum = _mm_add_ps(sum,_mm_mul_ps(Vb,r2));
+    Vc = _mm_ror_ps(tt,3);		sum = _mm_add_ps(sum,_mm_mul_ps(Vc,r3));
+
+    // Calculating the determinant.
+    Det = _mm_mul_ps(sum,_L1);
+    Det = _mm_add_ps(Det,_mm_movehl_ps(Det,Det));
+
+    // Calculating the minterms of the second line (using previous results).
+    tt = _mm_ror_ps(_L1,1);		sum = _mm_mul_ps(tt,r1);
+    tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
+    tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r3));
+
+    // Testing the determinant.
+    Det = _mm_sub_ss(Det,_mm_shuffle_ps(Det,Det,1));
+    return _mm_cvtss_f32(Det);
+  }
+
+  inline sse_meta_f16 transposeTimes(const sse_meta_f16& other) const
+  {
+    return sse_meta_f16(dot_prod4(c[0], other.c[0]), dot_prod4(c[0], other.c[1]), dot_prod4(c[0], other.c[2]), dot_prod4(c[0], other.c[3]),
+                        dot_prod4(c[1], other.c[0]), dot_prod4(c[1], other.c[1]), dot_prod4(c[1], other.c[2]), dot_prod4(c[1], other.c[3]),
+                        dot_prod4(c[2], other.c[0]), dot_prod4(c[2], other.c[1]), dot_prod4(c[2], other.c[2]), dot_prod4(c[2], other.c[3]),
+                        dot_prod4(c[3], other.c[0]), dot_prod4(c[3], other.c[1]), dot_prod4(c[3], other.c[2]), dot_prod4(c[3], other.c[3]));
+  }
+
+  inline sse_meta_f16 timesTranspose(const sse_meta_f16& m) const
+  {
+    sse_meta_f16 tmp(m);
+    return (*this) * tmp.transpose();
+  }
+
+  inline sse_meta_f4 transposeTimes(const sse_meta_f4& v) const
+  {
+    return sse_meta_f4(dot_prod4(c[0], v), dot_prod4(c[1], v), dot_prod4(c[2], v), dot_prod4(c[3], v));
+  }
+
+  inline float transposeDot(size_t i, const sse_meta_f4& v) const
+  {
+    return dot_prod4(c[i], v);
+  }
+
+  inline float dot(size_t i, const sse_meta_f4& v) const
+  {
+    return v[0] * c[0][i] + v[1] * c[1][i] + v[2] * c[2][i] + v[3] * c[3][i];
+  }
 
 };
 
-sse_meta_f16 transpose(const sse_meta_f16& mat)
+static inline sse_meta_f16 abs(const sse_meta_f16& mat)
 {
-  __m128 tmp0 = _mm_unpackhi_ps(mat.getColumn(0).v, mat.getColumn(2).v);
-  __m128 tmp1 = _mm_unpackhi_ps(mat.getColumn(1).v, mat.getColumn(3).v);
-  __m128 tmp2 = _mm_unpacklo_ps(mat.getColumn(0).v, mat.getColumn(2).v);
-  __m128 tmp3 = _mm_unpacklo_ps(mat.getColumn(1).v, mat.getColumn(3).v);
-  return sse_meta_f16(_mm_unpackhi_ps(tmp0, tmp1), _mm_unpacklo_ps(tmp0, tmp1), _mm_unpackhi_ps(tmp2, tmp3), _mm_unpacklo_ps(tmp2, tmp3));
+  return sse_meta_f16(abs(mat.getColumn(0)), abs(mat.getColumn(1)), abs(mat.getColumn(2)), abs(mat.getColumn(3)));
+}
+
+static inline sse_meta_f16 transpose(const sse_meta_f16& mat)
+{
+  __m128 r0, r1, r2, r3;
+  transpose(mat.getColumn(0).v, mat.getColumn(1).v, mat.getColumn(2).v, mat.getColumn(3).v, &r0, &r1, &r2, &r3);
+  return sse_meta_f16(r0, r1, r2, r3);
 }
 
 
-sse_meta_f16 inverse(const sse_meta_f16& mat)
+static inline sse_meta_f16 inverse(const sse_meta_f16& mat)
 {
-  __m128 Va, Vb, Vc;
-  __m128 r1, r2, r3, tt, tt2;
-  __m128 sum, Det, RDet;
-  __m128 trns0, trns1, trns2, trns3;
-
-  __m128 _L1 = mat.getColumn(0).v;
-  __m128 _L2 = mat.getColumn(1).v;
-  __m128 _L3 = mat.getColumn(2).v;
-  __m128 _L4 = mat.getColumn(3).v;
-  // Calculating the minterms for the first line.
-
-  tt = _L4; tt2 = _mm_ror_ps(_L3,1); 
-  Vc = _mm_mul_ps(tt2,_mm_ror_ps(tt,0));					// V3'\B7V4
-  Va = _mm_mul_ps(tt2,_mm_ror_ps(tt,2));					// V3'\B7V4"
-  Vb = _mm_mul_ps(tt2,_mm_ror_ps(tt,3));					// V3'\B7V4^
-
-  r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V3"\B7V4^ - V3^\B7V4"
-  r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V3^\B7V4' - V3'\B7V4^
-  r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V3'\B7V4" - V3"\B7V4'
-
-  tt = _L2;
-  Va = _mm_ror_ps(tt,1);		sum = _mm_mul_ps(Va,r1);
-  Vb = _mm_ror_ps(tt,2);		sum = _mm_add_ps(sum,_mm_mul_ps(Vb,r2));
-  Vc = _mm_ror_ps(tt,3);		sum = _mm_add_ps(sum,_mm_mul_ps(Vc,r3));
-
-  // Calculating the determinant.
-  Det = _mm_mul_ps(sum,_L1);
-  Det = _mm_add_ps(Det,_mm_movehl_ps(Det,Det));
-
-  static const union { int i[4]; __m128 m; } Sign_PNPN __attribute__ ((aligned(16))) = {{0x00000000, 0x80000000, 0x00000000, 0x80000000}};
-  static const union { int i[4]; __m128 m; } Sign_NPNP __attribute__ ((aligned(16))) = {{0x80000000, 0x00000000, 0x80000000, 0x00000000}};
-  static const union { float i[4]; __m128 m; } ZERONE __attribute__ ((aligned(16))) = {{1.0f, 0.0f, 0.0f, 1.0f}};
-
-  __m128 mtL1 = _mm_xor_ps(sum,Sign_PNPN.m);
-
-  // Calculating the minterms of the second line (using previous results).
-  tt = _mm_ror_ps(_L1,1);		sum = _mm_mul_ps(tt,r1);
-  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
-  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r3));
-  __m128 mtL2 = _mm_xor_ps(sum,Sign_NPNP.m);
-
-  // Testing the determinant.
-  Det = _mm_sub_ss(Det,_mm_shuffle_ps(Det,Det,1));
-
-  // Calculating the minterms of the third line.
-  tt = _mm_ror_ps(_L1,1);
-  Va = _mm_mul_ps(tt,Vb);									// V1'\B7V2"
-  Vb = _mm_mul_ps(tt,Vc);									// V1'\B7V2^
-  Vc = _mm_mul_ps(tt,_L2);								// V1'\B7V2
-
-  r1 = _mm_sub_ps(_mm_ror_ps(Va,1),_mm_ror_ps(Vc,2));		// V1"\B7V2^ - V1^\B7V2"
-  r2 = _mm_sub_ps(_mm_ror_ps(Vb,2),_mm_ror_ps(Vb,0));		// V1^\B7V2' - V1'\B7V2^
-  r3 = _mm_sub_ps(_mm_ror_ps(Va,0),_mm_ror_ps(Vc,1));		// V1'\B7V2" - V1"\B7V2'
-
-  tt = _mm_ror_ps(_L4,1);		sum = _mm_mul_ps(tt,r1);
-  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
-  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r3));
-  __m128 mtL3 = _mm_xor_ps(sum,Sign_PNPN.m);
-
-  // Dividing is FASTER than rcp_nr! (Because rcp_nr causes many register-memory RWs).
-  RDet = _mm_div_ss(ZERONE.m, Det); // TODO: just 1.0f?
-  RDet = _mm_shuffle_ps(RDet,RDet,0x00);
-
-  // Devide the first 12 minterms with the determinant.
-  mtL1 = _mm_mul_ps(mtL1, RDet);
-  mtL2 = _mm_mul_ps(mtL2, RDet);
-  mtL3 = _mm_mul_ps(mtL3, RDet);
-
-  // Calculate the minterms of the forth line and devide by the determinant.
-  tt = _mm_ror_ps(_L3,1);		sum = _mm_mul_ps(tt,r1);
-  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r2));
-  tt = _mm_ror_ps(tt,1);		sum = _mm_add_ps(sum,_mm_mul_ps(tt,r3));
-  __m128 mtL4 = _mm_xor_ps(sum,Sign_NPNP.m);
-  mtL4 = _mm_mul_ps(mtL4, RDet);
-
-  // Now we just have to transpose the minterms matrix.
-  trns0 = _mm_unpacklo_ps(mtL1,mtL2);
-  trns1 = _mm_unpacklo_ps(mtL3,mtL4);
-  trns2 = _mm_unpackhi_ps(mtL1,mtL2);
-  trns3 = _mm_unpackhi_ps(mtL3,mtL4);
-  _L1 = _mm_movelh_ps(trns0,trns1);
-  _L2 = _mm_movehl_ps(trns1,trns0);
-  _L3 = _mm_movelh_ps(trns2,trns3);
-  _L4 = _mm_movehl_ps(trns3,trns2);
-
-  return sse_meta_f16(_L1, _L2, _L3, _L4);
+  __m128 r0, r1, r2, r3;
+  inverse(mat.getColumn(0).v, mat.getColumn(1).v, mat.getColumn(2).v, mat.getColumn(3).v, &r0, &r1, &r2, &r3);
+  return sse_meta_f16(r0, r1, r2, r3);
 }
 
                                 

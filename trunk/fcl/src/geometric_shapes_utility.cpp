@@ -222,9 +222,9 @@ void computeBV<AABB, Box>(const Box& s, const SimpleTransform& tf, AABB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = 0.5 * (fabs(R[0][0] * s.side[0]) + fabs(R[0][1] * s.side[1]) + fabs(R[0][2] * s.side[2]));
-  FCL_REAL y_range = 0.5 * (fabs(R[1][0] * s.side[0]) + fabs(R[1][1] * s.side[1]) + fabs(R[1][2] * s.side[2]));
-  FCL_REAL z_range = 0.5 * (fabs(R[2][0] * s.side[0]) + fabs(R[2][1] * s.side[1]) + fabs(R[2][2] * s.side[2]));
+  FCL_REAL x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
+  FCL_REAL y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
+  FCL_REAL z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
 
   bv.max_ = T + Vec3f(x_range, y_range, z_range);
   bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);
@@ -245,9 +245,9 @@ void computeBV<AABB, Capsule>(const Capsule& s, const SimpleTransform& tf, AABB&
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = 0.5 * fabs(R[0][2] * s.lz) + s.radius;
-  FCL_REAL y_range = 0.5 * fabs(R[1][2] * s.lz) + s.radius;
-  FCL_REAL z_range = 0.5 * fabs(R[2][2] * s.lz) + s.radius;
+  FCL_REAL x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
+  FCL_REAL y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
+  FCL_REAL z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
 
   bv.max_ = T + Vec3f(x_range, y_range, z_range);
   bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);
@@ -259,9 +259,9 @@ void computeBV<AABB, Cone>(const Cone& s, const SimpleTransform& tf, AABB& bv)
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = fabs(R[0][0] * s.radius) + fabs(R[0][1] * s.radius) + 0.5 * fabs(R[0][2] * s.lz);
-  FCL_REAL y_range = fabs(R[1][0] * s.radius) + fabs(R[1][1] * s.radius) + 0.5 * fabs(R[1][2] * s.lz);
-  FCL_REAL z_range = fabs(R[2][0] * s.radius) + fabs(R[2][1] * s.radius) + 0.5 * fabs(R[2][2] * s.lz);
+  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
+  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
+  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
   bv.max_ = T + Vec3f(x_range, y_range, z_range);
   bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);
@@ -273,9 +273,9 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AAB
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
 
-  FCL_REAL x_range = fabs(R[0][0] * s.radius) + fabs(R[0][1] * s.radius) + 0.5 * fabs(R[0][2] * s.lz);
-  FCL_REAL y_range = fabs(R[1][0] * s.radius) + fabs(R[1][1] * s.radius) + 0.5 * fabs(R[1][2] * s.lz);
-  FCL_REAL z_range = fabs(R[2][0] * s.radius) + fabs(R[2][1] * s.radius) + 0.5 * fabs(R[2][2] * s.lz);
+  FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
+  FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
+  FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
   bv.max_ = T + Vec3f(x_range, y_range, z_range);
   bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);

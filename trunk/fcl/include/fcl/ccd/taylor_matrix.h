@@ -47,31 +47,45 @@ namespace fcl
 
 struct TMatrix3
 {
-  TaylorModel i_[3][3];
+  TVector3 v_[3];
 
   TMatrix3();
+  TMatrix3(const boost::shared_ptr<TimeInterval>& time_interval);
   TMatrix3(TaylorModel m[3][3]);
-  TMatrix3(const Matrix3f& m);
+  TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3);
+  TMatrix3(const Matrix3f& m, const boost::shared_ptr<TimeInterval>& time_interval);
 
   TVector3 getColumn(size_t i) const;
-  TVector3 getRow(size_t i) const;
+  const TVector3& getRow(size_t i) const;
 
-  const TaylorModel& operator () (size_t i, size_t j) const;
-  TaylorModel& operator () (size_t i, size_t j);
+  const TVector3& operator [] (size_t i) const;
+  TVector3& operator [] (size_t i);
 
   TVector3 operator * (const Vec3f& v) const;
   TVector3 operator * (const TVector3& v) const;
   TMatrix3 operator * (const Matrix3f& m) const;
   TMatrix3 operator * (const TMatrix3& m) const;
   TMatrix3 operator * (const TaylorModel& d) const;
+  TMatrix3 operator * (FCL_REAL d) const;
+
+  TMatrix3& operator *= (const Matrix3f& m);
+  TMatrix3& operator *= (const TMatrix3& m);
+  TMatrix3& operator *= (const TaylorModel& d);
+  TMatrix3& operator *= (FCL_REAL d);
+
   TMatrix3 operator + (const TMatrix3& m) const;
   TMatrix3& operator += (const TMatrix3& m);
+
+  TMatrix3 operator - (const TMatrix3& m) const;
+  TMatrix3& operator -= (const TMatrix3& m);
 
   IMatrix3 getBound() const;
   void print() const;
   void setIdentity();
   void setZero();
   FCL_REAL diameter() const;
+
+  void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
 };
 
 }

@@ -41,66 +41,30 @@ namespace fcl
 {
 
 
-IVector3::IVector3() {}
+IVector3::IVector3() {} 
 
-IVector3::IVector3(FCL_REAL v) { i_[0] = i_[1] = i_[2] = v; }
+IVector3::IVector3(FCL_REAL v) { setValue(v); }
 
-IVector3::IVector3(FCL_REAL x, FCL_REAL y, FCL_REAL z)
-{
-  i_[0].setValue(x);
-  i_[1].setValue(y);
-  i_[2].setValue(z);
-}
+IVector3::IVector3(FCL_REAL x, FCL_REAL y, FCL_REAL z) { setValue(x, y, z); }
 
 IVector3::IVector3(FCL_REAL xl, FCL_REAL xu, FCL_REAL yl, FCL_REAL yu, FCL_REAL zl, FCL_REAL zu)
 {
-  i_[0].setValue(xl, xu);
-  i_[1].setValue(yl, yu);
-  i_[2].setValue(zl, zu);
+  setValue(xl, xu, yl, yu, zl, zu);
 }
 
-IVector3::IVector3(FCL_REAL v[3][2])
-{
-  i_[0].setValue(v[0][0], v[0][1]);
-  i_[1].setValue(v[1][0], v[1][1]);
-  i_[2].setValue(v[2][0], v[2][1]);
-}
+IVector3::IVector3(FCL_REAL v[3][2]) { setValue(v); }
 
-IVector3::IVector3(Interval v[3])
-{
-  i_[0] = v[0];
-  i_[1] = v[1];
-  i_[2] = v[2];
-}
+IVector3::IVector3(Interval v[3]) { setValue(v); }
 
-IVector3::IVector3(const Interval& v1, const Interval& v2, const Interval& v3)
-{
-  i_[0] = v1;
-  i_[1] = v2;
-  i_[2] = v3;
-}
+IVector3::IVector3(const Interval& v1, const Interval& v2, const Interval& v3) { setValue(v1, v2, v3); }
 
-IVector3::IVector3(const Vec3f& v)
-{
-  i_[0].setValue(v[0]);
-  i_[1].setValue(v[1]);
-  i_[2].setValue(v[2]);
-}
+IVector3::IVector3(const Vec3f& v) { setValue(v); }
 
-void IVector3::setZero()
-{
-  i_[0].setValue(0);
-  i_[1].setValue(0);
-  i_[2].setValue(0);
-}
+void IVector3::setZero() { setValue((FCL_REAL)0.0); }
 
 IVector3 IVector3::operator + (const IVector3& other) const
 {
-  Interval res[3];
-  res[0] = i_[0] + other[0];
-  res[1] = i_[1] + other[1];
-  res[2] = i_[2] + other[2];
-  return IVector3(res);
+  return IVector3(i_[0] + other.i_[0], i_[1] + other.i_[1], i_[2] + other.i_[2]);
 }
 
 IVector3& IVector3::operator += (const IVector3& other)
@@ -113,11 +77,7 @@ IVector3& IVector3::operator += (const IVector3& other)
 
 IVector3 IVector3::operator - (const IVector3& other) const
 {
-  Interval res[3];
-  res[0] = i_[0] - other[0];
-  res[1] = i_[1] - other[1];
-  res[2] = i_[2] - other[2];
-  return IVector3(res);
+  return IVector3(i_[0] - other.i_[0], i_[1] - other.i_[1], i_[2] - other.i_[2]);
 }
 
 IVector3& IVector3::operator -= (const IVector3& other)
@@ -130,16 +90,26 @@ IVector3& IVector3::operator -= (const IVector3& other)
 
 Interval IVector3::dot(const IVector3& other) const
 {
-  return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
+  return i_[0] * other.i_[0] + i_[1] * other.i_[1] + i_[2] * other.i_[2];
 }
 
 IVector3 IVector3::cross(const IVector3& other) const
 {
-  Interval res[3];
-  res[0] = i_[1] * other[2] - i_[2] * other[1];
-  res[1] = i_[2] * other[0] - i_[0] * other[2];
-  res[2] = i_[0] * other[1] - i_[1] * other[0];
-  return IVector3(res);
+  return IVector3(i_[1] * other.i_[2] - i_[2] * other.i_[1], 
+                  i_[2] * other.i_[0] - i_[0] * other.i_[2],
+                  i_[0] * other.i_[1] - i_[1] * other.i_[0]);
+}
+
+Interval IVector3::dot(const Vec3f& other) const
+{
+  return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
+}
+
+IVector3 IVector3::cross(const Vec3f& other) const
+{
+  return IVector3(i_[1] * other[2] - i_[2] * other[1], 
+                  i_[2] * other[0] - i_[0] * other[2],
+                  i_[0] * other[1] - i_[1] * other[0]);
 }
 
 FCL_REAL IVector3::volumn() const
@@ -182,9 +152,9 @@ void IVector3::bound(const Vec3f& v)
 }
 
 
-IVector3 IVector3::bounded(const IVector3& v) const
+IVector3 bound(const IVector3& i, const IVector3& v)
 {
-  IVector3 res = *this;
+  IVector3 res(i);
   if(v[0][0] < res.i_[0][0]) res.i_[0][0] = v[0][0];
   if(v[1][0] < res.i_[1][0]) res.i_[1][0] = v[1][0];
   if(v[2][0] < res.i_[2][0]) res.i_[2][0] = v[2][0];
@@ -196,9 +166,9 @@ IVector3 IVector3::bounded(const IVector3& v) const
   return res;
 }
 
-IVector3 IVector3::bounded(const Vec3f& v) const
+IVector3 bound(const IVector3& i, const Vec3f& v)
 {
-  IVector3 res = *this;
+  IVector3 res(i);
   if(v[0] < res.i_[0][0]) res.i_[0][0] = v[0];
   if(v[1] < res.i_[1][0]) res.i_[1][0] = v[1];
   if(v[2] < res.i_[2][0]) res.i_[2][0] = v[2];
@@ -235,5 +205,7 @@ bool IVector3::contain(const IVector3& v) const
 
   return true;
 }
+
+
 
 }

@@ -141,11 +141,11 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
     const OBB& bv1 = node->model2->getBV(c1).bv;
     Matrix3f Rc;
     temp = R * bv1.axis[0];
-    Rc[0][0] = temp[0]; Rc[1][0] = temp[1]; Rc[2][0] = temp[2];
+    Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
     temp = R * bv1.axis[1];
-    Rc[0][1] = temp[0]; Rc[1][1] = temp[1]; Rc[2][1] = temp[2];
+    Rc(0, 1) = temp[0]; Rc(1, 1) = temp[1]; Rc(2, 1) = temp[2];
     temp = R * bv1.axis[2];
-    Rc[0][2] = temp[0]; Rc[1][2] = temp[1]; Rc[2][2] = temp[2];
+    Rc(0, 2) = temp[0]; Rc(1, 2) = temp[1]; Rc(2, 2) = temp[2];
     Vec3f Tc = R * bv1.To + T;
 
     collisionRecurse(node, b1, c1, Rc, Tc, front_list);
@@ -155,11 +155,11 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
 
     const OBB& bv2 = node->model2->getBV(c2).bv;
     temp = R * bv2.axis[0];
-    Rc[0][0] = temp[0]; Rc[1][0] = temp[1]; Rc[2][0] = temp[2];
+    Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
     temp = R * bv2.axis[1];
-    Rc[0][1] = temp[0]; Rc[1][1] = temp[1]; Rc[2][1] = temp[2];
+    Rc(0, 1) = temp[0]; Rc(1, 1) = temp[1]; Rc(2, 1) = temp[2];
     temp = R * bv2.axis[2];
-    Rc[0][2] = temp[0]; Rc[1][2] = temp[1]; Rc[2][2] = temp[2];
+    Rc(0, 2) = temp[0]; Rc(1, 2) = temp[1]; Rc(2, 2) = temp[2];
     Tc = R * bv2.To + T;
 
     collisionRecurse(node, b1, c2, Rc, Tc, front_list);

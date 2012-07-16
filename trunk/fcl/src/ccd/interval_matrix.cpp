@@ -40,732 +40,189 @@
 namespace fcl
 {
 
-IMatrix3::IMatrix3()
-{
-  i_[0][0] = i_[0][1] = i_[0][2] = i_[1][0] = i_[1][1] = i_[1][2] = i_[2][0] = i_[2][1] = i_[2][2] = 0;
-}
+IMatrix3::IMatrix3() {}
 
 IMatrix3::IMatrix3(FCL_REAL v)
 {
-  i_[0][0] = i_[0][1] = i_[0][2] = i_[1][0] = i_[1][1] = i_[1][2] = i_[2][0] = i_[2][1] = i_[2][2] = v;
+  v_[0].setValue(v);
+  v_[1].setValue(v);
+  v_[2].setValue(v);
 }
 
 IMatrix3::IMatrix3(const Matrix3f& m)
 {
-  i_[0][0] = m[0][0];
-  i_[0][1] = m[0][1];
-  i_[0][2] = m[0][2];
-
-  i_[1][0] = m[1][0];
-  i_[1][1] = m[1][1];
-  i_[1][2] = m[1][2];
-
-  i_[2][0] = m[2][0];
-  i_[2][1] = m[2][1];
-  i_[2][2] = m[2][2];
+  v_[0] = m.getRow(0);
+  v_[1] = m.getRow(1);
+  v_[2] = m.getRow(2);
 }
 
 IMatrix3::IMatrix3(FCL_REAL m[3][3][2])
 {
-  i_[0][0].setValue(m[0][0][0], m[0][0][1]);
-  i_[0][1].setValue(m[0][1][0], m[0][1][1]);
-  i_[0][2].setValue(m[0][2][0], m[0][2][1]);
-
-  i_[1][0].setValue(m[1][0][0], m[1][0][1]);
-  i_[1][1].setValue(m[1][1][0], m[1][1][1]);
-  i_[1][2].setValue(m[1][2][0], m[1][2][1]);
-
-  i_[2][0].setValue(m[2][0][0], m[2][0][1]);
-  i_[2][1].setValue(m[2][1][0], m[2][1][1]);
-  i_[2][2].setValue(m[2][2][0], m[2][2][1]);
+  v_[0].setValue(m[0]);
+  v_[1].setValue(m[1]);
+  v_[2].setValue(m[2]);
 }
 
 IMatrix3::IMatrix3(FCL_REAL m[3][3])
 {
-  i_[0][0].setValue(m[0][0]);
-  i_[0][1].setValue(m[0][1]);
-  i_[0][2].setValue(m[0][2]);
-
-  i_[1][0].setValue(m[1][0]);
-  i_[1][1].setValue(m[1][1]);
-  i_[1][2].setValue(m[1][2]);
-
-  i_[2][0].setValue(m[2][0]);
-  i_[2][1].setValue(m[2][1]);
-  i_[2][2].setValue(m[2][2]);
+  v_[0].setValue(m[0]);
+  v_[1].setValue(m[1]);
+  v_[2].setValue(m[2]);
 }
 
 IMatrix3::IMatrix3(Interval m[3][3])
 {
-  i_[0][0] = m[0][0];
-  i_[0][1] = m[0][1];
-  i_[0][2] = m[0][2];
+  v_[0].setValue(m[0]);
+  v_[1].setValue(m[1]);
+  v_[2].setValue(m[2]);
+}
 
-  i_[1][0] = m[1][0];
-  i_[1][1] = m[1][1];
-  i_[1][2] = m[1][2];
-
-  i_[2][0] = m[2][0];
-  i_[2][1] = m[2][1];
-  i_[2][2] = m[2][2];
+IMatrix3::IMatrix3(const IVector3& v1, const IVector3& v2, const IVector3& v3)
+{
+  v_[0] = v1;
+  v_[1] = v2;
+  v_[2] = v3;
 }
 
 void IMatrix3::setIdentity()
 {
-  i_[0][0] = 1;
-  i_[0][1] = 0;
-  i_[0][2] = 0;
-
-  i_[1][0] = 0;
-  i_[1][1] = 1;
-  i_[1][2] = 0;
-
-  i_[2][0] = 0;
-  i_[2][1] = 0;
-  i_[2][2] = 1;
+  v_[0].setValue(1, 0, 0);
+  v_[1].setValue(0, 1, 0);
+  v_[2].setValue(0, 0, 1);
 }
 
 IVector3 IMatrix3::getColumn(size_t i) const
 {
-  return IVector3(i_[0][i], i_[1][i], i_[2][i]);
+  return IVector3(v_[0][i], v_[1][i], v_[2][i]);
 }
 
-IVector3 IMatrix3::getRow(size_t i) const
+const IVector3& IMatrix3::getRow(size_t i) const
 {
-  return IVector3(i_[i][0], i_[i][1], i_[i][2]);
+  return v_[i];
 }
 
-Vec3f IMatrix3::getRealColumn(size_t i) const
+Vec3f IMatrix3::getColumnLow(size_t i) const
 {
-  return Vec3f(i_[0][i][0], i_[1][i][0], i_[2][i][0]);
+  return Vec3f(v_[0][i][0], v_[1][i][0], v_[2][i][0]);
 }
 
-Vec3f IMatrix3::getRealRow(size_t i) const
+Vec3f IMatrix3::getRowLow(size_t i) const
 {
-  return Vec3f(i_[i][0][0], i_[i][1][0], i_[i][2][0]);
+  return Vec3f(v_[i][0][0], v_[i][1][0], v_[i][2][0]);
+}
+
+Vec3f IMatrix3::getColumnHigh(size_t i) const
+{
+  return Vec3f(v_[0][i][1], v_[1][i][1], v_[2][i][1]);
+}
+
+Vec3f IMatrix3::getRowHigh(size_t i) const
+{
+  return Vec3f(v_[i][0][1], v_[i][1][1], v_[i][2][1]);
+}
+
+Matrix3f IMatrix3::getLow() const
+{
+  return Matrix3f(v_[0][0][0], v_[0][1][0], v_[0][2][0],
+                  v_[1][0][0], v_[1][1][0], v_[1][2][0],
+                  v_[2][0][0], v_[2][1][0], v_[2][2][0]);
+}
+
+Matrix3f IMatrix3::getHigh() const
+{
+  return Matrix3f(v_[0][0][1], v_[0][1][1], v_[0][2][1],
+                  v_[1][0][1], v_[1][1][1], v_[1][2][1],
+                  v_[2][0][1], v_[2][1][1], v_[2][2][1]);
 }
 
 IMatrix3 IMatrix3::operator * (const Matrix3f& m) const
 {
-  FCL_REAL res[3][3][2];
+  const Vec3f& mc0 = m.getColumn(0);
+  const Vec3f& mc1 = m.getColumn(1);
+  const Vec3f& mc2 = m.getColumn(2);
 
-  if(m[0][0] < 0)
-  {
-    res[0][0][0] = m[0][0] * i_[0][0][1];
-    res[0][0][1] = m[0][0] * i_[0][0][0];
-    res[1][0][0] = m[0][0] * i_[1][0][1];
-    res[1][0][1] = m[0][0] * i_[1][0][0];
-    res[2][0][0] = m[0][0] * i_[2][0][1];
-    res[2][0][1] = m[0][0] * i_[2][0][0];
-  }
-  else
-  {
-    res[0][0][0] = m[0][0] * i_[0][0][0];
-    res[0][0][1] = m[0][0] * i_[0][0][1];
-    res[1][0][0] = m[0][0] * i_[1][0][0];
-    res[1][0][1] = m[0][0] * i_[1][0][1];
-    res[2][0][0] = m[0][0] * i_[2][0][0];
-    res[2][0][1] = m[0][0] * i_[2][0][1];
-  }
-
-  if(m[0][1] < 0)
-  {
-    res[0][1][0] = m[0][1] * i_[0][0][1];
-    res[0][1][1] = m[0][1] * i_[0][0][0];
-    res[1][1][0] = m[0][1] * i_[1][0][1];
-    res[1][1][1] = m[0][1] * i_[1][0][0];
-    res[2][1][0] = m[0][1] * i_[2][0][1];
-    res[2][1][1] = m[0][1] * i_[2][0][0];
-  }
-  else
-  {
-    res[0][1][0] = m[0][1] * i_[0][0][0];
-    res[0][1][1] = m[0][1] * i_[0][0][1];
-    res[1][1][0] = m[0][1] * i_[1][0][0];
-    res[1][1][1] = m[0][1] * i_[1][0][1];
-    res[2][1][0] = m[0][1] * i_[2][0][0];
-    res[2][1][1] = m[0][1] * i_[2][0][1];
-  }
-
-  if(m[0][2] < 0)
-  {
-    res[0][2][0] = m[0][2] * i_[0][0][1];
-    res[0][2][1] = m[0][2] * i_[0][0][0];
-    res[1][2][0] = m[0][2] * i_[1][0][1];
-    res[1][2][1] = m[0][2] * i_[1][0][0];
-    res[2][2][0] = m[0][2] * i_[2][0][1];
-    res[2][2][1] = m[0][2] * i_[2][0][0];
-  }
-  else
-  {
-    res[0][2][0] = m[0][2] * i_[0][0][0];
-    res[0][2][1] = m[0][2] * i_[0][0][1];
-    res[1][2][0] = m[0][2] * i_[1][0][0];
-    res[1][2][1] = m[0][2] * i_[1][0][1];
-    res[2][2][0] = m[0][2] * i_[2][0][0];
-    res[2][2][1] = m[0][2] * i_[2][0][1];
-  }
-
-  if(m[1][0] < 0)
-  {
-    res[0][0][0] += m[1][0] * i_[0][1][1];
-    res[0][0][1] += m[1][0] * i_[0][1][0];
-    res[1][0][0] += m[1][0] * i_[1][1][1];
-    res[1][0][1] += m[1][0] * i_[1][1][0];
-    res[2][0][0] += m[1][0] * i_[2][1][1];
-    res[2][0][1] += m[1][0] * i_[2][1][0];
-  }
-  else
-  {
-    res[0][0][0] += m[1][0] * i_[0][1][0];
-    res[0][0][1] += m[1][0] * i_[0][1][1];
-    res[1][0][0] += m[1][0] * i_[1][1][0];
-    res[1][0][1] += m[1][0] * i_[1][1][1];
-    res[2][0][0] += m[1][0] * i_[2][1][0];
-    res[2][0][1] += m[1][0] * i_[2][1][1];
-  }
-
-  if(m[1][1] < 0)
-  {
-    res[0][1][0] += m[1][1] * i_[0][1][1];
-    res[0][1][1] += m[1][1] * i_[0][1][0];
-    res[1][1][0] += m[1][1] * i_[1][1][1];
-    res[1][1][1] += m[1][1] * i_[1][1][0];
-    res[2][1][0] += m[1][1] * i_[2][1][1];
-    res[2][1][1] += m[1][1] * i_[2][1][0];
-  }
-  else
-  {
-    res[0][1][0] += m[1][1] * i_[0][1][0];
-    res[0][1][1] += m[1][1] * i_[0][1][1];
-    res[1][1][0] += m[1][1] * i_[1][1][0];
-    res[1][1][1] += m[1][1] * i_[1][1][1];
-    res[2][1][0] += m[1][1] * i_[2][1][0];
-    res[2][1][1] += m[1][1] * i_[2][1][1];
-  }
-
-  if(m[1][2] < 0)
-  {
-    res[0][2][0] += m[1][2] * i_[0][1][1];
-    res[0][2][1] += m[1][2] * i_[0][1][0];
-    res[1][2][0] += m[1][2] * i_[1][1][1];
-    res[1][2][1] += m[1][2] * i_[1][1][0];
-    res[2][2][0] += m[1][2] * i_[2][1][1];
-    res[2][2][1] += m[1][2] * i_[2][1][0];
-  }
-  else
-  {
-    res[0][2][0] += m[1][2] * i_[0][1][0];
-    res[0][2][1] += m[1][2] * i_[0][1][1];
-    res[1][2][0] += m[1][2] * i_[1][1][0];
-    res[1][2][1] += m[1][2] * i_[1][1][1];
-    res[2][2][0] += m[1][2] * i_[2][1][0];
-    res[2][2][1] += m[1][2] * i_[2][1][1];
-  }
-
-  if(m[2][0] < 0)
-  {
-    res[0][0][0] += m[2][0] * i_[0][2][1];
-    res[0][0][1] += m[2][0] * i_[0][2][0];
-    res[1][0][0] += m[2][0] * i_[1][2][1];
-    res[1][0][1] += m[2][0] * i_[1][2][0];
-    res[2][0][0] += m[2][0] * i_[2][2][1];
-    res[2][0][1] += m[2][0] * i_[2][2][0];
-  }
-  else
-  {
-    res[0][0][0] += m[2][0] * i_[0][2][0];
-    res[0][0][1] += m[2][0] * i_[0][2][1];
-    res[1][0][0] += m[2][0] * i_[1][2][0];
-    res[1][0][1] += m[2][0] * i_[1][2][1];
-    res[2][0][0] += m[2][0] * i_[2][2][0];
-    res[2][0][1] += m[2][0] * i_[2][2][1];
-  }
-
-  if(m[2][1] < 0)
-  {
-    res[0][1][0] += m[2][1] * i_[0][2][1];
-    res[0][1][1] += m[2][1] * i_[0][2][0];
-    res[1][1][0] += m[2][1] * i_[1][2][1];
-    res[1][1][1] += m[2][1] * i_[1][2][0];
-    res[2][1][0] += m[2][1] * i_[2][2][1];
-    res[2][1][1] += m[2][1] * i_[2][2][0];
-  }
-  else
-  {
-    res[0][1][0] += m[2][1] * i_[0][2][0];
-    res[0][1][1] += m[2][1] * i_[0][2][1];
-    res[1][1][0] += m[2][1] * i_[1][2][0];
-    res[1][1][1] += m[2][1] * i_[1][2][1];
-    res[2][1][0] += m[2][1] * i_[2][2][0];
-    res[2][1][1] += m[2][1] * i_[2][2][1];
-  }
-
-  if(m[2][2] < 0)
-  {
-    res[0][2][0] += m[2][2] * i_[0][2][1];
-    res[0][2][1] += m[2][2] * i_[0][2][0];
-    res[1][2][0] += m[2][2] * i_[1][2][1];
-    res[1][2][1] += m[2][2] * i_[1][2][0];
-    res[2][2][0] += m[2][2] * i_[2][2][1];
-    res[2][2][1] += m[2][2] * i_[2][2][0];
-  }
-  else
-  {
-    res[0][2][0] += m[2][2] * i_[0][2][0];
-    res[0][2][1] += m[2][2] * i_[0][2][1];
-    res[1][2][0] += m[2][2] * i_[1][2][0];
-    res[1][2][1] += m[2][2] * i_[1][2][1];
-    res[2][2][0] += m[2][2] * i_[2][2][0];
-    res[2][2][1] += m[2][2] * i_[2][2][1];
-  }
-
-  return IMatrix3(res);
+  return IMatrix3(IVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
+                  IVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
+                  IVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
 }
 
 IVector3 IMatrix3::operator * (const Vec3f& v) const
 {
-  FCL_REAL res[3][2];
-
-  if(v[0] < 0)
-  {
-    res[0][0] = v[0] * i_[0][0][1];
-    res[0][1] = v[0] * i_[0][0][0];
-    res[1][0] = v[0] * i_[1][0][1];
-    res[1][1] = v[0] * i_[1][0][0];
-    res[2][0] = v[0] * i_[2][0][1];
-    res[2][1] = v[0] * i_[2][0][0];
-  }
-  else
-  {
-    res[0][0] = v[0] * i_[0][0][0];
-    res[0][1] = v[0] * i_[0][0][1];
-    res[1][0] = v[0] * i_[1][0][0];
-    res[1][1] = v[0] * i_[1][0][1];
-    res[2][0] = v[0] * i_[2][0][0];
-    res[2][1] = v[0] * i_[2][0][1];
-  }
-
-  if(v[1] < 0)
-  {
-    res[0][0] += v[1] * i_[0][1][1];
-    res[0][1] += v[1] * i_[0][1][0];
-    res[1][0] += v[1] * i_[1][1][1];
-    res[1][1] += v[1] * i_[1][1][0];
-    res[2][0] += v[1] * i_[2][1][1];
-    res[2][1] += v[1] * i_[2][1][0];
-  }
-  else
-  {
-    res[0][0] += v[1] * i_[0][1][0];
-    res[0][1] += v[1] * i_[0][1][1];
-    res[1][0] += v[1] * i_[1][1][0];
-    res[1][1] += v[1] * i_[1][1][1];
-    res[2][0] += v[1] * i_[2][1][0];
-    res[2][1] += v[1] * i_[2][1][1];
-  }
-
-  if(v[2] < 0)
-  {
-    res[0][0] += v[2] * i_[0][2][1];
-    res[0][1] += v[2] * i_[0][2][0];
-    res[1][0] += v[2] * i_[1][2][1];
-    res[1][1] += v[2] * i_[1][2][0];
-    res[2][0] += v[2] * i_[2][2][1];
-    res[2][1] += v[2] * i_[2][2][0];
-  }
-  else
-  {
-    res[0][0] += v[2] * i_[0][2][0];
-    res[0][1] += v[2] * i_[0][2][1];
-    res[1][0] += v[2] * i_[1][2][0];
-    res[1][1] += v[2] * i_[1][2][1];
-    res[2][0] += v[2] * i_[2][2][0];
-    res[2][1] += v[2] * i_[2][2][1];
-  }
-
-  return IVector3(res);
-}
-
-
-IMatrix3 IMatrix3::nonIntervalAddMatrix(const IMatrix3& m) const
-{
-  FCL_REAL res[3][3];
-
-  res[0][0] = i_[0][0][0] + m.i_[0][0][0];
-  res[0][1] = i_[0][1][0] + m.i_[0][1][0];
-  res[0][2] = i_[0][2][0] + m.i_[0][2][0];
-
-  res[1][0] = i_[1][0][0] + m.i_[1][0][0];
-  res[1][1] = i_[1][1][0] + m.i_[1][1][0];
-  res[1][2] = i_[1][2][0] + m.i_[1][2][0];
-
-  res[2][0] = i_[2][0][0] + m.i_[2][0][0];
-  res[2][1] = i_[2][1][0] + m.i_[2][1][0];
-  res[2][2] = i_[2][2][0] + m.i_[2][2][0];
-
-  return IMatrix3(res);
+  return IVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 IVector3 IMatrix3::operator * (const IVector3& v) const
 {
-  FCL_REAL xl, xu, yl, yu, zl, zu;
-  register FCL_REAL temp, vmin, vmax;
-
-  // r.v.i_[0]
-  vmin = vmax = i_[0][0][0] * v.i_[0][0];
-  temp = i_[0][0][1] * v.i_[0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  xl = vmin; xu = vmax;
-
-  vmin = vmax = i_[0][1][0] * v.i_[1][0];
-  temp = i_[0][1][0] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * v.i_[1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  xl += vmin; xu += vmax;
-
-  vmin = vmax = i_[0][2][0] * v.i_[2][0];
-  temp = i_[0][2][0] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * v.i_[2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  xl += vmin; xu += vmax;
-
-  // r.v.i_[1]
-
-  vmin = vmax = i_[1][0][0] * v.i_[0][0];
-  temp = i_[1][0][0] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * v.i_[0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  yl = vmin; yu = vmax;
-
-  vmin = vmax = i_[1][1][0] * v.i_[1][0];
-  temp = i_[1][1][0] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * v.i_[1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  yl += vmin; yu += vmax;
-
-  vmin = vmax = i_[1][2][0] * v.i_[2][0];
-  temp = i_[1][2][0] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * v.i_[2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  yl += vmin; yu += vmax;
-
-  // r.v.i_[2]
-
-  vmin = vmax = i_[2][0][0] * v.i_[0][0];
-  temp = i_[2][0][0] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * v.i_[0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  zl = vmin; zu = vmax;
-
-  vmin = vmax = i_[2][1][0] * v.i_[1][0];
-  temp = i_[2][1][0] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * v.i_[1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  zl += vmin; zu += vmax;
-
-  vmin = vmax = i_[2][2][0] * v.i_[2][0];
-  temp = i_[2][2][0] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * v.i_[2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  zl += vmin; zu += vmax;      vmin = vmax = i_[0][0][0] * v.i_[0][0];
-  temp = i_[0][0][0] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * v.i_[0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  xl = vmin; xu = vmax;
-
-  vmin = vmax = i_[0][1][0] * v.i_[1][0];
-  temp = i_[0][1][0] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * v.i_[1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  xl += vmin; xu += vmax;
-
-  vmin = vmax = i_[0][2][0] * v.i_[2][0];
-  temp = i_[0][2][0] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * v.i_[2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  xl += vmin; xu += vmax;
-
-  // r.v.i_[1]
-
-  vmin = vmax = i_[1][0][0] * v.i_[0][0];
-  temp = i_[1][0][0] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * v.i_[0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  yl = vmin; yu = vmax;
-
-  vmin = vmax = i_[1][1][0] * v.i_[1][0];
-  temp = i_[1][1][0] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * v.i_[1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  yl += vmin; yu += vmax;
-
-  vmin = vmax = i_[1][2][0] * v.i_[2][0];
-  temp = i_[1][2][0] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * v.i_[2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  yl += vmin; yu += vmax;
-
-  // r.v.i_[2]
-
-  vmin = vmax = i_[2][0][0] * v.i_[0][0];
-  temp = i_[2][0][0] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * v.i_[0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * v.i_[0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  zl = vmin; zu = vmax;
-
-  vmin = vmax = i_[2][1][0] * v.i_[1][0];
-  temp = i_[2][1][0] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * v.i_[1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * v.i_[1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  zl += vmin; zu += vmax;
-
-  vmin = vmax = i_[2][2][0] * v.i_[2][0];
-  temp = i_[2][2][0] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * v.i_[2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * v.i_[2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  zl += vmin; zu += vmax;
-
-  return IVector3(xl, xu, yl, yu, zl, zu);
+  return IVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 IMatrix3 IMatrix3::operator * (const IMatrix3& m) const
 {
+  const IVector3& mc0 = m.getColumn(0);
+  const IVector3& mc1 = m.getColumn(1);
+  const IVector3& mc2 = m.getColumn(2);
 
-  register FCL_REAL temp, vmin, vmax;
-  FCL_REAL res[3][3][2];
+  return IMatrix3(IVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
+                  IVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
+                  IVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
+}
 
-  // res[0][0]
+IMatrix3& IMatrix3::operator *= (const Matrix3f& m)
+{
+  const Vec3f& mc0 = m.getColumn(0);
+  const Vec3f& mc1 = m.getColumn(1);
+  const Vec3f& mc2 = m.getColumn(2);
 
-  vmin = vmax = i_[0][0][0] * m.i_[0][0][0];
-  temp = i_[0][0][0] * m.i_[0][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * m.i_[0][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * m.i_[0][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][0][0] = vmin; res[0][0][1] = vmax;
+  v_[0].setValue(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
+  v_[1].setValue(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
+  v_[2].setValue(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+  return *this;
+}
 
-  vmin = vmax = i_[0][1][0] * m.i_[1][0][0];
-  temp = i_[0][1][0] * m.i_[1][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * m.i_[1][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * m.i_[1][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][0][0] += vmin; res[0][0][1] += vmax;
 
-  vmin = vmax = i_[0][2][0] * m.i_[2][0][0];
-  temp = i_[0][2][0] * m.i_[2][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * m.i_[2][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * m.i_[2][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][0][0] += vmin; res[0][0][1] += vmax;
+IMatrix3& IMatrix3::operator *= (const IMatrix3& m)
+{
+  const IVector3& mc0 = m.getColumn(0);
+  const IVector3& mc1 = m.getColumn(1);
+  const IVector3& mc2 = m.getColumn(2);
 
-  // res[1][0]
-
-  vmin = vmax = i_[1][0][0] * m.i_[0][0][0];
-  temp = i_[1][0][0] * m.i_[0][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * m.i_[0][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * m.i_[0][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][0][0] = vmin; res[1][0][1] = vmax;
-
-  vmin = vmax = i_[1][1][0] * m.i_[1][0][0];
-  temp = i_[1][1][0] * m.i_[1][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * m.i_[1][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * m.i_[1][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][0][0] += vmin; res[1][0][1] += vmax;
-
-  vmin = vmax = i_[1][2][0] * m.i_[2][0][0];
-  temp = i_[1][2][0] * m.i_[2][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * m.i_[2][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * m.i_[2][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][0][0] += vmin; res[1][0][1] += vmax;
-
-  // res[2][0]
-
-  vmin = vmax = i_[2][0][0] * m.i_[0][0][0];
-  temp = i_[2][0][0] * m.i_[0][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * m.i_[0][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * m.i_[0][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][0][0] = vmin; res[2][0][1] = vmax;
-
-  vmin = vmax = i_[2][1][0] * m.i_[1][0][0];
-  temp = i_[2][1][0] * m.i_[1][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * m.i_[1][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * m.i_[1][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][0][0] += vmin; res[2][0][1] += vmax;
-
-  vmin = vmax = i_[2][2][0] * m.i_[2][0][0];
-  temp = i_[2][2][0] * m.i_[2][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * m.i_[2][0][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * m.i_[2][0][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][0][0] += vmin; res[2][0][1] += vmax;
-
-  // res[0][1]
-
-  vmin = vmax = i_[0][0][0] * m.i_[0][1][0];
-  temp = i_[0][0][0] * m.i_[0][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * m.i_[0][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * m.i_[0][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][1][0] = vmin; res[0][1][1] = vmax;
-
-  vmin = vmax = i_[0][1][0] * m.i_[1][1][0];
-  temp = i_[0][1][0] * m.i_[1][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * m.i_[1][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * m.i_[1][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][1][0] += vmin; res[0][1][1] += vmax;
-
-  vmin = vmax = i_[0][2][0] * m.i_[2][1][0];
-  temp = i_[0][2][0] * m.i_[2][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * m.i_[2][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * m.i_[2][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][1][0] += vmin; res[0][1][1] += vmax;
-
-  // res[1][1]
-
-  vmin = vmax = i_[1][0][0] * m.i_[0][1][0];
-  temp = i_[1][0][0] * m.i_[0][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * m.i_[0][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * m.i_[0][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][1][0] = vmin; res[1][1][1] = vmax;
-
-  vmin = vmax = i_[1][1][0] * m.i_[1][1][0];
-  temp = i_[1][1][0] * m.i_[1][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * m.i_[1][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * m.i_[1][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][1][0] += vmin; res[1][1][1] += vmax;
-
-  vmin = vmax = i_[1][2][0] * m.i_[2][1][0];
-  temp = i_[1][2][0] * m.i_[2][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * m.i_[2][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * m.i_[2][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][1][0] += vmin; res[1][1][1] += vmax;
-
-  // res[2][1]
-
-  vmin = vmax = i_[2][0][0] * m.i_[0][1][0];
-  temp = i_[2][0][0] * m.i_[0][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * m.i_[0][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * m.i_[0][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][1][0] = vmin; res[2][1][1] = vmax;
-
-  vmin = vmax = i_[2][1][0] * m.i_[1][1][0];
-  temp = i_[2][1][0] * m.i_[1][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * m.i_[1][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * m.i_[1][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][1][0] += vmin; res[2][1][1] += vmax;
-
-  vmin = vmax = i_[2][2][0] * m.i_[2][1][0];
-  temp = i_[2][2][0] * m.i_[2][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * m.i_[2][1][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * m.i_[2][1][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][1][0] += vmin; res[2][1][1] += vmax;
-
-  // res[0][2]
-
-  vmin = vmax = i_[0][0][0] * m.i_[0][2][0];
-  temp = i_[0][0][0] * m.i_[0][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * m.i_[0][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][0][1] * m.i_[0][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][2][0] = vmin; res[0][2][1] = vmax;
-
-  vmin = vmax = i_[0][1][0] * m.i_[1][2][0];
-  temp = i_[0][1][0] * m.i_[1][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * m.i_[1][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][1][1] * m.i_[1][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][2][0] += vmin; res[0][2][1] += vmax;
-
-  vmin = vmax = i_[0][2][0] * m.i_[2][2][0];
-  temp = i_[0][2][0] * m.i_[2][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * m.i_[2][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[0][2][1] * m.i_[2][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[0][2][0] += vmin; res[0][2][1] += vmax;
-
-  // res[1][2]
-
-  vmin = vmax = i_[1][0][0] * m.i_[0][2][0];
-  temp = i_[1][0][0] * m.i_[0][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * m.i_[0][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][0][1] * m.i_[0][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][2][0] = vmin; res[1][2][1] = vmax;
-
-  vmin = vmax = i_[1][1][0] * m.i_[1][2][0];
-  temp = i_[1][1][0] * m.i_[1][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * m.i_[1][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][1][1] * m.i_[1][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][2][0] += vmin; res[1][2][1] += vmax;
-
-  vmin = vmax = i_[1][2][0] * m.i_[2][2][0];
-  temp = i_[1][2][0] * m.i_[2][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * m.i_[2][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[1][2][1] * m.i_[2][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[1][2][0] += vmin; res[1][2][1] += vmax;
-
-  // res[2][2]
-
-  vmin = vmax = i_[2][0][0] * m.i_[0][2][0];
-  temp = i_[2][0][0] * m.i_[0][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * m.i_[0][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][0][1] * m.i_[0][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][2][0] = vmin; res[2][2][1] = vmax;
-
-  vmin = vmax = i_[2][1][0] * m.i_[1][2][0];
-  temp = i_[2][1][0] * m.i_[1][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * m.i_[1][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][1][1] * m.i_[1][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][2][0] += vmin; res[2][2][1] += vmax;
-
-  vmin = vmax = i_[2][2][0] * m.i_[2][2][0];
-  temp = i_[2][2][0] * m.i_[2][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * m.i_[2][2][0]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  temp = i_[2][2][1] * m.i_[2][2][1]; if(temp < vmin) vmin = temp; else if(temp > vmax) vmax = temp;
-  res[2][2][0] += vmin; res[2][2][1] += vmax;
-
-  return IMatrix3(res);
+  v_[0].setValue(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
+  v_[1].setValue(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
+  v_[2].setValue(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+  return *this;
 }
 
 IMatrix3 IMatrix3::operator + (const IMatrix3& m) const
 {
-  FCL_REAL res[3][3][2];
-  res[0][0][0] = i_[0][0][0] + m.i_[0][0][0]; res[0][0][1] = i_[0][0][1] + m.i_[0][0][1]; res[0][1][0] = i_[0][1][0] + m.i_[0][1][0]; res[0][1][1] = i_[0][1][1] + m.i_[0][1][1]; res[0][2][0] = i_[0][2][0] + m.i_[0][2][0]; res[0][2][1] = i_[0][2][1] + m.i_[0][2][1];
-  res[1][0][0] = i_[1][0][0] + m.i_[1][0][0]; res[1][0][1] = i_[1][0][1] + m.i_[1][0][1]; res[1][1][0] = i_[1][1][0] + m.i_[1][1][0]; res[1][1][1] = i_[1][1][1] + m.i_[1][1][1]; res[1][2][0] = i_[1][2][0] + m.i_[1][2][0]; res[1][2][1] = i_[1][2][1] + m.i_[1][2][1];
-  res[2][0][0] = i_[2][0][0] + m.i_[2][0][0]; res[2][0][1] = i_[2][0][1] + m.i_[2][0][1]; res[2][1][0] = i_[2][1][0] + m.i_[2][1][0]; res[2][1][1] = i_[2][1][1] + m.i_[2][1][1]; res[2][2][0] = i_[2][2][0] + m.i_[2][2][0]; res[2][2][1] = i_[2][2][1] + m.i_[2][2][1];
-
-  return IMatrix3(res);
+  return IMatrix3(v_[0] + m.v_[0], v_[1] + m.v_[1], v_[2] + m.v_[2]);
 }
 
 IMatrix3& IMatrix3::operator += (const IMatrix3& m)
 {
-  i_[0][0][0] += m.i_[0][0][0]; i_[0][0][1] += m.i_[0][0][1]; i_[0][1][0] += m.i_[0][1][0]; i_[0][1][1] += m.i_[0][1][1]; i_[0][2][0] += m.i_[0][2][0]; i_[0][2][1] += m.i_[0][2][1];
-  i_[1][0][0] += m.i_[1][0][0]; i_[1][0][1] += m.i_[1][0][1]; i_[1][1][0] += m.i_[1][1][0]; i_[1][1][1] += m.i_[1][1][1]; i_[1][2][0] += m.i_[1][2][0]; i_[1][2][1] += m.i_[1][2][1];
-  i_[2][0][0] += m.i_[2][0][0]; i_[2][0][1] += m.i_[2][0][1]; i_[2][1][0] += m.i_[2][1][0]; i_[2][1][1] += m.i_[2][1][1]; i_[2][2][0] += m.i_[2][2][0]; i_[2][2][1] += m.i_[2][2][1];
-
+  v_[0] += m.v_[0];
+  v_[1] += m.v_[1];
+  v_[2] += m.v_[2];
   return *this;
 }
 
-IVector3 IMatrix3::nonIntervalTimesVector(const Vec3f& v) const
+IMatrix3 IMatrix3::operator - (const IMatrix3& m) const
 {
-  return IVector3(i_[0][0][0] * v[0] + i_[0][1][0] * v[1] + i_[0][2][0] * v[2],
-                  i_[1][0][0] * v[0] + i_[1][1][0] * v[1] + i_[1][2][0] * v[2],
-                  i_[2][0][0] * v[0] + i_[2][1][0] * v[1] + i_[2][2][0] * v[2]);
+  return IMatrix3(v_[0] - m.v_[0], v_[1] - m.v_[1], v_[2] - m.v_[2]);
 }
 
-IVector3 IMatrix3::nonIntervalTimesVector(const IVector3& v) const
+IMatrix3& IMatrix3::operator -= (const IMatrix3& m)
 {
-  return IVector3(i_[0][0][0] * v[0][0] + i_[0][1][0] * v[1][0] + i_[0][2][0] * v[2][0],
-                  i_[1][0][0] * v[0][0] + i_[1][1][0] * v[1][0] + i_[1][2][0] * v[2][0],
-                  i_[2][0][0] * v[0][0] + i_[2][1][0] * v[1][0] + i_[2][2][0] * v[2][0]);
-}
-
-const Interval& IMatrix3::operator () (size_t i, size_t j) const
-{
-  return i_[i][j];
-}
-
-Interval& IMatrix3::operator () (size_t i, size_t j)
-{
-  return i_[i][j];
+  v_[0] -= m.v_[0];
+  v_[1] -= m.v_[1];
+  v_[2] -= m.v_[2];
+  return *this;
 }
 
 void IMatrix3::print() const
 {
-  std::cout << "[" << i_[0][0][0] << "," << i_[0][0][1] << "]" << " [" << i_[0][1][0] << "," << i_[0][1][1] << "]" << " [" << i_[0][2][0] << "," << i_[0][2][1] << "]" << std::endl;
-  std::cout << "[" << i_[1][0][0] << "," << i_[1][0][1] << "]" << " [" << i_[1][1][0] << "," << i_[1][1][1] << "]" << " [" << i_[1][2][0] << "," << i_[1][2][1] << "]" << std::endl;
-  std::cout << "[" << i_[2][0][0] << "," << i_[2][0][1] << "]" << " [" << i_[2][1][0] << "," << i_[2][1][1] << "]" << " [" << i_[2][2][0] << "," << i_[2][2][1] << "]" << std::endl;
+  std::cout << "[" << v_[0][0][0] << "," << v_[0][0][1] << "]" << " [" << v_[0][1][0] << "," << v_[0][1][1] << "]" << " [" << v_[0][2][0] << "," << v_[0][2][1] << "]" << std::endl;
+  std::cout << "[" << v_[1][0][0] << "," << v_[1][0][1] << "]" << " [" << v_[1][1][0] << "," << v_[1][1][1] << "]" << " [" << v_[1][2][0] << "," << v_[1][2][1] << "]" << std::endl;
+  std::cout << "[" << v_[2][0][0] << "," << v_[2][0][1] << "]" << " [" << v_[2][1][0] << "," << v_[2][1][1] << "]" << " [" << v_[2][2][0] << "," << v_[2][2][1] << "]" << std::endl;
 }
 
 }

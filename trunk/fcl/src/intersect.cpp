@@ -1207,7 +1207,9 @@ FCL_REAL Intersect::distanceToPlane(const Vec3f& n, FCL_REAL t, const Vec3f& v)
 bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t)
 {
   Vec3f n_ = (v2 - v1).cross(v3 - v1);
-  if(n_.normalize())
+  bool can_normalize = false;
+  n_.normalize(&can_normalize);
+  if(can_normalize)
   {
     *n = n_;
     *t = n_.dot(v1);
@@ -1220,7 +1222,9 @@ bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f
 bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, FCL_REAL* t)
 {
   Vec3f n_ = (v2 - v1).cross(tn);
-  if(n_.normalize())
+  bool can_normalize = false;
+  n_.normalize(&can_normalize);
+  if(can_normalize)
   {
     *n = n_;
     *t = n_.dot(v1);
@@ -1473,14 +1477,14 @@ FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 
       if (i < nPositiveExamples)
       {
-        double sigma = uc1[i].Sigma.quadraticForm(fgrad);
+        double sigma = quadraticForm(uc1[i].Sigma, fgrad);
         FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
       }
       else
       {
-        double sigma = uc2[i - nPositiveExamples].Sigma.quadraticForm(fgrad);
+        double sigma = uc2[i - quadraticForm(nPositiveExamples].Sigma, fgrad);
         FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1661,7 +1665,7 @@ FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 
       if (i < nPositiveExamples)
       {
-        double sigma = uc1[i].Sigma.quadraticForm(fgrad);
+        double sigma = quadraticForm(uc1[i].Sigma, fgrad);
         FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1669,7 +1673,7 @@ FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
       else
       {
         Matrix3f rotatedSigma = R.tensorTransform(uc2[i - nPositiveExamples].Sigma);
-        double sigma = rotatedSigma.quadraticForm(fgrad);
+        double sigma = quadraticForm(rotatedSigma, fgrad);
         FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
         if(max_collision_prob < col_prob)
           max_collision_prob = col_prob;
@@ -1753,9 +1757,9 @@ FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 
      if(b_inside)
      {
-       FCL_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(newS.quadraticForm(edge_n[0])));
-       FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(newS.quadraticForm(edge_n[1])));
-       FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(newS.quadraticForm(edge_n[2])));
+       FCL_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(quadraticForm(newS, edge_n[0])));
+       FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(quadraticForm(newS, edge_n[1])));
+       FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(quadraticForm(newS, edge_n[2])));
        FCL_REAL prob = 1.0 - prob1 - prob2 - prob3;
        if(prob > max_prob) max_prob = prob;
      }
@@ -1774,12 +1778,12 @@ FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
        if(pos_plane.size() == 1)
        {
          int pos_id = pos_plane[0];
-         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(newS.quadraticForm(edge_n[pos_id])));
+         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(quadraticForm(newS, edge_n[pos_id])));
 
          int neg_id1 = neg_plane[0];
          int neg_id2 = neg_plane[1];
-         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
-         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(newS.quadraticForm(edge_n[neg_id2])));
+         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
+         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
 
          FCL_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;
@@ -1788,13 +1792,13 @@ FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
        else if(pos_plane.size() == 2)
        {
          int neg_id = neg_plane[0];
-         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(newS.quadraticForm(edge_n[neg_id])));
+         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(quadraticForm(newS, edge_n[neg_id])));
 
          int pos_id1 = pos_plane[0];
          int pos_id2 = pos_plane[1];
 
-         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(newS.quadraticForm(edge_n[pos_id1])));
-         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(newS.quadraticForm(edge_n[pos_id2])));
+         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(quadraticForm(newS, edge_n[pos_id1])));
+         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(quadraticForm(newS, edge_n[pos_id2])));
 
          FCL_REAL prob = prob1 - prob2 - prob3;
          if(prob > max_prob) max_prob = prob;

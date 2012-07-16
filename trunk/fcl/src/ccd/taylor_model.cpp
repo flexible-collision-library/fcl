@@ -38,21 +38,29 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
+#include <boost/math/constants/constants.hpp>
+
 
 namespace fcl
 {
 
-const FCL_REAL TaylorModel::PI_ = 3.1415626535;
+TaylorModel::TaylorModel()
+{
+  coeffs_[0] = coeffs_[1] = coeffs_[2] = coeffs_[3] = 0;
+}
 
-TaylorModel::TaylorModel() {}
+TaylorModel::TaylorModel(const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
+{
+  coeffs_[0] = coeffs_[1] = coeffs_[2] = coeffs_[3] = 0;
+}
 
-TaylorModel::TaylorModel(FCL_REAL coeff)
+TaylorModel::TaylorModel(FCL_REAL coeff, const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
 {
   coeffs_[0] = coeff;
   coeffs_[1] = coeffs_[2] = coeffs_[3] = r_[0] = r_[1] = 0;
 }
 
-TaylorModel::TaylorModel(FCL_REAL coeffs[3], const Interval& r)
+TaylorModel::TaylorModel(FCL_REAL coeffs[3], const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
 {
   coeffs_[0] = coeffs[0];
   coeffs_[1] = coeffs[1];
@@ -62,7 +70,7 @@ TaylorModel::TaylorModel(FCL_REAL coeffs[3], const Interval& r)
   r_ = r;
 }
 
-TaylorModel::TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r)
+TaylorModel::TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
 {
   coeffs_[0] = c0;
   coeffs_[1] = c1;
@@ -74,28 +82,38 @@ TaylorModel::TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, con
 
 void TaylorModel::setTimeInterval(FCL_REAL l, FCL_REAL r)
 {
-  t_.setValue(l, r);
-  t2_.setValue(l * t_[0], r * t_[1]);
-  t3_.setValue(l * t2_[0], r * t2_[1]);
-  t4_.setValue(l * t3_[0], r * t3_[1]);
-  t5_.setValue(l * t4_[0], r * t4_[1]);
-  t6_.setValue(l * t5_[0], r * t5_[1]);
+  time_interval_->t_.setValue(l, r);
+  time_interval_->t2_.setValue(l * time_interval_->t_[0], r * time_interval_->t_[1]);
+  time_interval_->t3_.setValue(l * time_interval_->t2_[0], r * time_interval_->t2_[1]);
+  time_interval_->t4_.setValue(l * time_interval_->t3_[0], r * time_interval_->t3_[1]);
+  time_interval_->t5_.setValue(l * time_interval_->t4_[0], r * time_interval_->t4_[1]);
+  time_interval_->t6_.setValue(l * time_interval_->t5_[0], r * time_interval_->t5_[1]);
+}
+
+TaylorModel TaylorModel::operator + (FCL_REAL d) const
+{
+  return TaylorModel(coeffs_[0] + d, coeffs_[1], coeffs_[2], coeffs_[3], r_, time_interval_);
+}
+
+TaylorModel& TaylorModel::operator += (FCL_REAL d)
+{
+  coeffs_[0] += d;
 }
 
 TaylorModel TaylorModel::operator + (const TaylorModel& other) const
 {
-  assert(other.t_ == t_);
-  return TaylorModel(coeffs_[0] + other.coeffs_[0], coeffs_[1] + other.coeffs_[1], coeffs_[2] + other.coeffs_[2], coeffs_[3] + other.coeffs_[3], r_ + other.r_);
+  assert(other.time_interval_ == time_interval_);
+  return TaylorModel(coeffs_[0] + other.coeffs_[0], coeffs_[1] + other.coeffs_[1], coeffs_[2] + other.coeffs_[2], coeffs_[3] + other.coeffs_[3], r_ + other.r_, time_interval_);
 }
 
 TaylorModel TaylorModel::operator - (const TaylorModel& other) const
 {
-  assert(other.t_ == t_);
-  return TaylorModel(coeffs_[0] - other.coeffs_[0], coeffs_[1] - other.coeffs_[1], coeffs_[2] - other.coeffs_[2], coeffs_[3] - other.coeffs_[3], r_ - other.r_);
+  assert(other.time_interval__ == time_interval_);
+  return TaylorModel(coeffs_[0] - other.coeffs_[0], coeffs_[1] - other.coeffs_[1], coeffs_[2] - other.coeffs_[2], coeffs_[3] - other.coeffs_[3], r_ - other.r_, time_interval_);
 }
 TaylorModel& TaylorModel::operator += (const TaylorModel& other)
 {
-  assert(other.t_ == t_);
+  assert(other.time_interval_ == time_interval_);
   coeffs_[0] += other.coeffs_[0];
   coeffs_[1] += other.coeffs_[1];
   coeffs_[2] += other.coeffs_[2];
@@ -106,7 +124,7 @@ TaylorModel& TaylorModel::operator += (const TaylorModel& other)
 
 TaylorModel& TaylorModel::operator -= (const TaylorModel& other)
 {
-  assert(other.t_ == t_);
+  assert(other.time_interval_ == time_interval_);
   coeffs_[0] -= other.coeffs_[0];
   coeffs_[1] -= other.coeffs_[1];
   coeffs_[2] -= other.coeffs_[2];
@@ -132,7 +150,19 @@ TaylorModel& TaylorModel::operator -= (const TaylorModel& other)
 
 TaylorModel TaylorModel::operator * (const TaylorModel& other) const
 {
-  assert(other.t_ == t_);
+  TaylorModel res(*this);
+  res *= other;
+  return res;
+}
+
+TaylorModel TaylorModel::operator * (FCL_REAL d) const
+{
+  return TaylorModel(coeffs_[0] * d, coeffs_[1] * d, coeffs_[2] * d, coeffs_[3] * d,  r_ * d, time_interval_);
+}
+
+TaylorModel& TaylorModel::operator *= (const TaylorModel& other)
+{
+  assert(other.time_interval_ == time_interval_);
   register FCL_REAL c0, c1, c2, c3;
   register FCL_REAL c0b = other.coeffs_[0], c1b = other.coeffs_[1], c2b = other.coeffs_[2], c3b = other.coeffs_[3];
 
@@ -145,29 +175,41 @@ TaylorModel TaylorModel::operator * (const TaylorModel& other) const
 
   Interval remainder(r_ * rb);
   register FCL_REAL tempVal = coeffs_[1] * c3b + coeffs_[2] * c2b + coeffs_[3] * c1b;
-  remainder += t4_ * tempVal;
+  remainder += time_interval_->t4_ * tempVal;
 
   tempVal = coeffs_[2] * c3b + coeffs_[3] * c2b;
-  remainder += t5_ * tempVal;
+  remainder += time_interval_->t5_ * tempVal;
 
   tempVal = coeffs_[3] * c3b;
-  remainder += t6_ * tempVal;
+  remainder += time_interval_->t6_ * tempVal;
 
-  remainder += ((Interval(coeffs_[0]) + t_ * coeffs_[1] + t2_ * coeffs_[2] + t3_ * coeffs_[3]) * rb +
-      (Interval(c0b) + t_ * c1b + t2_ * c2b + t3_ * c3b) * r_);
+  remainder += ((Interval(coeffs_[0]) + time_interval_->t_ * coeffs_[1] + time_interval_->t2_ * coeffs_[2] + time_interval_->t3_ * coeffs_[3]) * rb +
+                (Interval(c0b) + time_interval_->t_ * c1b + time_interval_->t2_ * c2b + time_interval_->t3_ * c3b) * r_);
 
-  return TaylorModel(c0, c1, c2, c3, remainder);
+  coeffs_[0] = c0;
+  coeffs_[1] = c1;
+  coeffs_[2] = c2;
+  coeffs_[3] = c3;
+
+  r_ = remainder;
+
+  return *this;
 }
 
-TaylorModel TaylorModel::operator * (FCL_REAL d) const
+TaylorModel& TaylorModel::operator *= (FCL_REAL d)
 {
-  return TaylorModel(coeffs_[0] * d, coeffs_[1] * d, coeffs_[2] * d, coeffs_[3] * d,  r_ * d);
+  coeffs_[0] *= d;
+  coeffs_[1] *= d;
+  coeffs_[2] *= d;
+  coeffs_[3] *= d;
+  r_ *= d;
+  return *this;
 }
 
 
 TaylorModel TaylorModel::operator - () const
 {
-  return TaylorModel(-coeffs_[0], -coeffs_[1], -coeffs_[2], -coeffs_[3], -r_);
+  return TaylorModel(-coeffs_[0], -coeffs_[1], -coeffs_[2], -coeffs_[3], -r_, time_interval_);
 }
 
 void TaylorModel::print() const
@@ -191,14 +233,13 @@ Interval TaylorModel::getBound(FCL_REAL t0, FCL_REAL t1) const
 
 Interval TaylorModel::getBound() const
 {
-  return Interval(coeffs_[0] + r_[0], coeffs_[1] + r_[1]) + t_ * coeffs_[1] + t2_ * coeffs_[2] + t3_ * coeffs_[3];
+  return Interval(coeffs_[0] + r_[0], coeffs_[1] + r_[1]) + time_interval_->t_ * coeffs_[1] + time_interval_->t2_ * coeffs_[2] + time_interval_->t3_ * coeffs_[3];
 }
 
 Interval TaylorModel::getTightBound(FCL_REAL t0, FCL_REAL t1) const
 {
-
-  if(t0 < t_[0]) t0 = t_[0];
-  if(t1 > t_[1]) t1 = t_[1];
+  if(t0 < time_interval_->t_[0]) t0 = time_interval_->t_[0];
+  if(t1 > time_interval_->t_[1]) t1 = time_interval_->t_[1];
 
   if(coeffs_[3] == 0)
   {
@@ -257,8 +298,8 @@ Interval TaylorModel::getTightBound(FCL_REAL t0, FCL_REAL t1) const
     if(delta < 0)
       return Interval(LQ, RQ) + r_;
 
-    FCL_REAL r1=(-coeffs_[2]-sqrt(delta))/(3*coeffs_[3]);
-    FCL_REAL r2=(-coeffs_[2]+sqrt(delta))/(3*coeffs_[3]);
+    FCL_REAL r1 = (-coeffs_[2]-sqrt(delta))/(3*coeffs_[3]);
+    FCL_REAL r2 = (-coeffs_[2]+sqrt(delta))/(3*coeffs_[3]);
 
     if(r1 <= t1 && r1 >= t0)
     {
@@ -280,7 +321,7 @@ Interval TaylorModel::getTightBound(FCL_REAL t0, FCL_REAL t1) const
 
 Interval TaylorModel::getTightBound() const
 {
-  return getTightBound(t_[0], t_[1]);
+  return getTightBound(time_interval_->t_[0], time_interval_->t_[1]);
 }
 
 void TaylorModel::setZero()
@@ -292,7 +333,7 @@ void TaylorModel::setZero()
 
 void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
 {
-  FCL_REAL a = tm.t_.center();
+  FCL_REAL a = tm.time_interval_->t_.center();
   FCL_REAL t = w * a + q0;
   FCL_REAL w2 = w * w;
   FCL_REAL fa = cos(t);
@@ -310,8 +351,8 @@ void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
   if(w == 0) fddddBounds.setValue(0);
   else
   {
-    FCL_REAL cosQL = cos(tm.t_[0] * w + q0);
-    FCL_REAL cosQR = cos(tm.t_[1] * w + q0);
+    FCL_REAL cosQL = cos(tm.time_interval_->t_[0] * w + q0);
+    FCL_REAL cosQR = cos(tm.time_interval_->t_[1] * w + q0);
 
     if(cosQL < cosQR) fddddBounds.setValue(cosQL, cosQR);
     else fddddBounds.setValue(cosQR, cosQL);
@@ -323,8 +364,8 @@ void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
     // cos reaches maximum if there exists an integer k in [(w*t0+q0)/2pi, (w*t1+q0)/2pi];
     // cos reaches minimum if there exists an integer k in [(w*t0+q0-pi)/2pi, (w*t1+q0-pi)/2pi]
 
-    FCL_REAL k1 = (tm.t_[0] * w + q0) / (2 * TaylorModel::PI_);
-    FCL_REAL k2 = (tm.t_[1] * w + q0) / (2 * TaylorModel::PI_);
+    FCL_REAL k1 = (tm.time_interval_->t_[0] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>());
+    FCL_REAL k2 = (tm.time_interval_->t_[1] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>());
 
 
     if(w > 0)
@@ -346,7 +387,7 @@ void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
   FCL_REAL w4 = w2 * w2;
   fddddBounds *= w4;
 
-  FCL_REAL midSize = 0.5 * (tm.t_[1] - tm.t_[0]);
+  FCL_REAL midSize = 0.5 * (tm.time_interval_->t_[1] - tm.time_interval_->t_[0]);
   FCL_REAL midSize2 = midSize * midSize;
   FCL_REAL midSize4 = midSize2 * midSize2;
 
@@ -361,7 +402,7 @@ void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
 
 void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
 {
-  FCL_REAL a = tm.t_.center();
+  FCL_REAL a = tm.time_interval_->t_.center();
   FCL_REAL t = w * a + q0;
   FCL_REAL w2 = w * w;
   FCL_REAL fa = sin(t);
@@ -381,8 +422,8 @@ void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
   if(w == 0) fddddBounds.setValue(0);
   else
   {
-    FCL_REAL sinQL = sin(w * tm.t_[0] + q0);
-    FCL_REAL sinQR = sin(w * tm.t_[1] + q0);
+    FCL_REAL sinQL = sin(w * tm.time_interval_->t_[0] + q0);
+    FCL_REAL sinQR = sin(w * tm.time_interval_->t_[1] + q0);
 
     if(sinQL < sinQR) fddddBounds.setValue(sinQL, sinQR);
     else fddddBounds.setValue(sinQR, sinQL);
@@ -394,8 +435,8 @@ void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
     // sin reaches maximum if there exists an integer k in [(w*t0+q0-pi/2)/2pi, (w*t1+q0-pi/2)/2pi];
     // sin reaches minimum if there exists an integer k in [(w*t0+q0-pi-pi/2)/2pi, (w*t1+q0-pi-pi/2)/2pi]
 
-    FCL_REAL k1 = (tm.t_[0] * w + q0) / (2 * TaylorModel::PI_) - 0.25;
-    FCL_REAL k2 = (tm.t_[1] * w + q0) / (2 * TaylorModel::PI_) - 0.25;
+    FCL_REAL k1 = (tm.time_interval_->t_[0] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>()) - 0.25;
+    FCL_REAL k2 = (tm.time_interval_->t_[1] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>()) - 0.25;
 
     if(w > 0)
     {
@@ -415,7 +456,7 @@ void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
     FCL_REAL w4 = w2 * w2;
     fddddBounds *= w4;
 
-    FCL_REAL midSize = 0.5 * (tm.t_[1] - tm.t_[0]);
+    FCL_REAL midSize = 0.5 * (tm.time_interval_->t_[1] - tm.time_interval_->t_[0]);
     FCL_REAL midSize2 = midSize * midSize;
     FCL_REAL midSize4 = midSize2 * midSize2;
 
