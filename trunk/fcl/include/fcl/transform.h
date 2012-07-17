@@ -65,6 +65,11 @@ public:
     data[3] = d; // z
   }
 
+  bool isIdentity() const
+  {
+    return (data[0] == 1) && (data[1] == 0) && (data[2] == 0) && (data[3] == 0);
+  }
+
   /** \brief Matrix to quaternion */
   void fromRotation(const Matrix3f& R);
 
