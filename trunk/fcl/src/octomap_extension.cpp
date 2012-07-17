@@ -40,6 +40,42 @@
 namespace fcl
 {
 
+static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& child_bv)
+{
+  if(i&1)
+  {
+    child_bv.min_[0] = (root_bv.min_[0] + root_bv.max_[0]) * 0.5;
+    child_bv.max_[0] = root_bv.max_[0];
+  }
+  else
+  {
+    child_bv.min_[0] = root_bv.min_[0];
+    child_bv.max_[0] = (root_bv.min_[0] + root_bv.max_[0]) * 0.5;
+  }
+
+  if(i&2)
+  {
+    child_bv.min_[1] = (root_bv.min_[1] + root_bv.max_[1]) * 0.5;
+    child_bv.max_[1] = root_bv.max_[1];
+  }
+  else
+  {
+    child_bv.min_[1] = root_bv.min_[1];
+    child_bv.max_[1] = (root_bv.min_[1] + root_bv.max_[1]) * 0.5;
+  }
+
+  if(i&4)
+  {
+    child_bv.min_[2] = (root_bv.min_[2] + root_bv.max_[2]) * 0.5;
+    child_bv.max_[2] = root_bv.max_[2];
+  }        
+  else
+  {
+    child_bv.min_[2] = root_bv.min_[2];
+    child_bv.max_[2] = (root_bv.min_[2] + root_bv.max_[2]) * 0.5;
+  }
+}
+
 class ExtendedBox : public Box
 {
 public:
@@ -91,38 +127,7 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
       {
         octomap::OcTreeNode* child = root2->getChild(i);
         AABB child_bv;
-        if(i&1)
-        {
-          child_bv.min_[0] = (root2_bv.min_[0] + root2_bv.max_[0]) * 0.5;
-          child_bv.max_[0] = root2_bv.max_[0];
-        }
-        else
-        {
-          child_bv.min_[0] = root2_bv.min_[0];
-          child_bv.max_[0] = (root2_bv.min_[0] + root2_bv.max_[0]) * 0.5;
-        }
-
-        if(i&2)
-        {
-          child_bv.min_[1] = (root2_bv.min_[1] + root2_bv.max_[1]) * 0.5;
-          child_bv.max_[1] = root2_bv.max_[1];
-        }
-        else
-        {
-          child_bv.min_[1] = root2_bv.min_[1];
-          child_bv.max_[1] = (root2_bv.min_[1] + root2_bv.max_[1]) * 0.5;
-        }
-
-        if(i&4)
-        {
-          child_bv.min_[2] = (root2_bv.min_[2] + root2_bv.max_[2]) * 0.5;
-          child_bv.max_[2] = root2_bv.max_[2];
-        }        
-        else
-        {
-          child_bv.min_[2] = root2_bv.min_[2];
-          child_bv.max_[2] = (root2_bv.min_[2] + root2_bv.max_[2]) * 0.5;
-        }
+        computeChildBV(root2_bv, i, child_bv);
 
         if(collisionRecurse(root1, tree2, child, child_bv, cdata, callback))
           return true;
@@ -133,6 +138,7 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
   return false;
 }
 
+
 void collide(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCallBack callback)
 {
   DynamicAABBTreeCollisionManager::DynamicAABBNode* root1 = manager->getTree().getRoot();
@@ -142,6 +148,79 @@ void collide(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, 
   
   collisionRecurse(root1, octree, root2, AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta)), 
                    cdata, callback);
+}
+
+
+bool distanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
+                     octomap::OcTree* tree2, octomap::OcTreeNode* root2, const AABB& root2_bv,
+                     void* cdata, DistanceCallBack callback, FCL_REAL& min_dist)
+{
+  if(root1->isLeaf() && !root2->hasChildren())
+  {
+    if(tree2->isNodeOccupied(root2))
+    {
+      Box* box = new Box(root2_bv.max_[0] - root2_bv.min_[0], 
+                         root2_bv.max_[1] - root2_bv.min_[1],
+                         root2_bv.max_[2] - root2_bv.min_[2]);
+      CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), SimpleTransform(root2_bv.center()));
+      return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
+    }
+    else return false;
+  }
+  
+  if(!tree2->isNodeOccupied(root2)) return false;
+
+  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  {
+    FCL_REAL d1 = root2_bv.distance(root1->childs[0]->bv);
+    FCL_REAL d2 = root2_bv.distance(root1->childs[1]->bv);
+    
+    if(d2 < d1)
+    {
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[1], tree2, root2, root2_bv, cdata, callback, min_dist))
+           return true;
+      }
+      
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[0], tree2, root2, root2_bv, cdata, callback, min_dist))
+          return true;
+      }
+    }
+    else
+    {
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[0], tree2, root2, root2_bv, cdata, callback, min_dist))
+          return true;
+      }
+      
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[1], tree2, root2, root2_bv, cdata, callback, min_dist))
+          return true;
+      }
+    }
+  }
+  else
+  {
+    for(unsigned int i = 0; i < 8; ++i)
+    {
+      if(root2->childExists(i))
+      {
+        octomap::OcTreeNode* child = root2->getChild(i);
+        AABB child_bv;
+        computeChildBV(root2_bv, i, child_bv);
+
+        if(distanceRecurse(root1, tree2, child, child_bv, cdata, callback, min_dist))
+          return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 
@@ -184,38 +263,7 @@ bool collisionCostRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root
       {
         octomap::OcTreeNode* child = root2->getChild(i);
         AABB child_bv;
-        if(i&1)
-        {
-          child_bv.min_[0] = (root2_bv.min_[0] + root2_bv.max_[0]) * 0.5;
-          child_bv.max_[0] = root2_bv.max_[0];
-        }
-        else
-        {
-          child_bv.min_[0] = root2_bv.min_[0];
-          child_bv.max_[0] = (root2_bv.min_[0] + root2_bv.max_[0]) * 0.5;
-        }
-
-        if(i&2)
-        {
-          child_bv.min_[1] = (root2_bv.min_[1] + root2_bv.max_[1]) * 0.5;
-          child_bv.max_[1] = root2_bv.max_[1];
-        }
-        else
-        {
-          child_bv.min_[1] = root2_bv.min_[1];
-          child_bv.max_[1] = (root2_bv.min_[1] + root2_bv.max_[1]) * 0.5;
-        }
-
-        if(i&4)
-        {
-          child_bv.min_[2] = (root2_bv.min_[2] + root2_bv.max_[2]) * 0.5;
-          child_bv.max_[2] = root2_bv.max_[2];
-        }        
-        else
-        {
-          child_bv.min_[2] = root2_bv.min_[2];
-          child_bv.max_[2] = (root2_bv.min_[2] + root2_bv.max_[2]) * 0.5;
-        }
+        computeChildBV(root2_bv, i, child_bv);
 
         if(collisionCostRecurse(root1, tree2, child, child_bv, cdata, callback, cost))
           return true;
@@ -265,38 +313,7 @@ bool collisionCostExtRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* r
       {
         octomap::OcTreeNode* child = root2->getChild(i);
         AABB child_bv;
-        if(i&1)
-        {
-          child_bv.min_[0] = (root2_bv.min_[0] + root2_bv.max_[0]) * 0.5;
-          child_bv.max_[0] = root2_bv.max_[0];
-        }
-        else
-        {
-          child_bv.min_[0] = root2_bv.min_[0];
-          child_bv.max_[0] = (root2_bv.min_[0] + root2_bv.max_[0]) * 0.5;
-        }
-
-        if(i&2)
-        {
-          child_bv.min_[1] = (root2_bv.min_[1] + root2_bv.max_[1]) * 0.5;
-          child_bv.max_[1] = root2_bv.max_[1];
-        }
-        else
-        {
-          child_bv.min_[1] = root2_bv.min_[1];
-          child_bv.max_[1] = (root2_bv.min_[1] + root2_bv.max_[1]) * 0.5;
-        }
-
-        if(i&4)
-        {
-          child_bv.min_[2] = (root2_bv.min_[2] + root2_bv.max_[2]) * 0.5;
-          child_bv.max_[2] = root2_bv.max_[2];
-        }        
-        else
-        {
-          child_bv.min_[2] = root2_bv.min_[2];
-          child_bv.max_[2] = (root2_bv.min_[2] + root2_bv.max_[2]) * 0.5;
-        }
+        computeChildBV(root2_bv, i, child_bv);
 
         if(collisionCostExtRecurse(root1, tree2, child, child_bv, cdata, callback, cost, nodes))
           return true;

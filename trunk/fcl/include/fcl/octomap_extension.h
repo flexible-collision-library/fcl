@@ -71,6 +71,8 @@ typedef bool (*CollisionCostOctomapCallBackExt)(CollisionObject* o1, CollisionOb
 
 void collide(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCallBack callback);
 
+void distance(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, DistanceCallBack callback);
+
 FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostOctomapCallBack callback);
 
 FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostOctomapCallBackExt callback, std::vector<AABB>& nodes);

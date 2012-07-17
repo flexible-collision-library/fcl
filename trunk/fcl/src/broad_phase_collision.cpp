@@ -81,6 +81,9 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cda
   if(cdata->min_distance > d) cdata->min_distance = d;
   
   dist = cdata->min_distance;
+
+  if(dist <= 0) return true; // in collision or in touch
+
   return cdata->done;
 }
 
