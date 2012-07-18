@@ -40,7 +40,7 @@
 
 #include <vector>
 #include <set>
-#include <octomap/octomap.h>
+#include "fcl/octree.h"
 #include "fcl/broad_phase_collision.h"
 
 namespace fcl
@@ -48,10 +48,10 @@ namespace fcl
 
 struct OcTreeNode_AABB_pair
 {
-  octomap::OcTreeNode* node;
+  OcTree::OcTreeNode* node;
   AABB aabb;
 
-  OcTreeNode_AABB_pair(octomap::OcTreeNode* node_, const AABB& aabb_) : node(node_), aabb(aabb_) {}
+  OcTreeNode_AABB_pair(OcTree::OcTreeNode* node_, const AABB& aabb_) : node(node_), aabb(aabb_) {}
 
   bool operator < (const OcTreeNode_AABB_pair& other) const
   {
@@ -69,13 +69,13 @@ typedef bool (*CollisionCostOctomapCallBack)(CollisionObject* o1, CollisionObjec
 typedef bool (*CollisionCostOctomapCallBackExt)(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& cost, std::set<OcTreeNode_AABB_pair>& nodes);
 
 
-void collide(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCallBack callback);
+void collide(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, CollisionCallBack callback);
 
-void distance(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, DistanceCallBack callback);
+void distance(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, DistanceCallBack callback);
 
-FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostOctomapCallBack callback);
+FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, CollisionCostOctomapCallBack callback);
 
-FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostOctomapCallBackExt callback, std::vector<AABB>& nodes);
+FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, CollisionCostOctomapCallBackExt callback, std::vector<AABB>& nodes);
 
 
 }

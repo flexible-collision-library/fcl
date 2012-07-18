@@ -86,11 +86,11 @@ public:
   }
   
   FCL_REAL prob;
-  octomap::OcTreeNode* node;
+  OcTree::OcTreeNode* node;
 };
 
 bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
-                      octomap::OcTree* tree2, octomap::OcTreeNode* root2, const AABB& root2_bv,
+                      OcTree* tree2, OcTree::OcTreeNode* root2, const AABB& root2_bv,
                       void* cdata, CollisionCallBack callback)
 {
   if(root1->isLeaf() && !root2->hasChildren())
@@ -125,7 +125,7 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
     {
       if(root2->childExists(i))
       {
-        octomap::OcTreeNode* child = root2->getChild(i);
+        OcTree::OcTreeNode* child = root2->getChild(i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
@@ -139,20 +139,18 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
 }
 
 
-void collide(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCallBack callback)
+void collide(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, CollisionCallBack callback)
 {
   DynamicAABBTreeCollisionManager::DynamicAABBNode* root1 = manager->getTree().getRoot();
-  octomap::OcTreeNode* root2 = octree->getRoot();
-
-  FCL_REAL delta = (1 << octree->getTreeDepth()) * octree->getResolution() / 2;
+  OcTree::OcTreeNode* root2 = octree->getRoot();
   
-  collisionRecurse(root1, octree, root2, AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta)), 
+  collisionRecurse(root1, octree, root2, octree->getRootBV(),
                    cdata, callback);
 }
 
 
 bool distanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
-                     octomap::OcTree* tree2, octomap::OcTreeNode* root2, const AABB& root2_bv,
+                     OcTree* tree2, OcTree::OcTreeNode* root2, const AABB& root2_bv,
                      void* cdata, DistanceCallBack callback, FCL_REAL& min_dist)
 {
   if(root1->isLeaf() && !root2->hasChildren())
@@ -210,12 +208,17 @@ bool distanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
     {
       if(root2->childExists(i))
       {
-        octomap::OcTreeNode* child = root2->getChild(i);
+        OcTree::OcTreeNode* child = root2->getChild(i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
-        if(distanceRecurse(root1, tree2, child, child_bv, cdata, callback, min_dist))
-          return true;
+        FCL_REAL d = root1->bv.distance(child_bv);
+
+        if(d < min_dist)
+        {
+          if(distanceRecurse(root1, tree2, child, child_bv, cdata, callback, min_dist))
+            return true;
+        }
       }
     }
   }
@@ -224,8 +227,18 @@ bool distanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
 }
 
 
+void distance(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, DistanceCallBack callback)
+{
+  DynamicAABBTreeCollisionManager::DynamicAABBNode* root1 = manager->getTree().getRoot();
+  OcTree::OcTreeNode* root2 = octree->getRoot();
+  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  distanceRecurse(root1, octree, root2, octree->getRootBV(),
+                  cdata, callback, min_dist);
+}
+
+
 bool collisionCostRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
-                          octomap::OcTree* tree2, octomap::OcTreeNode* root2, const AABB& root2_bv,
+                          OcTree* tree2, OcTree::OcTreeNode* root2, const AABB& root2_bv,
                           void* cdata, CollisionCostOctomapCallBack callback, FCL_REAL& cost)
 {
   if(root1->isLeaf() && !root2->hasChildren())
@@ -261,7 +274,7 @@ bool collisionCostRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root
     {
       if(root2->childExists(i))
       {
-        octomap::OcTreeNode* child = root2->getChild(i);
+        OcTree::OcTreeNode* child = root2->getChild(i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
@@ -276,7 +289,7 @@ bool collisionCostRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root
 
 
 bool collisionCostExtRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
-                             octomap::OcTree* tree2, octomap::OcTreeNode* root2, const AABB& root2_bv,
+                             OcTree* tree2, OcTree::OcTreeNode* root2, const AABB& root2_bv,
                              void* cdata, CollisionCostOctomapCallBackExt callback, FCL_REAL& cost, std::set<OcTreeNode_AABB_pair>& nodes)
 {
   if(root1->isLeaf() && !root2->hasChildren())
@@ -311,7 +324,7 @@ bool collisionCostExtRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* r
     {
       if(root2->childExists(i))
       {
-        octomap::OcTreeNode* child = root2->getChild(i);
+        OcTree::OcTreeNode* child = root2->getChild(i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
@@ -352,26 +365,24 @@ bool defaultCollisionCostOctomapExtFunction(CollisionObject* o1, CollisionObject
   return false;
 }
 
-FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostOctomapCallBack callback)
+FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, CollisionCostOctomapCallBack callback)
 {
   DynamicAABBTreeCollisionManager::DynamicAABBNode* root1 = manager->getTree().getRoot();
-  octomap::OcTreeNode* root2 = octree->getRoot();
+  OcTree::OcTreeNode* root2 = octree->getRoot();
 
-  FCL_REAL delta = (1 << octree->getTreeDepth()) * octree->getResolution() / 2;
   FCL_REAL cost = 0;
-  collisionCostRecurse(root1, octree, root2, AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta)), cdata, callback, cost);
+  collisionCostRecurse(root1, octree, root2, octree->getRootBV(), cdata, callback, cost);
   return cost;
 }
 
-FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, octomap::OcTree* octree, void* cdata, CollisionCostOctomapCallBackExt callback, std::vector<AABB>& nodes)
+FCL_REAL collideCost(DynamicAABBTreeCollisionManager* manager, OcTree* octree, void* cdata, CollisionCostOctomapCallBackExt callback, std::vector<AABB>& nodes)
 {
   DynamicAABBTreeCollisionManager::DynamicAABBNode* root1 = manager->getTree().getRoot();
-  octomap::OcTreeNode* root2 = octree->getRoot();
+  OcTree::OcTreeNode* root2 = octree->getRoot();
 
-  FCL_REAL delta = (1 << octree->getTreeDepth()) * octree->getResolution() / 2;
   FCL_REAL cost = 0;
   std::set<OcTreeNode_AABB_pair> pairs;
-  collisionCostExtRecurse(root1, octree, root2, AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta)), cdata, callback, cost, pairs);
+  collisionCostExtRecurse(root1, octree, root2, octree->getRootBV(), cdata, callback, cost, pairs);
   for(std::set<OcTreeNode_AABB_pair>::iterator it = pairs.begin(), end = pairs.end(); it != end; ++it)
     nodes.push_back(it->aabb);
   return cost;
