@@ -96,14 +96,14 @@ const TVector3& TMatrix3::getRow(size_t i) const
   return v_[i];
 }
 
-const TVector3& TMatrix3::operator [] (size_t i) const
+const TaylorModel& TMatrix3::operator () (size_t i, size_t j) const
 {
-  return v_[i];
+  return v_[i][j];
 }
 
-TVector3& TMatrix3::operator [] (size_t i)
+TaylorModel& TMatrix3::operator () (size_t i, size_t j)
 {
-  return v_[i];
+  return v_[i][j];
 }
 
 TMatrix3 TMatrix3::operator * (const Matrix3f& m) const

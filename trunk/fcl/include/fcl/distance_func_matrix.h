@@ -48,7 +48,7 @@ struct DistanceFunctionMatrix
 {
   typedef FCL_REAL (*DistanceFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver);
   
-  DistanceFunc distance_matrix[16][16];
+  DistanceFunc distance_matrix[NODE_COUNT-1][NODE_COUNT-1];
 
   DistanceFunctionMatrix();
 };

@@ -192,9 +192,9 @@ FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, co
 template<typename NarrowPhaseSolver>
 DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 {
-  for(int i = 0; i < 16; ++i)
+  for(int i = 0; i < NODE_COUNT-1; ++i)
   {
-    for(int j = 0; j < 16; ++j)
+    for(int j = 0; j < NODE_COUNT-1; ++j)
       distance_matrix[i][j] = NULL;
   }
 

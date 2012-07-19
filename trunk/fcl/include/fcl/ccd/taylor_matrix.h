@@ -58,8 +58,8 @@ struct TMatrix3
   TVector3 getColumn(size_t i) const;
   const TVector3& getRow(size_t i) const;
 
-  const TVector3& operator [] (size_t i) const;
-  TVector3& operator [] (size_t i);
+  const TaylorModel& operator () (size_t i, size_t j) const;
+  TaylorModel& operator () (size_t i, size_t j);
 
   TVector3 operator * (const Vec3f& v) const;
   TVector3 operator * (const TVector3& v) const;

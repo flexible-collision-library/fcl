@@ -38,17 +38,18 @@
 #ifndef FCL_OCTREE_H
 #define FCL_OCTREE_H
 
+
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 
 #include <octomap/octomap.h>
 #include "fcl/BV/AABB.h"
-#include "fcl/geometric_shapes.h"
+#include "fcl/collision_object.h"
 
 namespace fcl
 {
 
-class OcTree
+class OcTree : public CollisionGeometry
 {
 private:
   boost::shared_ptr<octomap::OcTree> tree;
@@ -106,7 +107,15 @@ public:
     return boxes;
   }
 
+  OBJECT_TYPE getObjectType() const { return OT_OCTREE; }
+  NODE_TYPE getNodeType() const { return GEOM_OCTREE; }
+  void computeLocalAABB() 
+  {
+    aabb_center = Vec3f();
+    aabb_radius = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
+  }
 };
+
 
 }
 

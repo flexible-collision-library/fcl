@@ -81,6 +81,11 @@ public:
     computeLocalAABB();
   }
 
+  Box(const Vec3f& side_) : ShapeBase(), side(side_) 
+  {
+    computeLocalAABB();
+  }
+
   /** box side length */
   Vec3f side;
 

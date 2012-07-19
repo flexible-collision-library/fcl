@@ -99,9 +99,7 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
     {
       if(root1->bv.overlap(root2_bv))
       {
-        Box* box = new Box(root2_bv.max_[0] - root2_bv.min_[0], 
-                           root2_bv.max_[1] - root2_bv.min_[1],
-                           root2_bv.max_[2] - root2_bv.min_[2]);
+        Box* box = new Box(root2_bv.max_ - root2_bv.min_);
         CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), SimpleTransform(root2_bv.center()));
         return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
       }
@@ -157,9 +155,7 @@ bool distanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1,
   {
     if(tree2->isNodeOccupied(root2))
     {
-      Box* box = new Box(root2_bv.max_[0] - root2_bv.min_[0], 
-                         root2_bv.max_[1] - root2_bv.min_[1],
-                         root2_bv.max_[2] - root2_bv.min_[2]);
+      Box* box = new Box(root2_bv.max_ - root2_bv.min_);
       CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), SimpleTransform(root2_bv.center()));
       return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
     }

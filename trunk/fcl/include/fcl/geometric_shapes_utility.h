@@ -131,6 +131,40 @@ void computeBV<KDOP<18>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<
 template<>
 void computeBV<KDOP<24>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<24>& bv);
 
+
+void constructBox(const AABB& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const OBB& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const OBBRSS& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const kIOS& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const RSS& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const KDOP<16>& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const KDOP<18>& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const KDOP<24>& bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const AABB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const OBB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const OBBRSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const kIOS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const RSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const KDOP<16>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const KDOP<18>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+void constructBox(const KDOP<24>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+
+
 }
 
 #endif

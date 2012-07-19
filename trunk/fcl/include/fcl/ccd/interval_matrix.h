@@ -71,14 +71,14 @@ struct IMatrix3
   Matrix3f getLow() const;
   Matrix3f getHigh() const;
 
-  inline const IVector3& operator [] (size_t i) const
+  inline const Interval& operator () (size_t i, size_t j) const
   {
-    return v_[i];
+    return v_[i][j];
   }
 
-  inline IVector3& operator [] (size_t i)
+  inline Interval& operator () (size_t i, size_t j)
   {
-    return v_[i];
+    return v_[i][j];
   }
 
   IMatrix3 operator + (const IMatrix3& m) const;

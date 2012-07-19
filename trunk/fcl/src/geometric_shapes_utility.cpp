@@ -475,6 +475,123 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<
 }
 
 
+void constructBox(const AABB& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.max_ - bv.min_);
+  tf = SimpleTransform(bv.center());
+}
+
+void constructBox(const OBB& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.extent * 2);
+  tf = SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+                                bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                                bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
+}
+
+void constructBox(const OBBRSS& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.obb.extent * 2);
+  tf = SimpleTransform(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+                                bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
+                                bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
+  
+}
+
+void constructBox(const kIOS& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.obb_bv.extent * 2);
+  tf = SimpleTransform(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
+                                bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
+                                bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
+
+}
+
+void constructBox(const RSS& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+                                bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                                bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
+}
+
+void constructBox(const KDOP<16>& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = SimpleTransform(bv.center());
+}
+
+void constructBox(const KDOP<18>& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = SimpleTransform(bv.center());
+}
+
+void constructBox(const KDOP<24>& bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = SimpleTransform(bv.center());
+}
+
+
+
+void constructBox(const AABB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.max_ - bv.min_);
+  tf = tf_bv * SimpleTransform(bv.center());
+}
+
+void constructBox(const OBB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.extent * 2);
+  tf = tf_bv *SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+                                       bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                                       bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
+}
+
+void constructBox(const OBBRSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.obb.extent * 2);
+  tf = tf_bv * SimpleTransform(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+                                        bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
+                                        bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
+  
+}
+
+void constructBox(const kIOS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.obb_bv.extent * 2);
+  tf = tf_bv * SimpleTransform(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
+                                        bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
+                                        bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
+
+}
+
+void constructBox(const RSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = tf_bv * SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+                                        bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                                        bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
+}
+
+void constructBox(const KDOP<16>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = tf_bv * SimpleTransform(bv.center());
+}
+
+void constructBox(const KDOP<18>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = tf_bv * SimpleTransform(bv.center());
+}
+
+void constructBox(const KDOP<24>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+{
+  box = Box(bv.width(), bv.height(), bv.depth());
+  tf = tf_bv * SimpleTransform(bv.center());
+}
 
 
 

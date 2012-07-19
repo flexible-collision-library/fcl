@@ -871,6 +871,8 @@ void BVHModel<BV>::computeLocalAABB()
   }
 
   aabb_radius = sqrt(aabb_radius);
+
+  aabb_local = aabb_;
 }
 
 template<>

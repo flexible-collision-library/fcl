@@ -45,10 +45,10 @@
 namespace fcl
 {
 
-enum OBJECT_TYPE {OT_UNKNOWN, OT_BVH, OT_GEOM};
+enum OBJECT_TYPE {OT_UNKNOWN, OT_BVH, OT_GEOM, OT_OCTREE, OT_COUNT};
 
 enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP16, BV_KDOP18, BV_KDOP24,
-                GEOM_BOX, GEOM_SPHERE, GEOM_CAPSULE, GEOM_CONE, GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE, GEOM_TRIANGLE};
+                GEOM_BOX, GEOM_SPHERE, GEOM_CAPSULE, GEOM_CONE, GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE, GEOM_TRIANGLE, GEOM_OCTREE, NODE_COUNT};
 
 class CollisionGeometry
 {
@@ -76,6 +76,9 @@ public:
 
   /** AABB radius */
   FCL_REAL aabb_radius;
+
+  /** AABB in local coordinate, used for tight AABB when only translation transform */
+  AABB aabb_local;
 
   /** pointer to user defined data specific to this object */
   void *user_data;
@@ -125,10 +128,17 @@ public:
 
   inline void computeAABB()
   {
-    Vec3f center = t.transform(cgeom->aabb_center);
-    Vec3f delta(cgeom->aabb_radius, cgeom->aabb_radius, cgeom->aabb_radius);
-    aabb.min_ = center - delta;
-    aabb.max_ = center + delta;
+    if(t.getQuatRotation().isIdentity())
+    {
+      aabb = cgeom->aabb_local;
+    }
+    else
+    {
+      Vec3f center = t.transform(cgeom->aabb_center);
+      Vec3f delta(cgeom->aabb_radius, cgeom->aabb_radius, cgeom->aabb_radius);
+      aabb.min_ = center - delta;
+      aabb.max_ = center + delta;
+    }
   }
 
   void* getUserData() const

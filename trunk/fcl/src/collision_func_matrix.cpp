@@ -41,12 +41,56 @@
 #include "fcl/simple_setup.h"
 #include "fcl/geometric_shapes.h"
 #include "fcl/BVH_model.h"
+#include "fcl/octree.h"
 #include "fcl/collision_node.h"
 #include "fcl/narrowphase/narrowphase.h"
 
 
 namespace fcl
 {
+
+template<typename T_SH, typename NarrowPhaseSolver>
+int ShapeOcTreeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                       const NarrowPhaseSolver* nsolver,
+                       int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  const T_SH* obj1 = static_cast<const T_SH*>(o1);
+  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+}
+
+template<typename T_SH, typename NarrowPhaseSolver>
+int OcTreeShapeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                       const NarrowPhaseSolver* nsolver,
+                       int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const T_SH* obj2 = static_cast<const T_SH*>(o2);
+}
+
+int OcTreeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                  int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+
+}
+
+template<typename T_BVH, typename NarrowPhaseSolver>
+int OcTreeBVHCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                     int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
+}
+
+template<typename T_BVH, typename NarrowPhaseSolver>
+int BVHOcTreeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                     int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
+  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+}
+
 
 template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
 int ShapeShapeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, 
@@ -317,9 +361,9 @@ int BVHCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const Co
 template<typename NarrowPhaseSolver>
 CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 {
-  for(int i = 0; i < 16; ++i)
+  for(int i = 0; i < NODE_COUNT - 1; ++i)
   {
-    for(int j = 0; j < 16; ++j)
+    for(int j = 0; j < NODE_COUNT - 1; ++j)
       collision_matrix[i][j] = NULL;
   }
 
