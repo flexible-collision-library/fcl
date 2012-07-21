@@ -44,10 +44,77 @@
 #include "fcl/BV/RSS.h"
 #include "fcl/BV/OBBRSS.h"
 #include "fcl/BV/kIOS.h"
+#include "fcl/transform.h"
 
 /** \brief Main namespace */
 namespace fcl
 {
+
+
+template<typename BV1, typename BV2>
+class Converter
+{
+private:
+  static void convert(const BV1& bv1, const SimpleTransform& tf1, BV2& bv2)
+  {
+    // should only use the specialized version, so it is private.
+  }
+};
+
+template<typename BV1>
+class Converter<BV1, AABB>
+{
+public:
+  static void convert(const BV1& bv1, const SimpleTransform& tf1, AABB& bv2)
+  {
+    const Vec3f& center = bv1.center();
+    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).length() * 0.5;
+    Vec3f delta(r, r, r);
+    Vec3f center2 = tf1.transform(center);
+    bv2.min_ = center2 - delta;
+    bv2.max_ = center2 + delta;
+  }
+};
+
+
+template<>
+class Converter<AABB, AABB>
+{
+public:
+  static void convert(const AABB& bv1, const SimpleTransform& tf1, AABB& bv2)
+  {
+    const Vec3f& center = bv1.center();
+    FCL_REAL r = (bv1.max_ - bv1.min_).length() * 0.5;
+    Vec3f center2 = tf1.transform(center);
+    Vec3f delta(r, r, r);
+    bv2.min_ = center2 - delta;
+    bv2.max_ = center2 + delta;
+  }
+};
+
+template<>
+class Converter<AABB, OBB>
+{
+public:
+  static void convert(const AABB& bv1, const SimpleTransform& tf1, OBB& bv2)
+  {
+    bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
+    bv2.To = tf1.transform(bv1.center());
+    const Matrix3f& R = tf1.getRotation();
+    bv2.axis[0] = R.getColumn(0);
+    bv2.axis[1] = R.getColumn(1);
+    bv2.axis[2] = R.getColumn(2);
+  }
+};
+
+
+
+
+template<typename BV1, typename BV2>
+static inline void convertBV(const BV1& bv1, const SimpleTransform& tf1, BV2& bv2) 
+{
+  Converter<BV1, BV2>::convert(bv1, tf1, bv2);
+}
 
 }
 

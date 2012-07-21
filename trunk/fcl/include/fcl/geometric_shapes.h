@@ -62,7 +62,6 @@ class Triangle2 : public ShapeBase
 public:
   Triangle2(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_) : ShapeBase(), a(a_), b(b_), c(c_)
   {
-    computeLocalAABB();
   }
 
   void computeLocalAABB();
@@ -78,13 +77,13 @@ class Box : public ShapeBase
 public:
   Box(FCL_REAL x, FCL_REAL y, FCL_REAL z) : ShapeBase(), side(x, y, z)
   {
-    computeLocalAABB();
   }
 
   Box(const Vec3f& side_) : ShapeBase(), side(side_) 
   {
-    computeLocalAABB();
   }
+
+  Box() {}
 
   /** box side length */
   Vec3f side;
@@ -102,7 +101,6 @@ class Sphere : public ShapeBase
 public:
   Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_)
   {
-    computeLocalAABB();
   }
   
   /** \brief Radius of the sphere */
@@ -121,7 +119,6 @@ class Capsule : public ShapeBase
 public:
   Capsule(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
-    computeLocalAABB();
   }
 
   /** \brief Radius of capsule */
@@ -143,7 +140,6 @@ class Cone : public ShapeBase
 public:
   Cone(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
-    computeLocalAABB();
   }
 
   
@@ -166,7 +162,6 @@ class Cylinder : public ShapeBase
 public:
   Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBase(), radius(radius_), lz(lz_)
   {
-    computeLocalAABB();
   }
 
   
@@ -211,8 +206,6 @@ public:
     center = sum * (FCL_REAL)(1.0 / num_points);
 
     fillEdges();
-
-    computeLocalAABB();
   }
 
   /** Copy constructor */
@@ -225,8 +218,6 @@ public:
     polygons = other.polygons;
     edges = new Edge[other.num_edges];
     memcpy(edges, other.edges, sizeof(Edge) * num_edges);
-
-    computeLocalAABB();
   }
 
   ~Convex()
@@ -277,16 +268,12 @@ public:
   Plane(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) 
   { 
     unitNormalTest(); 
-    
-    computeLocalAABB();
   }
   
   /** \brief Construct a plane with normal direction and offset */
   Plane(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : n(a, b, c), d(d_)
   {
     unitNormalTest();
-
-    computeLocalAABB();
   }
 
   /** \brief Compute AABB */

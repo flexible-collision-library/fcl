@@ -49,8 +49,8 @@ namespace fcl
 struct OcTreeCollisionPair
 {
   /** \brief The pointer to the octree nodes */
-  OcTree::OcTreeNode* node1;
-  OcTree::OcTreeNode* node2;
+  const OcTree::OcTreeNode* node1;
+  const OcTree::OcTreeNode* node2;
 
   /** \brief contact_point */
   Vec3f contact_point;
@@ -61,10 +61,10 @@ struct OcTreeCollisionPair
   /** \brief penetration depth between two octree cells */
   FCL_REAL penetration_depth;
 
-  OcTreeCollisionPair(OcTree::OcTreeNode* node1_, OcTree::OcTreeNode* node2_)
+  OcTreeCollisionPair(const OcTree::OcTreeNode* node1_, const OcTree::OcTreeNode* node2_)
     : node1(node1_), node2(node2_) {}
   
-  OcTreeCollisionPair(OcTree::OcTreeNode* node1_, OcTree::OcTreeNode* node2_,
+  OcTreeCollisionPair(const OcTree::OcTreeNode* node1_, const OcTree::OcTreeNode* node2_,
                       const Vec3f& contact_point_, const Vec3f& normal_, FCL_REAL penetration_depth_)
     : node1(node1_), node2(node2_), contact_point(contact_point_), normal(normal_), penetration_depth(penetration_depth_) {}
 };
@@ -72,7 +72,7 @@ struct OcTreeCollisionPair
 struct OcTreeMeshCollisionPair
 {
   /** \brief The pointer to the octree node */
-  OcTree::OcTreeNode* node;
+  const OcTree::OcTreeNode* node;
   
   /** \brief The index of BVH primitive */ 
   int id; 
@@ -86,10 +86,10 @@ struct OcTreeMeshCollisionPair
   /** \brief penetration depth between two octree cells */
   FCL_REAL penetration_depth;
 
-  OcTreeMeshCollisionPair(OcTree::OcTreeNode* node_, int id_)
+  OcTreeMeshCollisionPair(const OcTree::OcTreeNode* node_, int id_)
     : node(node_), id(id_) {}
   
-  OcTreeMeshCollisionPair(OcTree::OcTreeNode* node_, int id_,
+  OcTreeMeshCollisionPair(const OcTree::OcTreeNode* node_, int id_,
                           const Vec3f& contact_point_, const Vec3f& normal_, FCL_REAL penetration_depth_)
     : node(node_), id(id_), contact_point(contact_point_), normal(normal_), penetration_depth(penetration_depth_) {}
 };
@@ -98,7 +98,7 @@ struct OcTreeMeshCollisionPair
 struct OcTreeShapeCollisionPair
 {
   /** \brief The pointer to the octree node */
-  OcTree::OcTreeNode* node;
+  const OcTree::OcTreeNode* node;
 
   /** \brief contact_point */
   Vec3f contact_point;
@@ -109,8 +109,8 @@ struct OcTreeShapeCollisionPair
   /** \brief penetration depth between two octree cells */
   FCL_REAL penetration_depth;
 
-  OcTreeShapeCollisionPair(OcTree::OcTreeNode* node_) : node(node_) {}
-  OcTreeShapeCollisionPair(OcTree::OcTreeNode* node_,                          
+  OcTreeShapeCollisionPair(const OcTree::OcTreeNode* node_) : node(node_) {}
+  OcTreeShapeCollisionPair(const OcTree::OcTreeNode* node_,                          
                            const Vec3f& contact_point_, const Vec3f& normal_, FCL_REAL penetration_depth_)
     : node(node_), contact_point(contact_point_), normal(normal_), penetration_depth(penetration_depth_) {}
 };
@@ -120,24 +120,32 @@ template<typename NarrowPhaseSolver>
 class OcTreeSolver
 {
 private:
-  NarrowPhaseSolver* solver;
+  const NarrowPhaseSolver* solver;
+
+  mutable int num_max_contacts;
+  mutable bool enable_contact;
+  mutable bool exhaustive;
 
 public:
-  OcTreeSolver(NarrowPhaseSolver* solver_) : solver(solver_) {} 
+  OcTreeSolver(const NarrowPhaseSolver* solver_) : solver(solver_) {} 
 
-  void OcTreeIntersect(OcTree* tree1, OcTree* tree2,
+  void OcTreeIntersect(const OcTree* tree1, const OcTree* tree2,
                        const SimpleTransform& tf1, const SimpleTransform& tf2,
                        std::vector<OcTreeCollisionPair>& pairs,
-                       int num_max_contacts, bool enable_contact, bool exhaustive)
+                       int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
   {
+    num_max_contacts = num_max_contacts_;
+    enable_contact = enable_contact_;
+    exhaustive = exhaustive_;
+    
     OcTreeIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(), 
                            tree2, tree2->getRoot(), tree2->getRootBV(), 
-                           tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive);
+                           tf1, tf2, pairs);
   }
 
 
-  FCL_REAL OcTreeDistance(OcTree* tree1, OcTree* tree2,
-                          const SimpleTransform& tf1, const SimpleTransform& tf2)
+  FCL_REAL OcTreeDistance(const OcTree* tree1, const OcTree* tree2,
+                          const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
@@ -149,25 +157,28 @@ public:
   }
 
   template<typename BV>
-  void OcTreeMeshIntersect(OcTree* tree1, BVHModel<BV>* tree2,
+  void OcTreeMeshIntersect(const OcTree* tree1, const BVHModel<BV>* tree2,
                            const SimpleTransform& tf1, const SimpleTransform& tf2,
                            std::vector<OcTreeMeshCollisionPair>& pairs,
-                           int num_max_contacts, bool enable_contact, bool exhaustive)
+                           int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
   {
+    num_max_contacts = num_max_contacts_;
+    enable_contact = enable_contact_;
+    exhaustive = exhaustive_;
+
     OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
-                               tree2, 0, tree2->vertices, tree2->tri_indices,
-                               tf1, tf2, 
-                               pairs, num_max_contacts, enable_contact, exhaustive);
+                               tree2, 0,
+                               tf1, tf2, pairs);
   }
 
   template<typename BV>
-  FCL_REAL OcTreeMeshDistance(OcTree* tree1, BVHModel<BV>* tree2,
-                              const SimpleTransform& tf1, const SimpleTransform& tf2)
+  FCL_REAL OcTreeMeshDistance(const OcTree* tree1, const BVHModel<BV>* tree2,
+                              const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
     OcTreeMeshDistanceRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
-                              tree2, 0, tree2->vertices, tree2->tri_indices,
+                              tree2, 0,
                               tf1, tf2, min_dist);
     
     return min_dist;
@@ -175,26 +186,29 @@ public:
 
 
   template<typename BV>
-  void MeshOcTreeIntersect(BVHModel<BV>* tree1, OcTree* tree2,
+  void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree* tree2,
                            const SimpleTransform& tf1, const SimpleTransform& tf2,
                            std::vector<OcTreeMeshCollisionPair>& pairs,
-                           int num_max_contacts, bool enable_contact, bool exhaustive)
+                           int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
   
   {
+    num_max_contacts = num_max_contacts_;
+    enable_contact = enable_contact_;
+    exhaustive = exhaustive_;
+
     OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
-                               tree1, 0, tree1->vertices, tree1->tri_indices,
-                               tf2, tf1,
-                               pairs, num_max_contacts, enable_contact, exhaustive);
+                               tree1, 0,
+                               tf2, tf1, pairs);
   }
 
   
   template<typename BV>
-  FCL_REAL MeshOcTreeDistance(BVHModel<BV>* tree1, OcTree* tree2,
-                              const SimpleTransform& tf1, const SimpleTransform& tf2)
+  FCL_REAL MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree* tree2,
+                              const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
-    OcTreeMeshDistanceRecurse(tree1, 0, tree1->vertices, tree1->tri_indices,
+    OcTreeMeshDistanceRecurse(tree1, 0,
                               tree2, tree2->getRoot(), tree2->getRootBV(),
                               tf1, tf2, min_dist);
     
@@ -202,11 +216,15 @@ public:
   }
 
   template<typename S>
-  void OcTreeShapeIntersect(OcTree* tree, const S& s,
+  void OcTreeShapeIntersect(const OcTree* tree, const S& s,
                             const SimpleTransform& tf1, const SimpleTransform& tf2,
                             std::vector<OcTreeShapeCollisionPair>& pairs,
-                            int num_max_contacts, bool enable_contact, bool exhaustive)
+                            int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
   {
+    num_max_contacts = num_max_contacts_;
+    enable_contact = enable_contact_;
+    exhaustive = exhaustive_;
+
     AABB bv2;
     computeBV<AABB>(s, SimpleTransform(), bv2);
     Box box2;
@@ -214,17 +232,20 @@ public:
     constructBox(bv2, tf2, box2, box2_tf);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                 s, box2, box2_tf,
-                                tf1, tf2,
-                                pairs, num_max_contacts, enable_contact, exhaustive);
+                                tf1, tf2, pairs);
     
   }
 
   template<typename S>
-  void ShapeOcTreeIntersect(const S& s, OcTree* tree,
+  void ShapeOcTreeIntersect(const S& s, const OcTree* tree,
                             const SimpleTransform& tf1, const SimpleTransform& tf2,
                             std::vector<OcTreeShapeCollisionPair>& pairs,
-                            int num_max_contacts, bool enable_contact, bool exhaustive)
+                            int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
   {
+    num_max_contacts = num_max_contacts_;
+    enable_contact = enable_contact_;
+    exhaustive = exhaustive_;
+
     AABB bv1;
     computeBV<AABB>(s, SimpleTransform(), bv1);
     Box box1;
@@ -232,13 +253,12 @@ public:
     constructBox(bv1, tf1, box1, box1_tf);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                 s, box1, box1_tf,
-                                tf2, tf1,
-                                pairs, num_max_contacts, enable_contact, exhaustive);
+                                tf2, tf1, pairs);
   }
 
   template<typename S>
-  FCL_REAL OcTreeShapeDistance(OcTree* tree, const S& s,
-                               const SimpleTransform& tf1, const SimpleTransform& tf2)
+  FCL_REAL OcTreeShapeDistance(const OcTree* tree, const S& s,
+                               const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     AABB bv2;
     computeBV<AABB>(s, SimpleTransform(), bv2);
@@ -255,8 +275,8 @@ public:
   }
 
   template<typename S>
-  FCL_REAL ShapeOcTreeDistance(const S& s, OcTree* tree,
-                               const SimpleTransform& tf1, const SimpleTransform& tf2)
+  FCL_REAL ShapeOcTreeDistance(const S& s, const OcTree* tree,
+                               const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     AABB bv1;
     computeBV<AABB>(s, SimpleTransform(), bv1);
@@ -275,47 +295,11 @@ public:
   
 
 private:
-  static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& child_bv)
-  {
-    if(i&1)
-    {
-      child_bv.min_[0] = (root_bv.min_[0] + root_bv.max_[0]) * 0.5;
-      child_bv.max_[0] = root_bv.max_[0];
-    }
-    else
-    {
-      child_bv.min_[0] = root_bv.min_[0];
-      child_bv.max_[0] = (root_bv.min_[0] + root_bv.max_[0]) * 0.5;
-    }
-
-    if(i&2)
-    {
-      child_bv.min_[1] = (root_bv.min_[1] + root_bv.max_[1]) * 0.5;
-      child_bv.max_[1] = root_bv.max_[1];
-    }
-    else
-    {
-      child_bv.min_[1] = root_bv.min_[1];
-      child_bv.max_[1] = (root_bv.min_[1] + root_bv.max_[1]) * 0.5;
-    }
-
-    if(i&4)
-    {
-      child_bv.min_[2] = (root_bv.min_[2] + root_bv.max_[2]) * 0.5;
-      child_bv.max_[2] = root_bv.max_[2];
-    }        
-    else
-    {
-      child_bv.min_[2] = root_bv.min_[2];
-      child_bv.max_[2] = (root_bv.min_[2] + root_bv.max_[2]) * 0.5;
-    }
-  }
-
   template<typename S>
-  bool OcTreeShapeDistanceRecurse(OcTree* tree1, OcTree::OcTreeNode* root1, const AABB& bv1,
+  bool OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                   const S& s, const Box& box2, const SimpleTransform& box2_tf,
                                   const SimpleTransform& tf1, const SimpleTransform& tf2,
-                                  FCL_REAL& min_dist)
+                                  FCL_REAL& min_dist) const
   {
     if(!root1->hasChildren())
     {
@@ -341,7 +325,7 @@ private:
     {
       if(root1->childExists(i))
       {
-        OcTree::OcTreeNode* child = root1->getChild(i);
+        const OcTree::OcTreeNode* child = root1->getChild(i);
         AABB child_bv;
         computeChildBV(bv1, i, child_bv);
 
@@ -362,11 +346,10 @@ private:
   }
 
   template<typename S>
-  bool OcTreeShapeIntersectRecurse(OcTree* tree1, OcTree::OcTreeNode* root1, const AABB& bv1,
+  bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                    const S& s, const Box& box2, const SimpleTransform& box2_tf,
                                    const SimpleTransform& tf1, const SimpleTransform& tf2,
-                                   std::vector<OcTreeShapeCollisionPair>& pairs, 
-                                   int num_max_contacts, bool enable_contact, bool exhaustive)
+                                   std::vector<OcTreeShapeCollisionPair>& pairs) const
   {
     if(!root1->hasChildren())
     {
@@ -409,11 +392,11 @@ private:
     {
       if(root1->childExists(i))
       {
-        OcTree::OcTreeNode* child = root1->getChild(i);
+        const OcTree::OcTreeNode* child = root1->getChild(i);
         AABB child_bv;
         computeChildBV(bv1, i, child_bv);
         
-        if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, box2, box2_tf, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive))
+        if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, box2, box2_tf, tf1, tf2, pairs))
           return true;
       }
     }
@@ -422,9 +405,9 @@ private:
   }
 
   template<typename BV>
-  bool OcTreeMeshDistanceRecurse(OcTree* tree1, OcTree::OcTreeNode* root1, const AABB& bv1,
-                                 BVHModel<BV>* tree2, int root2, Vec3f* vertices2, Triangle* tri_indices2,
-                                 const SimpleTransform& tf1, const SimpleTransform& tf2, FCL_REAL& min_dist)
+  bool OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+                                 const BVHModel<BV>* tree2, int root2,
+                                 const SimpleTransform& tf1, const SimpleTransform& tf2, FCL_REAL& min_dist) const
   {
     if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
     {
@@ -435,13 +418,13 @@ private:
         constructBox(bv1, tf1, box, box_tf);
 
         int primitive_id = tree2->getBV(root2).primitiveId();
-        const Triangle& tri_id = tri_indices2[primitive_id];
-        const Vec3f& p1 = vertices2[tri_id[0]];
-        const Vec3f& p2 = vertices2[tri_id[1]];
-        const Vec3f& p3 = vertices2[tri_id[2]];
+        const Triangle& tri_id = tree2->tri_indices[primitive_id];
+        const Vec3f& p1 = tree2->vertices[tri_id[0]];
+        const Vec3f& p2 = tree2->vertices[tri_id[1]];
+        const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
         FCL_REAL dist;
-        solver->shapeDistance(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), &dist);
+        solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), &dist);
         if(dist < min_dist) min_dist = dist;
         return (min_dist <= 0);
       }
@@ -457,7 +440,7 @@ private:
       {
         if(root1->childExists(i))
         {
-          OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = root1->getChild(i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
@@ -470,7 +453,7 @@ private:
           solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
           if(dist < min_dist)
           {
-            if(OcTreeMeshDistanceRecurse(tree1, child, child_bv, tree2, root2, vertices2, tri_indices2, tf1, tf2, min_dist))
+            if(OcTreeMeshDistanceRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2, min_dist))
               return true;
           }
         }
@@ -489,7 +472,7 @@ private:
       solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
       if(dist < min_dist)
       {
-        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, vertices2, tri_indices2, tf1, tf2, min_dist))
+        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2, min_dist))
           return true;
       }
 
@@ -498,7 +481,7 @@ private:
       solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
       if(dist < min_dist)
       {
-        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, vertices2, tri_indices2, tf1, tf2, min_dist))
+        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2, min_dist))
           return true;      
       }
     }
@@ -508,11 +491,10 @@ private:
 
 
   template<typename BV>
-  bool OcTreeMeshIntersectRecurse(OcTree* tree1, OcTree::OcTreeNode* root1, const AABB& bv1,
-                                  BVHModel<BV>* tree2, int root2, Vec3f* vertices2, Triangle* tri_indices2,
+  bool OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+                                  const BVHModel<BV>* tree2, int root2,
                                   const SimpleTransform& tf1, const SimpleTransform& tf2,
-                                  std::vector<OcTreeMeshCollisionPair>& pairs,
-                                  int num_max_contacts, bool enable_contact, bool exhaustive)
+                                  std::vector<OcTreeMeshCollisionPair>& pairs) const
   {
     if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
     {
@@ -523,10 +505,10 @@ private:
         constructBox(bv1, tf1, box, box_tf);
 
         int primitive_id = tree2->getBV(root2).primitiveId();
-        const Triangle& tri_id = tri_indices2[primitive_id];
-        const Vec3f& p1 = vertices2[tri_id[0]];
-        const Vec3f& p2 = vertices2[tri_id[1]];
-        const Vec3f& p3 = vertices2[tri_id[2]];
+        const Triangle& tri_id = tree2->tri_indices[primitive_id];
+        const Vec3f& p1 = tree2->vertices[tri_id[0]];
+        const Vec3f& p2 = tree2->vertices[tri_id[1]];
+        const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
 
         if(!enable_contact)
@@ -564,21 +546,21 @@ private:
       {
         if(root1->childExists(i))
         {
-          OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = root1->getChild(i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
           
-          if(OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2, vertices2, tri_indices2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive))
+          if(OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2, pairs))
             return true;
         }
       }
     }
     else
     {
-      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).leftChild(), vertices2, tri_indices2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive))
+      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).leftChild(), tf1, tf2, pairs))
         return true;
 
-      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).rightChild(), vertices2, tri_indices2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive))
+      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).rightChild(), tf1, tf2, pairs))
         return true;      
 
     }
@@ -586,10 +568,10 @@ private:
     return false;
   }
 
-  bool OcTreeDistanceRecurse(OcTree* tree1, OcTree::OcTreeNode* root1, const AABB& bv1,
-                             OcTree* tree2, OcTree::OcTreeNode* root2, const AABB& bv2,
+  bool OcTreeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+                             const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
                              const SimpleTransform& tf1, const SimpleTransform& tf2,
-                             FCL_REAL& min_dist)
+                             FCL_REAL& min_dist) const
   {
     if(!root1->hasChildren() && !root2->hasChildren())
     {
@@ -618,7 +600,7 @@ private:
       {
         if(root1->childExists(i))
         {
-          OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = root1->getChild(i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
@@ -643,7 +625,7 @@ private:
       {
         if(root2->childExists(i))
         {
-          OcTree::OcTreeNode* child = root2->getChild(i);
+          const OcTree::OcTreeNode* child = root2->getChild(i);
           AABB child_bv;
           computeChildBV(bv2, i, child_bv);
 
@@ -667,11 +649,10 @@ private:
   }
 
 
-  bool OcTreeIntersectRecurse(OcTree* tree1, OcTree::OcTreeNode* root1, const AABB& bv1,
-                              OcTree* tree2, OcTree::OcTreeNode* root2, const AABB& bv2,
+  bool OcTreeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+                              const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
                               const SimpleTransform& tf1, const SimpleTransform& tf2,
-                              std::vector<OcTreeCollisionPair>& pairs,
-                              int num_max_contacts, bool enable_contact, bool exhaustive)
+                              std::vector<OcTreeCollisionPair>& pairs) const
   {
     if(!root1->hasChildren() && !root2->hasChildren())
     {
@@ -710,14 +691,13 @@ private:
       {
         if(root1->childExists(i))
         {
-          OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = root1->getChild(i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
         
           if(OcTreeIntersectRecurse(tree1, child, child_bv, 
                                     tree2, root2, bv2,
-                                    tf1, tf2, pairs, 
-                                    num_max_contacts, enable_contact, exhaustive))
+                                    tf1, tf2, pairs))
             return true;
         }
       }
@@ -728,14 +708,13 @@ private:
       {
         if(root2->childExists(i))
         {
-          OcTree::OcTreeNode* child = root2->getChild(i);
+          const OcTree::OcTreeNode* child = root2->getChild(i);
           AABB child_bv;
           computeChildBV(bv2, i, child_bv);
           
           if(OcTreeIntersectRecurse(tree1, root1, bv1,
                                     tree2, child, child_bv,
-                                    tf1, tf2, pairs,
-                                    num_max_contacts, enable_contact, exhaustive))
+                                    tf1, tf2, pairs))
             return true;
         }
       }
@@ -802,6 +781,7 @@ public:
     otsolver = NULL;
   }
 
+
   FCL_REAL BVTesting(int, int) const
   {
     return -1;
@@ -809,7 +789,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeDistance(model1, tf1, model2, tf2);
+    min_distance = otsolver->OcTreeDistance(model1, model2, tf1, tf2);
   }
 
   const OcTree* model1;
@@ -843,7 +823,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeShapeIntersect(model2, model1, tf2, tf1, pairs, num_max_contacts, enable_contact, exhaustive);
+    otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, pairs, num_max_contacts, enable_contact, exhaustive);
   }
 
   const S* model1;
@@ -883,7 +863,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeShapeIntersect(model1, model2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive);
+    otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive);
   }
 
   const OcTree* model1;
@@ -919,7 +899,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeShapeDistance(model2, tf2, model1, tf1);
+    min_distance = otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1);
   }
 
   const S* model1;
@@ -949,7 +929,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeShapeDistance(model1, tf1, model2, tf2);
+    min_distance = otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2);
   }
 
   const OcTree* model1;
@@ -1061,7 +1041,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeMeshDistance(model2, tf2, model1, tf1);
+    min_distance = otsolver->OcTreeMeshDistance(model2, model1, tf2, tf1);
   }
 
   const BVHModel<BV>* model1;
@@ -1092,7 +1072,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeMeshDistance(model1, tf1, model2, tf2);
+    min_distance = otsolver->OcTreeMeshDistance(model1, model2, tf1, tf2);
   }
 
   const OcTree* model1;

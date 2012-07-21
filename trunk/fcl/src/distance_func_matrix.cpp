@@ -43,6 +43,73 @@
 namespace fcl
 {
 
+template<typename T_SH, typename NarrowPhaseSolver>
+FCL_REAL ShapeOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+{
+  ShapeOcTreeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
+  const T_SH* obj1 = static_cast<const T_SH*>(o1);
+  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  distance(&node);
+  
+  return node.min_distance;
+}
+
+template<typename T_SH, typename NarrowPhaseSolver>
+FCL_REAL OcTreeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+{
+  OcTreeShapeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
+  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const T_SH* obj2 = static_cast<const T_SH*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  distance(&node);
+  
+  return node.min_distance;
+}
+
+template<typename NarrowPhaseSolver>
+FCL_REAL OcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver) 
+{
+  OcTreeDistanceTraversalNode<NarrowPhaseSolver> node;
+  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  distance(&node);
+
+  return node.min_distance;
+}
+
+template<typename T_BVH, typename NarrowPhaseSolver>
+FCL_REAL BVHOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver) 
+{
+  MeshOcTreeDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
+  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
+  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  distance(&node);
+
+  return node.min_distance;
+}
+
+template<typename T_BVH, typename NarrowPhaseSolver>
+FCL_REAL OcTreeBVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver) 
+{
+  OcTreeMeshDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
+  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  distance(&node);
+
+  return node.min_distance;
+}
+
+
+
 template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
 FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
 {
@@ -192,9 +259,9 @@ FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, co
 template<typename NarrowPhaseSolver>
 DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 {
-  for(int i = 0; i < NODE_COUNT-1; ++i)
+  for(int i = 0; i < NODE_COUNT; ++i)
   {
-    for(int j = 0; j < NODE_COUNT-1; ++j)
+    for(int j = 0; j < NODE_COUNT; ++j)
       distance_matrix[i][j] = NULL;
   }
 
@@ -328,6 +395,42 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[BV_RSS][BV_RSS] = &BVHDistance<RSS, NarrowPhaseSolver>;
   distance_matrix[BV_kIOS][BV_kIOS] = &BVHDistance<kIOS, NarrowPhaseSolver>;
   distance_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHDistance<OBBRSS, NarrowPhaseSolver>;
+
+  distance_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeDistance<Box, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeDistance<Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeDistance<Capsule, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeDistance<Cone, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeDistance<Cylinder, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][GEOM_CONVEX] = &OcTreeShapeDistance<Convex, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][GEOM_PLANE] = &OcTreeShapeDistance<Plane, NarrowPhaseSolver>;
+
+  distance_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeDistance<Box, NarrowPhaseSolver>;
+  distance_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeDistance<Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeDistance<Capsule, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeDistance<Cone, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeDistance<Cylinder, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CONVEX][GEOM_OCTREE] = &ShapeOcTreeDistance<Convex, NarrowPhaseSolver>;
+  distance_matrix[GEOM_PLANE][GEOM_OCTREE] = &ShapeOcTreeDistance<Plane, NarrowPhaseSolver>;
+
+  distance_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeDistance<NarrowPhaseSolver>;
+
+  distance_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHDistance<AABB, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHDistance<OBB, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHDistance<RSS, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHDistance<OBBRSS, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHDistance<kIOS, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHDistance<KDOP<16>, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHDistance<KDOP<18>, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHDistance<KDOP<24>, NarrowPhaseSolver>;
+
+  distance_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeDistance<AABB, NarrowPhaseSolver>;
+  distance_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeDistance<OBB, NarrowPhaseSolver>;
+  distance_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeDistance<RSS, NarrowPhaseSolver>;
+  distance_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeDistance<OBBRSS, NarrowPhaseSolver>;
+  distance_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeDistance<kIOS, NarrowPhaseSolver>;
+  distance_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<16>, NarrowPhaseSolver>;
+  distance_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<18>, NarrowPhaseSolver>;
+  distance_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<24>, NarrowPhaseSolver>;
 }
 
 template struct DistanceFunctionMatrix<GJKSolver_libccd>;

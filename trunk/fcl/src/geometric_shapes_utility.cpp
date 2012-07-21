@@ -495,7 +495,6 @@ void constructBox(const OBBRSS& bv, Box& box, SimpleTransform& tf)
   tf = SimpleTransform(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
                                 bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
                                 bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
-  
 }
 
 void constructBox(const kIOS& bv, Box& box, SimpleTransform& tf)
@@ -504,7 +503,6 @@ void constructBox(const kIOS& bv, Box& box, SimpleTransform& tf)
   tf = SimpleTransform(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
                                 bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
                                 bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
-
 }
 
 void constructBox(const RSS& bv, Box& box, SimpleTransform& tf)
@@ -555,7 +553,6 @@ void constructBox(const OBBRSS& bv, const SimpleTransform& tf_bv, Box& box, Simp
   tf = tf_bv * SimpleTransform(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
                                         bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
                                         bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
-  
 }
 
 void constructBox(const kIOS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
@@ -564,7 +561,6 @@ void constructBox(const kIOS& bv, const SimpleTransform& tf_bv, Box& box, Simple
   tf = tf_bv * SimpleTransform(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
                                         bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
                                         bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
-
 }
 
 void constructBox(const RSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)

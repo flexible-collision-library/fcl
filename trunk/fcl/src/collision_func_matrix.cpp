@@ -37,11 +37,7 @@
 
 #include "fcl/collision_func_matrix.h"
 
-#include "fcl/collision.h"
 #include "fcl/simple_setup.h"
-#include "fcl/geometric_shapes.h"
-#include "fcl/BVH_model.h"
-#include "fcl/octree.h"
 #include "fcl/collision_node.h"
 #include "fcl/narrowphase/narrowphase.h"
 
@@ -49,13 +45,44 @@
 namespace fcl
 {
 
+template<typename T_SH>
+static inline int OcTreeShapeContactCollection(const std::vector<OcTreeShapeCollisionPair>& pairs, const OcTree* obj1, const T_SH* obj2,
+                                               int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  int num_contacts = pairs.size();
+  if(num_contacts > 0)
+  {
+    if((!exhaustive) && (num_contacts > num_max_contacts)) num_contacts = num_max_contacts;
+    contacts.resize(num_contacts);
+    if(!enable_contact)
+    {
+      for(int i = 0; i < num_contacts; ++i)
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), 0);
+    }
+    else
+    {
+      for(int i = 0; i < num_contacts; ++i)
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), 0, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+    }
+  }
+  
+  return num_contacts;
+}
+
 template<typename T_SH, typename NarrowPhaseSolver>
 int ShapeOcTreeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
                        const NarrowPhaseSolver* nsolver,
                        int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
+  ShapeOcTreeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node;
   const T_SH* obj1 = static_cast<const T_SH*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, num_max_contacts, exhaustive, enable_contact);
+  collide(&node);
+  int num_contacts = OcTreeShapeContactCollection(node.pairs, obj2, obj1, num_max_contacts, exhaustive, enable_contact, contacts);
+
+  return num_contacts;
 }
 
 template<typename T_SH, typename NarrowPhaseSolver>
@@ -63,32 +90,112 @@ int OcTreeShapeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, 
                        const NarrowPhaseSolver* nsolver,
                        int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
+  OcTreeShapeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const T_SH* obj2 = static_cast<const T_SH*>(o2);
+  
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, num_max_contacts, exhaustive, enable_contact);
+  collide(&node);
+  int num_contacts = OcTreeShapeContactCollection(node.pairs, obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
+
+  return num_contacts;
 }
 
+static inline int OcTreeContactCollection(const std::vector<OcTreeCollisionPair>& pairs, const OcTree* obj1, const OcTree* obj2,
+                                          int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  int num_contacts = pairs.size();
+  if(num_contacts > 0)
+  {
+    if((!exhaustive) && (num_contacts > num_max_contacts)) num_contacts = num_max_contacts;
+    contacts.resize(num_contacts);
+    if(!enable_contact)
+    {
+      for(int i = 0; i < num_contacts; ++i)
+        contacts[i] = Contact(obj1, obj2, pairs[i].node1 - obj1->getRoot(), pairs[i].node2 - obj2->getRoot());
+    }
+    else
+    {
+      for(int i = 0; i < num_contacts; ++i)
+        contacts[i] = Contact(obj1, obj2, pairs[i].node1 - obj1->getRoot(), pairs[i].node2 - obj2->getRoot(), pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+    }
+  }
+  
+  return num_contacts;
+}
+
+template<typename NarrowPhaseSolver>
 int OcTreeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                  const NarrowPhaseSolver* nsolver,
                   int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
+  OcTreeCollisionTraversalNode<NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
 
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, num_max_contacts, exhaustive, enable_contact);
+  collide(&node);
+  int num_contacts = OcTreeContactCollection(node.pairs, obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
+  return num_contacts;
+}
+
+
+template<typename T_BVH>
+static inline int OcTreeBVHContactCollection(const std::vector<OcTreeMeshCollisionPair>& pairs, const OcTree* obj1, const BVHModel<T_BVH>* obj2,
+                                             int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
+{
+  int num_contacts = pairs.size();
+  if(num_contacts > 0)
+  {
+    if((!exhaustive) && (num_contacts > num_max_contacts)) num_contacts = num_max_contacts;
+    contacts.resize(num_contacts);
+    if(!enable_contact)
+    {
+      for(int i = 0; i < num_contacts; ++i)
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), pairs[i].id);
+    }
+    else
+    {
+      for(int i = 0; i < num_contacts; ++i)
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), pairs[i].id, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+    }
+  }
+  
+  return num_contacts;
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
 int OcTreeBVHCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                     const NarrowPhaseSolver* nsolver,
                      int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
+  OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
+
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, num_max_contacts, exhaustive, enable_contact);
+  collide(&node);
+  int num_contacts = OcTreeBVHContactCollection(node.pairs, obj1, obj2, num_max_contacts, exhaustive, enable_contact, contacts);
+  return num_contacts;
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
 int BVHOcTreeCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                     const NarrowPhaseSolver* nsolver,
                      int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts)
 {
+  MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
+
+  OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, num_max_contacts, exhaustive, enable_contact);
+  collide(&node);
+  int num_contacts = OcTreeBVHContactCollection(node.pairs, obj2, obj1, num_max_contacts, exhaustive, enable_contact, contacts);
+  return num_contacts;
 }
 
 
@@ -361,9 +468,9 @@ int BVHCollide(const CollisionGeometry* o1, const SimpleTransform& tf1, const Co
 template<typename NarrowPhaseSolver>
 CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 {
-  for(int i = 0; i < NODE_COUNT - 1; ++i)
+  for(int i = 0; i < NODE_COUNT; ++i)
   {
-    for(int j = 0; j < NODE_COUNT - 1; ++j)
+    for(int j = 0; j < NODE_COUNT; ++j)
       collision_matrix[i][j] = NULL;
   }
 
@@ -495,6 +602,43 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[BV_KDOP24][BV_KDOP24] = &BVHCollide<KDOP<24>, NarrowPhaseSolver>;
   collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS, NarrowPhaseSolver>;
   collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS, NarrowPhaseSolver>;
+
+  collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeCollide<Box, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeCollide<Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeCollide<Capsule, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeCollide<Cone, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeCollide<Cylinder, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_CONVEX] = &OcTreeShapeCollide<Convex, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_PLANE] = &OcTreeShapeCollide<Plane, NarrowPhaseSolver>;
+
+  collision_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeCollide<Box, NarrowPhaseSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeCollide<Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeCollide<Capsule, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeCollide<Cone, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeCollide<Cylinder, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_OCTREE] = &ShapeOcTreeCollide<Convex, NarrowPhaseSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_OCTREE] = &ShapeOcTreeCollide<Plane, NarrowPhaseSolver>;
+
+  collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeCollide<NarrowPhaseSolver>;
+
+  collision_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHCollide<AABB, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHCollide<OBB, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHCollide<RSS, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHCollide<OBBRSS, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHCollide<kIOS, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHCollide<KDOP<16>, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHCollide<KDOP<18>, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHCollide<KDOP<24>, NarrowPhaseSolver>;
+
+  collision_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeCollide<AABB, NarrowPhaseSolver>;
+  collision_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeCollide<OBB, NarrowPhaseSolver>;
+  collision_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeCollide<RSS, NarrowPhaseSolver>;
+  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeCollide<OBBRSS, NarrowPhaseSolver>;
+  collision_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeCollide<kIOS, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<16>, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<18>, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<24>, NarrowPhaseSolver>;
+
 }
 
 

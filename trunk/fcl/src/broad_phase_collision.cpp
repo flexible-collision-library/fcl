@@ -38,10 +38,11 @@
 #include "fcl/broad_phase_collision.h"
 #include "fcl/collision.h"
 #include "fcl/distance.h"
+#include "fcl/BV.h"
+#include "fcl/geometric_shapes_utility.h"
 #include <algorithm>
 #include <set>
 #include <deque>
-
 #include <iostream>
 
 namespace fcl
@@ -2342,6 +2343,140 @@ bool DynamicAABBTreeCollisionManager::selfDistanceRecurse(DynamicAABBNode* root,
   return false;
 }
 
+bool DynamicAABBTreeCollisionManager::collisionRecurse(DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, CollisionCallBack callback) const
+{
+  if(root1->isLeaf() && !root2->hasChildren())
+  {
+    if(tree2->isNodeOccupied(root2))
+    {
+      OBB obb1, obb2;
+      convertBV(root1->bv, SimpleTransform(), obb1);
+      convertBV(root2_bv, tf2, obb2);
+      
+      if(obb1.overlap(obb2))
+      {
+        Box* box = new Box();
+        SimpleTransform box_tf;
+        constructBox(root2_bv, tf2, *box, box_tf);
+        CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
+      }
+      else return false;
+    }
+    else return false;
+  }
+
+  OBB obb1, obb2;
+  convertBV(root1->bv, SimpleTransform(), obb1);
+  convertBV(root2_bv, tf2, obb2);
+
+  if(!tree2->isNodeOccupied(root2) || !obb1.overlap(obb2)) return false;
+
+  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  {
+    if(collisionRecurse(root1->childs[0], tree2, root2, root2_bv, tf2, cdata, callback))
+      return true;
+    if(collisionRecurse(root1->childs[1], tree2, root2, root2_bv, tf2, cdata, callback))
+      return true;
+  }
+  else
+  {
+    for(unsigned int i = 0; i < 8; ++i)
+    {
+      if(root2->childExists(i))
+      {
+        const OcTree::OcTreeNode* child = root2->getChild(i);
+        AABB child_bv;
+        computeChildBV(root2_bv, i, child_bv);
+
+        if(collisionRecurse(root1, tree2, child, child_bv, tf2, cdata, callback))
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool DynamicAABBTreeCollisionManager::distanceRecurse(DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
+{
+  if(root1->isLeaf() && !root2->hasChildren())
+  {
+    if(tree2->isNodeOccupied(root2))
+    {
+      Box* box = new Box();
+      SimpleTransform box_tf;
+      constructBox(root2_bv, tf2, *box, box_tf);
+      CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+      return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
+    }
+    else return false;
+  }
+  
+  if(!tree2->isNodeOccupied(root2)) return false;
+
+  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  {
+    AABB aabb2;
+    convertBV(root2_bv, tf2, aabb2);
+    
+    FCL_REAL d1 = aabb2.distance(root1->childs[0]->bv);
+    FCL_REAL d2 = aabb2.distance(root1->childs[1]->bv);
+
+    if(d2 < d1)
+    {
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[1], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[0], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+    }
+    else
+    {
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[0], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+      
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(root1->childs[1], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+    }
+  }
+  else
+  {
+    for(unsigned int i = 0; i < 8; ++i)
+    {
+      if(root2->childExists(i))
+      {
+        const OcTree::OcTreeNode* child = root2->getChild(i);
+        AABB child_bv;
+        computeChildBV(root2_bv, i, child_bv);
+
+        AABB aabb2;
+        convertBV(child_bv, tf2, aabb2);
+        FCL_REAL d = root1->bv.distance(aabb2);
+
+        if(d < min_dist)
+        {
+          if(distanceRecurse(root1, tree2, child, child_bv, tf2, cdata, callback, min_dist))
+            return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
 
 
 
@@ -2668,6 +2803,145 @@ bool DynamicAABBTreeCollisionManager2::selfDistanceRecurse(DynamicAABBNode* node
   if(distanceRecurse(nodes, root->childs[0], nodes, root->childs[1], cdata, callback, min_dist))
     return true;
 
+  return false;
+}
+
+
+
+bool DynamicAABBTreeCollisionManager2::collisionRecurse(DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, CollisionCallBack callback) const
+{
+  DynamicAABBNode* root1 = nodes1 + root1_id;
+  if(root1->isLeaf() && !root2->hasChildren())
+  {
+    if(tree2->isNodeOccupied(root2))
+    {
+      OBB obb1, obb2;
+      convertBV(root1->bv, SimpleTransform(), obb1);
+      convertBV(root2_bv, tf2, obb2);
+      
+      if(obb1.overlap(obb2))
+      {
+        Box* box = new Box();
+        SimpleTransform box_tf;
+        constructBox(root2_bv, tf2, *box, box_tf);
+        CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
+      }
+      else return false;
+    }
+    else return false;
+  }
+
+  OBB obb1, obb2;
+  convertBV(root1->bv, SimpleTransform(), obb1);
+  convertBV(root2_bv, tf2, obb2);
+  
+  if(!tree2->isNodeOccupied(root2) || !obb1.overlap(obb2)) return false;
+
+  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  {
+    if(collisionRecurse(nodes1, root1->childs[0], tree2, root2, root2_bv, tf2, cdata, callback))
+      return true;
+    if(collisionRecurse(nodes1, root1->childs[1], tree2, root2, root2_bv, tf2, cdata, callback))
+      return true;
+  }
+  else
+  {
+    for(unsigned int i = 0; i < 8; ++i)
+    {
+      if(root2->childExists(i))
+      {
+        const OcTree::OcTreeNode* child = root2->getChild(i);
+        AABB child_bv;
+        computeChildBV(root2_bv, i, child_bv);
+
+        if(collisionRecurse(nodes1, root1_id, tree2, child, child_bv, tf2, cdata, callback))
+          return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool DynamicAABBTreeCollisionManager2::distanceRecurse(DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
+{
+  DynamicAABBNode* root1 = nodes1 + root1_id;
+  if(root1->isLeaf() && !root2->hasChildren())
+  {
+    if(tree2->isNodeOccupied(root2))
+    {
+      Box* box = new Box();
+      SimpleTransform box_tf;
+      constructBox(root2_bv, tf2, *box, box_tf);
+      CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+      return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
+    }
+    else return false;
+  }
+
+  if(!tree2->isNodeOccupied(root2)) return false;
+
+  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  {
+    AABB aabb2;
+    convertBV(root2_bv, tf2, aabb2);
+
+    FCL_REAL d1 = aabb2.distance((nodes1 + root1->childs[0])->bv);
+    FCL_REAL d2 = aabb2.distance((nodes1 + root1->childs[1])->bv);
+      
+    if(d2 < d1)
+    {
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(nodes1, root1->childs[1], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+        
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(nodes1, root1->childs[0], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+    }
+    else
+    {
+      if(d1 < min_dist)
+      {
+        if(distanceRecurse(nodes1, root1->childs[0], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+
+      if(d2 < min_dist)
+      {
+        if(distanceRecurse(nodes1, root1->childs[1], tree2, root2, root2_bv, tf2, cdata, callback, min_dist))
+          return true;
+      }
+    }
+  }
+  else
+  {
+    for(unsigned int i = 0; i < 8; ++i)
+    {
+      if(root2->childExists(i))
+      {
+        const OcTree::OcTreeNode* child = root2->getChild(i);
+        AABB child_bv;
+        computeChildBV(root2_bv, i, child_bv);
+
+        AABB aabb2;
+        convertBV(child_bv, tf2, aabb2);
+        FCL_REAL d = root1->bv.distance(aabb2);
+        
+        if(d < min_dist)
+        {
+          if(distanceRecurse(nodes1, root1_id, tree2, child, child_bv, tf2, cdata, callback, min_dist))
+            return true;
+        }
+      }
+    }
+  }
+  
   return false;
 }
 

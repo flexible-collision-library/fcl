@@ -41,11 +41,211 @@
 #include "fcl/traversal_node_bvhs.h"
 #include "fcl/traversal_node_shapes.h"
 #include "fcl/traversal_node_bvh_shape.h"
+#include "fcl/traversal_node_octree.h"
 #include "fcl/BVH_utility.h"
 
 /** \brief Main namespace */
 namespace fcl
 {
+
+template<typename NarrowPhaseSolver>
+bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
+                const OcTree& model1, const SimpleTransform& tf1,
+                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  node.enable_contact = enable_contact;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+  
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+template<typename NarrowPhaseSolver>
+bool initialize(OcTreeDistanceTraversalNode<NarrowPhaseSolver>& node,
+                const OcTree& model1, const SimpleTransform& tf1,
+                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver)
+{
+  node.model1 = &model1;
+  node.model2 = &model2;
+  
+  node.otsolver = otsolver;
+  
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  node.enable_contact = enable_contact;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
+                const OcTree& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  node.enable_contact = enable_contact;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
+                const S& model1, const SimpleTransform& tf1,
+                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver)
+{
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+
+template<typename S, typename NarrowPhaseSolver>
+bool initialize(OcTreeShapeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
+                const OcTree& model1, const SimpleTransform& tf1,
+                const S& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver)
+{
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+template<typename BV, typename NarrowPhaseSolver>
+bool initialize(MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
+                const BVHModel<BV>& model1, const SimpleTransform& tf1,
+                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  node.enable_contact = enable_contact;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+template<typename BV, typename NarrowPhaseSolver>
+bool initialize(OcTreeMeshCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
+                const OcTree& model1, const SimpleTransform& tf1,
+                const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+                int num_max_contacts = 1, bool exhaustive = false, bool enable_contact = false)
+{
+  node.enable_contact = enable_contact;
+  node.num_max_contacts = num_max_contacts;
+  node.exhaustive = exhaustive;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+template<typename BV, typename NarrowPhaseSolver>
+bool initialize(MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
+                const BVHModel<BV>& model1, const SimpleTransform& tf1,
+                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver)
+{
+  node.model1 = &model1;
+  node.model2 = &model2;
+  
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+
+template<typename BV, typename NarrowPhaseSolver>
+bool initialize(OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
+                const OcTree& model1, const SimpleTransform& tf1,
+                const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                const OcTreeSolver<NarrowPhaseSolver>* otsolver)
+{
+  node.model1 = &model1;
+  node.model2 = &model2;
+  
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
+}
+
+
 
 /** \brief Initialize traversal node for collision between two geometric shapes */
 template<typename S1, typename S2, typename NarrowPhaseSolver>

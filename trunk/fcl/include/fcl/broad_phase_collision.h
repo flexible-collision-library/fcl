@@ -45,6 +45,7 @@
 #include "fcl/interval_tree.h"
 #include "fcl/hierarchy_tree.h"
 #include "fcl/hash.h"
+#include "fcl/octree.h"
 #include <vector>
 #include <list>
 #include <iostream>
@@ -1271,7 +1272,6 @@ protected:
   bool setup_;
 };
 
-
 class DynamicAABBTreeCollisionManager : public BroadPhaseCollisionManager
 {
 public:
@@ -1335,7 +1335,17 @@ public:
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
   {
     if(size() == 0) return;
-    collisionRecurse(dtree.getRoot(), obj, cdata, callback);
+    switch(obj->getCollisionGeometry()->getNodeType())
+    {
+    case GEOM_OCTREE:
+      {
+        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+        collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
+      }
+      break;
+    default:
+      collisionRecurse(dtree.getRoot(), obj, cdata, callback);
+    }
   }
 
   /** \brief perform distance computation between one object and all the objects belonging to the manager */
@@ -1343,7 +1353,17 @@ public:
   {
     if(size() == 0) return;
     FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-    distanceRecurse(dtree.getRoot(), obj, cdata, callback, min_dist);
+    switch(obj->getCollisionGeometry()->getNodeType())
+    {
+    case GEOM_OCTREE:
+      {
+        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+        distanceRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
+      }
+      break;
+    default:
+      distanceRecurse(dtree.getRoot(), obj, cdata, callback, min_dist);
+    }
   }
 
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
@@ -1412,6 +1432,12 @@ private:
   bool selfDistanceRecurse(DynamicAABBNode* root, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;  
 
   void update_(CollisionObject* updated_obj);
+
+  /** \brief special manager-obj collision for octree */
+  bool collisionRecurse(DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, CollisionCallBack callback) const;
+
+  bool distanceRecurse(DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
+
 };
 
 
@@ -1479,7 +1505,17 @@ public:
   void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
   {
     if(size() == 0) return;
-    collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
+    switch(obj->getCollisionGeometry()->getNodeType())
+    {
+    case GEOM_OCTREE:
+      {
+        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+        collisionRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
+      }
+      break;
+    default:
+      collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
+    }
   }
 
   /** \brief perform distance computation between one object and all the objects belonging to the manager */
@@ -1487,7 +1523,17 @@ public:
   {
     if(size() == 0) return;
     FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-    distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
+    switch(obj->getCollisionGeometry()->getNodeType())
+    {
+    case GEOM_OCTREE:
+      {
+        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+        distanceRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
+      }
+      break;
+    default:
+      distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
+    }
   }
 
   /** \brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision) */
@@ -1556,6 +1602,13 @@ private:
   bool selfDistanceRecurse(DynamicAABBNode* nodes, size_t root, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;  
 
   void update_(CollisionObject* updated_obj);
+
+  /** \brief special manager-obj collision for octree */
+  bool collisionRecurse(DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, CollisionCallBack callback) const;
+
+  bool distanceRecurse(DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const SimpleTransform& tf2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
+
+  
 };
 
 }

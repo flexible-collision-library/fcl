@@ -40,41 +40,6 @@
 namespace fcl
 {
 
-static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& child_bv)
-{
-  if(i&1)
-  {
-    child_bv.min_[0] = (root_bv.min_[0] + root_bv.max_[0]) * 0.5;
-    child_bv.max_[0] = root_bv.max_[0];
-  }
-  else
-  {
-    child_bv.min_[0] = root_bv.min_[0];
-    child_bv.max_[0] = (root_bv.min_[0] + root_bv.max_[0]) * 0.5;
-  }
-
-  if(i&2)
-  {
-    child_bv.min_[1] = (root_bv.min_[1] + root_bv.max_[1]) * 0.5;
-    child_bv.max_[1] = root_bv.max_[1];
-  }
-  else
-  {
-    child_bv.min_[1] = root_bv.min_[1];
-    child_bv.max_[1] = (root_bv.min_[1] + root_bv.max_[1]) * 0.5;
-  }
-
-  if(i&4)
-  {
-    child_bv.min_[2] = (root_bv.min_[2] + root_bv.max_[2]) * 0.5;
-    child_bv.max_[2] = root_bv.max_[2];
-  }        
-  else
-  {
-    child_bv.min_[2] = root_bv.min_[2];
-    child_bv.max_[2] = (root_bv.min_[2] + root_bv.max_[2]) * 0.5;
-  }
-}
 
 class ExtendedBox : public Box
 {
