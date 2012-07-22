@@ -227,11 +227,10 @@ public:
 
     AABB bv2;
     computeBV<AABB>(s, SimpleTransform(), bv2);
-    Box box2;
-    SimpleTransform box2_tf;
-    constructBox(bv2, tf2, box2, box2_tf);
+    OBB obb2;
+    convertBV(bv2, tf2, obb2);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
-                                s, box2, box2_tf,
+                                s, obb2,
                                 tf1, tf2, pairs);
     
   }
@@ -248,11 +247,10 @@ public:
 
     AABB bv1;
     computeBV<AABB>(s, SimpleTransform(), bv1);
-    Box box1;
-    SimpleTransform box1_tf;
-    constructBox(bv1, tf1, box1, box1_tf);
+    OBB obb1;
+    convertBV(bv1, tf1, obb1);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
-                                s, box1, box1_tf,
+                                s, obb1,
                                 tf2, tf1, pairs);
   }
 
@@ -260,16 +258,12 @@ public:
   FCL_REAL OcTreeShapeDistance(const OcTree* tree, const S& s,
                                const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
-    AABB bv2;
-    computeBV<AABB>(s, SimpleTransform(), bv2);
-    Box box2;
-    SimpleTransform box2_tf;
-    constructBox(bv2, tf2, box2, box2_tf);
-
+    AABB aabb2;
+    computeBV<AABB>(s, tf2, aabb2);
     FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
     
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
-                               s, box2, box2_tf,
+                               s, aabb2,
                                tf1, tf2, min_dist);
     return min_dist;
   }
@@ -278,16 +272,12 @@ public:
   FCL_REAL ShapeOcTreeDistance(const S& s, const OcTree* tree,
                                const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
-    AABB bv1;
-    computeBV<AABB>(s, SimpleTransform(), bv1);
-    Box box1;
-    SimpleTransform box1_tf;
-    constructBox(bv1, tf1, box1, box1_tf);
-
+    AABB aabb1;
+    computeBV<AABB>(s, tf1, aabb1);
     FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
-                               s, box1, box1_tf,
+                               s, aabb1,
                                tf2, tf1, min_dist);
 
     return min_dist;
@@ -297,7 +287,7 @@ public:
 private:
   template<typename S>
   bool OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                                  const S& s, const Box& box2, const SimpleTransform& box2_tf,
+                                  const S& s, const AABB& aabb2,
                                   const SimpleTransform& tf1, const SimpleTransform& tf2,
                                   FCL_REAL& min_dist) const
   {
@@ -308,7 +298,7 @@ private:
         Box box;
         SimpleTransform box_tf;
         constructBox(bv1, tf1, box, box_tf);
-
+ 
         FCL_REAL dist;
         solver->shapeDistance(box, box_tf, s, tf2, &dist);
         if(dist < min_dist) min_dist = dist;
@@ -328,15 +318,13 @@ private:
         const OcTree::OcTreeNode* child = root1->getChild(i);
         AABB child_bv;
         computeChildBV(bv1, i, child_bv);
-
-        Box box1;
-        SimpleTransform box1_tf;
-        constructBox(child_bv, tf1, box1, box1_tf);
-        FCL_REAL d;
-        solver->shapeDistance(box1, box1_tf, box2, box2_tf, &d);
+        
+        AABB aabb1;
+        convertBV(child_bv, tf1, aabb1);
+        FCL_REAL d = aabb1.distance(aabb2);
         if(d < min_dist)
         {
-          if(OcTreeShapeDistanceRecurse(tree1, child, child_bv, s, box2, box2_tf, tf1, tf2, min_dist))
+          if(OcTreeShapeDistanceRecurse(tree1, child, child_bv, s, aabb2, tf1, tf2, min_dist))
             return true;
         }        
       }
@@ -347,7 +335,7 @@ private:
 
   template<typename S>
   bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                                   const S& s, const Box& box2, const SimpleTransform& box2_tf,
+                                   const S& s, const OBB& obb2,
                                    const SimpleTransform& tf1, const SimpleTransform& tf2,
                                    std::vector<OcTreeShapeCollisionPair>& pairs) const
   {
@@ -355,38 +343,40 @@ private:
     {
       if(tree1->isNodeOccupied(root1))
       {
-        Box box;
-        SimpleTransform box_tf;
-        constructBox(bv1, tf1, box, box_tf);
-
-        if(!enable_contact)
+        OBB obb1;
+        convertBV(bv1, tf1, obb1);
+        if(obb1.overlap(obb2))
         {
-          if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
-            pairs.push_back(OcTreeShapeCollisionPair(root1));
-        }
-        else
-        {
-          Vec3f contact;
-          FCL_REAL depth;
-          Vec3f normal;
+          Box box;
+          SimpleTransform box_tf;
+          constructBox(bv1, tf1, box, box_tf);
 
-          if(solver->shapeIntersect(box, box_tf, s, tf2, &contact, &depth, &normal))
-            pairs.push_back(OcTreeShapeCollisionPair(root1, contact, normal, depth));
-        }
+          if(!enable_contact)
+          {
+            if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+              pairs.push_back(OcTreeShapeCollisionPair(root1));
+          }
+          else
+          {
+            Vec3f contact;
+            FCL_REAL depth;
+            Vec3f normal;
 
-        return ((pairs.size() >= num_max_contacts) && !exhaustive);        
+            if(solver->shapeIntersect(box, box_tf, s, tf2, &contact, &depth, &normal))
+              pairs.push_back(OcTreeShapeCollisionPair(root1, contact, normal, depth));
+          }
+
+          return ((pairs.size() >= num_max_contacts) && !exhaustive);        
+        }
+        else return false;
       }
       else
         return false;
     }
 
-
-    Box box1;
-    SimpleTransform box1_tf;
-    
-    constructBox(bv1, tf1, box1, box1_tf);
-
-    if(!tree1->isNodeOccupied(root1) || !solver->shapeIntersect(box1, box1_tf, box2, box2_tf, NULL, NULL, NULL)) return false;
+    OBB obb1;
+    convertBV(bv1, tf1, obb1);
+    if(!tree1->isNodeOccupied(root1) || !obb1.overlap(obb2)) return false;
 
     for(unsigned int i = 0; i < 8; ++i)
     {
@@ -396,7 +386,7 @@ private:
         AABB child_bv;
         computeChildBV(bv1, i, child_bv);
         
-        if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, box2, box2_tf, tf1, tf2, pairs))
+        if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, obb2, tf1, tf2, pairs))
           return true;
       }
     }
@@ -444,14 +434,13 @@ private:
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
-          Box box1, box2;
-          SimpleTransform box1_tf, box2_tf;
-          constructBox(child_bv, tf1, box1, box1_tf);
-          constructBox(tree2->getBV(root2).bv, tf2, box2, box2_tf);
+          FCL_REAL d;
+          AABB aabb1, aabb2;
+          convertBV(child_bv, tf1, aabb1);
+          convertBV(tree2->getBV(root2).bv, tf2, aabb2);
+          d = aabb1.distance(aabb2);
           
-          FCL_REAL dist;
-          solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
-          if(dist < min_dist)
+          if(d < min_dist)
           {
             if(OcTreeMeshDistanceRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2, min_dist))
               return true;
@@ -461,25 +450,24 @@ private:
     }
     else
     {
-      Box box1, box2;
-      SimpleTransform box1_tf, box2_tf;
-      constructBox(bv1, tf1, box1, box1_tf);
-
-      FCL_REAL dist;
-      
+      FCL_REAL d;
+      AABB aabb1, aabb2;
+      convertBV(bv1, tf1, aabb1);
       int child = tree2->getBV(root2).leftChild();
-      constructBox(tree2->getBV(child).bv, tf2, box2, box2_tf);
-      solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
-      if(dist < min_dist)
+      convertBV(tree2->getBV(child).bv, tf2, aabb2);
+      d = aabb1.distance(aabb2);
+
+      if(d < min_dist)
       {
         if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2, min_dist))
           return true;
       }
 
       child = tree2->getBV(root2).rightChild();
-      constructBox(tree2->getBV(child).bv, tf2, box2, box2_tf);
-      solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
-      if(dist < min_dist)
+      convertBV(tree2->getBV(child).bv, tf2, aabb2);
+      d = aabb1.distance(aabb2);
+      
+      if(d < min_dist)
       {
         if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2, min_dist))
           return true;      
@@ -500,45 +488,50 @@ private:
     {
       if(tree1->isNodeOccupied(root1))
       {
-        Box box;
-        SimpleTransform box_tf;
-        constructBox(bv1, tf1, box, box_tf);
-
-        int primitive_id = tree2->getBV(root2).primitiveId();
-        const Triangle& tri_id = tree2->tri_indices[primitive_id];
-        const Vec3f& p1 = tree2->vertices[tri_id[0]];
-        const Vec3f& p2 = tree2->vertices[tri_id[1]];
-        const Vec3f& p3 = tree2->vertices[tri_id[2]];
-        
-
-        if(!enable_contact)
+        OBB obb1, obb2;
+        convertBV(bv1, tf1, obb1);
+        convertBV(tree2->getBV(root2).bv, tf2, obb2);
+        if(obb1.overlap(obb2))
         {
-          if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), NULL, NULL, NULL))
-            pairs.push_back(OcTreeMeshCollisionPair(root1, root2));
+          Box box;
+          SimpleTransform box_tf;
+          constructBox(bv1, tf1, box, box_tf);
+
+          int primitive_id = tree2->getBV(root2).primitiveId();
+          const Triangle& tri_id = tree2->tri_indices[primitive_id];
+          const Vec3f& p1 = tree2->vertices[tri_id[0]];
+          const Vec3f& p2 = tree2->vertices[tri_id[1]];
+          const Vec3f& p3 = tree2->vertices[tri_id[2]];
+        
+          if(!enable_contact)
+          {
+            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), NULL, NULL, NULL))
+              pairs.push_back(OcTreeMeshCollisionPair(root1, root2));
+          }
+          else
+          {
+            Vec3f contact;
+            FCL_REAL depth;
+            Vec3f normal;
+
+            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), &contact, &depth, &normal))
+              pairs.push_back(OcTreeMeshCollisionPair(root1, root2, contact, normal, depth));
+          }
+
+          return ((pairs.size() >= num_max_contacts) && !exhaustive);
         }
         else
-        {
-          Vec3f contact;
-          FCL_REAL depth;
-          Vec3f normal;
-
-          if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), &contact, &depth, &normal))
-            pairs.push_back(OcTreeMeshCollisionPair(root1, root2, contact, normal, depth));
-        }
-
-        return ((pairs.size() >= num_max_contacts) && !exhaustive);
+          return false;
       }
       else
         return false;
     }
 
-    Box box1, box2;
-    SimpleTransform box1_tf, box2_tf;
-    
-    constructBox(bv1, tf1, box1, box1_tf);
-    constructBox(tree2->getBV(root2).bv, tf2, box2, box2_tf);
 
-    if(!tree1->isNodeOccupied(root1) || !solver->shapeIntersect(box1, box1_tf, box2, box2_tf, NULL, NULL, NULL)) return false;
+    OBB obb1, obb2;
+    convertBV(bv1, tf1, obb1);
+    convertBV(tree2->getBV(root2).bv, tf2, obb2);
+    if(!tree1->isNodeOccupied(root1) || !obb1.overlap(obb2)) return false;
 
     if(tree2->getBV(root2).isLeaf() || (root1->hasChildren() && (bv1.size() > tree2->getBV(root2).bv.size())))
     {
@@ -605,11 +598,11 @@ private:
           computeChildBV(bv1, i, child_bv);
 
           FCL_REAL d;
-          Box box1, box2;
-          SimpleTransform box1_tf, box2_tf;
-          constructBox(child_bv, tf1, box1, box1_tf);
-          constructBox(bv2, tf2, box2, box2_tf);
-          solver->shapeDistance(box1, box2_tf, box2, box2_tf, &d);
+          AABB aabb1, aabb2;
+          convertBV(bv1, tf1, aabb1);
+          convertBV(bv2, tf2, aabb2);
+          d = aabb1.distance(aabb2);
+
           if(d < min_dist)
           {
           
@@ -630,11 +623,10 @@ private:
           computeChildBV(bv2, i, child_bv);
 
           FCL_REAL d;
-          Box box1, box2;
-          SimpleTransform box1_tf, box2_tf;
-          constructBox(bv1, tf1, box1, box1_tf);
-          constructBox(child_bv, tf2, box2, box2_tf);
-          solver->shapeDistance(box1, box2_tf, box2, box2_tf, &d);
+          AABB aabb1, aabb2;
+          convertBV(bv1, tf1, aabb1);
+          convertBV(bv2, tf2, aabb2);
+          d = aabb1.distance(aabb2);
 
           if(d < min_dist)
           {
@@ -658,18 +650,22 @@ private:
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2))
       {
-        Box box1, box2;
-        SimpleTransform box1_tf, box2_tf;
-        constructBox(bv1, tf1, box1, box1_tf);
-        constructBox(bv2, tf2, box2, box2_tf);
-
         if(!enable_contact)
         {
-          if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, NULL, NULL, NULL))
+          OBB obb1, obb2;
+          convertBV(bv1, tf1, obb1);
+          convertBV(bv2, tf2, obb2);
+          
+          if(obb1.overlap(obb2))
             pairs.push_back(OcTreeCollisionPair(root1, root2));
         }
         else
         {
+          Box box1, box2;
+          SimpleTransform box1_tf, box2_tf;
+          constructBox(bv1, tf1, box1, box1_tf);
+          constructBox(bv2, tf2, box2, box2_tf);
+
           Vec3f contact;
           FCL_REAL depth;
           Vec3f normal;
@@ -684,6 +680,11 @@ private:
     }
 
     if(!tree1->isNodeOccupied(root1) || !tree2->isNodeOccupied(root2)) return false;
+
+    OBB obb1, obb2;
+    convertBV(bv1, tf1, obb1);
+    convertBV(bv2, tf2, obb2);
+    if(!obb1.overlap(obb2)) return false;
 
     if(!root2->hasChildren() || (root1->hasChildren() && (bv1.size() > bv2.size())))
     {

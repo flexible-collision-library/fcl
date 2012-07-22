@@ -61,22 +61,6 @@ private:
   }
 };
 
-template<typename BV1>
-class Converter<BV1, AABB>
-{
-public:
-  static void convert(const BV1& bv1, const SimpleTransform& tf1, AABB& bv2)
-  {
-    const Vec3f& center = bv1.center();
-    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).length() * 0.5;
-    Vec3f delta(r, r, r);
-    Vec3f center2 = tf1.transform(center);
-    bv2.min_ = center2 - delta;
-    bv2.max_ = center2 + delta;
-  }
-};
-
-
 template<>
 class Converter<AABB, AABB>
 {
@@ -104,6 +88,72 @@ public:
     bv2.axis[0] = R.getColumn(0);
     bv2.axis[1] = R.getColumn(1);
     bv2.axis[2] = R.getColumn(2);
+  }
+};
+
+template<>
+class Converter<OBB, OBB>
+{
+public:
+  static void convert(const OBB& bv1, const SimpleTransform& tf1, OBB& bv2)
+  {
+    bv2.extent = bv1.extent;
+    bv2.To = tf1.transform(bv1.To);
+    bv2.axis[0] = tf1.transform(bv1.axis[0]);
+    bv2.axis[1] = tf1.transform(bv1.axis[1]);
+    bv2.axis[2] = tf1.transform(bv1.axis[2]);
+  }
+};
+
+template<>
+class Converter<OBBRSS, OBB>
+{
+public:
+  static void convert(const OBBRSS& bv1, const SimpleTransform& tf1, OBB& bv2)
+  {
+    Converter<OBB, OBB>::convert(bv1.obb, tf1, bv2);
+  }
+};
+
+template<>
+class Converter<RSS, OBB>
+{
+public:
+  static void convert(const RSS& bv1, const SimpleTransform& tf1, OBB& bv2)
+  {
+    bv2.extent = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
+    bv2.To = tf1.transform(bv1.Tr);
+    bv2.axis[0] = tf1.transform(bv1.axis[0]);
+    bv2.axis[1] = tf1.transform(bv1.axis[1]);
+    bv2.axis[2] = tf1.transform(bv1.axis[2]);    
+  }
+};
+
+
+template<typename BV1>
+class Converter<BV1, AABB>
+{
+public:
+  static void convert(const BV1& bv1, const SimpleTransform& tf1, AABB& bv2)
+  {
+    const Vec3f& center = bv1.center();
+    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).length() * 0.5;
+    Vec3f delta(r, r, r);
+    Vec3f center2 = tf1.transform(center);
+    bv2.min_ = center2 - delta;
+    bv2.max_ = center2 + delta;
+  }
+};
+
+template<typename BV1>
+class Converter<BV1, OBB>
+{
+public:
+  static void convert(const BV1& bv1, const SimpleTransform& tf1, OBB& bv2)
+  {
+    AABB bv;
+    Converter<BV1, AABB>::convert(bv1, SimpleTransform(), bv);
+    Converter<AABB, OBB>::convert(bv, tf1, bv2);
   }
 };
 

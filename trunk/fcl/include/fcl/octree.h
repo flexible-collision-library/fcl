@@ -64,6 +64,13 @@ public:
   OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<octomap::OcTree>(new octomap::OcTree(resolution))) {}
   OcTree(const boost::shared_ptr<octomap::OcTree>& tree_) : tree(tree_) {}
 
+  void computeLocalAABB() 
+  {
+    aabb_local = getRootBV();
+    aabb_center = aabb_local.center();
+    aabb_radius = (aabb_local.min_ - aabb_center).length();
+  }
+
   inline AABB getRootBV() const
   {
     FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
@@ -109,11 +116,6 @@ public:
 
   OBJECT_TYPE getObjectType() const { return OT_OCTREE; }
   NODE_TYPE getNodeType() const { return GEOM_OCTREE; }
-  void computeLocalAABB() 
-  {
-    aabb_center = Vec3f();
-    aabb_radius = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
-  }
 };
 
 static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& child_bv)

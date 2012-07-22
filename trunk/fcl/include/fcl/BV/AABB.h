@@ -208,10 +208,16 @@ public:
     min_ = min_ * ratio - core.min_;
     max_ = max_ * ratio - core.max_;
     return *this;
-  }
-
-  
+  }  
 };
+
+static inline AABB translate(const AABB& aabb, const Vec3f& t)
+{
+  AABB res(aabb);
+  res.min_ += t;
+  res.max_ += t;
+  return res;
+}
 
 }
 
