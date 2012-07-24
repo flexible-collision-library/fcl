@@ -51,13 +51,13 @@ int conservativeAdvancement(const CollisionGeometry* o1,
                             MotionBase<BV>* motion1,
                             const CollisionGeometry* o2,
                             MotionBase<BV>* motion2,
-                            int num_max_contacts, bool exhaustive, bool enable_contact,
-                            std::vector<Contact>& contacts,
+                            const CollisionRequest& request,
+                            CollisionResult& result,
                             FCL_REAL& toc)
 {
-  if(num_max_contacts <= 0 && !exhaustive)
+  if(request.num_max_contacts <= 0 && !request.exhaustive)
   {
-    std::cerr << "Warning: should stop early as num_max_contact is " << num_max_contacts << " !" << std::endl;
+    std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !" << std::endl;
     return 0;
   }
 
@@ -83,15 +83,13 @@ int conservativeAdvancement(const CollisionGeometry* o1,
 
   // whether the first start configuration is in collision
   MeshCollisionTraversalNodeRSS cnode;
-  if(!initialize(cnode, *model1, tf1, *model2, tf2))
+  if(!initialize(cnode, *model1, tf1, *model2, tf2, request))
     std::cout << "initialize error" << std::endl;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), cnode.R, cnode.T);
 
   cnode.enable_statistics = false;
-  cnode.num_max_contacts = num_max_contacts;
-  cnode.exhaustive = exhaustive;
-  cnode.enable_contact = enable_contact;
+  cnode.request = request;
 
   collide(&cnode);
 
@@ -160,8 +158,8 @@ template int conservativeAdvancement<RSS>(const CollisionGeometry* o1,
                                           MotionBase<RSS>* motion1,
                                           const CollisionGeometry* o2,
                                           MotionBase<RSS>* motion2,
-                                          int num_max_contacts, bool exhaustive, bool enable_contact,
-                                          std::vector<Contact>& contacts,
+                                          const CollisionRequest& request,
+                                          CollisionResult& result,
                                           FCL_REAL& toc);
 
 

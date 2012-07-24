@@ -37,6 +37,7 @@
 #ifndef FCL_TRAVERSAL_NODE_OCTREE_H
 #define FCL_TRAVERSAL_NODE_OCTREE_H
 
+#include "fcl/collision_data.h"
 #include "fcl/traversal_node_base.h"
 #include "fcl/narrowphase/narrowphase.h"
 #include "fcl/geometric_shapes_utility.h"
@@ -122,9 +123,7 @@ class OcTreeSolver
 private:
   const NarrowPhaseSolver* solver;
 
-  mutable int num_max_contacts;
-  mutable bool enable_contact;
-  mutable bool exhaustive;
+  mutable CollisionRequest request;
 
 public:
   OcTreeSolver(const NarrowPhaseSolver* solver_) : solver(solver_) {} 
@@ -132,11 +131,9 @@ public:
   void OcTreeIntersect(const OcTree* tree1, const OcTree* tree2,
                        const SimpleTransform& tf1, const SimpleTransform& tf2,
                        std::vector<OcTreeCollisionPair>& pairs,
-                       int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
+                       const CollisionRequest& request_) const
   {
-    num_max_contacts = num_max_contacts_;
-    enable_contact = enable_contact_;
-    exhaustive = exhaustive_;
+    request = request_;
     
     OcTreeIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(), 
                            tree2, tree2->getRoot(), tree2->getRootBV(), 
@@ -160,11 +157,9 @@ public:
   void OcTreeMeshIntersect(const OcTree* tree1, const BVHModel<BV>* tree2,
                            const SimpleTransform& tf1, const SimpleTransform& tf2,
                            std::vector<OcTreeMeshCollisionPair>& pairs,
-                           int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
+                           const CollisionRequest& request_) const
   {
-    num_max_contacts = num_max_contacts_;
-    enable_contact = enable_contact_;
-    exhaustive = exhaustive_;
+    request = request_;
 
     OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
                                tree2, 0,
@@ -189,12 +184,10 @@ public:
   void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree* tree2,
                            const SimpleTransform& tf1, const SimpleTransform& tf2,
                            std::vector<OcTreeMeshCollisionPair>& pairs,
-                           int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
+                           const CollisionRequest& request_) const
   
   {
-    num_max_contacts = num_max_contacts_;
-    enable_contact = enable_contact_;
-    exhaustive = exhaustive_;
+    request = request_;
 
     OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
                                tree1, 0,
@@ -219,11 +212,9 @@ public:
   void OcTreeShapeIntersect(const OcTree* tree, const S& s,
                             const SimpleTransform& tf1, const SimpleTransform& tf2,
                             std::vector<OcTreeShapeCollisionPair>& pairs,
-                            int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
+                            const CollisionRequest& request_) const
   {
-    num_max_contacts = num_max_contacts_;
-    enable_contact = enable_contact_;
-    exhaustive = exhaustive_;
+    request = request_;
 
     AABB bv2;
     computeBV<AABB>(s, SimpleTransform(), bv2);
@@ -239,11 +230,9 @@ public:
   void ShapeOcTreeIntersect(const S& s, const OcTree* tree,
                             const SimpleTransform& tf1, const SimpleTransform& tf2,
                             std::vector<OcTreeShapeCollisionPair>& pairs,
-                            int num_max_contacts_, bool enable_contact_, bool exhaustive_) const
+                            const CollisionRequest& request_) const
   {
-    num_max_contacts = num_max_contacts_;
-    enable_contact = enable_contact_;
-    exhaustive = exhaustive_;
+    request = request_;
 
     AABB bv1;
     computeBV<AABB>(s, SimpleTransform(), bv1);
@@ -351,7 +340,7 @@ private:
           SimpleTransform box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
-          if(!enable_contact)
+          if(!request.enable_contact)
           {
             if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
               pairs.push_back(OcTreeShapeCollisionPair(root1));
@@ -366,7 +355,7 @@ private:
               pairs.push_back(OcTreeShapeCollisionPair(root1, contact, normal, depth));
           }
 
-          return ((pairs.size() >= num_max_contacts) && !exhaustive);        
+          return ((pairs.size() >= request.num_max_contacts) && !request.exhaustive);        
         }
         else return false;
       }
@@ -503,7 +492,7 @@ private:
           const Vec3f& p2 = tree2->vertices[tri_id[1]];
           const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
-          if(!enable_contact)
+          if(!request.enable_contact)
           {
             if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), NULL, NULL, NULL))
               pairs.push_back(OcTreeMeshCollisionPair(root1, root2));
@@ -518,7 +507,7 @@ private:
               pairs.push_back(OcTreeMeshCollisionPair(root1, root2, contact, normal, depth));
           }
 
-          return ((pairs.size() >= num_max_contacts) && !exhaustive);
+          return ((pairs.size() >= request.num_max_contacts) && !request.exhaustive);
         }
         else
           return false;
@@ -650,7 +639,7 @@ private:
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2))
       {
-        if(!enable_contact)
+        if(!request.enable_contact)
         {
           OBB obb1, obb2;
           convertBV(bv1, tf1, obb1);
@@ -673,7 +662,7 @@ private:
             pairs.push_back(OcTreeCollisionPair(root1, root2, contact, normal, depth));
         }
 
-        return ((pairs.size() >= num_max_contacts) && !exhaustive);       
+        return ((pairs.size() >= request.num_max_contacts) && !request.exhaustive);       
       }
       else
         return false;
@@ -738,10 +727,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    num_max_contacts = 1;
-    enable_contact = false;
-    exhaustive = false;
-
     otsolver = NULL;
   }
 
@@ -752,15 +737,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeIntersect(model1, model2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive);
+    otsolver->OcTreeIntersect(model1, model2, tf1, tf2, pairs, request);
   }
 
   const OcTree* model1;
   const OcTree* model2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   SimpleTransform tf1, tf2;
 
@@ -810,10 +791,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    num_max_contacts = 1;
-    enable_contact = false;
-    exhaustive = false;
-
     otsolver = NULL;
   }
 
@@ -824,15 +801,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, pairs, num_max_contacts, enable_contact, exhaustive);
+    otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, pairs, request);
   }
 
   const S* model1;
   const OcTree* model2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   SimpleTransform tf1, tf2;
   
@@ -850,10 +823,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    num_max_contacts = 1;
-    enable_contact = false;
-    exhaustive = false;
-
     otsolver = NULL;
   }
 
@@ -864,15 +833,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive);
+    otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, pairs, request);
   }
 
   const OcTree* model1;
   const S* model2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   SimpleTransform tf1, tf2;
   
@@ -951,10 +916,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    num_max_contacts = 1;
-    enable_contact = false;
-    exhaustive = false;
-
     otsolver = NULL;
   }
 
@@ -965,15 +926,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, pairs, num_max_contacts, enable_contact, exhaustive);
+    otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, pairs, request);
   }
 
   const BVHModel<BV>* model1;
   const OcTree* model2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   SimpleTransform tf1, tf2;
   
@@ -991,10 +948,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    num_max_contacts = 1;
-    enable_contact = false;
-    exhaustive = false;
-
     otsolver = NULL;
   }
 
@@ -1005,15 +958,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, pairs, num_max_contacts, enable_contact, exhaustive);
+    otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, pairs, request);
   }
 
   const OcTree* model1;
   const BVHModel<BV>* model2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   SimpleTransform tf1, tf2;
   

@@ -38,24 +38,29 @@
 #define FCL_DISTANCE_H
 
 #include "fcl/collision_object.h"
+#include "fcl/collision_data.h"
 
 namespace fcl
 {
 
 
 template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver);
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver,
+                  const DistanceRequest& request, DistanceResult& result);
 
 template<typename NarrowPhaseSolver>
 FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
                   const CollisionGeometry* o2, const SimpleTransform& tf2,
-                  const NarrowPhaseSolver* nsolver);
+                  const NarrowPhaseSolver* nsolver,
+                  const DistanceRequest& request, DistanceResult& result);
 
-
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2);
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
+                  const DistanceRequest& request, DistanceResult& result);
 
 FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
-                  const CollisionGeometry* o2, const SimpleTransform& tf2);
+                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+                  const DistanceRequest& request, DistanceResult& result);
+
 }
 
 #endif

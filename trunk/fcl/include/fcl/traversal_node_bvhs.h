@@ -38,6 +38,7 @@
 #ifndef FCL_TRAVERSAL_NODE_MESHES_H
 #define FCL_TRAVERSAL_NODE_MESHES_H
 
+#include "fcl/collision_data.h"
 #include "fcl/traversal_node_base.h"
 #include "fcl/BV_node.h"
 #include "fcl/BV.h"
@@ -188,10 +189,6 @@ public:
     vertices2 = NULL;
     tri_indices1 = NULL;
     tri_indices2 = NULL;
-
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
   }
 
   /** \brief Intersection testing between leaves (two triangles) */
@@ -221,7 +218,7 @@ public:
     Vec3f contacts[2];
 
 
-    if(!enable_contact) // only interested in collision or not
+    if(!this->request.enable_contact) // only interested in collision or not
     {
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
@@ -238,7 +235,7 @@ public:
       {
         for(int i = 0; i < n_contacts; ++i)
         {
-          if((!exhaustive) && (num_max_contacts <= (int)pairs.size())) break;
+          if((!this->request.exhaustive) && (this->request.num_max_contacts <= (int)pairs.size())) break;
           pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
         }
       }
@@ -248,7 +245,7 @@ public:
   /** \brief Whether the traversal process can stop early */
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices1;
@@ -256,10 +253,6 @@ public:
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   mutable std::vector<BVHCollisionPair> pairs;
 };
@@ -365,10 +358,6 @@ public:
     vertices1 = NULL;
     vertices2 = NULL;
 
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
-
     collision_prob_threshold = 0.5;
     max_collision_prob = 0;
     leaf_size_threshold = 1;
@@ -409,7 +398,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices1;
@@ -417,10 +406,6 @@ public:
 
   boost::shared_array<Uncertainty> uc1;
   boost::shared_array<Uncertainty> uc2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   mutable std::vector<BVHPointCollisionPair> pairs;
 
@@ -474,10 +459,6 @@ public:
     vertices2 = NULL;
     tri_indices2 = NULL;
 
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
-
     collision_prob_threshold = 0.5;
     max_collision_prob = 0;
     leaf_size_threshold = 1;
@@ -515,7 +496,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices1;
@@ -523,10 +504,6 @@ public:
 
   boost::shared_array<Uncertainty> uc1;
   Triangle* tri_indices2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   mutable std::vector<BVHPointCollisionPair> pairs;
 
@@ -595,10 +572,6 @@ public:
     tri_indices2 = NULL;
     prev_vertices1 = NULL;
     prev_vertices2 = NULL;
-
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
 
     num_vf_tests = 0;
     num_ee_tests = 0;
@@ -688,7 +661,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices1;
@@ -699,10 +672,6 @@ public:
 
   Vec3f* prev_vertices1;
   Vec3f* prev_vertices2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   mutable int num_vf_tests;
   mutable int num_ee_tests;
@@ -722,10 +691,6 @@ public:
     tri_indices1 = NULL;
     prev_vertices1 = NULL;
     prev_vertices2 = NULL;
-
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
 
     num_vf_tests = 0;
   }
@@ -781,7 +746,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices1;
@@ -791,10 +756,6 @@ public:
 
   Vec3f* prev_vertices1;
   Vec3f* prev_vertices2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   mutable int num_vf_tests;
 
@@ -813,10 +774,6 @@ public:
     tri_indices2 = NULL;
     prev_vertices1 = NULL;
     prev_vertices2 = NULL;
-
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
 
     num_vf_tests = 0;
   }
@@ -872,7 +829,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices1;
@@ -882,10 +839,6 @@ public:
 
   Vec3f* prev_vertices1;
   Vec3f* prev_vertices2;
-
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
 
   mutable int num_vf_tests;
 

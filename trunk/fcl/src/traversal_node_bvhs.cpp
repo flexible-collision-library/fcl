@@ -49,9 +49,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                         Triangle* tri_indices1, Triangle* tri_indices2,
                                                         const Matrix3f& R, const Vec3f& T,
                                                         bool enable_statistics,
-                                                        bool enable_contact,
-                                                        bool exhaustive,
-                                                        int num_max_contacts,
+                                                        const CollisionRequest& request,
                                                         int& num_leaf_tests,
                                                         std::vector<BVHCollisionPair>& pairs)
 {
@@ -79,7 +77,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
   Vec3f contacts[2];
 
 
-  if(!enable_contact) // only interested in collision or not
+  if(!request.enable_contact) // only interested in collision or not
   {
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
         pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
@@ -95,7 +93,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
     {
       for(int i = 0; i < n_contacts; ++i)
       {
-        if((!exhaustive) && (num_max_contacts <= (int)pairs.size())) break;
+        if((!request.exhaustive) && (request.num_max_contacts <= (int)pairs.size())) break;
         pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
       }
     }
@@ -176,8 +174,7 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, enable_contact, exhaustive,
-                                                num_max_contacts, 
+                                                enable_statistics, request,
                                                 num_leaf_tests,
                                                 pairs);
 }
@@ -194,8 +191,7 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& 
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, enable_contact, exhaustive,
-                                                num_max_contacts, 
+                                                enable_statistics, request,
                                                 num_leaf_tests,
                                                 pairs);
 }
@@ -219,8 +215,7 @@ void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, enable_contact, exhaustive,
-                                                num_max_contacts, 
+                                                enable_statistics, request,
                                                 num_leaf_tests,
                                                 pairs);
 }
@@ -245,8 +240,7 @@ void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, enable_contact, exhaustive,
-                                                num_max_contacts, 
+                                                enable_statistics, request,
                                                 num_leaf_tests,
                                                 pairs);
 }
@@ -270,8 +264,7 @@ void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, enable_contact, exhaustive,
-                                                num_max_contacts, 
+                                                enable_statistics, request,
                                                 num_leaf_tests,
                                                 pairs);
 }

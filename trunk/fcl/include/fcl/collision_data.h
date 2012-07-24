@@ -49,36 +49,104 @@ struct Contact
   }
 };
 
+struct CostSource
+{
+  Vec3f aabb_min;
+  Vec3f aabb_max;
+  FCL_REAL cost; // density
+};
+
+struct CollisionRequest
+{
+  bool exhaustive;
+  int num_max_contacts;
+  bool enable_contact;
+  int num_max_cost_sources;
+  bool enable_cost;
+
+  CollisionRequest(bool exhaustive_ = false,
+                   unsigned int num_max_contacts_ = 1,
+                   bool enable_contact_ = false,
+                   unsigned int num_max_cost_sources_ = 1,
+                   bool enable_cost_ = false) : exhaustive(exhaustive_),
+                                                num_max_contacts(num_max_contacts_),
+                                                enable_contact(enable_contact_),
+                                                num_max_cost_sources(num_max_cost_sources_),
+                                                enable_cost(enable_cost_)
+  {
+  }
+
+};
+
+
+struct CollisionResult
+{
+  std::vector<Contact> contacts;
+  std::vector<CostSource> cost_sources;
+
+  bool is_collision;
+
+  CollisionResult() : is_collision(false)
+  {
+  }
+
+  void clear()
+  {
+    contacts.clear();
+    cost_sources.clear();
+    is_collision = false;
+  }
+};
+
+
 struct CollisionData
 {
   CollisionData()
   {
     done = false;
-    is_collision = false;
-    num_max_contacts = 1;
-    enable_contact = false;
-    exhaustive = false;
   }
 
+  CollisionRequest request;
+  CollisionResult result;
   bool done;
-  bool is_collision;
-  bool exhaustive;
-  unsigned int num_max_contacts;
-  bool enable_contact;
+};
 
-  std::vector<Contact> contacts;
+
+struct DistanceRequest
+{
+  bool enable_nearest_points;
+  DistanceRequest() : enable_nearest_points(false)
+  {
+  }
+};
+
+struct DistanceResult
+{
+  FCL_REAL min_distance;
+
+  Vec3f nearest_points[2];
+  
+  DistanceResult() : min_distance(std::numeric_limits<FCL_REAL>::max())
+  {
+  }
+
+  void clear()
+  {
+    min_distance = std::numeric_limits<FCL_REAL>::max();
+  }
 };
 
 struct DistanceData
 {
   DistanceData()
   {
-    min_distance = std::numeric_limits<FCL_REAL>::max();
     done = false;
   }
 
-  FCL_REAL min_distance;
   bool done;
+
+  DistanceRequest request;
+  DistanceResult result;
 };
 
 

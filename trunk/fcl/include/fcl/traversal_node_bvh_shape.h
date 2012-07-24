@@ -38,6 +38,7 @@
 #ifndef FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 #define FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 
+#include "fcl/collision_data.h"
 #include "fcl/geometric_shapes.h"
 #include "fcl/traversal_node_base.h"
 #include "fcl/BVH_model.h"
@@ -183,10 +184,6 @@ public:
     vertices = NULL;
     tri_indices = NULL;
 
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
-
     nsolver = NULL;
   }
 
@@ -207,7 +204,7 @@ public:
     Vec3f normal;
     Vec3f contactp;
 
-    if(!enable_contact) // only interested in collision or not
+    if(!request.enable_contact) // only interested in collision or not
     {
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
       {
@@ -225,15 +222,13 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices;
   Triangle* tri_indices;
 
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
+  CollisionRequest request;
 
   mutable std::vector<BVHShapeCollisionPair> pairs;
 
@@ -251,9 +246,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                              const SimpleTransform& tf2,
                                                              const NarrowPhaseSolver* nsolver,
                                                              bool enable_statistics, 
-                                                             bool enable_contact,
-                                                             bool exhaustive,
-                                                             int num_max_contacts,
+                                                             const CollisionRequest& request,
                                                              int& num_leaf_tests,
                                                              std::vector<BVHShapeCollisionPair>& pairs)
                                                  
@@ -273,7 +266,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
   Vec3f normal;
   Vec3f contactp;
 
-  if(!enable_contact) // only interested in collision or not
+  if(!request.enable_contact) // only interested in collision or not
   {
     if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, R, T, NULL, NULL, NULL))
     {
@@ -309,8 +302,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -336,8 +328,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -363,8 +354,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -390,8 +380,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->enable_contact,
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
   }
 
   // R, T is the transform of bvh model
@@ -407,10 +396,6 @@ public:
   {
     vertices = NULL;
     tri_indices = NULL;
-
-    num_max_contacts = 1;
-    exhaustive = false;
-    enable_contact = false;
 
     nsolver = NULL;
   }
@@ -432,7 +417,7 @@ public:
     Vec3f normal;
     Vec3f contactp;
 
-    if(!enable_contact) // only interested in collision or not
+    if(!request.enable_contact) // only interested in collision or not
     {
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
       {
@@ -450,15 +435,13 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!exhaustive) && (num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= (int)pairs.size());
   }
 
   Vec3f* vertices;
   Triangle* tri_indices;
 
-  int num_max_contacts;
-  bool exhaustive;
-  bool enable_contact;
+  CollisionRequest request;
 
   mutable std::vector<BVHShapeCollisionPair> pairs;
 
@@ -483,8 +466,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }
@@ -513,8 +495,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }
@@ -543,8 +524,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }
@@ -573,8 +553,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->enable_contact, 
-                                                       this->exhaustive, this->num_max_contacts, this->num_leaf_tests, this->pairs);
+                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
 
     // may need to change the order in pairs
   }

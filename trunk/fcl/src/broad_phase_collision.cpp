@@ -52,21 +52,22 @@ namespace fcl
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
 {
   CollisionData* cdata = static_cast<CollisionData*>(cdata_);
+  const CollisionRequest& request = cdata->request;
+  CollisionResult& result = cdata->result;
 
   if(cdata->done) return true;
 
-  std::vector<Contact> contacts;
-  // int num_contacts = collide(o1, o2, 1, false, false, contacts);
-  int num_contacts = collide(o1, o2, cdata->num_max_contacts, cdata->exhaustive, cdata->enable_contact, contacts);
+  CollisionResult local_result;
+  int num_contacts = collide(o1, o2, request, local_result);
 
-  cdata->is_collision = (num_contacts > 0);
+  result.is_collision = (num_contacts > 0);
   for(int i = 0; i < num_contacts; ++i)
   {
-    cdata->contacts.push_back(contacts[i]);
+    result.contacts.push_back(local_result.contacts[i]);
   }
 
   // set done flag
-  if( (!cdata->exhaustive) && (cdata->is_collision) && (cdata->contacts.size() >= cdata->num_max_contacts))
+  if( (!request.exhaustive) && (result.is_collision) && (result.contacts.size() >= request.num_max_contacts))
     cdata->done = true;
 
   return cdata->done;
@@ -75,13 +76,17 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_, FCL_REAL& dist)
 {
   DistanceData* cdata = static_cast<DistanceData*>(cdata_);
-  
-  if(cdata->done) { dist = cdata->min_distance; return true; }
+  const DistanceRequest& request = cdata->request;
+  DistanceResult& result = cdata->result;
 
-  FCL_REAL d = distance(o1, o2);
-  if(cdata->min_distance > d) cdata->min_distance = d;
+  if(cdata->done) { dist = result.min_distance; return true; }
+
+  DistanceResult local_result;
+  distance(o1, o2, request, local_result);
+  FCL_REAL d = local_result.min_distance;
+  if(result.min_distance > d) result.min_distance = d;
   
-  dist = cdata->min_distance;
+  dist = result.min_distance;
 
   if(dist <= 0) return true; // in collision or in touch
 

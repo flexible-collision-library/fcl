@@ -39,6 +39,7 @@
 
 #include "fcl/primitive.h"
 #include "fcl/transform.h"
+#include "fcl/collision_data.h"
 
 /** \brief Main namespace */
 namespace fcl
@@ -100,6 +101,8 @@ public:
 
   /** \brief Check whether the traversal can stop */
   virtual bool canStop() const;
+
+  CollisionRequest request;
 };
 
 class DistanceTraversalNodeBase : public TraversalNodeBase
@@ -114,6 +117,8 @@ public:
   virtual void leafTesting(int b1, int b2) const;
 
   virtual bool canStop(FCL_REAL c) const;
+
+  DistanceRequest request;
 };
 
 }

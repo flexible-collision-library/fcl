@@ -47,7 +47,7 @@ template<typename BV, typename OrientedNode>
 static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
                                                   const BVHModel<BV>& model1, const SimpleTransform& tf1,
                                                   const BVHModel<BV>& model2, const SimpleTransform& tf2,
-                                                  int num_max_contacts, bool exhaustive, bool enable_contact)
+                                                  const CollisionRequest& request)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -63,9 +63,7 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
   node.model2 = &model2;
   node.tf2 = tf2;
 
-  node.num_max_contacts = num_max_contacts;
-  node.exhaustive = exhaustive;
-  node.enable_contact = enable_contact;
+  node.request = request;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 
@@ -78,35 +76,35 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
 bool initialize(MeshCollisionTraversalNodeOBB& node,
                 const BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBB>& model2, const SimpleTransform& tf2,
-                int num_max_contacts, bool exhaustive, bool enable_contact)
+                const CollisionRequest& request)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, num_max_contacts, exhaustive, enable_contact);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request);
 }
 
 
 bool initialize(MeshCollisionTraversalNodeRSS& node,
                 const BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2,
-                int num_max_contacts, bool exhaustive, bool enable_contact)
+                const CollisionRequest& request)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, num_max_contacts, exhaustive, enable_contact);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request);
 }
 
 
 bool initialize(MeshCollisionTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
                 const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
-                int num_max_contacts, bool exhaustive, bool enable_contact)
+                const CollisionRequest& request)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, num_max_contacts, exhaustive, enable_contact);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request);
 }
 
 bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
                 const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
-                int num_max_contacts, bool exhaustive, bool enable_contact)
+                const CollisionRequest& request)
 {
-  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, num_max_contacts, exhaustive, enable_contact);
+  return details::setupMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request);
 }
 
 
@@ -118,11 +116,9 @@ template<typename BV, typename OrientedNode>
 static inline bool setupPointCloudCollisionOrientedNode(OrientedNode& node, 
                                                         BVHModel<BV>& model1, const SimpleTransform& tf1,
                                                         BVHModel<BV>& model2, const SimpleTransform& tf2,
+                                                        const CollisionRequest& request,
                                                         FCL_REAL collision_prob_threshold,
                                                         int leaf_size_threshold,
-                                                        int num_max_contacts,
-                                                        bool exhaustive,
-                                                        bool enable_contact,
                                                         FCL_REAL expand_r)
 {
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD)
@@ -146,9 +142,7 @@ static inline bool setupPointCloudCollisionOrientedNode(OrientedNode& node,
   BVHExpand(model1, node.uc1.get(), expand_r);
   BVHExpand(model2, node.uc2.get(), expand_r);
 
-  node.num_max_contacts = num_max_contacts;
-  node.exhaustive = exhaustive;
-  node.enable_contact = enable_contact;
+  node.request = request;
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
@@ -162,28 +156,24 @@ static inline bool setupPointCloudCollisionOrientedNode(OrientedNode& node,
 bool initialize(PointCloudCollisionTraversalNodeOBB& node,
                 BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 BVHModel<OBB>& model2, const SimpleTransform& tf2,
+                const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
-                int num_max_contacts,
-                bool exhaustive,
-                bool enable_contact,
                 FCL_REAL expand_r)
 {
-  return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
+  return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
 }
 
 
 bool initialize(PointCloudCollisionTraversalNodeRSS& node,
                 BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
-                int num_max_contacts,
-                bool exhaustive,
-                bool enable_contact,
                 FCL_REAL expand_r)
 {
-  return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
+  return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
 }
 
 namespace details
@@ -193,11 +183,9 @@ template<typename BV, typename OrientedNode>
 static inline bool setupPointCloudMeshCollisionOrientedNode(OrientedNode& node,
                                                             BVHModel<BV>& model1, const SimpleTransform& tf1,
                                                             const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                                                            const CollisionRequest& request,
                                                             FCL_REAL collision_prob_threshold,
                                                             int leaf_size_threshold,
-                                                            int num_max_contacts,
-                                                            bool exhaustive,
-                                                            bool enable_contact,
                                                             FCL_REAL expand_r)
 {
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD) || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -218,9 +206,7 @@ static inline bool setupPointCloudMeshCollisionOrientedNode(OrientedNode& node,
 
   BVHExpand(model1, node.uc1.get(), expand_r);
 
-  node.num_max_contacts = num_max_contacts;
-  node.exhaustive = exhaustive;
-  node.enable_contact = enable_contact;
+  node.request = request;
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
@@ -233,28 +219,24 @@ static inline bool setupPointCloudMeshCollisionOrientedNode(OrientedNode& node,
 bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
                 BVHModel<OBB>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBB>& model2, const SimpleTransform& tf2,
+                const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
-                int num_max_contacts,
-                bool exhaustive,
-                bool enable_contact,
                 FCL_REAL expand_r)
 {
-  return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
+  return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
 }
 
 
 bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
                 BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold,
                 int leaf_size_threshold,
-                int num_max_contacts,
-                bool exhaustive,
-                bool enable_contact,
                 FCL_REAL expand_r)
 {
-  return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, collision_prob_threshold, leaf_size_threshold, num_max_contacts, exhaustive, enable_contact, expand_r);
+  return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
 }
 
 #endif
@@ -265,10 +247,13 @@ namespace details
 template<typename BV, typename OrientedNode>
 static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
                                                  const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                                                 const BVHModel<BV>& model2, const SimpleTransform& tf2)
+                                                 const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                                                 const DistanceRequest& request)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
+
+  node.request = request;
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -291,24 +276,27 @@ static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
 
 bool initialize(MeshDistanceTraversalNodeRSS& node,
                 const BVHModel<RSS>& model1, const SimpleTransform& tf1,
-                const BVHModel<RSS>& model2, const SimpleTransform& tf2)
+                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const DistanceRequest& request)
 {
-  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2);
+  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request);
 }
 
 
 bool initialize(MeshDistanceTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
-                const BVHModel<kIOS>& model2, const SimpleTransform& tf2)
+                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                const DistanceRequest& request)
 {
-  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2);
+  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request);
 }
 
 bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
                 const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
-                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2)
+                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                const DistanceRequest& request)
 {
-  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2);
+  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request);
 }
 
 

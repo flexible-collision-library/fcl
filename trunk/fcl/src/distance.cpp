@@ -51,15 +51,18 @@ DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
 }
 
 template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver)
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver,
+                  const DistanceRequest& request, DistanceResult& result)
 {
-  return distance<NarrowPhaseSolver>(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), nsolver);
+  return distance<NarrowPhaseSolver>(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), nsolver,
+                                     request, result);
 }
 
 template<typename NarrowPhaseSolver>
 FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, 
                   const CollisionGeometry* o2, const SimpleTransform& tf2,
-                  const NarrowPhaseSolver* nsolver_)
+                  const NarrowPhaseSolver* nsolver_,
+                  const DistanceRequest& request, DistanceResult& result)
 {
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_) 
@@ -72,18 +75,17 @@ FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  FCL_REAL res;
+  FCL_REAL res = std::numeric_limits<FCL_REAL>::max();
 
   if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
     if(!looktable.distance_matrix[node_type2][node_type1])
     {
       std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-      res = 0;
     }
     else
     {
-      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver);
+      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
     }
   }
   else
@@ -91,11 +93,10 @@ FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
     if(!looktable.distance_matrix[node_type1][node_type2])
     {
       std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-      res = 0;
     }
     else
     {
-      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver);    
+      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, request, result);    
     }
   }
 
@@ -105,24 +106,25 @@ FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
   return res;
 }
 
-template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver);
-template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver);
-template FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver);
-template FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver);
+template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, const DistanceRequest& request, DistanceResult& result);
+template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, const DistanceRequest& request, DistanceResult& result);
+template FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver, const DistanceRequest& request, DistanceResult& result);
+template FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver, const DistanceRequest& request, DistanceResult& result);
 
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2)
+FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
 {
   GJKSolver_libccd solver;
-  return distance<GJKSolver_libccd>(o1, o2, &solver);
+  return distance<GJKSolver_libccd>(o1, o2, &solver, request, result);
 }
 
 FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
-                  const CollisionGeometry* o2, const SimpleTransform& tf2)
+                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+                  const DistanceRequest& request, DistanceResult& result)
 {
   GJKSolver_libccd solver;
-  return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver);
+  return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
   // GJKSolver_indep solver;
-  // return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver);
+  // return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
 }
 
 

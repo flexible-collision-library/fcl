@@ -54,20 +54,19 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 template<typename NarrowPhaseSolver>
 int collide(const CollisionObject* o1, const CollisionObject* o2,
             const NarrowPhaseSolver* nsolver,
-            int num_max_contacts, bool exhaustive, bool enable_contact,
-            std::vector<Contact>& contacts)
+            const CollisionRequest& request,
+            CollisionResult& result)
 {
   return collide(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(),
-                 nsolver,
-                 num_max_contacts, exhaustive, enable_contact, contacts);
+                 nsolver, request, result);
 }
 
 template<typename NarrowPhaseSolver>
 int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
             const CollisionGeometry* o2, const SimpleTransform& tf2,
             const NarrowPhaseSolver* nsolver_,
-            int num_max_contacts, bool exhaustive, bool enable_contact,
-            std::vector<Contact>& contacts)
+            const CollisionRequest& request,
+            CollisionResult& result)
 {
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_)
@@ -76,9 +75,9 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
   const CollisionFunctionMatrix<NarrowPhaseSolver>& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
 
   int res; 
-  if(num_max_contacts <= 0 && !exhaustive)
+  if(request.num_max_contacts <= 0 && !request.exhaustive)
   {
-    std::cerr << "Warning: should stop early as num_max_contact is " << num_max_contacts << " !" << std::endl;
+    std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !" << std::endl;
     res = 0;
   }
   else
@@ -96,7 +95,7 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
         res = 0;
       }
       else
-        res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, num_max_contacts, exhaustive, enable_contact, contacts);
+        res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
     }
     else
     {
@@ -106,7 +105,7 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
         res = 0;
       }
       else
-        res = looktable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, num_max_contacts, exhaustive, enable_contact, contacts);
+        res = looktable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, request, result);
     }
   }
 
@@ -116,29 +115,27 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
   return res;
 }
 
-template int collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
-template int collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
-template int collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
-template int collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver, int num_max_contacts, bool exhaustive, bool enable_contact, std::vector<Contact>& contacts);
+template int collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
+template int collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
+template int collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
+template int collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
 
 
 int collide(const CollisionObject* o1, const CollisionObject* o2,
-            int num_max_contacts, bool exhaustive, bool enable_contact,
-            std::vector<Contact>& contacts)
+            const CollisionRequest& request, CollisionResult& result)
 {
   GJKSolver_libccd solver;
-  return collide<GJKSolver_libccd>(o1, o2, &solver, num_max_contacts, exhaustive, enable_contact, contacts);
+  return collide<GJKSolver_libccd>(o1, o2, &solver, request, result);
 }
 
 int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
             const CollisionGeometry* o2, const SimpleTransform& tf2,
-            int num_max_contacts, bool exhaustive, bool enable_contact,
-            std::vector<Contact>& contacts)
+            const CollisionRequest& request, CollisionResult& result)
 {
   GJKSolver_libccd solver;
-  return collide<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, num_max_contacts, exhaustive, enable_contact, contacts);
+  return collide<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
   // GJKSolver_indep solver;
-  // return collide<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, num_max_contacts, exhaustive, enable_contact, contacts);
+  // return collide<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
 }
 
 }

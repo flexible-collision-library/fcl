@@ -38,6 +38,7 @@
 #ifndef FCL_TRAVERSAL_NODE_SHAPES_H
 #define FCL_TRAVERSAL_NODE_SHAPES_H
 
+#include "fcl/collision_data.h"
 #include "fcl/traversal_node_base.h"
 #include "fcl/narrowphase/narrowphase.h"
 
@@ -53,7 +54,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    enable_contact = false;
     is_collision = false;
 
     nsolver = NULL;
@@ -66,7 +66,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    if(enable_contact)
+    if(request.enable_contact)
       is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal);
     else
       is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL);
@@ -82,7 +82,7 @@ public:
 
   mutable FCL_REAL penetration_depth;
 
-  bool enable_contact;
+  CollisionRequest request;
 
   mutable bool is_collision;
 

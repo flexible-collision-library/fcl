@@ -44,88 +44,101 @@ namespace fcl
 {
 
 template<typename T_SH, typename NarrowPhaseSolver>
-FCL_REAL ShapeOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+FCL_REAL ShapeOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                             const DistanceRequest& request, DistanceResult& result)
 {
   ShapeOcTreeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
   const T_SH* obj1 = static_cast<const T_SH*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request);
   distance(&node);
   
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 template<typename T_SH, typename NarrowPhaseSolver>
-FCL_REAL OcTreeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+FCL_REAL OcTreeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                             const DistanceRequest& request, DistanceResult& result)
 {
   OcTreeShapeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const T_SH* obj2 = static_cast<const T_SH*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request);
   distance(&node);
   
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 template<typename NarrowPhaseSolver>
-FCL_REAL OcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver) 
+FCL_REAL OcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                        const DistanceRequest& request, DistanceResult& result)
 {
   OcTreeDistanceTraversalNode<NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request);
   distance(&node);
 
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
-FCL_REAL BVHOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver) 
+FCL_REAL BVHOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                           const DistanceRequest& request, DistanceResult& result)
 {
   MeshOcTreeDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request);
   distance(&node);
 
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
-FCL_REAL OcTreeBVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver) 
+FCL_REAL OcTreeBVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                       const DistanceRequest& request, DistanceResult& result)
 {
   OcTreeMeshDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request);
   distance(&node);
 
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 
 
 template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
-FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                        const DistanceRequest& request, DistanceResult& result)
 {
   ShapeDistanceTraversalNode<T_SH1, T_SH2, NarrowPhaseSolver> node;
   const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
   const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
-  initialize(node, *obj1, tf1, *obj2, tf2, nsolver);
+  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request);
   distance(&node);
 
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 template<typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                           const DistanceRequest& request, DistanceResult& result)
   {
     MeshShapeDistanceTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
@@ -133,10 +146,11 @@ struct BVHShapeDistancer
     SimpleTransform tf1_tmp = tf1;
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver);
+    initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request);
     fcl::distance(&node);
     
     delete obj1_tmp;
+    result.min_distance = node.min_distance;
     return node.min_distance;
   }
 };
@@ -144,15 +158,17 @@ struct BVHShapeDistancer
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer<RSS, T_SH, NarrowPhaseSolver>
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                           const DistanceRequest& request, DistanceResult& result)
   {
     MeshShapeDistanceTraversalNodeRSS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<RSS>* obj1 = static_cast<const BVHModel<RSS>* >(o1);
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver);
+    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request);
     fcl::distance(&node);
 
+    result.min_distance = node.min_distance;
     return node.min_distance;
   }
 };
@@ -161,15 +177,17 @@ struct BVHShapeDistancer<RSS, T_SH, NarrowPhaseSolver>
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer<kIOS, T_SH, NarrowPhaseSolver>
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                       const DistanceRequest& request, DistanceResult& result)
   {
     MeshShapeDistanceTraversalNodekIOS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver);
+    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request);
     fcl::distance(&node);
 
+    result.min_distance = node.min_distance;
     return node.min_distance;
   }
 };
@@ -177,22 +195,25 @@ struct BVHShapeDistancer<kIOS, T_SH, NarrowPhaseSolver>
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeDistancer<OBBRSS, T_SH, NarrowPhaseSolver>
 {
-  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver)
+  static FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+                           const DistanceRequest& request, DistanceResult& result)
   {
     MeshShapeDistanceTraversalNodeOBBRSS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver);
+    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request);
     fcl::distance(&node);
 
+    result.min_distance = node.min_distance;
     return node.min_distance;
   }
 };
 
 
 template<typename T_BVH>
-FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                     const DistanceRequest& request, DistanceResult& result)
 {
   MeshDistanceTraversalNode<T_BVH> node;
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
@@ -202,58 +223,66 @@ FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, co
   BVHModel<T_BVH>* obj2_tmp = new BVHModel<T_BVH>(*obj2);
   SimpleTransform tf2_tmp = tf2;
 
-  initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp);
+  initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, request);
   distance(&node);
   
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 template<>
-FCL_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                          const DistanceRequest& request, DistanceResult& result)
 {
   MeshDistanceTraversalNodeRSS node;
   const BVHModel<RSS>* obj1 = static_cast<const BVHModel<RSS>* >(o1);
   const BVHModel<RSS>* obj2 = static_cast<const BVHModel<RSS>* >(o2);
 
-  initialize(node, *obj1, tf1, *obj2, tf2);
+  initialize(node, *obj1, tf1, *obj2, tf2, request);
   distance(&node);
 
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 template<>
-FCL_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                           const DistanceRequest& request, DistanceResult& result)
 {
   MeshDistanceTraversalNodekIOS node;
   const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);
   const BVHModel<kIOS>* obj2 = static_cast<const BVHModel<kIOS>* >(o2);
 
-  initialize(node, *obj1, tf1, *obj2, tf2);
+  initialize(node, *obj1, tf1, *obj2, tf2, request);
   distance(&node);
 
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 
 template<>
-FCL_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2)
+FCL_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
+                             const DistanceRequest& request, DistanceResult& result)
 {
   MeshDistanceTraversalNodeOBBRSS node;
   const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
   const BVHModel<OBBRSS>* obj2 = static_cast<const BVHModel<OBBRSS>* >(o2);
 
-  initialize(node, *obj1, tf1, *obj2, tf2);
+  initialize(node, *obj1, tf1, *obj2, tf2, request);
   distance(&node);
 
+  result.min_distance = node.min_distance;
   return node.min_distance;
 }
 
 
 template<typename T_BVH, typename NarrowPhaseSolver>
 FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2,
-                     const NarrowPhaseSolver* nsolver)
+                     const NarrowPhaseSolver* nsolver,
+                     const DistanceRequest& request, DistanceResult& result)
 {
-  return BVHDistance<T_BVH>(o1, tf1, o2, tf2);
+  return BVHDistance<T_BVH>(o1, tf1, o2, tf2, request, result);
 }
 
 template<typename NarrowPhaseSolver>
