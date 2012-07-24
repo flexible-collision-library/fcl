@@ -55,7 +55,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
                             CollisionResult& result,
                             FCL_REAL& toc)
 {
-  if(request.num_max_contacts <= 0 && !request.exhaustive)
+  if((request.num_max_contacts == 0) && !request.exhaustive)
   {
     std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !" << std::endl;
     return 0;

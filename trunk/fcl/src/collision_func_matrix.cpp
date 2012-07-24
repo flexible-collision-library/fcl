@@ -53,16 +53,17 @@ static inline int OcTreeShapeContactCollection(const std::vector<OcTreeShapeColl
   if(num_contacts > 0)
   {
     if((!request.exhaustive) && (num_contacts > request.num_max_contacts)) num_contacts = request.num_max_contacts;
-    result.contacts.resize(num_contacts);
+    std::vector<Contact>& contacts = result.contacts;
+    contacts.resize(num_contacts);
     if(!request.enable_contact)
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), 0);
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), 0);
     }
     else
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), 0, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), 0, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
     }
   }
   
@@ -109,16 +110,17 @@ static inline int OcTreeContactCollection(const std::vector<OcTreeCollisionPair>
   if(num_contacts > 0)
   {
     if((!request.exhaustive) && (num_contacts > request.num_max_contacts)) num_contacts = request.num_max_contacts;
-    result.contacts.resize(num_contacts);
+    std::vector<Contact>& contacts = result.contacts;
+    contacts.resize(num_contacts);
     if(!request.enable_contact)
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].node1 - obj1->getRoot(), pairs[i].node2 - obj2->getRoot());
+        contacts[i] = Contact(obj1, obj2, pairs[i].node1 - obj1->getRoot(), pairs[i].node2 - obj2->getRoot());
     }
     else
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].node1 - obj1->getRoot(), pairs[i].node2 - obj2->getRoot(), pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+        contacts[i] = Contact(obj1, obj2, pairs[i].node1 - obj1->getRoot(), pairs[i].node2 - obj2->getRoot(), pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
     }
   }
   
@@ -150,16 +152,17 @@ static inline int OcTreeBVHContactCollection(const std::vector<OcTreeMeshCollisi
   if(num_contacts > 0)
   {
     if((!request.exhaustive) && (num_contacts > request.num_max_contacts)) num_contacts = request.num_max_contacts;
-    result.contacts.resize(num_contacts);
+    std::vector<Contact>& contacts = result.contacts;
+    contacts.resize(num_contacts);
     if(!request.enable_contact)
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), pairs[i].id);
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), pairs[i].id);
     }
     else
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), pairs[i].id, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+        contacts[i] = Contact(obj1, obj2, pairs[i].node - obj1->getRoot(), pairs[i].id, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
     }
   }
   
@@ -226,16 +229,17 @@ static inline int BVHShapeContactCollection(const std::vector<BVHShapeCollisionP
   if(num_contacts > 0)
   {
     if((!request.exhaustive) && (num_contacts > request.num_max_contacts)) num_contacts = request.num_max_contacts;
-    result.contacts.resize(num_contacts);
+    std::vector<Contact>& contacts = result.contacts;
+    contacts.resize(num_contacts);
     if(!request.enable_contact)
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].id, 0);
+        contacts[i] = Contact(obj1, obj2, pairs[i].id, 0);
     }
     else
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].id, 0, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+        contacts[i] = Contact(obj1, obj2, pairs[i].id, 0, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
     }
   }
 
@@ -350,16 +354,17 @@ static inline int BVHContactCollection(const std::vector<BVHCollisionPair>& pair
   if(num_contacts > 0)
   {
     if((!request.exhaustive) && (num_contacts > request.num_max_contacts)) num_contacts = request.num_max_contacts;
-    result.contacts.resize(num_contacts);
+    std::vector<Contact>& contacts = result.contacts;
+    contacts.resize(num_contacts);
     if(!request.enable_contact)
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2);
+        contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2);
     }
     else
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
+        contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2, pairs[i].contact_point, pairs[i].normal, pairs[i].penetration_depth);
     }
   }
 
@@ -374,11 +379,12 @@ static inline int BVHContactCollection2(const std::vector<BVHCollisionPair>& pai
   if(num_contacts > 0)
   {
     if((!request.exhaustive) && (num_contacts > request.num_max_contacts)) num_contacts = request.num_max_contacts;
-    result.contacts.resize(num_contacts);
+    std::vector<Contact>& contacts = result.contacts;
+    contacts.resize(num_contacts);
     if(!request.enable_contact)
     {
       for(int i = 0; i < num_contacts; ++i)
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2);
+        contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2);
     }
     else
     {
@@ -386,7 +392,7 @@ static inline int BVHContactCollection2(const std::vector<BVHCollisionPair>& pai
       {
         Vec3f normal = tf1.getRotation() * pairs[i].normal;
         Vec3f contact_point = tf1.transform(pairs[i].contact_point);
-        result.contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2, contact_point, normal, pairs[i].penetration_depth);
+        contacts[i] = Contact(obj1, obj2, pairs[i].id1, pairs[i].id2, contact_point, normal, pairs[i].penetration_depth);
       }
     }
   }

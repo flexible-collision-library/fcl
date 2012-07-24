@@ -412,8 +412,8 @@ void SpatialHashingCollisionManager<HashTable>::update()
   hash_table->clear();
   objs_outside_scene_limit.clear();
 
-  std::list<CollisionObject*>::const_iterator it;
-  for(it = objs.begin(); it != objs.end(); ++it)
+  for(std::list<CollisionObject*>::const_iterator it = objs.begin(), end = objs.end(); 
+      it != end; ++it)
   {
     CollisionObject* obj = *it;
     const AABB& obj_aabb = obj->getAABB();
@@ -513,8 +513,8 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
   {
     if(!scene_limit.contain(obj_aabb))
     {
-      std::list<CollisionObject*>::const_iterator it;
-      for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
+      for(std::list<CollisionObject*>::const_iterator it = objs_outside_scene_limit.begin(), end = objs_outside_scene_limit.end(); 
+          it != end; ++it)
       {
         if(obj == *it) continue;
         if(callback(obj, *it, cdata)) return true; 
@@ -530,8 +530,9 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
   }
   else
   {
-    std::list<CollisionObject*>::const_iterator it;
-    for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
+    ;
+    for(std::list<CollisionObject*>::const_iterator it = objs_outside_scene_limit.begin(), end = objs_outside_scene_limit.end(); 
+        it != end; ++it)
     {
       if(obj == *it) continue;
       if(callback(obj, *it, cdata)) return true;
@@ -565,8 +566,8 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
     {
       if(!scene_limit.contain(aabb))
       {
-        std::list<CollisionObject*>::const_iterator it;
-        for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
+        for(std::list<CollisionObject*>::const_iterator it = objs_outside_scene_limit.begin(), end = objs_outside_scene_limit.end(); 
+            it != end; ++it)
         {
           if(obj == *it) continue;
           if(!enable_tested_set_)
@@ -608,8 +609,8 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
     }
     else
     {
-      std::list<CollisionObject*>::const_iterator it;
-      for(it = objs_outside_scene_limit.begin(); it != objs_outside_scene_limit.end(); ++it)
+      for(std::list<CollisionObject*>::const_iterator it = objs_outside_scene_limit.begin(), end = objs_outside_scene_limit.end(); 
+          it != end; ++it)
       {
         if(obj == *it) continue;
         if(!enable_tested_set_)
@@ -662,8 +663,8 @@ void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCa
 {
   if(size() == 0) return;
 
-  std::list<CollisionObject*>::const_iterator it1;
-  for(it1 = objs.begin(); it1 != objs.end(); ++it1)
+  for(std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end1 = objs.end(); 
+      it1 != end1; ++it1)
   {
     const AABB& obj_aabb = (*it1)->getAABB();
     AABB overlap_aabb;
@@ -672,8 +673,8 @@ void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCa
     {
       if(!scene_limit.contain(obj_aabb))
       {
-        std::list<CollisionObject*>::const_iterator it2;
-        for(it2 = objs_outside_scene_limit.begin(); it2 != objs_outside_scene_limit.end(); ++it2)
+        for(std::list<CollisionObject*>::const_iterator it2 = objs_outside_scene_limit.begin(), end2 = objs_outside_scene_limit.end(); 
+            it2 != end2; ++it2)
         {
           if(*it1 < *it2) { if(callback(*it1, *it2, cdata)) return; }
         }
@@ -687,8 +688,8 @@ void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCa
     }
     else
     {
-      std::list<CollisionObject*>::const_iterator it2;
-      for(it2 = objs_outside_scene_limit.begin(); it2 != objs_outside_scene_limit.end(); ++it2)
+      for(std::list<CollisionObject*>::const_iterator it2 = objs_outside_scene_limit.begin(), end2 = objs_outside_scene_limit.end(); 
+          it2 != end2; ++it2)
       {
         if(*it1 < *it2) { if(callback(*it1, *it2, cdata)) return; }
       }
@@ -706,7 +707,7 @@ void SpatialHashingCollisionManager<HashTable>::distance(void* cdata, DistanceCa
   
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
-  for(std::list<CollisionObject*>::const_iterator it = objs.begin(); it != objs.end(); ++it)
+  for(std::list<CollisionObject*>::const_iterator it = objs.begin(), end = objs.end(); it != end; ++it)
     if(distance_(*it, cdata, callback, min_dist)) break;
 
   enable_tested_set_ = false;
@@ -728,12 +729,12 @@ void SpatialHashingCollisionManager<HashTable>::collide(BroadPhaseCollisionManag
 
   if(this->size() < other_manager->size())
   {
-    for(std::list<CollisionObject*>::const_iterator it = objs.begin(); it != objs.end(); ++it)
+    for(std::list<CollisionObject*>::const_iterator it = objs.begin(), end = objs.end(); it != end; ++it)
       if(other_manager->collide_(*it, cdata, callback)) return;
   }
   else
   {
-    for(std::list<CollisionObject*>::const_iterator it = other_manager->objs.begin(); it != other_manager->objs.end(); ++it)
+    for(std::list<CollisionObject*>::const_iterator it = other_manager->objs.begin(), end = other_manager->objs.end(); it != end; ++it)
       if(collide_(*it, cdata, callback)) return;
   }
 }
@@ -755,12 +756,12 @@ void SpatialHashingCollisionManager<HashTable>::distance(BroadPhaseCollisionMana
 
   if(this->size() < other_manager->size())
   {
-    for(std::list<CollisionObject*>::const_iterator it = objs.begin(); it != objs.end(); ++it)
+    for(std::list<CollisionObject*>::const_iterator it = objs.begin(), end = objs.end(); it != end; ++it)
       if(other_manager->distance_(*it, cdata, callback, min_dist)) return;
   }
   else
   {
-    for(std::list<CollisionObject*>::const_iterator it = other_manager->objs.begin(); it != other_manager->objs.end(); ++it)
+    for(std::list<CollisionObject*>::const_iterator it = other_manager->objs.begin(), end = other_manager->objs.end(); it != end; ++it)
       if(distance_(*it, cdata, callback, min_dist)) return;
   }
 }
@@ -1013,8 +1014,8 @@ protected:
   void addToOverlapPairs(const SaPPair& p)
   {
     bool repeated = false;
-    for(std::list<SaPPair>::iterator it = overlap_pairs.begin();
-        it != overlap_pairs.end();
+    for(std::list<SaPPair>::iterator it = overlap_pairs.begin(), end = overlap_pairs.end();
+        it != end;
         ++it)
     {
       if(*it == p)
@@ -1030,8 +1031,8 @@ protected:
 
   void removeFromOverlapPairs(const SaPPair& p)
   {
-    for(std::list<SaPPair>::iterator it = overlap_pairs.begin();
-        it != overlap_pairs.end();
+    for(std::list<SaPPair>::iterator it = overlap_pairs.begin(), end = overlap_pairs.end();
+        it != end;
         ++it)
     {
       if(*it == p)

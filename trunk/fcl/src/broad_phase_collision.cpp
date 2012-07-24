@@ -61,9 +61,13 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
   int num_contacts = collide(o1, o2, request, local_result);
 
   result.is_collision = (num_contacts > 0);
+
+  std::vector<Contact>& out_contacts = result.contacts;
+  const std::vector<Contact>& in_contacts = local_result.contacts;
   for(int i = 0; i < num_contacts; ++i)
   {
-    result.contacts.push_back(local_result.contacts[i]);
+    out_contacts.push_back(in_contacts[i]);
+    // result.contacts.push_back(local_result.contacts[i]);
   }
 
   // set done flag
@@ -133,8 +137,7 @@ void NaiveCollisionManager::collide(CollisionObject* obj, void* cdata, Collision
 {
   if(size() == 0) return;
 
-  std::list<CollisionObject*>::const_iterator it;
-  for(it = objs.begin(); it != objs.end(); ++it)
+  for(std::list<CollisionObject*>::const_iterator it = objs.begin(), end = objs.end(); it != end; ++it)
   {
     if(callback(obj, *it, cdata))
       return;
@@ -145,9 +148,9 @@ void NaiveCollisionManager::distance(CollisionObject* obj, void* cdata, Distance
 {
   if(size() == 0) return;
 
-  std::list<CollisionObject*>::const_iterator it;
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-  for(it = objs.begin(); it != objs.end(); ++it)
+  for(std::list<CollisionObject*>::const_iterator it = objs.begin(), end = objs.end(); 
+      it != end; ++it)
   {
     if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
     {
@@ -161,12 +164,11 @@ void NaiveCollisionManager::collide(void* cdata, CollisionCallBack callback) con
 {
   if(size() == 0) return;
 
-  std::list<CollisionObject*>::const_iterator it1;
-  std::list<CollisionObject*>::const_iterator it2;
-  for(it1 = objs.begin(); it1 != objs.end(); ++it1)
+  for(std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end = objs.end(); 
+      it1 != end; ++it1)
   {
-    it2 = it1; it2++;
-    for(; it2 != objs.end(); ++it2)
+    std::list<CollisionObject*>::const_iterator it2 = it1; it2++;
+    for(; it2 != end; ++it2)
     {
       if((*it1)->getAABB().overlap((*it2)->getAABB()))
         if(callback(*it1, *it2, cdata))
@@ -180,12 +182,10 @@ void NaiveCollisionManager::distance(void* cdata, DistanceCallBack callback) con
   if(size() == 0) return;
   
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-  std::list<CollisionObject*>::const_iterator it1;
-  std::list<CollisionObject*>::const_iterator it2;
-  for(it1 = objs.begin(); it1 != objs.end(); ++it1)
+  for(std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end = objs.end(); it1 != end; ++it1)
   {
-    it2 = it1; it2++;
-    for(; it2 != objs.end(); ++it2)
+    std::list<CollisionObject*>::const_iterator it2 = it1; it2++;
+    for(; it2 != end; ++it2)
     {
       if((*it1)->getAABB().distance((*it2)->getAABB()) < min_dist)
       {
@@ -208,11 +208,9 @@ void NaiveCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, 
     return;
   }
 
-  std::list<CollisionObject*>::const_iterator it1;
-  std::list<CollisionObject*>::const_iterator it2;
-  for(it1 = objs.begin(); it1 != objs.end(); ++it1)
+  for(std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end1 = objs.end(); it1 != end1; ++it1)
   {
-    for(it2 = other_manager->objs.begin(); it2 != other_manager->objs.end(); ++it2)
+    for(std::list<CollisionObject*>::const_iterator it2 = other_manager->objs.begin(), end2 = other_manager->objs.end(); it2 != end2; ++it2)
     {
       if((*it1)->getAABB().overlap((*it2)->getAABB()))
         if(callback((*it1), (*it2), cdata))
@@ -234,11 +232,9 @@ void NaiveCollisionManager::distance(BroadPhaseCollisionManager* other_manager_,
   }
   
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-  std::list<CollisionObject*>::const_iterator it1;
-  std::list<CollisionObject*>::const_iterator it2;
-  for(it1 = objs.begin(); it1 != objs.end(); ++it1)
+  for(std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end1 = objs.end(); it1 != end1; ++it1)
   {
-    for(it2 = other_manager->objs.begin(); it2 != other_manager->objs.end(); ++it2)
+    for(std::list<CollisionObject*>::const_iterator it2 = other_manager->objs.begin(), end2 = other_manager->objs.end(); it2 != end2; ++it2)
     {
       if((*it1)->getAABB().distance((*it2)->getAABB()) < min_dist)
       {
@@ -669,15 +665,15 @@ void SSaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, v
   }
 
 
-  std::vector<CollisionObject*>::const_iterator it;
+  std::vector<CollisionObject*>::const_iterator it, end;
   if(this->size() < other_manager->size())
   {
-    for(it = objs_x.begin(); it != objs_x.end(); ++it)
+    for(it = objs_x.begin(), end = objs_x.end(); it != end; ++it)
       if(other_manager->collide_(*it, cdata, callback)) return;
   }
   else
   {
-    for(it = other_manager->objs_x.begin(); it != other_manager->objs_x.end(); ++it)
+    for(it = other_manager->objs_x.begin(), end != other_manager->objs_x.end(); it != end; ++it)
       if(collide_(*it, cdata, callback)) return;
   }  
 }
@@ -695,15 +691,15 @@ void SSaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, 
   }
   
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-  std::vector<CollisionObject*>::const_iterator it;
+  std::vector<CollisionObject*>::const_iterator it, end;
   if(this->size() < other_manager->size())
   {
-    for(it = objs_x.begin(); it != objs_x.end(); ++it)
+    for(it = objs_x.begin(), end = objs_x.end(); it != end; ++it)
       if(other_manager->distance_(*it, cdata, callback, min_dist)) return;
   }
   else
   {
-    for(it = other_manager->objs_x.begin(); it != other_manager->objs_x.end(); ++it)
+    for(it = other_manager->objs_x.begin(), end = other_manager->objs_x.end(); it != end; ++it)
       if(distance_(*it, cdata, callback, min_dist)) return;
   }
 }
@@ -717,7 +713,7 @@ bool SSaPCollisionManager::empty() const
 void SaPCollisionManager::unregisterObject(CollisionObject* obj)
 {
   std::list<SaPAABB*>::iterator it = AABB_arr.begin();
-  for(; it != AABB_arr.end(); ++it)
+  for(std::list<SaPAABB*>::iterator end = AABB_arr.end(); it != end; ++it)
   {
     if((*it)->obj == obj)
       break;
@@ -1117,7 +1113,7 @@ void SaPCollisionManager::update(const std::vector<CollisionObject*>& updated_ob
 
 void SaPCollisionManager::update()
 {
-  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
+  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(), end = AABB_arr.end(); it != end; ++it)
   {
     update_(*it);
   }
@@ -1130,8 +1126,8 @@ void SaPCollisionManager::update()
 
 void SaPCollisionManager::clear()
 {
-  for(std::list<SaPAABB*>::iterator it = AABB_arr.begin();
-      it != AABB_arr.end();
+  for(std::list<SaPAABB*>::iterator it = AABB_arr.begin(), end = AABB_arr.end();
+      it != end;
       ++it)
   {
     delete (*it)->hi;
@@ -1158,7 +1154,7 @@ void SaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
 {
   objs.resize(AABB_arr.size());
   int i = 0;
-  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it, ++i)
+  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(), end = AABB_arr.end(); it != end; ++it, ++i)
   {
     objs[i] = (*it)->obj;
   }
@@ -1333,7 +1329,7 @@ void SaPCollisionManager::collide(void* cdata, CollisionCallBack callback) const
 {
   if(size() == 0) return;
 
-  for(std::list<SaPPair>::const_iterator it = overlap_pairs.begin(); it != overlap_pairs.end(); ++it)
+  for(std::list<SaPPair>::const_iterator it = overlap_pairs.begin(), end = overlap_pairs.end(); it != end; ++it)
   {
     CollisionObject* obj1 = it->obj1;
     CollisionObject* obj2 = it->obj2;
@@ -1352,7 +1348,7 @@ void SaPCollisionManager::distance(void* cdata, DistanceCallBack callback) const
   
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
 
-  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
+  for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(), end = AABB_arr.end(); it != end; ++it)
   {
     if(distance_((*it)->obj, cdata, callback, min_dist))
       break;
@@ -1384,7 +1380,7 @@ void SaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, vo
   }
   else
   {
-    for(std::list<SaPAABB*>::const_iterator it = other_manager->AABB_arr.begin(); it != other_manager->AABB_arr.end(); ++it)
+    for(std::list<SaPAABB*>::const_iterator it = other_manager->AABB_arr.begin(), end = other_manager->AABB_arr.end(); it != end; ++it)
     {
       if(collide_((*it)->obj, cdata, callback))
         return;
@@ -1408,7 +1404,7 @@ void SaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, v
 
   if(this->size() < other_manager->size())
   {
-    for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(); it != AABB_arr.end(); ++it)
+    for(std::list<SaPAABB*>::const_iterator it = AABB_arr.begin(), end = AABB_arr.end(); it != end; ++it)
     {
       if(other_manager->distance_((*it)->obj, cdata, callback, min_dist))
         return;
@@ -1416,7 +1412,7 @@ void SaPCollisionManager::distance(BroadPhaseCollisionManager* other_manager_, v
   }
   else
   {
-    for(std::list<SaPAABB*>::const_iterator it = other_manager->AABB_arr.begin(); it != other_manager->AABB_arr.end(); ++it)
+    for(std::list<SaPAABB*>::const_iterator it = other_manager->AABB_arr.begin(), end = other_manager->AABB_arr.end(); it != end; ++it)
     {
       if(distance_((*it)->obj, cdata, callback, min_dist))
         return;
@@ -1576,7 +1572,7 @@ void IntervalTreeCollisionManager::setup()
     for(int i = 0; i < 3; ++i)
       interval_trees[i] = new IntervalTree;
 
-    for(unsigned int i = 0; i < endpoints[0].size(); ++i)
+    for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
     {
       EndPoint p = endpoints[0][i];
       CollisionObject* obj = p.obj;
@@ -1604,7 +1600,7 @@ void IntervalTreeCollisionManager::update()
 {
   setup_ = false;
 
-  for(unsigned int i = 0; i < endpoints[0].size(); ++i)
+  for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
   {
     if(endpoints[0][i].minmax == 0)
       endpoints[0][i].value = endpoints[0][i].obj->getAABB().min_[0];
@@ -1612,7 +1608,7 @@ void IntervalTreeCollisionManager::update()
       endpoints[0][i].value = endpoints[0][i].obj->getAABB().max_[0];
   }
 
-  for(unsigned int i = 0; i < endpoints[1].size(); ++i)
+  for(unsigned int i = 0, size = endpoints[1].size(); i < size; ++i)
   {
     if(endpoints[1][i].minmax == 0)
       endpoints[1][i].value = endpoints[1][i].obj->getAABB().min_[1];
@@ -1620,7 +1616,7 @@ void IntervalTreeCollisionManager::update()
       endpoints[1][i].value = endpoints[1][i].obj->getAABB().max_[1];
   }
 
-  for(unsigned int i = 0; i < endpoints[2].size(); ++i)
+  for(unsigned int i = 0, size = endpoints[2].size(); i < size; ++i)
   {
     if(endpoints[2][i].minmax == 0)
       endpoints[2][i].value = endpoints[2][i].obj->getAABB().min_[2];
@@ -1696,8 +1692,8 @@ void IntervalTreeCollisionManager::clear()
 
   for(int i = 0; i < 3; ++i)
   {
-    for(std::map<CollisionObject*, SAPInterval*>::const_iterator it = obj_interval_maps[i].begin();
-        it != obj_interval_maps[i].end(); ++it)
+    for(std::map<CollisionObject*, SAPInterval*>::const_iterator it = obj_interval_maps[i].begin(), end = obj_interval_maps[i].end();
+        it != end; ++it)
     {
       delete it->second;
     }
@@ -1713,7 +1709,7 @@ void IntervalTreeCollisionManager::getObjects(std::vector<CollisionObject*>& obj
 {
   objs.resize(endpoints[0].size() / 2);
   unsigned int j = 0;
-  for(unsigned int i = 0; i < endpoints[0].size(); ++i)
+  for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
   {
     if(endpoints[0][i].minmax == 0)
     {
@@ -1943,12 +1939,12 @@ void IntervalTreeCollisionManager::collide(BroadPhaseCollisionManager* other_man
 
   if(this->size() < other_manager->size())
   {
-    for(size_t i = 0; i < endpoints[0].size(); ++i)
+    for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
       if(other_manager->collide_(endpoints[0][i].obj, cdata, callback)) return;
   }
   else
   {
-    for(size_t i = 0; i < other_manager->endpoints[0].size(); ++i)
+    for(size_t i = 0, size = other_manager->endpoints[0].size(); i < size; ++i)
       if(collide_(other_manager->endpoints[0][i].obj, cdata, callback)) return;
   }
 }
@@ -1969,12 +1965,12 @@ void IntervalTreeCollisionManager::distance(BroadPhaseCollisionManager* other_ma
   
   if(this->size() < other_manager->size())
   {
-    for(size_t i = 0; i < endpoints[0].size(); ++i)
+    for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
       if(other_manager->distance_(endpoints[0][i].obj, cdata, callback, min_dist)) return;
   }
   else
   {
-    for(size_t i = 0; i < other_manager->endpoints[0].size(); ++i)
+    for(size_t i = 0, size = other_manager->endpoints[0].size(); i < size; ++i)
       if(distance_(other_manager->endpoints[0][i].obj, cdata, callback, min_dist)) return;
   }
 }
@@ -2050,7 +2046,7 @@ void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<Collisio
   {
     std::vector<DynamicAABBNode*> leaves(other_objs.size());
     table.rehash(other_objs.size());
-    for(size_t i = 0; i < other_objs.size(); ++i)
+    for(size_t i = 0, size = other_objs.size(); i < size; ++i)
     {
       DynamicAABBNode* node = new DynamicAABBNode; // node will be managed by the dtree
       node->bv = other_objs[i]->getAABB();
@@ -2139,7 +2135,7 @@ void DynamicAABBTreeCollisionManager::update(CollisionObject* updated_obj)
 
 void DynamicAABBTreeCollisionManager::update(const std::vector<CollisionObject*>& updated_objs)
 {
-  for(size_t i = 0; i < updated_objs.size(); ++i)
+  for(size_t i = 0, size = updated_objs.size(); i < size; ++i)
     update_(updated_objs[i]);
   setup();
 }
@@ -2641,7 +2637,7 @@ void DynamicAABBTreeCollisionManager2::registerObjects(const std::vector<Collisi
   {
     DynamicAABBNode* leaves = new DynamicAABBNode[other_objs.size()];
     table.rehash(other_objs.size());
-    for(size_t i = 0; i < other_objs.size(); ++i)
+    for(size_t i = 0, size = other_objs.size(); i < size; ++i)
     {
       leaves[i].bv = other_objs[i]->getAABB();
       leaves[i].parent = dtree.NULL_NODE;
@@ -2698,7 +2694,7 @@ void DynamicAABBTreeCollisionManager2::setup()
 
 void DynamicAABBTreeCollisionManager2::update()
 { 
-  for(DynamicAABBTable::const_iterator it = table.begin(); it != table.end(); ++it)
+  for(DynamicAABBTable::const_iterator it = table.begin(), end = table.end(); it != end; ++it)
   {
     CollisionObject* obj = it->first;
     size_t node = it->second;
@@ -2731,7 +2727,7 @@ void DynamicAABBTreeCollisionManager2::update(CollisionObject* updated_obj)
 
 void DynamicAABBTreeCollisionManager2::update(const std::vector<CollisionObject*>& updated_objs)
 {
-  for(size_t i = 0; i < updated_objs.size(); ++i)
+  for(size_t i = 0, size = updated_objs.size(); i < size; ++i)
     update_(updated_objs[i]);
   setup();
 }

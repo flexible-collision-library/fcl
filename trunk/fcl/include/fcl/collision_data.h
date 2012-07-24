@@ -59,15 +59,15 @@ struct CostSource
 struct CollisionRequest
 {
   bool exhaustive;
-  int num_max_contacts;
+  size_t num_max_contacts;
   bool enable_contact;
-  int num_max_cost_sources;
+  size_t num_max_cost_sources;
   bool enable_cost;
 
   CollisionRequest(bool exhaustive_ = false,
-                   unsigned int num_max_contacts_ = 1,
+                   size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
-                   unsigned int num_max_cost_sources_ = 1,
+                   size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false) : exhaustive(exhaustive_),
                                                 num_max_contacts(num_max_contacts_),
                                                 enable_contact(enable_contact_),

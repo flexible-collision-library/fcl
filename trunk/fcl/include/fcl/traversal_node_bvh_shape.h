@@ -222,7 +222,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size());
   }
 
   Vec3f* vertices;
@@ -435,7 +435,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= (int)pairs.size());
+    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size());
   }
 
   Vec3f* vertices;

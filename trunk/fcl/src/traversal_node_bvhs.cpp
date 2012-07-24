@@ -91,9 +91,12 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
                                      &penetration,
                                      &normal))
     {
+      if(!request.exhaustive)
+        n_contacts = std::min(n_contacts, (int)request.num_max_contacts - (int)pairs.size());
+
       for(int i = 0; i < n_contacts; ++i)
       {
-        if((!request.exhaustive) && (request.num_max_contacts <= (int)pairs.size())) break;
+        // if((!request.exhaustive) && (request.num_max_contacts <= pairs.size())) break;
         pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
       }
     }
@@ -479,11 +482,13 @@ static inline void distance_preprocess(Vec3f* vertices1, Vec3f* vertices2,
 
   Vec3f last_tri_P, last_tri_Q;
 
-  min_distance = TriangleDistance::triDistance(last_tri1_points[0], last_tri1_points[1], last_tri1_points[2],
-                                               last_tri2_points[0], last_tri2_points[1], last_tri2_points[2],
-                                               R, T, last_tri_P, last_tri_Q);
+  FCL_REAL init_dist = TriangleDistance::triDistance(last_tri1_points[0], last_tri1_points[1], last_tri1_points[2],
+                                                     last_tri2_points[0], last_tri2_points[1], last_tri2_points[2],
+                                                     R, T, last_tri_P, last_tri_Q);
   p1 = last_tri_P;
   p2 = R.transposeTimes(last_tri_Q - T);
+
+  // if(min_distance > init_dist) min_distance = init_dist;
 }
 
 static inline void distance_postprocess(const Matrix3f& R, const Vec3f& T, Vec3f& p2)
