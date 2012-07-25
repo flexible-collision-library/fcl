@@ -55,8 +55,6 @@ public:
     model1 = NULL;
     model2 = NULL;
 
-    is_collision = false;
-
     nsolver = NULL;
   }
 
@@ -67,10 +65,25 @@ public:
 
   void leafTesting(int, int) const
   {
+    bool is_collision = false;
     if(request.enable_contact)
-      is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal);
+    {
+      Vec3f contact_point, normal;
+      FCL_REAL penetration_depth;
+      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal))
+      {
+        is_collision = true;
+        result->contacts.push_back(Contact(model1, model2, Contact::NONE, Contact::NONE, contact_point, normal, penetration_depth));
+      }
+    }
     else
-      is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL);
+    {
+      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
+      {
+        is_collision = true;
+        result->contacts.push_back(Contact(model1, model2, Contact::NONE, Contact::NONE));
+      }
+    }
 
     if(is_collision && request.enable_cost)
     {
@@ -79,25 +92,12 @@ public:
       computeBV<AABB, S2>(*model2, tf2, aabb2);
       AABB overlap_part;
       aabb1.overlap(aabb2, overlap_part);
-      cost_source = CostSource(overlap_part.min_, overlap_part.max_, cost_density);
+      result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   const S1* model1;
-
   const S2* model2;
-
-  mutable Vec3f normal;
-
-  mutable Vec3f contact_point;
-
-  mutable FCL_REAL penetration_depth;
-
-  CollisionRequest request;
-
-  mutable bool is_collision;
-
-  mutable CostSource cost_source;
 
   FCL_REAL cost_density;
 

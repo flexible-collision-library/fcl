@@ -141,43 +141,6 @@ public:
 };
 
 
-/** \brief The collision/contact information between two primitives */
-struct BVHCollisionPair
-{
-  BVHCollisionPair() {}
-
-  BVHCollisionPair(int id1_, int id2_) : id1(id1_), id2(id2_) {}
-
-  BVHCollisionPair(int id1_, int id2_, const Vec3f& contactp, const Vec3f& n, FCL_REAL depth) : id1(id1_),
-      id2(id2_), contact_point(contactp), normal(n), penetration_depth(depth) {}
-
-  /** \brief The index of one in-collision primitive */
-  int id1;
-
-  /** \brief The index of the other in-collision primitive */
-  int id2;
-
-  /** \brief Contact points */
-  Vec3f contact_point;
-
-  /** \brief Contact normal */
-  Vec3f normal;
-
-  /** \brief Penetration depth for two triangles */
-  FCL_REAL penetration_depth;
-};
-
-/** \brief Sorting rule between two BVHCollisionPair, for testing */
-struct BVHCollisionPairComp
-{
-  bool operator()(const BVHCollisionPair& a, const BVHCollisionPair& b)
-  {
-    if(a.id1 == b.id1)
-      return a.id2 < b.id2;
-    return a.id1 < b.id1;
-  }
-};
-
 /** \brief Traversal node for collision between two meshes */
 template<typename BV>
 class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
@@ -224,7 +187,7 @@ public:
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
         is_intersect = true;
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
+        this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
       }
     }
     else // need compute the contact information
@@ -238,31 +201,31 @@ public:
         is_intersect = true;
         if(!this->request.exhaustive)
         {
-          if(this->request.num_max_contacts < n_contacts + pairs.size())
-            n_contacts = (this->request.num_max_contacts >= pairs.size()) ? (this->request.num_max_contacts - pairs.size()) : 0;
+          if(this->request.num_max_contacts < n_contacts + this->result->contacts.size())
+            n_contacts = (this->request.num_max_contacts >= this->result->contacts.size()) ? (this->request.num_max_contacts - this->result->contacts.size()) : 0;
         }
     
         for(unsigned int i = 0; i < n_contacts; ++i)
         {
-          pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
+          this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id1, primitive_id2, contacts[i], normal, penetration));
         }
       }
     }
 
    
-    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > cost_sources.size()))
+    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->cost_sources.size()))
     {
       AABB overlap_part;
       AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
-      cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      this->result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }   
   }
 
   /** \brief Whether the traversal process can stop early */
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size()) && 
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= cost_sources.size())  );
+    return (this->result->contacts.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->contacts.size()) && 
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->cost_sources.size())  );
   }
 
   Vec3f* vertices1;
@@ -271,9 +234,6 @@ public:
   Triangle* tri_indices1;
   Triangle* tri_indices2;
 
-  mutable std::vector<BVHCollisionPair> pairs;
-  
-  mutable std::vector<CostSource> cost_sources;
   FCL_REAL cost_density;
 };
 

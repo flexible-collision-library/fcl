@@ -86,7 +86,7 @@ public:
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
-  CollisionTraversalNodeBase() : enable_statistics(false) {}
+  CollisionTraversalNodeBase() : result(NULL), enable_statistics(false) {}
 
   virtual ~CollisionTraversalNodeBase();
 
@@ -103,13 +103,15 @@ public:
 
   CollisionRequest request;
 
+  CollisionResult* result;
+
   bool enable_statistics;
 };
 
 class DistanceTraversalNodeBase : public TraversalNodeBase
 {
 public:
-  DistanceTraversalNodeBase() : enable_statistics(false) {}
+  DistanceTraversalNodeBase() : result(NULL), enable_statistics(false) {}
 
   virtual ~DistanceTraversalNodeBase();
 
@@ -122,6 +124,8 @@ public:
   void enableStatistics(bool enable) { enable_statistics = enable; }
 
   DistanceRequest request;
+
+  DistanceResult* result;
 
   bool enable_statistics;
 };

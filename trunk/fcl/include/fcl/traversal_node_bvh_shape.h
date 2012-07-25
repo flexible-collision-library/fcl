@@ -143,38 +143,6 @@ public:
 
 
 
-/** \brief The indices of in-collision primitives of objects */
-struct BVHShapeCollisionPair
-{
-  BVHShapeCollisionPair() {}
-
-  BVHShapeCollisionPair(int id_) : id(id_) {}
-
-  BVHShapeCollisionPair(int id_, const Vec3f& n, const Vec3f& contactp, FCL_REAL depth) : id(id_),
-      normal(n), contact_point(contactp), penetration_depth(depth) {}
-
-  /** \brief The index of BVH's in-collision primitive */
-  int id;
-
-  /** \brief Contact normal */
-  Vec3f normal;
-
-  /** \brief Contact points */
-  Vec3f contact_point;
-
-  /** \brief Penetration depth for two triangles */
-  FCL_REAL penetration_depth;
-};
-
-struct BVHShapeCollisionPairComp
-{
-  bool operator()(const BVHShapeCollisionPair& a, const BVHShapeCollisionPair& b)
-  {
-    return a.id < b.id;
-  }
-};
-
-
 template<typename BV, typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
@@ -206,12 +174,12 @@ public:
 
     bool is_intersect = false;
 
-    if(!request.enable_contact) // only interested in collision or not
+    if(!this->request.enable_contact) // only interested in collision or not
     {
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
       {
         is_intersect = true;
-        pairs.push_back(BVHShapeCollisionPair(primitive_id));
+        this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id, Contact::NONE));
       }
     }
     else
@@ -219,34 +187,28 @@ public:
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
       {
         is_intersect = true;
-        pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
+        this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
       }
     }
 
-    if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->cost_sources.size()))
     {
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
       AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      this->result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size()) && (request.num_max_cost_sources <= cost_sources.size()) &&
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= cost_sources.size())  );
+    return (this->result->contacts.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->contacts.size()) && (this->request.num_max_cost_sources <= this->result->cost_sources.size()) &&
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->cost_sources.size())  );
   }
 
   Vec3f* vertices;
   Triangle* tri_indices;
-
-  CollisionRequest request;
-
-  mutable std::vector<BVHShapeCollisionPair> pairs;
-
-  mutable std::vector<CostSource> cost_sources;
   
   FCL_REAL cost_density;
 
@@ -265,11 +227,9 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                              const NarrowPhaseSolver* nsolver,
                                                              bool enable_statistics, 
                                                              FCL_REAL cost_density,
-                                                             const CollisionRequest& request,
                                                              int& num_leaf_tests,
-                                                             std::vector<BVHShapeCollisionPair>& pairs,
-                                                             std::vector<CostSource>& cost_sources)
-                                                 
+                                                             const CollisionRequest& request,
+                                                             CollisionResult& result)
 {
   if(enable_statistics) num_leaf_tests++;
   const BVNode<BV>& node = model1->getBV(b1);
@@ -293,7 +253,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
     {
       is_intersect = true;
-      pairs.push_back(BVHShapeCollisionPair(primitive_id));
+      result.contacts.push_back(Contact(model1, &model2, primitive_id, Contact::NONE));
     }
   }
   else
@@ -301,17 +261,17 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
     {
       is_intersect = true;
-      pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
+      result.contacts.push_back(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
     }
   }
 
-  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.cost_sources.size()))
   {
     AABB overlap_part;
     AABB shape_aabb;
     computeBV<AABB, S>(model2, tf2, shape_aabb);
     AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p2)).overlap(shape_aabb, overlap_part);
-    cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+    result.cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
   }
 }
 
@@ -334,7 +294,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
   }
 
 };
@@ -356,7 +316,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
   }
 
 };
@@ -378,7 +338,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
   }
 
 };
@@ -400,7 +360,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
   }
 
 };
@@ -436,12 +396,12 @@ public:
 
     bool is_intersect = false;
 
-    if(!request.enable_contact) // only interested in collision or not
+    if(!this->request.enable_contact) // only interested in collision or not
     {
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
       {
         is_intersect = true;
-        pairs.push_back(BVHShapeCollisionPair(primitive_id));
+        this->result->contacts.push_back(Contact(this->model1, this->model2, Contact::NONE, primitive_id));
       }
     }
     else
@@ -449,34 +409,28 @@ public:
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
       {
         is_intersect = true;
-        pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
+        this->result->contacts.push_back(Contact(this->model1, this->model2, Contact::NONE, primitive_id, contactp, normal, penetration));
       }
     }
 
-    if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->cost_sources.size()))
     {
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
       AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      this->result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size()) &&
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= cost_sources.size())  );
+    return (this->result->contacts.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->contacts.size()) &&
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->cost_sources.size())  );
   }
 
   Vec3f* vertices;
   Triangle* tri_indices;
-
-  CollisionRequest request;
-
-  mutable std::vector<BVHShapeCollisionPair> pairs;
-
-  mutable std::vector<CostSource> cost_sources;
 
   FCL_REAL cost_density;
 
@@ -500,7 +454,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
 
     // may need to change the order in pairs
   }
@@ -524,7 +478,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
 
     // may need to change the order in pairs
   }
@@ -549,7 +503,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
 
     // may need to change the order in pairs
   }
@@ -574,7 +528,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
 
     // may need to change the order in pairs
   }

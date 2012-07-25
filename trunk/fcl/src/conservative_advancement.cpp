@@ -83,7 +83,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
 
   // whether the first start configuration is in collision
   MeshCollisionTraversalNodeRSS cnode;
-  if(!initialize(cnode, *model1, tf1, *model2, tf2, request))
+  if(!initialize(cnode, *model1, tf1, *model2, tf2, request, result))
     std::cout << "initialize error" << std::endl;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), cnode.R, cnode.T);
@@ -93,7 +93,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
 
   collide(&cnode);
 
-  int b = cnode.pairs.size();
+  int b = result.contacts.size();
 
   if(b > 0)
   {

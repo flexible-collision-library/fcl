@@ -19,6 +19,8 @@ struct Contact
   const CollisionGeometry* o2;
   int b1;
   int b2;
+  
+  static const int NONE = -1;
 
   Contact()
   {
@@ -47,6 +49,13 @@ struct Contact
     pos = pos_;
     penetration_depth = depth_;
   }
+
+  bool operator < (const Contact& other) const
+  {
+    if(b1 == other.b1)
+      return b2 < other.b2;
+    return b1 < other.b1;
+  }
 };
 
 struct CostSource
@@ -62,6 +71,11 @@ struct CostSource
   }
 
   CostSource() {}
+
+  bool operator < (const CostSource& other) const
+  {
+    return cost_density < other.cost_density;
+  }
 };
 
 struct CollisionRequest
@@ -92,17 +106,39 @@ struct CollisionResult
   std::vector<Contact> contacts;
   std::vector<CostSource> cost_sources;
 
-  bool is_collision;
-
-  CollisionResult() : is_collision(false)
+  CollisionResult()
   {
+  }
+
+  inline void addContact(const Contact& c) 
+  {
+    contacts.push_back(c);
+  }
+
+  inline void addCostSource(const CostSource& c)
+  {
+    cost_sources.push_back(c);
+  }
+
+  bool isCollision() const
+  {
+    return contacts.size() > 0;
+  }
+
+  size_t numContacts() const
+  {
+    return contacts.size();
+  }
+
+  size_t numCostSources() const
+  {
+    return cost_sources.size();
   }
 
   void clear()
   {
     contacts.clear();
     cost_sources.clear();
-    is_collision = false;
   }
 };
 

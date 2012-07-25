@@ -51,10 +51,9 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                         const SimpleTransform& tf1, const SimpleTransform& tf2,
                                                         bool enable_statistics,
                                                         FCL_REAL cost_density,
-                                                        const CollisionRequest& request,
                                                         int& num_leaf_tests,
-                                                        std::vector<BVHCollisionPair>& pairs,
-                                                        std::vector<CostSource>& cost_sources)
+                                                        const CollisionRequest& request,
+                                                        CollisionResult& result)
 {
   if(enable_statistics) num_leaf_tests++;
 
@@ -86,7 +85,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
     {
       is_intersect = true;
-      pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
+      result.contacts.push_back(Contact(model1, model2, primitive_id1, primitive_id2));
     }
   }
   else // need compute the contact information
@@ -101,22 +100,22 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
       is_intersect = true;
       if(!request.exhaustive)
       {
-        if(request.num_max_contacts < pairs.size() + n_contacts)
-          n_contacts = (request.num_max_contacts > pairs.size()) ? (request.num_max_contacts - pairs.size()) : 0;
+        if(request.num_max_contacts < result.contacts.size() + n_contacts)
+          n_contacts = (request.num_max_contacts > result.contacts.size()) ? (request.num_max_contacts - result.contacts.size()) : 0;
       }
 
       for(unsigned int i = 0; i < n_contacts; ++i)
       {
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
+        result.contacts.push_back(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
       }
     }
   }
   
-  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.cost_sources.size()))
   {
     AABB overlap_part;
     AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-    cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+    result.cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
   }
 }
 
@@ -194,10 +193,9 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
                                                 tf1, tf2,
-                                                enable_statistics, cost_density, request,
+                                                enable_statistics, cost_density,
                                                 num_leaf_tests,
-                                                pairs,
-                                                cost_sources);
+                                                request, *result);
 }
 
 
@@ -213,10 +211,9 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
                                                 tf1, tf2,
-                                                enable_statistics, cost_density, request,
+                                                enable_statistics, cost_density,
                                                 num_leaf_tests,
-                                                pairs,
-                                                cost_sources);
+                                                request, *result);
 }
 
 
@@ -238,10 +235,9 @@ void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
                                                 tf1, tf2,
-                                                enable_statistics, cost_density, request,
+                                                enable_statistics, cost_density,
                                                 num_leaf_tests,
-                                                pairs,
-                                                cost_sources);
+                                                request, *result);
 }
 
 
@@ -264,10 +260,9 @@ void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
                                                 tf1, tf2,
-                                                enable_statistics, cost_density, request,
+                                                enable_statistics, cost_density,
                                                 num_leaf_tests,
-                                                pairs, 
-                                                cost_sources);
+                                                request, *result);
 }
 
 
@@ -289,10 +284,9 @@ void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
                                                 tf1, tf2,
-                                                enable_statistics, cost_density, request,
+                                                enable_statistics, cost_density,
                                                 num_leaf_tests,
-                                                pairs,
-                                                cost_sources);
+                                                request,*result);
 }
 
 

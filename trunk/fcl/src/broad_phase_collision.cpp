@@ -60,8 +60,6 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
   CollisionResult local_result;
   int num_contacts = collide(o1, o2, request, local_result);
 
-  result.is_collision = (num_contacts > 0);
-
   std::vector<Contact>& out_contacts = result.contacts;
   const std::vector<Contact>& in_contacts = local_result.contacts;
   for(int i = 0; i < num_contacts; ++i)
@@ -71,7 +69,7 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
   }
 
   // set done flag
-  if( (!request.exhaustive) && (result.is_collision) && (result.contacts.size() >= request.num_max_contacts))
+  if( (!request.exhaustive) && (result.isCollision()) && (result.numContacts() >= request.num_max_contacts))
     cdata->done = true;
 
   return cdata->done;
