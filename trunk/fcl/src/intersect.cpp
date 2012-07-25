@@ -818,6 +818,22 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
   return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
 }
 
+bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+                                   const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
+                                   const SimpleTransform& tf,
+                                   Vec3f* contact_points,
+                                   unsigned int* num_contact_points,
+                                   FCL_REAL* penetration_depth,
+                                   Vec3f* normal)
+{
+  Vec3f Q1_ = tf.transform(Q1);
+  Vec3f Q2_ = tf.transform(Q2);
+  Vec3f Q3_ = tf.transform(Q3);
+
+  return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
+}
+
+
 #if ODE_STYLE
 bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
                                    const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,

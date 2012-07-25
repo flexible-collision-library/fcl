@@ -71,17 +71,20 @@ public:
     user_data = data;
   }
 
-  /** AABB center in local coordinate */
+  /// AABB center in local coordinate
   Vec3f aabb_center;
 
-  /** AABB radius */
+  /// AABB radius
   FCL_REAL aabb_radius;
 
-  /** AABB in local coordinate, used for tight AABB when only translation transform */
+  /// AABB in local coordinate, used for tight AABB when only translation transform
   AABB aabb_local;
 
-  /** pointer to user defined data specific to this object */
+  /// pointer to user defined data specific to this object
   void *user_data;
+
+  /// collision cost for unit volume
+  FCL_REAL cost_density;
 };
 
 class CollisionObject
@@ -219,17 +222,30 @@ public:
     return cgeom.get();
   }
 
+  FCL_REAL getCostDensity() const
+  {
+    if(cgeom)
+      return cgeom->cost_density;
+    else 
+      return 0;
+  }
+
+  void setCostDensity(FCL_REAL c)
+  {
+    if(cgeom)
+      cgeom->cost_density = c;
+  }
+
 protected:
 
-  // const CollisionGeometry* cgeom;
   boost::shared_ptr<CollisionGeometry> cgeom;
 
   SimpleTransform t;
 
-  /** AABB in global coordinate */
+  /// AABB in global coordinate
   mutable AABB aabb;
 
-  /** pointer to user defined data specific to this object */
+  /// pointer to user defined data specific to this object
   void *user_data;
 };
 

@@ -128,6 +128,11 @@ public:
     return *this;
   }
 
+  bool isZero() const
+  {
+    return (data[0] == 0) && (data[1] == 0) && (data[2] == 0);
+  }
+
 };
 
 template<typename T>

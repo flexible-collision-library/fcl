@@ -214,41 +214,55 @@ public:
 
     FCL_REAL penetration;
     Vec3f normal;
-    int n_contacts;
+    unsigned int n_contacts;
     Vec3f contacts[2];
-
+    
+    bool is_intersect = false;
 
     if(!this->request.enable_contact) // only interested in collision or not
     {
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
-          pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
+        is_intersect = true;
+        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
       }
     }
     else // need compute the contact information
     {
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                        contacts,
-                                       (unsigned int*)&n_contacts,
+                                       &n_contacts,
                                        &penetration,
                                        &normal))
       {
+        is_intersect = true;
         if(!this->request.exhaustive)
-          n_contacts = std::min(n_contacts, (int)this->request.num_max_contacts - (int)pairs.size());
-    
-        for(int i = 0; i < n_contacts; ++i)
         {
-          // if((!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size())) break;
+          if(this->request.num_max_contacts < n_contacts + pairs.size())
+            n_contacts = (this->request.num_max_contacts >= pairs.size()) ? (this->request.num_max_contacts - pairs.size()) : 0;
+        }
+    
+        for(unsigned int i = 0; i < n_contacts; ++i)
+        {
           pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
         }
       }
     }
+
+   
+    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > cost_sources.size()))
+    {
+      AABB overlap_part;
+      AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
+      cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+    }   
   }
 
   /** \brief Whether the traversal process can stop early */
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size()) && 
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= cost_sources.size())  );
   }
 
   Vec3f* vertices1;
@@ -258,6 +272,9 @@ public:
   Triangle* tri_indices2;
 
   mutable std::vector<BVHCollisionPair> pairs;
+  
+  mutable std::vector<CostSource> cost_sources;
+  FCL_REAL cost_density;
 };
 
 

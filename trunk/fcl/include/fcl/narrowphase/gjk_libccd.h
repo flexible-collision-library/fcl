@@ -148,7 +148,7 @@ GJKCenterFunction triGetCenterFunction();
 
 void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3);
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, const Vec3f& T);
+void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf);
 
 void triDeleteGJKObject(void* o);
 

@@ -64,6 +64,7 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
   node.tf2 = tf2;
 
   node.request = request;
+  node.cost_density = model1.cost_density * model2.cost_density;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
 

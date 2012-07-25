@@ -75,6 +75,13 @@ public:
     max_ = core.max_ + delta;
   }
 
+  /** \brief Constructor creating an AABB with three points */
+  AABB(const Vec3f& a, const Vec3f& b, const Vec3f& c)
+  {
+    min_ = min(min(a, b), c);
+    max_ = max(max(a, b), c);
+  }
+
   /** \brief Check whether two AABB are overlap */
   inline bool overlap(const AABB& other) const
   {

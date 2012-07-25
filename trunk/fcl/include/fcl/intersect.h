@@ -37,7 +37,7 @@
 #ifndef FCL_INTERSECT_H
 #define FCL_INTERSECT_H
 
-#include "fcl/vec_3f.h"
+#include "fcl/transform.h"
 #include "fcl/BVH_internal.h"
 #include "fcl/primitive.h"
 
@@ -142,6 +142,15 @@ public:
                                  unsigned int* num_contact_points = NULL,
                                  FCL_REAL* penetration_depth = NULL,
                                  Vec3f* normal = NULL);
+
+  static bool intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
+                                 const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
+                                 const SimpleTransform& tf,
+                                 Vec3f* contact_points = NULL,
+                                 unsigned int* num_contact_points = NULL,
+                                 FCL_REAL* penetration_depth = NULL,
+                                 Vec3f* normal = NULL);
+  
 
 #if USE_SVMLIGHT
 

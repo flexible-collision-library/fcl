@@ -53,7 +53,15 @@ struct CostSource
 {
   Vec3f aabb_min;
   Vec3f aabb_max;
-  FCL_REAL cost; // density
+  FCL_REAL cost_density;
+
+  CostSource(const Vec3f& aabb_min_, const Vec3f& aabb_max_, FCL_REAL cost_density_) : aabb_min(aabb_min_),
+                                                                                       aabb_max(aabb_max_),
+                                                                                       cost_density(cost_density_)
+  {
+  }
+
+  CostSource() {}
 };
 
 struct CollisionRequest

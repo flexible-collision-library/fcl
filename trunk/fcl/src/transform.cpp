@@ -280,30 +280,66 @@ const SimpleQuaternion& SimpleQuaternion::operator *= (FCL_REAL t)
 }
 
 
-SimpleQuaternion SimpleQuaternion::conj() const
+SimpleQuaternion& SimpleQuaternion::conj()
 {
-  return SimpleQuaternion(data[0], -data[1], -data[2], -data[3]);
+  data[1] = -data[1];
+  data[2] = -data[2];
+  data[3] = -data[3];
+  return *this;
 }
 
-SimpleQuaternion SimpleQuaternion::inverse() const
+SimpleQuaternion& SimpleQuaternion::inverse()
 {
-  double sqr_length = data[0] * data[0] + data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
+  FCL_REAL sqr_length = data[0] * data[0] + data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
   if(sqr_length > 0)
   {
-    double inv_length = 1.0 / sqrt(sqr_length);
-    return SimpleQuaternion(data[0] * inv_length, -data[1] * inv_length, -data[2] * inv_length, -data[3] * inv_length);
+    FCL_REAL inv_length = 1 / std::sqrt(sqr_length);
+    data[0] *= inv_length;
+    data[1] *= (-inv_length);
+    data[2] *= (-inv_length);
+    data[3] *= (-inv_length);
   }
   else
   {
-    return SimpleQuaternion(data[0], -data[1], -data[2], -data[3]);
+    data[1] = -data[1];
+    data[2] = -data[2];
+    data[3] = -data[3];
   }
+
+  return *this;
 }
 
 Vec3f SimpleQuaternion::transform(const Vec3f& v) const
 {
-  SimpleQuaternion r = (*this) * SimpleQuaternion(0, v[0], v[1], v[2]) * (this->conj());
+  SimpleQuaternion r = (*this) * SimpleQuaternion(0, v[0], v[1], v[2]) * (fcl::conj(*this));
   return Vec3f(r.data[1], r.data[2], r.data[3]);
 }
+
+SimpleQuaternion conj(const SimpleQuaternion& q)
+{
+  SimpleQuaternion r(q);
+  return r.conj();
+}
+
+SimpleQuaternion inverse(const SimpleQuaternion& q)
+{
+  SimpleQuaternion res(q);
+  return res.inverse();
+}
+
+SimpleTransform inverse(const SimpleTransform& tf)
+{
+  SimpleTransform res(tf);
+  return res.inverse();
+}
+
+void relativeTransform(const SimpleTransform& tf1, const SimpleTransform& tf2,
+                       SimpleTransform& tf)
+{
+  const SimpleQuaternion& q1_inv = fcl::conj(tf1.getQuatRotation());
+  tf = SimpleTransform(q1_inv * tf2.getQuatRotation(), q1_inv.transform(tf2.getTranslation() - tf1.getTranslation()));
+}
+
 
 
 }

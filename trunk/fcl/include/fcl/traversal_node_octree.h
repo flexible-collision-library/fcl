@@ -131,13 +131,14 @@ public:
   void OcTreeIntersect(const OcTree* tree1, const OcTree* tree2,
                        const SimpleTransform& tf1, const SimpleTransform& tf2,
                        std::vector<OcTreeCollisionPair>& pairs,
+                       std::vector<CostSource>& cost_sources,
                        const CollisionRequest& request_) const
   {
     request = request_;
     
     OcTreeIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(), 
                            tree2, tree2->getRoot(), tree2->getRootBV(), 
-                           tf1, tf2, pairs);
+                           tf1, tf2, pairs, cost_sources);
   }
 
 
@@ -157,13 +158,14 @@ public:
   void OcTreeMeshIntersect(const OcTree* tree1, const BVHModel<BV>* tree2,
                            const SimpleTransform& tf1, const SimpleTransform& tf2,
                            std::vector<OcTreeMeshCollisionPair>& pairs,
+                           std::vector<CostSource>& cost_sources,
                            const CollisionRequest& request_) const
   {
     request = request_;
 
     OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
                                tree2, 0,
-                               tf1, tf2, pairs);
+                               tf1, tf2, pairs, cost_sources);
   }
 
   template<typename BV>
@@ -184,6 +186,7 @@ public:
   void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree* tree2,
                            const SimpleTransform& tf1, const SimpleTransform& tf2,
                            std::vector<OcTreeMeshCollisionPair>& pairs,
+                           std::vector<CostSource>& cost_sources,
                            const CollisionRequest& request_) const
   
   {
@@ -191,7 +194,7 @@ public:
 
     OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
                                tree1, 0,
-                               tf2, tf1, pairs);
+                               tf2, tf1, pairs, cost_sources);
   }
 
   
@@ -212,6 +215,7 @@ public:
   void OcTreeShapeIntersect(const OcTree* tree, const S& s,
                             const SimpleTransform& tf1, const SimpleTransform& tf2,
                             std::vector<OcTreeShapeCollisionPair>& pairs,
+                            std::vector<CostSource>& cost_sources,
                             const CollisionRequest& request_) const
   {
     request = request_;
@@ -222,7 +226,7 @@ public:
     convertBV(bv2, tf2, obb2);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                 s, obb2,
-                                tf1, tf2, pairs);
+                                tf1, tf2, pairs, cost_sources);
     
   }
 
@@ -230,6 +234,7 @@ public:
   void ShapeOcTreeIntersect(const S& s, const OcTree* tree,
                             const SimpleTransform& tf1, const SimpleTransform& tf2,
                             std::vector<OcTreeShapeCollisionPair>& pairs,
+                            std::vector<CostSource>& cost_sources,
                             const CollisionRequest& request_) const
   {
     request = request_;
@@ -240,7 +245,7 @@ public:
     convertBV(bv1, tf1, obb1);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                 s, obb1,
-                                tf2, tf1, pairs);
+                                tf2, tf1, pairs, cost_sources);
   }
 
   template<typename S>
@@ -326,7 +331,8 @@ private:
   bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                    const S& s, const OBB& obb2,
                                    const SimpleTransform& tf1, const SimpleTransform& tf2,
-                                   std::vector<OcTreeShapeCollisionPair>& pairs) const
+                                   std::vector<OcTreeShapeCollisionPair>& pairs,
+                                   std::vector<CostSource>& cost_sources) const
   {
     if(!root1->hasChildren())
     {
@@ -340,10 +346,16 @@ private:
           SimpleTransform box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
+          bool is_intersect = false;
+          
           if(!request.enable_contact)
           {
             if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
-              pairs.push_back(OcTreeShapeCollisionPair(root1));
+            {
+              is_intersect = true;
+              if(pairs.size() < request.num_max_contacts)
+                pairs.push_back(OcTreeShapeCollisionPair(root1));
+            }
           }
           else
           {
@@ -352,9 +364,13 @@ private:
             Vec3f normal;
 
             if(solver->shapeIntersect(box, box_tf, s, tf2, &contact, &depth, &normal))
-              pairs.push_back(OcTreeShapeCollisionPair(root1, contact, normal, depth));
+            {
+              is_intersect = true;
+              if(pairs.size() < request.num_max_contacts)
+                pairs.push_back(OcTreeShapeCollisionPair(root1, contact, normal, depth));
+            }
           }
-
+          
           return ((pairs.size() >= request.num_max_contacts) && !request.exhaustive);        
         }
         else return false;
@@ -375,7 +391,7 @@ private:
         AABB child_bv;
         computeChildBV(bv1, i, child_bv);
         
-        if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, obb2, tf1, tf2, pairs))
+        if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, obb2, tf1, tf2, pairs, cost_sources))
           return true;
       }
     }
@@ -403,7 +419,7 @@ private:
         const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
         FCL_REAL dist;
-        solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), &dist);
+        solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2, &dist);
         if(dist < min_dist) min_dist = dist;
         return (min_dist <= 0);
       }
@@ -471,7 +487,8 @@ private:
   bool OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                   const BVHModel<BV>* tree2, int root2,
                                   const SimpleTransform& tf1, const SimpleTransform& tf2,
-                                  std::vector<OcTreeMeshCollisionPair>& pairs) const
+                                  std::vector<OcTreeMeshCollisionPair>& pairs,
+                                  std::vector<CostSource>& cost_sources) const
   {
     if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
     {
@@ -494,7 +511,7 @@ private:
         
           if(!request.enable_contact)
           {
-            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), NULL, NULL, NULL))
+            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
               pairs.push_back(OcTreeMeshCollisionPair(root1, root2));
           }
           else
@@ -503,7 +520,7 @@ private:
             FCL_REAL depth;
             Vec3f normal;
 
-            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2.getRotation(), tf2.getTranslation(), &contact, &depth, &normal))
+            if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, &contact, &depth, &normal))
               pairs.push_back(OcTreeMeshCollisionPair(root1, root2, contact, normal, depth));
           }
 
@@ -532,17 +549,17 @@ private:
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
           
-          if(OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2, pairs))
+          if(OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2, pairs, cost_sources))
             return true;
         }
       }
     }
     else
     {
-      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).leftChild(), tf1, tf2, pairs))
+      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).leftChild(), tf1, tf2, pairs, cost_sources))
         return true;
 
-      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).rightChild(), tf1, tf2, pairs))
+      if(OcTreeMeshIntersectRecurse(tree1, root1, bv1, tree2, tree2->getBV(root2).rightChild(), tf1, tf2, pairs, cost_sources))
         return true;      
 
     }
@@ -633,7 +650,8 @@ private:
   bool OcTreeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                               const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
                               const SimpleTransform& tf1, const SimpleTransform& tf2,
-                              std::vector<OcTreeCollisionPair>& pairs) const
+                              std::vector<OcTreeCollisionPair>& pairs,
+                              std::vector<CostSource>& cost_sources) const
   {
     if(!root1->hasChildren() && !root2->hasChildren())
     {
@@ -687,7 +705,7 @@ private:
         
           if(OcTreeIntersectRecurse(tree1, child, child_bv, 
                                     tree2, root2, bv2,
-                                    tf1, tf2, pairs))
+                                    tf1, tf2, pairs, cost_sources))
             return true;
         }
       }
@@ -704,7 +722,7 @@ private:
           
           if(OcTreeIntersectRecurse(tree1, root1, bv1,
                                     tree2, child, child_bv,
-                                    tf1, tf2, pairs))
+                                    tf1, tf2, pairs, cost_sources))
             return true;
         }
       }
@@ -737,7 +755,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeIntersect(model1, model2, tf1, tf2, pairs, request);
+    otsolver->OcTreeIntersect(model1, model2, tf1, tf2, pairs, cost_sources, request);
   }
 
   const OcTree* model1;
@@ -746,6 +764,7 @@ public:
   SimpleTransform tf1, tf2;
 
   mutable std::vector<OcTreeCollisionPair> pairs;
+  mutable std::vector<CostSource> cost_sources;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -801,7 +820,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, pairs, request);
+    otsolver->OcTreeShapeIntersect(model2, *model1, tf2, tf1, pairs, cost_sources, request);
   }
 
   const S* model1;
@@ -810,7 +829,8 @@ public:
   SimpleTransform tf1, tf2;
   
   mutable std::vector<OcTreeShapeCollisionPair> pairs;
-  
+  mutable std::vector<CostSource> cost_sources;
+
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
@@ -833,7 +853,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, pairs, request);
+    otsolver->OcTreeShapeIntersect(model1, *model2, tf1, tf2, pairs, cost_sources, request);
   }
 
   const OcTree* model1;
@@ -842,7 +862,8 @@ public:
   SimpleTransform tf1, tf2;
   
   mutable std::vector<OcTreeShapeCollisionPair> pairs;
-  
+  mutable std::vector<CostSource> cost_sources;
+
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;  
 };
 
@@ -926,7 +947,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, pairs, request);
+    otsolver->OcTreeMeshIntersect(model2, model1, tf2, tf1, pairs, cost_sources, request);
   }
 
   const BVHModel<BV>* model1;
@@ -935,6 +956,7 @@ public:
   SimpleTransform tf1, tf2;
   
   mutable std::vector<OcTreeMeshCollisionPair> pairs;
+  mutable std::vector<CostSource> cost_sources;
   
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -958,7 +980,7 @@ public:
 
   void leafTesting(int, int) const
   {
-    otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, pairs, request);
+    otsolver->OcTreeMeshIntersect(model1, model2, tf1, tf2, pairs, cost_sources, request);
   }
 
   const OcTree* model1;
@@ -967,6 +989,7 @@ public:
   SimpleTransform tf1, tf2;
   
   mutable std::vector<OcTreeMeshCollisionPair> pairs;
+  mutable std::vector<CostSource> cost_sources;
   
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };

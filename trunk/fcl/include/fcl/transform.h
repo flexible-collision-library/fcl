@@ -59,10 +59,10 @@ public:
 
   SimpleQuaternion(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
   {
-    data[0] = a; // w
-    data[1] = b; // x
-    data[2] = c; // y
-    data[3] = d; // z
+    data[0] = a;
+    data[1] = b;
+    data[2] = c;
+    data[3] = d;
   }
 
   bool isIdentity() const
@@ -111,10 +111,10 @@ public:
   const SimpleQuaternion& operator *= (FCL_REAL t);
 
   /** \brief conjugate */
-  SimpleQuaternion conj() const;
+  SimpleQuaternion& conj();
 
   /** \brief inverse */
-  SimpleQuaternion inverse() const;
+  SimpleQuaternion& inverse();
 
   /** \brief rotate a vector */
   Vec3f transform(const Vec3f& v) const;
@@ -133,6 +133,9 @@ private:
 
   FCL_REAL data[4];
 };
+
+SimpleQuaternion conj(const SimpleQuaternion& q);
+SimpleQuaternion inverse(const SimpleQuaternion& q);
 
 /** \brief Simple transform class used locally by InterpMotion */
 class SimpleTransform
@@ -160,18 +163,30 @@ public:
     q.fromRotation(R_);
   }
 
+  SimpleTransform(const SimpleQuaternion& q_, const Vec3f& T_)
+  {
+    q_.toRotation(R);
+    T = T_;
+    
+    q = q_;
+  }
+
   SimpleTransform(const Matrix3f& R_)
   {
     R = R_;
     q.fromRotation(R_);
-    T.setValue(0.0);
+  }
+
+  SimpleTransform(const SimpleQuaternion& q_)
+  {
+    q_.toRotation(R);
+    q = q_;
   }
 
   SimpleTransform(const Vec3f& T_)
   {
     T = T_;
     R.setIdentity();
-    q = SimpleQuaternion();
   }
 
   inline const Vec3f& getTranslation() const
@@ -226,16 +241,18 @@ public:
     return q.transform(v) + T;
   }
 
-  SimpleTransform inverse() const
+  SimpleTransform& inverse()
   {
-    Matrix3f Rinv = transpose(R);
-    return SimpleTransform(Rinv, Rinv * (-T));
+    q.conj();
+    R.transpose();
+    T = q.transform(-T);
+    return *this;
   }
 
   SimpleTransform inverseTimes(const SimpleTransform& other) const
   {
-    Vec3f v = other.T - T;
-    return SimpleTransform(R.transposeTimes(other.R), R.transposeTimes(v));
+    const SimpleQuaternion& q_inv = fcl::conj(q);
+    return SimpleTransform(q_inv * other.q, q_inv.transform(other.T - T));
   }
 
   const SimpleTransform& operator *= (const SimpleTransform& other)
@@ -243,27 +260,18 @@ public:
     T = q.transform(other.T) + T;
     q *= other.q;
     q.toRotation(R);
-
     return *this;
   }
 
   SimpleTransform operator * (const SimpleTransform& other) const
   {
     SimpleQuaternion q_new = q * other.q;
-    SimpleTransform t;
-    t.q = q_new;
-    q_new.toRotation(t.R);
-    t.T = q.transform(other.T) + T;
-    return t;
+    return SimpleTransform(q_new, q.transform(other.T) + T);
   }
 
   bool isIdentity() const
   {
-    return 
-      (R(0, 0) == 1) && (R(0, 1) == 0) && (R(0, 2) == 0) && 
-      (R(1, 0) == 0) && (R(1, 1) == 1) && (R(1, 2) == 0) && 
-      (R(2, 0) == 0) && (R(2, 1) == 0) && (R(2, 2) == 1) && 
-      (T[0] == 0) && (T[1] == 0) && (T[2] == 0);
+    return q.isIdentity() && T.isZero();
   }
 
   void setIdentity()
@@ -275,6 +283,10 @@ public:
 
 };
 
+SimpleTransform inverse(const SimpleTransform& tf);
+
+void relativeTransform(const SimpleTransform& tf1, const SimpleTransform& tf2,
+                       SimpleTransform& tf);
 
 }
 

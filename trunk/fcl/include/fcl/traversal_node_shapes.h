@@ -41,6 +41,7 @@
 #include "fcl/collision_data.h"
 #include "fcl/traversal_node_base.h"
 #include "fcl/narrowphase/narrowphase.h"
+#include "fcl/geometric_shapes_utility.h"
 
 namespace fcl
 {
@@ -70,6 +71,16 @@ public:
       is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal);
     else
       is_collision = nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL);
+
+    if(is_collision && request.enable_cost)
+    {
+      AABB aabb1, aabb2;
+      computeBV<AABB, S1>(*model1, tf1, aabb1);
+      computeBV<AABB, S2>(*model2, tf2, aabb2);
+      AABB overlap_part;
+      aabb1.overlap(aabb2, overlap_part);
+      cost_source = CostSource(overlap_part.min_, overlap_part.max_, cost_density);
+    }
   }
 
   const S1* model1;
@@ -85,6 +96,10 @@ public:
   CollisionRequest request;
 
   mutable bool is_collision;
+
+  mutable CostSource cost_source;
+
+  FCL_REAL cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };

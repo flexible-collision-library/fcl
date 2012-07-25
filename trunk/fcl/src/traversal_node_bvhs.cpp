@@ -48,10 +48,13 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                         Vec3f* vertices1, Vec3f* vertices2, 
                                                         Triangle* tri_indices1, Triangle* tri_indices2,
                                                         const Matrix3f& R, const Vec3f& T,
+                                                        const SimpleTransform& tf1, const SimpleTransform& tf2,
                                                         bool enable_statistics,
+                                                        FCL_REAL cost_density,
                                                         const CollisionRequest& request,
                                                         int& num_leaf_tests,
-                                                        std::vector<BVHCollisionPair>& pairs)
+                                                        std::vector<BVHCollisionPair>& pairs,
+                                                        std::vector<CostSource>& cost_sources)
 {
   if(enable_statistics) num_leaf_tests++;
 
@@ -73,33 +76,47 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
 
   FCL_REAL penetration;
   Vec3f normal;
-  int n_contacts;
+  unsigned int n_contacts;
   Vec3f contacts[2];
-
+  
+  bool is_intersect = false;
 
   if(!request.enable_contact) // only interested in collision or not
   {
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
-        pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
+    {
+      is_intersect = true;
+      pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2));
+    }
   }
   else // need compute the contact information
   {
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                      R, T,
                                      contacts,
-                                     (unsigned int*)&n_contacts,
+                                     &n_contacts,
                                      &penetration,
                                      &normal))
     {
+      is_intersect = true;
       if(!request.exhaustive)
-        n_contacts = std::min(n_contacts, (int)request.num_max_contacts - (int)pairs.size());
-
-      for(int i = 0; i < n_contacts; ++i)
       {
-        // if((!request.exhaustive) && (request.num_max_contacts <= pairs.size())) break;
+        if(request.num_max_contacts < pairs.size() + n_contacts)
+          n_contacts = (request.num_max_contacts > pairs.size()) ? (request.num_max_contacts - pairs.size()) : 0;
+      }
+
+      for(unsigned int i = 0; i < n_contacts; ++i)
+      {
         pairs.push_back(BVHCollisionPair(primitive_id1, primitive_id2, contacts[i], normal, penetration));
       }
     }
+  }
+  
+  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+  {
+    AABB overlap_part;
+    AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
+    cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
   }
 }
 
@@ -163,7 +180,6 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
 MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBB>()
 {
   R.setIdentity();
-  // default T is 0
 }
 
 bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
@@ -177,9 +193,11 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, request,
+                                                tf1, tf2,
+                                                enable_statistics, cost_density, request,
                                                 num_leaf_tests,
-                                                pairs);
+                                                pairs,
+                                                cost_sources);
 }
 
 
@@ -194,9 +212,11 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& 
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, request,
+                                                tf1, tf2,
+                                                enable_statistics, cost_density, request,
                                                 num_leaf_tests,
-                                                pairs);
+                                                pairs,
+                                                cost_sources);
 }
 
 
@@ -204,7 +224,6 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& 
 MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS() : MeshCollisionTraversalNode<RSS>()
 {
   R.setIdentity();
-  // default T is 0
 }
 
 bool MeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
@@ -218,9 +237,11 @@ void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, request,
+                                                tf1, tf2,
+                                                enable_statistics, cost_density, request,
                                                 num_leaf_tests,
-                                                pairs);
+                                                pairs,
+                                                cost_sources);
 }
 
 
@@ -229,7 +250,6 @@ void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS() : MeshCollisionTraversalNode<kIOS>()
 {
   R.setIdentity();
-  // default T is 0
 }
 
 bool MeshCollisionTraversalNodekIOS::BVTesting(int b1, int b2) const
@@ -243,9 +263,11 @@ void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, request,
+                                                tf1, tf2,
+                                                enable_statistics, cost_density, request,
                                                 num_leaf_tests,
-                                                pairs);
+                                                pairs, 
+                                                cost_sources);
 }
 
 
@@ -253,7 +275,6 @@ void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
 MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS() : MeshCollisionTraversalNode<OBBRSS>()
 {
   R.setIdentity();
-  // default T is 0
 }
 
 bool MeshCollisionTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
@@ -267,9 +288,11 @@ void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 
                                                 R, T, 
-                                                enable_statistics, request,
+                                                tf1, tf2,
+                                                enable_statistics, cost_density, request,
                                                 num_leaf_tests,
-                                                pairs);
+                                                pairs,
+                                                cost_sources);
 }
 
 

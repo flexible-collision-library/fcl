@@ -204,10 +204,13 @@ public:
     Vec3f normal;
     Vec3f contactp;
 
+    bool is_intersect = false;
+
     if(!request.enable_contact) // only interested in collision or not
     {
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
       {
+        is_intersect = true;
         pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
     }
@@ -215,14 +218,25 @@ public:
     {
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
       {
+        is_intersect = true;
         pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }
+    }
+
+    if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+    {
+      AABB overlap_part;
+      AABB shape_aabb;
+      computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
+      AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+      cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size()) && (request.num_max_cost_sources <= cost_sources.size()) &&
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= cost_sources.size())  );
   }
 
   Vec3f* vertices;
@@ -231,6 +245,10 @@ public:
   CollisionRequest request;
 
   mutable std::vector<BVHShapeCollisionPair> pairs;
+
+  mutable std::vector<CostSource> cost_sources;
+  
+  FCL_REAL cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };
@@ -242,13 +260,15 @@ template<typename BV, typename S, typename NarrowPhaseSolver>
 static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                              const BVHModel<BV>* model1, const S& model2,
                                                              Vec3f* vertices, Triangle* tri_indices,
-                                                             const Matrix3f& R, const Vec3f& T,
-                                                             const SimpleTransform& tf2,
+                                                             const SimpleTransform& tf1,
+                                                             const SimpleTransform& tf2, 
                                                              const NarrowPhaseSolver* nsolver,
                                                              bool enable_statistics, 
+                                                             FCL_REAL cost_density,
                                                              const CollisionRequest& request,
                                                              int& num_leaf_tests,
-                                                             std::vector<BVHShapeCollisionPair>& pairs)
+                                                             std::vector<BVHShapeCollisionPair>& pairs,
+                                                             std::vector<CostSource>& cost_sources)
                                                  
 {
   if(enable_statistics) num_leaf_tests++;
@@ -266,19 +286,32 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
   Vec3f normal;
   Vec3f contactp;
 
+  bool is_intersect = false;
+
   if(!request.enable_contact) // only interested in collision or not
   {
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, R, T, NULL, NULL, NULL))
+    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
     {
+      is_intersect = true;
       pairs.push_back(BVHShapeCollisionPair(primitive_id));
     }
   }
   else
   {
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, R, T, &contactp, &penetration, &normal))
+    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
     {
+      is_intersect = true;
       pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
     }
+  }
+
+  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+  {
+    AABB overlap_part;
+    AABB shape_aabb;
+    computeBV<AABB, S>(model2, tf2, shape_aabb);
+    AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p2)).overlap(shape_aabb, overlap_part);
+    cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
   }
 }
 
@@ -290,24 +323,20 @@ class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNod
 public:
   MeshShapeCollisionTraversalNodeOBB() : MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
   }
 
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 template<typename S, typename NarrowPhaseSolver>
@@ -316,24 +345,20 @@ class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNod
 public:
   MeshShapeCollisionTraversalNodeRSS() : MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
   }
 
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 template<typename S, typename NarrowPhaseSolver>
@@ -342,24 +367,20 @@ class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNo
 public:
   MeshShapeCollisionTraversalNodekIOS() : MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
   }
 
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 template<typename S, typename NarrowPhaseSolver>
@@ -368,24 +389,20 @@ class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversal
 public:
   MeshShapeCollisionTraversalNodeOBBRSS() : MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                       R, T, this->tf2, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
   }
 
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 template<typename S, typename BV, typename NarrowPhaseSolver>
@@ -417,10 +434,13 @@ public:
     Vec3f normal;
     Vec3f contactp;
 
+    bool is_intersect = false;
+
     if(!request.enable_contact) // only interested in collision or not
     {
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
       {
+        is_intersect = true;
         pairs.push_back(BVHShapeCollisionPair(primitive_id));
       }
     }
@@ -428,14 +448,25 @@ public:
     {
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
       {
+        is_intersect = true;
         pairs.push_back(BVHShapeCollisionPair(primitive_id, normal, contactp, penetration));
       }
+    }
+
+    if(is_intersect && request.enable_cost && (request.num_max_cost_sources > cost_sources.size()))
+    {
+      AABB overlap_part;
+      AABB shape_aabb;
+      computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
+      AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+      cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (!request.exhaustive) && (request.num_max_contacts <= pairs.size()) &&
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= cost_sources.size())  );
   }
 
   Vec3f* vertices;
@@ -444,6 +475,10 @@ public:
   CollisionRequest request;
 
   mutable std::vector<BVHShapeCollisionPair> pairs;
+
+  mutable std::vector<CostSource> cost_sources;
+
+  FCL_REAL cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };
@@ -454,26 +489,21 @@ class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNod
 public:
   ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
 
     // may need to change the order in pairs
   }
-
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 
@@ -483,26 +513,22 @@ class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNod
 public:
   ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
 
     // may need to change the order in pairs
   }
 
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 
@@ -512,26 +538,22 @@ class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNo
 public:
   ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
 
     // may need to change the order in pairs
   }
 
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 
@@ -541,26 +563,22 @@ class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversal
 public:
   ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(R, T, this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices, 
-                                                       R, T, this->tf1, this->nsolver, this->enable_statistics, this->request, this->num_leaf_tests, this->pairs);
+                                                       this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->request, this->num_leaf_tests, this->pairs, this->cost_sources);
 
     // may need to change the order in pairs
   }
 
-  // R, T is the transform of bvh model
-  Matrix3f R;
-  Vec3f T;
 };
 
 
@@ -722,7 +740,7 @@ template<typename BV, typename S, typename NarrowPhaseSolver>
 void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
                                               const BVHModel<BV>* model1, const S& model2,
                                               Vec3f* vertices, Triangle* tri_indices,
-                                              const Matrix3f&R, const Vec3f& T,
+                                              const SimpleTransform& tf1,
                                               const SimpleTransform& tf2,
                                               const NarrowPhaseSolver* nsolver,
                                               bool enable_statistics,
@@ -742,7 +760,7 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
     
   FCL_REAL dist;
 
-  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, R, T, &dist);
+  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &dist);
     
   if(dist < min_distance)
   {
@@ -757,8 +775,7 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
 
 template<typename S, typename NarrowPhaseSolver>
 static inline void distance_preprocess(Vec3f* vertices, Triangle* tri_indices, int last_tri_id,
-                                       const Matrix3f& R, const Vec3f& T,
-                                       const S& s, const SimpleTransform& tf,
+                                       const S& s, const SimpleTransform& tf1, const SimpleTransform& tf2,
                                        const NarrowPhaseSolver* nsolver,
                                        FCL_REAL& min_distance)
 {
@@ -771,16 +788,18 @@ static inline void distance_preprocess(Vec3f* vertices, Triangle* tri_indices, i
   Vec3f last_tri_P, last_tri_Q;
   
   FCL_REAL dist;
-  nsolver->shapeTriangleDistance(s, tf, p1, p2, p3, R, T, &dist);
+  nsolver->shapeTriangleDistance(s, tf2, p1, p2, p3, tf1, &dist);
   
   min_distance = dist;
 }
 
 
-static inline void distance_postprocess(const Matrix3f& R, const Vec3f& T, Vec3f& p2)
+static inline void distance_postprocess(const SimpleTransform& tf, Vec3f& p2)
 {
-  Vec3f u = p2 - T;
-  p2 = R.transposeTimes(u);
+  const SimpleQuaternion& inv_q = conj(tf.getQuatRotation());
+  p2 = inv_q.transform(p2 - tf.getTranslation());
+  // Vec3f u = p2 - T;
+  // p2 = R.transposeTimes(u);
 }
 
 
@@ -790,12 +809,11 @@ class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<
 public:
   MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSS, S, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, R, T, *(this->model2), this->tf2, this->nsolver, this->min_distance);
+    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model2), this->tf1, this->tf2, this->nsolver, this->min_distance);
   }
 
   void postprocess()
@@ -806,17 +824,14 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(R, T, this->model2_bv, this->model1->getBV(b1).bv);
+    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                      R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
-  
-  Matrix3f R;
-  Vec3f T;
 };
 
 
@@ -826,12 +841,11 @@ class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode
 public:
   MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS, S, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, R, T, *(this->model2), this->tf2, this->nsolver, this->min_distance);
+    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model2), this->tf1, this->tf2, this->nsolver, this->min_distance);
   }
 
   void postprocess()
@@ -842,17 +856,15 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(R, T, this->model2_bv, this->model1->getBV(b1).bv);
+    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                      R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
-  
-  Matrix3f R;
-  Vec3f T;
+
 };
 
 template<typename S, typename NarrowPhaseSolver>
@@ -861,12 +873,11 @@ class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNo
 public:
   MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, R, T, *(this->model2), this->tf2, this->nsolver, this->min_distance);
+    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model2), this->tf1, this->tf2, this->nsolver, this->min_distance);
   }
 
   void postprocess()
@@ -877,17 +888,15 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(R, T, this->model2_bv, this->model1->getBV(b1).bv);
+    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                      R, T, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
-  Matrix3f R;
-  Vec3f T;
 };
 
 
@@ -960,12 +969,11 @@ class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<
 public:
   ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, R, T, *(this->model1), this->tf1, this->nsolver, this->min_distance);
+    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model1), this->tf2, this->tf1, this->nsolver, this->min_distance);
   }
 
   void postprocess()
@@ -976,17 +984,15 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(R, T, this->model1_bv, this->model2->getBV(b2).bv);
+    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                                      R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
-  
-  Matrix3f R;
-  Vec3f T;
+
 };
 
 template<typename S, typename NarrowPhaseSolver>
@@ -995,12 +1001,11 @@ class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode
 public:
   ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, R, T, *(this->model1), this->tf1, this->nsolver, this->min_distance);
+    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model1), this->tf2, this->tf1, this->nsolver, this->min_distance);
   }
 
   void postprocess()
@@ -1011,17 +1016,15 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(R, T, this->model1_bv, this->model2->getBV(b2).bv);
+    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                                      R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
-  Matrix3f R;
-  Vec3f T;
 };
 
 template<typename S, typename NarrowPhaseSolver>
@@ -1030,12 +1033,11 @@ class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNo
 public:
   ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS, NarrowPhaseSolver>()
   {
-    R.setIdentity();
   }
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, R, T, *(this->model1), this->tf1, this->nsolver, this->min_distance);
+    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model1), this->tf2, this->tf1, this->nsolver, this->min_distance);
   }
 
   void postprocess()
@@ -1046,17 +1048,15 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(R, T, this->model1_bv, this->model2->getBV(b2).bv);
+    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                                      R, T, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
   }
   
-  Matrix3f R;
-  Vec3f T;
 };
 }
 

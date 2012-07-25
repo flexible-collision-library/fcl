@@ -302,7 +302,7 @@ struct BVTQ
 
   bool full() const
   {
-    return ((int)pq.size() >= qsize - 1);
+    return (pq.size() + 1 >= qsize);
   }
 
   std::priority_queue<BVT, std::vector<BVT>, BVT_Comparer> pq;

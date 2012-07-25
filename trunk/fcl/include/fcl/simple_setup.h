@@ -76,7 +76,7 @@ bool initialize(OcTreeDistanceTraversalNode<NarrowPhaseSolver>& node,
                 const DistanceRequest& request)
 {
   node.request = request;
-
+ 
   node.model1 = &model1;
   node.model2 = &model2;
   
@@ -266,6 +266,9 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
   node.tf2 = tf2;
   node.nsolver = nsolver;
   node.request = request;
+  
+  node.cost_density = shape1.cost_density * shape2.cost_density;
+
   return true;
 }
 
@@ -309,6 +312,7 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
   node.request = request;
+  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -354,6 +358,7 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
   node.request = request;
+  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -383,9 +388,7 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, NarrowPha
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
   node.request = request;
-
-  node.R = tf1.getRotation();
-  node.T = tf1.getTranslation();
+  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -463,9 +466,7 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPha
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
   node.request = request;
-
-  node.R = tf2.getRotation();
-  node.T = tf2.getTranslation();
+  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -576,6 +577,7 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
   node.tri_indices2 = model2.tri_indices;
 
   node.request = request;
+  node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
 }
@@ -999,8 +1001,6 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S, NarrowPhas
 
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
-  node.R = tf1.getRotation();
-  node.T = tf1.getTranslation();
 
   return true;
 }

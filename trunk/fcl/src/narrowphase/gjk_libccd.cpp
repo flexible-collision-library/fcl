@@ -959,7 +959,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3)
   return o;
 }
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Matrix3f& R, Vec3f const& T)
+void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf)
 {
   ccd_triangle_t* o = new ccd_triangle_t;
   Vec3f center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
@@ -968,8 +968,8 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, cons
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
   ccdVec3Set(&o->p[2], P3[0], P3[1], P3[2]);
   ccdVec3Set(&o->c, center[0], center[1], center[2]);
-  SimpleQuaternion q;
-  q.fromRotation(R);
+  const SimpleQuaternion& q = tf.getQuatRotation();
+  const Vec3f& T = tf.getTranslation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
   ccdQuatInvert2(&o->rot_inv, &o->rot);

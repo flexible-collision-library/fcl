@@ -409,7 +409,7 @@ public:
 protected:
   void computeScrewParameter()
   {
-    SimpleQuaternion deltaq = tf2.getQuatRotation() * tf1.getQuatRotation().inverse();
+    SimpleQuaternion deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
     deltaq.toAxisAngle(axis, angular_vel);
     if(angular_vel < 0)
     {
@@ -601,7 +601,7 @@ protected:
   void computeVelocity()
   {
     linear_vel = tf2.transform(reference_p) - tf1.transform(reference_p);
-    SimpleQuaternion deltaq = tf2.getQuatRotation() * tf1.getQuatRotation().inverse();
+    SimpleQuaternion deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
     deltaq.toAxisAngle(angular_axis, angular_vel);
     if(angular_vel < 0)
     {

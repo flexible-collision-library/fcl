@@ -48,8 +48,6 @@ namespace fcl
 class TraversalNodeBase
 {
 public:
-  TraversalNodeBase() : enable_statistics(false) {}
-
   virtual ~TraversalNodeBase();
 
   virtual void preprocess() {}
@@ -77,9 +75,8 @@ public:
   /** \brief Get the right child of the node b in the second tree */
   virtual int getSecondRightChild(int b) const;
 
-  void enableStatistics(bool enable) { enable_statistics = enable; }
-
-  bool enable_statistics;
+  /** \brief Enable statistics (verbose mode) */
+  virtual void enableStatistics(bool enable) = 0;
 
   SimpleTransform tf1;
 
@@ -89,7 +86,7 @@ public:
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
-  CollisionTraversalNodeBase() : TraversalNodeBase() {}
+  CollisionTraversalNodeBase() : enable_statistics(false) {}
 
   virtual ~CollisionTraversalNodeBase();
 
@@ -102,13 +99,17 @@ public:
   /** \brief Check whether the traversal can stop */
   virtual bool canStop() const;
 
+  void enableStatistics(bool enable) { enable_statistics = enable; }
+
   CollisionRequest request;
+
+  bool enable_statistics;
 };
 
 class DistanceTraversalNodeBase : public TraversalNodeBase
 {
 public:
-  DistanceTraversalNodeBase() : TraversalNodeBase() {}
+  DistanceTraversalNodeBase() : enable_statistics(false) {}
 
   virtual ~DistanceTraversalNodeBase();
 
@@ -118,7 +119,11 @@ public:
 
   virtual bool canStop(FCL_REAL c) const;
 
+  void enableStatistics(bool enable) { enable_statistics = enable; }
+
   DistanceRequest request;
+
+  bool enable_statistics;
 };
 
 }
