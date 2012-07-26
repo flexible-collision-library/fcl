@@ -85,7 +85,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
     {
       is_intersect = true;
-      result.contacts.push_back(Contact(model1, model2, primitive_id1, primitive_id2));
+      result.addContact(Contact(model1, model2, primitive_id1, primitive_id2));
     }
   }
   else // need compute the contact information
@@ -100,22 +100,22 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
       is_intersect = true;
       if(!request.exhaustive)
       {
-        if(request.num_max_contacts < result.contacts.size() + n_contacts)
-          n_contacts = (request.num_max_contacts > result.contacts.size()) ? (request.num_max_contacts - result.contacts.size()) : 0;
+        if(request.num_max_contacts < result.numContacts() + n_contacts)
+          n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
       }
 
       for(unsigned int i = 0; i < n_contacts; ++i)
       {
-        result.contacts.push_back(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
+        result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
       }
     }
   }
   
-  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.cost_sources.size()))
+  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.numCostSources()))
   {
     AABB overlap_part;
     AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-    result.cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+    result.addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
   }
 }
 
@@ -130,11 +130,8 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
                                                        const Matrix3f& R, const Vec3f& T,
                                                        bool enable_statistics,
                                                        int& num_leaf_tests,
-                                                       Vec3f& p1,
-                                                       Vec3f& p2,
-                                                       int& last_tri_id1,
-                                                       int& last_tri_id2,
-                                                       FCL_REAL& min_distance)
+                                                       const DistanceRequest& request,
+                                                       DistanceResult& result)
 {
   if(enable_statistics) num_leaf_tests++;
 
@@ -162,16 +159,10 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
                                              R, T,
                                              P1, P2);
 
-  if(d < min_distance)
-  {
-    min_distance = d;
-
-    p1 = P1;
-    p2 = P2;
-
-    last_tri_id1 = primitive_id1;
-    last_tri_id2 = primitive_id2;
-  }
+  if(request.enable_nearest_points)
+    result.update(d, model1, model2, primitive_id1, primitive_id2, P1, P2);
+  else
+    result.update(d, model1, model2, primitive_id1, primitive_id2);
 }
 
 }
@@ -472,63 +463,70 @@ void PointCloudMeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 
 #endif
 
-
-
-
-static inline void distance_preprocess(Vec3f* vertices1, Vec3f* vertices2,
-                                       Triangle* tri_indices1, Triangle* tri_indices2,
-                                       int last_tri_id1, int last_tri_id2,
-                                       const Matrix3f& R, const Vec3f& T,
-                                       FCL_REAL& min_distance,
-                                       Vec3f& p1,
-                                       Vec3f& p2)
+namespace details
 {
-  const Triangle& last_tri1 = tri_indices1[last_tri_id1];
-  const Triangle& last_tri2 = tri_indices2[last_tri_id2];
 
-  Vec3f last_tri1_points[3];
-  Vec3f last_tri2_points[3];
+template<typename BV>
+static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                  const Vec3f* vertices1, Vec3f* vertices2,
+                                                  Triangle* tri_indices1, Triangle* tri_indices2,
+                                                  int init_tri_id1, int init_tri_id2,
+                                                  const Matrix3f& R, const Vec3f& T,
+                                                  const DistanceRequest& request,
+                                                  DistanceResult& result)
+{
+  const Triangle& init_tri1 = tri_indices1[init_tri_id1];
+  const Triangle& init_tri2 = tri_indices2[init_tri_id2];
 
-  last_tri1_points[0] = vertices1[last_tri1[0]];
-  last_tri1_points[1] = vertices1[last_tri1[1]];
-  last_tri1_points[2] = vertices1[last_tri1[2]];
+  Vec3f init_tri1_points[3];
+  Vec3f init_tri2_points[3];
 
-  last_tri2_points[0] = vertices2[last_tri2[0]];
-  last_tri2_points[1] = vertices2[last_tri2[1]];
-  last_tri2_points[2] = vertices2[last_tri2[2]];
+  init_tri1_points[0] = vertices1[init_tri1[0]];
+  init_tri1_points[1] = vertices1[init_tri1[1]];
+  init_tri1_points[2] = vertices1[init_tri1[2]];
 
-  Vec3f last_tri_P, last_tri_Q;
+  init_tri2_points[0] = vertices2[init_tri2[0]];
+  init_tri2_points[1] = vertices2[init_tri2[1]];
+  init_tri2_points[2] = vertices2[init_tri2[2]];
 
-  FCL_REAL init_dist = TriangleDistance::triDistance(last_tri1_points[0], last_tri1_points[1], last_tri1_points[2],
-                                                     last_tri2_points[0], last_tri2_points[1], last_tri2_points[2],
-                                                     R, T, last_tri_P, last_tri_Q);
-  p1 = last_tri_P;
-  p2 = R.transposeTimes(last_tri_Q - T);
+  Vec3f p1, p2;
+  FCL_REAL distance = TriangleDistance::triDistance(init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
+                                                    init_tri2_points[0], init_tri2_points[1], init_tri2_points[2],
+                                                    R, T, p1, p2);
 
-  // if(min_distance > init_dist) min_distance = init_dist;
+  if(request.enable_nearest_points)
+    result.update(distance, model1, model2, init_tri_id1, init_tri_id2, p1, p2);
+  else
+    result.update(distance, model1, model2, init_tri_id1, init_tri_id2);
 }
 
-static inline void distance_postprocess(const Matrix3f& R, const Vec3f& T, Vec3f& p2)
+template<typename BV>
+static inline void distancePostprocessOrientedNode(const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                   const SimpleTransform& tf1, const DistanceRequest& request, DistanceResult& result)
 {
-  Vec3f u = p2 - T;
-  p2 = R.transposeTimes(u);
+  /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
+  if(request.enable_nearest_points && (result.o1 == model1) && (result.o2 == model2))
+  {
+    result.nearest_points[0] = tf1.transform(result.nearest_points[0]);
+    result.nearest_points[1] = tf1.transform(result.nearest_points[1]);
+  }
 }
 
+}
 
 MeshDistanceTraversalNodeRSS::MeshDistanceTraversalNodeRSS() : MeshDistanceTraversalNode<RSS>()
 {
   R.setIdentity();
-  // default T is 0
 }
 
 void MeshDistanceTraversalNodeRSS::preprocess()
 {
-  distance_preprocess(vertices1, vertices2, tri_indices1, tri_indices2, last_tri_id1, last_tri_id2, R, T, min_distance, p1, p2);
+  details::distancePreprocessOrientedNode(model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 0, 0, R, T, request, *result);
 }
 
 void MeshDistanceTraversalNodeRSS::postprocess()
 {
-  distance_postprocess(R, T, p2);
+  details::distancePostprocessOrientedNode(model1, model2, tf1, request, *result);
 }
 
 FCL_REAL MeshDistanceTraversalNodeRSS::BVTesting(int b1, int b2) const
@@ -541,23 +539,22 @@ void MeshDistanceTraversalNodeRSS::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
                                                R, T, enable_statistics, num_leaf_tests, 
-                                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
+                                               request, *result);
 }
 
 MeshDistanceTraversalNodekIOS::MeshDistanceTraversalNodekIOS() : MeshDistanceTraversalNode<kIOS>()
 {
   R.setIdentity();
-  // default T is 0
 }
 
 void MeshDistanceTraversalNodekIOS::preprocess()
 {
-  distance_preprocess(vertices1, vertices2, tri_indices1, tri_indices2, last_tri_id1, last_tri_id2, R, T, min_distance, p1, p2);
+  details::distancePreprocessOrientedNode(model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 0, 0, R, T, request, *result);
 }
 
 void MeshDistanceTraversalNodekIOS::postprocess()
 {
-  distance_postprocess(R, T, p2);
+  details::distancePostprocessOrientedNode(model1, model2, tf1, request, *result);
 }
 
 FCL_REAL MeshDistanceTraversalNodekIOS::BVTesting(int b1, int b2) const
@@ -570,23 +567,22 @@ void MeshDistanceTraversalNodekIOS::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
                                                R, T, enable_statistics, num_leaf_tests, 
-                                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
+                                               request, *result);
 }
 
 MeshDistanceTraversalNodeOBBRSS::MeshDistanceTraversalNodeOBBRSS() : MeshDistanceTraversalNode<OBBRSS>()
 {
   R.setIdentity();
-  // default T is 0
 }
 
 void MeshDistanceTraversalNodeOBBRSS::preprocess()
 {
-  distance_preprocess(vertices1, vertices2, tri_indices1, tri_indices2, last_tri_id1, last_tri_id2, R, T, min_distance, p1, p2);
+  details::distancePreprocessOrientedNode(model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 0, 0, R, T, request, *result);
 }
 
 void MeshDistanceTraversalNodeOBBRSS::postprocess()
 {
-  distance_postprocess(R, T, p2);
+  details::distancePostprocessOrientedNode(model1, model2, tf1, request, *result);
 }
 
 FCL_REAL MeshDistanceTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
@@ -599,7 +595,7 @@ void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, tri_indices1, tri_indices2, 
                                                R, T, enable_statistics, num_leaf_tests, 
-                                               p1, p2, last_tri_id1, last_tri_id2, min_distance);
+                                               request, *result);
 }
 
 

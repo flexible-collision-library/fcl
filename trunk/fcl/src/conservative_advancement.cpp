@@ -93,7 +93,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
 
   collide(&cnode);
 
-  int b = result.contacts.size();
+  int b = result.numContacts();
 
   if(b > 0)
   {

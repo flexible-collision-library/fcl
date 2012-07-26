@@ -73,7 +73,7 @@ public:
       if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal))
       {
         is_collision = true;
-        result->contacts.push_back(Contact(model1, model2, Contact::NONE, Contact::NONE, contact_point, normal, penetration_depth));
+        result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contact_point, normal, penetration_depth));
       }
     }
     else
@@ -81,7 +81,7 @@ public:
       if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
       {
         is_collision = true;
-        result->contacts.push_back(Contact(model1, model2, Contact::NONE, Contact::NONE));
+        result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE));
       }
     }
 
@@ -92,7 +92,7 @@ public:
       computeBV<AABB, S2>(*model2, tf2, aabb2);
       AABB overlap_part;
       aabb1.overlap(aabb2, overlap_part);
-      result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
@@ -123,17 +123,13 @@ public:
 
   void leafTesting(int, int) const
   {
-    is_collision = !nsolver->shapeDistance(*model1, tf1, *model2, tf2, &min_distance);
+    FCL_REAL distance;
+    !nsolver->shapeDistance(*model1, tf1, *model2, tf2, &distance);
+    result->update(distance, model1, model2, DistanceResult::NONE, DistanceResult::NONE);
   }
 
   const S1* model1;
   const S2* model2;
-
-  mutable FCL_REAL min_distance;
-  mutable Vec3f p1;
-  mutable Vec3f p2;
-
-  mutable bool is_collision;
 
   const NarrowPhaseSolver* nsolver;
 };

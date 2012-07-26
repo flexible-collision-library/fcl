@@ -255,12 +255,14 @@ template<typename BV, typename OrientedNode>
 static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
                                                  const BVHModel<BV>& model1, const SimpleTransform& tf1,
                                                  const BVHModel<BV>& model2, const SimpleTransform& tf2,
-                                                 const DistanceRequest& request)
+                                                 const DistanceRequest& request,
+                                                 DistanceResult& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   node.request = request;
+  node.result = &result;
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -284,26 +286,29 @@ static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
 bool initialize(MeshDistanceTraversalNodeRSS& node,
                 const BVHModel<RSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<RSS>& model2, const SimpleTransform& tf2,
-                const DistanceRequest& request)
+                const DistanceRequest& request,
+                DistanceResult& result)
 {
-  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request);
+  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request, result);
 }
 
 
 bool initialize(MeshDistanceTraversalNodekIOS& node,
                 const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
                 const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
-                const DistanceRequest& request)
+                const DistanceRequest& request,
+                DistanceResult& result)
 {
-  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request);
+  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request, result);
 }
 
 bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
                 const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
                 const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
-                const DistanceRequest& request)
+                const DistanceRequest& request,
+                DistanceResult& result)
 {
-  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request);
+  return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request, result);
 }
 
 

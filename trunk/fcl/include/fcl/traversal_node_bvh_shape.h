@@ -179,7 +179,7 @@ public:
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
       {
         is_intersect = true;
-        this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id, Contact::NONE));
+        this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE));
       }
     }
     else
@@ -187,24 +187,24 @@ public:
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
       {
         is_intersect = true;
-        this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
+        this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
       }
     }
 
-    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->cost_sources.size()))
+    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->numCostSources()))
     {
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
       AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      this->result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      this->result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   bool canStop() const
   {
-    return (this->result->contacts.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->contacts.size()) && (this->request.num_max_cost_sources <= this->result->cost_sources.size()) &&
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->cost_sources.size())  );
+    return (this->result->numContacts() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->numContacts()) && (this->request.num_max_cost_sources <= this->result->numCostSources()) &&
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->numCostSources())  );
   }
 
   Vec3f* vertices;
@@ -253,7 +253,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
     {
       is_intersect = true;
-      result.contacts.push_back(Contact(model1, &model2, primitive_id, Contact::NONE));
+      result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE));
     }
   }
   else
@@ -261,17 +261,17 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
     {
       is_intersect = true;
-      result.contacts.push_back(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
+      result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
     }
   }
 
-  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.cost_sources.size()))
+  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.numCostSources()))
   {
     AABB overlap_part;
     AABB shape_aabb;
     computeBV<AABB, S>(model2, tf2, shape_aabb);
     AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p2)).overlap(shape_aabb, overlap_part);
-    result.cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+    result.addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
   }
 }
 
@@ -401,7 +401,7 @@ public:
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
       {
         is_intersect = true;
-        this->result->contacts.push_back(Contact(this->model1, this->model2, Contact::NONE, primitive_id));
+        this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id));
       }
     }
     else
@@ -409,24 +409,24 @@ public:
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
       {
         is_intersect = true;
-        this->result->contacts.push_back(Contact(this->model1, this->model2, Contact::NONE, primitive_id, contactp, normal, penetration));
+        this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id, contactp, normal, penetration));
       }
     }
 
-    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->cost_sources.size()))
+    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->numCostSources()))
     {
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
       AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      this->result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      this->result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   bool canStop() const
   {
-    return (this->result->contacts.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->contacts.size()) &&
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->cost_sources.size())  );
+    return (this->result->numContacts() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->numContacts()) &&
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->numCostSources())  );
   }
 
   Vec3f* vertices;
@@ -633,12 +633,8 @@ public:
     vertices = NULL;
     tri_indices = NULL;
 
-    last_tri_id = 0;
-
     rel_err = 0;
     abs_err = 0;
-
-    min_distance = std::numeric_limits<FCL_REAL>::max();
 
     nsolver = NULL;
   }
@@ -660,17 +656,12 @@ public:
     FCL_REAL d;
     nsolver->shapeTriangleDistance(*(this->model2), this->tf2, p1, p2, p3, &d);
 
-    if(d < min_distance)
-    {
-      min_distance = d;
-      
-      last_tri_id = primitive_id;
-    }
+    this->result->update(d, this->model1, this->model2, primitive_id, DistanceResult::NONE);
   }
 
   bool canStop(FCL_REAL c) const
   {
-    if((c >= min_distance - abs_err) && (c * (1 + rel_err) >= min_distance))
+    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
       return true;
     return false;
   }
@@ -680,10 +671,7 @@ public:
 
   FCL_REAL rel_err;
   FCL_REAL abs_err;
-  
-  mutable FCL_REAL min_distance;
-  mutable int last_tri_id;
-  
+    
   const NarrowPhaseSolver* nsolver;
 };
 
@@ -699,8 +687,8 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
                                               const NarrowPhaseSolver* nsolver,
                                               bool enable_statistics,
                                               int & num_leaf_tests,
-                                              int& last_tri_id,
-                                              FCL_REAL& min_distance)
+                                              const DistanceRequest& request,
+                                              DistanceResult& result)
 {
   if(enable_statistics) num_leaf_tests++;
     
@@ -712,49 +700,36 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& p2 = vertices[tri_id[1]];
   const Vec3f& p3 = vertices[tri_id[2]];
     
-  FCL_REAL dist;
+  FCL_REAL distance;
+  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance);
 
-  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &dist);
-    
-  if(dist < min_distance)
-  {
-    min_distance = dist;
-
-    last_tri_id = primitive_id;
-  }
+  result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE);
 }
 
-}
-
-
-template<typename S, typename NarrowPhaseSolver>
-static inline void distance_preprocess(Vec3f* vertices, Triangle* tri_indices, int last_tri_id,
-                                       const S& s, const SimpleTransform& tf1, const SimpleTransform& tf2,
-                                       const NarrowPhaseSolver* nsolver,
-                                       FCL_REAL& min_distance)
+template<typename BV, typename S, typename NarrowPhaseSolver>
+static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
+                                                  Vec3f* vertices, Triangle* tri_indices, int init_tri_id,
+                                                  const S& model2, const SimpleTransform& tf1, const SimpleTransform& tf2,
+                                                  const NarrowPhaseSolver* nsolver,
+                                                  const DistanceRequest& request,
+                                                  DistanceResult& result)
 {
-  const Triangle& last_tri = tri_indices[last_tri_id];
+  const Triangle& init_tri = tri_indices[init_tri_id];
   
-  const Vec3f& p1 = vertices[last_tri[0]];
-  const Vec3f& p2 = vertices[last_tri[1]];
-  const Vec3f& p3 = vertices[last_tri[2]];
+  const Vec3f& p1 = vertices[init_tri[0]];
+  const Vec3f& p2 = vertices[init_tri[1]];
+  const Vec3f& p3 = vertices[init_tri[2]];
+  
+  FCL_REAL distance;
+  nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance);
 
-  Vec3f last_tri_P, last_tri_Q;
-  
-  FCL_REAL dist;
-  nsolver->shapeTriangleDistance(s, tf2, p1, p2, p3, tf1, &dist);
-  
-  min_distance = dist;
+  result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE);
 }
 
 
-static inline void distance_postprocess(const SimpleTransform& tf, Vec3f& p2)
-{
-  const SimpleQuaternion& inv_q = conj(tf.getQuatRotation());
-  p2 = inv_q.transform(p2 - tf.getTranslation());
-  // Vec3f u = p2 - T;
-  // p2 = R.transposeTimes(u);
 }
+
+
 
 
 template<typename S, typename NarrowPhaseSolver>
@@ -767,12 +742,12 @@ public:
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model2), this->tf1, this->tf2, this->nsolver, this->min_distance);
+    details::distancePreprocessOrientedNode(this->model1, this->vertices, this->tri_indices, 0, 
+                                            *(this->model2), this->tf1, this->tf2, this->nsolver, this->request, *(this->result));
   }
 
   void postprocess()
   {
-    
   }
 
   FCL_REAL BVTesting(int b1, int b2) const
@@ -784,7 +759,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
 };
 
@@ -799,12 +774,12 @@ public:
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model2), this->tf1, this->tf2, this->nsolver, this->min_distance);
+    details::distancePreprocessOrientedNode(this->model1, this->vertices, this->tri_indices, 0, 
+                                            *(this->model2), this->tf1, this->tf2, this->nsolver, this->request, *(this->result));
   }
 
   void postprocess()
-  {
-    
+  {    
   }
 
   FCL_REAL BVTesting(int b1, int b2) const
@@ -816,7 +791,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
 
 };
@@ -831,7 +806,8 @@ public:
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model2), this->tf1, this->tf2, this->nsolver, this->min_distance);
+    details::distancePreprocessOrientedNode(this->model1, this->vertices, this->tri_indices, 0, 
+                                            *(this->model2), this->tf1, this->tf2, this->nsolver, this->request, *(this->result));
   }
 
   void postprocess()
@@ -848,7 +824,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b1, b2, this->model1, *(this->model2), this->vertices, this->tri_indices,
-                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
   
 };
@@ -863,12 +839,8 @@ public:
     vertices = NULL;
     tri_indices = NULL;
 
-    last_tri_id = 0;
-
     rel_err = 0;
     abs_err = 0;
-
-    min_distance = std::numeric_limits<FCL_REAL>::max();
 
     nsolver = NULL;
   }
@@ -887,20 +859,15 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
     
-    FCL_REAL d;
-    nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &d);
+    FCL_REAL distance;
+    nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &distance);
 
-    if(d < min_distance)
-    {
-      min_distance = d;
-      
-      last_tri_id = primitive_id;
-    }
+    this->result->update(distance, this->model1, this->model2, DistanceResult::NONE, primitive_id);
   }
 
   bool canStop(FCL_REAL c) const
   {
-    if((c >= min_distance - abs_err) && (c * (1 + rel_err) >= min_distance))
+    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
       return true;
     return false;
   }
@@ -910,10 +877,7 @@ public:
 
   FCL_REAL rel_err;
   FCL_REAL abs_err;
-  
-  mutable FCL_REAL min_distance;
-  mutable int last_tri_id;
-  
+    
   const NarrowPhaseSolver* nsolver;
 };
 
@@ -927,12 +891,12 @@ public:
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model1), this->tf2, this->tf1, this->nsolver, this->min_distance);
+    details::distancePreprocessOrientedNode(this->model2, this->vertices, this->tri_indices, 0,
+                                            *(this->model1), this->tf2, this->tf1, this->nsolver, this->request, *(this->result));
   }
 
   void postprocess()
   {
-    
   }
 
   FCL_REAL BVTesting(int b1, int b2) const
@@ -944,7 +908,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
 
 };
@@ -959,12 +923,12 @@ public:
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model1), this->tf2, this->tf1, this->nsolver, this->min_distance);
+    details::distancePreprocessOrientedNode(this->model2, this->vertices, this->tri_indices, 0,
+                                            *(this->model1), this->tf2, this->tf1, this->nsolver, *(this->result));
   }
 
   void postprocess()
   {
-    
   }
 
   FCL_REAL BVTesting(int b1, int b2) const
@@ -976,7 +940,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
   
 };
@@ -991,12 +955,12 @@ public:
 
   void preprocess()
   {
-    distance_preprocess(this->vertices, this->tri_indices, this->last_tri_id, *(this->model1), this->tf2, this->tf1, this->nsolver, this->min_distance);
+    details::distancePreprocessOrientedNode(this->model2, this->vertices, this->tri_indices, 0,
+                                            *(this->model1), this->tf2, this->tf1, this->nsolver, *(this->result));
   }
 
   void postprocess()
-  {
-    
+  {    
   }
 
   FCL_REAL BVTesting(int b1, int b2) const
@@ -1008,7 +972,7 @@ public:
   void leafTesting(int b1, int b2) const
   {
     details::meshShapeDistanceOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1), this->vertices, this->tri_indices,
-                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->last_tri_id, this->min_distance);
+                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
   }
   
 };

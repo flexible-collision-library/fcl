@@ -103,9 +103,10 @@ struct CollisionRequest
 
 struct CollisionResult
 {
+private:
   std::vector<Contact> contacts;
   std::vector<CostSource> cost_sources;
-
+public:
   CollisionResult()
   {
   }
@@ -135,6 +136,34 @@ struct CollisionResult
     return cost_sources.size();
   }
 
+  const Contact& getContact(size_t i) const
+  {
+    if(i < contacts.size()) 
+      return contacts[i];
+    else
+      return contacts.back();
+  }
+
+  const CostSource& getCostSource(size_t i) const
+  {
+    if(i < cost_sources.size())
+      return cost_sources[i];
+    else
+      return cost_sources.back();
+  }
+
+  void getContacts(std::vector<Contact>& contacts_)
+  {
+    contacts_.resize(contacts.size());
+    std::copy(contacts.begin(), contacts.end(), contacts_.begin());
+  }
+
+  void getCostSources(std::vector<CostSource>& cost_sources_)
+  {
+    cost_sources_.resize(cost_sources.size());
+    std::copy(cost_sources.begin(), cost_sources.end(), cost_sources_.begin());
+  }
+
   void clear()
   {
     contacts.clear();
@@ -159,24 +188,81 @@ struct CollisionData
 struct DistanceRequest
 {
   bool enable_nearest_points;
-  DistanceRequest() : enable_nearest_points(false)
+
+  DistanceRequest(bool enable_nearest_points_ = false) : enable_nearest_points(enable_nearest_points_)
   {
   }
 };
 
 struct DistanceResult
 {
+
   FCL_REAL min_distance;
 
   Vec3f nearest_points[2];
+
+  const CollisionGeometry* o1;
+  const CollisionGeometry* o2;
+  int b1;
+  int b2;
+
+  static const int NONE = -1;
   
-  DistanceResult() : min_distance(std::numeric_limits<FCL_REAL>::max())
+  DistanceResult(FCL_REAL min_distance_ = std::numeric_limits<FCL_REAL>::max()) : min_distance(min_distance_), 
+                                                                                  o1(NULL),
+                                                                                  o2(NULL),
+                                                                                  b1(-1),
+                                                                                  b2(-1)
   {
+  }
+
+  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_)
+  {
+    if(min_distance > distance)
+    {
+      min_distance = distance;
+      o1 = o1_;
+      o2 = o2_;
+      b1 = b1_;
+      b2 = b2_;
+    }
+  }
+
+  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_, const Vec3f& p1, const Vec3f& p2)
+  {
+    if(min_distance > distance)
+    {
+      min_distance = distance;
+      o1 = o1_;
+      o2 = o2_;
+      b1 = b1_;
+      b2 = b2_;
+      nearest_points[0] = p1;
+      nearest_points[1] = p2;
+    }
+  }
+
+  void update(const DistanceResult& other_result)
+  {
+    if(min_distance > other_result.min_distance)
+    {
+      min_distance = other_result.min_distance;
+      o1 = other_result.o1;
+      o2 = other_result.o2;
+      b1 = other_result.b1;
+      b2 = other_result.b2;
+      nearest_points[0] = other_result.nearest_points[0];
+      nearest_points[1] = other_result.nearest_points[1];
+    }
   }
 
   void clear()
   {
     min_distance = std::numeric_limits<FCL_REAL>::max();
+    o1 = NULL;
+    o2 = NULL;
+    b1 = -1;
+    b2 = -1;
   }
 };
 

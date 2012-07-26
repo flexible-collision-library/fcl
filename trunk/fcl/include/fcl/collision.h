@@ -49,7 +49,7 @@ namespace fcl
 /** \brief Main collision interface: given two collision objects, and the requirements for contacts, including num of max contacts, whether perform exhaustive collision (i.e., returning 
  * returning all the contact points), whether return detailed contact information (i.e., normal, contact point, depth; otherwise only contact primitive id is returned), this function
  * performs the collision between them. 
- * Return value is the number of contacts returned 
+ * Return value is the number of contacts generated between the two objects.
  */
 
 template<typename NarrowPhaseSolver>

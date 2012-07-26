@@ -83,16 +83,17 @@ public:
   }
 
 
-  FCL_REAL OcTreeDistance(const OcTree* tree1, const OcTree* tree2,
-                          const SimpleTransform& tf1, const SimpleTransform& tf2) const
+  void OcTreeDistance(const OcTree* tree1, const OcTree* tree2,
+                      const SimpleTransform& tf1, const SimpleTransform& tf2,
+                      const DistanceRequest& request_,
+                      DistanceResult& result_) const
   {
-    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+    drequest = &request_;
+    dresult = &result_;
 
     OcTreeDistanceRecurse(tree1, tree1->getRoot(), tree1->getRootBV(), 
                           tree2, tree2->getRoot(), tree2->getRootBV(),
-                          tf1, tf2, min_dist);
-
-    return min_dist;
+                          tf1, tf2);
   }
 
   template<typename BV>
@@ -110,16 +111,17 @@ public:
   }
 
   template<typename BV>
-  FCL_REAL OcTreeMeshDistance(const OcTree* tree1, const BVHModel<BV>* tree2,
-                              const SimpleTransform& tf1, const SimpleTransform& tf2) const
+  void OcTreeMeshDistance(const OcTree* tree1, const BVHModel<BV>* tree2,
+                          const SimpleTransform& tf1, const SimpleTransform& tf2,
+                          const DistanceRequest& request_,
+                          DistanceResult& result_) const
   {
-    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+    drequest = &request_;
+    dresult = &result_;
 
     OcTreeMeshDistanceRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
                               tree2, 0,
-                              tf1, tf2, min_dist);
-    
-    return min_dist;
+                              tf1, tf2);
   }
 
 
@@ -140,16 +142,17 @@ public:
 
   
   template<typename BV>
-  FCL_REAL MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree* tree2,
-                              const SimpleTransform& tf1, const SimpleTransform& tf2) const
+  void MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree* tree2,
+                          const SimpleTransform& tf1, const SimpleTransform& tf2,
+                          const DistanceRequest& request_,
+                          DistanceResult& result_) const
   {
-    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+    drequest = &request_;
+    dresult = &result_;
 
     OcTreeMeshDistanceRecurse(tree1, 0,
                               tree2, tree2->getRoot(), tree2->getRootBV(),
-                              tf1, tf2, min_dist);
-    
-    return min_dist;
+                              tf1, tf2);
   }
 
   template<typename S>
@@ -190,32 +193,35 @@ public:
   }
 
   template<typename S>
-  FCL_REAL OcTreeShapeDistance(const OcTree* tree, const S& s,
-                               const SimpleTransform& tf1, const SimpleTransform& tf2) const
+  void OcTreeShapeDistance(const OcTree* tree, const S& s,
+                           const SimpleTransform& tf1, const SimpleTransform& tf2,
+                           const DistanceRequest& request_,
+                           DistanceResult& result_) const
   {
+    drequest = &request_;
+    dresult = &result_;
+
     AABB aabb2;
     computeBV<AABB>(s, tf2, aabb2);
-    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-    
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                s, aabb2,
-                               tf1, tf2, min_dist);
-    return min_dist;
+                               tf1, tf2);
   }
 
   template<typename S>
-  FCL_REAL ShapeOcTreeDistance(const S& s, const OcTree* tree,
-                               const SimpleTransform& tf1, const SimpleTransform& tf2) const
+  void ShapeOcTreeDistance(const S& s, const OcTree* tree,
+                           const SimpleTransform& tf1, const SimpleTransform& tf2,
+                           const DistanceRequest& request_,
+                           DistanceResult& result_) const
   {
+    drequest = &request_;
+    dresult = &result_;
+
     AABB aabb1;
     computeBV<AABB>(s, tf1, aabb1);
-    FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                s, aabb1,
-                               tf2, tf1, min_dist);
-
-    return min_dist;
+                               tf2, tf1);
   }
   
 
@@ -223,8 +229,7 @@ private:
   template<typename S>
   bool OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                   const S& s, const AABB& aabb2,
-                                  const SimpleTransform& tf1, const SimpleTransform& tf2,
-                                  FCL_REAL& min_dist) const
+                                  const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     if(!root1->hasChildren())
     {
@@ -236,9 +241,10 @@ private:
  
         FCL_REAL dist;
         solver->shapeDistance(box, box_tf, s, tf2, &dist);
-        if(dist < min_dist) min_dist = dist;
         
-        return (min_dist <= 0);
+        dresult->update(dist, tree1, &s, root1 - tree1->getRoot(), DistanceResult::NONE);
+        
+        return (dresult->min_distance <= 0);
       }
       else
         return false;
@@ -257,9 +263,9 @@ private:
         AABB aabb1;
         convertBV(child_bv, tf1, aabb1);
         FCL_REAL d = aabb1.distance(aabb2);
-        if(d < min_dist)
+        if(d < dresult->min_distance)
         {
-          if(OcTreeShapeDistanceRecurse(tree1, child, child_bv, s, aabb2, tf1, tf2, min_dist))
+          if(OcTreeShapeDistanceRecurse(tree1, child, child_bv, s, aabb2, tf1, tf2))
             return true;
         }        
       }
@@ -341,7 +347,7 @@ private:
   template<typename BV>
   bool OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                  const BVHModel<BV>* tree2, int root2,
-                                 const SimpleTransform& tf1, const SimpleTransform& tf2, FCL_REAL& min_dist) const
+                                 const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
     {
@@ -359,8 +365,10 @@ private:
         
         FCL_REAL dist;
         solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2, &dist);
-        if(dist < min_dist) min_dist = dist;
-        return (min_dist <= 0);
+
+        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), primitive_id);
+
+        return (dresult->min_distance <= 0);
       }
       else
         return false;
@@ -384,9 +392,9 @@ private:
           convertBV(tree2->getBV(root2).bv, tf2, aabb2);
           d = aabb1.distance(aabb2);
           
-          if(d < min_dist)
+          if(d < dresult->min_distance)
           {
-            if(OcTreeMeshDistanceRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2, min_dist))
+            if(OcTreeMeshDistanceRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2))
               return true;
           }
         }
@@ -401,9 +409,9 @@ private:
       convertBV(tree2->getBV(child).bv, tf2, aabb2);
       d = aabb1.distance(aabb2);
 
-      if(d < min_dist)
+      if(d < dresult->min_distance)
       {
-        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2, min_dist))
+        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2))
           return true;
       }
 
@@ -411,9 +419,9 @@ private:
       convertBV(tree2->getBV(child).bv, tf2, aabb2);
       d = aabb1.distance(aabb2);
       
-      if(d < min_dist)
+      if(d < dresult->min_distance)
       {
-        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2, min_dist))
+        if(OcTreeMeshDistanceRecurse(tree1, root1, bv1, tree2, child, tf1, tf2))
           return true;      
       }
     }
@@ -506,8 +514,7 @@ private:
 
   bool OcTreeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                              const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
-                             const SimpleTransform& tf1, const SimpleTransform& tf2,
-                             FCL_REAL& min_dist) const
+                             const SimpleTransform& tf1, const SimpleTransform& tf2) const
   {
     if(!root1->hasChildren() && !root2->hasChildren())
     {
@@ -520,9 +527,10 @@ private:
 
         FCL_REAL dist;
         solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
-        if(dist < min_dist) min_dist = dist;
+
+        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot());
         
-        return (min_dist <= 0);
+        return (dresult->min_distance <= 0);
       }
       else
         return false;
@@ -546,10 +554,10 @@ private:
           convertBV(bv2, tf2, aabb2);
           d = aabb1.distance(aabb2);
 
-          if(d < min_dist)
+          if(d < dresult->min_distance)
           {
           
-            if(OcTreeDistanceRecurse(tree1, child, child_bv, tree2, root2, bv2, tf1, tf2, min_dist))
+            if(OcTreeDistanceRecurse(tree1, child, child_bv, tree2, root2, bv2, tf1, tf2))
               return true;
           }
         }
@@ -571,9 +579,9 @@ private:
           convertBV(bv2, tf2, aabb2);
           d = aabb1.distance(aabb2);
 
-          if(d < min_dist)
+          if(d < dresult->min_distance)
           {
-            if(OcTreeDistanceRecurse(tree1, root1, bv1, tree2, child, child_bv, tf1, tf2, min_dist))
+            if(OcTreeDistanceRecurse(tree1, root1, bv1, tree2, child, child_bv, tf1, tf2))
               return true;
           }
         }
@@ -722,13 +730,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeDistance(model1, model2, tf1, tf2);
+    otsolver->OcTreeDistance(model1, model2, tf1, tf2, request, *result);
   }
 
   const OcTree* model1;
   const OcTree* model2;
-  
-  mutable FCL_REAL min_distance;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -812,13 +818,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1);
+    otsolver->OcTreeShapeDistance(model2, *model1, tf2, tf1, request, *result);
   }
 
   const S* model1;
   const OcTree* model2;
-  
-  mutable FCL_REAL min_distance;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -842,13 +846,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2);
+    otsolver->OcTreeShapeDistance(model1, *model2, tf1, tf2, request, *result);
   }
 
   const OcTree* model1;
   const S* model2;
-  
-  mutable FCL_REAL min_distance;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -934,13 +936,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeMeshDistance(model2, model1, tf2, tf1);
+    otsolver->OcTreeMeshDistance(model2, model1, tf2, tf1, request, *result);
   }
 
   const BVHModel<BV>* model1;
   const OcTree* model2;
-  
-  mutable FCL_REAL min_distance;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 
@@ -965,13 +965,11 @@ public:
 
   void leafTesting(int, int) const
   {
-    min_distance = otsolver->OcTreeMeshDistance(model1, model2, tf1, tf2);
+    otsolver->OcTreeMeshDistance(model1, model2, tf1, tf2, request, *result);
   }
 
   const OcTree* model1;
   const BVHModel<BV>* model2;
-  
-  mutable FCL_REAL min_distance;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 

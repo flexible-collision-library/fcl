@@ -187,7 +187,7 @@ public:
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
         is_intersect = true;
-        this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
+        this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
       }
     }
     else // need compute the contact information
@@ -201,31 +201,31 @@ public:
         is_intersect = true;
         if(!this->request.exhaustive)
         {
-          if(this->request.num_max_contacts < n_contacts + this->result->contacts.size())
-            n_contacts = (this->request.num_max_contacts >= this->result->contacts.size()) ? (this->request.num_max_contacts - this->result->contacts.size()) : 0;
+          if(this->request.num_max_contacts < n_contacts + this->result->numContacts())
+            n_contacts = (this->request.num_max_contacts >= this->result->numContacts()) ? (this->request.num_max_contacts - this->result->numContacts()) : 0;
         }
     
         for(unsigned int i = 0; i < n_contacts; ++i)
         {
-          this->result->contacts.push_back(Contact(this->model1, this->model2, primitive_id1, primitive_id2, contacts[i], normal, penetration));
+          this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2, contacts[i], normal, penetration));
         }
       }
     }
 
    
-    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->cost_sources.size()))
+    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->numCostSources()))
     {
       AABB overlap_part;
       AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
-      this->result->cost_sources.push_back(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      this->result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }   
   }
 
   /** \brief Whether the traversal process can stop early */
   bool canStop() const
   {
-    return (this->result->contacts.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->contacts.size()) && 
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->cost_sources.size())  );
+    return (this->result->numContacts() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->numContacts()) && 
+      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->numCostSources())  );
   }
 
   Vec3f* vertices1;
@@ -913,13 +913,8 @@ public:
     tri_indices1 = NULL;
     tri_indices2 = NULL;
 
-    last_tri_id1 = 0;
-    last_tri_id2 = 0;
-
     rel_err = 0;
     abs_err = 0;
-
-    min_distance = std::numeric_limits<FCL_REAL>::max();
   }
 
   void leafTesting(int b1, int b2) const
@@ -949,21 +944,19 @@ public:
     FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
                                                P1, P2);
 
-    if(d < min_distance)
+    if(this->request.enable_nearest_points)
     {
-      min_distance = d;
-
-      p1 = P1;
-      p2 = P2;
-
-      last_tri_id1 = primitive_id1;
-      last_tri_id2 = primitive_id2;
+      this->result->update(d, this->model1, this->model2, primitive_id1, primitive_id2, P1, P2);
     }
-  }
+    else
+    {
+      this->result->update(d, this->model1, this->model2, primitive_id1, primitive_id2);
+    }
+ }
 
   bool canStop(FCL_REAL c) const
   {
-    if((c >= min_distance - abs_err) && (c * (1 + rel_err) >= min_distance))
+    if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
       return true;
     return false;
   }
@@ -977,17 +970,6 @@ public:
   /** \brief relative and absolute error, default value is 0.01 for both terms */
   FCL_REAL rel_err;
   FCL_REAL abs_err;
-
-  /** \brief distance and points establishing the minimum distance for the models, within the relative and absolute error bounds specified.
-   * p1 is in model1's local coordinate system while p2 is in model2's local coordinate system
-   */
-  mutable FCL_REAL min_distance;
-  mutable Vec3f p1;
-  mutable Vec3f p2;
-
-  /** \brief Remember the nearest neighbor points */
-  mutable int last_tri_id1;
-  mutable int last_tri_id2;
 };
 
 
@@ -1195,6 +1177,12 @@ public:
       return false;
     }
   }
+
+  mutable FCL_REAL min_distance;
+
+  mutable Vec3f p1, p2;
+
+  mutable int last_tri_id1, last_tri_id2;
 
 
   /** \brief CA controlling variable: early stop for the early iterations of CA */
