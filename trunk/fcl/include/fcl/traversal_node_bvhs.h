@@ -174,58 +174,68 @@ public:
     const Vec3f& q1 = vertices2[tri_id2[0]];
     const Vec3f& q2 = vertices2[tri_id2[1]];
     const Vec3f& q3 = vertices2[tri_id2[2]];
-
-    FCL_REAL penetration;
-    Vec3f normal;
-    unsigned int n_contacts;
-    Vec3f contacts[2];
     
-    bool is_intersect = false;
+    if(this->model1->isOccupied() && this->model2->isOccupied())
+    {
+      bool is_intersect = false;
 
-    if(!this->request.enable_contact) // only interested in collision or not
+      if(!this->request.enable_contact) // only interested in collision or not
+      {
+        if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
+        {
+          is_intersect = true;
+          this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
+        }
+      }
+      else // need compute the contact information
+      {
+        FCL_REAL penetration;
+        Vec3f normal;
+        unsigned int n_contacts;
+        Vec3f contacts[2];
+
+        if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
+                                         contacts,
+                                         &n_contacts,
+                                         &penetration,
+                                         &normal))
+        {
+          is_intersect = true;
+          if(!this->request.exhaustive)
+          {
+            if(this->request.num_max_contacts < n_contacts + this->result->numContacts())
+              n_contacts = (this->request.num_max_contacts >= this->result->numContacts()) ? (this->request.num_max_contacts - this->result->numContacts()) : 0;
+          }
+    
+          for(unsigned int i = 0; i < n_contacts; ++i)
+          {
+            this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2, contacts[i], normal, penetration));
+          }
+        }
+      }
+
+      if(is_intersect && this->request.enable_cost)
+      {
+        AABB overlap_part;
+        AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
+        this->result->addCostSource(CostSource(overlap_part, cost_density));      
+      }
+    }   
+    else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
     {
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
-        is_intersect = true;
-        this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
+        AABB overlap_part;
+        AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
+        this->result->addCostSource(CostSource(overlap_part, cost_density));      
       }
     }
-    else // need compute the contact information
-    {
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                       contacts,
-                                       &n_contacts,
-                                       &penetration,
-                                       &normal))
-      {
-        is_intersect = true;
-        if(!this->request.exhaustive)
-        {
-          if(this->request.num_max_contacts < n_contacts + this->result->numContacts())
-            n_contacts = (this->request.num_max_contacts >= this->result->numContacts()) ? (this->request.num_max_contacts - this->result->numContacts()) : 0;
-        }
-    
-        for(unsigned int i = 0; i < n_contacts; ++i)
-        {
-          this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2, contacts[i], normal, penetration));
-        }
-      }
-    }
-
-   
-    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->numCostSources()))
-    {
-      AABB overlap_part;
-      AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
-      this->result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
-    }   
   }
 
   /** \brief Whether the traversal process can stop early */
   bool canStop() const
   {
-    return (this->result->numContacts() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->numContacts()) && 
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->numCostSources())  );
+    return (!this->request.exhaustive) && (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
   }
 
   Vec3f* vertices1;

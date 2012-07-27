@@ -168,43 +168,58 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    FCL_REAL penetration;
-    Vec3f normal;
-    Vec3f contactp;
+    if(this->model1->isOccupied() && this->model2->isOccupied())
+    {
+      bool is_intersect = false;
 
-    bool is_intersect = false;
+      if(!this->request.enable_contact)
+      {
+        if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
+        {
+          is_intersect = true;
+          if(this->request.num_max_contacts > this->result->numContacts())
+            this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE));
+        }
+      }
+      else
+      {
+        FCL_REAL penetration;
+        Vec3f normal;
+        Vec3f contactp;
 
-    if(!this->request.enable_contact) // only interested in collision or not
+        if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
+        {
+          is_intersect = true;
+          if(this->request.num_max_contacts > this->result->numContacts())
+            this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
+        }
+      }
+
+      if(is_intersect && this->request.enable_cost)
+      {
+        AABB overlap_part;
+        AABB shape_aabb;
+        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
+        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        this->result->addCostSource(CostSource(overlap_part, cost_density));
+      }
+    }
+    if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
     {
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
       {
-        is_intersect = true;
-        this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE));
+        AABB overlap_part;
+        AABB shape_aabb;
+        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
+        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        this->result->addCostSource(CostSource(overlap_part, cost_density));        
       }
-    }
-    else
-    {
-      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
-      {
-        is_intersect = true;
-        this->result->addContact(Contact(this->model1, this->model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
-      }
-    }
-
-    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->numCostSources()))
-    {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
-      AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      this->result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
     }
   }
 
   bool canStop() const
   {
-    return (this->result->numContacts() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->numContacts()) && (this->request.num_max_cost_sources <= this->result->numCostSources()) &&
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->numCostSources())  );
+    return (!this->request.exhaustive) && (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
   }
 
   Vec3f* vertices;
@@ -242,36 +257,49 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& p2 = vertices[tri_id[1]];
   const Vec3f& p3 = vertices[tri_id[2]];
 
-  FCL_REAL penetration;
-  Vec3f normal;
-  Vec3f contactp;
-
-  bool is_intersect = false;
-
-  if(!request.enable_contact) // only interested in collision or not
+  if(model1->isOccupied() && model2.isOccupied())
   {
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
+    bool is_intersect = false;
+
+    if(!request.enable_contact) // only interested in collision or not
     {
-      is_intersect = true;
-      result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE));
+      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
+      {
+        is_intersect = true;
+        if(request.num_max_contacts > result.numContacts())
+          result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE));
+      }
+    }
+    else
+    {
+      FCL_REAL penetration;
+      Vec3f normal;
+      Vec3f contactp;
+
+      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
+      {
+        is_intersect = true;
+        if(request.num_max_contacts > result.numContacts())
+          result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
+      }
+    }
+
+    if(is_intersect && request.enable_cost)
+    {
+      AABB overlap_part;
+      AABB shape_aabb;
+      computeBV<AABB, S>(model2, tf2, shape_aabb);
+      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p2)).overlap(shape_aabb, overlap_part);
+      result.addCostSource(CostSource(overlap_part, cost_density));
     }
   }
-  else
-  {
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
-    {
-      is_intersect = true;
-      result.addContact(Contact(model1, &model2, primitive_id, Contact::NONE, contactp, -normal, penetration));
-    }
-  }
-
-  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.numCostSources()))
+  else if((!model1->isFree() || model2.isFree()) && request.enable_cost)
   {
     AABB overlap_part;
     AABB shape_aabb;
     computeBV<AABB, S>(model2, tf2, shape_aabb);
     AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p2)).overlap(shape_aabb, overlap_part);
-    result.addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+    result.addCostSource(CostSource(overlap_part, cost_density));    
   }
 }
 
@@ -390,43 +418,58 @@ public:
     const Vec3f& p2 = vertices[tri_id[1]];
     const Vec3f& p3 = vertices[tri_id[2]];
 
-    FCL_REAL penetration;
-    Vec3f normal;
-    Vec3f contactp;
+    if(this->model1->isOccupied() && this->model2->isOccupied())
+    {
+      bool is_intersect = false;
 
-    bool is_intersect = false;
+      if(!this->request.enable_contact)
+      {
+        if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
+        {
+          is_intersect = true;
+          if(this->request.num_max_contacts > this->result->numContacts())
+            this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id));
+        }
+      }
+      else
+      {
+        FCL_REAL penetration;
+        Vec3f normal;
+        Vec3f contactp;
 
-    if(!this->request.enable_contact) // only interested in collision or not
+        if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
+        {
+          is_intersect = true;
+          if(this->request.num_max_contacts > this->result->numContacts())
+            this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id, contactp, normal, penetration));
+        }
+      }
+
+      if(is_intersect && this->request.enable_cost)
+      {
+        AABB overlap_part;
+        AABB shape_aabb;
+        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
+        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        this->result->addCostSource(CostSource(overlap_part, cost_density));
+      }
+    }
+    else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
     {
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
       {
-        is_intersect = true;
-        this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id));
-      }
-    }
-    else
-    {
-      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
-      {
-        is_intersect = true;
-        this->result->addContact(Contact(this->model1, this->model2, Contact::NONE, primitive_id, contactp, normal, penetration));
-      }
-    }
-
-    if(is_intersect && this->request.enable_cost && (this->request.num_max_cost_sources > this->result->numCostSources()))
-    {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
-      AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      this->result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+        AABB overlap_part;
+        AABB shape_aabb;
+        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
+        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        this->result->addCostSource(CostSource(overlap_part, cost_density));
+      }   
     }
   }
 
   bool canStop() const
   {
-    return (this->result->numContacts() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= this->result->numContacts()) &&
-      (  (!this->request.enable_cost) || (this->request.num_max_cost_sources <= this->result->numCostSources())  );
+    return (!this->request.exhaustive) && (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
   }
 
   Vec3f* vertices;

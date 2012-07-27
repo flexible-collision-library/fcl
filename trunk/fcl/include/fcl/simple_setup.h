@@ -58,6 +58,7 @@ bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -80,6 +81,7 @@ bool initialize(OcTreeDistanceTraversalNode<NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
  
   node.model1 = &model1;
   node.model2 = &model2;
@@ -102,6 +104,7 @@ bool initialize(ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -124,6 +127,7 @@ bool initialize(OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -146,6 +150,7 @@ bool initialize(ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -169,6 +174,7 @@ bool initialize(OcTreeShapeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -191,6 +197,7 @@ bool initialize(MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -213,6 +220,7 @@ bool initialize(OcTreeMeshCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -235,6 +243,7 @@ bool initialize(MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -258,6 +267,7 @@ bool initialize(OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
 {
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.model2 = &model2;
@@ -286,8 +296,10 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
   node.model2 = &shape2;
   node.tf2 = tf2;
   node.nsolver = nsolver;
+
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
   
   node.cost_density = shape1.cost_density * shape2.cost_density;
 
@@ -334,8 +346,11 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
 
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
+
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
+
   node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
@@ -382,8 +397,11 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
 
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
+
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
+
   node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
@@ -414,8 +432,11 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, NarrowPha
 
   node.vertices = model1.vertices;
   node.tri_indices = model1.tri_indices;
+
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
+
   node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
@@ -498,8 +519,11 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPha
 
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
+
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
+
   node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
@@ -516,7 +540,7 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type */
@@ -528,7 +552,7 @@ bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type */
@@ -540,7 +564,7 @@ bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type */
@@ -552,7 +576,7 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& nod
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
-  return setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
+  return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
 
@@ -617,6 +641,8 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
+
   node.cost_density = model1.cost_density * model2.cost_density;
 
   return true;
@@ -712,6 +738,7 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node,
   BVHExpand(model2, node.uc2.get(), expand_r);
 
   node.request = request;
+
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
@@ -799,6 +826,7 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node,
   BVHExpand(model1, node.uc1.get(), expand_r);
 
   node.request = request;
+
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
@@ -896,6 +924,7 @@ bool initialize(MeshDistanceTraversalNode<BV>& node,
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -964,6 +993,7 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S, NarrowPhaseSolver>& node,
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -1011,6 +1041,7 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>& node,
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -1043,6 +1074,7 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S, NarrowPhas
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -1109,6 +1141,7 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S, NarrowPhas
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.tf1 = tf1;

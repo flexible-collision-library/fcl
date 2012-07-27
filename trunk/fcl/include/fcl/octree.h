@@ -87,6 +87,16 @@ public:
     return tree->isNodeOccupied(node);
   }  
 
+  inline bool isNodeFree(const OcTreeNode* node) const
+  {
+    return false; // default no definitely free node
+  }
+
+  inline bool isNodeUncertain(const OcTreeNode* node) const
+  {
+    return (!isNodeOccupied(node)) && (!isNodeFree(node));
+  }
+
   inline void updateNode(FCL_REAL x, FCL_REAL y, FCL_REAL z, bool occupied)
   {
     tree->updateNode(octomap::point3d(x, y, z), occupied);
@@ -112,6 +122,11 @@ public:
       }
     }
     return boxes;
+  }
+
+  FCL_REAL getOccupancyThres() const
+  {
+    return tree->getOccupancyThres();
   }
 
   OBJECT_TYPE getObjectType() const { return OT_OCTREE; }

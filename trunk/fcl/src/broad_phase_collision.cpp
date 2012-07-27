@@ -85,6 +85,7 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cda
   return cdata->done;
 }
 
+
 void NaiveCollisionManager::registerObjects(const std::vector<CollisionObject*>& other_objs)
 {
   std::copy(other_objs.begin(), other_objs.end(), std::back_inserter(objs));
@@ -2337,7 +2338,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 {
   if(root1->isLeaf() && !root2->hasChildren())
   {
-    if(tree2->isNodeOccupied(root2))
+    if(!tree2->isNodeFree(root2))
     {
       OBB obb1, obb2;
       convertBV(root1->bv, SimpleTransform(), obb1);
@@ -2348,6 +2349,10 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
         Box* box = new Box();
         SimpleTransform box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
+
+        box->cost_density = root2->getOccupancy();
+        box->threshold_occupied = tree2->getOccupancyThres();
+
         CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
         return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
       }
@@ -2360,7 +2365,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
   convertBV(root1->bv, SimpleTransform(), obb1);
   convertBV(root2_bv, tf2, obb2);
 
-  if(!tree2->isNodeOccupied(root2) || !obb1.overlap(obb2)) return false;
+  if(tree2->isNodeFree(root2) || !obb1.overlap(obb2)) return false;
 
   if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
@@ -2391,7 +2396,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 {
   if(root1->isLeaf() && !root2->hasChildren())
   {
-    if(tree2->isNodeOccupied(root2))
+    if(!tree2->isNodeFree(root2))
     {      
       const AABB& root2_bv_t = translate(root2_bv, tf2);
       if(root1->bv.overlap(root2_bv_t))
@@ -2399,6 +2404,10 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
         Box* box = new Box();
         SimpleTransform box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
+
+        box->cost_density = root2->getOccupancy();
+        box->threshold_occupied = tree2->getOccupancyThres();
+
         CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
         return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
       }
@@ -2408,7 +2417,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
   }
 
   const AABB& root2_bv_t = translate(root2_bv, tf2);
-  if(!tree2->isNodeOccupied(root2) || !root1->bv.overlap(root2_bv_t)) return false;
+  if(tree2->isNodeFree(root2) || !root1->bv.overlap(root2_bv_t)) return false;
 
   if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
@@ -2941,7 +2950,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
   DynamicAABBTreeCollisionManager2::DynamicAABBNode* root1 = nodes1 + root1_id;
   if(root1->isLeaf() && !root2->hasChildren())
   {
-    if(tree2->isNodeOccupied(root2))
+    if(!tree2->isNodeFree(root2))
     {
       OBB obb1, obb2;
       convertBV(root1->bv, SimpleTransform(), obb1);
@@ -2952,6 +2961,10 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
         Box* box = new Box();
         SimpleTransform box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
+        
+        box->cost_density = root2->getOccupancy();
+        box->threshold_occupied = tree2->getOccupancyThres();
+
         CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
         return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
       }
@@ -2964,7 +2977,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
   convertBV(root1->bv, SimpleTransform(), obb1);
   convertBV(root2_bv, tf2, obb2);
   
-  if(!tree2->isNodeOccupied(root2) || !obb1.overlap(obb2)) return false;
+  if(tree2->isNodeFree(root2) || !obb1.overlap(obb2)) return false;
 
   if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
@@ -2997,7 +3010,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
   DynamicAABBTreeCollisionManager2::DynamicAABBNode* root1 = nodes1 + root1_id;
   if(root1->isLeaf() && !root2->hasChildren())
   {
-    if(tree2->isNodeOccupied(root2))
+    if(!tree2->isNodeFree(root2))
     {
       const AABB& root_bv_t = translate(root2_bv, tf2);
       if(root1->bv.overlap(root_bv_t))
@@ -3005,6 +3018,10 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
         Box* box = new Box();
         SimpleTransform box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
+
+        box->cost_density = root2->getOccupancy();
+        box->threshold_occupied = tree2->getOccupancyThres();
+
         CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
         return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
       }
@@ -3014,7 +3031,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
   }
 
   const AABB& root_bv_t = translate(root2_bv, tf2);
-  if(!tree2->isNodeOccupied(root2) || !root1->bv.overlap(root_bv_t)) return false;
+  if(tree2->isNodeFree(root2) || !root1->bv.overlap(root_bv_t)) return false;
 
   if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {

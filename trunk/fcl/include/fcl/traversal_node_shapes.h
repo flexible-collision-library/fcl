@@ -65,34 +65,51 @@ public:
 
   void leafTesting(int, int) const
   {
-    bool is_collision = false;
-    if(request.enable_contact)
+    if(model1->isOccupied() && model2->isOccupied())
     {
-      Vec3f contact_point, normal;
-      FCL_REAL penetration_depth;
-      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal))
+      bool is_collision = false;
+      if(request.enable_contact)
       {
-        is_collision = true;
-        result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contact_point, normal, penetration_depth));
+        Vec3f contact_point, normal;
+        FCL_REAL penetration_depth;
+        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal))
+        {
+          is_collision = true;
+          if(request.num_max_contacts > result->numContacts())
+            result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contact_point, normal, penetration_depth));
+        }
+      }
+      else
+      {
+        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
+        {
+          is_collision = true;
+          if(request.num_max_contacts > result->numContacts())
+            result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE));
+        }
+      }
+
+      if(is_collision && request.enable_cost)
+      {
+        AABB aabb1, aabb2;
+        computeBV<AABB, S1>(*model1, tf1, aabb1);
+        computeBV<AABB, S2>(*model2, tf2, aabb2);
+        AABB overlap_part;
+        aabb1.overlap(aabb2, overlap_part);
+        result->addCostSource(CostSource(overlap_part, cost_density));
       }
     }
-    else
+    else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
     {
       if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
       {
-        is_collision = true;
-        result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE));
-      }
-    }
-
-    if(is_collision && request.enable_cost)
-    {
-      AABB aabb1, aabb2;
-      computeBV<AABB, S1>(*model1, tf1, aabb1);
-      computeBV<AABB, S2>(*model2, tf2, aabb2);
-      AABB overlap_part;
-      aabb1.overlap(aabb2, overlap_part);
-      result->addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+        AABB aabb1, aabb2;
+        computeBV<AABB, S1>(*model1, tf1, aabb1);
+        computeBV<AABB, S2>(*model2, tf2, aabb2);
+        AABB overlap_part;
+        aabb1.overlap(aabb2, overlap_part);
+        result->addCostSource(CostSource(overlap_part, cost_density));        
+      }      
     }
   }
 

@@ -4,6 +4,7 @@
 #include "fcl/collision_object.h"
 #include "fcl/vec_3f.h"
 #include <vector>
+#include <set>
 #include <limits>
 
 
@@ -70,6 +71,12 @@ struct CostSource
   {
   }
 
+  CostSource(const AABB& aabb, FCL_REAL cost_density_) : aabb_min(aabb.min_),
+                                                         aabb_max(aabb.max_),
+                                                         cost_density(cost_density_)
+  {
+  }
+
   CostSource() {}
 
   bool operator < (const CostSource& other) const
@@ -105,10 +112,20 @@ struct CollisionResult
 {
 private:
   std::vector<Contact> contacts;
-  std::vector<CostSource> cost_sources;
+
+  std::set<CostSource> cost_sources;
+
+  const CollisionRequest* request;
+
 public:
   CollisionResult()
   {
+    request = NULL;
+  }
+
+  void setRequest(const CollisionRequest& request_)
+  {
+    request = &request_;
   }
 
   inline void addContact(const Contact& c) 
@@ -118,7 +135,16 @@ public:
 
   inline void addCostSource(const CostSource& c)
   {
-    cost_sources.push_back(c);
+    if(request)
+    {
+      cost_sources.insert(c);
+      if(cost_sources.size() > request->num_max_cost_sources)
+        cost_sources.erase(cost_sources.begin());        
+    }
+    else
+    {
+      cost_sources.insert(c);
+    }
   }
 
   bool isCollision() const
@@ -142,14 +168,6 @@ public:
       return contacts[i];
     else
       return contacts.back();
-  }
-
-  const CostSource& getCostSource(size_t i) const
-  {
-    if(i < cost_sources.size())
-      return cost_sources[i];
-    else
-      return cost_sources.back();
   }
 
   void getContacts(std::vector<Contact>& contacts_)
@@ -196,6 +214,10 @@ struct DistanceRequest
 
 struct DistanceResult
 {
+private:
+  const DistanceRequest* request;
+
+public:
 
   FCL_REAL min_distance;
 
@@ -214,6 +236,12 @@ struct DistanceResult
                                                                                   b1(-1),
                                                                                   b2(-1)
   {
+    request = NULL;
+  }
+
+  void setRequest(const DistanceRequest& request_)
+  {
+    request = &request_;
   }
 
   void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_)

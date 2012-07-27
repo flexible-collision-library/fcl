@@ -66,6 +66,8 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
+
   node.cost_density = model1.cost_density * model2.cost_density;
 
   relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
@@ -150,6 +152,7 @@ static inline bool setupPointCloudCollisionOrientedNode(OrientedNode& node,
   BVHExpand(model2, node.uc2.get(), expand_r);
 
   node.request = request;
+
   node.collision_prob_threshold = collision_prob_threshold;
   node.leaf_size_threshold = leaf_size_threshold;
 
@@ -263,6 +266,7 @@ static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
 
   node.request = request;
   node.result = &result;
+  result.setRequest(request);
 
   node.model1 = &model1;
   node.tf1 = tf1;

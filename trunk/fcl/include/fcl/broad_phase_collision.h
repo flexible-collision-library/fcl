@@ -63,10 +63,13 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
 /** \brief distance function for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now */
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
 
+
 /** \brief return value is whether can stop now */
 typedef bool (*CollisionCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
 typedef bool (*DistanceCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
+
+typedef bool (*IsCostEnabledCallBack)(void* cdata);
 
 /** \brief Base class for broad phase collision */
 class BroadPhaseCollisionManager

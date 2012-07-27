@@ -53,6 +53,13 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
 class CollisionGeometry
 {
 public:
+  CollisionGeometry()
+  {
+    cost_density = 1;
+    threshold_occupied = 1;
+    threshold_free = 0;
+  }
+
   virtual ~CollisionGeometry() {}
 
   virtual OBJECT_TYPE getObjectType() const { return OT_UNKNOWN; }
@@ -71,6 +78,11 @@ public:
     user_data = data;
   }
 
+
+  inline bool isOccupied() const { return cost_density >= threshold_occupied; }
+  inline bool isFree() const { return cost_density <= threshold_free; }
+  inline bool isUncertain() const { return !isOccupied() && !isFree(); }
+
   /// AABB center in local coordinate
   Vec3f aabb_center;
 
@@ -85,6 +97,12 @@ public:
 
   /// collision cost for unit volume
   FCL_REAL cost_density;
+
+  /// threshold for occupied ( >= is occupied)
+  FCL_REAL threshold_occupied;
+
+  /// threshold for free (<= is free)
+  FCL_REAL threshold_free;
 };
 
 class CollisionObject

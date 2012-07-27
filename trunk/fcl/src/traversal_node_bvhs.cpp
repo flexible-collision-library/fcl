@@ -73,49 +73,61 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
   const Vec3f& q2 = vertices2[tri_id2[1]];
   const Vec3f& q3 = vertices2[tri_id2[2]];
 
-  FCL_REAL penetration;
-  Vec3f normal;
-  unsigned int n_contacts;
-  Vec3f contacts[2];
-  
-  bool is_intersect = false;
+  if(model1->isOccupied() && model2->isOccupied())
+  {
+    bool is_intersect = false;
 
-  if(!request.enable_contact) // only interested in collision or not
+    if(!request.enable_contact) // only interested in collision or not
+    {
+      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+      {
+        is_intersect = true;
+        result.addContact(Contact(model1, model2, primitive_id1, primitive_id2));
+      }
+    }
+    else // need compute the contact information
+    {
+      FCL_REAL penetration;
+      Vec3f normal;
+      unsigned int n_contacts;
+      Vec3f contacts[2];
+
+      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
+                                       R, T,
+                                       contacts,
+                                       &n_contacts,
+                                       &penetration,
+                                       &normal))
+      {
+        is_intersect = true;
+        if(!request.exhaustive)
+        {
+          if(request.num_max_contacts < result.numContacts() + n_contacts)
+            n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
+        }
+
+        for(unsigned int i = 0; i < n_contacts; ++i)
+        {
+          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
+        }
+      }
+    }
+
+    if(is_intersect && request.enable_cost)
+    {
+      AABB overlap_part;
+      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
+      result.addCostSource(CostSource(overlap_part, cost_density));    
+    }
+  }
+  else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
   {
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
     {
-      is_intersect = true;
-      result.addContact(Contact(model1, model2, primitive_id1, primitive_id2));
-    }
-  }
-  else // need compute the contact information
-  {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                     R, T,
-                                     contacts,
-                                     &n_contacts,
-                                     &penetration,
-                                     &normal))
-    {
-      is_intersect = true;
-      if(!request.exhaustive)
-      {
-        if(request.num_max_contacts < result.numContacts() + n_contacts)
-          n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
-      }
-
-      for(unsigned int i = 0; i < n_contacts; ++i)
-      {
-        result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
-      }
-    }
-  }
-  
-  if(is_intersect && request.enable_cost && (request.num_max_cost_sources > result.numCostSources()))
-  {
-    AABB overlap_part;
-    AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-    result.addCostSource(CostSource(overlap_part.min_, overlap_part.max_, cost_density));
+      AABB overlap_part;
+      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
+      result.addCostSource(CostSource(overlap_part, cost_density));          
+    }    
   }
 }
 

@@ -281,7 +281,7 @@ private:
   {
     if(!root1->hasChildren())
     {
-      if(tree1->isNodeOccupied(root1))
+      if(tree1->isNodeOccupied(root1)) // occupied area
       {
         OBB obb1;
         convertBV(bv1, tf1, obb1);
@@ -292,7 +292,6 @@ private:
           constructBox(bv1, tf1, box, box_tf);
 
           bool is_intersect = false;
-          
           if(!crequest->enable_contact)
           {
             if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
@@ -315,18 +314,59 @@ private:
                 cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE, contact, normal, depth));
             }
           }
-          
-          return ((cresult->numContacts() >= crequest->num_max_contacts) && !crequest->exhaustive);        
+
+          if(is_intersect && crequest->enable_cost)
+          {
+            AABB overlap_part;
+            AABB aabb1, aabb2;
+            computeBV<AABB, Box>(box, box_tf, aabb1);
+            computeBV<AABB, S>(s, tf2, aabb2);
+            aabb1.overlap(aabb2, overlap_part);
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density));
+          }
+
+          return (!crequest->exhaustive) && (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
         }
         else return false;
       }
-      else
+      else if(tree1->isNodeUncertain(root1) && crequest->enable_cost) // uncertain area
+      {
+        OBB obb1;
+        convertBV(bv1, tf1, obb1);
+        if(obb1.overlap(obb2))
+        {
+          Box box;
+          SimpleTransform box_tf;
+          constructBox(bv1, tf1, box, box_tf);
+
+          if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+          {
+            AABB overlap_part;
+            AABB aabb1, aabb2;
+            computeBV<AABB, Box>(box, box_tf, aabb1);
+            computeBV<AABB, S>(s, tf2, aabb2);
+            aabb1.overlap(aabb2, overlap_part);
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density));            
+          }
+        }
+        
+        return false;
+      }
+      else // free area
         return false;
     }
 
-    OBB obb1;
-    convertBV(bv1, tf1, obb1);
-    if(!tree1->isNodeOccupied(root1) || !obb1.overlap(obb2)) return false;
+    /// stop when 1) bounding boxes of two objects not overlap; OR
+    ///           2) the node is free; OR
+    ///           2) the node is uncertain AND cost is not required
+    if(tree1->isNodeFree(root1)) return false;
+    else if(tree1->isNodeUncertain(root1) && !crequest->enable_cost) return false;
+    else
+    {
+      OBB obb1;
+      convertBV(bv1, tf1, obb1);
+      if(!obb1.overlap(obb2)) return false;
+    }
 
     for(unsigned int i = 0; i < 8; ++i)
     {
@@ -454,10 +494,15 @@ private:
           const Vec3f& p2 = tree2->vertices[tri_id[1]];
           const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
+          bool is_intersect = false;
           if(!crequest->enable_contact)
           {
             if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
-              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2));
+            {
+              is_intersect = true;
+              if(cresult->numContacts() < crequest->num_max_contacts)
+                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2));
+            }
           }
           else
           {
@@ -466,24 +511,75 @@ private:
             Vec3f normal;
 
             if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, &contact, &depth, &normal))
-              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2, contact, normal, depth));
+            {
+              is_intersect = true;
+              if(cresult->numContacts() < crequest->num_max_contacts)
+                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2, contact, normal, depth));
+            }
           }
 
-          return ((cresult->numContacts() >= crequest->num_max_contacts) && !crequest->exhaustive);
+          if(is_intersect && crequest->enable_cost)
+          {
+            AABB overlap_part;
+            AABB aabb1;
+            computeBV<AABB, Box>(box, box_tf, aabb1);
+            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
+            aabb1.overlap(aabb2, overlap_part);
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density));
+          }
+
+          return (!crequest->exhaustive) && (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
         }
         else
           return false;
       }
-      else
+      else if(tree1->isNodeUncertain(root1) && crequest->enable_cost) // uncertain area
+      {
+        OBB obb1, obb2;
+        convertBV(bv1, tf1, obb1);
+        convertBV(tree2->getBV(root2).bv, tf2, obb2);
+        if(obb1.overlap(obb2))
+        {
+          Box box;
+          SimpleTransform box_tf;
+          constructBox(bv1, tf1, box, box_tf);
+
+          int primitive_id = tree2->getBV(root2).primitiveId();
+          const Triangle& tri_id = tree2->tri_indices[primitive_id];
+          const Vec3f& p1 = tree2->vertices[tri_id[0]];
+          const Vec3f& p2 = tree2->vertices[tri_id[1]];
+          const Vec3f& p3 = tree2->vertices[tri_id[2]];
+        
+          if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
+          {
+            AABB overlap_part;
+            AABB aabb1;
+            computeBV<AABB, Box>(box, box_tf, aabb1);
+            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
+            aabb1.overlap(aabb2, overlap_part);
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density));
+          }
+        }
+        
+        return false;
+      }
+      else // free area
         return false;
     }
 
-
-    OBB obb1, obb2;
-    convertBV(bv1, tf1, obb1);
-    convertBV(tree2->getBV(root2).bv, tf2, obb2);
-    if(!tree1->isNodeOccupied(root1) || !obb1.overlap(obb2)) return false;
-
+    /// stop when 1) bounding boxes of two objects not overlap; OR
+    ///           2) the node is free; OR
+    ///           2) the node is uncertain AND cost is not required
+    if(tree1->isNodeFree(root1)) return false;
+    else if(tree1->isNodeUncertain(root1) && !crequest->enable_cost) return false;
+    else
+    {
+      OBB obb1, obb2;
+      convertBV(bv1, tf1, obb1);
+      convertBV(tree2->getBV(root2).bv, tf2, obb2);
+      if(!obb1.overlap(obb2)) return false;
+    }
+   
     if(tree2->getBV(root2).isLeaf() || (root1->hasChildren() && (bv1.size() > tree2->getBV(root2).bv.size())))
     {
       for(unsigned int i = 0; i < 8; ++i)
@@ -598,8 +694,9 @@ private:
   {
     if(!root1->hasChildren() && !root2->hasChildren())
     {
-      if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2))
+      if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2)) // occupied area
       {
+        bool is_intersect = false;
         if(!crequest->enable_contact)
         {
           OBB obb1, obb2;
@@ -607,7 +704,11 @@ private:
           convertBV(bv2, tf2, obb2);
           
           if(obb1.overlap(obb2))
-            cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot()));
+          {
+            is_intersect = true;
+            if(cresult->numContacts() < crequest->num_max_contacts)
+              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot()));
+          }
         }
         else
         {
@@ -620,21 +721,69 @@ private:
           FCL_REAL depth;
           Vec3f normal;
           if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contact, &depth, &normal))
-            cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contact, normal, depth));
+          {
+            is_intersect = true;
+            if(cresult->numContacts() < crequest->num_max_contacts)
+              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contact, normal, depth));
+          }
         }
 
-        return ((cresult->numContacts() >= crequest->num_max_contacts) && !crequest->exhaustive);       
+        if(is_intersect && crequest->enable_cost)
+        {
+          Box box1, box2;
+          SimpleTransform box1_tf, box2_tf;
+          constructBox(bv1, tf1, box1, box1_tf);
+          constructBox(bv2, tf2, box2, box2_tf);
+
+          AABB overlap_part;
+          AABB aabb1, aabb2;
+          computeBV<AABB, Box>(box1, box1_tf, aabb1);
+          computeBV<AABB, Box>(box2, box2_tf, aabb2);
+          aabb1.overlap(aabb2, overlap_part);
+          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()));
+        }
+
+        return (!crequest->exhaustive) && (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
       }
-      else
+      else if(!tree1->isNodeFree(root1) && !tree2->isNodeFree(root2) && crequest->enable_cost) // uncertain area (here means both are uncertain or one uncertain and one occupied)
+      {
+        OBB obb1, obb2;
+        convertBV(bv1, tf1, obb1);
+        convertBV(bv2, tf2, obb2);
+        
+        if(obb1.overlap(obb2))
+        {
+          Box box1, box2;
+          SimpleTransform box1_tf, box2_tf;
+          constructBox(bv1, tf1, box1, box1_tf);
+          constructBox(bv2, tf2, box2, box2_tf);
+
+          AABB overlap_part;
+          AABB aabb1, aabb2;
+          computeBV<AABB, Box>(box1, box1_tf, aabb1);
+          computeBV<AABB, Box>(box2, box2_tf, aabb2);
+          aabb1.overlap(aabb2, overlap_part);
+          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()));
+        }
+
+        return false;
+      }
+      else // free area (at least one node is free)
         return false;
     }
 
-    if(!tree1->isNodeOccupied(root1) || !tree2->isNodeOccupied(root2)) return false;
-
-    OBB obb1, obb2;
-    convertBV(bv1, tf1, obb1);
-    convertBV(bv2, tf2, obb2);
-    if(!obb1.overlap(obb2)) return false;
+    /// stop when 1) bounding boxes of two objects not overlap; OR
+    ///           2) at least one of the nodes is free; OR
+    ///           2) (two uncertain nodes OR one node occupied one node uncertain) AND not cost required
+    if(tree1->isNodeFree(root1) || tree2->isNodeFree(root2)) return false;
+    else if((tree1->isNodeUncertain(root1) || tree2->isNodeUncertain(root2)) && !crequest->enable_cost) return false;
+    else 
+    {
+      OBB obb1, obb2;
+      convertBV(bv1, tf1, obb1);
+      convertBV(bv2, tf2, obb2);
+      if(!obb1.overlap(obb2)) return false;
+    }
 
     if(!root2->hasChildren() || (root1->hasChildren() && (bv1.size() > bv2.size())))
     {
