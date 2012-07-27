@@ -69,7 +69,6 @@ typedef bool (*CollisionCallBack)(CollisionObject* o1, CollisionObject* o2, void
 
 typedef bool (*DistanceCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
 
-typedef bool (*IsCostEnabledCallBack)(void* cdata);
 
 /** \brief Base class for broad phase collision */
 class BroadPhaseCollisionManager

@@ -140,11 +140,16 @@ SimpleQuaternion inverse(const SimpleQuaternion& q);
 /** \brief Simple transform class used locally by InterpMotion */
 class SimpleTransform
 {
-  /** \brief Rotation matrix and translation vector */
-  Matrix3f R;
+  /** \brief Whether matrix cache is set */
+  mutable bool matrix_set;
+  /** \brief Matrix cache */
+  mutable Matrix3f R;
+
+
+  /** \brief Tranlation vector */
   Vec3f T;
 
-  /** \brief Quaternion representation for R */
+  /** \brief Rotation*/
   SimpleQuaternion q;
 
 public:
@@ -161,26 +166,33 @@ public:
     T = T_;
 
     q.fromRotation(R_);
+
+    matrix_set = true;
   }
 
   SimpleTransform(const SimpleQuaternion& q_, const Vec3f& T_)
   {
-    q_.toRotation(R);
+    // q_.toRotation(R);
     T = T_;
-    
     q = q_;
+
+    matrix_set = false;
   }
 
   SimpleTransform(const Matrix3f& R_)
   {
     R = R_;
     q.fromRotation(R_);
+    
+    matrix_set = true;
   }
 
   SimpleTransform(const SimpleQuaternion& q_)
   {
-    q_.toRotation(R);
+    // q_.toRotation(R);
     q = q_;
+    
+    matrix_set = false;
   }
 
   SimpleTransform(const Vec3f& T_)
@@ -196,6 +208,12 @@ public:
 
   inline const Matrix3f& getRotation() const
   {
+    if(!matrix_set)
+    {
+      q.toRotation(R);
+      matrix_set = true;
+    }
+    
     return R;
   }
 
@@ -206,6 +224,7 @@ public:
 
   inline void setTransform(const Matrix3f& R_, const Vec3f& T_)
   {
+    matrix_set = true;
     R = R_;
     T = T_;
 
@@ -214,13 +233,15 @@ public:
 
   inline void setTransform(const SimpleQuaternion& q_, const Vec3f& T_)
   {
+    matrix_set = false;
     q = q_;
     T = T_;
-    q.toRotation(R);
+    // q.toRotation(R);
   }
 
   inline void setRotation(const Matrix3f& R_)
   {
+    matrix_set = true;
     R = R_;
     q.fromRotation(R_);
   }
@@ -232,8 +253,9 @@ public:
 
   inline void setQuatRotation(const SimpleQuaternion& q_)
   {
+    matrix_set = false;
     q = q_;
-    q.toRotation(R);
+    // q.toRotation(R);
   }
 
   Vec3f transform(const Vec3f& v) const
@@ -243,8 +265,9 @@ public:
 
   SimpleTransform& inverse()
   {
+    matrix_set = false;
     q.conj();
-    R.transpose();
+    // R.transpose();
     T = q.transform(-T);
     return *this;
   }
@@ -257,9 +280,10 @@ public:
 
   const SimpleTransform& operator *= (const SimpleTransform& other)
   {
+    matrix_set = false;
     T = q.transform(other.T) + T;
     q *= other.q;
-    q.toRotation(R);
+    // q.toRotation(R);
     return *this;
   }
 
@@ -277,8 +301,9 @@ public:
   void setIdentity()
   {
     R.setIdentity();
-    T.setValue(0.0);
+    T.setValue(0);
     q = SimpleQuaternion();
+    matrix_set = true;
   }
 
 };

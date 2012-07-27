@@ -2655,7 +2655,6 @@ void DynamicAABBTreeCollisionManager2::registerObject(CollisionObject* obj)
 {
   size_t node = dtree.insert(obj->getAABB(), obj);
   table[obj] = node;
-  
 }
 
 void DynamicAABBTreeCollisionManager2::unregisterObject(CollisionObject* obj)
