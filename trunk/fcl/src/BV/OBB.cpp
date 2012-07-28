@@ -376,7 +376,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
   Vec3f Ttemp = R0 * b2.To + T0 - b1.To;
   Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
 
-  return (OBB::obbDisjoint(R, T, b1.extent, b2.extent) == 0);
+  return !OBB::obbDisjoint(R, T, b1.extent, b2.extent);
 }
 
 }

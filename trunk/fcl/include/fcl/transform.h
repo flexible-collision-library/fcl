@@ -157,47 +157,36 @@ public:
   /** \brief Default transform is no movement */
   SimpleTransform()
   {
-    setIdentity();
+    setIdentity(); // set matrix_set true
   }
 
-  SimpleTransform(const Matrix3f& R_, const Vec3f& T_)
+  SimpleTransform(const Matrix3f& R_, const Vec3f& T_) : matrix_set(true),
+                                                         R(R_),
+                                                         T(T_)
   {
-    R = R_;
-    T = T_;
-
     q.fromRotation(R_);
-
-    matrix_set = true;
   }
 
-  SimpleTransform(const SimpleQuaternion& q_, const Vec3f& T_)
+  SimpleTransform(const SimpleQuaternion& q_, const Vec3f& T_) : matrix_set(false),
+                                                                 T(T_),
+                                                                 q(q_)
   {
-    // q_.toRotation(R);
-    T = T_;
-    q = q_;
-
-    matrix_set = false;
   }
 
-  SimpleTransform(const Matrix3f& R_)
+  SimpleTransform(const Matrix3f& R_) : matrix_set(true), 
+                                        R(R_)
   {
-    R = R_;
     q.fromRotation(R_);
-    
-    matrix_set = true;
   }
 
-  SimpleTransform(const SimpleQuaternion& q_)
+  SimpleTransform(const SimpleQuaternion& q_) : matrix_set(false),
+                                                q(q_)
   {
-    // q_.toRotation(R);
-    q = q_;
-    
-    matrix_set = false;
   }
 
-  SimpleTransform(const Vec3f& T_)
+  SimpleTransform(const Vec3f& T_) : matrix_set(true), 
+                                     T(T_)
   {
-    T = T_;
     R.setIdentity();
   }
 
@@ -236,7 +225,6 @@ public:
     matrix_set = false;
     q = q_;
     T = T_;
-    // q.toRotation(R);
   }
 
   inline void setRotation(const Matrix3f& R_)
@@ -255,7 +243,6 @@ public:
   {
     matrix_set = false;
     q = q_;
-    // q.toRotation(R);
   }
 
   Vec3f transform(const Vec3f& v) const
@@ -267,7 +254,6 @@ public:
   {
     matrix_set = false;
     q.conj();
-    // R.transpose();
     T = q.transform(-T);
     return *this;
   }
@@ -283,7 +269,6 @@ public:
     matrix_set = false;
     T = q.transform(other.T) + T;
     q *= other.q;
-    // q.toRotation(R);
     return *this;
   }
 
