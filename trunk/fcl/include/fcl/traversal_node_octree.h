@@ -325,7 +325,7 @@ private:
             cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density));
           }
 
-          return (!crequest->exhaustive) && (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
+          return (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
         }
         else return false;
       }
@@ -528,7 +528,7 @@ private:
             cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density));
           }
 
-          return (!crequest->exhaustive) && (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
+          return (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
         }
         else
           return false;
@@ -743,7 +743,7 @@ private:
           cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()));
         }
 
-        return (!crequest->exhaustive) && (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
+        return (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
       }
       else if(!tree1->isNodeFree(root1) && !tree2->isNodeFree(root2) && crequest->enable_cost) // uncertain area (here means both are uncertain or one uncertain and one occupied)
       {

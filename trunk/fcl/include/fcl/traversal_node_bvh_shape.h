@@ -219,7 +219,7 @@ public:
 
   bool canStop() const
   {
-    return (!this->request.exhaustive) && (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
+    return (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
   }
 
   Vec3f* vertices;
@@ -469,7 +469,7 @@ public:
 
   bool canStop() const
   {
-    return (!this->request.exhaustive) && (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
+    return (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
   }
 
   Vec3f* vertices;

@@ -201,11 +201,9 @@ public:
                                          &normal))
         {
           is_intersect = true;
-          if(!this->request.exhaustive)
-          {
-            if(this->request.num_max_contacts < n_contacts + this->result->numContacts())
-              n_contacts = (this->request.num_max_contacts >= this->result->numContacts()) ? (this->request.num_max_contacts - this->result->numContacts()) : 0;
-          }
+          
+          if(this->request.num_max_contacts < n_contacts + this->result->numContacts())
+            n_contacts = (this->request.num_max_contacts >= this->result->numContacts()) ? (this->request.num_max_contacts - this->result->numContacts()) : 0;
     
           for(unsigned int i = 0; i < n_contacts; ++i)
           {
@@ -235,7 +233,7 @@ public:
   /** \brief Whether the traversal process can stop early */
   bool canStop() const
   {
-    return (!this->request.exhaustive) && (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
+    return (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
   }
 
   Vec3f* vertices1;
@@ -388,7 +386,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
   }
 
   Vec3f* vertices1;
@@ -486,7 +484,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
   }
 
   Vec3f* vertices1;
@@ -651,7 +649,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
   }
 
   Vec3f* vertices1;
@@ -736,7 +734,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
   }
 
   Vec3f* vertices1;
@@ -819,7 +817,7 @@ public:
 
   bool canStop() const
   {
-    return (pairs.size() > 0) && (!this->request.exhaustive) && (this->request.num_max_contacts <= pairs.size());
+    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
   }
 
   Vec3f* vertices1;

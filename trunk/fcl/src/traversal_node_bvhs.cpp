@@ -100,12 +100,10 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
                                        &normal))
       {
         is_intersect = true;
-        if(!request.exhaustive)
-        {
-          if(request.num_max_contacts < result.numContacts() + n_contacts)
-            n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
-        }
-
+        
+        if(request.num_max_contacts < result.numContacts() + n_contacts)
+          n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
+        
         for(unsigned int i = 0; i < n_contacts; ++i)
         {
           result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));

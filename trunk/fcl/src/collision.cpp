@@ -75,7 +75,7 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
   const CollisionFunctionMatrix<NarrowPhaseSolver>& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
 
   int res; 
-  if(request.num_max_contacts == 0 && !request.exhaustive)
+  if(request.num_max_contacts == 0)
   {
     std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !" << std::endl;
     res = 0;
