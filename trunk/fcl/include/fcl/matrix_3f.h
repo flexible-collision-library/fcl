@@ -409,6 +409,14 @@ typename T::meta_type quadraticForm(const Matrix3fX<T>& R, const Vec3fX<typename
 typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
 //typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
 
+static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
+{
+  o << "[(" << m(0, 0) << " " << m(0, 1) << " " << m(0, 2) << ")("
+    << m(1, 0) << " " << m(1, 1) << " " << m(1, 2) << ")(" 
+    << m(2, 0) << " " << m(2, 1) << " " << m(2, 2) << ")]";
+  return o;
+}
+
 }
 
 

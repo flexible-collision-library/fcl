@@ -1287,6 +1287,8 @@ public:
   int& tree_topdown_level;
   int tree_init_level;
 
+  bool octree_as_geometry;
+
   
   DynamicAABBTreeCollisionManager() : tree_topdown_balance_threshold(dtree.bu_threshold),
                                       tree_topdown_level(dtree.topdown_level)
@@ -1297,6 +1299,8 @@ public:
     tree_topdown_level = 0;
     tree_init_level = 0;
     setup_ = false;
+
+    octree_as_geometry = false;
   }
 
   /** \brief add objects to the manager */
@@ -1342,8 +1346,13 @@ public:
     {
     case GEOM_OCTREE:
       {
-        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
-        collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
+        if(!octree_as_geometry)
+        {
+          const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+          collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
+        }
+        else
+          collisionRecurse(dtree.getRoot(), obj, cdata, callback);
       }
       break;
     default:
@@ -1360,8 +1369,13 @@ public:
     {
     case GEOM_OCTREE:
       {
-        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
-        distanceRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
+        if(!octree_as_geometry)
+        {
+          const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+          distanceRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
+        }
+        else
+          distanceRecurse(dtree.getRoot(), obj, cdata, callback, min_dist);          
       }
       break;
     default:
@@ -1457,6 +1471,8 @@ public:
   int& tree_topdown_balance_threshold;
   int& tree_topdown_level;
   int tree_init_level;
+
+  bool octree_as_geometry;
   
   DynamicAABBTreeCollisionManager2() : tree_topdown_balance_threshold(dtree.bu_threshold),
                                        tree_topdown_level(dtree.topdown_level)
@@ -1467,6 +1483,8 @@ public:
     tree_topdown_level = 0;
     tree_init_level = 0;
     setup_ = false;
+
+    octree_as_geometry = false;
   }
 
   /** \brief add objects to the manager */
@@ -1512,8 +1530,13 @@ public:
     {
     case GEOM_OCTREE:
       {
-        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
-        collisionRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
+        if(!octree_as_geometry)
+        {
+          const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+          collisionRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
+        }
+        else
+          collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
       }
       break;
     default:
@@ -1530,8 +1553,13 @@ public:
     {
     case GEOM_OCTREE:
       {
-        const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
-        distanceRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
+        if(!octree_as_geometry)
+        {
+          const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+          distanceRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
+        }
+        else
+          distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
       }
       break;
     default:

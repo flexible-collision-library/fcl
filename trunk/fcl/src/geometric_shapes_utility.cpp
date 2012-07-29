@@ -226,8 +226,9 @@ void computeBV<AABB, Box>(const Box& s, const SimpleTransform& tf, AABB& bv)
   FCL_REAL y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
   FCL_REAL z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
 
-  bv.max_ = T + Vec3f(x_range, y_range, z_range);
-  bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);
+  Vec3f v_delta(x_range, y_range, z_range);
+  bv.max_ = T + v_delta;
+  bv.min_ = T - v_delta;
 }
 
 template<>
@@ -235,8 +236,9 @@ void computeBV<AABB, Sphere>(const Sphere& s, const SimpleTransform& tf, AABB& b
 {
   const Vec3f& T = tf.getTranslation();
 
-  bv.max_ = T + Vec3f(s.radius, s.radius, s.radius);
-  bv.min_ = T + Vec3f(-s.radius, -s.radius, -s.radius);
+  Vec3f v_delta(s.radius);
+  bv.max_ = T + v_delta;
+  bv.min_ = T - v_delta;
 }
 
 template<>
@@ -249,8 +251,9 @@ void computeBV<AABB, Capsule>(const Capsule& s, const SimpleTransform& tf, AABB&
   FCL_REAL y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
   FCL_REAL z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
 
-  bv.max_ = T + Vec3f(x_range, y_range, z_range);
-  bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);
+  Vec3f v_delta(x_range, y_range, z_range);
+  bv.max_ = T + v_delta;
+  bv.min_ = T - v_delta;
 }
 
 template<>
@@ -263,8 +266,9 @@ void computeBV<AABB, Cone>(const Cone& s, const SimpleTransform& tf, AABB& bv)
   FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
   FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
-  bv.max_ = T + Vec3f(x_range, y_range, z_range);
-  bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);
+  Vec3f v_delta(x_range, y_range, z_range);
+  bv.max_ = T + v_delta;
+  bv.min_ = T - v_delta;
 }
 
 template<>
@@ -277,8 +281,9 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AAB
   FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
   FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
-  bv.max_ = T + Vec3f(x_range, y_range, z_range);
-  bv.min_ = T + Vec3f(-x_range, -y_range, -z_range);
+  Vec3f v_delta(x_range, y_range, z_range);
+  bv.max_ = T + v_delta;
+  bv.min_ = T - v_delta;
 }
 
 template<>
@@ -300,12 +305,7 @@ void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& b
 template<>
 void computeBV<AABB, Triangle2>(const Triangle2& s, const SimpleTransform& tf, AABB& bv)
 {
-  AABB bv_;
-  bv_ += tf.transform(s.a);
-  bv_ += tf.transform(s.b);
-  bv_ += tf.transform(s.c);
-
-  bv = bv_;
+  bv = AABB(tf.transform(s.a), tf.transform(s.b), tf.transform(s.c));
 }
 
 template<>

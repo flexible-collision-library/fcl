@@ -281,7 +281,7 @@ private:
   {
     if(!root1->hasChildren())
     {
-      if(tree1->isNodeOccupied(root1)) // occupied area
+      if(tree1->isNodeOccupied(root1) && s.isOccupied()) // occupied area
       {
         OBB obb1;
         convertBV(bv1, tf1, obb1);
@@ -329,7 +329,7 @@ private:
         }
         else return false;
       }
-      else if(tree1->isNodeUncertain(root1) && crequest->enable_cost) // uncertain area
+      else if(!tree1->isNodeFree(root1) && !s.isFree() && crequest->enable_cost) // uncertain area
       {
         OBB obb1;
         convertBV(bv1, tf1, obb1);
@@ -357,10 +357,10 @@ private:
     }
 
     /// stop when 1) bounding boxes of two objects not overlap; OR
-    ///           2) the node is free; OR
-    ///           2) the node is uncertain AND cost is not required
-    if(tree1->isNodeFree(root1)) return false;
-    else if(tree1->isNodeUncertain(root1) && !crequest->enable_cost) return false;
+    ///           2) at least of one the nodes is free; OR
+    ///           2) (two uncertain nodes or one node occupied and one node uncertain) AND cost not required
+    if(tree1->isNodeFree(root1) || s.isFree()) return false;
+    else if((tree1->isNodeUncertain(root1) || s.isUncertain()) && !crequest->enable_cost) return false;
     else
     {
       OBB obb1;
@@ -477,7 +477,7 @@ private:
   {
     if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
     {
-      if(tree1->isNodeOccupied(root1))
+      if(tree1->isNodeOccupied(root1) && tree2->isOccupied())
       {
         OBB obb1, obb2;
         convertBV(bv1, tf1, obb1);
@@ -533,7 +533,7 @@ private:
         else
           return false;
       }
-      else if(tree1->isNodeUncertain(root1) && crequest->enable_cost) // uncertain area
+      else if(!tree1->isNodeFree(root1) && !tree2->isFree() && crequest->enable_cost) // uncertain area
       {
         OBB obb1, obb2;
         convertBV(bv1, tf1, obb1);
@@ -568,10 +568,10 @@ private:
     }
 
     /// stop when 1) bounding boxes of two objects not overlap; OR
-    ///           2) the node is free; OR
-    ///           2) the node is uncertain AND cost is not required
-    if(tree1->isNodeFree(root1)) return false;
-    else if(tree1->isNodeUncertain(root1) && !crequest->enable_cost) return false;
+    ///           2) at least one of the nodes is free; OR
+    ///           2) (two uncertain nodes OR one node occupied and one node uncertain) AND cost not required
+    if(tree1->isNodeFree(root1) || tree2->isFree()) return false;
+    else if((tree1->isNodeUncertain(root1) || tree2->isUncertain()) && !crequest->enable_cost) return false;
     else
     {
       OBB obb1, obb2;
@@ -774,7 +774,7 @@ private:
 
     /// stop when 1) bounding boxes of two objects not overlap; OR
     ///           2) at least one of the nodes is free; OR
-    ///           2) (two uncertain nodes OR one node occupied one node uncertain) AND not cost required
+    ///           2) (two uncertain nodes OR one node occupied and one node uncertain) AND cost not required
     if(tree1->isNodeFree(root1) || tree2->isNodeFree(root2)) return false;
     else if((tree1->isNodeUncertain(root1) || tree2->isNodeUncertain(root2)) && !crequest->enable_cost) return false;
     else 

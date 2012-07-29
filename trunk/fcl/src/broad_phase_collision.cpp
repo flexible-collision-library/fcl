@@ -59,7 +59,7 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
 
   collide(o1, o2, request, result);
 
-  if( (result.isCollision()) && (result.numContacts() >= request.num_max_contacts))
+  if(!request.enable_cost && (result.isCollision()) && (result.numContacts() >= request.num_max_contacts))
     cdata->done = true;
 
   return cdata->done;
@@ -2338,7 +2338,9 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 {
   if(root1->isLeaf() && !root2->hasChildren())
   {
-    if(!tree2->isNodeFree(root2))
+    CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
+
+    if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {
       OBB obb1, obb2;
       convertBV(root1->bv, SimpleTransform(), obb1);
@@ -2353,8 +2355,8 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
-        return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
+        CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        return callback(obj1, &obj2, cdata);
       }
       else return false;
     }
@@ -2396,7 +2398,9 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 {
   if(root1->isLeaf() && !root2->hasChildren())
   {
-    if(!tree2->isNodeFree(root2))
+    CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
+  
+    if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {      
       const AABB& root2_bv_t = translate(root2_bv, tf2);
       if(root1->bv.overlap(root2_bv_t))
@@ -2408,8 +2412,8 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
-        return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
+        CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        return callback(obj1, &obj2, cdata);
       }
       else return false;
     }
@@ -2949,7 +2953,8 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
   DynamicAABBTreeCollisionManager2::DynamicAABBNode* root1 = nodes1 + root1_id;
   if(root1->isLeaf() && !root2->hasChildren())
   {
-    if(!tree2->isNodeFree(root2))
+    CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
+    if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {
       OBB obb1, obb2;
       convertBV(root1->bv, SimpleTransform(), obb1);
@@ -2964,8 +2969,8 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
-        return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
+        CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        return callback(obj1, &obj2, cdata);
       }
       else return false;
     }
@@ -3009,6 +3014,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
   DynamicAABBTreeCollisionManager2::DynamicAABBNode* root1 = nodes1 + root1_id;
   if(root1->isLeaf() && !root2->hasChildren())
   {
+    CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
     if(!tree2->isNodeFree(root2))
     {
       const AABB& root_bv_t = translate(root2_bv, tf2);
@@ -3021,8 +3027,8 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager2::DynamicAABBNode* nodes1
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
-        return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata);
+        CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        return callback(obj1, &obj2, cdata);
       }
       else return false;
     }

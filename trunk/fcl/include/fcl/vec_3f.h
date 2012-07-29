@@ -58,6 +58,7 @@ public:
   Vec3fX() {}
   Vec3fX(const Vec3fX& other) : data(other.data) {}
   Vec3fX(U x, U y, U z) : data(x, y, z) {}
+  Vec3fX(U x) : data(x) {}
   Vec3fX(const T& data_) : data(data_) {}
 
   inline U operator [] (size_t i) const { return data[i]; }
@@ -206,6 +207,13 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
 
 typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;
 //typedef Vec3fX<details::sse_meta_f4> Vec3f;
+
+
+static inline std::ostream& operator << (std::ostream& o, const Vec3f& v)
+{
+  o << "(" << v[0] << " " << v[1] << " " << v[2] << ")";
+  return o;
+}
 
 
 }

@@ -242,16 +242,27 @@ public:
 
   FCL_REAL getCostDensity() const
   {
-    if(cgeom)
-      return cgeom->cost_density;
-    else 
-      return 0;
+    return cgeom->cost_density;
   }
 
   void setCostDensity(FCL_REAL c)
   {
-    if(cgeom)
-      cgeom->cost_density = c;
+    cgeom->cost_density = c;
+  }
+
+  bool isOccupied() const
+  {
+    return cgeom->isOccupied();
+  }
+
+  bool isFree() const
+  {
+    return cgeom->isFree();
+  }
+
+  bool isUncertain() const
+  {
+    return cgeom->isUncertain();
   }
 
 protected:

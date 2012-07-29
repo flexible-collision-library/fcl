@@ -102,9 +102,9 @@ public:
     tree->updateNode(octomap::point3d(x, y, z), occupied);
   }
 
-  inline std::vector<boost::array<FCL_REAL, 4> > toBoxes() const
+  inline std::vector<boost::array<FCL_REAL, 6> > toBoxes() const
   {
-    std::vector<boost::array<FCL_REAL, 4> > boxes;
+    std::vector<boost::array<FCL_REAL, 6> > boxes;
     boxes.reserve(tree->size() / 2);
     for(octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end();
         it != end;
@@ -116,8 +116,10 @@ public:
         FCL_REAL x = it.getX();
         FCL_REAL y = it.getY();
         FCL_REAL z = it.getZ();
+        FCL_REAL c = (*it).getOccupancy();
+        FCL_REAL t = tree->getOccupancyThres();
 
-        boost::array<FCL_REAL, 4> box = {{x, y, z, size}};
+        boost::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
         boxes.push_back(box);
       }
     }
