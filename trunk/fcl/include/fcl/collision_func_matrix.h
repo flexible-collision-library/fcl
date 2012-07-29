@@ -48,7 +48,7 @@ namespace fcl
 template<typename NarrowPhaseSolver>
 struct CollisionFunctionMatrix
 {
-  typedef int (*CollisionFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver, const CollisionRequest& request, CollisionResult& result);
+  typedef std::size_t (*CollisionFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver, const CollisionRequest& request, CollisionResult& result);
 
   CollisionFunc collision_matrix[NODE_COUNT][NODE_COUNT];
 

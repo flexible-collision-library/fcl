@@ -52,12 +52,10 @@ FCL_REAL ShapeOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform&
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
   distance(&node);
   
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 template<typename T_SH, typename NarrowPhaseSolver>
@@ -69,12 +67,10 @@ FCL_REAL OcTreeShapeDistance(const CollisionGeometry* o1, const SimpleTransform&
   const T_SH* obj2 = static_cast<const T_SH*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
   distance(&node);
   
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 template<typename NarrowPhaseSolver>
@@ -86,12 +82,10 @@ FCL_REAL OcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& tf1,
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
   distance(&node);
 
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
@@ -103,12 +97,10 @@ FCL_REAL BVHOcTreeDistance(const CollisionGeometry* o1, const SimpleTransform& t
   const OcTree* obj2 = static_cast<const OcTree*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
   distance(&node);
 
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
@@ -120,12 +112,10 @@ FCL_REAL OcTreeBVHDistance(const CollisionGeometry* o1, const SimpleTransform& t
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
   distance(&node);
 
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 
@@ -138,12 +128,10 @@ FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const SimpleTransform& 
   const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
   const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
   distance(&node);
 
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 template<typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
@@ -158,13 +146,11 @@ struct BVHShapeDistancer
     SimpleTransform tf1_tmp = tf1;
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    DistanceResult local_result;
-    initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, local_result);
+    initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
     fcl::distance(&node);
     
     delete obj1_tmp;
-    result.update(local_result);
-    return local_result.min_distance;
+    return result.min_distance;
   }
 };
 
@@ -178,12 +164,10 @@ struct BVHShapeDistancer<RSS, T_SH, NarrowPhaseSolver>
     const BVHModel<RSS>* obj1 = static_cast<const BVHModel<RSS>* >(o1);
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    DistanceResult local_result;
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, local_result);
+    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
     fcl::distance(&node);
 
-    result.update(local_result);
-    return local_result.min_distance;
+    return result.min_distance;
   }
 };
 
@@ -198,12 +182,10 @@ struct BVHShapeDistancer<kIOS, T_SH, NarrowPhaseSolver>
     const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    DistanceResult local_result;
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, local_result);
+    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
     fcl::distance(&node);
 
-    result.update(local_result);
-    return local_result.min_distance;
+    return result.min_distance;
   }
 };
 
@@ -217,12 +199,10 @@ struct BVHShapeDistancer<OBBRSS, T_SH, NarrowPhaseSolver>
     const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
     const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
-    DistanceResult local_result;
-    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, local_result);
+    initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
     fcl::distance(&node);
 
-    result.update(local_result);
-    return local_result.min_distance;
+    return result.min_distance;
   }
 };
 
@@ -239,12 +219,10 @@ FCL_REAL BVHDistance(const CollisionGeometry* o1, const SimpleTransform& tf1, co
   BVHModel<T_BVH>* obj2_tmp = new BVHModel<T_BVH>(*obj2);
   SimpleTransform tf2_tmp = tf2;
 
-  DistanceResult local_result;
-  initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, request, local_result);
+  initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, request, result);
   distance(&node);
   
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 template<>
@@ -255,12 +233,10 @@ FCL_REAL BVHDistance<RSS>(const CollisionGeometry* o1, const SimpleTransform& tf
   const BVHModel<RSS>* obj1 = static_cast<const BVHModel<RSS>* >(o1);
   const BVHModel<RSS>* obj2 = static_cast<const BVHModel<RSS>* >(o2);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, request, result);
   distance(&node);
 
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 template<>
@@ -271,12 +247,10 @@ FCL_REAL BVHDistance<kIOS>(const CollisionGeometry* o1, const SimpleTransform& t
   const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);
   const BVHModel<kIOS>* obj2 = static_cast<const BVHModel<kIOS>* >(o2);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, request, result);
   distance(&node);
 
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 
@@ -288,12 +262,10 @@ FCL_REAL BVHDistance<OBBRSS>(const CollisionGeometry* o1, const SimpleTransform&
   const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
   const BVHModel<OBBRSS>* obj2 = static_cast<const BVHModel<OBBRSS>* >(o2);
 
-  DistanceResult local_result;
-  initialize(node, *obj1, tf1, *obj2, tf2, request, local_result);
+  initialize(node, *obj1, tf1, *obj2, tf2, request, result);
   distance(&node);
 
-  result.update(local_result);
-  return local_result.min_distance;
+  return result.min_distance;
 }
 
 

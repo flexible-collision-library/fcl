@@ -52,21 +52,21 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 };
 
 template<typename NarrowPhaseSolver>
-int collide(const CollisionObject* o1, const CollisionObject* o2,
-            const NarrowPhaseSolver* nsolver,
-            const CollisionRequest& request,
-            CollisionResult& result)
+std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
+                    const NarrowPhaseSolver* nsolver,
+                    const CollisionRequest& request,
+                    CollisionResult& result)
 {
   return collide(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(),
                  nsolver, request, result);
 }
 
 template<typename NarrowPhaseSolver>
-int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
-            const CollisionGeometry* o2, const SimpleTransform& tf2,
-            const NarrowPhaseSolver* nsolver_,
-            const CollisionRequest& request,
-            CollisionResult& result)
+std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
+                    const CollisionGeometry* o2, const SimpleTransform& tf2,
+                    const NarrowPhaseSolver* nsolver_,
+                    const CollisionRequest& request,
+                    CollisionResult& result)
 {
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_)
@@ -74,7 +74,7 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
 
   const CollisionFunctionMatrix<NarrowPhaseSolver>& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
 
-  int res; 
+  std::size_t res; 
   if(request.num_max_contacts == 0)
   {
     std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !" << std::endl;
@@ -115,22 +115,22 @@ int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
   return res;
 }
 
-template int collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
-template int collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
-template int collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
-template int collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
+template std::size_t collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
+template std::size_t collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
+template std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
+template std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
 
 
-int collide(const CollisionObject* o1, const CollisionObject* o2,
-            const CollisionRequest& request, CollisionResult& result)
+std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
+                    const CollisionRequest& request, CollisionResult& result)
 {
   GJKSolver_libccd solver;
   return collide<GJKSolver_libccd>(o1, o2, &solver, request, result);
 }
 
-int collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
-            const CollisionGeometry* o2, const SimpleTransform& tf2,
-            const CollisionRequest& request, CollisionResult& result)
+std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
+                    const CollisionGeometry* o2, const SimpleTransform& tf2,
+                    const CollisionRequest& request, CollisionResult& result)
 {
   GJKSolver_libccd solver;
   return collide<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);

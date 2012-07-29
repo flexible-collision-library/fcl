@@ -73,10 +73,7 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cda
 
   if(cdata->done) { dist = result.min_distance; return true; }
 
-  DistanceResult local_result;
-  distance(o1, o2, request, local_result);
-  FCL_REAL d = local_result.min_distance;
-  if(result.min_distance > d) result.min_distance = d;
+  distance(o1, o2, request, result);
   
   dist = result.min_distance;
 
