@@ -1287,7 +1287,8 @@ public:
   int& tree_topdown_level;
   int tree_init_level;
 
-  bool octree_as_geometry;
+  bool octree_as_geometry_collide;
+  bool octree_as_geometry_distance;
 
   
   DynamicAABBTreeCollisionManager() : tree_topdown_balance_threshold(dtree.bu_threshold),
@@ -1300,7 +1301,9 @@ public:
     tree_init_level = 0;
     setup_ = false;
 
-    octree_as_geometry = false;
+    // from experiment, this is the optimal setting
+    octree_as_geometry_collide = true;
+    octree_as_geometry_distance = false;
   }
 
   /** \brief add objects to the manager */
@@ -1346,7 +1349,7 @@ public:
     {
     case GEOM_OCTREE:
       {
-        if(!octree_as_geometry)
+        if(!octree_as_geometry_collide)
         {
           const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
           collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
@@ -1369,7 +1372,7 @@ public:
     {
     case GEOM_OCTREE:
       {
-        if(!octree_as_geometry)
+        if(!octree_as_geometry_distance)
         {
           const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
           distanceRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
@@ -1472,7 +1475,8 @@ public:
   int& tree_topdown_level;
   int tree_init_level;
 
-  bool octree_as_geometry;
+  bool octree_as_geometry_collide;
+  bool octree_as_geometry_distance;
   
   DynamicAABBTreeCollisionManager2() : tree_topdown_balance_threshold(dtree.bu_threshold),
                                        tree_topdown_level(dtree.topdown_level)
@@ -1484,7 +1488,9 @@ public:
     tree_init_level = 0;
     setup_ = false;
 
-    octree_as_geometry = false;
+    // from experiment, this is the optimal setting
+    octree_as_geometry_collide = true;
+    octree_as_geometry_distance = false;
   }
 
   /** \brief add objects to the manager */
@@ -1530,7 +1536,7 @@ public:
     {
     case GEOM_OCTREE:
       {
-        if(!octree_as_geometry)
+        if(!octree_as_geometry_collide)
         {
           const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
           collisionRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
@@ -1553,7 +1559,7 @@ public:
     {
     case GEOM_OCTREE:
       {
-        if(!octree_as_geometry)
+        if(!octree_as_geometry_distance)
         {
           const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
           distanceRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);

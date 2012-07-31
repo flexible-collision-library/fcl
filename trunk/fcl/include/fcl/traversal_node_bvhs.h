@@ -184,7 +184,8 @@ public:
         if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
         {
           is_intersect = true;
-          this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
+          if(this->result->numContacts() < this->request.num_max_contacts)
+            this->result->addContact(Contact(this->model1, this->model2, primitive_id1, primitive_id2));
         }
       }
       else // need compute the contact information

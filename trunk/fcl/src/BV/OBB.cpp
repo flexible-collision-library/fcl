@@ -56,7 +56,7 @@ bool OBB::overlap(const OBB& other) const
              axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
 
   // R is row first
-  return (obbDisjoint(R, T, extent, other.extent) == 0);
+  return !obbDisjoint(R, T, extent, other.extent);
 }
 
 

@@ -116,7 +116,9 @@ public:
   inline bool overlap(const AABB& other, AABB& overlap_part) const
   {
     if(!overlap(other))
+    {
       return false;
+    }
     
     overlap_part.min_ = max(min_, other.min_);
     overlap_part.max_ = min(max_, other.max_);

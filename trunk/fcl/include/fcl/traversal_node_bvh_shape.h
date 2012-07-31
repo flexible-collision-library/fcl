@@ -289,17 +289,20 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(model2, tf2, shape_aabb);
-      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p2)).overlap(shape_aabb, overlap_part);
+      bool res = AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density));
     }
   }
   else if((!model1->isFree() || model2.isFree()) && request.enable_cost)
   {
-    AABB overlap_part;
-    AABB shape_aabb;
-    computeBV<AABB, S>(model2, tf2, shape_aabb);
-    AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p2)).overlap(shape_aabb, overlap_part);
-    result.addCostSource(CostSource(overlap_part, cost_density));    
+    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
+    {
+      AABB overlap_part;
+      AABB shape_aabb;
+      computeBV<AABB, S>(model2, tf2, shape_aabb);
+      bool res = AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
+      result.addCostSource(CostSource(overlap_part, cost_density));    
+    }
   }
 }
 

@@ -250,17 +250,17 @@ public:
     cgeom->cost_density = c;
   }
 
-  bool isOccupied() const
+  inline bool isOccupied() const
   {
     return cgeom->isOccupied();
   }
 
-  bool isFree() const
+  inline bool isFree() const
   {
     return cgeom->isFree();
   }
 
-  bool isUncertain() const
+  inline bool isUncertain() const
   {
     return cgeom->isUncertain();
   }

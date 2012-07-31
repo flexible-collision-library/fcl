@@ -577,7 +577,7 @@ private:
       OBB obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(tree2->getBV(root2).bv, tf2, obb2);
-      if(!obb1.overlap(obb2)) return false;
+      if(!obb1.overlap(obb2)) return false;      
     }
    
     if(tree2->getBV(root2).isLeaf() || (root1->hasChildren() && (bv1.size() > tree2->getBV(root2).bv.size())))

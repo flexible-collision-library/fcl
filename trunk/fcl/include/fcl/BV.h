@@ -82,12 +82,46 @@ class Converter<AABB, OBB>
 public:
   static void convert(const AABB& bv1, const SimpleTransform& tf1, OBB& bv2)
   {
+    /*
     bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
     bv2.To = tf1.transform(bv1.center());
     const Matrix3f& R = tf1.getRotation();
     bv2.axis[0] = R.getColumn(0);
     bv2.axis[1] = R.getColumn(1);
     bv2.axis[2] = R.getColumn(2);
+    */
+    
+    bv2.To = tf1.transform(bv1.center());
+    FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
+    std::size_t id[3] = {0, 1, 2};
+
+    for(std::size_t i = 1; i < 3; ++i)
+    {
+      for(std::size_t j = i; j > 0; --j)
+      {
+        if(d[j] > d[j-1])
+        {
+          {
+            FCL_REAL tmp = d[j];
+            d[j] = d[j-1];
+            d[j-1] = tmp;
+          }
+          {
+            std::size_t tmp = id[j];
+            id[j] = id[j-1];
+            id[j-1] = tmp;
+          }
+        }
+      }
+    }
+
+    Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
+    bv2.extent = Vec3f(extent[id[0]], extent[id[1]], extent[id[2]]);
+    const Matrix3f& R = tf1.getRotation();
+    bool left_hand = (id[0] == (id[1] + 1) % 3);
+    bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
+    bv2.axis[1] = R.getColumn(id[1]);
+    bv2.axis[2] = R.getColumn(id[2]);
   }
 };
 
@@ -99,9 +133,9 @@ public:
   {
     bv2.extent = bv1.extent;
     bv2.To = tf1.transform(bv1.To);
-    bv2.axis[0] = tf1.transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.transform(bv1.axis[2]);
+    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
+    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
+    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
   }
 };
 
@@ -123,9 +157,9 @@ public:
   {
     bv2.extent = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
     bv2.To = tf1.transform(bv1.Tr);
-    bv2.axis[0] = tf1.transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.transform(bv1.axis[2]);    
+    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
+    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
+    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);    
   }
 };
 
@@ -154,6 +188,93 @@ public:
     AABB bv;
     Converter<BV1, AABB>::convert(bv1, SimpleTransform(), bv);
     Converter<AABB, OBB>::convert(bv, tf1, bv2);
+  }
+};
+
+template<>
+class Converter<OBB, RSS>
+{
+public:
+  static void convert(const OBB& bv1, const SimpleTransform& tf1, RSS& bv2)
+  {
+    bv2.Tr = tf1.transform(bv1.To);
+    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
+    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
+    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+ 
+    bv2.r = bv1.extent[2];
+    bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
+    bv2.l[1] = 2 * (bv1.extent[1] - bv2.r);
+  }
+};
+
+template<>
+class Converter<RSS, RSS>
+{
+public:
+  static void convert(const RSS& bv1, const SimpleTransform& tf1, RSS& bv2)
+  {
+    bv2.Tr = tf1.transform(bv1.Tr);
+    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
+    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
+    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+
+    bv2.r = bv1.r;
+    bv2.l[0] = bv1.l[0];
+    bv2.l[1] = bv1.l[1];
+  }
+};
+
+template<>
+class Converter<OBBRSS, RSS>
+{
+public:
+  static void convert(const OBBRSS& bv1, const SimpleTransform& tf1, RSS& bv2)
+  {
+    Converter<RSS, RSS>::convert(bv1.rss, tf1, bv2);
+  }
+};
+
+template<>
+class Converter<AABB, RSS>
+{
+public:
+  static void convert(const AABB& bv1, const SimpleTransform& tf1, RSS& bv2)
+  {
+    bv2.Tr = tf1.transform(bv1.center());
+    FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
+    std::size_t id[3] = {0, 1, 2};
+
+    for(std::size_t i = 1; i < 3; ++i)
+    {
+      for(std::size_t j = i; j > 0; --j)
+      {
+        if(d[j] > d[j-1])
+        {
+          {
+            FCL_REAL tmp = d[j];
+            d[j] = d[j-1];
+            d[j-1] = tmp;
+          }
+          {
+            std::size_t tmp = id[j];
+            id[j] = id[j-1];
+            id[j-1] = tmp;
+          }
+        }
+      }
+    }
+
+    Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
+    bv2.r = extent[id[2]];
+    bv2.l[0] = (extent[id[0]] - bv2.r) * 2;
+    bv2.l[1] = (extent[id[1]] - bv2.r) * 2;
+
+    const Matrix3f& R = tf1.getRotation();
+    bool left_hand = (id[0] == (id[1] + 1) % 3);
+    bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
+    bv2.axis[1] = R.getColumn(id[1]);
+    bv2.axis[2] = R.getColumn(id[2]);    
   }
 };
 

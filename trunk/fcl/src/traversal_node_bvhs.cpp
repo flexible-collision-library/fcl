@@ -82,7 +82,8 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
       {
         is_intersect = true;
-        result.addContact(Contact(model1, model2, primitive_id1, primitive_id2));
+        if(result.numContacts() < request.num_max_contacts)
+          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2));
       }
     }
     else // need compute the contact information
