@@ -55,7 +55,7 @@ template<typename BV1, typename BV2>
 class Converter
 {
 private:
-  static void convert(const BV1& bv1, const SimpleTransform& tf1, BV2& bv2)
+  static void convert(const BV1& bv1, const Transform3f& tf1, BV2& bv2)
   {
     // should only use the specialized version, so it is private.
   }
@@ -65,7 +65,7 @@ template<>
 class Converter<AABB, AABB>
 {
 public:
-  static void convert(const AABB& bv1, const SimpleTransform& tf1, AABB& bv2)
+  static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2)
   {
     const Vec3f& center = bv1.center();
     FCL_REAL r = (bv1.max_ - bv1.min_).length() * 0.5;
@@ -80,7 +80,7 @@ template<>
 class Converter<AABB, OBB>
 {
 public:
-  static void convert(const AABB& bv1, const SimpleTransform& tf1, OBB& bv2)
+  static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
   {
     /*
     bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
@@ -129,7 +129,7 @@ template<>
 class Converter<OBB, OBB>
 {
 public:
-  static void convert(const OBB& bv1, const SimpleTransform& tf1, OBB& bv2)
+  static void convert(const OBB& bv1, const Transform3f& tf1, OBB& bv2)
   {
     bv2.extent = bv1.extent;
     bv2.To = tf1.transform(bv1.To);
@@ -143,7 +143,7 @@ template<>
 class Converter<OBBRSS, OBB>
 {
 public:
-  static void convert(const OBBRSS& bv1, const SimpleTransform& tf1, OBB& bv2)
+  static void convert(const OBBRSS& bv1, const Transform3f& tf1, OBB& bv2)
   {
     Converter<OBB, OBB>::convert(bv1.obb, tf1, bv2);
   }
@@ -153,7 +153,7 @@ template<>
 class Converter<RSS, OBB>
 {
 public:
-  static void convert(const RSS& bv1, const SimpleTransform& tf1, OBB& bv2)
+  static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
   {
     bv2.extent = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
     bv2.To = tf1.transform(bv1.Tr);
@@ -168,7 +168,7 @@ template<typename BV1>
 class Converter<BV1, AABB>
 {
 public:
-  static void convert(const BV1& bv1, const SimpleTransform& tf1, AABB& bv2)
+  static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2)
   {
     const Vec3f& center = bv1.center();
     FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).length() * 0.5;
@@ -183,10 +183,10 @@ template<typename BV1>
 class Converter<BV1, OBB>
 {
 public:
-  static void convert(const BV1& bv1, const SimpleTransform& tf1, OBB& bv2)
+  static void convert(const BV1& bv1, const Transform3f& tf1, OBB& bv2)
   {
     AABB bv;
-    Converter<BV1, AABB>::convert(bv1, SimpleTransform(), bv);
+    Converter<BV1, AABB>::convert(bv1, Transform3f(), bv);
     Converter<AABB, OBB>::convert(bv, tf1, bv2);
   }
 };
@@ -195,7 +195,7 @@ template<>
 class Converter<OBB, RSS>
 {
 public:
-  static void convert(const OBB& bv1, const SimpleTransform& tf1, RSS& bv2)
+  static void convert(const OBB& bv1, const Transform3f& tf1, RSS& bv2)
   {
     bv2.Tr = tf1.transform(bv1.To);
     bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
@@ -212,7 +212,7 @@ template<>
 class Converter<RSS, RSS>
 {
 public:
-  static void convert(const RSS& bv1, const SimpleTransform& tf1, RSS& bv2)
+  static void convert(const RSS& bv1, const Transform3f& tf1, RSS& bv2)
   {
     bv2.Tr = tf1.transform(bv1.Tr);
     bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
@@ -229,7 +229,7 @@ template<>
 class Converter<OBBRSS, RSS>
 {
 public:
-  static void convert(const OBBRSS& bv1, const SimpleTransform& tf1, RSS& bv2)
+  static void convert(const OBBRSS& bv1, const Transform3f& tf1, RSS& bv2)
   {
     Converter<RSS, RSS>::convert(bv1.rss, tf1, bv2);
   }
@@ -239,7 +239,7 @@ template<>
 class Converter<AABB, RSS>
 {
 public:
-  static void convert(const AABB& bv1, const SimpleTransform& tf1, RSS& bv2)
+  static void convert(const AABB& bv1, const Transform3f& tf1, RSS& bv2)
   {
     bv2.Tr = tf1.transform(bv1.center());
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
@@ -282,7 +282,7 @@ public:
 
 
 template<typename BV1, typename BV2>
-static inline void convertBV(const BV1& bv1, const SimpleTransform& tf1, BV2& bv2) 
+static inline void convertBV(const BV1& bv1, const Transform3f& tf1, BV2& bv2) 
 {
   Converter<BV1, BV2>::convert(bv1, tf1, bv2);
 }

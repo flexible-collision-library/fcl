@@ -49,8 +49,8 @@ struct GJKSolver_libccd
 {
   /** intersection checking between two shapes */
   template<typename S1, typename S2>
-  bool shapeIntersect(const S1& s1, const SimpleTransform& tf1,
-                      const S2& s2, const SimpleTransform& tf2,
+  bool shapeIntersect(const S1& s1, const Transform3f& tf1,
+                      const S2& s2, const Transform3f& tf2,
                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
   {
     void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
@@ -69,7 +69,7 @@ struct GJKSolver_libccd
 
   /** \brief intersection checking between one shape and a triangle */
   template<typename S>
-  bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
+  bool shapeTriangleIntersect(const S& s, const Transform3f& tf,
                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
   {
     void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf);
@@ -88,8 +88,8 @@ struct GJKSolver_libccd
 
   /** \brief intersection checking between one shape and a triangle with transformation */
   template<typename S>
-  bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf1,
-                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2,
+  bool shapeTriangleIntersect(const S& s, const Transform3f& tf1,
+                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
   {
     void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf1);
@@ -109,8 +109,8 @@ struct GJKSolver_libccd
 
   /** \brief distance computation between two shapes */
   template<typename S1, typename S2>
-  bool shapeDistance(const S1& s1, const SimpleTransform& tf1,
-                     const S2& s2, const SimpleTransform& tf2,
+  bool shapeDistance(const S1& s1, const Transform3f& tf1,
+                     const S2& s2, const Transform3f& tf2,
                      FCL_REAL* dist) const
   {
     void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
@@ -130,7 +130,7 @@ struct GJKSolver_libccd
 
   /** \brief distance computation between one shape and a triangle */
   template<typename S>
-  bool shapeTriangleDistance(const S& s, const SimpleTransform& tf,
+  bool shapeTriangleDistance(const S& s, const Transform3f& tf,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
                              FCL_REAL* dist) const
   {
@@ -150,8 +150,8 @@ struct GJKSolver_libccd
 
   /** \brief distance computation between one shape and a triangle with transformation */
   template<typename S>
-  bool shapeTriangleDistance(const S& s, const SimpleTransform& tf1,
-                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2,
+  bool shapeTriangleDistance(const S& s, const Transform3f& tf1,
+                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                              FCL_REAL* dist) const
   {
     void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf1);
@@ -188,50 +188,50 @@ struct GJKSolver_libccd
 
 /** \brief Fast implementation for sphere-sphere collision */
 template<>
-bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
-                                                      const Sphere& s2, const SimpleTransform& tf2,
+bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
+                                                      const Sphere& s2, const Transform3f& tf2,
                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 /** \brief Fast implementation for sphere-triangle collision */
 template<> 
-bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
+bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf,
                                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 /** \brief Fast implementation for sphere-triangle collision */
 template<> 
-bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf1,
-                                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf1,
+                                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 /** \brief Fast implementation for sphere-sphere distance */
 template<>
-bool GJKSolver_libccd::shapeDistance<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
-                                                     const Sphere& s2, const SimpleTransform& tf2,
+bool GJKSolver_libccd::shapeDistance<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
+                                                     const Sphere& s2, const Transform3f& tf2,
                                                      FCL_REAL* dist) const;
 
 /** \brief Fast implementation for sphere-triangle distance */
 template<>
-bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf,
+bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const Transform3f& tf,
                                                      const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
                                                      FCL_REAL* dist) const;
 
 /** \brief Fast implementation for sphere-triangle distance */
 template<> 
-bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf1, 
-                                                     const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2,
+bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const Transform3f& tf1, 
+                                                     const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                                                      FCL_REAL* dist) const;
 
 /** \brief Fast implementation for box-box collision */                                                     
 template<>
-bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const SimpleTransform& tf1,
-                                                const Box& s2, const SimpleTransform& tf2,
+bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
+                                                const Box& s2, const Transform3f& tf2,
                                                 Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 
 struct GJKSolver_indep
 {
   template<typename S1, typename S2>
-  bool shapeIntersect(const S1& s1, const SimpleTransform& tf1,
-                      const S2& s2, const SimpleTransform& tf2,
+  bool shapeIntersect(const S1& s1, const Transform3f& tf1,
+                      const S2& s2, const Transform3f& tf2,
                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
   {
     Vec3f guess(1, 0, 0);
@@ -273,7 +273,7 @@ struct GJKSolver_indep
 
 
   template<typename S>
-  bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf,
+  bool shapeTriangleIntersect(const S& s, const Transform3f& tf,
                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
   {
@@ -316,8 +316,8 @@ struct GJKSolver_indep
   }
 
   template<typename S>
-  bool shapeTriangleIntersect(const S& s, const SimpleTransform& tf1,
-                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2,
+  bool shapeTriangleIntersect(const S& s, const Transform3f& tf1,
+                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
   {
     Triangle2 tri(P1, P2, P3);
@@ -360,8 +360,8 @@ struct GJKSolver_indep
 
 
   template<typename S1, typename S2>
-  bool shapeDistance(const S1& s1, const SimpleTransform& tf1,
-                     const S2& s2, const SimpleTransform& tf2,
+  bool shapeDistance(const S1& s1, const Transform3f& tf1,
+                     const S2& s2, const Transform3f& tf2,
                      FCL_REAL* distance) const
   {
     Vec3f guess(1, 0, 0);
@@ -397,7 +397,7 @@ struct GJKSolver_indep
 
 
   template<typename S>
-  bool shapeTriangleDistance(const S& s, const SimpleTransform& tf,
+  bool shapeTriangleDistance(const S& s, const Transform3f& tf,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
                              FCL_REAL* distance) const
   {
@@ -432,8 +432,8 @@ struct GJKSolver_indep
   }
 
   template<typename S>
-  bool shapeTriangleDistance(const S& s, const SimpleTransform& tf1,
-                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2,
+  bool shapeTriangleDistance(const S& s, const Transform3f& tf1,
+                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                              FCL_REAL* distance) const
   {
     Triangle2 tri(P1, P2, P3);
@@ -487,42 +487,42 @@ struct GJKSolver_indep
 
 /** \brief Fast implementation for sphere-sphere collision */                                                     
 template<>
-bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
-                                                      const Sphere& s2, const SimpleTransform& tf2,
+bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
+                                                      const Sphere& s2, const Transform3f& tf2,
                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 /** \brief Fast implementation for sphere-triangle collision */                                                     
 template<> 
-bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf,
+bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf,
                                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 /** \brief Fast implementation for sphere-triangle collision */                                                     
 template<> 
-bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const SimpleTransform& tf1,
-                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf1,
+                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 /** \brief Fast implementation for sphere-sphere distance */                                                     
 template<>
-bool GJKSolver_indep::shapeDistance<Sphere, Sphere>(const Sphere& s1, const SimpleTransform& tf1,
-                                                    const Sphere& s2, const SimpleTransform& tf2,
+bool GJKSolver_indep::shapeDistance<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
+                                                    const Sphere& s2, const Transform3f& tf2,
                                                     FCL_REAL* dist) const;
 
 /** \brief Fast implementation for sphere-triangle distance */                                                     
 template<>
-bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf,
+bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const Transform3f& tf,
                                                     const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
                                                     FCL_REAL* dist) const;
 
 /** \brief Fast implementation for sphere-triangle distance */                                                     
 template<> 
-bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const SimpleTransform& tf1, 
-                                                    const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf2,
+bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const Transform3f& tf1, 
+                                                    const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                                                     FCL_REAL* dist) const;
 
 /** \brief Fast implementation for box-box collision */                                                     
 template<>
-bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const SimpleTransform& tf1,
-                                                const Box& s2, const SimpleTransform& tf2,
+bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
+                                                const Box& s2, const Transform3f& tf2,
                                                 Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
 }

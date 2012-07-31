@@ -59,8 +59,8 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Na
 }
 
 template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, 
-                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, 
+                  const CollisionGeometry* o2, const Transform3f& tf2,
                   const NarrowPhaseSolver* nsolver_,
                   const DistanceRequest& request, DistanceResult& result)
 {
@@ -108,8 +108,8 @@ FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
 
 template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, const DistanceRequest& request, DistanceResult& result);
 template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, const DistanceRequest& request, DistanceResult& result);
-template FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver, const DistanceRequest& request, DistanceResult& result);
-template FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver, const DistanceRequest& request, DistanceResult& result);
+template FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver_libccd* nsolver, const DistanceRequest& request, DistanceResult& result);
+template FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver_indep* nsolver, const DistanceRequest& request, DistanceResult& result);
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
 {
@@ -117,8 +117,8 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Di
   return distance<GJKSolver_libccd>(o1, o2, &solver, request, result);
 }
 
-FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
-                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
                   const DistanceRequest& request, DistanceResult& result)
 {
   GJKSolver_libccd solver;

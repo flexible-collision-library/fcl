@@ -114,14 +114,14 @@ public:
     computeAABB();
   }
 
-  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const SimpleTransform& tf) : cgeom(cgeom_), t(tf)
+  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) : cgeom(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
   CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
-      cgeom(cgeom_), t(SimpleTransform(R, T))
+      cgeom(cgeom_), t(Transform3f(R, T))
   {
     cgeom->computeLocalAABB();
     computeAABB();
@@ -185,12 +185,12 @@ public:
     return t.getRotation();
   }
 
-  inline const SimpleQuaternion& getQuatRotation() const
+  inline const Quaternion3f& getQuatRotation() const
   {
     return t.getQuatRotation();
   }
 
-  inline const SimpleTransform& getTransform() const
+  inline const Transform3f& getTransform() const
   {
     return t;
   }
@@ -205,7 +205,7 @@ public:
     t.setTranslation(T);
   }
 
-  void setQuatRotation(const SimpleQuaternion& q)
+  void setQuatRotation(const Quaternion3f& q)
   {
     t.setQuatRotation(q);
   }
@@ -215,12 +215,12 @@ public:
     t.setTransform(R, T);
   }
 
-  void setTransform(const SimpleQuaternion& q, const Vec3f& T)
+  void setTransform(const Quaternion3f& q, const Vec3f& T)
   {
     t.setTransform(q, T);
   }
 
-  void setTransform(const SimpleTransform& tf)
+  void setTransform(const Transform3f& tf)
   {
     t = tf;
   }
@@ -269,7 +269,7 @@ protected:
 
   boost::shared_ptr<CollisionGeometry> cgeom;
 
-  SimpleTransform t;
+  Transform3f t;
 
   /// AABB in global coordinate
   mutable AABB aabb;

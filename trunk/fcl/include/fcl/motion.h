@@ -103,7 +103,7 @@ public:
     FCL_REAL cur_angle = cur_w.length();
     cur_w.normalize();
 
-    SimpleQuaternion cur_q;
+    Quaternion3f cur_q;
     cur_q.fromAxisAngle(cur_w, cur_angle);
 
     tf.setTransform(cur_q, cur_T);
@@ -155,7 +155,7 @@ public:
     T = tf.getTranslation();
   }
 
-  void getCurrentTransform(SimpleTransform& tf_) const
+  void getCurrentTransform(Transform3f& tf_) const
   {
     tf_ = tf;
   }
@@ -310,7 +310,7 @@ protected:
 
   FCL_REAL Rd0Rd0, Rd0Rd1, Rd0Rd2, Rd0Rd3, Rd1Rd1, Rd1Rd2, Rd1Rd3, Rd2Rd2, Rd2Rd3, Rd3Rd3;
   /** \brief The transformation at current time t */
-  SimpleTransform tf;
+  Transform3f tf;
 
   /** \brief The time related with tf */
   FCL_REAL tf_t;
@@ -335,14 +335,19 @@ public:
 
   /** \brief Construct motion from the initial rotation/translation and goal rotation/translation */
   ScrewMotion(const Matrix3f& R1, const Vec3f& T1,
-              const Matrix3f& R2, const Vec3f& T2)
+              const Matrix3f& R2, const Vec3f& T2) : tf1(R1, T1),
+                                                     tf2(R2, T2),
+                                                     tf(tf1)
   {
-    tf1 = SimpleTransform(R1, T1);
-    tf2 = SimpleTransform(R2, T2);
+    computeScrewParameter();
+  }
 
-    /** Current time is zero, so the transformation is t1 */
-    tf = tf1;
-
+  /** \brief Construct motion from the initial transform and goal transform */
+  ScrewMotion(const Transform3f& tf1_,
+              const Transform3f& tf2_) : tf1(tf1_),
+                                         tf2(tf2_),
+                                         tf(tf1)
+  {
     computeScrewParameter();
   }
 
@@ -355,7 +360,7 @@ public:
 
     tf.setQuatRotation(absoluteRotation(dt));
 
-    SimpleQuaternion delta_rot = deltaRotation(dt);
+    Quaternion3f delta_rot = deltaRotation(dt);
     tf.setTranslation(p + axis * (dt * linear_vel) + delta_rot.transform(tf1.getTranslation() - p));
 
     return true;
@@ -401,7 +406,7 @@ public:
     T = tf.getTranslation();
   }
 
-  void getCurrentTransform(SimpleTransform& tf_) const
+  void getCurrentTransform(Transform3f& tf_) const
   {
     tf_ = tf;
   }
@@ -409,7 +414,7 @@ public:
 protected:
   void computeScrewParameter()
   {
-    SimpleQuaternion deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
+    Quaternion3f deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
     deltaq.toAxisAngle(axis, angular_vel);
     if(angular_vel < 0)
     {
@@ -432,27 +437,27 @@ protected:
     }
   }
 
-  SimpleQuaternion deltaRotation(FCL_REAL dt) const
+  Quaternion3f deltaRotation(FCL_REAL dt) const
   {
-    SimpleQuaternion res;
+    Quaternion3f res;
     res.fromAxisAngle(axis, (FCL_REAL)(dt * angular_vel));
     return res;
   }
 
-  SimpleQuaternion absoluteRotation(FCL_REAL dt) const
+  Quaternion3f absoluteRotation(FCL_REAL dt) const
   {
-    SimpleQuaternion delta_t = deltaRotation(dt);
+    Quaternion3f delta_t = deltaRotation(dt);
     return delta_t * tf1.getQuatRotation();
   }
 
   /** \brief The transformation at time 0 */
-  SimpleTransform tf1;
+  Transform3f tf1;
 
   /** \brief The transformation at time 1 */
-  SimpleTransform tf2;
+  Transform3f tf2;
 
   /** \brief The transformation at current time t */
-  SimpleTransform tf;
+  Transform3f tf;
 
   /** \brief screw axis */
   Vec3f axis;
@@ -502,16 +507,19 @@ public:
 
   /** \brief Construct motion from the initial rotation/translation and goal rotation/translation */
   InterpMotion(const Matrix3f& R1, const Vec3f& T1,
-               const Matrix3f& R2, const Vec3f& T2)
+               const Matrix3f& R2, const Vec3f& T2) : tf1(R1, T1),
+                                                      tf2(R2, T2),
+                                                      tf(tf1)
   {
-    tf1 = SimpleTransform(R1, T1);
-    tf2 = SimpleTransform(R2, T2);
+    /** Compute the velocities for the motion */
+    computeVelocity();
+  }
 
-    /** Current time is zero, so the transformation is t1 */
-    tf = tf1;
 
-    /** Default reference point is local zero point */
-
+  InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_) : tf1(tf1_),
+                                                                   tf2(tf2_),
+                                                                   tf(tf1)
+  {
     /** Compute the velocities for the motion */
     computeVelocity();
   }
@@ -520,16 +528,20 @@ public:
    */
   InterpMotion(const Matrix3f& R1, const Vec3f& T1,
                const Matrix3f& R2, const Vec3f& T2,
-               const Vec3f& O)
+               const Vec3f& O) : tf1(R1, T1),
+                                 tf2(T2, T2),
+                                 tf(tf1),
+                                 reference_p(O)
   {
-    tf1 = SimpleTransform(R1, T1);
-    tf2 = SimpleTransform(R2, T2);
-    tf = tf1;
-
-    reference_p = O;
-
     /** Compute the velocities for the motion */
     computeVelocity();
+  }
+
+  InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_, const Vec3f& O) : tf1(tf1_),
+                                                                                   tf2(tf2_),
+                                                                                   tf(tf1),
+                                                                                   reference_p(O)
+  {
   }
 
 
@@ -591,7 +603,7 @@ public:
     T = tf.getTranslation();
   }
 
-  void getCurrentTransform(SimpleTransform& tf_) const
+  void getCurrentTransform(Transform3f& tf_) const
   {
     tf_ = tf;
   }
@@ -601,7 +613,7 @@ protected:
   void computeVelocity()
   {
     linear_vel = tf2.transform(reference_p) - tf1.transform(reference_p);
-    SimpleQuaternion deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
+    Quaternion3f deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
     deltaq.toAxisAngle(angular_axis, angular_vel);
     if(angular_vel < 0)
     {
@@ -611,27 +623,27 @@ protected:
   }
 
 
-  SimpleQuaternion deltaRotation(FCL_REAL dt) const
+  Quaternion3f deltaRotation(FCL_REAL dt) const
   {
-    SimpleQuaternion res;
+    Quaternion3f res;
     res.fromAxisAngle(angular_axis, (FCL_REAL)(dt * angular_vel));
     return res;
   }
 
-  SimpleQuaternion absoluteRotation(FCL_REAL dt) const
+  Quaternion3f absoluteRotation(FCL_REAL dt) const
   {
-    SimpleQuaternion delta_t = deltaRotation(dt);
+    Quaternion3f delta_t = deltaRotation(dt);
     return delta_t * tf1.getQuatRotation();
   }
 
   /** \brief The transformation at time 0 */
-  SimpleTransform tf1;
+  Transform3f tf1;
 
   /** \brief The transformation at time 1 */
-  SimpleTransform tf2;
+  Transform3f tf2;
 
   /** \brief The transformation at current time t */
-  SimpleTransform tf;
+  Transform3f tf;
 
   /** \brief Linear velocity */
   Vec3f linear_vel;

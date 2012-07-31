@@ -48,7 +48,7 @@ namespace fcl
 
 /** \brief Generate BVH model from box */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box& shape, const SimpleTransform& pose = SimpleTransform())
+void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& pose = Transform3f())
 {
   double a = shape.side[0];
   double b = shape.side[1];
@@ -90,7 +90,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape, const SimpleTransfo
 
 /** Generate BVH model from sphere */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int seg = 16, unsigned int ring = 16)
+void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3f& pose = Transform3f(), unsigned int seg = 16, unsigned int ring = 16)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -158,7 +158,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const SimpleTran
  * then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
  */
 template<typename BV>
-void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int n_faces_for_unit_sphere = 100)
+void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, const Transform3f& pose = Transform3f(), unsigned int n_faces_for_unit_sphere = 100)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -229,7 +229,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Sphere& shape, const SimpleTra
 
 /** \brief Generate BVH model from cylinder */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int tot = 16)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transform3f& pose = Transform3f(), unsigned int tot = 16)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -306,7 +306,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const SimpleTr
  * larger radius, the number of circle split number is r * tot.
  */
 template<typename BV>
-void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int tot_for_unit_cylinder = 100)
+void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, const Transform3f& pose = Transform3f(), unsigned int tot_for_unit_cylinder = 100)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;
@@ -382,7 +382,7 @@ void generateBVHModel2(BVHModel<BV>& model, const Cylinder& shape, const SimpleT
 
 /** \brief Generate BVH model from cone */
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const SimpleTransform& pose = SimpleTransform(), unsigned int tot = 16)
+void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f& pose = Transform3f(), unsigned int tot = 16)
 {
   std::vector<Vec3f> points;
   std::vector<Triangle> tri_indices;

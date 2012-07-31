@@ -78,9 +78,9 @@ public:
   /** \brief Enable statistics (verbose mode) */
   virtual void enableStatistics(bool enable) = 0;
 
-  SimpleTransform tf1;
+  Transform3f tf1;
 
-  SimpleTransform tf2;
+  Transform3f tf2;
 };
 
 class CollisionTraversalNodeBase : public TraversalNodeBase

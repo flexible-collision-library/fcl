@@ -47,122 +47,122 @@ namespace fcl
 
 namespace details
 {
-std::vector<Vec3f> getBoundVertices(const Box& box, const SimpleTransform& tf);
-std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const SimpleTransform& tf);
-std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransform& tf);
-std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf);
-std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransform& tf);
-std::vector<Vec3f> getBoundVertices(const Convex& convex, const SimpleTransform& tf);
-std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const SimpleTransform& tf);
+std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf);
+std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf);
+std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf);
+std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf);
+std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf);
+std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf);
+std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const Transform3f& tf);
 } // end detail
 
 
 template<typename BV, typename S>
-void computeBV(const S& s, const SimpleTransform& tf, BV& bv)
+void computeBV(const S& s, const Transform3f& tf, BV& bv)
 {
   std::vector<Vec3f> convex_bound_vertices = details::getBoundVertices(s, tf);
   fit(&convex_bound_vertices[0], (int)convex_bound_vertices.size(), bv);
 }
 
 template<>
-void computeBV<AABB, Box>(const Box& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Sphere>(const Sphere& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Capsule>(const Capsule& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Cone>(const Cone& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Triangle2>(const Triangle2& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Triangle2>(const Triangle2& s, const Transform3f& tf, AABB& bv);
 
 
 /** \brief the bounding volume for half space back of plane for OBB, it is the plane itself */
 template<>
-void computeBV<AABB, Plane>(const Plane& s, const SimpleTransform& tf, AABB& bv);
+void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv);
 
 
 
 template<>
-void computeBV<OBB, Box>(const Box& s, const SimpleTransform& tf, OBB& bv);
+void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Sphere>(const Sphere& s, const SimpleTransform& tf, OBB& bv);
+void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Capsule>(const Capsule& s, const SimpleTransform& tf, OBB& bv);
+void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Cone>(const Cone& s, const SimpleTransform& tf, OBB& bv);
+void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, OBB& bv);
+void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const SimpleTransform& tf, OBB& bv);
+void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Plane>(const Plane& s, const SimpleTransform& tf, OBB& bv);
+void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<RSS, Plane>(const Plane& s, const SimpleTransform& tf, RSS& bv);
+void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv);
 
 template<>
-void computeBV<OBBRSS, Plane>(const Plane& s, const SimpleTransform& tf, OBBRSS& bv);
+void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf, OBBRSS& bv);
 
 template<>
-void computeBV<kIOS, Plane>(const Plane& s, const SimpleTransform& tf, kIOS& bv);
+void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv);
 
 template<>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<16>& bv);
+void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>& bv);
 
 template<>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<18>& bv);
+void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>& bv);
 
 template<>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<24>& bv);
+void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv);
 
 
-void constructBox(const AABB& bv, Box& box, SimpleTransform& tf);
+void constructBox(const AABB& bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBB& bv, Box& box, SimpleTransform& tf);
+void constructBox(const OBB& bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBBRSS& bv, Box& box, SimpleTransform& tf);
+void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf);
 
-void constructBox(const kIOS& bv, Box& box, SimpleTransform& tf);
+void constructBox(const kIOS& bv, Box& box, Transform3f& tf);
 
-void constructBox(const RSS& bv, Box& box, SimpleTransform& tf);
+void constructBox(const RSS& bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<16>& bv, Box& box, SimpleTransform& tf);
+void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<18>& bv, Box& box, SimpleTransform& tf);
+void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<24>& bv, Box& box, SimpleTransform& tf);
+void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf);
 
-void constructBox(const AABB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const OBBRSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const kIOS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const RSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<16>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<18>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
-void constructBox(const KDOP<24>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf);
+void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
 
 }

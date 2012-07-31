@@ -48,7 +48,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                         Vec3f* vertices1, Vec3f* vertices2, 
                                                         Triangle* tri_indices1, Triangle* tri_indices2,
                                                         const Matrix3f& R, const Vec3f& T,
-                                                        const SimpleTransform& tf1, const SimpleTransform& tf2,
+                                                        const Transform3f& tf1, const Transform3f& tf2,
                                                         bool enable_statistics,
                                                         FCL_REAL cost_density,
                                                         int& num_leaf_tests,
@@ -513,7 +513,7 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1, co
 
 template<typename BV>
 static inline void distancePostprocessOrientedNode(const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                                   const SimpleTransform& tf1, const DistanceRequest& request, DistanceResult& result)
+                                                   const Transform3f& tf1, const DistanceRequest& request, DistanceResult& result)
 {
   /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
   if(request.enable_nearest_points && (result.o1 == model1) && (result.o2 == model2))

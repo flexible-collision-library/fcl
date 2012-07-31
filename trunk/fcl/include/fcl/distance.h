@@ -49,16 +49,16 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Na
                   const DistanceRequest& request, DistanceResult& result);
 
 template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
-                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
                   const NarrowPhaseSolver* nsolver,
                   const DistanceRequest& request, DistanceResult& result);
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
                   const DistanceRequest& request, DistanceResult& result);
 
-FCL_REAL distance(const CollisionGeometry* o1, const SimpleTransform& tf1,
-                  const CollisionGeometry* o2, const SimpleTransform& tf2,
+FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
+                  const CollisionGeometry* o2, const Transform3f& tf2,
                   const DistanceRequest& request, DistanceResult& result);
 
 }

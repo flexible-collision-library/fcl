@@ -69,7 +69,7 @@ public:
    * Notice that only local transformation is applied.
    * Gloal transformation are considered later
    */
-  static void* createGJKObject(const T& s, const SimpleTransform& tf) { return NULL; }
+  static void* createGJKObject(const T& s, const Transform3f& tf) { return NULL; }
 
   /** \brief Delete GJK object */
   static void deleteGJKObject(void* o) {}
@@ -82,7 +82,7 @@ class GJKInitializer<Cylinder>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cylinder& s, const SimpleTransform& tf);
+  static void* createGJKObject(const Cylinder& s, const Transform3f& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -93,7 +93,7 @@ class GJKInitializer<Sphere>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Sphere& s, const SimpleTransform& tf);
+  static void* createGJKObject(const Sphere& s, const Transform3f& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -104,7 +104,7 @@ class GJKInitializer<Box>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Box& s, const SimpleTransform& tf);
+  static void* createGJKObject(const Box& s, const Transform3f& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -115,7 +115,7 @@ class GJKInitializer<Capsule>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Capsule& s, const SimpleTransform& tf);
+  static void* createGJKObject(const Capsule& s, const Transform3f& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -126,7 +126,7 @@ class GJKInitializer<Cone>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cone& s, const SimpleTransform& tf);
+  static void* createGJKObject(const Cone& s, const Transform3f& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -137,7 +137,7 @@ class GJKInitializer<Convex>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Convex& s, const SimpleTransform& tf);
+  static void* createGJKObject(const Convex& s, const Transform3f& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -148,7 +148,7 @@ GJKCenterFunction triGetCenterFunction();
 
 void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3);
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf);
+void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf);
 
 void triDeleteGJKObject(void* o);
 

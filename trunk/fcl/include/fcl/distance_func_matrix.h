@@ -46,7 +46,7 @@ namespace fcl
 template<typename NarrowPhaseSolver>
 struct DistanceFunctionMatrix
 {
-  typedef FCL_REAL (*DistanceFunc)(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const NarrowPhaseSolver* nsolver,
+  typedef FCL_REAL (*DistanceFunc)(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
                                    const DistanceRequest& request, DistanceResult& result);
   
   DistanceFunc distance_matrix[NODE_COUNT][NODE_COUNT];

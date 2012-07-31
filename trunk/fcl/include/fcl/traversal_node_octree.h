@@ -70,7 +70,7 @@ public:
   }
 
   void OcTreeIntersect(const OcTree* tree1, const OcTree* tree2,
-                       const SimpleTransform& tf1, const SimpleTransform& tf2,
+                       const Transform3f& tf1, const Transform3f& tf2,
                        const CollisionRequest& request_,
                        CollisionResult& result_) const
   {
@@ -84,7 +84,7 @@ public:
 
 
   void OcTreeDistance(const OcTree* tree1, const OcTree* tree2,
-                      const SimpleTransform& tf1, const SimpleTransform& tf2,
+                      const Transform3f& tf1, const Transform3f& tf2,
                       const DistanceRequest& request_,
                       DistanceResult& result_) const
   {
@@ -98,7 +98,7 @@ public:
 
   template<typename BV>
   void OcTreeMeshIntersect(const OcTree* tree1, const BVHModel<BV>* tree2,
-                           const SimpleTransform& tf1, const SimpleTransform& tf2,
+                           const Transform3f& tf1, const Transform3f& tf2,
                            const CollisionRequest& request_,
                            CollisionResult& result_) const
   {
@@ -112,7 +112,7 @@ public:
 
   template<typename BV>
   void OcTreeMeshDistance(const OcTree* tree1, const BVHModel<BV>* tree2,
-                          const SimpleTransform& tf1, const SimpleTransform& tf2,
+                          const Transform3f& tf1, const Transform3f& tf2,
                           const DistanceRequest& request_,
                           DistanceResult& result_) const
   {
@@ -127,7 +127,7 @@ public:
 
   template<typename BV>
   void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree* tree2,
-                           const SimpleTransform& tf1, const SimpleTransform& tf2,
+                           const Transform3f& tf1, const Transform3f& tf2,
                            const CollisionRequest& request_,
                            CollisionResult& result_) const
   
@@ -143,7 +143,7 @@ public:
   
   template<typename BV>
   void MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree* tree2,
-                          const SimpleTransform& tf1, const SimpleTransform& tf2,
+                          const Transform3f& tf1, const Transform3f& tf2,
                           const DistanceRequest& request_,
                           DistanceResult& result_) const
   {
@@ -157,7 +157,7 @@ public:
 
   template<typename S>
   void OcTreeShapeIntersect(const OcTree* tree, const S& s,
-                            const SimpleTransform& tf1, const SimpleTransform& tf2,
+                            const Transform3f& tf1, const Transform3f& tf2,
                             const CollisionRequest& request_,
                             CollisionResult& result_) const
   {
@@ -165,7 +165,7 @@ public:
     cresult = &result_;
 
     AABB bv2;
-    computeBV<AABB>(s, SimpleTransform(), bv2);
+    computeBV<AABB>(s, Transform3f(), bv2);
     OBB obb2;
     convertBV(bv2, tf2, obb2);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
@@ -176,7 +176,7 @@ public:
 
   template<typename S>
   void ShapeOcTreeIntersect(const S& s, const OcTree* tree,
-                            const SimpleTransform& tf1, const SimpleTransform& tf2,
+                            const Transform3f& tf1, const Transform3f& tf2,
                             const CollisionRequest& request_,
                             CollisionResult& result_) const
   {
@@ -184,7 +184,7 @@ public:
     cresult = &result_;
 
     AABB bv1;
-    computeBV<AABB>(s, SimpleTransform(), bv1);
+    computeBV<AABB>(s, Transform3f(), bv1);
     OBB obb1;
     convertBV(bv1, tf1, obb1);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
@@ -194,7 +194,7 @@ public:
 
   template<typename S>
   void OcTreeShapeDistance(const OcTree* tree, const S& s,
-                           const SimpleTransform& tf1, const SimpleTransform& tf2,
+                           const Transform3f& tf1, const Transform3f& tf2,
                            const DistanceRequest& request_,
                            DistanceResult& result_) const
   {
@@ -210,7 +210,7 @@ public:
 
   template<typename S>
   void ShapeOcTreeDistance(const S& s, const OcTree* tree,
-                           const SimpleTransform& tf1, const SimpleTransform& tf2,
+                           const Transform3f& tf1, const Transform3f& tf2,
                            const DistanceRequest& request_,
                            DistanceResult& result_) const
   {
@@ -229,14 +229,14 @@ private:
   template<typename S>
   bool OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                   const S& s, const AABB& aabb2,
-                                  const SimpleTransform& tf1, const SimpleTransform& tf2) const
+                                  const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!root1->hasChildren())
     {
       if(tree1->isNodeOccupied(root1))
       {
         Box box;
-        SimpleTransform box_tf;
+        Transform3f box_tf;
         constructBox(bv1, tf1, box, box_tf);
  
         FCL_REAL dist;
@@ -277,7 +277,7 @@ private:
   template<typename S>
   bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                    const S& s, const OBB& obb2,
-                                   const SimpleTransform& tf1, const SimpleTransform& tf2) const
+                                   const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!root1->hasChildren())
     {
@@ -288,7 +288,7 @@ private:
         if(obb1.overlap(obb2))
         {
           Box box;
-          SimpleTransform box_tf;
+          Transform3f box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
           bool is_intersect = false;
@@ -336,7 +336,7 @@ private:
         if(obb1.overlap(obb2))
         {
           Box box;
-          SimpleTransform box_tf;
+          Transform3f box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
           if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
@@ -387,14 +387,14 @@ private:
   template<typename BV>
   bool OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                  const BVHModel<BV>* tree2, int root2,
-                                 const SimpleTransform& tf1, const SimpleTransform& tf2) const
+                                 const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
     {
       if(tree1->isNodeOccupied(root1))
       {
         Box box;
-        SimpleTransform box_tf;
+        Transform3f box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
         int primitive_id = tree2->getBV(root2).primitiveId();
@@ -473,7 +473,7 @@ private:
   template<typename BV>
   bool OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                                   const BVHModel<BV>* tree2, int root2,
-                                  const SimpleTransform& tf1, const SimpleTransform& tf2) const
+                                  const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
     {
@@ -485,7 +485,7 @@ private:
         if(obb1.overlap(obb2))
         {
           Box box;
-          SimpleTransform box_tf;
+          Transform3f box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
           int primitive_id = tree2->getBV(root2).primitiveId();
@@ -541,7 +541,7 @@ private:
         if(obb1.overlap(obb2))
         {
           Box box;
-          SimpleTransform box_tf;
+          Transform3f box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
           int primitive_id = tree2->getBV(root2).primitiveId();
@@ -610,14 +610,14 @@ private:
 
   bool OcTreeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                              const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
-                             const SimpleTransform& tf1, const SimpleTransform& tf2) const
+                             const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!root1->hasChildren() && !root2->hasChildren())
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2))
       {
         Box box1, box2;
-        SimpleTransform box1_tf, box2_tf;
+        Transform3f box1_tf, box2_tf;
         constructBox(bv1, tf1, box1, box1_tf);
         constructBox(bv2, tf2, box2, box2_tf);
 
@@ -690,7 +690,7 @@ private:
 
   bool OcTreeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
                               const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
-                              const SimpleTransform& tf1, const SimpleTransform& tf2) const
+                              const Transform3f& tf1, const Transform3f& tf2) const
   {
     if(!root1->hasChildren() && !root2->hasChildren())
     {
@@ -713,7 +713,7 @@ private:
         else
         {
           Box box1, box2;
-          SimpleTransform box1_tf, box2_tf;
+          Transform3f box1_tf, box2_tf;
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
@@ -731,7 +731,7 @@ private:
         if(is_intersect && crequest->enable_cost)
         {
           Box box1, box2;
-          SimpleTransform box1_tf, box2_tf;
+          Transform3f box1_tf, box2_tf;
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
@@ -754,7 +754,7 @@ private:
         if(obb1.overlap(obb2))
         {
           Box box1, box2;
-          SimpleTransform box1_tf, box2_tf;
+          Transform3f box1_tf, box2_tf;
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
@@ -853,7 +853,7 @@ public:
   const OcTree* model1;
   const OcTree* model2;
 
-  SimpleTransform tf1, tf2;
+  Transform3f tf1, tf2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -913,7 +913,7 @@ public:
   const S* model1;
   const OcTree* model2;
 
-  SimpleTransform tf1, tf2;
+  Transform3f tf1, tf2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -943,7 +943,7 @@ public:
   const OcTree* model1;
   const S* model2;
 
-  SimpleTransform tf1, tf2;
+  Transform3f tf1, tf2;
  
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;  
 };
@@ -1030,7 +1030,7 @@ public:
   const BVHModel<BV>* model1;
   const OcTree* model2;
 
-  SimpleTransform tf1, tf2;
+  Transform3f tf1, tf2;
     
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -1060,7 +1060,7 @@ public:
   const OcTree* model1;
   const BVHModel<BV>* model2;
 
-  SimpleTransform tf1, tf2;
+  Transform3f tf1, tf2;
     
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };

@@ -77,7 +77,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
   const BVHModel<RSS>* model1 = (const BVHModel<RSS>*)o1;
   const BVHModel<RSS>* model2 = (const BVHModel<RSS>*)o2;
 
-  SimpleTransform tf1, tf2;
+  Transform3f tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 

@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-void SimpleQuaternion::fromRotation(const Matrix3f& R)
+void Quaternion3f::fromRotation(const Matrix3f& R)
 {
   const int next[3] = {1, 2, 0};
 
@@ -82,7 +82,7 @@ void SimpleQuaternion::fromRotation(const Matrix3f& R)
   }
 }
 
-void SimpleQuaternion::toRotation(Matrix3f& R) const
+void Quaternion3f::toRotation(Matrix3f& R) const
 {
   FCL_REAL twoX  = 2.0*data[1];
   FCL_REAL twoY  = 2.0*data[2];
@@ -103,7 +103,7 @@ void SimpleQuaternion::toRotation(Matrix3f& R) const
 }
 
 
-void SimpleQuaternion::fromAxes(const Vec3f axis[3])
+void Quaternion3f::fromAxes(const Vec3f axis[3])
 {
   // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
   // article "Quaternion Calculus and Fast Animation".
@@ -148,7 +148,7 @@ void SimpleQuaternion::fromAxes(const Vec3f axis[3])
   }
 }
 
-void SimpleQuaternion::toAxes(Vec3f axis[3]) const
+void Quaternion3f::toAxes(Vec3f axis[3]) const
 {
   FCL_REAL twoX  = 2.0*data[1];
   FCL_REAL twoY  = 2.0*data[2];
@@ -169,7 +169,7 @@ void SimpleQuaternion::toAxes(Vec3f axis[3]) const
 }
 
 
-void SimpleQuaternion::fromAxisAngle(const Vec3f& axis, FCL_REAL angle)
+void Quaternion3f::fromAxisAngle(const Vec3f& axis, FCL_REAL angle)
 {
   FCL_REAL half_angle = 0.5 * angle;
   FCL_REAL sn = sin((double)half_angle);
@@ -179,7 +179,7 @@ void SimpleQuaternion::fromAxisAngle(const Vec3f& axis, FCL_REAL angle)
   data[3] = sn * axis[2];
 }
 
-void SimpleQuaternion::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
+void Quaternion3f::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
 {
   double sqr_length = data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
   if(sqr_length > 0)
@@ -199,18 +199,18 @@ void SimpleQuaternion::toAxisAngle(Vec3f& axis, FCL_REAL& angle) const
   }
 }
 
-FCL_REAL SimpleQuaternion::dot(const SimpleQuaternion& other) const
+FCL_REAL Quaternion3f::dot(const Quaternion3f& other) const
 {
   return data[0] * other.data[0] + data[1] * other.data[1] + data[2] * other.data[2] + data[3] * other.data[3];
 }
 
-SimpleQuaternion SimpleQuaternion::operator + (const SimpleQuaternion& other) const
+Quaternion3f Quaternion3f::operator + (const Quaternion3f& other) const
 {
-  return SimpleQuaternion(data[0] + other.data[0], data[1] + other.data[1],
+  return Quaternion3f(data[0] + other.data[0], data[1] + other.data[1],
                           data[2] + other.data[2], data[3] + other.data[3]);
 }
 
-const SimpleQuaternion& SimpleQuaternion::operator += (const SimpleQuaternion& other)
+const Quaternion3f& Quaternion3f::operator += (const Quaternion3f& other)
 {
   data[0] += other.data[0];
   data[1] += other.data[1];
@@ -220,13 +220,13 @@ const SimpleQuaternion& SimpleQuaternion::operator += (const SimpleQuaternion& o
   return *this;
 }
 
-SimpleQuaternion SimpleQuaternion::operator - (const SimpleQuaternion& other) const
+Quaternion3f Quaternion3f::operator - (const Quaternion3f& other) const
 {
-  return SimpleQuaternion(data[0] - other.data[0], data[1] - other.data[1],
+  return Quaternion3f(data[0] - other.data[0], data[1] - other.data[1],
                           data[2] - other.data[2], data[3] - other.data[3]);
 }
 
-const SimpleQuaternion& SimpleQuaternion::operator -= (const SimpleQuaternion& other)
+const Quaternion3f& Quaternion3f::operator -= (const Quaternion3f& other)
 {
   data[0] -= other.data[0];
   data[1] -= other.data[1];
@@ -236,16 +236,16 @@ const SimpleQuaternion& SimpleQuaternion::operator -= (const SimpleQuaternion& o
   return *this;
 }
 
-SimpleQuaternion SimpleQuaternion::operator * (const SimpleQuaternion& other) const
+Quaternion3f Quaternion3f::operator * (const Quaternion3f& other) const
 {
-  return SimpleQuaternion(data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3],
+  return Quaternion3f(data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3],
                           data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2],
                           data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1],
                           data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0]);
 }
 
 
-const SimpleQuaternion& SimpleQuaternion::operator *= (const SimpleQuaternion& other)
+const Quaternion3f& Quaternion3f::operator *= (const Quaternion3f& other)
 {
   FCL_REAL a = data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3];
   FCL_REAL b = data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2];
@@ -259,17 +259,17 @@ const SimpleQuaternion& SimpleQuaternion::operator *= (const SimpleQuaternion& o
   return *this;
 }
 
-SimpleQuaternion SimpleQuaternion::operator - () const
+Quaternion3f Quaternion3f::operator - () const
 {
-  return SimpleQuaternion(-data[0], -data[1], -data[2], -data[3]);
+  return Quaternion3f(-data[0], -data[1], -data[2], -data[3]);
 }
 
-SimpleQuaternion SimpleQuaternion::operator * (FCL_REAL t) const
+Quaternion3f Quaternion3f::operator * (FCL_REAL t) const
 {
-  return SimpleQuaternion(data[0] * t, data[1] * t, data[2] * t, data[3] * t);
+  return Quaternion3f(data[0] * t, data[1] * t, data[2] * t, data[3] * t);
 }
 
-const SimpleQuaternion& SimpleQuaternion::operator *= (FCL_REAL t)
+const Quaternion3f& Quaternion3f::operator *= (FCL_REAL t)
 {
   data[0] *= t;
   data[1] *= t;
@@ -280,7 +280,7 @@ const SimpleQuaternion& SimpleQuaternion::operator *= (FCL_REAL t)
 }
 
 
-SimpleQuaternion& SimpleQuaternion::conj()
+Quaternion3f& Quaternion3f::conj()
 {
   data[1] = -data[1];
   data[2] = -data[2];
@@ -288,7 +288,7 @@ SimpleQuaternion& SimpleQuaternion::conj()
   return *this;
 }
 
-SimpleQuaternion& SimpleQuaternion::inverse()
+Quaternion3f& Quaternion3f::inverse()
 {
   FCL_REAL sqr_length = data[0] * data[0] + data[1] * data[1] + data[2] * data[2] + data[3] * data[3];
   if(sqr_length > 0)
@@ -309,35 +309,35 @@ SimpleQuaternion& SimpleQuaternion::inverse()
   return *this;
 }
 
-Vec3f SimpleQuaternion::transform(const Vec3f& v) const
+Vec3f Quaternion3f::transform(const Vec3f& v) const
 {
-  SimpleQuaternion r = (*this) * SimpleQuaternion(0, v[0], v[1], v[2]) * (fcl::conj(*this));
+  Quaternion3f r = (*this) * Quaternion3f(0, v[0], v[1], v[2]) * (fcl::conj(*this));
   return Vec3f(r.data[1], r.data[2], r.data[3]);
 }
 
-SimpleQuaternion conj(const SimpleQuaternion& q)
+Quaternion3f conj(const Quaternion3f& q)
 {
-  SimpleQuaternion r(q);
+  Quaternion3f r(q);
   return r.conj();
 }
 
-SimpleQuaternion inverse(const SimpleQuaternion& q)
+Quaternion3f inverse(const Quaternion3f& q)
 {
-  SimpleQuaternion res(q);
+  Quaternion3f res(q);
   return res.inverse();
 }
 
-SimpleTransform inverse(const SimpleTransform& tf)
+Transform3f inverse(const Transform3f& tf)
 {
-  SimpleTransform res(tf);
+  Transform3f res(tf);
   return res.inverse();
 }
 
-void relativeTransform(const SimpleTransform& tf1, const SimpleTransform& tf2,
-                       SimpleTransform& tf)
+void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
+                       Transform3f& tf)
 {
-  const SimpleQuaternion& q1_inv = fcl::conj(tf1.getQuatRotation());
-  tf = SimpleTransform(q1_inv * tf2.getQuatRotation(), q1_inv.transform(tf2.getTranslation() - tf1.getTranslation()));
+  const Quaternion3f& q1_inv = fcl::conj(tf1.getQuatRotation());
+  tf = Transform3f(q1_inv * tf2.getQuatRotation(), q1_inv.transform(tf2.getTranslation() - tf1.getTranslation()));
 }
 
 

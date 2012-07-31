@@ -44,7 +44,7 @@ namespace fcl
 namespace details
 {
 
-std::vector<Vec3f> getBoundVertices(const Box& box, const SimpleTransform& tf)
+std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf)
 {
   std::vector<Vec3f> result(8);
   FCL_REAL a = box.side[0] / 2;
@@ -63,7 +63,7 @@ std::vector<Vec3f> getBoundVertices(const Box& box, const SimpleTransform& tf)
 }
 
 // we use icosahedron to bound the sphere
-std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const SimpleTransform& tf)
+std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
 {
   std::vector<Vec3f> result(12);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
@@ -87,7 +87,7 @@ std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const SimpleTransform&
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransform& tf)
+std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf)
 {
   std::vector<Vec3f> result(36);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
@@ -145,7 +145,7 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const SimpleTransfor
 }
 
 
-std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf)
+std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf)
 {
   std::vector<Vec3f> result(7);
   
@@ -166,7 +166,7 @@ std::vector<Vec3f> getBoundVertices(const Cone& cone, const SimpleTransform& tf)
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransform& tf)
+std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf)
 {
   std::vector<Vec3f> result(12);
 
@@ -192,7 +192,7 @@ std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const SimpleTransf
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Convex& convex, const SimpleTransform& tf)
+std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf)
 {
   std::vector<Vec3f> result(convex.num_points);
   for(int i = 0; i < convex.num_points; ++i)
@@ -203,7 +203,7 @@ std::vector<Vec3f> getBoundVertices(const Convex& convex, const SimpleTransform&
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const SimpleTransform& tf)
+std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const Transform3f& tf)
 {
   std::vector<Vec3f> result(3);
   result[0] = tf.transform(triangle.a);
@@ -217,7 +217,7 @@ std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const SimpleTrans
 
 
 template<>
-void computeBV<AABB, Box>(const Box& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -232,7 +232,7 @@ void computeBV<AABB, Box>(const Box& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, Sphere>(const Sphere& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
 {
   const Vec3f& T = tf.getTranslation();
 
@@ -242,7 +242,7 @@ void computeBV<AABB, Sphere>(const Sphere& s, const SimpleTransform& tf, AABB& b
 }
 
 template<>
-void computeBV<AABB, Capsule>(const Capsule& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -257,7 +257,7 @@ void computeBV<AABB, Capsule>(const Capsule& s, const SimpleTransform& tf, AABB&
 }
 
 template<>
-void computeBV<AABB, Cone>(const Cone& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -272,7 +272,7 @@ void computeBV<AABB, Cone>(const Cone& s, const SimpleTransform& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -287,7 +287,7 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, AAB
 }
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -303,13 +303,13 @@ void computeBV<AABB, Convex>(const Convex& s, const SimpleTransform& tf, AABB& b
 }
 
 template<>
-void computeBV<AABB, Triangle2>(const Triangle2& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Triangle2>(const Triangle2& s, const Transform3f& tf, AABB& bv)
 {
   bv = AABB(tf.transform(s.a), tf.transform(s.b), tf.transform(s.c));
 }
 
 template<>
-void computeBV<AABB, Plane>(const Plane& s, const SimpleTransform& tf, AABB& bv)
+void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
 
@@ -340,7 +340,7 @@ void computeBV<AABB, Plane>(const Plane& s, const SimpleTransform& tf, AABB& bv)
 
 
 template<>
-void computeBV<OBB, Box>(const Box& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -353,7 +353,7 @@ void computeBV<OBB, Box>(const Box& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Sphere>(const Sphere& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
 {
   const Vec3f& T = tf.getTranslation();
 
@@ -365,7 +365,7 @@ void computeBV<OBB, Sphere>(const Sphere& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Capsule>(const Capsule& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -378,7 +378,7 @@ void computeBV<OBB, Capsule>(const Capsule& s, const SimpleTransform& tf, OBB& b
 }
 
 template<>
-void computeBV<OBB, Cone>(const Cone& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -391,7 +391,7 @@ void computeBV<OBB, Cone>(const Cone& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -404,7 +404,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const SimpleTransform& tf, OBB&
 }
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -419,7 +419,7 @@ void computeBV<OBB, Convex>(const Convex& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Plane>(const Plane& s, const SimpleTransform& tf, OBB& bv)
+void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -435,7 +435,7 @@ void computeBV<OBB, Plane>(const Plane& s, const SimpleTransform& tf, OBB& bv)
 }
 
 template<>
-void computeBV<RSS, Plane>(const Plane& s, const SimpleTransform& tf, RSS& bv)
+void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
 {
   const Matrix3f& R = tf.getRotation();
   const Vec3f& T = tf.getTranslation();
@@ -450,143 +450,143 @@ void computeBV<RSS, Plane>(const Plane& s, const SimpleTransform& tf, RSS& bv)
 }
 
 template<>
-void computeBV<OBBRSS, Plane>(const Plane& s, const SimpleTransform& tf, OBBRSS& bv)
+void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf, OBBRSS& bv)
 {
 }
 
 template<>
-void computeBV<kIOS, Plane>(const Plane& s, const SimpleTransform& tf, kIOS& bv)
+void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv)
 {
 }
 
 template<>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<16>& bv)
+void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>& bv)
 {
 }
 
 template<>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<18>& bv)
+void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>& bv)
 {
 }
 
 template<>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const SimpleTransform& tf, KDOP<24>& bv)
+void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv)
 {
 }
 
 
-void constructBox(const AABB& bv, Box& box, SimpleTransform& tf)
+void constructBox(const AABB& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.max_ - bv.min_);
-  tf = SimpleTransform(bv.center());
+  tf = Transform3f(bv.center());
 }
 
-void constructBox(const OBB& bv, Box& box, SimpleTransform& tf)
+void constructBox(const OBB& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.extent * 2);
-  tf = SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+  tf = Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
                                 bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
                                 bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
 }
 
-void constructBox(const OBBRSS& bv, Box& box, SimpleTransform& tf)
+void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.obb.extent * 2);
-  tf = SimpleTransform(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+  tf = Transform3f(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
                                 bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
                                 bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
 }
 
-void constructBox(const kIOS& bv, Box& box, SimpleTransform& tf)
+void constructBox(const kIOS& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.obb_bv.extent * 2);
-  tf = SimpleTransform(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
+  tf = Transform3f(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
                                 bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
                                 bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
 }
 
-void constructBox(const RSS& bv, Box& box, SimpleTransform& tf)
+void constructBox(const RSS& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+  tf = Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
                                 bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
                                 bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
 }
 
-void constructBox(const KDOP<16>& bv, Box& box, SimpleTransform& tf)
+void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = SimpleTransform(bv.center());
+  tf = Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, Box& box, SimpleTransform& tf)
+void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = SimpleTransform(bv.center());
+  tf = Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, Box& box, SimpleTransform& tf)
+void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = SimpleTransform(bv.center());
+  tf = Transform3f(bv.center());
 }
 
 
 
-void constructBox(const AABB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.max_ - bv.min_);
-  tf = tf_bv * SimpleTransform(bv.center());
+  tf = tf_bv * Transform3f(bv.center());
 }
 
-void constructBox(const OBB& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.extent * 2);
-  tf = tf_bv *SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+  tf = tf_bv *Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
                                        bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
                                        bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
 }
 
-void constructBox(const OBBRSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.obb.extent * 2);
-  tf = tf_bv * SimpleTransform(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+  tf = tf_bv * Transform3f(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
                                         bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
                                         bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
 }
 
-void constructBox(const kIOS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.obb_bv.extent * 2);
-  tf = tf_bv * SimpleTransform(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
+  tf = tf_bv * Transform3f(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
                                         bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
                                         bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
 }
 
-void constructBox(const RSS& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * SimpleTransform(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+  tf = tf_bv * Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
                                         bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
                                         bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
 }
 
-void constructBox(const KDOP<16>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * SimpleTransform(bv.center());
+  tf = tf_bv * Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * SimpleTransform(bv.center());
+  tf = tf_bv * Transform3f(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, const SimpleTransform& tf_bv, Box& box, SimpleTransform& tf)
+void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * SimpleTransform(bv.center());
+  tf = tf_bv * Transform3f(bv.center());
 }
 
 

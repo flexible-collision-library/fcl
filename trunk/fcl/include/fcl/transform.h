@@ -45,11 +45,11 @@ namespace fcl
 {
 
 /** \brief Quaternion used locally by InterpMotion */
-class SimpleQuaternion
+class Quaternion3f
 {
 public:
   /** \brief Default quaternion is identity rotation */
-  SimpleQuaternion()
+  Quaternion3f()
   {
     data[0] = 1;
     data[1] = 0;
@@ -57,7 +57,7 @@ public:
     data[3] = 0;
   }
 
-  SimpleQuaternion(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
+  Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
   {
     data[0] = a;
     data[1] = b;
@@ -89,32 +89,32 @@ public:
   void toAxisAngle(Vec3f& axis, FCL_REAL& angle) const;
 
   /** \brief Dot product between quaternions */
-  FCL_REAL dot(const SimpleQuaternion& other) const;
+  FCL_REAL dot(const Quaternion3f& other) const;
 
   /** \brief addition */
-  SimpleQuaternion operator + (const SimpleQuaternion& other) const;
-  const SimpleQuaternion& operator += (const SimpleQuaternion& other);
+  Quaternion3f operator + (const Quaternion3f& other) const;
+  const Quaternion3f& operator += (const Quaternion3f& other);
 
   /** \brief minus */
-  SimpleQuaternion operator - (const SimpleQuaternion& other) const;
-  const SimpleQuaternion& operator -= (const SimpleQuaternion& other);
+  Quaternion3f operator - (const Quaternion3f& other) const;
+  const Quaternion3f& operator -= (const Quaternion3f& other);
 
   /** \brief multiplication */
-  SimpleQuaternion operator * (const SimpleQuaternion& other) const;
-  const SimpleQuaternion& operator *= (const SimpleQuaternion& other);
+  Quaternion3f operator * (const Quaternion3f& other) const;
+  const Quaternion3f& operator *= (const Quaternion3f& other);
 
   /** \brief division */
-  SimpleQuaternion operator - () const;
+  Quaternion3f operator - () const;
 
   /** \brief scalar multiplication */
-  SimpleQuaternion operator * (FCL_REAL t) const;
-  const SimpleQuaternion& operator *= (FCL_REAL t);
+  Quaternion3f operator * (FCL_REAL t) const;
+  const Quaternion3f& operator *= (FCL_REAL t);
 
   /** \brief conjugate */
-  SimpleQuaternion& conj();
+  Quaternion3f& conj();
 
   /** \brief inverse */
-  SimpleQuaternion& inverse();
+  Quaternion3f& inverse();
 
   /** \brief rotate a vector */
   Vec3f transform(const Vec3f& v) const;
@@ -134,11 +134,11 @@ private:
   FCL_REAL data[4];
 };
 
-SimpleQuaternion conj(const SimpleQuaternion& q);
-SimpleQuaternion inverse(const SimpleQuaternion& q);
+Quaternion3f conj(const Quaternion3f& q);
+Quaternion3f inverse(const Quaternion3f& q);
 
 /** \brief Simple transform class used locally by InterpMotion */
-class SimpleTransform
+class Transform3f
 {
   /** \brief Whether matrix cache is set */
   mutable bool matrix_set;
@@ -150,41 +150,41 @@ class SimpleTransform
   Vec3f T;
 
   /** \brief Rotation*/
-  SimpleQuaternion q;
+  Quaternion3f q;
 
 public:
 
   /** \brief Default transform is no movement */
-  SimpleTransform()
+  Transform3f()
   {
     setIdentity(); // set matrix_set true
   }
 
-  SimpleTransform(const Matrix3f& R_, const Vec3f& T_) : matrix_set(true),
+  Transform3f(const Matrix3f& R_, const Vec3f& T_) : matrix_set(true),
                                                          R(R_),
                                                          T(T_)
   {
     q.fromRotation(R_);
   }
 
-  SimpleTransform(const SimpleQuaternion& q_, const Vec3f& T_) : matrix_set(false),
+  Transform3f(const Quaternion3f& q_, const Vec3f& T_) : matrix_set(false),
                                                                  T(T_),
                                                                  q(q_)
   {
   }
 
-  SimpleTransform(const Matrix3f& R_) : matrix_set(true), 
+  Transform3f(const Matrix3f& R_) : matrix_set(true), 
                                         R(R_)
   {
     q.fromRotation(R_);
   }
 
-  SimpleTransform(const SimpleQuaternion& q_) : matrix_set(false),
+  Transform3f(const Quaternion3f& q_) : matrix_set(false),
                                                 q(q_)
   {
   }
 
-  SimpleTransform(const Vec3f& T_) : matrix_set(true), 
+  Transform3f(const Vec3f& T_) : matrix_set(true), 
                                      T(T_)
   {
     R.setIdentity();
@@ -206,7 +206,7 @@ public:
     return R;
   }
 
-  inline const SimpleQuaternion& getQuatRotation() const
+  inline const Quaternion3f& getQuatRotation() const
   {
     return q;
   }
@@ -220,7 +220,7 @@ public:
     q.fromRotation(R_);
   }
 
-  inline void setTransform(const SimpleQuaternion& q_, const Vec3f& T_)
+  inline void setTransform(const Quaternion3f& q_, const Vec3f& T_)
   {
     matrix_set = false;
     q = q_;
@@ -239,7 +239,7 @@ public:
     T = T_;
   }
 
-  inline void setQuatRotation(const SimpleQuaternion& q_)
+  inline void setQuatRotation(const Quaternion3f& q_)
   {
     matrix_set = false;
     q = q_;
@@ -250,7 +250,7 @@ public:
     return q.transform(v) + T;
   }
 
-  SimpleTransform& inverse()
+  Transform3f& inverse()
   {
     matrix_set = false;
     q.conj();
@@ -258,13 +258,13 @@ public:
     return *this;
   }
 
-  SimpleTransform inverseTimes(const SimpleTransform& other) const
+  Transform3f inverseTimes(const Transform3f& other) const
   {
-    const SimpleQuaternion& q_inv = fcl::conj(q);
-    return SimpleTransform(q_inv * other.q, q_inv.transform(other.T - T));
+    const Quaternion3f& q_inv = fcl::conj(q);
+    return Transform3f(q_inv * other.q, q_inv.transform(other.T - T));
   }
 
-  const SimpleTransform& operator *= (const SimpleTransform& other)
+  const Transform3f& operator *= (const Transform3f& other)
   {
     matrix_set = false;
     T = q.transform(other.T) + T;
@@ -272,10 +272,10 @@ public:
     return *this;
   }
 
-  SimpleTransform operator * (const SimpleTransform& other) const
+  Transform3f operator * (const Transform3f& other) const
   {
-    SimpleQuaternion q_new = q * other.q;
-    return SimpleTransform(q_new, q.transform(other.T) + T);
+    Quaternion3f q_new = q * other.q;
+    return Transform3f(q_new, q.transform(other.T) + T);
   }
 
   bool isIdentity() const
@@ -287,16 +287,16 @@ public:
   {
     R.setIdentity();
     T.setValue(0);
-    q = SimpleQuaternion();
+    q = Quaternion3f();
     matrix_set = true;
   }
 
 };
 
-SimpleTransform inverse(const SimpleTransform& tf);
+Transform3f inverse(const Transform3f& tf);
 
-void relativeTransform(const SimpleTransform& tf1, const SimpleTransform& tf2,
-                       SimpleTransform& tf);
+void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
+                       Transform3f& tf);
 
 }
 

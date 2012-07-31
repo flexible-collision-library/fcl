@@ -50,8 +50,8 @@ namespace fcl
 
 template<typename NarrowPhaseSolver>
 bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
-                const OcTree& model1, const SimpleTransform& tf1,
-                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTree& model1, const Transform3f& tf1,
+                const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -73,8 +73,8 @@ bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
 
 template<typename NarrowPhaseSolver>
 bool initialize(OcTreeDistanceTraversalNode<NarrowPhaseSolver>& node,
-                const OcTree& model1, const SimpleTransform& tf1,
-                const OcTree& model2, const SimpleTransform& tf2,
+                const OcTree& model1, const Transform3f& tf1,
+                const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -96,8 +96,8 @@ bool initialize(OcTreeDistanceTraversalNode<NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const OcTree& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -119,8 +119,8 @@ bool initialize(ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
-                const OcTree& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const OcTree& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -142,8 +142,8 @@ bool initialize(OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const OcTree& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -166,8 +166,8 @@ bool initialize(ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(OcTreeShapeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
-                const OcTree& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const OcTree& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -189,8 +189,8 @@ bool initialize(OcTreeShapeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
 
 template<typename BV, typename NarrowPhaseSolver>
 bool initialize(MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
-                const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                const OcTree& model2, const SimpleTransform& tf2,
+                const BVHModel<BV>& model1, const Transform3f& tf1,
+                const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -212,8 +212,8 @@ bool initialize(MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
 
 template<typename BV, typename NarrowPhaseSolver>
 bool initialize(OcTreeMeshCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
-                const OcTree& model1, const SimpleTransform& tf1,
-                const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                const OcTree& model1, const Transform3f& tf1,
+                const BVHModel<BV>& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -235,8 +235,8 @@ bool initialize(OcTreeMeshCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
 
 template<typename BV, typename NarrowPhaseSolver>
 bool initialize(MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
-                const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                const OcTree& model2, const SimpleTransform& tf2,
+                const BVHModel<BV>& model1, const Transform3f& tf1,
+                const OcTree& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -259,8 +259,8 @@ bool initialize(MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
 
 template<typename BV, typename NarrowPhaseSolver>
 bool initialize(OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
-                const OcTree& model1, const SimpleTransform& tf1,
-                const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                const OcTree& model1, const Transform3f& tf1,
+                const BVHModel<BV>& model2, const Transform3f& tf2,
                 const OcTreeSolver<NarrowPhaseSolver>* otsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -285,8 +285,8 @@ bool initialize(OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
 /** \brief Initialize traversal node for collision between two geometric shapes */
 template<typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-                const S1& shape1, const SimpleTransform& tf1,
-                const S2& shape2, const SimpleTransform& tf2,
+                const S1& shape1, const Transform3f& tf1,
+                const S2& shape2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -309,8 +309,8 @@ bool initialize(ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
 /** \brief Initialize traversal node for collision between one mesh and one shape, given current object transform */
 template<typename BV, typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
-                BVHModel<BV>& model1, SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                BVHModel<BV>& model1, Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result,
@@ -360,8 +360,8 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
 /** \brief Initialize traversal node for collision between one mesh and one shape, given current object transform */
 template<typename S, typename BV, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                BVHModel<BV>& model2, SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                BVHModel<BV>& model2, Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result,
@@ -413,8 +413,8 @@ namespace details
 
 template<typename BV, typename S, typename NarrowPhaseSolver, template<typename, typename> class OrientedNode>
 static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, NarrowPhaseSolver>& node, 
-                                                       const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                                                       const S& model2, const SimpleTransform& tf2,
+                                                       const BVHModel<BV>& model1, const Transform3f& tf1,
+                                                       const S& model2, const Transform3f& tf2,
                                                        const NarrowPhaseSolver* nsolver,
                                                        const CollisionRequest& request,
                                                        CollisionResult& result)
@@ -449,8 +449,8 @@ static inline bool setupMeshShapeCollisionOrientedNode(OrientedNode<S, NarrowPha
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
-                const BVHModel<OBB>& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const BVHModel<OBB>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -461,8 +461,8 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const BVHModel<RSS>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request, 
                 CollisionResult& result)
@@ -473,8 +473,8 @@ bool initialize(MeshShapeCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const BVHModel<kIOS>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -485,8 +485,8 @@ bool initialize(MeshShapeCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -500,8 +500,8 @@ namespace details
 {
 template<typename S, typename BV, typename NarrowPhaseSolver, template<typename, typename> class OrientedNode>
 static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPhaseSolver>& node, 
-                                                       const S& model1, const SimpleTransform& tf1,
-                                                       const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                                                       const S& model1, const Transform3f& tf1,
+                                                       const BVHModel<BV>& model2, const Transform3f& tf2,
                                                        const NarrowPhaseSolver* nsolver,
                                                        const CollisionRequest& request,
                                                        CollisionResult& result)
@@ -534,8 +534,8 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPha
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBB type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const BVHModel<OBB>& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const BVHModel<OBB>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -546,8 +546,8 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const BVHModel<RSS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -558,8 +558,8 @@ bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const BVHModel<kIOS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -570,8 +570,8 @@ bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
 /** \brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type */
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -585,8 +585,8 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& nod
 /** \brief Initialize traversal node for collision between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshCollisionTraversalNode<BV>& node,
-                BVHModel<BV>& model1, SimpleTransform& tf1,
-                BVHModel<BV>& model2, SimpleTransform& tf2,
+                BVHModel<BV>& model1, Transform3f& tf1,
+                BVHModel<BV>& model2, Transform3f& tf2,
                 const CollisionRequest& request,
                 CollisionResult& result,
                 bool use_refit = false, bool refit_bottomup = false)
@@ -651,23 +651,23 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
 
 /** \brief Initialize traversal node for collision between two meshes, specialized for OBB type */
 bool initialize(MeshCollisionTraversalNodeOBB& node,
-                const BVHModel<OBB>& model1, const SimpleTransform& tf1,
-                const BVHModel<OBB>& model2, const SimpleTransform& tf2,
+                const BVHModel<OBB>& model1, const Transform3f& tf1,
+                const BVHModel<OBB>& model2, const Transform3f& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
 bool initialize(MeshCollisionTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
-                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const BVHModel<RSS>& model1, const Transform3f& tf1,
+                const BVHModel<RSS>& model2, const Transform3f& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
 bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
-                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
+                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
 bool initialize(MeshCollisionTraversalNodekIOS& node,
-                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
-                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                const BVHModel<kIOS>& model1, const Transform3f& tf1,
+                const BVHModel<kIOS>& model2, const Transform3f& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
 #if USE_SVMLIGHT
@@ -675,8 +675,8 @@ bool initialize(MeshCollisionTraversalNodekIOS& node,
 /** \brief Initialize traversal node for collision between two point clouds, given current transforms */
 template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudCollisionTraversalNode<BV>& node,
-                BVHModel<BV>& model1, SimpleTransform& tf1,
-                BVHModel<BV>& model2, SimpleTransform& tf2,
+                BVHModel<BV>& model1, Transform3f& tf1,
+                BVHModel<BV>& model2, Transform3f& tf2,
                 const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
@@ -747,8 +747,8 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node,
 
 /** \brief Initialize traversal node for collision between two point clouds, given current transforms, specialized for OBB type */ 
 bool initialize(PointCloudCollisionTraversalNodeOBB& node,
-                BVHModel<OBB>& model1, const SimpleTransform& tf1,
-                BVHModel<OBB>& model2, const SimpleTransform& tf2,
+                BVHModel<OBB>& model1, const Transform3f& tf1,
+                BVHModel<OBB>& model2, const Transform3f& tf2,
                 const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
@@ -756,8 +756,8 @@ bool initialize(PointCloudCollisionTraversalNodeOBB& node,
 
 /** \brief Initialize traversal node for collision between two point clouds, given current transforms, specialized for RSS type */
 bool initialize(PointCloudCollisionTraversalNodeRSS& node,
-                BVHModel<RSS>& model1, const SimpleTransform& tf1,
-                BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                BVHModel<RSS>& model1, const Transform3f& tf1,
+                BVHModel<RSS>& model2, const Transform3f& tf2,
                 const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
@@ -766,8 +766,8 @@ bool initialize(PointCloudCollisionTraversalNodeRSS& node,
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms */
 template<typename BV, bool use_refit, bool refit_bottomup>
 bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node,
-                BVHModel<BV>& model1, SimpleTransform& tf1,
-                BVHModel<BV>& model2, SimpleTransform& tf2,
+                BVHModel<BV>& model1, Transform3f& tf1,
+                BVHModel<BV>& model2, Transform3f& tf2,
                 const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
@@ -836,8 +836,8 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node,
 
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms, specialized for OBB type */
 bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
-                BVHModel<OBB>& model1, const SimpleTransform& tf1,
-                const BVHModel<OBB>& model2, const SimpleTransform& tf2,
+                BVHModel<OBB>& model1, const Transform3f& tf1,
+                const BVHModel<OBB>& model2, const Transform3f& tf2,
                 const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
@@ -845,8 +845,8 @@ bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
 
 /** \brief Initialize traversal node for collision between one point cloud and one mesh, given current transforms, specialized for RSS type */
 bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
-                BVHModel<RSS>& model1, const SimpleTransform& tf1,
-                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                BVHModel<RSS>& model1, const Transform3f& tf1,
+                const BVHModel<RSS>& model2, const Transform3f& tf2,
                 const CollisionRequest& request,
                 FCL_REAL collision_prob_threshold = 0.5,
                 int leaf_size_threshold = 1,
@@ -858,8 +858,8 @@ bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
 /** \brief Initialize traversal node for distance between two geometric shapes */
 template<typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-                const S1& shape1, const SimpleTransform& tf1,
-                const S2& shape2, const SimpleTransform& tf2,
+                const S1& shape1, const Transform3f& tf1,
+                const S2& shape2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -879,8 +879,8 @@ bool initialize(ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
 /** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
 template<typename BV>
 bool initialize(MeshDistanceTraversalNode<BV>& node,
-                BVHModel<BV>& model1, SimpleTransform& tf1,
-                BVHModel<BV>& model2, SimpleTransform& tf2,
+                BVHModel<BV>& model1, Transform3f& tf1,
+                BVHModel<BV>& model2, Transform3f& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result,
                 bool use_refit = false, bool refit_bottomup = false)
@@ -943,29 +943,29 @@ bool initialize(MeshDistanceTraversalNode<BV>& node,
 
 /** \brief Initialize traversal node for distance computation between two meshes, given the current transforms */
 bool initialize(MeshDistanceTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
-                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const BVHModel<RSS>& model1, const Transform3f& tf1,
+                const BVHModel<RSS>& model2, const Transform3f& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result);
 
 
 bool initialize(MeshDistanceTraversalNodekIOS& node,
-                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
-                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                const BVHModel<kIOS>& model1, const Transform3f& tf1,
+                const BVHModel<kIOS>& model2, const Transform3f& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result);
 
 bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
-                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
+                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result);
 
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeDistanceTraversalNode<BV, S, NarrowPhaseSolver>& node,
-                BVHModel<BV>& model1, SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                BVHModel<BV>& model1, Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result,
@@ -1012,8 +1012,8 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S, NarrowPhaseSolver>& node,
 
 template<typename S, typename BV, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                BVHModel<BV>& model2, SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                BVHModel<BV>& model2, Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result,
@@ -1063,8 +1063,8 @@ namespace details
 
 template<typename BV, typename S, typename NarrowPhaseSolver, template<typename, typename> class OrientedNode>
 static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S, NarrowPhaseSolver>& node, 
-                                                      const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                                                      const S& model2, const SimpleTransform& tf2,
+                                                      const BVHModel<BV>& model1, const Transform3f& tf1,
+                                                      const S& model2, const Transform3f& tf2,
                                                       const NarrowPhaseSolver* nsolver,
                                                       const DistanceRequest& request,
                                                       DistanceResult& result)
@@ -1094,8 +1094,8 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S, NarrowPhas
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<RSS>& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const BVHModel<RSS>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request, 
                 DistanceResult& result)
@@ -1105,8 +1105,8 @@ bool initialize(MeshShapeDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-                const BVHModel<kIOS>& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const BVHModel<kIOS>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -1116,8 +1116,8 @@ bool initialize(MeshShapeDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<OBBRSS>& model1, const SimpleTransform& tf1,
-                const S& model2, const SimpleTransform& tf2,
+                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
+                const S& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -1130,8 +1130,8 @@ namespace details
 {
 template<typename S, typename BV, typename NarrowPhaseSolver, template<typename, typename> class OrientedNode>
 static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S, NarrowPhaseSolver>& node,
-                                                      const S& model1, const SimpleTransform& tf1,
-                                                      const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                                                      const S& model1, const Transform3f& tf1,
+                                                      const BVHModel<BV>& model2, const Transform3f& tf2,
                                                       const NarrowPhaseSolver* nsolver,
                                                       const DistanceRequest& request,
                                                       DistanceResult& result)
@@ -1164,8 +1164,8 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S, NarrowPhas
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const BVHModel<RSS>& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const BVHModel<RSS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -1175,8 +1175,8 @@ bool initialize(ShapeMeshDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const BVHModel<kIOS>& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const BVHModel<kIOS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -1186,8 +1186,8 @@ bool initialize(ShapeMeshDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const S& model1, const SimpleTransform& tf1,
-                const BVHModel<OBBRSS>& model2, const SimpleTransform& tf2,
+                const S& model1, const Transform3f& tf1,
+                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -1201,8 +1201,8 @@ bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node
 /** \brief Initialize traversal node for continuous collision detection between two meshes */
 template<typename BV>
 bool initialize(MeshContinuousCollisionTraversalNode<BV>& node,
-                const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                const BVHModel<BV>& model1, const Transform3f& tf1,
+                const BVHModel<BV>& model2, const Transform3f& tf2,
                 const CollisionRequest& request)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -1230,8 +1230,8 @@ bool initialize(MeshContinuousCollisionTraversalNode<BV>& node,
 /** \brief Initialize traversal node for continuous collision detection between one mesh and one point cloud */
 template<typename BV>
 bool initialize(MeshPointCloudContinuousCollisionTraversalNode<BV>& node,
-                const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                const BVHModel<BV>& model1, const Transform3f& tf1,
+                const BVHModel<BV>& model2, const Transform3f& tf2,
                 const CollisionRequest& request)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || !(model2.getModelType() == BVH_MODEL_TRIANGLES || model2.getModelType() == BVH_MODEL_POINTCLOUD))
@@ -1257,8 +1257,8 @@ bool initialize(MeshPointCloudContinuousCollisionTraversalNode<BV>& node,
 /** \brief Initialize traversal node for continuous collision detection between one point cloud and one mesh */
 template<typename BV>
 bool initialize(PointCloudMeshContinuousCollisionTraversalNode<BV>& node,
-                const BVHModel<BV>& model1, const SimpleTransform& tf1,
-                const BVHModel<BV>& model2, const SimpleTransform& tf2,
+                const BVHModel<BV>& model1, const Transform3f& tf1,
+                const BVHModel<BV>& model2, const Transform3f& tf2,
                 const CollisionRequest& request)
 {
   if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD) || model2.getModelType() != BVH_MODEL_TRIANGLES)

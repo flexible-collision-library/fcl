@@ -53,7 +53,7 @@ struct MinkowskiDiff
 {
   const ShapeBase* shapes[2];
   Matrix3f toshape1;
-  SimpleTransform toshape0;
+  Transform3f toshape0;
 
   MinkowskiDiff() { }
 

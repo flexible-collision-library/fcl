@@ -62,8 +62,8 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
 }
 
 template<typename NarrowPhaseSolver>
-std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
-                    const CollisionGeometry* o2, const SimpleTransform& tf2,
+std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
+                    const CollisionGeometry* o2, const Transform3f& tf2,
                     const NarrowPhaseSolver* nsolver_,
                     const CollisionRequest& request,
                     CollisionResult& result)
@@ -117,8 +117,8 @@ std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
 
 template std::size_t collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
 template std::size_t collide(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
-template std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
-template std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1, const CollisionGeometry* o2, const SimpleTransform& tf2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
+template std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver_libccd* nsolver, const CollisionRequest& request, CollisionResult& result);
+template std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver_indep* nsolver, const CollisionRequest& request, CollisionResult& result);
 
 
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
@@ -128,8 +128,8 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
   return collide<GJKSolver_libccd>(o1, o2, &solver, request, result);
 }
 
-std::size_t collide(const CollisionGeometry* o1, const SimpleTransform& tf1,
-                    const CollisionGeometry* o2, const SimpleTransform& tf2,
+std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
+                    const CollisionGeometry* o2, const Transform3f& tf2,
                     const CollisionRequest& request, CollisionResult& result)
 {
   GJKSolver_libccd solver;

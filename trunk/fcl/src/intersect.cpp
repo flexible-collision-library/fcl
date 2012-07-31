@@ -820,7 +820,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
 
 bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
                                    const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                   const SimpleTransform& tf,
+                                   const Transform3f& tf,
                                    Vec3f* contact_points,
                                    unsigned int* num_contact_points,
                                    FCL_REAL* penetration_depth,

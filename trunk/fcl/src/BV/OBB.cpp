@@ -301,13 +301,13 @@ OBB OBB::merge_smalldist(const OBB& b1, const OBB& b2)
 {
   OBB b;
   b.To = (b1.To + b2.To) * 0.5;
-  SimpleQuaternion q0, q1;
+  Quaternion3f q0, q1;
   q0.fromAxes(b1.axis);
   q1.fromAxes(b2.axis);
   if(q0.dot(q1) < 0)
     q1 = -q1;
 
-  SimpleQuaternion q = q0 + q1;
+  Quaternion3f q = q0 + q1;
   FCL_REAL inv_length = 1.0 / sqrt(q.dot(q));
   q = q * inv_length;
   q.toAxes(b.axis);

@@ -67,7 +67,7 @@ public:
 
   virtual void getCurrentTranslation(Vec3f& T) const = 0;
 
-  virtual void getCurrentTransform(SimpleTransform& tf) const = 0;
+  virtual void getCurrentTransform(Transform3f& tf) const = 0;
 };
 
 

@@ -438,16 +438,16 @@ static ccd_real_t __ccdGJKDist(const void *obj1, const void *obj2,
 
 
 /** Basic shape to ccd shape */
-static void shapeToGJK(const ShapeBase& s, const SimpleTransform& tf, ccd_obj_t* o)
+static void shapeToGJK(const ShapeBase& s, const Transform3f& tf, ccd_obj_t* o)
 {
-  const SimpleQuaternion& q = tf.getQuatRotation();
+  const Quaternion3f& q = tf.getQuatRotation();
   const Vec3f& T = tf.getTranslation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
 }
 
-static void boxToGJK(const Box& s, const SimpleTransform& tf, ccd_box_t* box)
+static void boxToGJK(const Box& s, const Transform3f& tf, ccd_box_t* box)
 {
   shapeToGJK(s, tf, box);
   box->dim[0] = s.side[0] / 2.0;
@@ -455,34 +455,34 @@ static void boxToGJK(const Box& s, const SimpleTransform& tf, ccd_box_t* box)
   box->dim[2] = s.side[2] / 2.0;
 }
 
-static void capToGJK(const Capsule& s, const SimpleTransform& tf, ccd_cap_t* cap)
+static void capToGJK(const Capsule& s, const Transform3f& tf, ccd_cap_t* cap)
 {
   shapeToGJK(s, tf, cap);
   cap->radius = s.radius;
   cap->height = s.lz / 2;
 }
 
-static void cylToGJK(const Cylinder& s, const SimpleTransform& tf, ccd_cyl_t* cyl)
+static void cylToGJK(const Cylinder& s, const Transform3f& tf, ccd_cyl_t* cyl)
 {
   shapeToGJK(s, tf, cyl);
   cyl->radius = s.radius;
   cyl->height = s.lz / 2;
 }
 
-static void coneToGJK(const Cone& s, const SimpleTransform& tf, ccd_cone_t* cone)
+static void coneToGJK(const Cone& s, const Transform3f& tf, ccd_cone_t* cone)
 {
   shapeToGJK(s, tf, cone);
   cone->radius = s.radius;
   cone->height = s.lz / 2;
 }
 
-static void sphereToGJK(const Sphere& s, const SimpleTransform& tf, ccd_sphere_t* sph)
+static void sphereToGJK(const Sphere& s, const Transform3f& tf, ccd_sphere_t* sph)
 {
   shapeToGJK(s, tf, sph);
   sph->radius = s.radius;
 }
 
-static void convexToGJK(const Convex& s, const SimpleTransform& tf, ccd_convex_t* conv)
+static void convexToGJK(const Convex& s, const Transform3f& tf, ccd_convex_t* conv)
 {
   shapeToGJK(s, tf, conv);
   conv->convex = &s;
@@ -783,7 +783,7 @@ GJKCenterFunction GJKInitializer<Cylinder>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Cylinder>::createGJKObject(const Cylinder& s, const SimpleTransform& tf)
+void* GJKInitializer<Cylinder>::createGJKObject(const Cylinder& s, const Transform3f& tf)
 {
   ccd_cyl_t* o = new ccd_cyl_t;
   cylToGJK(s, tf, o);
@@ -810,7 +810,7 @@ GJKCenterFunction GJKInitializer<Sphere>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Sphere>::createGJKObject(const Sphere& s, const SimpleTransform& tf)
+void* GJKInitializer<Sphere>::createGJKObject(const Sphere& s, const Transform3f& tf)
 {
   ccd_sphere_t* o = new ccd_sphere_t;
   sphereToGJK(s, tf, o);
@@ -835,7 +835,7 @@ GJKCenterFunction GJKInitializer<Box>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Box>::createGJKObject(const Box& s, const SimpleTransform& tf)
+void* GJKInitializer<Box>::createGJKObject(const Box& s, const Transform3f& tf)
 {
   ccd_box_t* o = new ccd_box_t;
   boxToGJK(s, tf, o);
@@ -862,7 +862,7 @@ GJKCenterFunction GJKInitializer<Capsule>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Capsule>::createGJKObject(const Capsule& s, const SimpleTransform& tf)
+void* GJKInitializer<Capsule>::createGJKObject(const Capsule& s, const Transform3f& tf)
 {
   ccd_cap_t* o = new ccd_cap_t;
   capToGJK(s, tf, o);
@@ -889,7 +889,7 @@ GJKCenterFunction GJKInitializer<Cone>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Cone>::createGJKObject(const Cone& s, const SimpleTransform& tf)
+void* GJKInitializer<Cone>::createGJKObject(const Cone& s, const Transform3f& tf)
 {
   ccd_cone_t* o = new ccd_cone_t;
   coneToGJK(s, tf, o);
@@ -916,7 +916,7 @@ GJKCenterFunction GJKInitializer<Convex>::getCenterFunction()
 }
 
 
-void* GJKInitializer<Convex>::createGJKObject(const Convex& s, const SimpleTransform& tf)
+void* GJKInitializer<Convex>::createGJKObject(const Convex& s, const Transform3f& tf)
 {
   ccd_convex_t* o = new ccd_convex_t;
   convexToGJK(s, tf, o);
@@ -959,7 +959,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3)
   return o;
 }
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const SimpleTransform& tf)
+void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf)
 {
   ccd_triangle_t* o = new ccd_triangle_t;
   Vec3f center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
@@ -968,7 +968,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, cons
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
   ccdVec3Set(&o->p[2], P3[0], P3[1], P3[2]);
   ccdVec3Set(&o->c, center[0], center[1], center[2]);
-  const SimpleQuaternion& q = tf.getQuatRotation();
+  const Quaternion3f& q = tf.getQuatRotation();
   const Vec3f& T = tf.getTranslation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
