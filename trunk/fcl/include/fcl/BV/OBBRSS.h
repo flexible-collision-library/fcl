@@ -46,30 +46,37 @@
 namespace fcl
 {
 
+
+/// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
 class OBBRSS
 {
 public:
 
+  /// @brief OBB member, for rotation
   OBB obb;
+
+  /// @brief RSS member, for distance
   RSS rss;
-  
-  OBBRSS() {}
-  
+
+  /// @brief Check collision between two OBBRSS
   bool overlap(const OBBRSS& other) const
   {
     return obb.overlap(other.obb);
   }
 
+  /// @brief Check collision between two OBBRSS and return the overlap part.
   bool overlap(const OBBRSS& other, OBBRSS& overlap_part) const
   {
     return overlap(other);
   }
 
+  /// @brief Check whether the OBBRSS contains a point
   inline bool contain(const Vec3f& p) const
   {
     return obb.contain(p);
   }
 
+  /// @brief Merge the OBBRSS and a point
   OBBRSS& operator += (const Vec3f& p) 
   {
     obb += p;
@@ -77,12 +84,14 @@ public:
     return *this;
   }
 
+  /// @brief Merge two OBBRSS
   OBBRSS& operator += (const OBBRSS& other)
   {
     *this = *this + other;
     return *this;
   }
 
+  /// @brief Merge two OBBRSS
   OBBRSS operator + (const OBBRSS& other) const
   {
     OBBRSS result;
@@ -91,36 +100,43 @@ public:
     return result;
   }
 
+  /// @brief Width of the OBRSS
   inline FCL_REAL width() const
   {
     return obb.width();
   }
 
+  /// @brief Height of the OBBRSS
   inline FCL_REAL height() const
   {
     return obb.height();
   }
 
+  /// @brief Depth of the OBBRSS
   inline FCL_REAL depth() const
   {
     return obb.depth();
   }
 
+  /// @brief Volume of the OBBRSS
   inline FCL_REAL volume() const
   {
     return obb.volume();
   }
 
+  /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
   inline FCL_REAL size() const
   {
     return obb.size();
   }
 
+  /// @brief Center of the OBBRSS
   inline const Vec3f& center() const
   {
     return obb.center();
   }
 
+  /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
   FCL_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
   {
     return rss.distance(other.rss, P, Q);
@@ -128,8 +144,10 @@ public:
 };
 
 
+/// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2);
 
+/// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0) and b2 is in indentity; P and Q, is not NULL, returns the nearest points
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
 
 }

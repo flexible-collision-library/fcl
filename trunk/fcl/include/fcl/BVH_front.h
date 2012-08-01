@@ -40,27 +40,37 @@
 
 #include <list>
 
-/** \brief Main namespace */
 namespace fcl
 {
 
-/** \brief A class describing the node for BVH front */
+/// @brief Front list acceleration for collision
+/// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
+/// the traversal terminates while performing a query during a given time instance. The front list reﬂects the subset of a
+/// BVTT that is traversed for that particular proximity query.
 struct BVHFrontNode
 {
-  bool valid; // not valid when collision detected on the front node
+  /// @brief The nodes to start in the future, i.e. the wave front of the traversal tree.
   int left, right;
 
-  BVHFrontNode(int left_, int right_)
-  {
-    left = left_;
-    right = right_;
+  /// @brief The front node is not valid when collision is detected on the front node.
+  bool valid;
 
-    valid = true;
+  BVHFrontNode(int left_, int right_) : left(left_),
+                                        right(right_),
+                                        valid(true)
+  {
   }
 };
 
-/** \brief A class describing the BVH front list */
+/// @brief BVH front list is a list of front nodes.
 typedef std::list<BVHFrontNode> BVHFrontList;
+
+/// @brief Add new front node into the front list
+inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
+{
+  if(front_list) front_list->push_back(BVHFrontNode(b1, b2));
+}
+
 
 }
 

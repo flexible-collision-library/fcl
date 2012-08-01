@@ -40,324 +40,80 @@
 namespace fcl
 {
 
-bool RSS::overlap(const RSS& other) const
+/// @brief Clip value between a and b
+void clipToRange(FCL_REAL& val, FCL_REAL a, FCL_REAL b)
 {
-  // compute what transform [R,T] that takes us from cs1 to cs2.
-  // [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
-  // First compute the rotation part, then translation part
-  Vec3f t = other.Tr - Tr; // T2 - T1
-  Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
-             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
-             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
-
-  FCL_REAL dist = rectDistance(R, T, l, other.l);
-  if(dist <= (r + other.r)) return true;
-  return false;
+  if(val < a) val = a;
+  else if(val > b) val = b;
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
+/// @brief Finds the parameters t & u corresponding to the two closest points on a pair of line segments.
+/// The first segment is defined as Pa + A*t, 0 <= t <= a,  where "Pa" is one endpoint of the segment, "A" is a unit vector
+/// pointing to the other endpoint, and t is a scalar that produces all the points between the two endpoints. Since "A" is a unit
+/// vector, "a" is the segment's length.
+/// The second segment is defined as Pb + B*u, 0 <= u <= b.
+/// Many of the terms needed by the algorithm are already computed for other purposes,so we just pass these terms into the function
+/// instead of complete specifications of each segment. "T" in the dot products is the vector betweeen Pa and Pb.
+/// Reference: "On fast computation of distance between line segments." Vladimir J. Lumelsky, in Information Processing Letters, no. 21, pages 55-61, 1985.
+void segCoords(FCL_REAL& t, FCL_REAL& u, FCL_REAL a, FCL_REAL b, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
 {
-  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
-                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
-                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+  FCL_REAL denom = 1 - A_dot_B * A_dot_B;
 
-  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
-             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
-             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+  if(denom == 0) t = 0;
+  else
+  {
+    t = (A_dot_T - B_dot_T * A_dot_B) / denom;
+    clipToRange(t, 0, a);
+  }
 
-  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
-
-  FCL_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l);
-  if(dist <= (b1.r + b2.r)) return true;
-  return false;
+  u = t * A_dot_B - B_dot_T;
+  if(u < 0)
+  {
+    u = 0;
+    t = A_dot_T;
+    clipToRange(t, 0, a);
+  }
+  else if(u > b)
+  {
+    u = b;
+    t = u * A_dot_B + A_dot_T;
+    clipToRange(t, 0, a);
+  }
 }
 
-bool RSS::contain(const Vec3f& p) const
+/// @brief Returns whether the nearest point on rectangle edge
+/// Pb + B*u, 0 <= u <= b, to the rectangle edge,
+/// Pa + A*t, 0 <= t <= a, is within the half space
+/// determined by the point Pa and the direction Anorm.
+/// A,B, and Anorm are unit vectors. T is the vector between Pa and Pb.
+bool inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_T, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
 {
-  Vec3f local_p = p - Tr;
-  FCL_REAL proj0 = local_p.dot(axis[0]);
-  FCL_REAL proj1 = local_p.dot(axis[1]);
-  FCL_REAL proj2 = local_p.dot(axis[2]);
-  FCL_REAL abs_proj2 = fabs(proj2);
-  Vec3f proj(proj0, proj1, proj2);
+  if(fabs(Anorm_dot_B) < 1e-7) return false;
 
-  // projection is within the rectangle
-  if((proj0 < l[0]) && (proj0 > 0) && (proj1 < l[1]) && (proj1 > 0))
+  FCL_REAL t, u, v;
+
+  u = -Anorm_dot_T / Anorm_dot_B;
+  clipToRange(u, 0, b);
+
+  t = u * A_dot_B + A_dot_T;
+  clipToRange(t, 0, a);
+
+  v = t * A_dot_B - B_dot_T;
+
+  if(Anorm_dot_B > 0)
   {
-    if(abs_proj2 < r)
-      return true;
-    else
-      return false;
-  }
-  else if((proj0 < l[0]) && (proj0 > 0) && ((proj1 < 0) || (proj1 > l[1])))
-  {
-    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
-    Vec3f v(proj0, y, 0);
-    if((proj - v).sqrLength() < r * r)
-      return true;
-    else
-      return false;
-  }
-  else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
-  {
-    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
-    Vec3f v(x, proj1, 0);
-    if((proj - v).sqrLength() < r * r)
-      return true;
-    else
-      return false;
+    if(v > (u + 1e-7)) return true;
   }
   else
   {
-    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
-    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
-    Vec3f v(x, y, 0);
-    if((proj - v).sqrLength() < r * r)
-      return true;
-    else
-      return false;
+    if(v < (u - 1e-7)) return true;
   }
-}
-
-RSS& RSS::operator += (const Vec3f& p)
-{
-  Vec3f local_p = p - Tr;
-  FCL_REAL proj0 = local_p.dot(axis[0]);
-  FCL_REAL proj1 = local_p.dot(axis[1]);
-  FCL_REAL proj2 = local_p.dot(axis[2]);
-  FCL_REAL abs_proj2 = fabs(proj2);
-  Vec3f proj(proj0, proj1, proj2);
-
-  // projection is within the rectangle
-  if((proj0 < l[0]) && (proj0 > 0) && (proj1 < l[1]) && (proj1 > 0))
-  {
-    if(abs_proj2 < r)
-      ; // do nothing
-    else
-    {
-      r = 0.5 * (r + abs_proj2); // enlarge the r
-      // change RSS origin position
-      if(proj2 > 0)
-        Tr[2] += 0.5 * (abs_proj2 - r);
-      else
-        Tr[2] -= 0.5 * (abs_proj2 - r);
-    }
-  }
-  else if((proj0 < l[0]) && (proj0 > 0) && ((proj1 < 0) || (proj1 > l[1])))
-  {
-    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
-    Vec3f v(proj0, y, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
-    if(new_r_sqr < r * r)
-      ; // do nothing
-    else
-    {
-      if(abs_proj2 < r)
-      {
-        FCL_REAL delta_y = - sqrt(r * r - proj2 * proj2) + fabs(proj1 - y);
-        l[1] += delta_y;
-        if(proj1 < 0)
-          Tr[1] -= delta_y;
-      }
-      else
-      {
-        FCL_REAL delta_y = fabs(proj1 - y);
-        l[1] += delta_y;
-        if(proj1 < 0)
-          Tr[1] -= delta_y;
-
-        if(proj2 > 0)
-          Tr[2] += 0.5 * (abs_proj2 - r);
-        else
-          Tr[2] -= 0.5 * (abs_proj2 - r);
-      }
-    }
-  }
-  else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
-  {
-    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
-    Vec3f v(x, proj1, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
-    if(new_r_sqr < r * r)
-      ; // do nothing
-    else
-    {
-      if(abs_proj2 < r)
-      {
-        FCL_REAL delta_x = - sqrt(r * r - proj2 * proj2) + fabs(proj0 - x);
-        l[0] += delta_x;
-        if(proj0 < 0)
-          Tr[0] -= delta_x;
-      }
-      else
-      {
-        FCL_REAL delta_x = fabs(proj0 - x);
-        l[0] += delta_x;
-        if(proj0 < 0)
-          Tr[0] -= delta_x;
-
-        if(proj2 > 0)
-          Tr[2] += 0.5 * (abs_proj2 - r);
-        else
-          Tr[2] -= 0.5 * (abs_proj2 - r);
-      }
-    }
-  }
-  else
-  {
-    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
-    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
-    Vec3f v(x, y, 0);
-    FCL_REAL new_r_sqr = (proj - v).sqrLength();
-    if(new_r_sqr < r * r)
-      ; // do nothing
-    else
-    {
-      if(abs_proj2 < r)
-      {
-        FCL_REAL diag = sqrt(new_r_sqr - proj2 * proj2);
-        FCL_REAL delta_diag = - sqrt(r * r - proj2 * proj2) + diag;
-
-        FCL_REAL delta_x = delta_diag / diag * fabs(proj0 - x);
-        FCL_REAL delta_y = delta_diag / diag * fabs(proj1 - y);
-        l[0] += delta_x;
-        l[1] += delta_y;
-
-        if(proj0 < 0 && proj1 < 0)
-        {
-          Tr[0] -= delta_x;
-          Tr[1] -= delta_y;
-        }
-      }
-      else
-      {
-        FCL_REAL delta_x = fabs(proj0 - x);
-        FCL_REAL delta_y = fabs(proj1 - y);
-
-        l[0] += delta_x;
-        l[1] += delta_y;
-
-        if(proj0 < 0 && proj1 < 0)
-        {
-          Tr[0] -= delta_x;
-          Tr[1] -= delta_y;
-        }
-
-        if(proj2 > 0)
-          Tr[2] += 0.5 * (abs_proj2 - r);
-        else
-          Tr[2] -= 0.5 * (abs_proj2 - r);
-      }
-    }
-  }
-
-  return *this;
-}
-
-RSS RSS::operator + (const RSS& other) const
-{
-  RSS bv;
-
-  Vec3f v[16];
-  Vec3f d0_pos = other.axis[0] * (other.l[0] + other.r);
-  Vec3f d1_pos = other.axis[1] * (other.l[1] + other.r);
-  Vec3f d0_neg = other.axis[0] * (-other.r);
-  Vec3f d1_neg = other.axis[1] * (-other.r);
-  Vec3f d2_pos = other.axis[2] * other.r;
-  Vec3f d2_neg = other.axis[2] * (-other.r);
-
-  v[0] = other.Tr + d0_pos + d1_pos + d2_pos;
-  v[1] = other.Tr + d0_pos + d1_pos + d2_neg;
-  v[2] = other.Tr + d0_pos + d1_neg + d2_pos;
-  v[3] = other.Tr + d0_pos + d1_neg + d2_neg;
-  v[4] = other.Tr + d0_neg + d1_pos + d2_pos;
-  v[5] = other.Tr + d0_neg + d1_pos + d2_neg;
-  v[6] = other.Tr + d0_neg + d1_neg + d2_pos;
-  v[7] = other.Tr + d0_neg + d1_neg + d2_neg;
-
-  d0_pos = axis[0] * (l[0] + r);
-  d1_pos = axis[1] * (l[1] + r);
-  d0_neg = axis[0] * (-r);
-  d1_neg = axis[1] * (-r);
-  d2_pos = axis[2] * r;
-  d2_neg = axis[2] * (-r);
-
-  v[8] = Tr + d0_pos + d1_pos + d2_pos;
-  v[9] = Tr + d0_pos + d1_pos + d2_neg;
-  v[10] = Tr + d0_pos + d1_neg + d2_pos;
-  v[11] = Tr + d0_pos + d1_neg + d2_neg;
-  v[12] = Tr + d0_neg + d1_pos + d2_pos;
-  v[13] = Tr + d0_neg + d1_pos + d2_neg;
-  v[14] = Tr + d0_neg + d1_neg + d2_pos;
-  v[15] = Tr + d0_neg + d1_neg + d2_neg;
-
-
-  Matrix3f M; // row first matrix
-  Vec3f E[3]; // row first eigen-vectors
-  FCL_REAL s[3] = {0, 0, 0};
-
-  getCovariance(v, NULL, NULL, NULL, 16, M);
-  eigen(M, s, E);
-
-  int min, mid, max;
-  if(s[0] > s[1]) { max = 0; min = 1; }
-  else { min = 0; max = 1; }
-  if(s[2] < s[min]) { mid = min; min = 2; }
-  else if(s[2] > s[max]) { mid = max; max = 2; }
-  else { mid = 2; }
-
-  // column first matrix, as the axis in RSS
-  bv.axis[0].setValue(E[0][max], E[1][max], E[2][max]);
-  bv.axis[1].setValue(E[0][mid], E[1][mid], E[2][mid]);
-  bv.axis[2].setValue(E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
-                      E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
-                      E[0][max]*E[1][mid] - E[0][mid]*E[1][max]);
-
-  // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
-
-  return bv;
-}
-
-FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
-{
-  // compute what transform [R,T] that takes us from cs1 to cs2.
-  // [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
-  // First compute the rotation part, then translation part
-  Vec3f t = other.Tr - Tr; // T2 - T1
-  Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
-  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
-             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
-             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
-
-  FCL_REAL dist = rectDistance(R, T, l, other.l, P, Q);
-  dist -= (r + other.r);
-  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
-}
-
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
-{
-  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
-                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
-                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
-
-  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
-             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
-             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
-
-  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-
-  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
-
-  FCL_REAL dist = RSS::rectDistance(R, T, b1.l, b2.l, P, Q);
-  dist -= (b1.r + b2.r);
-  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
+  return false;
 }
 
 
-FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vec3f* P, Vec3f* Q)
+/// @brief Distance between two oriented rectangles; P and Q (optional return values) are the closest points in the rectangles, both are in the local frame of the first rectangle.
+FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vec3f* P = NULL, Vec3f* Q = NULL)
 {
   FCL_REAL A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
 
@@ -1071,63 +827,316 @@ FCL_REAL RSS::rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL
 }
 
 
-void RSS::clipToRange(FCL_REAL& val, FCL_REAL a, FCL_REAL b)
+
+bool RSS::overlap(const RSS& other) const
 {
-  if(val < a) val = a;
-  else if(val > b) val = b;
+  /// compute what transform [R,T] that takes us from cs1 to cs2.
+  /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
+  /// First compute the rotation part, then translation part
+
+  /// First compute T2 - T1
+  Vec3f t = other.Tr - Tr; 
+
+  /// Then compute R1'(T2 - T1)
+  Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2]));
+
+  /// Now compute R1'R2
+  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+
+  FCL_REAL dist = rectDistance(R, T, l, other.l);
+  return (dist <= (r + other.r));
 }
 
-
-void RSS::segCoords(FCL_REAL& t, FCL_REAL& u, FCL_REAL a, FCL_REAL b, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
+bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 {
-  FCL_REAL denom = 1 - A_dot_B * A_dot_B;
+  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
+                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
+                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
 
-  if(denom == 0) t = 0;
+  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
+             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
+             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+
+  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
+  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+
+  FCL_REAL dist = rectDistance(R, T, b1.l, b2.l);
+  return (dist <= (b1.r + b2.r));
+}
+
+bool RSS::contain(const Vec3f& p) const
+{
+  Vec3f local_p = p - Tr;
+  FCL_REAL proj0 = local_p.dot(axis[0]);
+  FCL_REAL proj1 = local_p.dot(axis[1]);
+  FCL_REAL proj2 = local_p.dot(axis[2]);
+  FCL_REAL abs_proj2 = fabs(proj2);
+  Vec3f proj(proj0, proj1, proj2);
+
+  /// projection is within the rectangle
+  if((proj0 < l[0]) && (proj0 > 0) && (proj1 < l[1]) && (proj1 > 0))
+  {
+    return (abs_proj2 < r);
+  }
+  else if((proj0 < l[0]) && (proj0 > 0) && ((proj1 < 0) || (proj1 > l[1])))
+  {
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
+    Vec3f v(proj0, y, 0);
+    return ((proj - v).sqrLength() < r * r);
+  }
+  else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
+  {
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
+    Vec3f v(x, proj1, 0);
+    return ((proj - v).sqrLength() < r * r);
+  }
   else
   {
-    t = (A_dot_T - B_dot_T * A_dot_B) / denom;
-    clipToRange(t, 0, a);
-  }
-
-  u = t * A_dot_B - B_dot_T;
-  if(u < 0)
-  {
-    u = 0;
-    t = A_dot_T;
-    clipToRange(t, 0, a);
-  }
-  else if(u > b)
-  {
-    u = b;
-    t = u * A_dot_B + A_dot_T;
-    clipToRange(t, 0, a);
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
+    Vec3f v(x, y, 0);
+    return ((proj - v).sqrLength() < r * r);
   }
 }
 
-bool RSS::inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_T, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
+RSS& RSS::operator += (const Vec3f& p)
 {
-  if(fabs(Anorm_dot_B) < 1e-7) return false;
+  Vec3f local_p = p - Tr;
+  FCL_REAL proj0 = local_p.dot(axis[0]);
+  FCL_REAL proj1 = local_p.dot(axis[1]);
+  FCL_REAL proj2 = local_p.dot(axis[2]);
+  FCL_REAL abs_proj2 = fabs(proj2);
+  Vec3f proj(proj0, proj1, proj2);
 
-  FCL_REAL t, u, v;
-
-  u = -Anorm_dot_T / Anorm_dot_B;
-  clipToRange(u, 0, b);
-
-  t = u * A_dot_B + A_dot_T;
-  clipToRange(t, 0, a);
-
-  v = t * A_dot_B - B_dot_T;
-
-  if(Anorm_dot_B > 0)
+  // projection is within the rectangle
+  if((proj0 < l[0]) && (proj0 > 0) && (proj1 < l[1]) && (proj1 > 0))
   {
-    if(v > (u + 1e-7)) return true;
+    if(abs_proj2 < r)
+      ; // do nothing
+    else
+    {
+      r = 0.5 * (r + abs_proj2); // enlarge the r
+      // change RSS origin position
+      if(proj2 > 0)
+        Tr[2] += 0.5 * (abs_proj2 - r);
+      else
+        Tr[2] -= 0.5 * (abs_proj2 - r);
+    }
+  }
+  else if((proj0 < l[0]) && (proj0 > 0) && ((proj1 < 0) || (proj1 > l[1])))
+  {
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
+    Vec3f v(proj0, y, 0);
+    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    if(new_r_sqr < r * r)
+      ; // do nothing
+    else
+    {
+      if(abs_proj2 < r)
+      {
+        FCL_REAL delta_y = - std::sqrt(r * r - proj2 * proj2) + fabs(proj1 - y);
+        l[1] += delta_y;
+        if(proj1 < 0)
+          Tr[1] -= delta_y;
+      }
+      else
+      {
+        FCL_REAL delta_y = fabs(proj1 - y);
+        l[1] += delta_y;
+        if(proj1 < 0)
+          Tr[1] -= delta_y;
+
+        if(proj2 > 0)
+          Tr[2] += 0.5 * (abs_proj2 - r);
+        else
+          Tr[2] -= 0.5 * (abs_proj2 - r);
+      }
+    }
+  }
+  else if((proj1 < l[1]) && (proj1 > 0) && ((proj0 < 0) || (proj0 > l[0])))
+  {
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
+    Vec3f v(x, proj1, 0);
+    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    if(new_r_sqr < r * r)
+      ; // do nothing
+    else
+    {
+      if(abs_proj2 < r)
+      {
+        FCL_REAL delta_x = - std::sqrt(r * r - proj2 * proj2) + fabs(proj0 - x);
+        l[0] += delta_x;
+        if(proj0 < 0)
+          Tr[0] -= delta_x;
+      }
+      else
+      {
+        FCL_REAL delta_x = fabs(proj0 - x);
+        l[0] += delta_x;
+        if(proj0 < 0)
+          Tr[0] -= delta_x;
+
+        if(proj2 > 0)
+          Tr[2] += 0.5 * (abs_proj2 - r);
+        else
+          Tr[2] -= 0.5 * (abs_proj2 - r);
+      }
+    }
   }
   else
   {
-    if(v < (u - 1e-7)) return true;
+    FCL_REAL x = (proj0 > 0) ? l[0] : 0;
+    FCL_REAL y = (proj1 > 0) ? l[1] : 0;
+    Vec3f v(x, y, 0);
+    FCL_REAL new_r_sqr = (proj - v).sqrLength();
+    if(new_r_sqr < r * r)
+      ; // do nothing
+    else
+    {
+      if(abs_proj2 < r)
+      {
+        FCL_REAL diag = std::sqrt(new_r_sqr - proj2 * proj2);
+        FCL_REAL delta_diag = - std::sqrt(r * r - proj2 * proj2) + diag;
+
+        FCL_REAL delta_x = delta_diag / diag * fabs(proj0 - x);
+        FCL_REAL delta_y = delta_diag / diag * fabs(proj1 - y);
+        l[0] += delta_x;
+        l[1] += delta_y;
+
+        if(proj0 < 0 && proj1 < 0)
+        {
+          Tr[0] -= delta_x;
+          Tr[1] -= delta_y;
+        }
+      }
+      else
+      {
+        FCL_REAL delta_x = fabs(proj0 - x);
+        FCL_REAL delta_y = fabs(proj1 - y);
+
+        l[0] += delta_x;
+        l[1] += delta_y;
+
+        if(proj0 < 0 && proj1 < 0)
+        {
+          Tr[0] -= delta_x;
+          Tr[1] -= delta_y;
+        }
+
+        if(proj2 > 0)
+          Tr[2] += 0.5 * (abs_proj2 - r);
+        else
+          Tr[2] -= 0.5 * (abs_proj2 - r);
+      }
+    }
   }
-  return false;
+
+  return *this;
 }
+
+RSS RSS::operator + (const RSS& other) const
+{
+  RSS bv;
+
+  Vec3f v[16];
+  Vec3f d0_pos = other.axis[0] * (other.l[0] + other.r);
+  Vec3f d1_pos = other.axis[1] * (other.l[1] + other.r);
+  Vec3f d0_neg = other.axis[0] * (-other.r);
+  Vec3f d1_neg = other.axis[1] * (-other.r);
+  Vec3f d2_pos = other.axis[2] * other.r;
+  Vec3f d2_neg = other.axis[2] * (-other.r);
+
+  v[0] = other.Tr + d0_pos + d1_pos + d2_pos;
+  v[1] = other.Tr + d0_pos + d1_pos + d2_neg;
+  v[2] = other.Tr + d0_pos + d1_neg + d2_pos;
+  v[3] = other.Tr + d0_pos + d1_neg + d2_neg;
+  v[4] = other.Tr + d0_neg + d1_pos + d2_pos;
+  v[5] = other.Tr + d0_neg + d1_pos + d2_neg;
+  v[6] = other.Tr + d0_neg + d1_neg + d2_pos;
+  v[7] = other.Tr + d0_neg + d1_neg + d2_neg;
+
+  d0_pos = axis[0] * (l[0] + r);
+  d1_pos = axis[1] * (l[1] + r);
+  d0_neg = axis[0] * (-r);
+  d1_neg = axis[1] * (-r);
+  d2_pos = axis[2] * r;
+  d2_neg = axis[2] * (-r);
+
+  v[8] = Tr + d0_pos + d1_pos + d2_pos;
+  v[9] = Tr + d0_pos + d1_pos + d2_neg;
+  v[10] = Tr + d0_pos + d1_neg + d2_pos;
+  v[11] = Tr + d0_pos + d1_neg + d2_neg;
+  v[12] = Tr + d0_neg + d1_pos + d2_pos;
+  v[13] = Tr + d0_neg + d1_pos + d2_neg;
+  v[14] = Tr + d0_neg + d1_neg + d2_pos;
+  v[15] = Tr + d0_neg + d1_neg + d2_neg;
+
+
+  Matrix3f M; // row first matrix
+  Vec3f E[3]; // row first eigen-vectors
+  FCL_REAL s[3] = {0, 0, 0};
+
+  getCovariance(v, NULL, NULL, NULL, 16, M);
+  eigen(M, s, E);
+
+  int min, mid, max;
+  if(s[0] > s[1]) { max = 0; min = 1; }
+  else { min = 0; max = 1; }
+  if(s[2] < s[min]) { mid = min; min = 2; }
+  else if(s[2] > s[max]) { mid = max; max = 2; }
+  else { mid = 2; }
+
+  // column first matrix, as the axis in RSS
+  bv.axis[0].setValue(E[0][max], E[1][max], E[2][max]);
+  bv.axis[1].setValue(E[0][mid], E[1][mid], E[2][mid]);
+  bv.axis[2].setValue(E[1][max]*E[2][mid] - E[1][mid]*E[2][max],
+                      E[0][mid]*E[2][max] - E[0][max]*E[2][mid],
+                      E[0][max]*E[1][mid] - E[0][mid]*E[1][max]);
+
+  // set rss origin, rectangle size and radius
+  getRadiusAndOriginAndRectangleSize(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
+
+  return bv;
+}
+
+FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
+{
+  // compute what transform [R,T] that takes us from cs1 to cs2.
+  // [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
+  // First compute the rotation part, then translation part
+  Vec3f t = other.Tr - Tr; // T2 - T1
+  Vec3f T(t.dot(axis[0]), t.dot(axis[1]), t.dot(axis[2])); // R1'(T2-T1)
+  Matrix3f R(axis[0].dot(other.axis[0]), axis[0].dot(other.axis[1]), axis[0].dot(other.axis[2]),
+             axis[1].dot(other.axis[0]), axis[1].dot(other.axis[1]), axis[1].dot(other.axis[2]),
+             axis[2].dot(other.axis[0]), axis[2].dot(other.axis[1]), axis[2].dot(other.axis[2]));
+
+  FCL_REAL dist = rectDistance(R, T, l, other.l, P, Q);
+  dist -= (r + other.r);
+  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
+}
+
+FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
+{
+  Matrix3f R0b2(R0.dotX(b2.axis[0]), R0.dotX(b2.axis[1]), R0.dotX(b2.axis[2]),
+                R0.dotY(b2.axis[0]), R0.dotY(b2.axis[1]), R0.dotY(b2.axis[2]),
+                R0.dotZ(b2.axis[0]), R0.dotZ(b2.axis[1]), R0.dotZ(b2.axis[2]));
+
+  Matrix3f R(R0b2.transposeDotX(b1.axis[0]), R0b2.transposeDotY(b1.axis[0]), R0b2.transposeDotZ(b1.axis[0]),
+             R0b2.transposeDotX(b1.axis[1]), R0b2.transposeDotY(b1.axis[1]), R0b2.transposeDotZ(b1.axis[1]),
+             R0b2.transposeDotX(b1.axis[2]), R0b2.transposeDotY(b1.axis[2]), R0b2.transposeDotZ(b1.axis[2]));
+
+  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
+
+  Vec3f T(Ttemp.dot(b1.axis[0]), Ttemp.dot(b1.axis[1]), Ttemp.dot(b1.axis[2]));
+
+  FCL_REAL dist = rectDistance(R, T, b1.l, b2.l, P, Q);
+  dist -= (b1.r + b2.r);
+  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
+}
+
+
 
 
 

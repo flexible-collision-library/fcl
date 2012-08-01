@@ -37,7 +37,7 @@
 #ifndef FCL_INPUT_REPRESENT
 #define FCL_INPUT_REPRESENT
 
-#include "fcl/primitive.h"
+#include "fcl/data_types.h"
 #include "fcl/vec_3f.h"
 
 

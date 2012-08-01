@@ -393,8 +393,8 @@ public:
   Vec3f* vertices1;
   Vec3f* vertices2;
 
-  boost::shared_array<Uncertainty> uc1;
-  boost::shared_array<Uncertainty> uc2;
+  boost::shared_array<Variance3f> uc1;
+  boost::shared_array<Variance3f> uc2;
 
   mutable std::vector<BVHPointCollisionPair> pairs;
 
@@ -491,7 +491,7 @@ public:
   Vec3f* vertices1;
   Vec3f* vertices2;
 
-  boost::shared_array<Uncertainty> uc1;
+  boost::shared_array<Variance3f> uc1;
   Triangle* tri_indices2;
 
   mutable std::vector<BVHPointCollisionPair> pairs;

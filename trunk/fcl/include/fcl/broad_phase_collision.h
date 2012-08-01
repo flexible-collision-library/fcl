@@ -57,13 +57,6 @@ namespace fcl
 {
 
 
-/** \brief collision function for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now */
-bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
-
-/** \brief distance function for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now */
-bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
-
-
 /** \brief return value is whether can stop now */
 typedef bool (*CollisionCallBack)(CollisionObject* o1, CollisionObject* o2, void* cdata);
 
@@ -453,7 +446,7 @@ void SpatialHashingCollisionManager<HashTable>::update(CollisionObject* updated_
     }
   }
   else if(!scene_limit.contain(new_aabb)) // previous completely in scenelimit, now not
-      objs_outside_scene_limit.push_back(updated_obj);
+    objs_outside_scene_limit.push_back(updated_obj);
   
   AABB old_overlap_aabb;
   if(scene_limit.overlap(old_aabb, old_overlap_aabb))
@@ -461,7 +454,7 @@ void SpatialHashingCollisionManager<HashTable>::update(CollisionObject* updated_
 
   AABB new_overlap_aabb;
   if(scene_limit.overlap(new_aabb, new_overlap_aabb))
-     hash_table->insert(new_overlap_aabb, updated_obj);
+    hash_table->insert(new_overlap_aabb, updated_obj);
 
   obj_aabb_map[updated_obj] = new_aabb;
 }

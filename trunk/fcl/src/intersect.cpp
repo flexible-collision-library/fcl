@@ -1339,8 +1339,8 @@ void Intersect::kernelGradient(KERNEL_PARM *kernel_parm, DOC *a, DOC *b, Vec3f& 
   }
 }
 
-FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
-                                          Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
+FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
+                                          Vec3f* cloud2, Variance3f* uc2, int size_cloud2,
                                           const CloudClassifierParam& solver, bool scaling)
 {
   KERNEL_CACHE *kernel_cache;
@@ -1526,8 +1526,8 @@ FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
   return max_collision_prob;
 }
 
-FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
-                                          Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
+FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
+                                          Vec3f* cloud2, Variance3f* uc2, int size_cloud2,
                                           const Matrix3f& R, const Vec3f& T, const CloudClassifierParam& solver, bool scaling)
 {
   KERNEL_CACHE *kernel_cache;
@@ -1716,7 +1716,7 @@ FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int s
 }
 
 
-FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
                                               const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3)
 {
   // get the plane x * n - t = 0 and the compute the projection matrix according to (I - nn^t) y + t * n = y'
@@ -1830,7 +1830,7 @@ FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc
 }
 
 
-FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
                                               const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
                                               const Matrix3f& R, const Vec3f& T)
 {

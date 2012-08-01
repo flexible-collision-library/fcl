@@ -46,10 +46,6 @@
 namespace fcl
 {
 
-inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
-{
-  if(front_list) front_list->push_back(BVHFrontNode(b1, b2));
-}
 
 void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 

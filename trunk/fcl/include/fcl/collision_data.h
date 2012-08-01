@@ -187,17 +187,6 @@ public:
 };
 
 
-struct CollisionData
-{
-  CollisionData()
-  {
-    done = false;
-  }
-
-  CollisionRequest request;
-  CollisionResult result;
-  bool done;
-};
 
 
 struct DistanceRequest
@@ -291,18 +280,6 @@ public:
   }
 };
 
-struct DistanceData
-{
-  DistanceData()
-  {
-    done = false;
-  }
-
-  bool done;
-
-  DistanceRequest request;
-  DistanceResult result;
-};
 
 
 

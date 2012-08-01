@@ -244,11 +244,11 @@ void fit1(Vec3f* ps, kIOS& bv)
   bv.spheres[0].o = ps[0];
   bv.spheres[0].r = 0;
 
-  bv.obb_bv.axis[0].setValue(1, 0, 0);
-  bv.obb_bv.axis[1].setValue(0, 1, 0);
-  bv.obb_bv.axis[2].setValue(0, 0, 1);
-  bv.obb_bv.extent.setValue(0);
-  bv.obb_bv.To = ps[0];
+  bv.obb.axis[0].setValue(1, 0, 0);
+  bv.obb.axis[1].setValue(0, 1, 0);
+  bv.obb.axis[2].setValue(0, 0, 1);
+  bv.obb.extent.setValue(0);
+  bv.obb.To = ps[0];
 }
 
 void fit2(Vec3f* ps, kIOS& bv)
@@ -261,15 +261,15 @@ void fit2(Vec3f* ps, kIOS& bv)
   FCL_REAL len_p1p2 = p1p2.length();
   p1p2.normalize();
  
-  Vec3f* axis = bv.obb_bv.axis;
+  Vec3f* axis = bv.obb.axis;
   axis[0] = p1p2;
   generateCoordinateSystem(axis[0], axis[1], axis[2]);
     
   FCL_REAL r0 = len_p1p2 * 0.5;
-  bv.obb_bv.extent.setValue(r0, 0, 0);
-  bv.obb_bv.To = (p1 + p2) * 0.5;
+  bv.obb.extent.setValue(r0, 0, 0);
+  bv.obb.To = (p1 + p2) * 0.5;
 
-  bv.spheres[0].o = bv.obb_bv.To;
+  bv.spheres[0].o = bv.obb.To;
   bv.spheres[0].r = r0;
 
   FCL_REAL r1 = r0 * invSinA;
@@ -307,9 +307,9 @@ void fit3(Vec3f* ps, kIOS& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
     
-  Vec3f& u = bv.obb_bv.axis[0];
-  Vec3f& v = bv.obb_bv.axis[1];
-  Vec3f& w = bv.obb_bv.axis[2];
+  Vec3f& u = bv.obb.axis[0];
+  Vec3f& v = bv.obb.axis[1];
+  Vec3f& w = bv.obb.axis[2];
     
   w = e[0].cross(e[1]);
   w.normalize();
@@ -317,7 +317,7 @@ void fit3(Vec3f* ps, kIOS& bv)
   u.normalize();
   v = w.cross(u);
 
-  getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.obb_bv.axis, bv.obb_bv.To, bv.obb_bv.extent);
+  getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   // compute radius and center
   FCL_REAL r0;
@@ -328,7 +328,7 @@ void fit3(Vec3f* ps, kIOS& bv)
   bv.spheres[0].r = r0;
 
   FCL_REAL r1 = r0 * invSinA;
-  Vec3f delta = bv.obb_bv.axis[2] * (r1 * cosA);
+  Vec3f delta = bv.obb.axis[2] * (r1 * cosA);
   
   bv.spheres[1].r = r1;
   bv.spheres[1].o = center - delta;
@@ -345,14 +345,14 @@ void fitn(Vec3f* ps, int n, kIOS& bv)
   getCovariance(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
   
-  Vec3f* axis = bv.obb_bv.axis;
+  Vec3f* axis = bv.obb.axis;
   axisFromEigen(E, s, axis);
 
-  getExtentAndCenter(ps, NULL, NULL, NULL, n, axis, bv.obb_bv.To, bv.obb_bv.extent);
+  getExtentAndCenter(ps, NULL, NULL, NULL, n, axis, bv.obb.To, bv.obb.extent);
 
   // get center and extension
-  const Vec3f& center = bv.obb_bv.To;
-  const Vec3f& extent = bv.obb_bv.extent;
+  const Vec3f& center = bv.obb.To;
+  const Vec3f& extent = bv.obb.extent;
   FCL_REAL r0 = maximumDistance(ps, NULL, NULL, NULL, n, center);
   
   // decide the k in kIOS
@@ -440,20 +440,20 @@ void fit(Vec3f* ps, int n, OBB& bv)
 {
   switch(n)
   {
-    case 1:
-      OBB_fit_functions::fit1(ps, bv);
-      break;
-    case 2:
-      OBB_fit_functions::fit2(ps, bv);
-      break;
-    case 3:
-      OBB_fit_functions::fit3(ps, bv);
-      break;
-    case 6:
-      OBB_fit_functions::fit6(ps, bv);
-      break;
-    default:
-      OBB_fit_functions::fitn(ps, n, bv);
+  case 1:
+    OBB_fit_functions::fit1(ps, bv);
+    break;
+  case 2:
+    OBB_fit_functions::fit2(ps, bv);
+    break;
+  case 3:
+    OBB_fit_functions::fit3(ps, bv);
+    break;
+  case 6:
+    OBB_fit_functions::fit6(ps, bv);
+    break;
+  default:
+    OBB_fit_functions::fitn(ps, n, bv);
   }
 }
 
@@ -463,17 +463,17 @@ void fit(Vec3f* ps, int n, RSS& bv)
 {
   switch(n)
   {
-    case 1:
-      RSS_fit_functions::fit1(ps, bv);
-      break;
-    case 2:
-      RSS_fit_functions::fit2(ps, bv);
-      break;
-    case 3:
-      RSS_fit_functions::fit3(ps, bv);
-      break;
-    default:
-      RSS_fit_functions::fitn(ps, n, bv);
+  case 1:
+    RSS_fit_functions::fit1(ps, bv);
+    break;
+  case 2:
+    RSS_fit_functions::fit2(ps, bv);
+    break;
+  case 3:
+    RSS_fit_functions::fit3(ps, bv);
+    break;
+  default:
+    RSS_fit_functions::fitn(ps, n, bv);
   }
 }
 
@@ -604,14 +604,14 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
 
-  Vec3f* axis = bv.obb_bv.axis;
+  Vec3f* axis = bv.obb.axis;
   axisFromEigen(E, s, axis);
 
   // get centers and extensions
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, axis, bv.obb_bv.To, bv.obb_bv.extent);
+  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, axis, bv.obb.To, bv.obb.extent);
 
-  const Vec3f& center = bv.obb_bv.To;
-  const Vec3f& extent = bv.obb_bv.extent;
+  const Vec3f& center = bv.obb.To;
+  const Vec3f& extent = bv.obb.extent;
   FCL_REAL r0 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, center);
 
   // decide k in kIOS

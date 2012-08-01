@@ -41,114 +41,97 @@
 #include "fcl/vec_3f.h"
 #include "fcl/matrix_3f.h"
 
-/** \brief Main namespace */
 namespace fcl
 {
 
-/** \brief OBB class */
+/// @brief Oriented bounding box class
 class OBB
 {
 public:
-  /** \brief Orientation of OBB */
-  Vec3f axis[3]; // R[i] is the ith column of the orientation matrix, or the axis of the OBB
+  /// @brief Orientation of OBB. axis[i] is the ith column of the orientation matrix for the box; it is also the i-th principle direction of the box. 
+  /// We assume that axis[0] corresponds to the axis with the longest box edge, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
+  Vec3f axis[3];
 
-  /** \brief center of OBB */
+  /// @brief Center of OBB
   Vec3f To;
   
-  /** \brief Half dimensions of OBB */
+  /// @brief Half dimensions of OBB
   Vec3f extent;
 
-  OBB() {}
-
-  /** \brief Check collision between two OBB */
+  /// @brief Check collision between two OBB, return true if collision happens. 
   bool overlap(const OBB& other) const;
 
-  /** \brief Check collision between two OBB and return the overlap part.
-   * For OBB, we return nothing, as the overlap part of two obbs usually is not an obb
-   */
+  
+  /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
   bool overlap(const OBB& other, OBB& overlap_part) const
   {
     return overlap(other);
   }
 
-  /** \brief Check whether the OBB contains a point */
+  /// @brief Check whether the OBB contains a point.
   bool contain(const Vec3f& p) const;
 
-  /** \brief A simple way to merge the OBB and a point, not compact. */
+  /// @brief A simple way to merge the OBB and a point (the result is not compact).
   OBB& operator += (const Vec3f& p);
 
-  /** \brief Merge the OBB and another OBB */
+  /// @brief Merge the OBB and another OBB (the result is not compact).
   OBB& operator += (const OBB& other)
   {
      *this = *this + other;
      return *this;
   }
 
-  /** \brief Return the merged OBB of current OBB and the other one */
+  /// @brief Return the merged OBB of current OBB and the other one (the result is not compact).
   OBB operator + (const OBB& other) const;
 
-  /** \brief Width of the OBB */
+  /// @brief Width of the OBB.
   inline FCL_REAL width() const
   {
     return 2 * extent[0];
   }
 
-  /** \brief Height of the OBB */
+  /// @brief Height of the OBB.
   inline FCL_REAL height() const
   {
     return 2 * extent[1];
   }
 
-  /** \brief Depth of the OBB */
+  /// @brief Depth of the OBB
   inline FCL_REAL depth() const
   {
     return 2 * extent[2];
   }
 
-  /** \brief Volume of the OBB */
+  /// @brief Volume of the OBB
   inline FCL_REAL volume() const
   {
     return width() * height() * depth();
   }
 
-  /** \brief Size of the OBB, for split order */
+  /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
   inline FCL_REAL size() const
   {
     return extent.sqrLength();
   }
 
-  /** \brief Center of the OBB */
+  /// @brief Center of the OBB
   inline const Vec3f& center() const
   {
     return To;
   }
 
-  /** \brief The distance between two OBB
-   * Not implemented
-   */
+
+  /// @brief Distance between two OBBs, not implemented.
   FCL_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
-
-
-private:
-
-  /** Compute the 8 vertices of a OBB */
-  void computeVertices(Vec3f vertex[8]) const;
-
-  /** \brief OBB merge method when the centers of two smaller OBB are far away */
-  static OBB merge_largedist(const OBB& b1, const OBB& b2);
-
-  /** \brief OBB merge method when the centers of two smaller OBB are close */
-  static OBB merge_smalldist(const OBB& b1, const OBB& b2);
-
-public:
-  /** Kernel check whether two OBB are disjoint */
-  static bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
-
 };
 
-
+/// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2);
 
+
+/// @brief Check collision between two boxes: the first box is in configuration (R, T) and its half dimension is set by a;
+/// the second box is in identity configuration and its half dimension is set by b.
+bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
 }
 
 #endif

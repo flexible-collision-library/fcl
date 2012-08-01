@@ -48,41 +48,6 @@
 namespace fcl
 {
 
-
-bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
-{
-  CollisionData* cdata = static_cast<CollisionData*>(cdata_);
-  const CollisionRequest& request = cdata->request;
-  CollisionResult& result = cdata->result;
-
-  if(cdata->done) return true;
-
-  collide(o1, o2, request, result);
-
-  if(!request.enable_cost && (result.isCollision()) && (result.numContacts() >= request.num_max_contacts))
-    cdata->done = true;
-
-  return cdata->done;
-}
-
-bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_, FCL_REAL& dist)
-{
-  DistanceData* cdata = static_cast<DistanceData*>(cdata_);
-  const DistanceRequest& request = cdata->request;
-  DistanceResult& result = cdata->result;
-
-  if(cdata->done) { dist = result.min_distance; return true; }
-
-  distance(o1, o2, request, result);
-  
-  dist = result.min_distance;
-
-  if(dist <= 0) return true; // in collision or in touch
-
-  return cdata->done;
-}
-
-
 void NaiveCollisionManager::registerObjects(const std::vector<CollisionObject*>& other_objs)
 {
   std::copy(other_objs.begin(), other_objs.end(), std::back_inserter(objs));

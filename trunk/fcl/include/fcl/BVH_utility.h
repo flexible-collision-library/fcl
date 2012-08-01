@@ -38,7 +38,6 @@
 #ifndef FCL_BVH_UTILITY_H
 #define FCL_BVH_UTILITY_H
 
-#include "fcl/primitive.h"
 #include "fcl/vec_3f.h"
 #include "fcl/BVH_model.h"
 
@@ -47,7 +46,7 @@ namespace fcl
 {
 /** \brief Expand the BVH bounding boxes according to uncertainty */
 template<typename BV>
-void BVHExpand(BVHModel<BV>& model, const Uncertainty* ucs, FCL_REAL r)
+void BVHExpand(BVHModel<BV>& model, const Variance3f* ucs, FCL_REAL r)
 {
   for(int i = 0; i < model.num_bvs; ++i)
   {
@@ -57,7 +56,7 @@ void BVHExpand(BVHModel<BV>& model, const Uncertainty* ucs, FCL_REAL r)
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Uncertainty& uc = ucs[v_id];
+      const Variance3f& uc = ucs[v_id];
 
       Vec3f& v = model.vertices[bvnode.first_primitive + j];
 
@@ -73,13 +72,13 @@ void BVHExpand(BVHModel<BV>& model, const Uncertainty* ucs, FCL_REAL r)
 }
 
 /** \brief Expand the BVH bounding boxes according to uncertainty, for OBB */
-void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, FCL_REAL r);
+void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r);
 
 /** \brief Expand the BVH bounding boxes according to uncertainty, for RSS */
-void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, FCL_REAL r);
+void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r);
 
 /** \brief Estimate the uncertainty of point clouds due to sampling procedure */
-void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty* ucs);
+void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Variance3f* ucs);
   
 
 /** \brief Compute the covariance matrix for a set or subset of points. if ts = null, then indices refer to points directly; otherwise refer to triangles */

@@ -39,7 +39,7 @@
 #define FCL_BV_FITTER_H
 
 #include "fcl/BVH_internal.h"
-#include "fcl/primitive.h"
+#include "fcl/data_types.h"
 #include "fcl/vec_3f.h"
 #include "fcl/BV/OBB.h"
 #include "fcl/BV/RSS.h"

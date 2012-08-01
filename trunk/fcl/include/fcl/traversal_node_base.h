@@ -37,7 +37,7 @@
 #ifndef FCL_TRAVERSAL_NODE_BASE_H
 #define FCL_TRAVERSAL_NODE_BASE_H
 
-#include "fcl/primitive.h"
+#include "fcl/data_types.h"
 #include "fcl/transform.h"
 #include "fcl/collision_data.h"
 

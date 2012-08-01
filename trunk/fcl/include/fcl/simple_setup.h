@@ -728,11 +728,11 @@ bool initialize(PointCloudCollisionTraversalNode<BV>& node,
   node.vertices1 = model1.vertices;
   node.vertices2 = model2.vertices;
 
-  node.uc1.reset(new Uncertainty[model1.num_vertices]);
-  node.uc2.reset(new Uncertainty[model2.num_vertices]);
+  node.uc1.reset(new Variance3f[model1.num_vertices]);
+  node.uc2.reset(new Variance3f[model2.num_vertices]);
 
-  estimateSamplingUncertainty(model1.vertices, model1.num_vertices, node.uc1.get());
-  estimateSamplingUncertainty(model2.vertices, model2.num_vertices, node.uc2.get());
+  estimateSamplingVariance(model1.vertices, model1.num_vertices, node.uc1.get());
+  estimateSamplingVariance(model2.vertices, model2.num_vertices, node.uc2.get());
 
   BVHExpand(model1, node.uc1.get(), expand_r);
   BVHExpand(model2, node.uc2.get(), expand_r);
@@ -819,9 +819,9 @@ bool initialize(PointCloudMeshCollisionTraversalNode<BV>& node,
   node.vertices2 = model2.vertices;
 
   node.tri_indices2 = model2.tri_indices;
-  node.uc1.reset(new Uncertainty[model1.num_vertices]);
+  node.uc1.reset(new Variance3f[model1.num_vertices]);
 
-  estimateSamplingUncertainty(model1.vertices, model1.num_vertices, node.uc1.get());
+  estimateSamplingVariance(model1.vertices, model1.num_vertices, node.uc1.get());
 
   BVHExpand(model1, node.uc1.get(), expand_r);
 

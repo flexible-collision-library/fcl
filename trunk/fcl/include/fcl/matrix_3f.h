@@ -417,6 +417,59 @@ static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
   return o;
 }
 
+
+
+/// @brief Class for variance matrix in 3d
+class Variance3f
+{
+public:
+  /// @brief Variation matrix
+  Matrix3f Sigma;
+
+  /// @brief Variations along the eign axes
+  FCL_REAL sigma[3];
+
+  /// @brief Eigen axes of the variation matrix
+  Vec3f axis[3];
+
+  Variance3f() {}
+
+  Variance3f(const Matrix3f& S) : Sigma(S)
+  {
+    init();
+  }
+
+  /// @brief init the Variance
+  void init() 
+  {
+    eigen(Sigma, sigma, axis);
+  }
+
+  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized as a square variation matrix
+  Variance3f& sqrt()
+  {
+    for(std::size_t i = 0; i < 3; ++i)
+    {
+      if(sigma[i] < 0) sigma[i] = 0;
+      sigma[i] = std::sqrt(sigma[i]);
+    }
+
+
+    Sigma.setZero();
+    for(std::size_t i = 0; i < 3; ++i)
+    {
+      for(std::size_t j = 0; j < 3; ++j)
+      {
+        Sigma(i, j) += sigma[0] * axis[0][i] * axis[0][j];
+        Sigma(i, j) += sigma[1] * axis[1][i] * axis[1][j];
+        Sigma(i, j) += sigma[2] * axis[2][i] * axis[2][j];
+      }
+    }
+
+    return *this;
+  }
+};
+
 }
 
 

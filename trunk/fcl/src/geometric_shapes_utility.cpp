@@ -485,32 +485,32 @@ void constructBox(const OBB& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.extent * 2);
   tf = Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-                                bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                                bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
+                            bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                            bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
 }
 
 void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.obb.extent * 2);
   tf = Transform3f(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
-                                bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
-                                bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
+                            bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
+                            bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
 }
 
 void constructBox(const kIOS& bv, Box& box, Transform3f& tf)
 {
-  box = Box(bv.obb_bv.extent * 2);
-  tf = Transform3f(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
-                                bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
-                                bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
+  box = Box(bv.obb.extent * 2);
+  tf = Transform3f(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+                            bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
+                            bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
 }
 
 void constructBox(const RSS& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-                                bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                                bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
+                            bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                            bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
 }
 
 void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf)
@@ -543,32 +543,32 @@ void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f
 {
   box = Box(bv.extent * 2);
   tf = tf_bv *Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-                                       bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                                       bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
+                                   bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                                   bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.To);
 }
 
 void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.obb.extent * 2);
   tf = tf_bv * Transform3f(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
-                                        bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
-                                        bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
+                                    bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
+                                    bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
 }
 
 void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
-  box = Box(bv.obb_bv.extent * 2);
-  tf = tf_bv * Transform3f(Matrix3f(bv.obb_bv.axis[0][0], bv.obb_bv.axis[1][0], bv.obb_bv.axis[2][0],
-                                        bv.obb_bv.axis[0][1], bv.obb_bv.axis[1][1], bv.obb_bv.axis[2][1],
-                                        bv.obb_bv.axis[0][2], bv.obb_bv.axis[1][2], bv.obb_bv.axis[2][2]), bv.obb_bv.To);
+  box = Box(bv.obb.extent * 2);
+  tf = tf_bv * Transform3f(Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+                                    bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
+                                    bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]), bv.obb.To);
 }
 
 void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Transform3f(Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-                                        bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                                        bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
+                                    bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                                    bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]), bv.Tr);
 }
 
 void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)

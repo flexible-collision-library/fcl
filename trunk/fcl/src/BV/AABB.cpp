@@ -42,17 +42,15 @@
 namespace fcl
 {
 
-AABB::AABB()
+AABB::AABB() : min_(std::numeric_limits<FCL_REAL>::max()),
+               max_(-std::numeric_limits<FCL_REAL>::max())
 {
-  FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
-  min_.setValue(real_max, real_max, real_max);
-  max_.setValue(-real_max, -real_max, -real_max);
 }
 
 FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
 {
   FCL_REAL result = 0;
-  for(size_t i = 0; i < 3; ++i)
+  for(std::size_t i = 0; i < 3; ++i)
   {
     const FCL_REAL& amin = min_[i];
     const FCL_REAL& amax = max_[i];
@@ -99,13 +97,13 @@ FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
     }
   }
 
-  return sqrt(result);
+  return std::sqrt(result);
 }
 
 FCL_REAL AABB::distance(const AABB& other) const
 {
   FCL_REAL result = 0;
-  for(size_t i = 0; i < 3; ++i)
+  for(std::size_t i = 0; i < 3; ++i)
   {
     const FCL_REAL& amin = min_[i];
     const FCL_REAL& amax = max_[i];
@@ -124,7 +122,7 @@ FCL_REAL AABB::distance(const AABB& other) const
     }
   }
 
-  return sqrt(result);
+  return std::sqrt(result);
 }
 
 }

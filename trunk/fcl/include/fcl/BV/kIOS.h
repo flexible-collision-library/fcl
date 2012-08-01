@@ -42,19 +42,21 @@
 #include "fcl/matrix_3f.h"
 #include "fcl/BV/OBB.h"
 
-/** \brief Main namespace */
+
 namespace fcl
 {
  
-/** \brief kIOS class */
+/// @brief A class describing the kIOS collision structure, which is a set of spheres.
 class kIOS
 {
+  /// @brief One sphere in kIOS
   struct kIOS_Sphere
   {
     Vec3f o;
     FCL_REAL r;
   };
 
+  /// @brief generate one sphere enclosing two spheres
   static kIOS_Sphere encloseSphere(const kIOS_Sphere& s0, const kIOS_Sphere& s1)
   {
     Vec3f d = s1.o - s0.o;
@@ -69,7 +71,7 @@ class kIOS
     }
     else /** spheres partially overlapping or disjoint */
     {
-      float dist = sqrt(dist2);
+      float dist = std::sqrt(dist2);
       kIOS_Sphere s;
       s.r = dist + s0.r + s1.r;
       if(dist > 0)
@@ -81,72 +83,76 @@ class kIOS
   }
 public:
     
-  /** \brief The (at most) five spheres for intersection */
+  /// @brief The (at most) five spheres for intersection
   kIOS_Sphere spheres[5];
 
-  unsigned int num_spheres; // num_spheres <= 5
+  /// @brief The number of spheres, no larger than 5
+  unsigned int num_spheres;
 
-  OBB obb_bv;
+  /// @ OBB related with kIOS
+  OBB obb;
 
-  kIOS() {}
-
-  /** \brief Check collision between two kIOS */
+  /// @brief Check collision between two kIOS
   bool overlap(const kIOS& other) const;
 
-  /** \brief Check collision between two kIOS and return the overlap part.
-   * For kIOS, we return nothing, as the overlappart of two kIOS usually is not an kIOS
-   */
+  /// @brief Check collision between two kIOS and return the overlap part.
+  /// For kIOS, we return nothing, as the overlappart of two kIOS usually is not an kIOS
+  /// @todo Not efficient. It first checks the sphere collisions and then use OBB for further culling.
   bool overlap(const kIOS& other, kIOS& overlap_part) const
   {
     return overlap(other);
   }
 
-  /** \brief Check whether the kIOS contains a point */
+  /// @brief Check whether the kIOS contains a point
   inline bool contain(const Vec3f& p) const;
 
-  /** \brief A simple way to merge the kIOS and a point */
+  /// @brief A simple way to merge the kIOS and a point
   kIOS& operator += (const Vec3f& p);
 
-  /** \brief Merge the kIOS and another kIOS */
+  /// @brief Merge the kIOS and another kIOS
   kIOS& operator += (const kIOS& other)
   {
     *this = *this + other;
     return *this;
   }
 
-  /** \brief Return the merged kIOS of current kIOS and the other one */
+  /// @brief Return the merged kIOS of current kIOS and the other one
   kIOS operator + (const kIOS& other) const;
 
-  /** \brief Center of the kIOS */
+  /// @brief Center of the kIOS
   const Vec3f& center() const
   {
     return spheres[0].o;
   }
 
-  /** \brief width of the kIOS */
+  /// @brief Width of the kIOS
   FCL_REAL width() const;
 
-  /** \brief height of the kIOS */
+  /// @brief Height of the kIOS
   FCL_REAL height() const;
 
-  /** \brief depth of the kIOS */
+  /// @brief Depth of the kIOS
   FCL_REAL depth() const;
 
-  /** \brief volume of the kIOS */
+  /// @brief Volume of the kIOS
   FCL_REAL volume() const;
 
-  /** \brief size of the kIOS, for split order */
+  /// @brief size of the kIOS (used in BV_Splitter to order two kIOSs)
   FCL_REAL size() const;
 
-  /** \brief The distance between two kIOS */
+  /// @brief The distance between two kIOS
   FCL_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
 
 private:    
     
 };
 
+/// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
+/// @todo Not efficient
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2);
 
+/// @brief Approximate distance between two kIOS bounding volumes
+/// @todo P and Q is not returned, need implementation
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
 
 }

@@ -37,12 +37,46 @@
 #ifndef FCL_DATA_TYPES_H
 #define FCL_DATA_TYPES_H
 
+#include <cstddef>
 #include <inttypes.h>
+
+namespace fcl
+{
 
 typedef double FCL_REAL;
 typedef uint64_t FCL_INT64;
 typedef int64_t FCL_UINT64;
 typedef unsigned int FCL_UINT32;
 typedef int FCL_INT32;
+
+/// @brief Triangle with 3 indices for points
+class Triangle
+{
+  /// @brief indices for each vertex of triangle
+  std::size_t vids[3];
+
+public:
+  /// @brief Default constructor
+  Triangle() {}
+
+  /// @brief Create a triangle with given vertex indices
+  Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+  {
+    set(p1, p2, p3);
+  }
+
+  /// @brief Set the vertex indices of the triangle
+  inline void set(std::size_t p1, std::size_t p2, std::size_t p3)
+  {
+    vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  }
+
+  /// @access the triangle index
+  inline std::size_t operator[](int i) const { return vids[i]; }
+
+  inline std::size_t& operator[](int i) { return vids[i]; }
+};
+
+}
 
 #endif

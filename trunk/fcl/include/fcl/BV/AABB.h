@@ -41,48 +41,45 @@
 #include "fcl/BVH_internal.h"
 #include "fcl/vec_3f.h"
 
-/** \brief Main namespace */
 namespace fcl
 {
 
-/** \brief A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points */
+/// @brief A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points
 class AABB
 {
 public:
-  /** \brief The min point in the AABB */
+  /// @brief The min point in the AABB
   Vec3f min_;
-  /** \brief The max point in the AABB */
+  /// @brief The max point in the AABB
   Vec3f max_;
 
-  /** \brief Constructor creating an AABB with infinite size */
+  /// @brief Creating an AABB with zero size (low bound +inf, upper bound -inf)
   AABB();
 
-  /** \brief Constructor creating an AABB at position v with zero size */
+  /// @brief Creating an AABB at position v with zero size
   AABB(const Vec3f& v) : min_(v), max_(v)
   {
   }
 
-  /** \brief Constructor creating an AABB with two endpoints a and b */
-  AABB(const Vec3f& a, const Vec3f&b)
+  /// @brief Creating an AABB with two endpoints a and b
+  AABB(const Vec3f& a, const Vec3f&b) : min_(min(a, b)),
+                                        max_(max(a, b))
   {
-    min_ = min(a, b);
-    max_ = max(a, b);
   }
 
-  AABB(const AABB& core, const Vec3f& delta)
+  /// @brief Creating an AABB centered as core and is of half-dimension delta
+  AABB(const AABB& core, const Vec3f& delta) : min_(core.min_ - delta),
+                                               max_(core.max_ + delta)
   {
-    min_ = core.min_ - delta;
-    max_ = core.max_ + delta;
   }
 
-  /** \brief Constructor creating an AABB with three points */
-  AABB(const Vec3f& a, const Vec3f& b, const Vec3f& c)
+  /// @brief Creating an AABB contains three points
+  AABB(const Vec3f& a, const Vec3f& b, const Vec3f& c) : min_(min(min(a, b), c)),
+                                                         max_(max(max(a, b), c))
   {
-    min_ = min(min(a, b), c);
-    max_ = max(max(a, b), c);
   }
 
-  /** \brief Check whether two AABB are overlap */
+  /// @brief Check whether two AABB are overlap
   inline bool overlap(const AABB& other) const
   {
     if(min_[0] > other.max_[0]) return false;
@@ -96,13 +93,14 @@ public:
     return true;
   }    
 
+  /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const
   {
     return (other.min_[0] >= min_[0]) && (other.max_[0] <= max_[0]) && (other.min_[1] >= min_[1]) && (other.max_[1] <= max_[1]) && (other.min_[2] >= min_[2]) && (other.max_[2] <= max_[2]);
   }
 
 
-  /** \brief Check whether two AABB are overlapped along specific axis */
+  /// @brief Check whether two AABB are overlapped along specific axis
   inline bool axisOverlap(const AABB& other, int axis_id) const
   {
     if(min_[axis_id] > other.max_[axis_id]) return false;
@@ -112,7 +110,7 @@ public:
     return true;
   }
 
-  /** \brief Check whether two AABB are overlap and return the overlap part */
+  /// @brief Check whether two AABB are overlap and return the overlap part
   inline bool overlap(const AABB& other, AABB& overlap_part) const
   {
     if(!overlap(other))
@@ -126,7 +124,7 @@ public:
   }
 
 
-  /** \brief Check whether the AABB contains a point */
+  /// @brief Check whether the AABB contains a point
   inline bool contain(const Vec3f& p) const
   {
     if(p[0] < min_[0] || p[0] > max_[0]) return false;
@@ -136,7 +134,7 @@ public:
     return true;
   }
 
-  /** \brief Merge the AABB and a point */
+  /// @brief Merge the AABB and a point
   inline AABB& operator += (const Vec3f& p)
   {
     min_.ubound(p);
@@ -144,7 +142,7 @@ public:
     return *this;
   }
 
-  /** \brief Merge the AABB and another AABB */
+  /// @brief Merge the AABB and another AABB
   inline AABB& operator += (const AABB& other)
   {
     min_.ubound(other.min_);
@@ -152,58 +150,62 @@ public:
     return *this;
   }
 
-  /** \brief Return the merged AABB of current AABB and the other one */
+  /// @brief Return the merged AABB of current AABB and the other one
   inline AABB operator + (const AABB& other) const
   {
     AABB res(*this);
     return res += other;
   }
 
-  /** \brief Width of the AABB */
+  /// @brief Width of the AABB
   inline FCL_REAL width() const
   {
     return max_[0] - min_[0];
   }
 
-  /** \brief Height of the AABB */
+  /// @brief Height of the AABB
   inline FCL_REAL height() const
   {
     return max_[1] - min_[1];
   }
 
-  /** \brief Depth of the AABB */
+  /// @brief Depth of the AABB
   inline FCL_REAL depth() const
   {
     return max_[2] - min_[2];
   }
 
-  /** \brief Volume of the AABB */
+  /// @brief Volume of the AABB
   inline FCL_REAL volume() const
   {
     return width() * height() * depth();
   }  
 
-  /** \brief Size of the AABB, for split order */
+  /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
   inline FCL_REAL size() const
   {
     return (max_ - min_).sqrLength();
   }
 
-  /** \brief Center of the AABB */
+  /// @brief Center of the AABB
   inline  Vec3f center() const
   {
     return (min_ + max_) * 0.5;
   }
 
+  /// @brief Distance between two AABBs; P and Q, should not be NULL, return the nearest points 
   FCL_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
 
+  /// @brief Distance between two AABBs
   FCL_REAL distance(const AABB& other) const;
 
+  /// @brief whether two AABB are equal
   inline bool equal(const AABB& other) const
   {
     return min_.equal(other.min_) && max_.equal(other.max_);
   }
 
+  /// @brief expand the half size of the AABB by delta, and keep the center unchanged.
   inline AABB& expand(const Vec3f& delta)
   {
     min_ -= delta;
@@ -211,7 +213,7 @@ public:
     return *this;
   }
 
-  /**\brief expand the aabb by increase the 'thickness of the plate by a ratio */
+  /// @brief expand the aabb by increase the thickness of the plate by a ratio
   inline AABB& expand(const AABB& core, FCL_REAL ratio)
   {
     min_ = min_ * ratio - core.min_;
@@ -220,6 +222,7 @@ public:
   }  
 };
 
+/// @brief translate the center of AABB by t
 static inline AABB translate(const AABB& aabb, const Vec3f& t)
 {
   AABB res(aabb);

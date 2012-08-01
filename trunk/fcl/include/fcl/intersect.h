@@ -39,7 +39,7 @@
 
 #include "fcl/transform.h"
 #include "fcl/BVH_internal.h"
-#include "fcl/primitive.h"
+#include "fcl/data_types.h"
 
 #if USE_SVMLIGHT
 extern "C"
@@ -154,18 +154,18 @@ public:
 
 #if USE_SVMLIGHT
 
-  static FCL_REAL intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
-                                        Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
+  static FCL_REAL intersect_PointClouds(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
+                                        Vec3f* cloud2, Variance3f* uc2, int size_cloud2,
                                         const CloudClassifierParam& solver, bool scaling = true);
 
-  static FCL_REAL intersect_PointClouds(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
-                                        Vec3f* cloud2, Uncertainty* uc2, int size_cloud2,
+  static FCL_REAL intersect_PointClouds(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
+                                        Vec3f* cloud2, Variance3f* uc2, int size_cloud2,
                                         const Matrix3f& R, const Vec3f& T, const CloudClassifierParam& solver, bool scaling = true);
 
-  static FCL_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+  static FCL_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
                                                 const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3);
 
-  static FCL_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Uncertainty* uc1, int size_cloud1,
+  static FCL_REAL intersect_PointCloudsTriangle(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
                                                 const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
                                                 const Matrix3f& R, const Vec3f& T);
 #endif

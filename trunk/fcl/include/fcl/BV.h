@@ -50,7 +50,11 @@
 namespace fcl
 {
 
+/// @cond IGNORE
+namespace details
+{
 
+/// @brief Convert a bounding volume of type BV1 in configuration tf1 to a bounding volume of type BV2 in I configuration.
 template<typename BV1, typename BV2>
 class Converter
 {
@@ -61,6 +65,8 @@ private:
   }
 };
 
+
+/// @brief Convert from AABB to AABB, not very tight but is fast.
 template<>
 class Converter<AABB, AABB>
 {
@@ -81,17 +87,10 @@ class Converter<AABB, OBB>
 {
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
-  {
-    /*
-    bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
+  {    
     bv2.To = tf1.transform(bv1.center());
-    const Matrix3f& R = tf1.getRotation();
-    bv2.axis[0] = R.getColumn(0);
-    bv2.axis[1] = R.getColumn(1);
-    bv2.axis[2] = R.getColumn(2);
-    */
-    
-    bv2.To = tf1.transform(bv1.center());
+
+    /// Sort the AABB edges so that AABB extents are ordered.
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
 
@@ -242,6 +241,8 @@ public:
   static void convert(const AABB& bv1, const Transform3f& tf1, RSS& bv2)
   {
     bv2.Tr = tf1.transform(bv1.center());
+
+    /// Sort the AABB edges so that AABB extents are ordered.
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
 
@@ -278,13 +279,16 @@ public:
   }
 };
 
+}
+
+/// @endcond 
 
 
-
+/// @brief Convert a bounding volume of type BV1 in configuration tf1 to bounding volume of type BV2 in identity configuration.
 template<typename BV1, typename BV2>
 static inline void convertBV(const BV1& bv1, const Transform3f& tf1, BV2& bv2) 
 {
-  Converter<BV1, BV2>::convert(bv1, tf1, bv2);
+  details::Converter<BV1, BV2>::convert(bv1, tf1, bv2);
 }
 
 }

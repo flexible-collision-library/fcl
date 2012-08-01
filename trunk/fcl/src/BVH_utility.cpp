@@ -43,7 +43,7 @@
 namespace fcl
 {
 
-void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
+void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
 {
   for(int i = 0; i < model.getNumBVs(); ++i)
   {
@@ -54,7 +54,7 @@ void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Uncertainty& uc = ucs[v_id];
+      const Variance3f& uc = ucs[v_id];
 
       Vec3f&v = model.vertices[bvnode.first_primitive + j];
 
@@ -74,7 +74,7 @@ void BVHExpand(BVHModel<OBB>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
   }
 }
 
-void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
+void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
 {
   for(int i = 0; i < model.getNumBVs(); ++i)
   {
@@ -85,7 +85,7 @@ void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Uncertainty& uc = ucs[v_id];
+      const Variance3f& uc = ucs[v_id];
 
       Vec3f&v = model.vertices[bvnode.first_primitive + j];
 
@@ -106,7 +106,7 @@ void BVHExpand(BVHModel<RSS>& model, const Uncertainty* ucs, FCL_REAL r = 1.0)
 }
 
 
-void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty* ucs)
+void estimateSamplingVariance(Vec3f* vertices, int num_vertices, Variance3f* ucs)
 {
   int nPts = num_vertices;
 
@@ -183,7 +183,7 @@ void estimateSamplingUncertainty(Vec3f* vertices, int num_vertices, Uncertainty*
       }
     }
 
-    ucs[i].preprocess();
+    ucs[i].init();
     ucs[i].sqrt();
   }
 

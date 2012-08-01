@@ -47,6 +47,8 @@ namespace fcl
  *                         |
  *                         |-> update_begun -> updated -> .....
  * */
+
+/// @brief States for BVH construction
 enum BVHBuildState
 {
   BVH_BUILD_STATE_EMPTY,            // empty state, immediately after constructor

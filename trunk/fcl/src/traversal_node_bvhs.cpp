@@ -204,7 +204,7 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
 bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
 {
   if(enable_statistics) num_bv_tests++;
-  return OBB::obbDisjoint(Rc, Tc, model1->getBV(b1).bv.extent, model2->getBV(b2).bv.extent);
+  return obbDisjoint(Rc, Tc, model1->getBV(b1).bv.extent, model2->getBV(b2).bv.extent);
 }
 
 void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
@@ -304,7 +304,7 @@ static inline void pointCloudCollisionOrientedNodeLeafTesting(int b1, int b2,
                                                               const Matrix3f& R, const Vec3f& T,
                                                               bool enable_statistics,
                                                               FCL_REAL collision_prob_threshold,
-                                                              const boost::shared_arry<Uncertainty>& uc1, const boost::shared_array<Uncertainty>& uc2,
+                                                              const boost::shared_arry<Variance3f>& uc1, const boost::shared_array<Variance3f>& uc2,
                                                               const CloudClassifierParam classifier_param,
                                                               int& num_leaf_tests,
                                                               FCL_REAL& max_collision_prob,
@@ -394,7 +394,7 @@ static inline void pointCloudMeshCollisionOrientedNodeLeafTesting(int b1, int b2
                                                                   const Matrix3f& R, const Vec3f& T,
                                                                   bool enable_statistics,
                                                                   FCL_REAL collision_prob_threshold,
-                                                                  const boost::shared_array<Uncertainty>& uc1,
+                                                                  const boost::shared_array<Variance3f>& uc1,
                                                                   int& num_leaf_tests,
                                                                   FCL_REAL& max_collision_prob,
                                                                   std::vector<BVHPointCollisionPair>& pairs)
