@@ -147,6 +147,10 @@ private:
     
 };
 
+
+/// @brief Translate the kIOS BV
+kIOS translate(const kIOS& bv, const Vec3f& t);
+
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
 /// @todo Not efficient
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2);

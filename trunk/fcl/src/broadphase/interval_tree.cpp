@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/interval_tree.h"
+#include "fcl/broadphase/interval_tree.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -45,12 +45,27 @@ namespace fcl
 IntervalTreeNode::IntervalTreeNode(){}
 
 IntervalTreeNode::IntervalTreeNode(SimpleInterval* new_interval) :
-    stored_interval (new_interval),
-    key(new_interval->low),
-    high(new_interval->high),
-    max_high(high) {}
+  stored_interval (new_interval),
+  key(new_interval->low),
+  high(new_interval->high),
+  max_high(high) {}
 
 IntervalTreeNode::~IntervalTreeNode() {}
+
+
+/// @brief Class describes the information needed when we take the
+/// right branch in searching for intervals but possibly come back
+/// and check the left branch as well.
+struct it_recursion_node
+{
+public:
+  IntervalTreeNode* start_node;
+
+  unsigned int parent_index;
+
+  bool try_right_branch;
+};
+
 
 IntervalTree::IntervalTree()
 {
@@ -66,7 +81,7 @@ IntervalTree::IntervalTree()
   root->red = false;
   root->stored_interval = NULL;
 
-  /* the following are used for the query function */
+  /// the following are used for the query function
   recursion_node_stack_size = 128;
   recursion_node_stack = (it_recursion_node*)malloc(recursion_node_stack_size*sizeof(it_recursion_node));
   recursion_node_stack_top = 1;
@@ -159,7 +174,7 @@ void IntervalTree::rightRotate(IntervalTreeNode* y)
 
 
 
-/** \brief Inserts z into the tree as if it were a regular binary tree */
+/// @brief Inserts z into the tree as if it were a regular binary tree
 void IntervalTree::recursiveInsert(IntervalTreeNode* z)
 {
   IntervalTreeNode* x;
@@ -206,7 +221,7 @@ IntervalTreeNode* IntervalTree::insert(SimpleInterval* new_interval)
   x->red = true;
   while(x->parent->red)
   {
-    /* use sentinel instead of checking for root */
+    /// use sentinel instead of checking for root
     if(x->parent == x->parent->parent->left)
     {
       y = x->parent->parent->right;
@@ -452,8 +467,8 @@ SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z)
     }
   }
 
-  /* y should not be nil in this case */
-  /* y is the node to splice out and x is its child */
+  /// @brief y should not be nil in this case
+  /// y is the node to splice out and x is its child
   if(y != z)
   {
     y->max_high = -std::numeric_limits<double>::max();
@@ -486,7 +501,7 @@ SimpleInterval* IntervalTree::deleteNode(IntervalTreeNode* z)
   return node_to_delete;
 }
 
-/** \brief returns 1 if the intervals overlap, and 0 otherwise */
+/// @brief returns 1 if the intervals overlap, and 0 otherwise
 bool overlap(double a1, double a2, double b1, double b2)
 {
   if(a1 <= b1)

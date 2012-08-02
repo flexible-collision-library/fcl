@@ -44,11 +44,16 @@
 namespace fcl
 {
 
+/// @cond IGNORE
+namespace details
+{
+
 static inline FCL_UINT32 quantize(FCL_REAL x, FCL_UINT32 n)
 {
   return std::max(std::min((FCL_UINT32)(x * (FCL_REAL)n), FCL_UINT32(n-1)), FCL_UINT32(0));
 }
 
+/// @brief compute 30 bit morton code
 static inline FCL_UINT32 morton_code(FCL_UINT32 x, FCL_UINT32 y, FCL_UINT32 z)
 {
   x = (x | (x << 16)) & 0x030000FF; 
@@ -69,6 +74,7 @@ static inline FCL_UINT32 morton_code(FCL_UINT32 x, FCL_UINT32 y, FCL_UINT32 z)
   return x | (y << 1) | (z << 2);
 }
 
+/// @brief compute 60 bit morton code
 static inline FCL_UINT64 morton_code60(FCL_UINT32 x, FCL_UINT32 y, FCL_UINT32 z)
 {
   FCL_UINT32 lo_x = x & 1023u;
@@ -81,9 +87,16 @@ static inline FCL_UINT64 morton_code60(FCL_UINT32 x, FCL_UINT32 y, FCL_UINT32 z)
   return (FCL_UINT64(morton_code(hi_x, hi_y, hi_z)) << 30) | FCL_UINT64(morton_code(lo_x, lo_y, lo_z));
 }
 
+}
+/// @endcond
+
+
+/// @brief Functor to compute the morton code for a given AABB
 template<typename T>
 struct morton_functor {};
 
+
+/// @brief Functor to compute 30 bit morton code for a given AABB
 template<>
 struct morton_functor<FCL_UINT32>
 {
@@ -95,11 +108,11 @@ struct morton_functor<FCL_UINT32>
 
   FCL_UINT32 operator() (const Vec3f& point) const
   {
-    FCL_UINT32 x = quantize((point[0] - base[0]) * inv[0], 1024u);
-    FCL_UINT32 y = quantize((point[1] - base[1]) * inv[1], 1024u);
-    FCL_UINT32 z = quantize((point[2] - base[2]) * inv[2], 1024u);
+    FCL_UINT32 x = details::quantize((point[0] - base[0]) * inv[0], 1024u);
+    FCL_UINT32 y = details::quantize((point[1] - base[1]) * inv[1], 1024u);
+    FCL_UINT32 z = details::quantize((point[2] - base[2]) * inv[2], 1024u);
     
-    return morton_code(x, y, z);
+    return details::morton_code(x, y, z);
   }
 
   const Vec3f base;
@@ -109,6 +122,7 @@ struct morton_functor<FCL_UINT32>
 };
 
 
+/// @brief Functor to compute 60 bit morton code for a given AABB
 template<>
 struct morton_functor<FCL_UINT64>
 {
@@ -120,11 +134,11 @@ struct morton_functor<FCL_UINT64>
 
   FCL_UINT64 operator() (const Vec3f& point) const
   {
-    FCL_UINT32 x = quantize((point[0] - base[0]) * inv[0], 1u << 20);
-    FCL_UINT32 y = quantize((point[1] - base[1]) * inv[1], 1u << 20);
-    FCL_UINT32 z = quantize((point[2] - base[2]) * inv[2], 1u << 20);
+    FCL_UINT32 x = details::quantize((point[0] - base[0]) * inv[0], 1u << 20);
+    FCL_UINT32 y = details::quantize((point[1] - base[1]) * inv[1], 1u << 20);
+    FCL_UINT32 z = details::quantize((point[2] - base[2]) * inv[2], 1u << 20);
 
-    return morton_code60(x, y, z);
+    return details::morton_code60(x, y, z);
   }
 
   const Vec3f base;
@@ -133,6 +147,7 @@ struct morton_functor<FCL_UINT64>
   size_t bits() const { return 60; }
 };
 
+/// @brief Functor to compute n bit morton code for a given AABB
 template<>
 struct morton_functor<boost::dynamic_bitset<> >
 {

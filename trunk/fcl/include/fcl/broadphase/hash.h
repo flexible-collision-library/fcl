@@ -46,20 +46,25 @@
 namespace fcl
 {
 
-// HashFnc is any extended hash function: HashFnc(key) = {index1, index2, ..., }
+/// @brief A simple hash table implemented as multiple buckets. HashFnc is any extended hash function: HashFnc(key) = {index1, index2, ..., }
 template<typename Key, typename Data, typename HashFnc>
 class SimpleHashTable
 {
 protected:
   typedef std::list<Data> Bin;
+
   std::vector<Bin> table_;
+
   HashFnc h_;
+
   size_t table_size_;
+
 public:
   SimpleHashTable(const HashFnc& h) : h_(h)
   {
   }
 
+  ///@ brief Init the number of bins in the hash table
   void init(size_t size)
   {
     if(size == 0) 
@@ -71,6 +76,7 @@ public:
     table_size_ = size;
   }
 
+  //// @brief Insert a key-value pair into the table
   void insert(Key key, Data value)
   {
     std::vector<unsigned int> indices = h_(key);
@@ -79,6 +85,7 @@ public:
       table_[indices[i] % range].push_back(value);
   }
 
+  /// @brief Find the elements in the hash table whose key is the same as query key.
   std::vector<Data> query(Key key) const
   {
     size_t range = table_.size();
@@ -93,6 +100,7 @@ public:
     return std::vector<Data>(result.begin(), result.end());
   }
 
+  /// @brief remove the key-value pair from the table
   void remove(Key key, Data value) 
   {
     size_t range = table_.size();
@@ -104,6 +112,7 @@ public:
     }
   }
 
+  /// @brief clear the hash table
   void clear() 
   {
     table_.clear();
@@ -115,7 +124,7 @@ public:
 template<typename U, typename V>
 class unordered_map_hash_table : public boost::unordered_map<U, V> {};
 
-
+/// @brief A hash table implemented using unordered_map
 template<typename Key, typename Data, typename HashFnc, template<typename, typename> class TableT = unordered_map_hash_table>
 class SparseHashTable
 {
@@ -128,8 +137,10 @@ protected:
 public:
   SparseHashTable(const HashFnc& h) : h_(h) {}
 
+  /// @brief Init the hash table. The bucket size is dynamically decided.
   void init(size_t) { table_.clear(); }
   
+  /// @brief insert one key-value pair into the hash table
   void insert(Key key, Data value)
   {
     std::vector<unsigned int> indices = h_(key);
@@ -137,6 +148,7 @@ public:
       table_[indices[i]].push_back(value);
   }
 
+  /// @brief find the elements whose key is the same as the query
   std::vector<Data> query(Key key) const
   {
     std::vector<unsigned int> indices = h_(key);
@@ -152,6 +164,7 @@ public:
     return std::vector<Data>(result.begin(), result.end());
   }
 
+  /// @brief remove one key-value pair from the hash table
   void remove(Key key, Data value)
   {
     std::vector<unsigned int> indices = h_(key);
@@ -162,6 +175,7 @@ public:
     }
   }
 
+  /// @brief clear the hash table
   void clear()
   {
     table_.clear();

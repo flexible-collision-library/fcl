@@ -11,45 +11,62 @@
 namespace fcl
 {
 
+/// @brief Contact information returned by collision
 struct Contact
 {
-  FCL_REAL penetration_depth;
-  Vec3f normal;
-  Vec3f pos;
+  /// @brief collision object 1
   const CollisionGeometry* o1;
+
+  /// @brief collision object 2
   const CollisionGeometry* o2;
+
+  /// @brief contact primitive in object 1
+  /// if object 1 is mesh or point cloud, it is the triangle or point id
+  /// if object 1 is geometry shape, it is NONE (-1),
+  /// if object 1 is octree, it is the id of the cell
   int b1;
+
+
+  /// @brief contact primitive in object 2
+  /// if object 2 is mesh or point cloud, it is the triangle or point id
+  /// if object 2 is geometry shape, it is NONE (-1),
+  /// if object 2 is octree, it is the id of the cell
   int b2;
-  
+ 
+  /// @brief contact normal, pointing from o1 to o2
+  Vec3f normal;
+
+  /// @brief contact position, in world space
+  Vec3f pos;
+
+  /// @brief penetration depth
+  FCL_REAL penetration_depth;
+
+ 
+  /// @brief invalid contact primitive information
   static const int NONE = -1;
 
-  Contact()
-  {
-    o1 = NULL;
-    o2 = NULL;
-    b1 = -1;
-    b2 = -1;
-  }
+  Contact() : o1(NULL),
+              o2(NULL),
+              b1(NONE),
+              b2(NONE)
+  {}
 
-  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_)
-  {
-    o1 = o1_;
-    o2 = o2_;
-    b1 = b1_;
-    b2 = b2_;
-  }
+  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_) : o1(o1_),
+                                                                                          o2(o2_),
+                                                                                          b1(b1_),
+                                                                                          b2(b2_)
+  {}
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_,
-          const Vec3f& pos_, const Vec3f& normal_, FCL_REAL depth_)
-  {
-    o1 = o1_;
-    o2 = o2_;
-    b1 = b1_;
-    b2 = b2_;
-    normal = normal_;
-    pos = pos_;
-    penetration_depth = depth_;
-  }
+          const Vec3f& pos_, const Vec3f& normal_, FCL_REAL depth_) : o1(o1_),
+                                                                      o2(o2_),
+                                                                      b1(b1_),
+                                                                      b2(b2_),
+                                                                      normal(normal_),
+                                                                      pos(pos_),
+                                                                      penetration_depth(depth_)
+  {}
 
   bool operator < (const Contact& other) const
   {
@@ -59,10 +76,16 @@ struct Contact
   }
 };
 
+/// @brief Cost source describes an area with a cost. The area is described by an AABB region.
 struct CostSource
 {
+  /// @brief aabb lower bound
   Vec3f aabb_min;
+
+  /// @brief aabb upper bound
   Vec3f aabb_max;
+
+  /// @brief cost density in the AABB region
   FCL_REAL cost_density;
 
   CostSource(const Vec3f& aabb_min_, const Vec3f& aabb_max_, FCL_REAL cost_density_) : aabb_min(aabb_min_),
@@ -85,11 +108,19 @@ struct CostSource
   }
 };
 
+/// @brief request to the collision algorithm
 struct CollisionRequest
 {
+  /// @brief The maximum number of contacts will return
   size_t num_max_contacts;
+
+  /// @brief whether the contact information (normal, penetration depth and contact position) will return
   bool enable_contact;
+
+  /// @brief The maximum number of cost sources will return
   size_t num_max_cost_sources;
+
+  /// @brief whether the cost sources will be computed
   bool enable_cost;
 
   CollisionRequest(size_t num_max_contacts_ = 1,
@@ -104,12 +135,14 @@ struct CollisionRequest
 
 };
 
-
+/// @brief collision result
 struct CollisionResult
 {
 private:
+  /// @brief contact information
   std::vector<Contact> contacts;
 
+  /// @brief cost sources
   std::set<CostSource> cost_sources;
 
   const CollisionRequest* request;
@@ -125,11 +158,13 @@ public:
     request = &request_;
   }
 
+  /// @brief add one contact into result structure
   inline void addContact(const Contact& c) 
   {
     contacts.push_back(c);
   }
 
+  /// @brief add one cost source into result structure
   inline void addCostSource(const CostSource& c)
   {
     if(request)
@@ -144,21 +179,25 @@ public:
     }
   }
 
+  /// @brief return binary collision result
   bool isCollision() const
   {
     return contacts.size() > 0;
   }
 
+  /// @brief number of contacts found
   size_t numContacts() const
   {
     return contacts.size();
   }
 
+  /// @brief number of cost sources found
   size_t numCostSources() const
   {
     return cost_sources.size();
   }
 
+  /// @brief get the i-th contact calculated
   const Contact& getContact(size_t i) const
   {
     if(i < contacts.size()) 
@@ -167,18 +206,21 @@ public:
       return contacts.back();
   }
 
+  /// @brief get all the contacts
   void getContacts(std::vector<Contact>& contacts_)
   {
     contacts_.resize(contacts.size());
     std::copy(contacts.begin(), contacts.end(), contacts_.begin());
   }
 
+  /// @brief get all the cost sources 
   void getCostSources(std::vector<CostSource>& cost_sources_)
   {
     cost_sources_.resize(cost_sources.size());
     std::copy(cost_sources.begin(), cost_sources.end(), cost_sources_.begin());
   }
 
+  /// @brief clear the results obtained
   void clear()
   {
     contacts.clear();
@@ -188,9 +230,10 @@ public:
 
 
 
-
+/// @brief request to the distance computation
 struct DistanceRequest
 {
+  /// @brief whether to return the nearest points
   bool enable_nearest_points;
 
   DistanceRequest(bool enable_nearest_points_ = false) : enable_nearest_points(enable_nearest_points_)
@@ -198,6 +241,7 @@ struct DistanceRequest
   }
 };
 
+/// @brief distance result
 struct DistanceResult
 {
 private:
@@ -205,22 +249,38 @@ private:
 
 public:
 
+  /// @brief minimum distance between two objects
   FCL_REAL min_distance;
 
+  /// @brief nearest points
   Vec3f nearest_points[2];
 
+  /// @brief collision object 1
   const CollisionGeometry* o1;
+
+  /// @brief collision object 2
   const CollisionGeometry* o2;
+
+  /// @brief information about the nearest point in object 1
+  /// if object 1 is mesh or point cloud, it is the triangle or point id
+  /// if object 1 is geometry shape, it is NONE (-1),
+  /// if object 1 is octree, it is the id of the cell
   int b1;
+
+  /// @brief information about the nearest point in object 2
+  /// if object 2 is mesh or point cloud, it is the triangle or point id
+  /// if object 2 is geometry shape, it is NONE (-1),
+  /// if object 2 is octree, it is the id of the cell
   int b2;
 
+  /// @brief invalid contact primitive information
   static const int NONE = -1;
   
   DistanceResult(FCL_REAL min_distance_ = std::numeric_limits<FCL_REAL>::max()) : min_distance(min_distance_), 
                                                                                   o1(NULL),
                                                                                   o2(NULL),
-                                                                                  b1(-1),
-                                                                                  b2(-1)
+                                                                                  b1(NONE),
+                                                                                  b2(NONE)
   {
     request = NULL;
   }
@@ -230,6 +290,7 @@ public:
     request = &request_;
   }
 
+  /// @brief add distance information into the result
   void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_)
   {
     if(min_distance > distance)
@@ -242,6 +303,7 @@ public:
     }
   }
 
+  /// @brief add distance information into the result
   void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_, const Vec3f& p1, const Vec3f& p2)
   {
     if(min_distance > distance)
@@ -256,6 +318,7 @@ public:
     }
   }
 
+  /// @brief add distance information into the result
   void update(const DistanceResult& other_result)
   {
     if(min_distance > other_result.min_distance)
@@ -270,13 +333,14 @@ public:
     }
   }
 
+  /// @brief clear the result
   void clear()
   {
     min_distance = std::numeric_limits<FCL_REAL>::max();
     o1 = NULL;
     o2 = NULL;
-    b1 = -1;
-    b2 = -1;
+    b1 = NONE;
+    b2 = NONE;
   }
 };
 

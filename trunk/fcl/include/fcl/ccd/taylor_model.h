@@ -45,7 +45,7 @@ namespace fcl
 
 struct TimeInterval
 {
-  /** \brief time interval and different powers */
+  /// @brief time interval and different powers
   Interval t_; // [t1, t2]
   Interval t2_; // [t1, t2]^2
   Interval t3_; // [t1, t2]^3
@@ -54,19 +54,18 @@ struct TimeInterval
   Interval t6_; // [t1, t2]^6
 };
 
-/** \brief TaylorModel implements a third order Taylor model, i.e., a cubic approximation of a function
- * over a time interval, with an interval remainder.
- * All the operations on two Taylor models assume their time intervals are the same.
- */
+/// @brief TaylorModel implements a third order Taylor model, i.e., a cubic approximation of a function
+/// over a time interval, with an interval remainder.
+/// All the operations on two Taylor models assume their time intervals are the same.
 struct TaylorModel
 {
-  /** \brief time interval */
+  /// @brief time interval
   boost::shared_ptr<TimeInterval> time_interval_;
 
-  /** \brief Coefficients of the cubic polynomial approximation */
+  /// @brief Coefficients of the cubic polynomial approximation
   FCL_REAL coeffs_[4];
 
-  /** \brief interval remainder */
+  /// @brief interval remainder
   Interval r_;
 
   void setTimeInterval(FCL_REAL l, FCL_REAL r);

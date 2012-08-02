@@ -34,27 +34,9 @@
 
 /** \author Jia Pan */
 
-#include "fcl/BV/OBBRSS.h"
+#include "fcl/broadphase/broadphase_spatialhash.h"
 
 namespace fcl
 {
-
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2)
-{
-  return overlap(R0, T0, b1.obb, b2.obb);
-}
-
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P, Vec3f* Q)
-{
-  return distance(R0, T0, b1.rss, b2.rss, P, Q);
-}
-
-OBBRSS translate(const OBBRSS& bv, const Vec3f& t)
-{
-  OBBRSS res(bv);
-  res.obb.To += t;
-  res.rss.Tr += t;
-}
-
 
 }

@@ -384,4 +384,11 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
   return !obbDisjoint(R, T, b1.extent, b2.extent);
 }
 
+OBB translate(const OBB& bv, const Vec3f& t)
+{
+  OBB res(bv);
+  res.To += t;
+  return res;
+}
+
 }

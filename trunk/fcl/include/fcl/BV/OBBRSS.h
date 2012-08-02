@@ -143,6 +143,8 @@ public:
   }
 };
 
+/// @brief Translate the OBBRSS bv
+OBBRSS translate(const OBBRSS& bv, const Vec3f& t);
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2);

@@ -1136,7 +1136,12 @@ FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS&
   return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
 }
 
-
+RSS translate(const RSS& bv, const Vec3f& t)
+{
+  RSS res(bv);
+  res.Tr += t;
+  return res;
+}
 
 
 

@@ -43,10 +43,15 @@ namespace fcl
 {
 
 template<typename BV>
-BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other)
+BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other),
+                                                    num_tris(other.num_tris),
+                                                    num_vertices(other.num_vertices),
+                                                    build_state(other.build_state),
+                                                    bv_splitter(other.bv_splitter),
+                                                    bv_fitter(other.bv_fitter),
+                                                    num_tris_allocated(other.num_tris),
+                                                    num_vertices_allocated(other.num_vertices)
 {
-  num_tris = num_tris_allocated = other.num_tris;
-  num_vertices = num_vertices_allocated = other.num_vertices;
   if(other.vertices)
   {
     vertices = new Vec3f[num_vertices];
@@ -100,12 +105,6 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other)
   }
   else
     bvs = NULL;
-
-  build_state = other.build_state;
-
-  bv_splitter = other.bv_splitter;
-
-  bv_fitter = other.bv_fitter;
 }
 
 
@@ -875,6 +874,75 @@ void BVHModel<BV>::computeLocalAABB()
   aabb_local = aabb_;
 }
 
+
+template<>
+void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+{
+  OBB& obb = bvs[bv_id].bv;
+  if(!bvs[bv_id].isLeaf())
+  {
+    makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axis, obb.To);
+
+    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, obb.axis, obb.To);
+  }
+
+  // make self parent relative
+  obb.axis[0] = Vec3f(parent_axis[0].dot(obb.axis[0]), parent_axis[1].dot(obb.axis[0]), parent_axis[2].dot(obb.axis[0]));
+  obb.axis[1] = Vec3f(parent_axis[0].dot(obb.axis[1]), parent_axis[1].dot(obb.axis[1]), parent_axis[2].dot(obb.axis[1]));
+  obb.axis[2] = Vec3f(parent_axis[0].dot(obb.axis[2]), parent_axis[1].dot(obb.axis[2]), parent_axis[2].dot(obb.axis[2]));
+
+  Vec3f t = obb.To - parent_c;
+  obb.To = Vec3f(parent_axis[0].dot(t), parent_axis[1].dot(t), parent_axis[2].dot(t));
+}
+
+template<>
+void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+{
+  RSS& rss = bvs[bv_id].bv;
+  if(!bvs[bv_id].isLeaf())
+  {
+    makeParentRelativeRecurse(bvs[bv_id].first_child, rss.axis, rss.Tr);
+
+    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, rss.axis, rss.Tr);
+  }
+
+  // make self parent relative
+  rss.axis[0] = Vec3f(parent_axis[0].dot(rss.axis[0]), parent_axis[1].dot(rss.axis[0]), parent_axis[2].dot(rss.axis[0]));
+  rss.axis[1] = Vec3f(parent_axis[0].dot(rss.axis[1]), parent_axis[1].dot(rss.axis[1]), parent_axis[2].dot(rss.axis[1]));
+  rss.axis[2] = Vec3f(parent_axis[0].dot(rss.axis[2]), parent_axis[1].dot(rss.axis[2]), parent_axis[2].dot(rss.axis[2]));
+
+  Vec3f t = rss.Tr - parent_c;
+  rss.Tr = Vec3f(parent_axis[0].dot(t), parent_axis[1].dot(t), parent_axis[2].dot(t));
+}
+
+template<>
+void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+{
+  OBB& obb = bvs[bv_id].bv.obb;
+  RSS& rss = bvs[bv_id].bv.rss;
+  if(!bvs[bv_id].isLeaf())
+  {
+    makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axis, obb.To);
+
+    makeParentRelativeRecurse(bvs[bv_id].first_child + 1, obb.axis, obb.To);
+  }
+
+  // make self parent relative
+  obb.axis[0] = Vec3f(parent_axis[0].dot(obb.axis[0]), parent_axis[1].dot(obb.axis[0]), parent_axis[2].dot(obb.axis[0]));
+  obb.axis[1] = Vec3f(parent_axis[0].dot(obb.axis[1]), parent_axis[1].dot(obb.axis[1]), parent_axis[2].dot(obb.axis[1]));
+  obb.axis[2] = Vec3f(parent_axis[0].dot(obb.axis[2]), parent_axis[1].dot(obb.axis[2]), parent_axis[2].dot(obb.axis[2]));
+
+  rss.axis[0] = obb.axis[0];
+  rss.axis[1] = obb.axis[1];
+  rss.axis[2] = obb.axis[2];
+
+  Vec3f t = obb.To - parent_c;
+  obb.To = Vec3f(parent_axis[0].dot(t), parent_axis[1].dot(t), parent_axis[2].dot(t));
+  rss.Tr = obb.To;
+}
+
+
+
 template<>
 NODE_TYPE BVHModel<AABB>::getNodeType() const
 {
@@ -922,6 +990,9 @@ NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const
 {
   return BV_KDOP24;
 }
+
+
+
 
 
 

@@ -44,41 +44,49 @@
 namespace fcl
 {
 
+/// @brief Interval class for [a, b]
 struct Interval
 {
   FCL_REAL i_[2];
 
   Interval() { i_[0] = i_[1] = 0; }
+
   explicit Interval(FCL_REAL v)
   {
     i_[0] = i_[1] = v;
   }
 
+  /// @brief construct interval [left, right]
   Interval(FCL_REAL left, FCL_REAL right)
   {
     i_[0] = left; i_[1] = right;
   }
 
+  /// @brief construct interval [left, right]
   inline void setValue(FCL_REAL a, FCL_REAL b)
   {
     i_[0] = a; i_[1] = b;
   }
 
+  /// @brief construct zero interval [x, x]
   inline void setValue(FCL_REAL x)
   {
     i_[0] = i_[1] = x;
   }
 
+  /// @brief access the interval endpoints: 0 for left, 1 for right end
   inline FCL_REAL operator [] (size_t i) const
   {
     return i_[i];
   }
 
+  /// @brief access the interval endpoints: 0 for left, 1 for right end
   inline FCL_REAL& operator [] (size_t i)
   {
     return i_[i];
   }
 
+  /// @brief whether two intervals are the same
   inline bool operator == (const Interval& other) const
   {
     if(i_[0] != other.i_[0]) return false;
@@ -86,11 +94,13 @@ struct Interval
     return true;
   }
 
+  /// @brief add two intervals
   inline Interval operator + (const Interval& other) const
   {
     return Interval(i_[0] + other.i_[0], i_[1] + other.i_[1]);
   }
 
+  /// @brief minus another interval
   inline Interval operator - (const Interval& other) const
   {
     return Interval(i_[0] - other.i_[1], i_[1] - other.i_[0]);
@@ -137,12 +147,12 @@ struct Interval
     return *this;
   }
 
-  /** \brief other must not contain 0 */
+  /// @brief other must not contain 0
   Interval operator / (const Interval& other) const;
 
   Interval& operator /= (const Interval& other);
 
-  /** \brief determine whether the intersection between intervals is empty */
+  /// @brief determine whether the intersection between intervals is empty
   inline bool overlap(const Interval& other) const
   {
     if(i_[1] < other.i_[0]) return false;
@@ -164,7 +174,7 @@ struct Interval
     return Interval(-i_[1], -i_[0]);
   }
 
-  /** \brief Return the nearest distance for points within the interval to zero */
+  /// @brief Return the nearest distance for points within the interval to zero
   inline FCL_REAL getAbsLower() const
   {
     if(i_[0] >= 0) return i_[0];
@@ -172,7 +182,7 @@ struct Interval
     return -i_[1];
   }
 
-  /** \brief Return the farthest distance for points within the interval to zero */
+  /// @brief Return the farthest distance for points within the interval to zero
   inline FCL_REAL getAbsUpper() const
   {
     if(i_[0] + i_[1] >= 0) return i_[1];
@@ -187,7 +197,7 @@ struct Interval
     return true;
   }
 
-  /** \brief Compute the minimum interval contains v and original interval */
+  /// @brief Compute the minimum interval contains v and original interval
   inline Interval& bound(FCL_REAL v)
   {
     if(v < i_[0]) i_[0] = v;
@@ -196,7 +206,7 @@ struct Interval
   }
 
 
-  /** \brief Compute the minimum interval contains other and original interval */
+  /// @brief Compute the minimum interval contains other and original interval
   inline Interval& bound(const Interval& other)
   {
     if(other.i_[0] < i_[0]) i_[0] = other.i_[0];

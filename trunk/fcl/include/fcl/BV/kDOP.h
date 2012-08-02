@@ -128,8 +128,24 @@ private:
   /// @brief Origin's distances to N KDOP planes
   FCL_REAL dist_[N];
 
+public:
+  inline FCL_REAL dist(std::size_t i) const
+  {
+    return dist_[i];
+  }
+
+  inline FCL_REAL& dist(std::size_t i)
+  {
+    return dist_[i];
+  }
+
 
 };
+
+
+/// @brief translate the KDOP BV
+template<size_t N>
+KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
 
 }
 

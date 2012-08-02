@@ -42,15 +42,13 @@
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
 
-/** \brief Main namespace */
 namespace fcl
 {
 
-/** \brief Main collision interface: given two collision objects, and the requirements for contacts, including num of max contacts, whether perform exhaustive collision (i.e., returning 
- * returning all the contact points), whether return detailed contact information (i.e., normal, contact point, depth; otherwise only contact primitive id is returned), this function
- * performs the collision between them. 
- * Return value is the number of contacts generated between the two objects.
- */
+/// @brief Main collision interface: given two collision objects, and the requirements for contacts, including num of max contacts, whether perform exhaustive collision (i.e., returning 
+/// returning all the contact points), whether return detailed contact information (i.e., normal, contact point, depth; otherwise only contact primitive id is returned), this function
+/// performs the collision between them. 
+/// Return value is the number of contacts generated between the two objects.
 
 template<typename NarrowPhaseSolver>
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,

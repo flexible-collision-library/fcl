@@ -130,6 +130,10 @@ public:
 
 };
 
+
+/// @brief Translate the RSS bv
+RSS translate(const RSS& bv, const Vec3f& t);
+
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points
 /// Notice that P and Q are both in the local frame of the first RSS (not global frame and not even the local frame of object 1)

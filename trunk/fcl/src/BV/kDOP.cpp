@@ -104,6 +104,7 @@ inline void getDistances<9>(const Vec3f& p, FCL_REAL* d)
 }
 
 
+
 template<size_t N>
 KDOP<N>::KDOP()
 {
@@ -225,8 +226,34 @@ FCL_REAL KDOP<N>::distance(const KDOP<N>& other, Vec3f* P, Vec3f* Q) const
 }
 
 
+template<size_t N>
+KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t)
+{
+  KDOP<N> res(bv);
+  for(size_t i = 0; i < 3; ++i)
+  {
+    res.dist(i) += t[i];
+    res.dist(N / 2 + i) += t[i];
+  }
+
+  FCL_REAL d[(N - 6) / 2];
+  getDistances<(N - 6) / 2>(t, d);
+  for(size_t i = 0; i < (N - 6) / 2; ++i)
+  {
+    res.dist(3 + i) += d[i];
+    res.dist(3 + i + N / 2) += d[i];
+  }
+
+  return res;
+}
+
+
 template class KDOP<16>;
 template class KDOP<18>;
 template class KDOP<24>;
+
+template KDOP<16> translate<16>(const KDOP<16>&, const Vec3f&);
+template KDOP<18> translate<18>(const KDOP<18>&, const Vec3f&);
+template KDOP<24> translate<24>(const KDOP<24>&, const Vec3f&);
 
 }

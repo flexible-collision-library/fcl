@@ -47,33 +47,16 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-/** \brief Main namespace */
 namespace fcl
 {
 
-/** \brief A class describing the bounding hierarchy of a mesh model */
+/// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 template<typename BV>
 class BVHModel : public CollisionGeometry
 {
-private:
-  int num_tris_allocated;
-  int num_vertices_allocated;
-  int num_bvs_allocated;
-  int num_vertex_updated; // for ccd vertex update
-  unsigned int* primitive_indices;
 
 public:
-
-  /** \brief The state of BVH building process */
-  BVHBuildState build_state;
-
-  /** \brief Split rule to split one BV node into two children */
-  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
-
-  /** \brief Fitting rule to fit a BV node to a set of geometry primitives */
-  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
-
-  /** \brief Model type */
+  /// @brief Model type described by the instance
   BVHModelType getModelType() const
   {
     if(num_tris && num_vertices)
@@ -84,32 +67,29 @@ public:
       return BVH_MODEL_UNKNOWN;
   }
 
-  /** \brief Constructing an empty BVH */
-  BVHModel()
+  /// @brief Constructing an empty BVH
+  BVHModel() : vertices(NULL),
+               tri_indices(NULL),
+               prev_vertices(NULL),
+               num_tris(0),
+               num_vertices(0),
+               build_state(BVH_BUILD_STATE_EMPTY),
+               bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
+               bv_fitter(new BVFitter<BV>()),
+               num_tris_allocated(0),
+               num_vertices_allocated(0),
+               num_bvs_allocated(0),
+               num_vertex_updated(0),
+               primitive_indices(NULL),
+               bvs(NULL),
+               num_bvs(0)
   {
-    vertices = NULL;
-    tri_indices = NULL;
-    bvs = NULL;
-
-    num_tris = 0;
-    num_tris_allocated = 0;
-    num_vertices = 0;
-    num_vertices_allocated = 0;
-    num_bvs = 0;
-    num_bvs_allocated = 0;
-
-    prev_vertices = NULL;
-
-    primitive_indices = NULL;
-
-    build_state = BVH_BUILD_STATE_EMPTY;
-
-    bv_splitter.reset(new BVSplitter<BV>(SPLIT_METHOD_MEAN));
-    bv_fitter.reset(new BVFitter<BV>());
   }
+
+  /// @brief copy from another BVH
   BVHModel(const BVHModel& other);
 
-
+  /// @brief deconstruction, delete mesh data related.
   ~BVHModel()
   {
     delete [] vertices;
@@ -117,162 +97,185 @@ public:
     delete [] bvs;
 
     delete [] prev_vertices;
-
     delete [] primitive_indices;
   }
 
-  /** \brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so
-      we must provide some flexibility here */
+  /// @brief We provide getBV() and getNumBVs() because BVH may be compressed (in future), so we must provide some flexibility here
   
-  /** \brief Get the BV of index id */
+  /// @brief Access the bv giving the its index
   const BVNode<BV>& getBV(int id) const
   {
     return bvs[id];
   }
 
-  /** \brief Get the BV of index id */
+  /// @brief Access the bv giving the its index
   BVNode<BV>& getBV(int id)
   {
     return bvs[id];
   }
 
-  /** \brief Get the number of BVs */
+  /// @brief Get the number of bv in the BVH
   int getNumBVs() const
   {
     return num_bvs;
   }
 
-  /** \brief Get the object type: it is a BVH */
+  /// @brief Get the object type: it is a BVH
   OBJECT_TYPE getObjectType() const { return OT_BVH; }
 
-  /** \brief Get the BV type */
+  /// @brief Get the BV type: default is unknown
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
-  /** \brief Compute the AABB for the BVH, used for broad-phase collision */
+  /// @brief Compute the AABB for the BVH, used for broad-phase collision
   void computeLocalAABB();
 
-  /** \brief Geometry point data */
-  Vec3f* vertices;
-
-  /** \brief Geometry triangle index data, will be NULL for point clouds */
-  Triangle* tri_indices;
-
-  /** \brief Geometry point data in previous frame */
-  Vec3f* prev_vertices;
-
-  /** \brief Number of triangles */
-  int num_tris;
-
-  /** \brief Number of points */
-  int num_vertices;
-
-  /** \brief Begin a new BVH model */
+  /// @brief Begin a new BVH model
   int beginModel(int num_tris = 0, int num_vertices = 0);
 
-  /** \brief Add one point in the new BVH model */
+  /// @brief Add one point in the new BVH model
   int addVertex(const Vec3f& p);
 
-  /** \brief Add one triangle in the new BVH model */
+  /// @brief Add one triangle in the new BVH model
   int addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
 
-  /** \brief Add a set of triangles in the new BVH model */
+  /// @brief Add a set of triangles in the new BVH model
   int addSubModel(const std::vector<Vec3f>& ps, const std::vector<Triangle>& ts);
 
-  /** \brief Add a set of points in the new BVH model */
+  /// @brief Add a set of points in the new BVH model
   int addSubModel(const std::vector<Vec3f>& ps);
 
-  /** \brief End BVH model construction, will build the bounding volume hierarchy */
+  /// @brief End BVH model construction, will build the bounding volume hierarchy
   int endModel();
 
 
-  /** \brief Replace the geometry information of current frame (i.e. should have the same mesh topology with the previous frame) */
+  /// @brief Replace the geometry information of current frame (i.e. should have the same mesh topology with the previous frame)
   int beginReplaceModel();
 
-  /** \brief Replace one point in the old BVH model */
+  /// @brief Replace one point in the old BVH model
   int replaceVertex(const Vec3f& p);
 
-  /** \brief Replace one triangle in the old BVH model */
+  /// @brief Replace one triangle in the old BVH model
   int replaceTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
 
-  /** \brief Replace a set of points in the old BVH model */
+  /// @brief Replace a set of points in the old BVH model
   int replaceSubModel(const std::vector<Vec3f>& ps);
 
-  /** \brief End BVH model replacement, will also refit or rebuild the bounding volume hierarchy */
+  /// @brief End BVH model replacement, will also refit or rebuild the bounding volume hierarchy
   int endReplaceModel(bool refit = true, bool bottomup = true);
 
 
-  /** \brief Replace the geometry information of current frame (i.e. should have the same mesh topology with the previous frame).
-   *  The current frame will be saved as the previous frame in prev_vertices.
-   *  */
+  /// @brief Replace the geometry information of current frame (i.e. should have the same mesh topology with the previous frame).
+  /// The current frame will be saved as the previous frame in prev_vertices.
   int beginUpdateModel();
 
-  /** \brief Update one point in the old BVH model */
+  /// @brief Update one point in the old BVH model
   int updateVertex(const Vec3f& p);
 
-  /** \brief Update one triangle in the old BVH model */
+  /// @brief Update one triangle in the old BVH model
   int updateTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
 
-  /** \brief Update a set of points in the old BVH model */
+  /// @brief Update a set of points in the old BVH model
   int updateSubModel(const std::vector<Vec3f>& ps);
 
-  /** \brief End BVH model update, will also refit or rebuild the bounding volume hierarchy */
+  /// @brief End BVH model update, will also refit or rebuild the bounding volume hierarchy
   int endUpdateModel(bool refit = true, bool bottomup = true);
 
-  /** \brief Check the number of memory used */
+  /// @brief Check the number of memory used
   int memUsage(int msg) const;
 
+  /// @brief This is a special acceleration: BVH_model default stores the BV's transform in world coordinate. However, we can also store each BV's transform related to its parent 
+  /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative()
   {
-    makeParentRelativeRecurse(0, Matrix3f::getIdentity(), Vec3f());
+    Vec3f I[3] = {Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1)};
+    makeParentRelativeRecurse(0, I, Vec3f());
   }
+
+public:
+  /// @brief Geometry point data
+  Vec3f* vertices;
+
+  /// @brief Geometry triangle index data, will be NULL for point clouds
+  Triangle* tri_indices;
+
+  /// @brief Geometry point data in previous frame
+  Vec3f* prev_vertices;
+
+  /// @brief Number of triangles
+  int num_tris;
+
+  /// @brief Number of points
+  int num_vertices;
+
+  /// @brief The state of BVH building process
+  BVHBuildState build_state;
+
+  /// @brief Split rule to split one BV node into two children
+  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
+
+  /// @brief Fitting rule to fit a BV node to a set of geometry primitives
+  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
 
 private:
 
-  /** \brief Bounding volume hierarchy */
+  int num_tris_allocated;
+  int num_vertices_allocated;
+  int num_bvs_allocated;
+  int num_vertex_updated; /// for ccd vertex update
+  unsigned int* primitive_indices;
+
+
+  /// @brief Bounding volume hierarchy
   BVNode<BV>* bvs;
 
-  /** \brief Number of BV nodes in bounding volume hierarchy */
+  /// @brief Number of BV nodes in bounding volume hierarchy
   int num_bvs;
 
-  /** \brief Build the bounding volume hierarchy */
+  /// @brief Build the bounding volume hierarchy
   int buildTree();
 
-  /** \brief Refit the bounding volume hierarchy */
+  /// @brief Refit the bounding volume hierarchy
   int refitTree(bool bottomup);
 
-  /** \brief Refit the bounding volume hierarchy in a top-down way (slow but more compact)*/
+  /// @brief Refit the bounding volume hierarchy in a top-down way (slow but more compact)
   int refitTree_topdown();
 
-  /** \brief Refit the bounding volume hierarchy in a bottom-up way (fast but less compact) */
+  /// @brief Refit the bounding volume hierarchy in a bottom-up way (fast but less compact)
   int refitTree_bottomup();
 
-  /** \brief Recursive kernel for hierarchy construction */
+  /// @brief Recursive kernel for hierarchy construction
   int recursiveBuildTree(int bv_id, int first_primitive, int num_primitives);
 
-  /** \brief Recursive kernel for bottomup refitting */
+  /// @brief Recursive kernel for bottomup refitting 
   int recursiveRefitTree_bottomup(int bv_id);
 
-  void makeParentRelativeRecurse(int bv_id, const Matrix3f& parentR, const Vec3f& parentT)
+  /// @recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
+  /// For oriented BV (OBB, RSS, OBBRSS), special implementation is provided.
+  void makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
   {
     if(!bvs[bv_id].isLeaf())
     {
-      makeParentRelativeRecurse(bvs[bv_id].first_child, bvs[bv_id].getOrientation(), bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(bvs[bv_id].first_child, parent_axis, bvs[bv_id].getCenter());
 
-      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, bvs[bv_id].getOrientation(), bvs[bv_id].getCenter());
+      makeParentRelativeRecurse(bvs[bv_id].first_child + 1, parent_axis, bvs[bv_id].getCenter());
     }
 
-    // make self parent relative
-    Matrix3f Rpc = parentR.transposeTimes(bvs[bv_id].getOrientation());
-    bvs[bv_id].setOrientation(Rpc);
-
-    Vec3f Tpc = bvs[bv_id].getCenter() - parentT;
-    bvs[bv_id].setCenter(parentR.transposeTimes(Tpc));
+    bvs[bv_id].bv = translate(bvs[bv_id].bv, -parent_c);
   }
-
 };
 
 
-/** Specialization of getNodeType() for BVHModel with different BV types */
+template<>
+void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+
+template<>
+void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+
+template<>
+void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+
+
+/// @brief Specialization of getNodeType() for BVHModel with different BV types
 template<>
 NODE_TYPE BVHModel<AABB>::getNodeType() const;
 

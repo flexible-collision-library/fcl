@@ -169,79 +169,113 @@ void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles
   }  
 }
 
-
+template<>
 void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<OBB>(bv, split_vector);
   computeSplitValue_bvcenter<OBB>(bv, split_value);
 }
 
+template<>
 void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<OBB>(bv, split_vector);
   computeSplitValue_mean<OBB>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
+template<>
 void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<OBB>(bv, split_vector);
   computeSplitValue_median<OBB>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
-
+template<>
 void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<RSS>(bv, split_vector);
   computeSplitValue_bvcenter<RSS>(bv, split_value);
 }
-                                  
+          
+template<>                        
 void BVSplitter<RSS>::computeRule_mean(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<RSS>(bv, split_vector);
   computeSplitValue_mean<RSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
+template<>
 void BVSplitter<RSS>::computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<RSS>(bv, split_vector);
   computeSplitValue_median<RSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
+template<>
 void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<kIOS>(bv, split_vector);
   computeSplitValue_bvcenter<kIOS>(bv, split_value);
 }
 
+template<>
 void BVSplitter<kIOS>::computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<kIOS>(bv, split_vector);
   computeSplitValue_mean<kIOS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
+template<>
 void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<kIOS>(bv, split_vector);
   computeSplitValue_median<kIOS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
-
+template<>
 void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<OBBRSS>(bv, split_vector);
   computeSplitValue_bvcenter<OBBRSS>(bv, split_value);
 }
 
+template<>
 void BVSplitter<OBBRSS>::computeRule_mean(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<OBBRSS>(bv, split_vector);
   computeSplitValue_mean<OBBRSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
+template<>
 void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
 {
   computeSplitVector<OBBRSS>(bv, split_vector);
   computeSplitValue_median<OBBRSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+}
+
+
+template<>
+bool BVSplitter<OBB>::apply(const Vec3f& q) const
+{
+  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+}
+
+template<>
+bool BVSplitter<RSS>::apply(const Vec3f& q) const
+{
+  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+}
+
+template<>
+bool BVSplitter<kIOS>::apply(const Vec3f& q) const
+{
+  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+}
+
+template<>
+bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const
+{
+  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
 }
 
 

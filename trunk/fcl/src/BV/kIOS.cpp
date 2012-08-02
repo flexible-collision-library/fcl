@@ -196,4 +196,16 @@ FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIO
 }
 
 
+kIOS translate(const kIOS& bv, const Vec3f& t)
+{
+  kIOS res(bv);
+  for(size_t i = 0; i < res.num_spheres; ++i)
+  {
+    res.spheres[i].o += t;
+  }
+  
+  translate(res.obb, t);
+}
+
+
 }

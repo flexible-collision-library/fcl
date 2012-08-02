@@ -48,47 +48,46 @@
 #include <vector>
 #include <iostream>
 
-/** \brief Main namespace */
 namespace fcl
 {
 
-/** \brief Base class for BV splitting operation */
+/// @brief Base interface for BV splitting algorithm
 template<typename BV>
 class BVSplitterBase
 {
 public:
-  /** \brief Set the geometry data needed by the split rule */
+  /// @brief Set the geometry data needed by the split rule
   virtual void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
-  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
+  /// @brief Compute the split rule according to a subset of geometry and the corresponding BV node
   virtual void computeRule(const BV& bv, unsigned int* primitive_indices, int num_primitives) = 0;
 
-  /** \brief Apply the split rule on a given point */
+  /// @brief Apply the split rule on a given point
   virtual bool apply(const Vec3f& q) const = 0;
 
-  /** \brief Clear the geometry data set before */
+  /// @brief Clear the geometry data set before
   virtual void clear() = 0;
 };
 
 
+/// @brief Three types of split algorithms are provided in FCL as default
 enum SplitMethodType {SPLIT_METHOD_MEAN, SPLIT_METHOD_MEDIAN, SPLIT_METHOD_BV_CENTER};
 
 
-/** \brief A class describing the split rule that splits each BV node */
+/// @brief A class describing the split rule that splits each BV node
 template<typename BV>
 class BVSplitter : public BVSplitterBase<BV>
 {
 public:
 
-  BVSplitter(SplitMethodType method)
+  BVSplitter(SplitMethodType method) : split_method(method)
   {
-    split_method = method;
   }
 
-  /** \brief Default deconstructor */
+  /// @brief Default deconstructor
   virtual ~BVSplitter() {}
 
-  /** \brief Set the geometry data needed by the split rule */
+  /// @brief Set the geometry data needed by the split rule
   void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
@@ -96,32 +95,32 @@ public:
     type = type_;
   }
 
-  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
+  /// @brief Compute the split rule according to a subset of geometry and the corresponding BV node
   void computeRule(const BV& bv, unsigned int* primitive_indices, int num_primitives)
   {
     switch(split_method)
     {
-      case SPLIT_METHOD_MEAN:
-        computeRule_mean(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_MEDIAN:
-        computeRule_median(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_BV_CENTER:
-        computeRule_bvcenter(bv, primitive_indices, num_primitives);
-        break;
-      default:
-        std::cerr << "Split method not supported" << std::endl;
+    case SPLIT_METHOD_MEAN:
+      computeRule_mean(bv, primitive_indices, num_primitives);
+      break;
+    case SPLIT_METHOD_MEDIAN:
+      computeRule_median(bv, primitive_indices, num_primitives);
+      break;
+    case SPLIT_METHOD_BV_CENTER:
+      computeRule_bvcenter(bv, primitive_indices, num_primitives);
+      break;
+    default:
+      std::cerr << "Split method not supported" << std::endl;
     }
   }
 
-  /** \brief Apply the split rule on a given point */
+  /// @brief Apply the split rule on a given point
   bool apply(const Vec3f& q) const
   {
     return q[split_axis] > split_value;
   }
 
-  /** \brief Clear the geometry data set before */
+  /// @brief Clear the geometry data set before
   void clear()
   {
     vertices = NULL;
@@ -131,18 +130,27 @@ public:
 
 private:
 
-  /** \brief The split axis */
+  /// @brief The axis based on which the split decision is made. For most BV, the axis is aligned with one of the world coordinate, so only split_axis is needed.
+  /// For oriented node, we can use a vector to make a better split decision.
   int split_axis;
+  Vec3f split_vector;
 
-  /** \brief The split threshold */
+  /// @brief The split threshold, different primitives are splitted according whether their projection on the split_axis is larger or smaller than the threshold
   FCL_REAL split_value;
 
+  /// @brief The mesh vertices or points handled by the splitter
   Vec3f* vertices;
+
+  /// @brief The triangles handled by the splitter
   Triangle* tri_indices;
+
+  /// @brief Whether the geometry is mesh or point cloud
   BVHModelType type;
+
+  /// @brief The split algorithm used
   SplitMethodType split_method;
 
-  /** \brief Split the node from center */
+  /// @brief Split algorithm 1: Split the node from center
   void computeRule_bvcenter(const BV& bv, unsigned int* primitive_indices, int num_primitives)
   {
     Vec3f center = bv.center();
@@ -157,7 +165,7 @@ private:
     split_value = center[axis];
   }
 
-  /** \brief Split the node according to the mean of the data contained */
+  /// @brief Split algorithm 2: Split the node according to the mean of the data contained
   void computeRule_mean(const BV& bv, unsigned int* primitive_indices, int num_primitives)
   {
     int axis = 2;
@@ -191,7 +199,7 @@ private:
     split_value = sum / num_primitives;
   }
 
-  /** \brief Split the node according to the median of the data contained */
+  /// @brief Split algorithm 3: Split the node according to the median of the data contained
   void computeRule_median(const BV& bv, unsigned int* primitive_indices, int num_primitives)
   {
     int axis = 2;
@@ -232,295 +240,53 @@ private:
 };
 
 
-
-/** \brief BVHSplitRule specialization for OBB */
 template<>
-class BVSplitter<OBB> : public BVSplitterBase<OBB>
-{
-public:
-
-  BVSplitter(SplitMethodType method)
-  {
-    split_method = method;
-  }
-
-  /** \brief Set the geometry data needed by the split rule */
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
-  void computeRule(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
-  {
-    switch(split_method)
-    {
-      case SPLIT_METHOD_MEAN:
-        computeRule_mean(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_MEDIAN:
-        computeRule_median(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_BV_CENTER:
-        computeRule_bvcenter(bv, primitive_indices, num_primitives);
-        break;
-      default:
-        std::cerr << "Split method not supported" << std::endl;
-    }
-  }
-
-  /** \brief Apply the split rule on a given point */
-  bool apply(const Vec3f& q) const
-  {
-    return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
-  }
-
-  /** \brief Clear the geometry data set before */
-  void clear()
-  {
-    vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  /** \brief Split the node from center */
-  void computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
-
-  /** \brief Split the node according to the mean of the data contained */
-  void computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
-
-  /** \brief Split the node according to the median of the data contained */
-  void computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
-
-  FCL_REAL split_value;
-  Vec3f split_vector;
-
-  Vec3f* vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
-  SplitMethodType split_method;
-};
-
-
-/** \brief BVHSplitRule specialization for RSS */
-template<>
-class BVSplitter<RSS> : public BVSplitterBase<RSS>
-{
-public:
-
-  BVSplitter(SplitMethodType method)
-  {
-    split_method = method;
-  }
-
-  /** \brief Set the geometry data needed by the split rule */
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
-  void computeRule(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
-  {
-    switch(split_method)
-    {
-      case SPLIT_METHOD_MEAN:
-        computeRule_mean(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_MEDIAN:
-        computeRule_median(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_BV_CENTER:
-        computeRule_bvcenter(bv, primitive_indices, num_primitives);
-        break;
-      default:
-        std::cerr << "Split method not supported" << std::endl;
-    }
-  }
-
-  /** \brief Apply the split rule on a given point */
-  bool apply(const Vec3f& q) const
-  {
-    return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
-  }
-
-  /** \brief Clear the geometry data set before */
-  void clear()
-  {
-    vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  /** \brief Split the node from center */
-  void computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
-
-  /** \brief Split the node according to the mean of the data contained */
-  void computeRule_mean(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
-
-  /** \brief Split the node according to the median of the data contained */
-  void computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
-
-  FCL_REAL split_value;
-  Vec3f split_vector;
-
-  Vec3f* vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
-  SplitMethodType split_method;
-};
-
-
-/** \brief BVHSplitRule specialization for RSS */
-template<>
-class BVSplitter<kIOS> : public BVSplitterBase<kIOS>
-{
-public:
-
-  BVSplitter(SplitMethodType method)
-  {
-    split_method = method;
-  }
-
-  /** \brief Set the geometry data needed by the split rule */
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
-  void computeRule(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
-  {
-    switch(split_method)
-    {
-      case SPLIT_METHOD_MEAN:
-        computeRule_mean(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_MEDIAN:
-        computeRule_median(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_BV_CENTER:
-        computeRule_bvcenter(bv, primitive_indices, num_primitives);
-        break;
-      default:
-        std::cerr << "Split method not supported" << std::endl;
-    }
-  }
-
-  /** \brief Apply the split rule on a given point */
-  bool apply(const Vec3f& q) const
-  {
-    return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
-  }
-
-  /** \brief Clear the geometry data set before */
-  void clear()
-  {
-    vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  /** \brief Split the node from center */
-  void computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
-
-  /** \brief Split the node according to the mean of the data contained */
-  void computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
-
-  /** \brief Split the node according to the median of the data contained */
-  void computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
-
-  FCL_REAL split_value;
-  Vec3f split_vector;
-
-  Vec3f* vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
-  SplitMethodType split_method;
-};
+bool BVSplitter<OBB>::apply(const Vec3f& q) const;
 
 template<>
-class BVSplitter<OBBRSS> : public BVSplitterBase<OBBRSS>
-{
-public:
+bool BVSplitter<RSS>::apply(const Vec3f& q) const;
 
-  BVSplitter(SplitMethodType method)
-  {
-    split_method = method;
-  }
+template<>
+bool BVSplitter<kIOS>::apply(const Vec3f& q) const;
 
-  /** \brief Set the geometry data needed by the split rule */
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
+template<>
+bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
 
-  /** \brief Compute the split rule according to a subset of geometry and the corresponding BV node */
-  void computeRule(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
-  {
-    switch(split_method)
-    {
-      case SPLIT_METHOD_MEAN:
-        computeRule_mean(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_MEDIAN:
-        computeRule_median(bv, primitive_indices, num_primitives);
-        break;
-      case SPLIT_METHOD_BV_CENTER:
-        computeRule_bvcenter(bv, primitive_indices, num_primitives);
-        break;
-      default:
-        std::cerr << "Split method not supported" << std::endl;
-    }
-  }
+template<>
+void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
 
-  /** \brief Apply the split rule on a given point */
-  bool apply(const Vec3f& q) const
-  {
-    return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
-  }
+template<>
+void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
 
-  /** \brief Clear the geometry data set before */
-  void clear()
-  {
-    vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
+template<>
+void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
 
-private:
+template<>
+void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
+          
+template<>                        
+void BVSplitter<RSS>::computeRule_mean(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  /** \brief Split the node from center */
-  void computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+template<>
+void BVSplitter<RSS>::computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  /** \brief Split the node according to the mean of the data contained */
-  void computeRule_mean(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+template<>
+void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  /** \brief Split the node according to the median of the data contained */
-  void computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+template<>
+void BVSplitter<kIOS>::computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  FCL_REAL split_value;
-  Vec3f split_vector;
+template<>
+void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives);
 
-  Vec3f* vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
-  SplitMethodType split_method;
-};
+template<>
+void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+
+template<>
+void BVSplitter<OBBRSS>::computeRule_mean(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
+
+template<>
+void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives);
 
 }
 

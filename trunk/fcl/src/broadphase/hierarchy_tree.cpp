@@ -34,7 +34,7 @@
 
 /** \author Jia Pan */
 
-#include "fcl/hierarchy_tree.h"
+#include "fcl/broadphase/hierarchy_tree.h"
 
 namespace fcl
 {
@@ -100,7 +100,7 @@ bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Ve
   return true;
 }
 
-namespace alternative
+namespace implementation_array
 {
 template<>
 size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABB>* nodes)

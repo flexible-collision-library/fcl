@@ -42,17 +42,26 @@
 #include "fcl/traversal_node_bvhs.h"
 #include "fcl/BVH_front.h"
 
+
+
+
 namespace fcl
 {
 
+
+/// @brief collision on collision traversal node; can use front list to accelerate
 void collide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
 
+/// @brief self collision on collision traversal node; can use front list to accelerate
 void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NULL);
 
+/// @brief distance computation on distance traversal node; can use front list to accelerate
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 
+/// @brief special collision on OBB traversal node
 void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list = NULL);
 
+/// @brief special collision on RSS traversal node
 void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list = NULL);
 
 }

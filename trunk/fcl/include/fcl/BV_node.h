@@ -41,135 +41,91 @@
 #include "fcl/vec_3f.h"
 #include "fcl/matrix_3f.h"
 
-#include "fcl/BV/OBB.h"
-#include "fcl/BV/RSS.h"
+#include "fcl/BV.h"
+#include <iostream>
 
-/** \brief Main namespace */
 namespace fcl
 {
 
+/// @brief BVNodeBase encodes the tree structure for BVH
 struct BVNodeBase
 {
-  /** \brief An index for first child node or primitive
-   * If the value is positive, it is the index of the first child bv node
-   * If the value is negative, it is -(primitive index + 1)
-   * Zero is not used.
-   */
+  /// @brief An index for first child node or primitive
+  /// If the value is positive, it is the index of the first child bv node
+  /// If the value is negative, it is -(primitive index + 1)
+  /// Zero is not used.
   int first_child;
 
-  /** \brief The start id the primitive belonging to the current node. The index is referred to the primitive_indices in BVHModel and from that
-   * we can obtain the primitive's index in original data indirectly.
-   */
+  /// @brief The start id the primitive belonging to the current node. The index is referred to the primitive_indices in BVHModel and from that
+  /// we can obtain the primitive's index in original data indirectly.
   int first_primitive;
 
-  /** \brief The number of primitives belonging to the current node */
+  /// @brief The number of primitives belonging to the current node 
   int num_primitives;
 
-  /** \brief Whether current node is a leaf node (i.e. contains a primitive index */
+  /// @brief Whether current node is a leaf node (i.e. contains a primitive index
   inline bool isLeaf() const { return first_child < 0; }
 
-  /** \brief Return the primitive index. The index is referred to the original data (i.e. vertices or tri_indices) in BVHModel */
+  /// @brief Return the primitive index. The index is referred to the original data (i.e. vertices or tri_indices) in BVHModel
   inline int primitiveId() const { return -(first_child + 1); }
 
-  /** \brief Return the index of the first child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel */
+  /// @brief Return the index of the first child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
   inline int leftChild() const { return first_child; }
 
-  /** \brief Return the index of the second child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel */
+  /// @brief Return the index of the second child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
   inline int rightChild() const { return first_child + 1; }
 };
 
-/** \brief A class describing a bounding volume node */
+/// @brief A class describing a bounding volume node. It includes the tree structure providing in BVNodeBase and also the geometry data provided in BV template parameter.
 template<typename BV>
 struct BVNode : public BVNodeBase
 {
-  /** \brief A bounding volume */
+  /// @brief bounding volume storing the geometry
   BV bv;
 
-  /** \brief Check whether two BVNode collide */
+  /// @brief Check whether two BVNode collide
   bool overlap(const BVNode& other) const
   {
     return bv.overlap(other.bv);
   }
 
+  /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and the underlying BV supports distance, return the nearest points.
   FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
   {
     return bv.distance(other.bv, P1, P2);
   }
 
-  Vec3f getCenter() const { return Vec3f(); }
-  void setCenter(const Vec3f& v) {}
+  /// @brief Access the center of the BV
+  Vec3f getCenter() const { return bv.center(); }
+
+  /// @brief Access the orientation of the BV
   Matrix3f getOrientation() const { return Matrix3f::getIdentity(); }
-  void setOrientation(const Matrix3f& m) {}
 };
 
 template<>
-struct BVNode<OBB> : public BVNodeBase
+inline Matrix3f BVNode<OBB>::getOrientation() const 
 {
-  /** \brief A bounding volume */
-  OBB bv;
-
-  /** \brief Check whether two BVNode collide */
-  bool overlap(const BVNode& other) const
-  {
-    return bv.overlap(other.bv);
-  }
-
-  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
-  {
-    return bv.distance(other.bv, P1, P2);
-  }
-
-  Vec3f getCenter() const { return bv.To; }
-  void setCenter(const Vec3f& v) { bv.To = v; }
-  Matrix3f getOrientation() const
-  {
-    Matrix3f m(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-               bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-               bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
-    return m;
-  }
-  void setOrientation(const Matrix3f& m)
-  {
-    bv.axis[0].setValue(m(0, 0), m(1, 0), m(2, 0));
-    bv.axis[1].setValue(m(0, 1), m(1, 1), m(2, 1));
-    bv.axis[2].setValue(m(0, 2), m(1, 2), m(2, 2));
-  }
-};
+  return Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+                  bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
+}
 
 template<>
-struct BVNode<RSS> : public BVNodeBase
+inline Matrix3f BVNode<RSS>::getOrientation() const 
 {
-  /** \brief A bounding volume */
-  RSS bv;
+  return Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
+                  bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
+                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
+}
 
-  /** \brief Check whether two BVNode collide */
-  bool overlap(const BVNode& other) const
-  {
-    return bv.overlap(other.bv);
-  }
+template<>
+inline Matrix3f BVNode<OBBRSS>::getOrientation() const 
+{
+  return Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
+                  bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
+                  bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]);
+}
 
-  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
-  {
-    return bv.distance(other.bv, P1, P2);
-  }
-
-  Vec3f getCenter() const { return bv.Tr; }
-  void setCenter(const Vec3f& v) { bv.Tr = v; }
-  Matrix3f getOrientation() const
-  {
-    Matrix3f m(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-               bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-               bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
-    return m;
-  }
-
-  void setOrientation(const Matrix3f& m)
-  {
-    bv.axis[0].setValue(m(0, 0), m(1, 0), m(2, 0));
-    bv.axis[1].setValue(m(0, 1), m(1, 1), m(2, 1));
-    bv.axis[2].setValue(m(0, 2), m(1, 2), m(2, 2));
-  }
-};
 
 }
 
