@@ -38,7 +38,7 @@
 #ifndef FCL_GJK_LIBCCD_H
 #define FCL_GJK_LIBCCD_H
 
-#include "fcl/geometric_shapes.h"
+#include "fcl/shape/geometric_shapes.h"
 #include "fcl/math/transform.h"
 
 #include <ccd/ccd.h>

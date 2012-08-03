@@ -39,10 +39,11 @@
 #define FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 
 #include "fcl/collision_data.h"
-#include "fcl/geometric_shapes.h"
-#include "fcl/traversal_node_base.h"
-#include "fcl/BVH_model.h"
-#include "fcl/geometric_shapes_utility.h"
+#include "fcl/shape/geometric_shapes.h"
+#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/traversal/traversal_node_base.h"
+#include "fcl/BVH/BVH_model.h"
+
 
 namespace fcl
 {

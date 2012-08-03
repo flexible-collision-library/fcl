@@ -38,9 +38,9 @@
 #ifndef FCL_COLLISION_NODE_H
 #define FCL_COLLISION_NODE_H
 
-#include "fcl/traversal_node_base.h"
-#include "fcl/traversal_node_bvhs.h"
-#include "fcl/BVH_front.h"
+#include "fcl/traversal/traversal_node_base.h"
+#include "fcl/traversal/traversal_node_bvhs.h"
+#include "fcl/BVH/BVH_front.h"
 
 
 

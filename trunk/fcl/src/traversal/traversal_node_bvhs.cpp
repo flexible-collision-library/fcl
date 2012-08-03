@@ -35,7 +35,7 @@
 /** \author Jia Pan */
 
 
-#include "fcl/traversal_node_bvhs.h"
+#include "fcl/traversal/traversal_node_bvhs.h"
 
 namespace fcl
 {

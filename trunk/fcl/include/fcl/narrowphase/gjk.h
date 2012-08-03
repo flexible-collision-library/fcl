@@ -37,7 +37,7 @@
 #ifndef FCL_GJK_H
 #define FCL_GJK_H
 
-#include "fcl/geometric_shapes.h"
+#include "fcl/shape/geometric_shapes.h"
 #include "fcl/math/transform.h"
 
 namespace fcl

@@ -39,10 +39,10 @@
 #define FCL_TRAVERSAL_NODE_MESHES_H
 
 #include "fcl/collision_data.h"
-#include "fcl/traversal_node_base.h"
-#include "fcl/BV_node.h"
-#include "fcl/BV.h"
-#include "fcl/BVH_model.h"
+#include "fcl/traversal/traversal_node_base.h"
+#include "fcl/BV/BV_node.h"
+#include "fcl/BV/BV.h"
+#include "fcl/BVH/BVH_model.h"
 #include "fcl/intersect.h"
 #include "fcl/ccd/motion.h"
 

@@ -38,11 +38,10 @@
 #define FCL_BVH_MODEL_H
 
 #include "fcl/collision_object.h"
-#include "fcl/BVH_internal.h"
-#include "fcl/BV.h"
-#include "fcl/BV_node.h"
-#include "fcl/BV_splitter.h"
-#include "fcl/BV_fitter.h"
+#include "fcl/BVH/BVH_internal.h"
+#include "fcl/BV/BV_node.h"
+#include "fcl/BVH/BV_splitter.h"
+#include "fcl/BVH/BV_fitter.h"
 #include <vector>
 #include <boost/shared_ptr.hpp>
 

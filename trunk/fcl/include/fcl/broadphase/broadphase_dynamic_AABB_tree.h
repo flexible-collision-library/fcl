@@ -41,8 +41,8 @@
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/broadphase/hierarchy_tree.h"
 #include "fcl/octree.h"
-#include "fcl/BV.h"
-#include "fcl/geometric_shapes_utility.h"
+#include "fcl/BV/BV.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 #include <boost/unordered_map.hpp>
 #include <boost/bind.hpp>
 #include <limits>

@@ -36,7 +36,7 @@
 
 
 #include "fcl/collision_node.h"
-#include "fcl/traversal_recurse.h"
+#include "fcl/traversal/traversal_recurse.h"
 
 namespace fcl
 {

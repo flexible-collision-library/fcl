@@ -38,11 +38,11 @@
 #ifndef FCL_TRAVERSAL_NODE_SETUP_H
 #define FCL_TRAVERSAL_NODE_SETUP_H
 
-#include "fcl/traversal_node_bvhs.h"
-#include "fcl/traversal_node_shapes.h"
-#include "fcl/traversal_node_bvh_shape.h"
-#include "fcl/traversal_node_octree.h"
-#include "fcl/BVH_utility.h"
+#include "fcl/traversal/traversal_node_bvhs.h"
+#include "fcl/traversal/traversal_node_shapes.h"
+#include "fcl/traversal/traversal_node_bvh_shape.h"
+#include "fcl/traversal/traversal_node_octree.h"
+#include "fcl/BVH/BVH_utility.h"
 
 namespace fcl
 {

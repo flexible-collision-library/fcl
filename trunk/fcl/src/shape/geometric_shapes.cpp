@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#include "fcl/geometric_shapes.h"
-#include "fcl/geometric_shapes_utility.h"
+#include "fcl/shape/geometric_shapes.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 
 namespace fcl
 {

@@ -39,8 +39,8 @@
 #define FCL_GEOMETRIC_SHAPES_UTILITY_H
 
 #include <vector>
-#include "fcl/geometric_shapes.h"
-#include "fcl/BV.h"
+#include "fcl/shape/geometric_shapes.h"
+#include "fcl/BV/BV.h"
 
 namespace fcl
 {

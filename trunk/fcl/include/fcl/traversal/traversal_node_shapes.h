@@ -39,9 +39,9 @@
 #define FCL_TRAVERSAL_NODE_SHAPES_H
 
 #include "fcl/collision_data.h"
-#include "fcl/traversal_node_base.h"
+#include "fcl/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/narrowphase.h"
-#include "fcl/geometric_shapes_utility.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 
 namespace fcl
 {

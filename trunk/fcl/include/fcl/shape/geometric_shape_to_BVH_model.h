@@ -38,8 +38,8 @@
 #ifndef GEOMETRIC_SHAPE_TO_BVH_MODEL_H
 #define GEOMETRIC_SHAPE_TO_BVH_MODEL_H
 
-#include "fcl/geometric_shapes.h"
-#include "fcl/BVH_model.h"
+#include "fcl/shape/geometric_shapes.h"
+#include "fcl/BVH/BVH_model.h"
 #include <boost/math/constants/constants.hpp>
 
 namespace fcl

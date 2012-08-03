@@ -35,86 +35,39 @@
 /** \author Jia Pan */
 
 
-#include "fcl/traversal_node_base.h"
-#include <limits>
+#ifndef FCL_TRAVERSAL_RECURSE_H
+#define FCL_TRAVERSAL_RECURSE_H
+
+#include "fcl/traversal/traversal_node_base.h"
+#include "fcl/traversal/traversal_node_bvhs.h"
+#include "fcl/BVH/BVH_front.h"
+#include <queue>
 
 namespace fcl
 {
 
-TraversalNodeBase::~TraversalNodeBase()
-{
-}
+/// @brief Recurse function for collision
+void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 
-bool TraversalNodeBase::isFirstNodeLeaf(int b) const
-{
-  return true;
-}
+/// @brief Recurse function for collision, specialized for OBB type
+void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
 
-bool TraversalNodeBase::isSecondNodeLeaf(int b) const
-{
-  return true;
-}
+/// @brief Recurse function for collision, specialized for RSS type
+void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
 
-bool TraversalNodeBase::firstOverSecond(int b1, int b2) const
-{
-  return true;
-}
+/// @brief Recurse function for self collision. Make sure node is set correctly so that the first and second tree are the same
+void selfCollisionRecurse(CollisionTraversalNodeBase* node, int b, BVHFrontList* front_list);
 
-int TraversalNodeBase::getFirstLeftChild(int b) const
-{
-  return b;
-}
+/// @brief Recurse function for distance
+void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 
-int TraversalNodeBase::getFirstRightChild(int b) const
-{
-  return b;
-}
+/// @brief Recurse function for distance, using queue acceleration
+void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
-int TraversalNodeBase::getSecondLeftChild(int b) const
-{
-  return b;
-}
-
-int TraversalNodeBase::getSecondRightChild(int b) const
-{
-  return b;
-}
-
-CollisionTraversalNodeBase::~CollisionTraversalNodeBase()
-{
-}
-
-bool CollisionTraversalNodeBase::BVTesting(int b1, int b2) const
-{
-  return true;
-}
-
-void CollisionTraversalNodeBase::leafTesting(int b1, int b2) const
-{
-}
-
-bool CollisionTraversalNodeBase::canStop() const
-{
-  return false;
-}
+/// @brief Recurse function for front list propagation
+void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node, BVHFrontList* front_list);
 
 
-DistanceTraversalNodeBase::~DistanceTraversalNodeBase()
-{
 }
 
-FCL_REAL DistanceTraversalNodeBase::BVTesting(int b1, int b2) const
-{
-  return std::numeric_limits<FCL_REAL>::max();
-}
-
-void DistanceTraversalNodeBase::leafTesting(int b1, int b2) const
-{
-}
-
-bool DistanceTraversalNodeBase::canStop(FCL_REAL c) const
-{
-  return false;
-}
-
-}
+#endif

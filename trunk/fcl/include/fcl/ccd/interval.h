@@ -38,8 +38,7 @@
 #ifndef FCL_INTERVAL_H
 #define FCL_INTERVAL_H
 
-#include "fcl/BVH_internal.h"
-#include <cstdlib>
+#include "fcl/data_types.h"
 
 namespace fcl
 {

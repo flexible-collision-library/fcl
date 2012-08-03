@@ -38,9 +38,6 @@
 #define FCL_INTERSECT_H
 
 #include "fcl/math/transform.h"
-#include "fcl/BVH_internal.h"
-#include "fcl/data_types.h"
-
 
 namespace fcl
 {

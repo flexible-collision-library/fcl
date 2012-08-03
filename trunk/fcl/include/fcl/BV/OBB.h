@@ -37,7 +37,7 @@
 #ifndef FCL_OBB_H
 #define FCL_OBB_H
 
-#include "fcl/BVH_internal.h"
+
 #include "fcl/math/vec_3f.h"
 #include "fcl/math/matrix_3f.h"
 

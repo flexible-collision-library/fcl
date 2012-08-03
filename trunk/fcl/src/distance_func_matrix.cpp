@@ -37,7 +37,7 @@
 #include "fcl/distance_func_matrix.h"
 
 #include "fcl/collision_node.h"
-#include "fcl/traversal_node_setup.h"
+#include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/narrowphase/narrowphase.h"
 
 namespace fcl

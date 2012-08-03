@@ -41,7 +41,7 @@
 #include "fcl/math/vec_3f.h"
 #include "fcl/math/matrix_3f.h"
 
-#include "fcl/BV.h"
+#include "fcl/BV/BV.h"
 #include <iostream>
 
 namespace fcl

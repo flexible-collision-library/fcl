@@ -37,7 +37,7 @@
 #ifndef FCL_VEC_3F_H
 #define FCL_VEC_3F_H
 
-#include "fcl/BVH_internal.h"
+#include "fcl/data_types.h"
 #include "fcl/math/math_details.h"
 #include "fcl/simd/math_simd_details.h"
 #include <cmath>

@@ -34,8 +34,8 @@
 
 /** \author Jia Pan */
 
-#include "fcl/BV_fitter.h"
-#include "fcl/BVH_utility.h"
+#include "fcl/BVH/BV_fitter.h"
+#include "fcl/BVH/BVH_utility.h"
 #include <limits>
 
 namespace fcl

@@ -37,11 +37,7 @@
 #ifndef FCL_BV_SPLITTER_H
 #define FCL_BV_SPLITTER_H
 
-
-#include "fcl/BVH_internal.h"
-#include "fcl/data_types.h"
-#include "fcl/BV/OBB.h"
-#include "fcl/BV/RSS.h"
+#include "fcl/BVH/BVH_internal.h"
 #include "fcl/BV/kIOS.h"
 #include "fcl/BV/OBBRSS.h"
 #include <vector>

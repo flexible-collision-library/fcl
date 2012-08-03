@@ -37,9 +37,7 @@
 #ifndef FCL_OBBRSS_H
 #define FCL_OBBRSS_H
 
-#include "fcl/BVH_internal.h"
-#include "fcl/math/vec_3f.h"
-#include "fcl/math/matrix_3f.h"
+
 #include "fcl/BV/OBB.h"
 #include "fcl/BV/RSS.h"
 
