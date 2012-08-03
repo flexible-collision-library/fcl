@@ -10,7 +10,6 @@
   <url>http://ros.org/wiki/fcl</url>
 
   <depend package="common_rosdeps"/>
-  <rosdep name="flann" />
   <rosdep name="libccd" />
   <rosdep name="octomap" />
 

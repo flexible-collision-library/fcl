@@ -37,12 +37,12 @@
 #ifndef FCL_MATRIX_3F_H
 #define FCL_MATRIX_3F_H
 
-#include "fcl/vec_3f.h"
+#include "fcl/math/vec_3f.h"
 
 namespace fcl
 {
 
-
+/// @brief Matrix2 class wrapper. the core data is in the template parameter class
 template<typename T>
 class Matrix3fX
 {
@@ -293,6 +293,7 @@ void relativeTransform(const Matrix3fX<T>& R1, const Vec3fX<typename T::vector_t
   t = R1.transposeTimes(t2 - t1);
 }
 
+/// @brief compute the eigen vector and eigen vector of a matrix. dout is the eigen values, vout is the eigen vectors
 template<typename T>
 void eigen(const Matrix3fX<T>& m, typename T::meta_type dout[3], Vec3fX<typename T::vector_type> vout[3])
 {

@@ -35,9 +35,10 @@
 
 /** \author Ioan Sucan */
 
-#include "ompl/tools/debug/Profiler.h"
+#include "fcl/profile.h"
 
-ompl::tools::Profiler& ompl::tools::Profiler::Instance(void)
+
+fcl::tools::Profiler& fcl::tools::Profiler::Instance(void)
 {
   static Profiler p(true, false);
   return p;
@@ -45,12 +46,11 @@ ompl::tools::Profiler& ompl::tools::Profiler::Instance(void)
 
 #if ENABLE_PROFILING
 
-#include "ompl/util/Console.h"
 #include <vector>
 #include <algorithm>
 #include <sstream>
 
-void ompl::tools::Profiler::start(void)
+void fcl::tools::Profiler::start(void)
 {
   lock_.lock();
   if (!running_)
@@ -61,7 +61,7 @@ void ompl::tools::Profiler::start(void)
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::stop(void)
+void fcl::tools::Profiler::stop(void)
 {
   lock_.lock();
   if (running_)
@@ -72,7 +72,7 @@ void ompl::tools::Profiler::stop(void)
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::clear(void)
+void fcl::tools::Profiler::clear(void)
 {
   lock_.lock();
   data_.clear();
@@ -82,14 +82,14 @@ void ompl::tools::Profiler::clear(void)
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::event(const std::string &name, const unsigned int times)
+void fcl::tools::Profiler::event(const std::string &name, const unsigned int times)
 {
   lock_.lock();
   data_[boost::this_thread::get_id()].events[name] += times;
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::average(const std::string &name, const double value)
+void fcl::tools::Profiler::average(const std::string &name, const double value)
 {
   lock_.lock();
   AvgInfo &a = data_[boost::this_thread::get_id()].avg[name];
@@ -99,21 +99,21 @@ void ompl::tools::Profiler::average(const std::string &name, const double value)
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::begin(const std::string &name)
+void fcl::tools::Profiler::begin(const std::string &name)
 {
   lock_.lock();
   data_[boost::this_thread::get_id()].time[name].set();
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::end(const std::string &name)
+void fcl::tools::Profiler::end(const std::string &name)
 {
   lock_.lock();
   data_[boost::this_thread::get_id()].time[name].update();
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::status(std::ostream &out, bool merge)
+void fcl::tools::Profiler::status(std::ostream &out, bool merge)
 {
   stop();
   lock_.lock();
@@ -157,16 +157,9 @@ void ompl::tools::Profiler::status(std::ostream &out, bool merge)
   lock_.unlock();
 }
 
-void ompl::tools::Profiler::console(void)
-{
-  std::stringstream ss;
-  ss << std::endl;
-  status(ss, true);
-  // logInform(ss.str().c_str());
-}
 
 /// @cond IGNORE
-namespace ompl
+namespace fcl
 {
 
 struct dataIntVal
@@ -199,7 +192,7 @@ struct SortDoubleByValue
 }
 /// @endcond
 
-void ompl::tools::Profiler::printThreadInfo(std::ostream &out, const PerThread &data)
+void fcl::tools::Profiler::printThreadInfo(std::ostream &out, const PerThread &data)
 {
   double total = time::seconds(tinfo_.total);
 

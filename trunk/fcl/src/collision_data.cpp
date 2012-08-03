@@ -34,9 +34,19 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SIMD_H
-#define FCL_SIMD_H
+#include "fcl/collision_data.h"
 
-#include "fcl/math_simd_details.h"
+namespace fcl
+{
 
-#endif
+bool CollisionRequest::isSatisfied(const CollisionResult& result) const
+{
+  return (!enable_cost) && result.isCollision() && (num_max_contacts <= result.numContacts());
+}
+
+bool DistanceRequest::isSatisfied(const DistanceResult& result) const
+{
+  return (result.min_distance <= 0);
+}
+
+}

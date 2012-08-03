@@ -37,9 +37,6 @@
 #ifndef FCL_KIOS_H
 #define FCL_KIOS_H
 
-#include "fcl/BVH_internal.h"
-#include "fcl/vec_3f.h"
-#include "fcl/matrix_3f.h"
 #include "fcl/BV/OBB.h"
 
 

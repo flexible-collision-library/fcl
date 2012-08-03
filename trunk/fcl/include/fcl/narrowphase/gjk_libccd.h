@@ -39,7 +39,7 @@
 #define FCL_GJK_LIBCCD_H
 
 #include "fcl/geometric_shapes.h"
-#include "fcl/transform.h"
+#include "fcl/math/transform.h"
 
 #include <ccd/ccd.h>
 #include <ccd/quat.h>
@@ -50,32 +50,31 @@ namespace fcl
 namespace details
 {
 
-/** \brief recall function used by GJK algorithm */
+/// @brief callback function used by GJK algorithm
 typedef void (*GJKSupportFunction)(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v);
 typedef void (*GJKCenterFunction)(const void* obj, ccd_vec3_t* c);
 
-/** \brief initialize GJK stuffs */
+/// @brief initialize GJK stuffs
 template<typename T>
 class GJKInitializer
 {
 public:
-  /** \brief Get GJK support function */
+  /// @brief Get GJK support function
   static GJKSupportFunction getSupportFunction() { return NULL; }
 
-  /** \brief Get GJK center function */
+  /// @brief Get GJK center function
   static GJKCenterFunction getCenterFunction() { return NULL; }
 
-  /** \brief Get GJK object from a shape
-   * Notice that only local transformation is applied.
-   * Gloal transformation are considered later
-   */
+  /// @brief Get GJK object from a shape
+  /// Notice that only local transformation is applied.
+  /// Gloal transformation are considered later
   static void* createGJKObject(const T& s, const Transform3f& tf) { return NULL; }
 
-  /** \brief Delete GJK object */
+  /// @brief Delete GJK object
   static void deleteGJKObject(void* o) {}
 };
 
-/** \brief initialize GJK Cylinder */
+/// @brief initialize GJK Cylinder
 template<>
 class GJKInitializer<Cylinder>
 {
@@ -86,7 +85,7 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/** \brief initialize GJK Sphere */
+/// @brief initialize GJK Sphere
 template<>
 class GJKInitializer<Sphere>
 {
@@ -97,7 +96,7 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/** \brief initialize GJK Box */
+/// @brief initialize GJK Box
 template<>
 class GJKInitializer<Box>
 {
@@ -108,7 +107,7 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/** \brief initialize GJK Capsule */
+/// @brief initialize GJK Capsule
 template<>
 class GJKInitializer<Capsule>
 {
@@ -119,7 +118,7 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/** \brief initialize GJK Cone */
+/// @brief initialize GJK Cone
 template<>
 class GJKInitializer<Cone>
 {
@@ -130,7 +129,7 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/** \brief initialize GJK Convex */
+/// @brief initialize GJK Convex
 template<>
 class GJKInitializer<Convex>
 {
@@ -141,7 +140,7 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/** \brief initialize GJK Triangle */
+/// @brief initialize GJK Triangle
 GJKSupportFunction triGetSupportFunction();
 
 GJKCenterFunction triGetCenterFunction();
@@ -152,7 +151,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, cons
 
 void triDeleteGJKObject(void* o);
 
-/** \brief GJK collision algorithm */
+/// @brief GJK collision algorithm
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
                 unsigned int max_iterations, FCL_REAL tolerance,

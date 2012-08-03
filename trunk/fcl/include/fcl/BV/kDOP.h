@@ -38,7 +38,7 @@
 #define FCL_KDOP_H
 
 #include "fcl/BVH_internal.h"
-#include "fcl/vec_3f.h"
+#include "fcl/math/vec_3f.h"
 
 namespace fcl
 {

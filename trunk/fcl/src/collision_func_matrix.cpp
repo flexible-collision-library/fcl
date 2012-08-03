@@ -37,7 +37,7 @@
 
 #include "fcl/collision_func_matrix.h"
 
-#include "fcl/simple_setup.h"
+#include "fcl/traversal_node_setup.h"
 #include "fcl/collision_node.h"
 #include "fcl/narrowphase/narrowphase.h"
 
@@ -50,7 +50,7 @@ std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& t
                                const NarrowPhaseSolver* nsolver,
                                const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   ShapeOcTreeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node;
   const T_SH* obj1 = static_cast<const T_SH*>(o1);
@@ -68,7 +68,7 @@ std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& t
                                const NarrowPhaseSolver* nsolver,
                                const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   OcTreeShapeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
@@ -86,7 +86,7 @@ std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, c
                           const NarrowPhaseSolver* nsolver,
                           const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   OcTreeCollisionTraversalNode<NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
@@ -104,7 +104,7 @@ std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
   const OcTree* obj1 = static_cast<const OcTree*>(o1);
@@ -122,7 +122,7 @@ std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
@@ -141,7 +141,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
                               const NarrowPhaseSolver* nsolver,
                               const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   ShapeCollisionTraversalNode<T_SH1, T_SH2, NarrowPhaseSolver> node;
   const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
@@ -160,7 +160,7 @@ struct BVHShapeCollider
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+    if(request.isSatisfied(result)) return result.numContacts();
 
     MeshShapeCollisionTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
@@ -184,7 +184,7 @@ struct BVHShapeCollider<OBB, T_SH, NarrowPhaseSolver>
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+    if(request.isSatisfied(result)) return result.numContacts();
 
     MeshShapeCollisionTraversalNodeOBB<T_SH, NarrowPhaseSolver> node;
     const BVHModel<OBB>* obj1 = static_cast<const BVHModel<OBB>* >(o1);
@@ -205,7 +205,7 @@ struct BVHShapeCollider<RSS, T_SH, NarrowPhaseSolver>
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+    if(request.isSatisfied(result)) return result.numContacts();
 
     MeshShapeCollisionTraversalNodeRSS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<RSS>* obj1 = static_cast<const BVHModel<RSS>* >(o1);
@@ -226,7 +226,7 @@ struct BVHShapeCollider<kIOS, T_SH, NarrowPhaseSolver>
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+    if(request.isSatisfied(result)) return result.numContacts();
 
     MeshShapeCollisionTraversalNodekIOS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);
@@ -247,7 +247,7 @@ struct BVHShapeCollider<OBBRSS, T_SH, NarrowPhaseSolver>
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+    if(request.isSatisfied(result)) return result.numContacts();
 
     MeshShapeCollisionTraversalNodeOBBRSS<T_SH, NarrowPhaseSolver> node;
     const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
@@ -264,7 +264,7 @@ struct BVHShapeCollider<OBBRSS, T_SH, NarrowPhaseSolver>
 template<typename T_BVH>
 std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
   
   MeshCollisionTraversalNode<T_BVH> node;
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
@@ -286,7 +286,7 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
 template<>
 std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   MeshCollisionTraversalNodeOBB node;
   const BVHModel<OBB>* obj1 = static_cast<const BVHModel<OBB>* >(o1);
@@ -301,7 +301,7 @@ std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3f& tf1,
 template<>
 std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   MeshCollisionTraversalNodeOBBRSS node;
   const BVHModel<OBBRSS>* obj1 = static_cast<const BVHModel<OBBRSS>* >(o1);
@@ -317,7 +317,7 @@ std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1, const Transform3f& t
 template<>
 std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
 {
-  if(!request.enable_cost && (request.num_max_contacts <= result.numContacts())) return result.numContacts();
+  if(request.isSatisfied(result)) return result.numContacts();
 
   MeshCollisionTraversalNodekIOS node;
   const BVHModel<kIOS>* obj1 = static_cast<const BVHModel<kIOS>* >(o1);

@@ -44,7 +44,7 @@
 #include "fcl/BV.h"
 #include "fcl/BVH_model.h"
 #include "fcl/intersect.h"
-#include "fcl/motion.h"
+#include "fcl/ccd/motion.h"
 
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -52,11 +52,11 @@
 #include <vector>
 #include <cassert>
 
-/** \brief Main namespace */
+
 namespace fcl
 {
 
-/** \brief Traversal node for collision between BVH models */
+/// @brief Traversal node for collision between BVH models
 template<typename BV>
 class BVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -71,19 +71,19 @@ public:
     query_time_seconds = 0.0;
   }
 
-  /** \brief Whether the BV node in the first BVH tree is leaf */
+  /// @brief Whether the BV node in the first BVH tree is leaf
   bool isFirstNodeLeaf(int b) const
   {
     return model1->getBV(b).isLeaf();
   }
 
-  /** \brief Whether the BV node in the second BVH tree is leaf */
+  /// @brief Whether the BV node in the second BVH tree is leaf
   bool isSecondNodeLeaf(int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
-  /** \brief Determine the traversal order, is the first BVTT subtree better */
+  /// @brief Determine the traversal order, is the first BVTT subtree better
   bool firstOverSecond(int b1, int b2) const
   {
     FCL_REAL sz1 = model1->getBV(b1).bv.size();
@@ -97,43 +97,43 @@ public:
     return false;
   }
 
-  /** \brief Obtain the left child of BV node in the first BVH */
+  /// @brief Obtain the left child of BV node in the first BVH
   int getFirstLeftChild(int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
-  /** \brief Obtain the right child of BV node in the first BVH */
+  /// @brief Obtain the right child of BV node in the first BVH
   int getFirstRightChild(int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
-  /** \brief Obtain the left child of BV node in the second BVH */
+  /// @brief Obtain the left child of BV node in the second BVH
   int getSecondLeftChild(int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
-  /** \brief Obtain the right child of BV node in the second BVH */
+  /// @brief Obtain the right child of BV node in the second BVH
   int getSecondRightChild(int b) const
   {
     return model2->getBV(b).rightChild();
   }
 
-  /** \brief BV culling test in one BVTT node */
+  /// @brief BV culling test in one BVTT node
   bool BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     return !model1->getBV(b1).overlap(model2->getBV(b2));
   }
   
-  /** \brief The first BVH model */
+  /// @brief The first BVH model
   const BVHModel<BV>* model1;
-  /** \brief The second BVH model */
+  /// @brief The second BVH model
   const BVHModel<BV>* model2;
 
-  /** \brief statistical information */
+  /// @brief statistical information
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable FCL_REAL query_time_seconds;
@@ -141,7 +141,7 @@ public:
 };
 
 
-/** \brief Traversal node for collision between two meshes */
+/// @brief Traversal node for collision between two meshes
 template<typename BV>
 class MeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
@@ -154,7 +154,7 @@ public:
     tri_indices2 = NULL;
   }
 
-  /** \brief Intersection testing between leaves (two triangles) */
+  /// @brief Intersection testing between leaves (two triangles)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -217,7 +217,7 @@ public:
       {
         AABB overlap_part;
         AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density));      
+        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);      
       }
     }   
     else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
@@ -226,15 +226,15 @@ public:
       {
         AABB overlap_part;
         AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density));      
+        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);      
       }
     }
   }
 
-  /** \brief Whether the traversal process can stop early */
+  /// @brief Whether the traversal process can stop early
   bool canStop() const
   {
-    return (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
+    return this->request.isSatisfied(*(this->result));
   }
 
   Vec3f* vertices1;
@@ -247,7 +247,7 @@ public:
 };
 
 
-
+/// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
 class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBB>
 {
 public:
@@ -264,7 +264,6 @@ public:
   Matrix3f R;
   Vec3f T;
 };
-
 
 class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS>
 {
@@ -309,246 +308,24 @@ public:
   Vec3f T;
 };
 
-#if USE_SVMLIGHT
-
-struct BVHPointCollisionPair
-{
-  BVHPointCollisionPair() {}
-
-  BVHPointCollisionPair(int id1_start_, int id1_num_, int id2_start_, int id2_num_, FCL_REAL collision_prob_)
-    : id1_start(id1_start_), id1_num(id1_num_), id2_start(id2_start_), id2_num(id2_num_), collision_prob(collision_prob_) {}
-
-  int id1_start;
-  int id1_num;
-
-  int id2_start;
-  int id2_num;
-
-  FCL_REAL collision_prob;
-};
-
-struct BVHPointCollisionPairComp
-{
-  bool operator()(const BVHPointCollisionPair& a, const BVHPointCollisionPair& b)
-  {
-    if(a.id1_start == b.id1_start)
-      return a.id2_start < b.id2_start;
-    return a.id1_start < b.id1_start;
-  }
-};
-
-
-template<typename BV>
-class PointCloudCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
-{
-public:
-  PointCloudCollisionTraversalNode() : BVHCollisionTraversalNode<BV>()
-  {
-    vertices1 = NULL;
-    vertices2 = NULL;
-
-    collision_prob_threshold = 0.5;
-    max_collision_prob = 0;
-    leaf_size_threshold = 1;
-  }
-
-  bool isFirstNodeLeaf(int b) const
-  {
-    const BVNode<BV>& node = this->model1->getBV(b);
-    return ((node.num_primitives < leaf_size_threshold) || node.isLeaf());
-  }
-
-  bool isSecondNodeLeaf(int b) const
-  {
-    const BVNode<BV>& node = this->model2->getBV(b);
-    return ((node.num_primitives < leaf_size_threshold) || node.isLeaf());
-  }
-
-  void leafTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_leaf_tests++;
-
-    const BVNode<BV>& node1 = this->model1->getBV(b1);
-    const BVNode<BV>& node2 = this->model2->getBV(b2);
-
-    FCL_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                               node1.num_primitives,
-                                                               vertices2 + node2.first_primitive, uc2.get() + node2.first_primitive,
-                                                               node2.num_primitives,
-                                                               classifier_param);
-
-    if(collision_prob > collision_prob_threshold)
-      pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
-
-    if(collision_prob > max_collision_prob)
-      max_collision_prob = collision_prob;
-
-  }
-
-  bool canStop() const
-  {
-    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
-  }
-
-  Vec3f* vertices1;
-  Vec3f* vertices2;
-
-  boost::shared_array<Variance3f> uc1;
-  boost::shared_array<Variance3f> uc2;
-
-  mutable std::vector<BVHPointCollisionPair> pairs;
-
-  int leaf_size_threshold;
-
-  FCL_REAL collision_prob_threshold;
-
-  mutable FCL_REAL max_collision_prob;
-
-  CloudClassifierParam classifier_param;
-};
-
-
-
-class PointCloudCollisionTraversalNodeOBB : public PointCloudCollisionTraversalNode<OBB>
-{
-public:
-  PointCloudCollisionTraversalNodeOBB();
-
-  bool BVTesting(int b1, int b2) const;
-
-  void leafTesting(int b1, int b2) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-
-class PointCloudCollisionTraversalNodeRSS : public PointCloudCollisionTraversalNode<RSS>
-{
-public:
-  PointCloudCollisionTraversalNodeRSS();
-
-  bool BVTesting(int b1, int b2) const;
-
-  void leafTesting(int b1, int b2) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-
-
-template<typename BV>
-class PointCloudMeshCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
-{
-public:
-  PointCloudMeshCollisionTraversalNode() : BVHCollisionTraversalNode<BV>()
-  {
-    vertices1 = NULL;
-    vertices2 = NULL;
-    tri_indices2 = NULL;
-
-    collision_prob_threshold = 0.5;
-    max_collision_prob = 0;
-    leaf_size_threshold = 1;
-  }
-
-  bool isFirstNodeLeaf(int b) const
-  {
-    const BVNode<BV>& node = this->model1->getBV(b);
-    return ((node.num_primitives < leaf_size_threshold) || node.isLeaf());
-  }
-
-  void leafTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_leaf_tests++;
-
-    const BVNode<BV>& node1 = this->model1->getBV(b1);
-    const BVNode<BV>& node2 = this->model2->getBV(b2);
-
-    const Triangle& tri_id2 = tri_indices2[node2.primitiveId()];
-
-    const Vec3f& q1 = vertices2[tri_id2[0]];
-    const Vec3f& q2 = vertices2[tri_id2[1]];
-    const Vec3f& q3 = vertices2[tri_id2[2]];
-
-    FCL_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                                       node1.num_primitives,
-                                                                       q1, q2, q3);
-
-    if(collision_prob > collision_prob_threshold)
-      pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
-
-    if(collision_prob > max_collision_prob)
-      max_collision_prob = collision_prob;
-  }
-
-  bool canStop() const
-  {
-    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
-  }
-
-  Vec3f* vertices1;
-  Vec3f* vertices2;
-
-  boost::shared_array<Variance3f> uc1;
-  Triangle* tri_indices2;
-
-  mutable std::vector<BVHPointCollisionPair> pairs;
-
-  int leaf_size_threshold;
-
-  FCL_REAL collision_prob_threshold;
-
-  mutable FCL_REAL max_collision_prob;
-};
-
-
-class PointCloudMeshCollisionTraversalNodeOBB : public PointCloudMeshCollisionTraversalNode<OBB>
-{
-public:
-  PointCloudMeshCollisionTraversalNodeOBB();
-
-  bool BVTesting(int b1, int b2) const;
-
-  void leafTesting(int b1, int b2) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-class PointCloudMeshCollisionTraversalNodeRSS : public PointCloudMeshCollisionTraversalNode<RSS>
-{
-public:
-  PointCloudMeshCollisionTraversalNodeRSS();
-
-  bool BVTesting(int b1, int b2) const;
-
-  void leafTesting(int b1, int b2) const;
-
-  Matrix3f R;
-  Vec3f T;
-};
-
-#endif
-
+/// @brief Traversal node for continuous collision between BVH models
 struct BVHContinuousCollisionPair
 {
   BVHContinuousCollisionPair() {}
 
   BVHContinuousCollisionPair(int id1_, int id2_, FCL_REAL time) : id1(id1_), id2(id2_), collision_time(time) {}
 
-  /** \brief The index of one in-collision primitive */
+  /// @brief The index of one in-collision primitive
   int id1;
 
-  /** \brief The index of the other in-collision primitive */
+  /// @brief The index of the other in-collision primitive
   int id2;
 
-  /** \brief Collision time normalized in [0, 1]. The collision time out of [0, 1] means collision-free */
+  /// @brief Collision time normalized in [0, 1]. The collision time out of [0, 1] means collision-free
   FCL_REAL collision_time;
 };
 
-
+/// @brief Traversal node for continuous collision between meshes
 template<typename BV>
 class MeshContinuousCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
 {
@@ -566,6 +343,7 @@ public:
     num_ee_tests = 0;
   }
 
+  /// @brief Intersection testing between leaves (two triangles)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -648,6 +426,7 @@ public:
       pairs.push_back(BVHContinuousCollisionPair(primitive_id1, primitive_id2, collision_time));
   }
 
+  /// @brief Whether the traversal process can stop early
   bool canStop() const
   {
     return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
@@ -669,174 +448,8 @@ public:
 };
 
 
-template<typename BV>
-class MeshPointCloudContinuousCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
-{
-public:
-  MeshPointCloudContinuousCollisionTraversalNode() : BVHCollisionTraversalNode<BV>()
-  {
-    vertices1 = NULL;
-    vertices2 = NULL;
-    tri_indices1 = NULL;
-    prev_vertices1 = NULL;
-    prev_vertices2 = NULL;
 
-    num_vf_tests = 0;
-  }
-
-  void leafTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_leaf_tests++;
-
-    const BVNode<BV>& node1 = this->model1->getBV(b1);
-    const BVNode<BV>& node2 = this->model2->getBV(b2);
-
-    FCL_REAL collision_time = 2;
-    Vec3f collision_pos;
-
-    int primitive_id1 = node1.primitiveId();
-    int primitive_id2 = node2.primitiveId();
-
-    const Triangle& tri_id1 = tri_indices1[primitive_id1];
-    int vertex_id2 = primitive_id2;
-
-    Vec3f* S0[3];
-    Vec3f* S1[3];
-
-    for(int i = 0; i < 3; ++i)
-    {
-      S0[i] = prev_vertices1 + tri_id1[i];
-      S1[i] = vertices1 + tri_id1[i];
-    }
-    Vec3f* T0 = prev_vertices2 + vertex_id2;
-    Vec3f* T1 = vertices2 + vertex_id2;
-
-    FCL_REAL tmp;
-    Vec3f tmpv;
-
-    // 3 VF checks
-    for(int i = 0; i < 3; ++i)
-    {
-      num_vf_tests++;
-      if(Intersect::intersect_VF(*(S0[0]), *(S0[1]), *(S0[2]), *T0, *(S1[0]), *(S1[1]), *(S1[2]), *T1, &tmp, &tmpv))
-      {
-        if(collision_time > tmp)
-        {
-          collision_time = tmp; collision_pos = tmpv;
-        }
-      }
-    }
-
-    if(!(collision_time > 1)) // collision happens
-    {
-      pairs.push_back(BVHContinuousCollisionPair(primitive_id1, primitive_id2, collision_time));
-    }
-  }
-
-  bool canStop() const
-  {
-    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
-  }
-
-  Vec3f* vertices1;
-  Vec3f* vertices2;
-
-  Triangle* tri_indices1;
-
-  Vec3f* prev_vertices1;
-  Vec3f* prev_vertices2;
-
-  mutable int num_vf_tests;
-
-  mutable std::vector<BVHContinuousCollisionPair> pairs;
-};
-
-
-template<typename BV>
-class PointCloudMeshContinuousCollisionTraversalNode : public BVHCollisionTraversalNode<BV>
-{
-public:
-  PointCloudMeshContinuousCollisionTraversalNode() : BVHCollisionTraversalNode<BV>()
-  {
-    vertices1 = NULL;
-    vertices2 = NULL;
-    tri_indices2 = NULL;
-    prev_vertices1 = NULL;
-    prev_vertices2 = NULL;
-
-    num_vf_tests = 0;
-  }
-
-  void leafTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_leaf_tests++;
-
-    const BVNode<BV>& node1 = this->model1->getBV(b1);
-    const BVNode<BV>& node2 = this->model2->getBV(b2);
-
-    FCL_REAL collision_time = 2;
-    Vec3f collision_pos;
-
-    int primitive_id1 = node1.primitiveId();
-    int primitive_id2 = node2.primitiveId();
-
-    int vertex_id1 = primitive_id1;
-    const Triangle& tri_id2 = tri_indices2[primitive_id2];
-
-    Vec3f* S0 = prev_vertices1 + vertex_id1;
-    Vec3f* S1 = vertices1 + vertex_id1;
-
-    Vec3f* T0[3];
-    Vec3f* T1[3];
-    for(int i = 0; i < 3; ++i)
-    {
-      T0[i] = prev_vertices2 + tri_id2[i];
-      T1[i] = vertices2 + tri_id2[i];
-    }
-
-    FCL_REAL tmp;
-    Vec3f tmpv;
-
-    // 3 VF checks
-    for(int i = 0; i < 3; ++i)
-    {
-      num_vf_tests++;
-      if(Intersect::intersect_VF(*(T0[0]), *(T0[1]), *(T0[2]), *S0, *(T1[0]), *(T1[1]), *(T1[2]), *S1, &tmp, &tmpv))
-      {
-        if(collision_time > tmp)
-        {
-          collision_time = tmp; collision_pos = tmpv;
-        }
-      }
-    }
-
-    if(!(collision_time > 1)) // collision happens
-    {
-      pairs.push_back(BVHContinuousCollisionPair(primitive_id1, primitive_id2, collision_time));
-    }
-  }
-
-  bool canStop() const
-  {
-    return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
-  }
-
-  Vec3f* vertices1;
-  Vec3f* vertices2;
-
-  Triangle* tri_indices2;
-
-  Vec3f* prev_vertices1;
-  Vec3f* prev_vertices2;
-
-  mutable int num_vf_tests;
-
-  mutable std::vector<BVHContinuousCollisionPair> pairs;
-};
-
-
-
-
+/// @brief Traversal node for distance computation between BVH models
 template<typename BV>
 class BVHDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -851,16 +464,19 @@ public:
     query_time_seconds = 0.0;
   }
 
+  /// @brief Whether the BV node in the first BVH tree is leaf
   bool isFirstNodeLeaf(int b) const
   {
     return model1->getBV(b).isLeaf();
   }
 
+  /// @brief Whether the BV node in the second BVH tree is leaf
   bool isSecondNodeLeaf(int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
+  /// @brief Determine the traversal order, is the first BVTT subtree better
   bool firstOverSecond(int b1, int b2) const
   {
     FCL_REAL sz1 = model1->getBV(b1).bv.size();
@@ -874,43 +490,50 @@ public:
     return false;
   }
 
+  /// @brief Obtain the left child of BV node in the first BVH
   int getFirstLeftChild(int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
+  /// @brief Obtain the right child of BV node in the first BVH
   int getFirstRightChild(int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
+  /// @brief Obtain the left child of BV node in the second BVH
   int getSecondLeftChild(int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
+  /// @brief Obtain the right child of BV node in the second BVH
   int getSecondRightChild(int b) const
   {
     return model2->getBV(b).rightChild();
   }
 
+  /// @brief BV culling test in one BVTT node
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(enable_statistics) num_bv_tests++;
     return model1->getBV(b1).distance(model2->getBV(b2));
   }
 
+  /// @brief The first BVH model
   const BVHModel<BV>* model1;
+  /// @brief The second BVH model
   const BVHModel<BV>* model2;
 
+  /// @brief statistical information
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable FCL_REAL query_time_seconds;
-
 };
 
 
-
+/// @brief Traversal node for distance computation between two meshes
 template<typename BV>
 class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
 {
@@ -926,6 +549,7 @@ public:
     abs_err = 0;
   }
 
+  /// @brief Distance testing between leaves (two triangles)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -961,8 +585,9 @@ public:
     {
       this->result->update(d, this->model1, this->model2, primitive_id1, primitive_id2);
     }
- }
+  }
 
+  /// @brief Whether the traversal process can stop early
   bool canStop(FCL_REAL c) const
   {
     if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
@@ -976,12 +601,12 @@ public:
   Triangle* tri_indices1;
   Triangle* tri_indices2;
 
-  /** \brief relative and absolute error, default value is 0.01 for both terms */
+  /// @brief relative and absolute error, default value is 0.01 for both terms
   FCL_REAL rel_err;
   FCL_REAL abs_err;
 };
 
-
+/// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
 class MeshDistanceTraversalNodeRSS : public MeshDistanceTraversalNode<RSS>
 {
 public:
@@ -1046,7 +671,7 @@ struct ConservativeAdvancementStackData
   FCL_REAL d;
 };
 
-// when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
+/// @brief continuous collision node using conservative advancement. when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
 template<typename BV>
 class MeshConservativeAdvancementTraversalNode : public MeshDistanceTraversalNode<BV>
 {
@@ -1063,6 +688,7 @@ public:
     motion2 = NULL;
   }
 
+  /// @brief BV culling test in one BVTT node
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
@@ -1074,6 +700,7 @@ public:
     return d;
   }
 
+  /// @brief Conservative advancement testing between leaves (two triangles)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -1129,7 +756,7 @@ public:
       delta_t = cur_delta_t;
   }
 
-
+  /// @brief Whether the traversal process can stop early
   bool canStop(FCL_REAL c) const
   {
     if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
@@ -1194,17 +821,17 @@ public:
   mutable int last_tri_id1, last_tri_id2;
 
 
-  /** \brief CA controlling variable: early stop for the early iterations of CA */
+  /// @brief CA controlling variable: early stop for the early iterations of CA
   FCL_REAL w;
 
-  /** \brief The time from beginning point */
+  /// @brief The time from beginning point
   FCL_REAL toc;
   FCL_REAL t_err;
 
-  /** \brief The delta_t each step */
+  /// @brief The delta_t each step
   mutable FCL_REAL delta_t;
 
-  /** \brief Motions for the two objects in query */
+  /// @brief Motions for the two objects in query
   MotionBase<BV>* motion1;
   MotionBase<BV>* motion2;
 
@@ -1212,7 +839,7 @@ public:
 };
 
 
-/** for OBB and RSS, there is local coordinate of BV, so normal need to be transformed */
+/// @brief for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
 template<>
 bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const;
 

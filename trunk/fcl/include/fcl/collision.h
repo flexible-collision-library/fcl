@@ -38,7 +38,7 @@
 #ifndef FCL_COLLISION_H
 #define FCL_COLLISION_H
 
-#include "fcl/vec_3f.h"
+#include "fcl/math/vec_3f.h"
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
 

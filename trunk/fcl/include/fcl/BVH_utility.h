@@ -38,7 +38,6 @@
 #ifndef FCL_BVH_UTILITY_H
 #define FCL_BVH_UTILITY_H
 
-#include "fcl/vec_3f.h"
 #include "fcl/BVH_model.h"
 
 
@@ -76,10 +75,6 @@ void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r);
 
 /// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSS
 void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r);
-
-/// @brief Estimate the variance of point clouds due to sampling procedure
-void estimateSamplingVariance(Vec3f* vertices, int num_vertices, Variance3f* ucs);
-  
 
 /// @brief Compute the covariance matrix for a set or subset of points. if ts = null, then indices refer to points directly; otherwise refer to triangles
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M);

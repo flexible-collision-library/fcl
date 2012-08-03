@@ -49,21 +49,26 @@
 namespace fcl
 {
 
+/// @brief Octree is one type of collision geometry which can encode uncertainty information in the sensor data.
 class OcTree : public CollisionGeometry
 {
 private:
   boost::shared_ptr<octomap::OcTree> tree;
 public:
 
-  // OcTreeNode must implement
-  //    1) childExists(i)
-  //    2) getChild(i)
-  //    3) hasChildren()
+  /// @brief OcTreeNode must implement the following interfaces:
+  ///    1) childExists(i)
+  ///    2) getChild(i)
+  ///    3) hasChildren()
   typedef octomap::OcTreeNode OcTreeNode;
 
+  /// @brief construct octree with a given resolution
   OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<octomap::OcTree>(new octomap::OcTree(resolution))) {}
+
+  /// @brief construct octree from octomap
   OcTree(const boost::shared_ptr<octomap::OcTree>& tree_) : tree(tree_) {}
 
+  /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() 
   {
     aabb_local = getRootBV();
@@ -71,37 +76,45 @@ public:
     aabb_radius = (aabb_local.min_ - aabb_center).length();
   }
 
+  /// @brief get the bounding volume for the root
   inline AABB getRootBV() const
   {
     FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
     return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
   }
 
+  /// @brief get the root node of the octree
   inline OcTreeNode* getRoot() const
   {
     return tree->getRoot();
   }
 
+  /// @brief whether one node is completely occupied
   inline bool isNodeOccupied(const OcTreeNode* node) const
   {
     return tree->isNodeOccupied(node);
   }  
 
+  /// @brief whether one node is completely free
   inline bool isNodeFree(const OcTreeNode* node) const
   {
     return false; // default no definitely free node
   }
 
+  /// @brief whether one node is uncertain
   inline bool isNodeUncertain(const OcTreeNode* node) const
   {
     return (!isNodeOccupied(node)) && (!isNodeFree(node));
   }
 
+  /// @brief update the occupied information for a cell
   inline void updateNode(FCL_REAL x, FCL_REAL y, FCL_REAL z, bool occupied)
   {
     tree->updateNode(octomap::point3d(x, y, z), occupied);
   }
 
+  /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
+  /// only keep the occupied boxes (i.e., the boxes whose occupied probability is higher enough).
   inline std::vector<boost::array<FCL_REAL, 6> > toBoxes() const
   {
     std::vector<boost::array<FCL_REAL, 6> > boxes;
@@ -126,15 +139,20 @@ public:
     return boxes;
   }
 
+  /// @brief the threshold used to decide whether one node is occupied
   FCL_REAL getOccupancyThres() const
   {
     return tree->getOccupancyThres();
   }
 
+  /// @brief return object type, it is an octree
   OBJECT_TYPE getObjectType() const { return OT_OCTREE; }
+
+  /// @brief return node type, it is an octree
   NODE_TYPE getNodeType() const { return GEOM_OCTREE; }
 };
 
+/// @brief compute the bounding volume of an octree node's i-th child
 static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& child_bv)
 {
   if(i&1)

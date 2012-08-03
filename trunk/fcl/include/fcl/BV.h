@@ -44,7 +44,7 @@
 #include "fcl/BV/RSS.h"
 #include "fcl/BV/OBBRSS.h"
 #include "fcl/BV/kIOS.h"
-#include "fcl/transform.h"
+#include "fcl/math/transform.h"
 
 /** \brief Main namespace */
 namespace fcl

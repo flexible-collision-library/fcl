@@ -40,7 +40,7 @@
 
 #include "fcl/ccd/interval.h"
 #include "fcl/ccd/interval_vector.h"
-#include "fcl/matrix_3f.h"
+#include "fcl/math/matrix_3f.h"
 
 namespace fcl
 {

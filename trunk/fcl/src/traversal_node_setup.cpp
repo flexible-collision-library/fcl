@@ -35,7 +35,7 @@
 /** \author Jia Pan */
 
 
-#include "fcl/simple_setup.h"
+#include "fcl/traversal_node_setup.h"
 
 namespace fcl
 {
@@ -66,7 +66,6 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
 
   node.request = request;
   node.result = &result;
-  result.setRequest(request);
 
   node.cost_density = model1.cost_density * model2.cost_density;
 
@@ -117,141 +116,6 @@ bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
 }
 
 
-#if USE_SVMLIGHT
-
-namespace details
-{
-template<typename BV, typename OrientedNode>
-static inline bool setupPointCloudCollisionOrientedNode(OrientedNode& node, 
-                                                        BVHModel<BV>& model1, const Transform3f& tf1,
-                                                        BVHModel<BV>& model2, const Transform3f& tf2,
-                                                        const CollisionRequest& request,
-                                                        FCL_REAL collision_prob_threshold,
-                                                        int leaf_size_threshold,
-                                                        FCL_REAL expand_r)
-{
-  if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD)
-      || !(model2.getModelType() == BVH_MODEL_TRIANGLES || model2.getModelType() == BVH_MODEL_POINTCLOUD))
-    return false;
-
-  node.model1 = &model1;
-  node.tf1 = tf1;
-  node.model2 = &model2;
-  node.tf2 = tf2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.uc1.reset(new Variance3f[model1.num_vertices]);
-  node.uc2.reset(new Variance3f[model2.num_vertices]);
-
-  estimateSamplingVariance(model1.vertices, model1.num_vertices, node.uc1.get());
-  estimateSamplingVariance(model2.vertices, model2.num_vertices, node.uc2.get());
-
-  BVHExpand(model1, node.uc1.get(), expand_r);
-  BVHExpand(model2, node.uc2.get(), expand_r);
-
-  node.request = request;
-
-  node.collision_prob_threshold = collision_prob_threshold;
-  node.leaf_size_threshold = leaf_size_threshold;
-
-  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
-
-  return true;  
-}
-
-}
-
-bool initialize(PointCloudCollisionTraversalNodeOBB& node,
-                BVHModel<OBB>& model1, const Transform3f& tf1,
-                BVHModel<OBB>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
-                FCL_REAL collision_prob_threshold,
-                int leaf_size_threshold,
-                FCL_REAL expand_r)
-{
-  return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
-}
-
-
-bool initialize(PointCloudCollisionTraversalNodeRSS& node,
-                BVHModel<RSS>& model1, const Transform3f& tf1,
-                BVHModel<RSS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
-                FCL_REAL collision_prob_threshold,
-                int leaf_size_threshold,
-                FCL_REAL expand_r)
-{
-  return details::setupPointCloudCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
-}
-
-namespace details
-{
-
-template<typename BV, typename OrientedNode>
-static inline bool setupPointCloudMeshCollisionOrientedNode(OrientedNode& node,
-                                                            BVHModel<BV>& model1, const Transform3f& tf1,
-                                                            const BVHModel<BV>& model2, const Transform3f& tf2,
-                                                            const CollisionRequest& request,
-                                                            FCL_REAL collision_prob_threshold,
-                                                            int leaf_size_threshold,
-                                                            FCL_REAL expand_r)
-{
-  if(!(model1.getModelType() == BVH_MODEL_TRIANGLES || model1.getModelType() == BVH_MODEL_POINTCLOUD) || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
-
-  node.model1 = &model1;
-  node.tf1 = tf1;
-  node.model2 = &model2;
-  node.tf2 = tf2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.tri_indices2 = model2.tri_indices;
-  node.uc1.reset(new Variance3f[model1.num_vertices]);
-
-  estimateSamplingVariance(model1.vertices, model1.num_vertices, node.uc1.get());
-
-  BVHExpand(model1, node.uc1.get(), expand_r);
-
-  node.request = request;
-  node.collision_prob_threshold = collision_prob_threshold;
-  node.leaf_size_threshold = leaf_size_threshold;
-
-  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
-
-  return true;
-}                                                           
-}
-
-bool initialize(PointCloudMeshCollisionTraversalNodeOBB& node,
-                BVHModel<OBB>& model1, const Transform3f& tf1,
-                const BVHModel<OBB>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
-                FCL_REAL collision_prob_threshold,
-                int leaf_size_threshold,
-                FCL_REAL expand_r)
-{
-  return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
-}
-
-
-bool initialize(PointCloudMeshCollisionTraversalNodeRSS& node,
-                BVHModel<RSS>& model1, const Transform3f& tf1,
-                const BVHModel<RSS>& model2, const Transform3f& tf2,
-                const CollisionRequest& request,
-                FCL_REAL collision_prob_threshold,
-                int leaf_size_threshold,
-                FCL_REAL expand_r)
-{
-  return details::setupPointCloudMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, request, collision_prob_threshold, leaf_size_threshold, expand_r);
-}
-
-#endif
-
-
 namespace details
 {
 template<typename BV, typename OrientedNode>
@@ -266,7 +130,6 @@ static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
 
   node.request = request;
   node.result = &result;
-  result.setRequest(request);
 
   node.model1 = &model1;
   node.tf1 = tf1;

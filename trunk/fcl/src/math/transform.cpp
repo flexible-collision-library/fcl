@@ -35,7 +35,7 @@
 /** \author Jia Pan */
 
 
-#include "fcl/transform.h"
+#include "fcl/math/transform.h"
 
 namespace fcl
 {
@@ -63,11 +63,11 @@ void Quaternion3f::fromRotation(const Matrix3f& R)
     int i = 0;
     if(R(1, 1) > R(0, 0))
     {
-        i = 1;
+      i = 1;
     }
     if(R(2, 2) > R(i, i))
     {
-        i = 2;
+      i = 2;
     }
     int j = next[i];
     int k = next[j];
@@ -129,11 +129,11 @@ void Quaternion3f::fromAxes(const Vec3f axis[3])
     int i = 0;
     if(axis[1][1] > axis[0][0])
     {
-        i = 1;
+      i = 1;
     }
     if(axis[2][2] > axis[i][i])
     {
-        i = 2;
+      i = 2;
     }
     int j = next[i];
     int k = next[j];
@@ -207,7 +207,7 @@ FCL_REAL Quaternion3f::dot(const Quaternion3f& other) const
 Quaternion3f Quaternion3f::operator + (const Quaternion3f& other) const
 {
   return Quaternion3f(data[0] + other.data[0], data[1] + other.data[1],
-                          data[2] + other.data[2], data[3] + other.data[3]);
+                      data[2] + other.data[2], data[3] + other.data[3]);
 }
 
 const Quaternion3f& Quaternion3f::operator += (const Quaternion3f& other)
@@ -223,7 +223,7 @@ const Quaternion3f& Quaternion3f::operator += (const Quaternion3f& other)
 Quaternion3f Quaternion3f::operator - (const Quaternion3f& other) const
 {
   return Quaternion3f(data[0] - other.data[0], data[1] - other.data[1],
-                          data[2] - other.data[2], data[3] - other.data[3]);
+                      data[2] - other.data[2], data[3] - other.data[3]);
 }
 
 const Quaternion3f& Quaternion3f::operator -= (const Quaternion3f& other)
@@ -239,9 +239,9 @@ const Quaternion3f& Quaternion3f::operator -= (const Quaternion3f& other)
 Quaternion3f Quaternion3f::operator * (const Quaternion3f& other) const
 {
   return Quaternion3f(data[0] * other.data[0] - data[1] * other.data[1] - data[2] * other.data[2] - data[3] * other.data[3],
-                          data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2],
-                          data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1],
-                          data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0]);
+                      data[0] * other.data[1] + data[1] * other.data[0] + data[2] * other.data[3] - data[3] * other.data[2],
+                      data[0] * other.data[2] - data[1] * other.data[3] + data[2] * other.data[0] + data[3] * other.data[1],
+                      data[0] * other.data[3] + data[1] * other.data[2] - data[2] * other.data[1] + data[3] * other.data[0]);
 }
 
 
@@ -326,6 +326,19 @@ Quaternion3f inverse(const Quaternion3f& q)
   Quaternion3f res(q);
   return res.inverse();
 }
+
+const Matrix3f& Transform3f::getRotationInternal() const
+{
+  boost::mutex::scoped_lock slock(const_cast<boost::mutex&>(lock_));
+  if(!matrix_set)
+  {
+    q.toRotation(R);
+    matrix_set = true;
+  }
+
+  return R;
+}
+
 
 Transform3f inverse(const Transform3f& tf)
 {

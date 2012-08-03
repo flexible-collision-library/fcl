@@ -38,10 +38,10 @@
 #ifndef FCL_MOTION_BASE_H
 #define FCL_MOTION_BASE_H
 
-#include "fcl/vec_3f.h"
-#include "fcl/matrix_3f.h"
-#include "fcl/transform.h"
+
+#include "fcl/math/transform.h"
 #include "fcl/BV/RSS.h"
+
 namespace fcl
 {
 

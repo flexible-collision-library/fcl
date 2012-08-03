@@ -45,8 +45,10 @@
 namespace fcl
 {
 
+/// @cond IGNORE
 namespace details
 {
+/// @brief get the vertices of some convex shape which can bound the given shape in a specific configuration
 std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf);
 std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf);
 std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf);
@@ -54,9 +56,11 @@ std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf);
 std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf);
 std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf);
 std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const Transform3f& tf);
-} // end detail
+} 
+/// @endcond
 
 
+/// @brief calculate a bounding volume for a shape in a specific configuration
 template<typename BV, typename S>
 void computeBV(const S& s, const Transform3f& tf, BV& bv)
 {
@@ -86,7 +90,7 @@ template<>
 void computeBV<AABB, Triangle2>(const Triangle2& s, const Transform3f& tf, AABB& bv);
 
 
-/** \brief the bounding volume for half space back of plane for OBB, it is the plane itself */
+/// @brief the bounding volume for half space back of plane for OBB, it is the plane itself
 template<>
 void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv);
 
@@ -132,6 +136,7 @@ template<>
 void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv);
 
 
+/// @brief construct a box shape (with a configuration) from a given bounding volume
 void constructBox(const AABB& bv, Box& box, Transform3f& tf);
 
 void constructBox(const OBB& bv, Box& box, Transform3f& tf);

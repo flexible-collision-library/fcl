@@ -40,7 +40,6 @@
 #include <vector>
 #include <map>
 #include "fcl/BV/AABB.h"
-#include "fcl/vec_3f.h"
 #include "fcl/broadphase/morton.h"
 #include <boost/bind.hpp>
 #include <boost/iterator/zip_iterator.hpp>
@@ -122,7 +121,7 @@ class HierarchyTree
 
   struct SortByMorton
   {
-    bool operator() (NodeType* a, NodeType* b) const
+    bool operator() (const NodeType* a, const NodeType* b) const
     {
       return a->code < b->code;
     }

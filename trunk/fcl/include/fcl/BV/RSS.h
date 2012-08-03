@@ -38,8 +38,8 @@
 #define FCL_RSS_H
 
 #include "fcl/BVH_internal.h"
-#include "fcl/vec_3f.h"
-#include "fcl/matrix_3f.h"
+#include "fcl/math/vec_3f.h"
+#include "fcl/math/matrix_3f.h"
 #include <boost/math/constants/constants.hpp>
 
 namespace fcl

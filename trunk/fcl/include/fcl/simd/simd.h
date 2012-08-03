@@ -34,60 +34,9 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TAYLOR_MATRIX_H
-#define FCL_TAYLOR_MATRIX_H
+#ifndef FCL_SIMD_H
+#define FCL_SIMD_H
 
-
-#include "fcl/math/matrix_3f.h"
-#include "fcl/ccd/taylor_vector.h"
-#include "fcl/ccd/interval_matrix.h"
-
-namespace fcl
-{
-
-struct TMatrix3
-{
-  TVector3 v_[3];
-
-  TMatrix3();
-  TMatrix3(const boost::shared_ptr<TimeInterval>& time_interval);
-  TMatrix3(TaylorModel m[3][3]);
-  TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3);
-  TMatrix3(const Matrix3f& m, const boost::shared_ptr<TimeInterval>& time_interval);
-
-  TVector3 getColumn(size_t i) const;
-  const TVector3& getRow(size_t i) const;
-
-  const TaylorModel& operator () (size_t i, size_t j) const;
-  TaylorModel& operator () (size_t i, size_t j);
-
-  TVector3 operator * (const Vec3f& v) const;
-  TVector3 operator * (const TVector3& v) const;
-  TMatrix3 operator * (const Matrix3f& m) const;
-  TMatrix3 operator * (const TMatrix3& m) const;
-  TMatrix3 operator * (const TaylorModel& d) const;
-  TMatrix3 operator * (FCL_REAL d) const;
-
-  TMatrix3& operator *= (const Matrix3f& m);
-  TMatrix3& operator *= (const TMatrix3& m);
-  TMatrix3& operator *= (const TaylorModel& d);
-  TMatrix3& operator *= (FCL_REAL d);
-
-  TMatrix3 operator + (const TMatrix3& m) const;
-  TMatrix3& operator += (const TMatrix3& m);
-
-  TMatrix3 operator - (const TMatrix3& m) const;
-  TMatrix3& operator -= (const TMatrix3& m);
-
-  IMatrix3 getBound() const;
-  void print() const;
-  void setIdentity();
-  void setZero();
-  FCL_REAL diameter() const;
-
-  void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
-};
-
-}
+#include "fcl/simd/math_simd_details.h"
 
 #endif

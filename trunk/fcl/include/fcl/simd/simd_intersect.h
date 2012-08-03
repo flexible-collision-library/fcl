@@ -37,7 +37,7 @@
 #ifndef FCL_MULTIPLE_INTERSECT
 #define FCL_MULTIPLE_INTERSECT
 
-#include "fcl/vec_3f.h"
+#include "fcl/math/vec_3f.h"
 
 #include <xmmintrin.h>
 #include <pmmintrin.h>

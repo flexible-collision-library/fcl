@@ -38,10 +38,9 @@
 #define FCL_CONSERVATIVE_ADVANCEMENT_H
 
 
-#include "fcl/vec_3f.h"
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
-#include "fcl/motion_base.h"
+#include "fcl/ccd/motion_base.h"
 
 
 namespace fcl

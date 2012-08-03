@@ -38,13 +38,13 @@
 #define FCL_TRAVERSAL_NODE_BASE_H
 
 #include "fcl/data_types.h"
-#include "fcl/transform.h"
+#include "fcl/math/transform.h"
 #include "fcl/collision_data.h"
 
-/** \brief Main namespace */
 namespace fcl
 {
 
+/// @brief Node structure encoding the information required for traversal.
 class TraversalNodeBase
 {
 public:
@@ -54,35 +54,38 @@ public:
   
   virtual void postprocess() {}
 
-  /** \brief Whether b is a leaf node in the first BVH tree */
+  /// @brief Whether b is a leaf node in the first BVH tree 
   virtual bool isFirstNodeLeaf(int b) const;
 
-  /** \brief Whether b is a leaf node in the second BVH tree */
+  /// @brief Whether b is a leaf node in the second BVH tree
   virtual bool isSecondNodeLeaf(int b) const;
 
-  /** \brief Traverse the subtree of the node in the first tree first */
+  /// @brief Traverse the subtree of the node in the first tree first
   virtual bool firstOverSecond(int b1, int b2) const;
 
-  /** \brief Get the left child of the node b in the first tree */
+  /// @brief Get the left child of the node b in the first tree
   virtual int getFirstLeftChild(int b) const;
 
-  /** \brief Get the right child of the node b in the first tree */
+  /// @brief Get the right child of the node b in the first tree
   virtual int getFirstRightChild(int b) const;
 
-  /** \brief Get the left child of the node b in the second tree */
+  /// @brief Get the left child of the node b in the second tree
   virtual int getSecondLeftChild(int b) const;
 
-  /** \brief Get the right child of the node b in the second tree */
+  /// @brief Get the right child of the node b in the second tree
   virtual int getSecondRightChild(int b) const;
 
-  /** \brief Enable statistics (verbose mode) */
+  /// @brief Enable statistics (verbose mode)
   virtual void enableStatistics(bool enable) = 0;
 
+  /// @brief configuation of first object
   Transform3f tf1;
 
+  /// @brief configuration of second object
   Transform3f tf2;
 };
 
+/// @brief Node structure encoding the information required for collision traversal.
 class CollisionTraversalNodeBase : public TraversalNodeBase
 {
 public:
@@ -90,24 +93,29 @@ public:
 
   virtual ~CollisionTraversalNodeBase();
 
-  /** \brief BV test between b1 and b2 */
+  /// @brief BV test between b1 and b2
   virtual bool BVTesting(int b1, int b2) const;
 
-  /** \brief Leaf test between node b1 and b2, if they are both leafs */
+  /// @brief Leaf test between node b1 and b2, if they are both leafs
   virtual void leafTesting(int b1, int b2) const;
 
-  /** \brief Check whether the traversal can stop */
+  /// @brief Check whether the traversal can stop
   virtual bool canStop() const;
 
+  /// @brief Whether store some statistics information during traversal
   void enableStatistics(bool enable) { enable_statistics = enable; }
 
+  /// @brief request setting for collision
   CollisionRequest request;
 
+  /// @brief collision result kept during the traversal iteration
   CollisionResult* result;
 
+  /// @brief Whether stores statistics 
   bool enable_statistics;
 };
 
+/// @brief Node structure encoding the information required for distance traversal.
 class DistanceTraversalNodeBase : public TraversalNodeBase
 {
 public:
@@ -115,18 +123,25 @@ public:
 
   virtual ~DistanceTraversalNodeBase();
 
+  /// @brief BV test between b1 and b2
   virtual FCL_REAL BVTesting(int b1, int b2) const;
 
+  /// @brief Leaf test between node b1 and b2, if they are both leafs
   virtual void leafTesting(int b1, int b2) const;
 
+  /// @brief Check whether the traversal can stop
   virtual bool canStop(FCL_REAL c) const;
 
+  /// @brief Whether store some statistics information during traversal
   void enableStatistics(bool enable) { enable_statistics = enable; }
 
+  /// @brief request setting for distance
   DistanceRequest request;
 
+  /// @brief distance result kept during the traversal iteration
   DistanceResult* result;
 
+  /// @brief Whether stores statistics 
   bool enable_statistics;
 };
 

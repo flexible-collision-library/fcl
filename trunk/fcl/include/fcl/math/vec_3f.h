@@ -38,8 +38,8 @@
 #define FCL_VEC_3F_H
 
 #include "fcl/BVH_internal.h"
-#include "fcl/math_details.h"
-#include "fcl/math_simd_details.h"
+#include "fcl/math/math_details.h"
+#include "fcl/simd/math_simd_details.h"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -48,17 +48,26 @@
 namespace fcl
 {
 
+/// @brief Vector3 class wrapper. The core data is in the template parameter class.
 template <typename T>
 class Vec3fX
 {
 public:
   typedef typename T::meta_type U;
+
+  /// @brief interval vector3 data
   T data;
 
   Vec3fX() {}
   Vec3fX(const Vec3fX& other) : data(other.data) {}
+
+  /// @brief create Vector (x, y, z)
   Vec3fX(U x, U y, U z) : data(x, y, z) {}
+
+  /// @brief create vector (x, x, x)
   Vec3fX(U x) : data(x) {}
+
+  /// @brief create vector using the internal data type
   Vec3fX(const T& data_) : data(data_) {}
 
   inline U operator [] (size_t i) const { return data[i]; }

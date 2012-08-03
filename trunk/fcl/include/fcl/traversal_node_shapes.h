@@ -46,6 +46,8 @@
 namespace fcl
 {
 
+
+/// @brief Traversal node for collision between two shapes
 template<typename S1, typename S2, typename NarrowPhaseSolver>
 class ShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -58,11 +60,13 @@ public:
     nsolver = NULL;
   }
 
+  /// @brief BV culling test in one BVTT node
   bool BVTesting(int, int) const
   {
     return false;
   }
 
+  /// @brief Intersection testing between leaves (two shapes)
   void leafTesting(int, int) const
   {
     if(model1->isOccupied() && model2->isOccupied())
@@ -96,7 +100,7 @@ public:
         computeBV<AABB, S2>(*model2, tf2, aabb2);
         AABB overlap_part;
         aabb1.overlap(aabb2, overlap_part);
-        result->addCostSource(CostSource(overlap_part, cost_density));
+        result->addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
       }
     }
     else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
@@ -108,7 +112,7 @@ public:
         computeBV<AABB, S2>(*model2, tf2, aabb2);
         AABB overlap_part;
         aabb1.overlap(aabb2, overlap_part);
-        result->addCostSource(CostSource(overlap_part, cost_density));        
+        result->addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);        
       }      
     }
   }
@@ -121,6 +125,7 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 
+/// @brief Traversal node for distance between two shapes
 template<typename S1, typename S2, typename NarrowPhaseSolver>
 class ShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -133,11 +138,13 @@ public:
     nsolver = NULL;
   }
 
+  /// @brief BV culling test in one BVTT node
   FCL_REAL BVTesting(int, int) const
   {
     return -1; // should not be used 
   }
 
+  /// @brief Distance testing between leaves (two shapes)
   void leafTesting(int, int) const
   {
     FCL_REAL distance;

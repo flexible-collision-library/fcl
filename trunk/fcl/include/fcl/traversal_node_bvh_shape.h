@@ -47,6 +47,7 @@
 namespace fcl
 {
 
+/// @brief Traversal node for collision between BVH and shape
 template<typename BV, typename S>
 class BVHShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -61,21 +62,25 @@ public:
     query_time_seconds = 0.0;
   }
 
+  /// @brief Whether the BV node in the first BVH tree is leaf
   bool isFirstNodeLeaf(int b) const
   {
     return model1->getBV(b).isLeaf();
   }
 
+  /// @brief Obtain the left child of BV node in the first BVH
   int getFirstLeftChild(int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
+  /// @brief Obtain the right child of BV node in the first BVH
   int getFirstRightChild(int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
+  /// @brief BV culling test in one BVTT node
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) num_bv_tests++;
@@ -91,7 +96,7 @@ public:
   mutable FCL_REAL query_time_seconds;
 };
 
-
+/// @brief Traversal node for collision between shape and BVH
 template<typename S, typename BV>
 class ShapeBVHCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -106,26 +111,31 @@ public:
     query_time_seconds = 0.0;
   }
 
+  /// @brief Alway extend the second model, which is a BVH model
   bool firstOverSecond(int, int) const
   {
     return false;
   }
 
+  /// @brief Whether the BV node in the second BVH tree is leaf
   bool isSecondNodeLeaf(int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
+  /// @brief Obtain the left child of BV node in the second BVH
   int getSecondLeftChild(int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
+  /// @brief Obtain the right child of BV node in the second BVH
   int getSecondRightChild(int b) const
   {
     return model2->getBV(b).rightChild();
   }
 
+  /// @brief BV culling test in one BVTT node
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) num_bv_tests++;
@@ -142,7 +152,7 @@ public:
 };
 
 
-
+/// @brief Traversal node for collision between mesh and shape
 template<typename BV, typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNode : public BVHShapeCollisionTraversalNode<BV, S>
 {
@@ -155,6 +165,7 @@ public:
     nsolver = NULL;
   }
 
+  /// @brief Intersection testing between leaves (one triangle and one shape)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -201,7 +212,7 @@ public:
         AABB shape_aabb;
         computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density));
+        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }
     }
     if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
@@ -212,14 +223,15 @@ public:
         AABB shape_aabb;
         computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density));        
+        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);        
       }
     }
   }
 
+  /// @brief Whether the traversal process can stop early
   bool canStop() const
   {
-    return (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
+    return this->request.isSatisfied(*(this->result));
   }
 
   Vec3f* vertices;
@@ -230,7 +242,7 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 
-
+/// @cond IGNORE
 namespace details
 {
 template<typename BV, typename S, typename NarrowPhaseSolver>
@@ -290,7 +302,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
       AABB shape_aabb;
       computeBV<AABB, S>(model2, tf2, shape_aabb);
       bool res = AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density));
+      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
     }
   }
   else if((!model1->isFree() || model2.isFree()) && request.enable_cost)
@@ -301,13 +313,17 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
       AABB shape_aabb;
       computeBV<AABB, S>(model2, tf2, shape_aabb);
       bool res = AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density));    
+      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
 }
 
 }
 
+/// @endcond
+
+
+/// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
 template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
 {
@@ -396,6 +412,8 @@ public:
 
 };
 
+
+/// @brief Traversal node for collision between shape and mesh
 template<typename S, typename BV, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNode : public ShapeBVHCollisionTraversalNode<S, BV>
 {
@@ -408,6 +426,7 @@ public:
     nsolver = NULL;
   }
 
+  /// @brief Intersection testing between leaves (one shape and one triangle)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -454,7 +473,7 @@ public:
         AABB shape_aabb;
         computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density));
+        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }
     }
     else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
@@ -465,14 +484,15 @@ public:
         AABB shape_aabb;
         computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
-        this->result->addCostSource(CostSource(overlap_part, cost_density));
+        this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }   
     }
   }
 
+  /// @brief Whether the traversal process can stop early
   bool canStop() const
   {
-    return (!this->request.enable_cost) && (this->result->isCollision()) && (this->request.num_max_contacts <= this->result->numContacts());
+    return this->request.isSatisfied(*(this->result));
   }
 
   Vec3f* vertices;
@@ -483,6 +503,7 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 
+/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
 template<typename S, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, NarrowPhaseSolver>
 {
@@ -581,7 +602,7 @@ public:
 
 };
 
-
+/// @brief Traversal node for distance computation between BVH and shape
 template<typename BV, typename S>
 class BVHShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -596,21 +617,25 @@ public:
     query_time_seconds = 0.0;
   }
 
+  /// @brief Whether the BV node in the first BVH tree is leaf
   bool isFirstNodeLeaf(int b) const 
   {
     return model1->getBV(b).isLeaf();
   }
 
+  /// @brief Obtain the left child of BV node in the first BVH
   int getFirstLeftChild(int b) const
   {
     return model1->getBV(b).leftChild();
   }
 
+  /// @brief Obtain the right child of BV node in the first BVH
   int getFirstRightChild(int b) const
   {
     return model1->getBV(b).rightChild();
   }
 
+  /// @brief BV culling test in one BVTT node
   FCL_REAL BVTesting(int b1, int b2) const
   {
     return model1->getBV(b1).bv.distance(model2_bv);
@@ -625,6 +650,7 @@ public:
   mutable FCL_REAL query_time_seconds;
 };
 
+/// @brief Traversal node for distance computation between shape and BVH
 template<typename S, typename BV>
 class ShapeBVHDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -639,21 +665,25 @@ public:
     query_time_seconds = 0.0;
   }
 
+  /// @brief Whether the BV node in the second BVH tree is leaf
   bool isSecondNodeLeaf(int b) const
   {
     return model2->getBV(b).isLeaf();
   }
 
+  /// @brief Obtain the left child of BV node in the second BVH
   int getSecondLeftChild(int b) const
   {
     return model2->getBV(b).leftChild();
   }
 
+  /// @brief Obtain the right child of BV node in the second BVH
   int getSecondRightChild(int b) const
   {
     return model2->getBV(b).rightChild();
   }
 
+  /// @brief BV culling test in one BVTT node
   FCL_REAL BVTesting(int b1, int b2) const
   {
     return model1_bv.distance(model2->getBV(b2).bv);
@@ -669,7 +699,7 @@ public:
 };
                                   
 
-
+/// @brief Traversal node for distance between mesh and shape
 template<typename BV, typename S, typename NarrowPhaseSolver>
 class MeshShapeDistanceTraversalNode : public BVHShapeDistanceTraversalNode<BV, S>
 { 
@@ -685,6 +715,7 @@ public:
     nsolver = NULL;
   }
 
+  /// @brief Distance testing between leaves (one triangle and one shape)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -705,6 +736,7 @@ public:
     this->result->update(d, this->model1, this->model2, primitive_id, DistanceResult::NONE);
   }
 
+  /// @brief Whether the traversal process can stop early
   bool canStop(FCL_REAL c) const
   {
     if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
@@ -721,6 +753,7 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 
+/// @cond IGNORE
 namespace details
 {
 
@@ -752,6 +785,7 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
   result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE);
 }
 
+
 template<typename BV, typename S, typename NarrowPhaseSolver>
 static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
                                                   Vec3f* vertices, Triangle* tri_indices, int init_tri_id,
@@ -775,9 +809,11 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
 
 }
 
+/// @endcond
 
 
 
+/// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
 template<typename S, typename NarrowPhaseSolver>
 class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S, NarrowPhaseSolver>
 {
@@ -875,7 +911,7 @@ public:
   
 };
 
-
+/// @brief Traversal node for distance between shape and mesh
 template<typename S, typename BV, typename NarrowPhaseSolver>
 class ShapeMeshDistanceTraversalNode : public ShapeBVHDistanceTraversalNode<S, BV>
 { 
@@ -891,6 +927,7 @@ public:
     nsolver = NULL;
   }
 
+  /// @brief Distance testing between leaves (one shape and one triangle)
   void leafTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
@@ -911,6 +948,7 @@ public:
     this->result->update(distance, this->model1, this->model2, DistanceResult::NONE, primitive_id);
   }
 
+  /// @brief Whether the traversal process can stop early
   bool canStop(FCL_REAL c) const
   {
     if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))

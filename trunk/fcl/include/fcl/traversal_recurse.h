@@ -46,21 +46,25 @@
 namespace fcl
 {
 
-
+/// @brief Recurse function for collision
 void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 
+/// @brief Recurse function for collision, specialized for OBB type
 void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
+
+/// @brief Recurse function for collision, specialized for RSS type
 void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list);
 
-/** Recurse function for self collision
- * Make sure node is set correctly so that the first and second tree are the same
- */
+/// @brief Recurse function for self collision. Make sure node is set correctly so that the first and second tree are the same
 void selfCollisionRecurse(CollisionTraversalNodeBase* node, int b, BVHFrontList* front_list);
 
+/// @brief Recurse function for distance
 void distanceRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 
+/// @brief Recurse function for distance, using queue acceleration
 void distanceQueueRecurse(DistanceTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
+/// @brief Recurse function for front list propagation
 void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase* node, BVHFrontList* front_list);
 
 

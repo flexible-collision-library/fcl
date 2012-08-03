@@ -34,12 +34,11 @@
 
 /** \author Jia Pan */
 
-#include "fcl/conservative_advancement.h"
-
+#include "fcl/ccd/conservative_advancement.h"
+#include "fcl/ccd/motion.h"
 #include "fcl/collision_node.h"
 #include "fcl/traversal_node_bvhs.h"
-#include "fcl/simple_setup.h"
-#include "fcl/motion.h"
+#include "fcl/traversal_node_setup.h"
 #include "fcl/collision.h"
 #include "fcl/traversal_recurse.h"
 

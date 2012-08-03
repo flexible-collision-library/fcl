@@ -38,8 +38,7 @@
 #define FCL_GJK_H
 
 #include "fcl/geometric_shapes.h"
-#include "fcl/matrix_3f.h"
-#include "fcl/transform.h"
+#include "fcl/math/transform.h"
 
 namespace fcl
 {
@@ -47,21 +46,30 @@ namespace fcl
 namespace details
 {
 
+/// @brief the support function for shape
 Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir); 
 
+/// @brief Minkowski difference class of two shapes
 struct MinkowskiDiff
 {
+  /// @brief points to two shapes
   const ShapeBase* shapes[2];
+
+  /// @brief rotation from shape0 to shape1
   Matrix3f toshape1;
+
+  /// @brief transform from shape1 to shape0 
   Transform3f toshape0;
 
   MinkowskiDiff() { }
 
+  /// @brief support function for shape0
   inline Vec3f support0(const Vec3f& d) const
   {
     return getSupport(shapes[0], d);
   }
 
+  /// @brief support function for shape1
   inline Vec3f support1(const Vec3f& d) const
   {
     return toshape0.transform(getSupport(shapes[1], toshape1 * d));
@@ -82,26 +90,41 @@ struct MinkowskiDiff
 
 };
 
-
+/// @brief project origin on to a line (a, b). w[0:1] return the (0, 1) parameterization of the projected point. 
+/// m is a encode about the result case: 0x10--> project is larger than b; 0x01--> project is smaller than a;
+/// 0x11-> within the line;
+/// return value is distance between the origin and its projection.
 FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, FCL_REAL* w, size_t& m);
 
+/// @brief project origin on to a triangle (a, b, c). w[0:2] return the (0, 1) parameterization of the projected point. 
+/// m is a encode about the result case.
+/// return value is distance between the origin and its projection.
 FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, FCL_REAL* w, size_t& m);
 
+/// @brief project origin on to a tetrahedra (a, b, c, d). w[0:3] return the (0, 1) parameterization of the projected point. 
+/// m is a encode about the result case.
+/// return value is distance between the origin and its projection.
 FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, FCL_REAL* w, size_t& m);
 
+/// @brief class for GJK algorithm
 struct GJK
 {
   struct SimplexV
   {
-    Vec3f d; // support direction
-    Vec3f w; // support vector
+    /// @brief support direction
+    Vec3f d; 
+    /// @brieg support vector
+    Vec3f w;
   };
 
   struct Simplex
   {
-    SimplexV* c[4]; // simplex vertex
-    FCL_REAL p[4]; // weight
-    size_t rank; // size of simplex (number of vertices)
+    /// @brief simplex vertex
+    SimplexV* c[4];
+    /// @brief weight 
+    FCL_REAL p[4];
+    /// @brief size of simplex (number of vertices)
+    size_t rank; 
   };
 
   enum Status {Valid, Inside, Failed};
@@ -112,26 +135,30 @@ struct GJK
   Simplex simplices[2];
 
 
-  GJK(unsigned int max_iterations_, FCL_REAL tolerance_) 
+  GJK(unsigned int max_iterations_, FCL_REAL tolerance_)  : max_iterations(max_iterations_),
+                                                            tolerance(tolerance_)
   {
-    max_iterations = max_iterations_;
-    tolerance = tolerance_;
-
     initialize(); 
   }
   
   void initialize();
 
+  /// @brief GJK algorithm, given the initial value guess
   Status evaluate(const MinkowskiDiff& shape_, const Vec3f& guess);
 
+  /// @brief apply the support function along a direction, the result is return in sv
   void getSupport(const Vec3f& d, SimplexV& sv) const;
 
+  /// @brief discard one vertex from the simplex
   void removeVertex(Simplex& simplex);
 
+  /// @brief append one vertex to the simplex
   void appendVertex(Simplex& simplex, const Vec3f& v);
 
+  /// @brief whether the simplex enclose the origin
   bool encloseOrigin();
 
+  /// @brief get the underlying simplex using in GJK
   inline Simplex* getSimplex() const
   {
     return simplex;
@@ -145,8 +172,9 @@ private:
   Simplex* simplex;
   Status status;
 
-  FCL_REAL tolerance;
   unsigned int max_iterations;
+  FCL_REAL tolerance;
+
 };
 
 
@@ -155,6 +183,7 @@ static const size_t EPA_MAX_VERTICES = 64;
 static const FCL_REAL EPA_EPS = 0.000001;
 static const size_t EPA_MAX_ITERATIONS = 255;
 
+/// @brief class for EPA algorithm
 struct EPA
 {
 private:
@@ -226,13 +255,11 @@ public:
   size_t nextsv;
   SimplexList hull, stock;
 
-  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_, unsigned int max_iterations_, FCL_REAL tolerance_)
+  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_, unsigned int max_iterations_, FCL_REAL tolerance_) : max_face_num(max_face_num_),
+                                                                                                                     max_vertex_num(max_vertex_num_),
+                                                                                                                     max_iterations(max_iterations_),
+                                                                                                                     tolerance(tolerance_)
   {
-    max_face_num = max_face_num_;
-    max_vertex_num = max_vertex_num_;
-    max_iterations = max_iterations_;
-    tolerance = tolerance_;
-
     initialize();
   }
 
@@ -248,12 +275,12 @@ public:
 
   SimplexF* newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced);
 
-  /** \brief Find the best polytope face to split */
+  /// @brief Find the best polytope face to split
   SimplexF* findBest();
 
   Status evaluate(GJK& gjk, const Vec3f& guess);
 
-  /** \brief the goal is to add a face connecting vertex w and face edge f[e] */
+  /// @brief the goal is to add a face connecting vertex w and face edge f[e] 
   bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon& horizon);  
 };
 

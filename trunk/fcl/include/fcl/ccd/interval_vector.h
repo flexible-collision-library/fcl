@@ -39,7 +39,7 @@
 #define FCL_INTERVAL_VECTOR_H
 
 #include "fcl/ccd/interval.h"
-#include "fcl/vec_3f.h"
+#include "fcl/math/vec_3f.h"
 
 namespace fcl
 {

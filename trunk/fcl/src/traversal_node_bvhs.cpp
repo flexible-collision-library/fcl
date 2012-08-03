@@ -116,7 +116,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
     {
       AABB overlap_part;
       AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density));    
+      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
   else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
@@ -125,7 +125,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
     {
       AABB overlap_part;
       AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
-      result.addCostSource(CostSource(overlap_part, cost_density));          
+      result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);          
     }    
   }
 }
@@ -292,188 +292,6 @@ void MeshCollisionTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 }
 
 
-#if USE_SVMLIGHT
-
-
-namespace details
-{
-template<typename BV>
-static inline void pointCloudCollisionOrientedNodeLeafTesting(int b1, int b2, 
-                                                              const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                                              Vec3f* vertices1, Vec3f* vertices2,
-                                                              const Matrix3f& R, const Vec3f& T,
-                                                              bool enable_statistics,
-                                                              FCL_REAL collision_prob_threshold,
-                                                              const boost::shared_arry<Variance3f>& uc1, const boost::shared_array<Variance3f>& uc2,
-                                                              const CloudClassifierParam classifier_param,
-                                                              int& num_leaf_tests,
-                                                              FCL_REAL& max_collision_prob,
-                                                              std::vector<BVHPointCollisionPair>& pairs)
-{
-  if(enable_statistics) num_leaf_tests++;
-  
-  const BVNode<BV>& node1 = model1->getBV(b1);
-  const BVNode<BV>& node2 = model2->getBV(b2);
-  
-  FCL_REAL collision_prob = Intersect::intersect_PointClouds(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                             node1.num_primitives,
-                                                             vertices2 + node2.first_primitive, uc2.get() + node2.first_primitive,
-                                                             node2.num_primitives,
-                                                             R, T,
-                                                             classifier_param);
-
-  if(collision_prob > collision_prob_threshold)
-    pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
-
-
-  if(collision_prob > max_collision_prob)
-    max_collision_prob = collision_prob;
-}
-
-}
-
-PointCloudCollisionTraversalNodeOBB::PointCloudCollisionTraversalNodeOBB() : PointCloudCollisionTraversalNode<OBB>()
-{
-  R.setIdentity();
-  // default T is 0
-}
-
-bool PointCloudCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
-{
-  if(enable_statistics) num_bv_tests++;
-  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
-}
-
-void PointCloudCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
-{
-  details::pointCloudCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2,
-                                                      R, T, 
-                                                      enable_statistics, 
-                                                      collision_prob_threshold,
-                                                      uc1, uc2,
-                                                      classifier_param,
-                                                      num_leaf_tests,
-                                                      max_collision_prob,
-                                                      pairs);
-}
-
-PointCloudCollisionTraversalNodeRSS::PointCloudCollisionTraversalNodeRSS() : PointCloudCollisionTraversalNode<RSS>()
-{
-  R.setIdentity();
-  // default T is 0
-}
-
-bool PointCloudCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
-{
-  if(enable_statistics) num_bv_tests++;
-  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
-}
-
-void PointCloudCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
-{
-  details::pointCloudCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2,
-                                                      R, T, 
-                                                      enable_statistics, 
-                                                      collision_prob_threshold,
-                                                      uc1, uc2,
-                                                      classifier_param,
-                                                      num_leaf_tests,
-                                                      max_collision_prob,
-                                                      pairs);
-}
-
-
-namespace details
-{
-
-template<typename BV>
-static inline void pointCloudMeshCollisionOrientedNodeLeafTesting(int b1, int b2,
-                                                                  const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                                                  Vec3f* vertices1, Vec3f* vertices2,
-                                                                  Triangle* tri_indices2,
-                                                                  const Matrix3f& R, const Vec3f& T,
-                                                                  bool enable_statistics,
-                                                                  FCL_REAL collision_prob_threshold,
-                                                                  const boost::shared_array<Variance3f>& uc1,
-                                                                  int& num_leaf_tests,
-                                                                  FCL_REAL& max_collision_prob,
-                                                                  std::vector<BVHPointCollisionPair>& pairs)
-{
-  if(enable_statistics) num_leaf_tests++;
-
-  const BVNode<OBB>& node1 = model1->getBV(b1);
-  const BVNode<OBB>& node2 = model2->getBV(b2);
-
-
-  const Triangle& tri_id2 = tri_indices2[node2.primitiveId()];
-
-  const Vec3f& q1 = vertices2[tri_id2[0]];
-  const Vec3f& q2 = vertices2[tri_id2[1]];
-  const Vec3f& q3 = vertices2[tri_id2[2]];
-
-  FCL_REAL collision_prob = Intersect::intersect_PointCloudsTriangle(vertices1 + node1.first_primitive, uc1.get() + node1.first_primitive,
-                                                                     node1.num_primitives,
-                                                                     q1, q2, q3,
-                                                                     R, T);
-
-  if(collision_prob > collision_prob_threshold)
-    pairs.push_back(BVHPointCollisionPair(node1.first_primitive, node1.num_primitives, node2.first_primitive, node2.num_primitives, collision_prob));
-
-  if(collision_prob > max_collision_prob)
-    max_collision_prob = collision_prob;
-}
-
-}
-
-
-PointCloudMeshCollisionTraversalNodeOBB::PointCloudMeshCollisionTraversalNodeOBB() : PointCloudMeshCollisionTraversalNode<OBB>()
-{
-  R.setIdentity();
-  // default T is 0
-}
-
-bool PointCloudMeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2) const
-{
-  if(enable_statistics) num_bv_tests++;
-  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
-}
-
-void PointCloudMeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2) const
-{
-  details::pointCloudMeshCollisionOrientedNodeLeafTesting(b1, b2,
-                                                          model1, model2,
-                                                          vertices1, vertices2,
-                                                          tri_indices2,
-                                                          R, T,
-                                                          enable_statistics, collision_prob_threshold, uc1,
-                                                          num_leaf_tests, max_collision_prob, pairs);
-}
-
-PointCloudMeshCollisionTraversalNodeRSS::PointCloudMeshCollisionTraversalNodeRSS() : PointCloudMeshCollisionTraversalNode<RSS>()
-{
-  R.setIdentity();
-  // default T is 0
-}
-
-bool PointCloudMeshCollisionTraversalNodeRSS::BVTesting(int b1, int b2) const
-{
-  if(enable_statistics) num_bv_tests++;
-  return !overlap(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv);
-}
-
-void PointCloudMeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
-{
-  details::pointCloudMeshCollisionOrientedNodeLeafTesting(b1, b2,
-                                                          model1, model2,
-                                                          vertices1, vertices2,
-                                                          tri_indices2,
-                                                          R, T,
-                                                          enable_statistics, collision_prob_threshold, uc1,
-                                                          num_leaf_tests, max_collision_prob, pairs);
-}
-
-#endif
-
 namespace details
 {
 
@@ -610,7 +428,7 @@ void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 }
 
 
-/** for OBB and RSS, there is local coordinate of BV, so normal need to be transformed */
+/// for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
 template<>
 bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
 {
@@ -790,9 +608,9 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
   }
 
 
-  /** n is the local frame of object 1, pointing from object 1 to object2 */
+  /// n is the local frame of object 1, pointing from object 1 to object2
   Vec3f n = P2 - P1;
-  /** turn n into the global frame, pointing from object 1 to object 2 */
+  /// turn n into the global frame, pointing from object 1 to object 2
   Matrix3f R0;
   motion1->getCurrentRotation(R0);
   Vec3f n_transformed = R0 * n;

@@ -39,7 +39,7 @@
 #define FCL_COLLISION_OBJECT_BASE_H
 
 #include "fcl/BV/AABB.h"
-#include "fcl/transform.h"
+#include "fcl/math/transform.h"
 #include <boost/shared_ptr.hpp>
 
 namespace fcl

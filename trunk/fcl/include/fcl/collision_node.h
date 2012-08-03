@@ -44,7 +44,7 @@
 
 
 
-
+/// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
 namespace fcl
 {
 

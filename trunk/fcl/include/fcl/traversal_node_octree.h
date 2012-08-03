@@ -47,7 +47,7 @@
 namespace fcl
 {
 
-
+/// @brief Algorithms for collision related with octree
 template<typename NarrowPhaseSolver>
 class OcTreeSolver
 {
@@ -69,6 +69,7 @@ public:
   {
   }
 
+  /// @brief collision between two octrees
   void OcTreeIntersect(const OcTree* tree1, const OcTree* tree2,
                        const Transform3f& tf1, const Transform3f& tf2,
                        const CollisionRequest& request_,
@@ -82,7 +83,7 @@ public:
                            tf1, tf2);
   }
 
-
+  /// @brief distance between two octrees
   void OcTreeDistance(const OcTree* tree1, const OcTree* tree2,
                       const Transform3f& tf1, const Transform3f& tf2,
                       const DistanceRequest& request_,
@@ -96,6 +97,7 @@ public:
                           tf1, tf2);
   }
 
+  /// @brief collision between octree and mesh
   template<typename BV>
   void OcTreeMeshIntersect(const OcTree* tree1, const BVHModel<BV>* tree2,
                            const Transform3f& tf1, const Transform3f& tf2,
@@ -110,6 +112,7 @@ public:
                                tf1, tf2);
   }
 
+  /// @brief distance between octree and mesh
   template<typename BV>
   void OcTreeMeshDistance(const OcTree* tree1, const BVHModel<BV>* tree2,
                           const Transform3f& tf1, const Transform3f& tf2,
@@ -124,7 +127,7 @@ public:
                               tf1, tf2);
   }
 
-
+  /// @brief collision between mesh and octree
   template<typename BV>
   void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree* tree2,
                            const Transform3f& tf1, const Transform3f& tf2,
@@ -140,7 +143,7 @@ public:
                                tf2, tf1);
   }
 
-  
+  /// @brief distance between mesh and octree
   template<typename BV>
   void MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree* tree2,
                           const Transform3f& tf1, const Transform3f& tf2,
@@ -155,6 +158,7 @@ public:
                               tf1, tf2);
   }
 
+  /// @brief collision between octree and shape
   template<typename S>
   void OcTreeShapeIntersect(const OcTree* tree, const S& s,
                             const Transform3f& tf1, const Transform3f& tf2,
@@ -174,6 +178,7 @@ public:
     
   }
 
+  /// @brief collision between shape and octree
   template<typename S>
   void ShapeOcTreeIntersect(const S& s, const OcTree* tree,
                             const Transform3f& tf1, const Transform3f& tf2,
@@ -192,6 +197,7 @@ public:
                                 tf2, tf1);
   }
 
+  /// @brief distance between octree and shape
   template<typename S>
   void OcTreeShapeDistance(const OcTree* tree, const S& s,
                            const Transform3f& tf1, const Transform3f& tf2,
@@ -208,6 +214,7 @@ public:
                                tf1, tf2);
   }
 
+  /// @brief distance between shape and octree
   template<typename S>
   void ShapeOcTreeDistance(const S& s, const OcTree* tree,
                            const Transform3f& tf1, const Transform3f& tf2,
@@ -244,7 +251,7 @@ private:
         
         dresult->update(dist, tree1, &s, root1 - tree1->getRoot(), DistanceResult::NONE);
         
-        return (dresult->min_distance <= 0);
+        return drequest->isSatisfied(*dresult);
       }
       else
         return false;
@@ -322,10 +329,10 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density));
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);
           }
 
-          return (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
+          return crequest->isSatisfied(*cresult);
         }
         else return false;
       }
@@ -346,7 +353,7 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density));            
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);            
           }
         }
         
@@ -408,7 +415,7 @@ private:
 
         dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), primitive_id);
 
-        return (dresult->min_distance <= 0);
+        return drequest->isSatisfied(*dresult);
       }
       else
         return false;
@@ -525,10 +532,10 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
             aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density));
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }
 
-          return (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
+          return crequest->isSatisfied(*cresult);
         }
         else
           return false;
@@ -557,7 +564,7 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
             aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density));
+            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }
         }
         
@@ -626,7 +633,7 @@ private:
 
         dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot());
         
-        return (dresult->min_distance <= 0);
+        return drequest->isSatisfied(*dresult);
       }
       else
         return false;
@@ -740,10 +747,10 @@ private:
           computeBV<AABB, Box>(box1, box1_tf, aabb1);
           computeBV<AABB, Box>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
-          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()));
+          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
 
-        return (!crequest->enable_cost) && (cresult->isCollision()) && (crequest->num_max_contacts <= cresult->numContacts());
+        return crequest->isSatisfied(*cresult);
       }
       else if(!tree1->isNodeFree(root1) && !tree2->isNodeFree(root2) && crequest->enable_cost) // uncertain area (here means both are uncertain or one uncertain and one occupied)
       {
@@ -763,7 +770,7 @@ private:
           computeBV<AABB, Box>(box1, box1_tf, aabb1);
           computeBV<AABB, Box>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
-          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()));
+          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
 
         return false;
@@ -827,7 +834,7 @@ private:
 
 
 
-
+/// @brief Traversal node for octree collision
 template<typename NarrowPhaseSolver>
 class OcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -858,7 +865,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
-
+/// @brief Traversal node for octree distance
 template<typename NarrowPhaseSolver>
 class OcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -888,6 +895,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
+/// @brief Traversal node for shape-octree collision
 template<typename S, typename NarrowPhaseSolver>
 class ShapeOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -918,6 +926,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
+/// @brief Traversal node for octree-shape collision
 template<typename S, typename NarrowPhaseSolver>
 class OcTreeShapeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -948,6 +957,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;  
 };
 
+/// @brief Traversal node for shape-octree distance
 template<typename S, typename NarrowPhaseSolver>
 class ShapeOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -976,6 +986,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
+/// @brief Traversal node for octree-shape distance
 template<typename S, typename NarrowPhaseSolver>
 class OcTreeShapeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -1004,7 +1015,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
-
+/// @brief Traversal node for mesh-octree collision
 template<typename BV, typename NarrowPhaseSolver>
 class MeshOcTreeCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1035,6 +1046,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
+/// @brief Traversal node for octree-mesh collision
 template<typename BV, typename NarrowPhaseSolver>
 class OcTreeMeshCollisionTraversalNode : public CollisionTraversalNodeBase
 {
@@ -1065,7 +1077,7 @@ public:
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
-
+/// @brief Traversal node for mesh-octree distance
 template<typename BV, typename NarrowPhaseSolver>
 class MeshOcTreeDistanceTraversalNode : public DistanceTraversalNodeBase
 {
@@ -1095,6 +1107,7 @@ public:
 
 };
 
+/// @brief Traversal node for octree-mesh distance
 template<typename BV, typename NarrowPhaseSolver>
 class OcTreeMeshDistanceTraversalNode : public DistanceTraversalNodeBase
 {

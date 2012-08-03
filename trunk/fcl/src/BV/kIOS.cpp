@@ -36,7 +36,7 @@
 
 #include "fcl/BV/kIOS.h"
 #include "fcl/BVH_utility.h"
-#include "fcl/transform.h"
+#include "fcl/math/transform.h"
 
 #include <iostream>
 #include <limits>

@@ -1,8 +1,45 @@
+/*
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2011, Willow Garage, Inc.
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Willow Garage, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/** \author Jia Pan */
+
+
 #ifndef FCL_COLLISION_DATA_H
 #define FCL_COLLISION_DATA_H
 
 #include "fcl/collision_object.h"
-#include "fcl/vec_3f.h"
+#include "fcl/math/vec_3f.h"
 #include <vector>
 #include <set>
 #include <limits>
@@ -108,6 +145,8 @@ struct CostSource
   }
 };
 
+struct CollisionResult;
+
 /// @brief request to the collision algorithm
 struct CollisionRequest
 {
@@ -133,6 +172,7 @@ struct CollisionRequest
   {
   }
 
+  bool isSatisfied(const CollisionResult& result) const;
 };
 
 /// @brief collision result
@@ -145,18 +185,11 @@ private:
   /// @brief cost sources
   std::set<CostSource> cost_sources;
 
-  const CollisionRequest* request;
-
 public:
   CollisionResult()
   {
-    request = NULL;
   }
 
-  void setRequest(const CollisionRequest& request_)
-  {
-    request = &request_;
-  }
 
   /// @brief add one contact into result structure
   inline void addContact(const Contact& c) 
@@ -165,18 +198,11 @@ public:
   }
 
   /// @brief add one cost source into result structure
-  inline void addCostSource(const CostSource& c)
+  inline void addCostSource(const CostSource& c, std::size_t num_max_cost_sources)
   {
-    if(request)
-    {
-      cost_sources.insert(c);
-      if(cost_sources.size() > request->num_max_cost_sources)
-        cost_sources.erase(cost_sources.begin());        
-    }
-    else
-    {
-      cost_sources.insert(c);
-    }
+    cost_sources.insert(c);
+    if(cost_sources.size() > num_max_cost_sources)
+      cost_sources.erase(cost_sources.begin());            
   }
 
   /// @brief return binary collision result
@@ -228,7 +254,7 @@ public:
   }
 };
 
-
+struct DistanceResult;
 
 /// @brief request to the distance computation
 struct DistanceRequest
@@ -239,17 +265,17 @@ struct DistanceRequest
   DistanceRequest(bool enable_nearest_points_ = false) : enable_nearest_points(enable_nearest_points_)
   {
   }
+
+  bool isSatisfied(const DistanceResult& result) const;
 };
 
 /// @brief distance result
 struct DistanceResult
 {
-private:
-  const DistanceRequest* request;
 
 public:
 
-  /// @brief minimum distance between two objects
+  /// @brief minimum distance between two objects. if two objects are in collision, min_distance <= 0.
   FCL_REAL min_distance;
 
   /// @brief nearest points
@@ -282,13 +308,8 @@ public:
                                                                                   b1(NONE),
                                                                                   b2(NONE)
   {
-    request = NULL;
   }
 
-  void setRequest(const DistanceRequest& request_)
-  {
-    request = &request_;
-  }
 
   /// @brief add distance information into the result
   void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_)

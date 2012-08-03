@@ -41,7 +41,6 @@
 #include "fcl/BVH_internal.h"
 #include "fcl/BV.h"
 #include "fcl/BV_node.h"
-#include "fcl/vec_3f.h"
 #include "fcl/BV_splitter.h"
 #include "fcl/BV_fitter.h"
 #include <vector>

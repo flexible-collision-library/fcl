@@ -38,8 +38,8 @@
 #ifndef FCL_BV_NODE_H
 #define FCL_BV_NODE_H
 
-#include "fcl/vec_3f.h"
-#include "fcl/matrix_3f.h"
+#include "fcl/math/vec_3f.h"
+#include "fcl/math/matrix_3f.h"
 
 #include "fcl/BV.h"
 #include <iostream>

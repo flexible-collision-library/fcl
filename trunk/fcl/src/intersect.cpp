@@ -166,119 +166,11 @@ int PolySolver::solveCubic(FCL_REAL c[4], FCL_REAL s[3])
   // re-substitute
   sub = ONE_OVER_THREE * A;
   for(i = 0; i < num; i++)
-          s[i] -= sub;
+    s[i] -= sub;
   return num;
 }
 
 
-#if USE_SVMLIGHT
-CloudClassifierParam::CloudClassifierParam()
-{
-  strcpy(learn_parm.predfile, "");
-  strcpy(learn_parm.alphafile, "");
-  learn_parm.biased_hyperplane = 1;
-  learn_parm.sharedslack = 0;
-  learn_parm.remove_inconsistent = 0;
-  learn_parm.skip_final_opt_check = 0;
-  learn_parm.svm_maxqpsize = 10;
-  learn_parm.svm_newvarsinqp = 0;
-  learn_parm.svm_iter_to_shrink = -9999;
-  learn_parm.maxiter = 100000;
-  learn_parm.kernel_cache_size = 40;
-  learn_parm.svm_c = 10;
-  learn_parm.eps = 0.1;
-  learn_parm.transduction_posratio = -1.0;
-  learn_parm.svm_costratio = 1.0;
-  learn_parm.svm_costratio_unlab = 1.0;
-  learn_parm.svm_unlabbound = 1E-5;
-  learn_parm.epsilon_crit = 0.001;
-  learn_parm.epsilon_a = 1E-15;
-  learn_parm.compute_loo = 0;
-  learn_parm.rho = 1.0;
-  learn_parm.xa_depth = 0;
-  learn_parm.type = CLASSIFICATION;
-  kernel_parm.kernel_type = 2;
-  kernel_parm.poly_degree = 3;
-  kernel_parm.rbf_gamma = 1.0;
-  kernel_parm.coef_lin = 1;
-  kernel_parm.coef_const = 1;
-  strcpy(kernel_parm.custom, "empty");
-
-  bool res = true;
-
-  if(learn_parm.svm_iter_to_shrink == -9999)
-  {
-    if(kernel_parm.kernel_type == LINEAR)
-      learn_parm.svm_iter_to_shrink = 2;
-    else
-      learn_parm.svm_iter_to_shrink = 100;
-  }
-
-  if((learn_parm.skip_final_opt_check)
-      && (kernel_parm.kernel_type == LINEAR))
-  {
-    std::cout << "It does not make sense to skip the final optimality check for linear kernels." << std::endl;
-    learn_parm.skip_final_opt_check = 0;
-  }
-  if((learn_parm.skip_final_opt_check)
-      && (learn_parm.remove_inconsistent))
-  {
-    std::cout << "It is necessary to do the final optimality check when removing inconsistent examples." << std::endl;
-    res = false;
-  }
-  if((learn_parm.svm_maxqpsize < 2))
-  {
-    std::cout << "Maximum size of QP-subproblems not in valid range: " << learn_parm.svm_maxqpsize << "[2..]" << std::endl;
-    res = false;
-  }
-  if((learn_parm.svm_maxqpsize < learn_parm.svm_newvarsinqp))
-  {
-    std::cout << "Maximum size of QP-subproblems " << learn_parm.svm_maxqpsize << " must be larger than the number of new variables [" << learn_parm.svm_newvarsinqp << "] entering the working set in each iteration." << std::endl;
-    res = false;
-  }
-  if(learn_parm.svm_iter_to_shrink < 1)
-  {
-    std::cout << "Maximum number of iterations for shrinking not in valid range: " << learn_parm.svm_iter_to_shrink << " [1,..]." << std::endl;
-    res = false;
-  }
-  if(learn_parm.svm_c < 0)
-  {
-    std::cout << "The C parameter must be greater than zero!" << std::endl;
-    res = false;
-  }
-  if(learn_parm.transduction_posratio > 1)
-  {
-    std::cout << "The fraction of unlabeled examples to classify as positives must be less than 1.0." << std::endl;
-    res = false;
-  }
-  if(learn_parm.svm_costratio <= 0)
-  {
-    std::cout << "The COSTRATIO parameter must be greater than zero!" << std::endl;
-    res = false;
-  }
-  if(learn_parm.epsilon_crit <= 0)
-  {
-    std::cout << "The epsilon parameter must be greater than zero!" << std::endl;
-    res = false;
-  }
-  if(learn_parm.rho < 0)
-  {
-    std::cout << "The parameter rho for xi/alpha-estimates and leave-one-out pruning must be greater than zero (typically 1.0 or 2.0, see T. Joachims, Estimating the Generalization Performance of an SVM Efficiently, ICML, 2000.)" << std::endl;
-    res = false;
-  }
-  if((learn_parm.xa_depth < 0) || (learn_parm.xa_depth > 100))
-  {
-    std::cout << "The parameter depth for ext. xi/alpha-estimates must be in [0..100] (zero for switching to the conventional xa/estimates described in T. Joachims, Estimating the Generalization Performance of an SVM Efficiently, ICML, 2000.)" << std::endl;
-    res = false;
-  }
-
-  if(!res)
-  {
-    std::cout << "Solver initialization fails" << std::endl;
-  }
-}
-
-#endif
 
 const FCL_REAL Intersect::EPSILON = 1e-5;
 const FCL_REAL Intersect::NEAR_ZERO_THRESHOLD = 1e-7;
@@ -290,12 +182,10 @@ bool Intersect::isZero(FCL_REAL v)
   return (v < NEAR_ZERO_THRESHOLD) && (v > -NEAR_ZERO_THRESHOLD);
 }
 
-/** \brief
- * data: only used for EE, return the intersect point
- */
+/// @brief data: only used for EE, return the intersect point
 bool Intersect::solveCubicWithIntervalNewton(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                         const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                         FCL_REAL& l, FCL_REAL& r, bool bVF, FCL_REAL coeffs[], Vec3f* data)
+                                             const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
+                                             FCL_REAL& l, FCL_REAL& r, bool bVF, FCL_REAL coeffs[], Vec3f* data)
 {
   FCL_REAL v2[2]= {l*l,r*r};
   FCL_REAL v[2]= {l,r};
@@ -395,14 +285,13 @@ bool Intersect::insideLineSegment(const Vec3f& a, const Vec3f& b, const Vec3f& p
   return (p - a).dot(p - b) <= 0;
 }
 
-/* \brief  Calculate the line segment papb that is the shortest route between
-           two lines p1p2 and p3p4. Calculate also the values of mua and mub where
-                  pa = p1 + mua (p2 - p1)
-                  pb = p3 + mub (p4 - p3)
-            Return FALSE if no solution exists.
-*/
+/// @brief Calculate the line segment papb that is the shortest route between
+/// two lines p1p2 and p3p4. Calculate also the values of mua and mub where
+///    pa = p1 + mua (p2 - p1)
+///    pb = p3 + mub (p4 - p3)
+/// Return FALSE if no solution exists.
 bool Intersect::linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3, const Vec3f& p4,
-                              Vec3f* pa, Vec3f* pb, FCL_REAL* mua, FCL_REAL* mub)
+                                  Vec3f* pa, Vec3f* pb, FCL_REAL* mua, FCL_REAL* mub)
 {
   Vec3f p31 = p1 - p3;
   Vec3f p34 = p4 - p3;
@@ -438,15 +327,15 @@ bool Intersect::linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f&
 }
 
 bool Intersect::checkRootValidity_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                                 const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
-                                 FCL_REAL t)
+                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
+                                     FCL_REAL t)
 {
   return insideTriangle(a0 + va * t, b0 + vb * t, c0 + vc * t, p0 + vp * t);
 }
 
 bool Intersect::checkRootValidity_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                 const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                 FCL_REAL t, Vec3f* q_i)
+                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
+                                     FCL_REAL t, Vec3f* q_i)
 {
   Vec3f a = a0 + va * t;
   Vec3f b = b0 + vb * t;
@@ -464,17 +353,17 @@ bool Intersect::checkRootValidity_EE(const Vec3f& a0, const Vec3f& b0, const Vec
 }
 
 bool Intersect::checkRootValidity_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                                 const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
-                                 FCL_REAL t)
+                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
+                                     FCL_REAL t)
 {
   return insideLineSegment(a0 + va * t, b0 + vb * t, p0 + vp * t);
 }
 
 bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
-                        const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                        const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                        bool bVF,
-                        FCL_REAL* ret)
+                            const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
+                            const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
+                            bool bVF,
+                            FCL_REAL* ret)
 {
   FCL_REAL discriminant = b * b - 4 * a * c;
   if(discriminant < 0)
@@ -507,8 +396,8 @@ bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
 }
 
 bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
-                        const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                        const Vec3f& va, const Vec3f& vb, const Vec3f& vp)
+                            const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
+                            const Vec3f& va, const Vec3f& vb, const Vec3f& vp)
 {
   if(isZero(a))
   {
@@ -533,12 +422,11 @@ bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
 
 
 
-/** \brief Compute the cubic coefficients for VF case
- *  See Paper "Interactive Continuous Collision Detection between Deformable Models using Connectivity-Based Culling", Equation 1.
- */
+/// @brief Compute the cubic coefficients for VF case
+/// See Paper "Interactive Continuous Collision Detection between Deformable Models using Connectivity-Based Culling", Equation 1.
 void Intersect::computeCubicCoeff_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                                 const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
-                                 FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
+                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
+                                     FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
 {
   Vec3f vavb = vb - va;
   Vec3f vavc = vc - va;
@@ -559,8 +447,8 @@ void Intersect::computeCubicCoeff_VF(const Vec3f& a0, const Vec3f& b0, const Vec
 }
 
 void Intersect::computeCubicCoeff_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                 const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                 FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
+                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
+                                     FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
 {
   Vec3f vavb = vb - va;
   Vec3f vcvd = vd - vc;
@@ -580,9 +468,9 @@ void Intersect::computeCubicCoeff_EE(const Vec3f& a0, const Vec3f& b0, const Vec
 }
 
 void Intersect::computeCubicCoeff_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                                 const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
-                                 const Vec3f& L,
-                                 FCL_REAL* a, FCL_REAL* b, FCL_REAL* c)
+                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
+                                     const Vec3f& L,
+                                     FCL_REAL* a, FCL_REAL* b, FCL_REAL* c)
 {
   Vec3f vbva = va - vb;
   Vec3f vbvp = vp - vb;
@@ -599,8 +487,8 @@ void Intersect::computeCubicCoeff_VE(const Vec3f& a0, const Vec3f& b0, const Vec
 
 
 bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                         const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                             const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
+                             FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   *collision_time = 2.0;
 
@@ -618,13 +506,11 @@ bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
     return false;
   }
 
-  /*
-  if(isZero(a))
-  {
-    return solveSquare(b, c, d, a0, b0, c0, p0, va, vb, vc, vp, true, collision_time);
-  }
-  */
 
+  /// if(isZero(a))
+  /// {
+  ///   return solveSquare(b, c, d, a0, b0, c0, p0, va, vb, vc, vp, true, collision_time);
+  /// }
 
   FCL_REAL coeffs[4];
   coeffs[3] = a, coeffs[2] = b, coeffs[1] = c, coeffs[0] = d;
@@ -665,8 +551,8 @@ bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
 }
 
 bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                         const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                             const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
+                             FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   *collision_time = 2.0;
 
@@ -683,12 +569,12 @@ bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   {
     return false;
   }
-  /*
-  if(isZero(a))
-  {
-    return solveSquare(b, c, d, a0, b0, c0, d0, va, vb, vc, vd, collision_time, false);
-  }
-  */
+  
+  /// if(isZero(a))
+  /// {
+  ///   return solveSquare(b, c, d, a0, b0, c0, d0, va, vb, vc, vd, collision_time, false);
+  /// }
+ 
 
   FCL_REAL coeffs[4];
   coeffs[3] = a, coeffs[2] = b, coeffs[1] = c, coeffs[0] = d;
@@ -730,8 +616,8 @@ bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
 
 
 bool Intersect::intersect_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                         const Vec3f& a1, const Vec3f& b1, const Vec3f& p1,
-                         const Vec3f& L)
+                             const Vec3f& a1, const Vec3f& b1, const Vec3f& p1,
+                             const Vec3f& L)
 {
   Vec3f va, vb, vp;
   va = a1 - a0;
@@ -749,9 +635,9 @@ bool Intersect::intersect_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
 }
 
 
-/** \brief Prefilter for intersection, works for both VF and EE */
+/// @brief Prefilter for intersection, works for both VF and EE
 bool Intersect::intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                         const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1)
+                                      const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1)
 {
   Vec3f n0 = (b0 - a0).cross(c0 - a0);
   Vec3f n1 = (b1 - a1).cross(c1 - a1);
@@ -780,8 +666,8 @@ bool Intersect::intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Ve
 }
 
 bool Intersect::intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                         const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                                      const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
+                                      FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   if(intersectPreFiltering(a0, b0, c0, p0, a1, b1, c1, p1))
   {
@@ -792,8 +678,8 @@ bool Intersect::intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Ve
 }
 
 bool Intersect::intersect_EE_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                         const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                         FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+                                      const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
+                                      FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
 {
   if(intersectPreFiltering(a0, b0, c0, d0, a1, b1, c1, d1))
   {
@@ -889,7 +775,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
     return false;
 
 
-  /* Return contact information */
+  /// Return contact information
   if(contact_points && num_contact_points && penetration_depth && normal)
   {
     if(penetration_depth1 > penetration_depth2)
@@ -1261,8 +1147,8 @@ bool Intersect::sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v
 }
 
 int Intersect::project6(const Vec3f& ax,
-                      const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
-                      const Vec3f& q1, const Vec3f& q2, const Vec3f& q3)
+                        const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
+                        const Vec3f& q1, const Vec3f& q2, const Vec3f& q3)
 {
   FCL_REAL P1 = ax.dot(p1);
   FCL_REAL P2 = ax.dot(p2);
@@ -1282,566 +1168,6 @@ int Intersect::project6(const Vec3f& ax,
   return 1;
 }
 
-
-#if USE_SVMLIGHT
-
-void Intersect::singleKernelGradient(KERNEL_PARM *kernel_parm, SVECTOR *a, SVECTOR *b, Vec3f& g)
-{
-  double tmp;
-  switch(kernel_parm->kernel_type)
-  {
-    case 0: /* linear */
-      g[0] = a->words[0].weight;
-      g[1] = a->words[1].weight;
-      g[2] = a->words[2].weight;
-      break;
-    case 1: /* polynomial */
-      tmp = pow(kernel_parm->coef_lin * sprod_ss(a, b) + kernel_parm->coef_const, (double)kernel_parm->poly_degree - 1) * kernel_parm->poly_degree * kernel_parm->coef_lin;
-      g[0] = tmp * a->words[0].weight;
-      g[1] = tmp * a->words[1].weight;
-      g[2] = tmp * a->words[2].weight;
-      break;
-    case 2: /* radial basis function */
-      tmp = (exp(-kernel_parm->rbf_gamma * (a->twonorm_sq - 2 * sprod_ss(a, b) + b->twonorm_sq))) * 2 * (-kernel_parm->rbf_gamma);
-      g[0] = tmp * (b->words[0].weight - a->words[0].weight);
-      g[1] = tmp * (b->words[1].weight - a->words[1].weight);
-      g[2] = tmp * (b->words[2].weight - a->words[2].weight);
-      break;
-    case 3: /* sigmoid neural net */
-      tmp = 1 - (tanh(kernel_parm->coef_lin * sprod_ss(a, b) + kernel_parm->coef_const)) * (tanh(kernel_parm->coef_lin * sprod_ss(a, b) + kernel_parm->coef_const));
-      tmp *= kernel_parm->coef_lin;
-      g[0] = tmp * a->words[0].weight;
-      g[1] = tmp * a->words[1].weight;
-      g[2] = tmp * a->words[2].weight;
-      break;
-    default:
-      std::cout << "Error: Unknown kernel function" << std::endl;
-      return;
-  }
-}
-
-void Intersect::kernelGradient(KERNEL_PARM *kernel_parm, DOC *a, DOC *b, Vec3f& g)
-{
-  g.setValue(0, 0, 0);
-  SVECTOR *fa, *fb;
-  Vec3f tmp;
-
-  for(fa = a->fvec; fa; fa = fa->next)
-  {
-    for(fb = b->fvec; fb; fb = fb->next)
-    {
-      if (fa->kernel_id == fb->kernel_id)
-      {
-        singleKernelGradient(kernel_parm, fa, fb, tmp);
-        g += (tmp * (fa->factor * fb->factor));
-      }
-    }
-  }
-}
-
-FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
-                                          Vec3f* cloud2, Variance3f* uc2, int size_cloud2,
-                                          const CloudClassifierParam& solver, bool scaling)
-{
-  KERNEL_CACHE *kernel_cache;
-  LEARN_PARM learn_parm = solver.learn_parm;
-  KERNEL_PARM kernel_parm = solver.kernel_parm;
-  MODEL *model = (MODEL *)my_malloc(sizeof(MODEL));
-
-  int nPositiveExamples = size_cloud1;
-  int nNegativeExamples = size_cloud2;
-  int totdoc = nPositiveExamples + nNegativeExamples;
-  int totwords = 3;
-
-  int queryid = 0;
-  int slackid = 0;
-  double costfactor = 1;
-  WORD *words = (WORD *)my_malloc(sizeof(WORD) * 4);
-
-  DOC** docs = (DOC **)my_malloc(sizeof(DOC *) * (nPositiveExamples + nNegativeExamples));
-  double* label = (double *)my_malloc(sizeof(double) * (nPositiveExamples + nNegativeExamples));
-
-  float bbmin[3] = {0, 0, 0};
-  float bbmax[3] = {0, 0, 0};
-
-  for(int i = 0; i < nPositiveExamples; ++i)
-  {
-    int example_id = i;
-    label[example_id] = 1;
-    float coord1[3];
-    coord1[0] = cloud1[i][0];
-    coord1[1] = cloud1[i][1];
-    coord1[2] = cloud1[i][2];
-
-
-    words[0].wnum = 1;
-    words[0].weight = coord1[0];
-    words[1].wnum = 2;
-    words[1].weight = coord1[1];
-    words[2].wnum = 3;
-    words[2].weight = coord1[2];
-    words[3].wnum = 0;
-    words[3].weight = 3;
-
-    docs[example_id] = create_example(example_id, queryid, slackid, costfactor,
-                                      create_svector(words, (char*)"", 1.0));
-
-    if(scaling)
-    {
-      if(i == 0)
-      {
-        bbmin[0] = coord1[0];
-        bbmin[1] = coord1[1];
-        bbmin[2] = coord1[2];
-        bbmax[0] = coord1[0];
-        bbmax[1] = coord1[1];
-        bbmax[2] = coord1[2];
-      }
-      else
-      {
-        if(bbmin[0] > coord1[0]) bbmin[0] = coord1[0];
-        if(bbmax[0] < coord1[0]) bbmax[0] = coord1[0];
-        if(bbmin[1] > coord1[1]) bbmin[1] = coord1[1];
-        if(bbmax[1] < coord1[1]) bbmax[1] = coord1[1];
-        if(bbmin[2] > coord1[2]) bbmin[2] = coord1[2];
-        if(bbmax[2] < coord1[2]) bbmax[2] = coord1[2];
-      }
-    }
-  }
-
-
-  for(int i = 0; i < nNegativeExamples; ++i)
-  {
-    int example_id = i + nPositiveExamples;
-    label[example_id] = -1;
-    float coord1[3];
-
-    coord1[0] = cloud2[i][0];
-    coord1[1] = cloud2[i][1];
-    coord1[2] = cloud2[i][2];
-
-    words[0].wnum = 1;
-    words[0].weight = coord1[0];
-    words[1].wnum = 2;
-    words[1].weight = coord1[1];
-    words[2].wnum = 3;
-    words[2].weight = coord1[2];
-    words[3].wnum = 0;
-    words[3].weight = 3;
-    docs[example_id] = create_example(example_id, queryid, slackid, costfactor,
-                                      create_svector(words, (char*)"", 1.0));
-
-    if(scaling)
-    {
-      if(bbmin[0] > coord1[0]) bbmin[0] = coord1[0];
-      if(bbmax[0] < coord1[0]) bbmax[0] = coord1[0];
-      if(bbmin[1] > coord1[1]) bbmin[1] = coord1[1];
-      if(bbmax[1] < coord1[1]) bbmax[1] = coord1[1];
-      if(bbmin[2] > coord1[2]) bbmin[2] = coord1[2];
-      if(bbmax[2] < coord1[2]) bbmax[2] = coord1[2];
-    }
-  }
-
-  FCL_REAL S[3];
-  S[0] = 1 / (bbmax[0] - bbmin[0]);
-  S[1] = 1 / (bbmax[1] - bbmin[1]);
-  S[2] = 1 / (bbmax[2] - bbmin[2]);
-
-  if(scaling)
-  {
-    for(int i = 0; i < totdoc; ++i)
-    {
-      FCL_REAL f = docs[i]->fvec->words[0].weight;
-      docs[i]->fvec->words[0].weight = (f - bbmin[0]) * S[0];
-      f = docs[i]->fvec->words[1].weight;
-      docs[i]->fvec->words[1].weight = (f - bbmin[1]) * S[1];
-      f = docs[i]->fvec->words[2].weight;
-      docs[i]->fvec->words[2].weight = (f - bbmin[2]) * S[2];
-      docs[i]->fvec->twonorm_sq = sprod_ss(docs[i]->fvec, docs[i]->fvec);
-    }
-  }
-
-  if(kernel_parm.kernel_type == LINEAR) /** don't need the cache */
-    kernel_cache = NULL;
-  else
-  {
-    /** Always get a new kernel cache. It is not possible to use the
-     * same cache for two different training runs
-     */
-    kernel_cache = kernel_cache_init(totdoc, learn_parm.kernel_cache_size);
-  }
-
-
-  double *alpha_in = NULL;
-  int nerrors;
-  double maxerror;
-  svm_learn_classification_extend(docs, label, totdoc, totwords, &learn_parm,
-                                  &kernel_parm, kernel_cache, model, alpha_in, &nerrors, &maxerror);
-
-  /** compute collision probability */
-  double max_collision_prob = 0;
-  for(int i = 0; i < totdoc; ++i)
-  {
-    Vec3f fgrad;
-    Vec3f g;
-    double f = - label[i] * classify_example(model, docs[i]);
-
-    for(int j = 1; j < model->sv_num; j++)
-    {
-      kernelGradient(&model->kernel_parm, model->supvec[j], docs[i], g);
-      fgrad += (g * (model->alpha[j] * label[j]));
-
-      if (i < nPositiveExamples)
-      {
-        double sigma = quadraticForm(uc1[i].Sigma, fgrad);
-        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
-        if(max_collision_prob < col_prob)
-          max_collision_prob = col_prob;
-      }
-      else
-      {
-        double sigma = uc2[i - quadraticForm(nPositiveExamples].Sigma, fgrad);
-        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
-        if(max_collision_prob < col_prob)
-          max_collision_prob = col_prob;
-      }
-    }
-  }
-
-  if(kernel_cache)
-  {
-    kernel_cache_cleanup(kernel_cache);
-    kernel_cache = NULL;
-  }
-
-
-  free(alpha_in);
-  free_model(model, 0);
-  for (int i = 0; i < totdoc; i++)
-          free_example(docs[i], 1);
-  free(docs);
-  free(label);
-  free(words);
-
-  return max_collision_prob;
-}
-
-FCL_REAL Intersect::intersect_PointClouds(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
-                                          Vec3f* cloud2, Variance3f* uc2, int size_cloud2,
-                                          const Matrix3f& R, const Vec3f& T, const CloudClassifierParam& solver, bool scaling)
-{
-  KERNEL_CACHE *kernel_cache;
-  LEARN_PARM learn_parm = solver.learn_parm;
-  KERNEL_PARM kernel_parm = solver.kernel_parm;
-  MODEL *model = (MODEL *)my_malloc(sizeof(MODEL));
-
-  int nPositiveExamples = size_cloud1;
-  int nNegativeExamples = size_cloud2;
-  int totdoc = nPositiveExamples + nNegativeExamples;
-  int totwords = 3;
-
-  int queryid = 0;
-  int slackid = 0;
-  double costfactor = 1;
-  WORD *words = (WORD *)my_malloc(sizeof(WORD) * 4);
-
-  DOC** docs = (DOC **)my_malloc(sizeof(DOC *) * (nPositiveExamples + nNegativeExamples));
-  double* label = (double *)my_malloc(sizeof(double) * (nPositiveExamples + nNegativeExamples));
-
-  float bbmin[3] = {0, 0, 0};
-  float bbmax[3] = {0, 0, 0};
-
-  for(int i = 0; i < nPositiveExamples; ++i)
-  {
-    int example_id = i;
-    label[example_id] = 1;
-    float coord1[3];
-    coord1[0] = cloud1[i][0];
-    coord1[1] = cloud1[i][1];
-    coord1[2] = cloud1[i][2];
-
-
-    words[0].wnum = 1;
-    words[0].weight = coord1[0];
-    words[1].wnum = 2;
-    words[1].weight = coord1[1];
-    words[2].wnum = 3;
-    words[2].weight = coord1[2];
-    words[3].wnum = 0;
-    words[3].weight = 3;
-
-    docs[example_id] = create_example(example_id, queryid, slackid, costfactor,
-                                      create_svector(words, (char*)"", 1.0));
-
-    if(scaling)
-    {
-      if(i == 0)
-      {
-        bbmin[0] = coord1[0];
-        bbmin[1] = coord1[1];
-        bbmin[2] = coord1[2];
-        bbmax[0] = coord1[0];
-        bbmax[1] = coord1[1];
-        bbmax[2] = coord1[2];
-      }
-      else
-      {
-        if(bbmin[0] > coord1[0]) bbmin[0] = coord1[0];
-        if(bbmax[0] < coord1[0]) bbmax[0] = coord1[0];
-        if(bbmin[1] > coord1[1]) bbmin[1] = coord1[1];
-        if(bbmax[1] < coord1[1]) bbmax[1] = coord1[1];
-        if(bbmin[2] > coord1[2]) bbmin[2] = coord1[2];
-        if(bbmax[2] < coord1[2]) bbmax[2] = coord1[2];
-      }
-    }
-  }
-
-
-  for(int i = 0; i < nNegativeExamples; ++i)
-  {
-    int example_id = i + nPositiveExamples;
-    label[example_id] = -1;
-    Vec3f coord0, coord1;
-
-    coord0[0] = cloud2[i][0];
-    coord0[1] = cloud2[i][1];
-    coord0[2] = cloud2[i][2];
-    coord1 = R * coord0 + T; // rotate the coordinate
-
-    words[0].wnum = 1;
-    words[0].weight = coord1[0];
-    words[1].wnum = 2;
-    words[1].weight = coord1[1];
-    words[2].wnum = 3;
-    words[2].weight = coord1[2];
-    words[3].wnum = 0;
-    words[3].weight = 3;
-    docs[example_id] = create_example(example_id, queryid, slackid, costfactor,
-                                      create_svector(words, (char*)"", 1.0));
-
-    if(scaling)
-    {
-      if(bbmin[0] > coord1[0]) bbmin[0] = coord1[0];
-      if(bbmax[0] < coord1[0]) bbmax[0] = coord1[0];
-      if(bbmin[1] > coord1[1]) bbmin[1] = coord1[1];
-      if(bbmax[1] < coord1[1]) bbmax[1] = coord1[1];
-      if(bbmin[2] > coord1[2]) bbmin[2] = coord1[2];
-      if(bbmax[2] < coord1[2]) bbmax[2] = coord1[2];
-    }
-  }
-
-  FCL_REAL S[3];
-  S[0] = 1 / (bbmax[0] - bbmin[0]);
-  S[1] = 1 / (bbmax[1] - bbmin[1]);
-  S[2] = 1 / (bbmax[2] - bbmin[2]);
-
-  if(scaling)
-  {
-    for(int i = 0; i < totdoc; ++i)
-    {
-      FCL_REAL f = docs[i]->fvec->words[0].weight;
-      docs[i]->fvec->words[0].weight = (f - bbmin[0]) * S[0];
-      f = docs[i]->fvec->words[1].weight;
-      docs[i]->fvec->words[1].weight = (f - bbmin[1]) * S[1];
-      f = docs[i]->fvec->words[2].weight;
-      docs[i]->fvec->words[2].weight = (f - bbmin[2]) * S[2];
-      docs[i]->fvec->twonorm_sq = sprod_ss(docs[i]->fvec, docs[i]->fvec);
-    }
-  }
-
-  if(kernel_parm.kernel_type == LINEAR) /** don't need the cache */
-    kernel_cache = NULL;
-  else
-  {
-    /** Always get a new kernel cache. It is not possible to use the
-     * same cache for two different training runs
-     */
-    kernel_cache = kernel_cache_init(totdoc, learn_parm.kernel_cache_size);
-  }
-
-
-  double *alpha_in = NULL;
-  int nerrors;
-  double maxerror;
-  svm_learn_classification_extend(docs, label, totdoc, totwords, &learn_parm,
-                                  &kernel_parm, kernel_cache, model, alpha_in, &nerrors, &maxerror);
-
-  /** compute collision probability */
-  double max_collision_prob = 0;
-  for(int i = 0; i < totdoc; ++i)
-  {
-    Vec3f fgrad;
-    Vec3f g;
-    double f = - label[i] * classify_example(model, docs[i]);
-
-    for(int j = 1; j < model->sv_num; j++)
-    {
-      kernelGradient(&model->kernel_parm, model->supvec[j], docs[i], g);
-      fgrad += (g * (model->alpha[j] * label[j]));
-
-      if (i < nPositiveExamples)
-      {
-        double sigma = quadraticForm(uc1[i].Sigma, fgrad);
-        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
-        if(max_collision_prob < col_prob)
-          max_collision_prob = col_prob;
-      }
-      else
-      {
-        Matrix3f rotatedSigma = R.tensorTransform(uc2[i - nPositiveExamples].Sigma);
-        double sigma = quadraticForm(rotatedSigma, fgrad);
-        FCL_REAL col_prob = gaussianCDF(f / sqrt(sigma));
-        if(max_collision_prob < col_prob)
-          max_collision_prob = col_prob;
-      }
-    }
-  }
-
-  if(kernel_cache)
-  {
-    kernel_cache_cleanup(kernel_cache);
-    kernel_cache = NULL;
-  }
-
-
-  free(alpha_in);
-  free_model(model, 0);
-  for (int i = 0; i < totdoc; i++)
-          free_example(docs[i], 1);
-  free(docs);
-  free(label);
-  free(words);
-
-  return max_collision_prob;
-}
-
-
-FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
-                                              const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3)
-{
-  // get the plane x * n - t = 0 and the compute the projection matrix according to (I - nn^t) y + t * n = y'
-  FCL_REAL t;
-  Vec3f n;
-  bool b_plane = buildTrianglePlane(Q1, Q2, Q3, &n, &t);
-  if(!b_plane)
-  {
-    std::cerr << "build triangle plane failed!" << std::endl;
-    return 0.0;
-  }
-
-  FCL_REAL edge_t[3];
-  Vec3f edge_n[3];
-
-  bool b_edge_plane1 = buildEdgePlane(Q1, Q2, n, edge_n + 0, edge_t + 0);
-  if(!b_edge_plane1)
-  {
-    std::cerr << "build edge plane1 failed!" << std::endl;
-    return 0.0;
-  }
-
-  bool b_edge_plane2 = buildEdgePlane(Q2, Q3, n, edge_n + 1, edge_t + 1);
-  if(!b_edge_plane2)
-  {
-    std::cerr << "build edge plane2 failed!" << std::endl;
-    return 0.0;
-  }
-
-  bool b_edge_plane3 = buildEdgePlane(Q3, Q1, n, edge_n + 2, edge_t + 2);
-  if(!b_edge_plane3)
-  {
-    std::cerr << "build edge plane3 failed!" << std::endl;
-    return 0.0;
-  }
-
-  Matrix3f P(1 - n[0] * n[0], -n[0] * n[1], -n[0] * n[2],
-             -n[1] * n[0], 1 - n[1] * n[1], -n[1] * n[2],
-             -n[2] * n[0], -n[2] * n[1], 1 - n[2] * n[2]);
-
-   Vec3f delta = n * t;
-
-   FCL_REAL max_prob = 0;
-   for(int i = 0; i < size_cloud1; ++i)
-   {
-     Vec3f projected_p = P * cloud1[i] + delta;
-
-     // compute the projected uncertainty by P * S * P'
-     Matrix3f newS = P.tensorTransform(uc1[i].Sigma);
-
-     // check whether the point is inside or outside the triangle
-
-     bool b_inside = insideTriangle(Q1, Q2, Q3, projected_p);
-
-     if(b_inside)
-     {
-       FCL_REAL prob1 = gaussianCDF((projected_p.dot(edge_n[0]) - edge_t[0]) / sqrt(quadraticForm(newS, edge_n[0])));
-       FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[1]) - edge_t[1]) / sqrt(quadraticForm(newS, edge_n[1])));
-       FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[2]) - edge_t[2]) / sqrt(quadraticForm(newS, edge_n[2])));
-       FCL_REAL prob = 1.0 - prob1 - prob2 - prob3;
-       if(prob > max_prob) max_prob = prob;
-     }
-     else
-     {
-       FCL_REAL d1 = projected_p.dot(edge_n[0]) - edge_t[0];
-       FCL_REAL d2 = projected_p.dot(edge_n[1]) - edge_t[1];
-       FCL_REAL d3 = projected_p.dot(edge_n[2]) - edge_t[2];
-
-       std::vector<int> pos_plane;
-       std::vector<int> neg_plane;
-       if(d1 > 0) pos_plane.push_back(0); else neg_plane.push_back(0);
-       if(d2 > 0) pos_plane.push_back(1); else neg_plane.push_back(1);
-       if(d3 > 0) pos_plane.push_back(2); else neg_plane.push_back(2);
-
-       if(pos_plane.size() == 1)
-       {
-         int pos_id = pos_plane[0];
-         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[pos_id]) - edge_t[pos_id]) / sqrt(quadraticForm(newS, edge_n[pos_id])));
-
-         int neg_id1 = neg_plane[0];
-         int neg_id2 = neg_plane[1];
-         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[neg_id1]) - edge_t[neg_id1]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
-         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[neg_id2]) - edge_t[neg_id2]) / sqrt(quadraticForm(newS, edge_n[neg_id2])));
-
-         FCL_REAL prob = prob1 - prob2 - prob3;
-         if(prob > max_prob) max_prob = prob;
-
-       }
-       else if(pos_plane.size() == 2)
-       {
-         int neg_id = neg_plane[0];
-         FCL_REAL prob1 = gaussianCDF(-(projected_p.dot(edge_n[neg_id]) - edge_t[neg_id]) / sqrt(quadraticForm(newS, edge_n[neg_id])));
-
-         int pos_id1 = pos_plane[0];
-         int pos_id2 = pos_plane[1];
-
-         FCL_REAL prob2 = gaussianCDF((projected_p.dot(edge_n[pos_id1])) / sqrt(quadraticForm(newS, edge_n[pos_id1])));
-         FCL_REAL prob3 = gaussianCDF((projected_p.dot(edge_n[pos_id2])) / sqrt(quadraticForm(newS, edge_n[pos_id2])));
-
-         FCL_REAL prob = prob1 - prob2 - prob3;
-         if(prob > max_prob) max_prob = prob;
-       }
-       else
-       {
-         std::cerr << "Ooops, seems something is wrong: " << pos_plane.size() << std::endl;
-       }
-     }
-   }
-
-   return max_prob;
-}
-
-
-FCL_REAL Intersect::intersect_PointCloudsTriangle(Vec3f* cloud1, Variance3f* uc1, int size_cloud1,
-                                              const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                              const Matrix3f& R, const Vec3f& T)
-{
-  Vec3f Q1_ = R * Q1 + T;
-  Vec3f Q2_ = R * Q2 + T;
-  Vec3f Q3_ = R * Q3 + T;
-
-  return intersect_PointCloudsTriangle(cloud1, uc1, size_cloud1, Q1_, Q2_, Q3_);
-}
-
-#endif
 
 
 void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q, const Vec3f& B,

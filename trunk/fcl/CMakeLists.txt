@@ -10,10 +10,6 @@ project(fcl CXX C)
 #set(ROS_BUILD_TYPE RelWithDebInfo)
 set(CMAKE_BUILD_TYPE Release)
 
-set(FCL_VERSION "0.1.1")
-set(PKG_DESC "Fast Collision Library")
-set(PKG_EXTERNAL_DEPS "ccd flann octomap")
-
 set(CMAKE_SKIP_BUILD_RPATH  FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -27,10 +23,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 include_directories("include")
 
 find_package(PkgConfig)
-pkg_check_modules(FLANN REQUIRED flann)
-include_directories(${FLANN_INCLUDE_DIRS})
-link_directories(${FLANN_LIBRARY_DIRS})
-
 pkg_check_modules(CCD REQUIRED ccd)
 include_directories(${CCD_INCLUDE_DIRS})
 link_directories(${CCD_LIBRARY_DIRS})
@@ -41,10 +33,10 @@ link_directories(${OCTOMAP_LIBRARY_DIRS})
 
 add_definitions(-DUSE_SVMLIGHT=0)
 
-add_library(${PROJECT_NAME} SHARED src/BV/AABB.cpp src/BV/OBB.cpp src/BV/RSS.cpp src/BV/kIOS.cpp src/BV/OBBRSS.cpp src/BV/kDOP.cpp src/traversal_node_base.cpp src/traversal_node_bvhs.cpp src/intersect.cpp src/motion.cpp src/BV_fitter.cpp src/BV_splitter.cpp src/BVH_model.cpp src/BVH_utility.cpp src/transform.cpp src/simple_setup.cpp src/geometric_shapes.cpp src/geometric_shapes_utility.cpp src/collision_node.cpp src/traversal_recurse.cpp src/broadphase/broadphase_bruteforce.cpp src/broadphase/broadphase_spatialhash.cpp src/broadphase/broadphase_SaP.cpp src/broadphase/broadphase_SSaP.cpp src/broadphase/broadphase_interval_tree.cpp src/broadphase/broadphase_dynamic_AABB_tree.cpp src/broadphase/broadphase_dynamic_AABB_tree_array.cpp src/collision.cpp src/collision_func_matrix.cpp src/broadphase/interval_tree.cpp src/conservative_advancement.cpp src/ccd/interval.cpp src/ccd/interval_vector.cpp src/ccd/interval_matrix.cpp src/ccd/taylor_model.cpp src/ccd/taylor_vector.cpp src/ccd/taylor_matrix.cpp src/distance_func_matrix.cpp src/distance.cpp src/narrowphase/gjk.cpp src/narrowphase/gjk_libccd.cpp src/narrowphase/narrowphase.cpp src/broadphase/hierarchy_tree.cpp)
+add_library(${PROJECT_NAME} SHARED src/BV/AABB.cpp src/BV/OBB.cpp src/BV/RSS.cpp src/BV/kIOS.cpp src/BV/OBBRSS.cpp src/BV/kDOP.cpp src/traversal_node_base.cpp src/traversal_node_bvhs.cpp src/intersect.cpp src/ccd/motion.cpp src/BV_fitter.cpp src/BV_splitter.cpp src/BVH_model.cpp src/BVH_utility.cpp src/math/transform.cpp src/traversal_node_setup.cpp src/geometric_shapes.cpp src/geometric_shapes_utility.cpp src/collision_node.cpp src/traversal_recurse.cpp src/broadphase/broadphase_bruteforce.cpp src/broadphase/broadphase_spatialhash.cpp src/broadphase/broadphase_SaP.cpp src/broadphase/broadphase_SSaP.cpp src/broadphase/broadphase_interval_tree.cpp src/broadphase/broadphase_dynamic_AABB_tree.cpp src/broadphase/broadphase_dynamic_AABB_tree_array.cpp src/collision.cpp src/collision_func_matrix.cpp src/broadphase/interval_tree.cpp src/ccd/conservative_advancement.cpp src/ccd/interval.cpp src/ccd/interval_vector.cpp src/ccd/interval_matrix.cpp src/ccd/taylor_model.cpp src/ccd/taylor_vector.cpp src/ccd/taylor_matrix.cpp src/distance_func_matrix.cpp src/distance.cpp src/narrowphase/gjk.cpp src/narrowphase/gjk_libccd.cpp src/narrowphase/narrowphase.cpp src/broadphase/hierarchy_tree.cpp src/profile.cpp src/collision_data.cpp)
 
 
-target_link_libraries(${PROJECT_NAME} ${FLANN_LIBRARIES} ${CCD_LIBRARIES} ${OCTOMAP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${CCD_LIBRARIES} ${OCTOMAP_LIBRARIES})
 
 set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc")
 configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)

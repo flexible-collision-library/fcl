@@ -38,17 +38,17 @@
 #ifndef FCL_TRANSFORM_H
 #define FCL_TRANSFORM_H
 
-#include "fcl/vec_3f.h"
-#include "fcl/matrix_3f.h"
+#include "fcl/math/matrix_3f.h"
+#include <boost/thread/mutex.hpp>
 
 namespace fcl
 {
 
-/** \brief Quaternion used locally by InterpMotion */
+/// @brief Quaternion used locally by InterpMotion
 class Quaternion3f
 {
 public:
-  /** \brief Default quaternion is identity rotation */
+  /// @brief Default quaternion is identity rotation
   Quaternion3f()
   {
     data[0] = 1;
@@ -65,58 +65,59 @@ public:
     data[3] = d;
   }
 
+  /// @brief Whether the rotation is identity
   bool isIdentity() const
   {
     return (data[0] == 1) && (data[1] == 0) && (data[2] == 0) && (data[3] == 0);
   }
 
-  /** \brief Matrix to quaternion */
+  /// @brief Matrix to quaternion
   void fromRotation(const Matrix3f& R);
 
-  /** \brief Quaternion to matrix */
+  /// @brief Quaternion to matrix
   void toRotation(Matrix3f& R) const;
 
-  /** \brief Axes to quaternion */
+  /// @brief Axes to quaternion
   void fromAxes(const Vec3f axis[3]);
 
-  /** \brief Axes to matrix */
+  /// @brief Axes to matrix
   void toAxes(Vec3f axis[3]) const;
 
-  /** \brief Axis and angle to quaternion */
+  /// @brief Axis and angle to quaternion
   void fromAxisAngle(const Vec3f& axis, FCL_REAL angle);
 
-  /** \brief Quaternion to axis and angle */
+  /// @brief Quaternion to axis and angle
   void toAxisAngle(Vec3f& axis, FCL_REAL& angle) const;
 
-  /** \brief Dot product between quaternions */
+  /// @brief Dot product between quaternions
   FCL_REAL dot(const Quaternion3f& other) const;
 
-  /** \brief addition */
+  /// @brief addition
   Quaternion3f operator + (const Quaternion3f& other) const;
   const Quaternion3f& operator += (const Quaternion3f& other);
 
-  /** \brief minus */
+  /// @brief minus
   Quaternion3f operator - (const Quaternion3f& other) const;
   const Quaternion3f& operator -= (const Quaternion3f& other);
 
-  /** \brief multiplication */
+  /// @brief multiplication
   Quaternion3f operator * (const Quaternion3f& other) const;
   const Quaternion3f& operator *= (const Quaternion3f& other);
 
-  /** \brief division */
+  /// @brief division
   Quaternion3f operator - () const;
 
-  /** \brief scalar multiplication */
+  /// @brief scalar multiplication
   Quaternion3f operator * (FCL_REAL t) const;
   const Quaternion3f& operator *= (FCL_REAL t);
 
-  /** \brief conjugate */
+  /// @brief conjugate
   Quaternion3f& conj();
 
-  /** \brief inverse */
+  /// @brief inverse
   Quaternion3f& inverse();
 
-  /** \brief rotate a vector */
+  /// @brief rotate a vector
   Vec3f transform(const Vec3f& v) const;
 
   inline const FCL_REAL& getW() const { return data[0]; }
@@ -134,92 +135,119 @@ private:
   FCL_REAL data[4];
 };
 
+/// @brief conjugate of quaternion
 Quaternion3f conj(const Quaternion3f& q);
+
+/// @brief inverse of quaternion
 Quaternion3f inverse(const Quaternion3f& q);
 
-/** \brief Simple transform class used locally by InterpMotion */
+/// @brief Simple transform class used locally by InterpMotion
 class Transform3f
 {
-  /** \brief Whether matrix cache is set */
+  boost::mutex lock_;
+
+  /// @brief Whether matrix cache is set
   mutable bool matrix_set;
-  /** \brief Matrix cache */
+  /// @brief Matrix cache
   mutable Matrix3f R;
 
-
-  /** \brief Tranlation vector */
+  /// @brief Tranlation vector
   Vec3f T;
 
-  /** \brief Rotation*/
+  /// @brief Rotation
   Quaternion3f q;
 
+  const Matrix3f& getRotationInternal() const;
 public:
 
-  /** \brief Default transform is no movement */
+  /// @brief Default transform is no movement
   Transform3f()
   {
     setIdentity(); // set matrix_set true
   }
 
+  /// @brief Construct transform from rotation and translation
   Transform3f(const Matrix3f& R_, const Vec3f& T_) : matrix_set(true),
-                                                         R(R_),
-                                                         T(T_)
+                                                     R(R_),
+                                                     T(T_)
   {
     q.fromRotation(R_);
   }
 
+  /// @brief Construct transform from rotation and translation
   Transform3f(const Quaternion3f& q_, const Vec3f& T_) : matrix_set(false),
-                                                                 T(T_),
-                                                                 q(q_)
+                                                         T(T_),
+                                                         q(q_)
   {
   }
 
+  /// @brief Construct transform from rotation
   Transform3f(const Matrix3f& R_) : matrix_set(true), 
-                                        R(R_)
+                                    R(R_)
   {
     q.fromRotation(R_);
   }
 
+  /// @brief Construct transform from rotation
   Transform3f(const Quaternion3f& q_) : matrix_set(false),
-                                                q(q_)
+                                        q(q_)
   {
   }
 
+  /// @brief Construct transform from translation
   Transform3f(const Vec3f& T_) : matrix_set(true), 
-                                     T(T_)
+                                 T(T_)
   {
     R.setIdentity();
   }
 
+  /// @brief Construct transform from another transform
+  Transform3f(const Transform3f& tf) : matrix_set(tf.matrix_set),
+                                       R(tf.R),
+                                       T(tf.T),
+                                       q(tf.q)
+  {
+  }
+
+  /// @brief operator = 
+  Transform3f& operator = (const Transform3f& tf)
+  {
+    matrix_set = tf.matrix_set;
+    R = tf.R;
+    q = tf.q;
+    T = tf.T;
+    return *this;
+  }
+
+  /// @brief get translation
   inline const Vec3f& getTranslation() const
   {
     return T;
   }
 
+  /// @brief get rotation
   inline const Matrix3f& getRotation() const
   {
-    if(!matrix_set)
-    {
-      q.toRotation(R);
-      matrix_set = true;
-    }
-    
-    return R;
+    if(matrix_set) return R;
+    return getRotationInternal();
   }
 
+  /// @brief get quaternion
   inline const Quaternion3f& getQuatRotation() const
   {
     return q;
   }
 
+  /// @brief set transform from rotation and translation
   inline void setTransform(const Matrix3f& R_, const Vec3f& T_)
   {
-    matrix_set = true;
     R = R_;
     T = T_;
-
+    matrix_set = true;
     q.fromRotation(R_);
   }
 
+  /// @brief set transform from rotation and translation
   inline void setTransform(const Quaternion3f& q_, const Vec3f& T_)
   {
     matrix_set = false;
@@ -227,30 +255,35 @@ public:
     T = T_;
   }
 
+  /// @brief set transform from rotation
   inline void setRotation(const Matrix3f& R_)
   {
-    matrix_set = true;
     R = R_;
+    matrix_set = true;
     q.fromRotation(R_);
   }
 
+  /// @brief set transform from translation
   inline void setTranslation(const Vec3f& T_)
   {
     T = T_;
   }
 
+  /// @brief set transform from rotation
   inline void setQuatRotation(const Quaternion3f& q_)
   {
     matrix_set = false;
     q = q_;
   }
 
-  Vec3f transform(const Vec3f& v) const
+  /// @brief transform a given vector by the transform
+  inline Vec3f transform(const Vec3f& v) const
   {
     return q.transform(v) + T;
   }
 
-  Transform3f& inverse()
+  /// @brief inverse transform
+  inline Transform3f& inverse()
   {
     matrix_set = false;
     q.conj();
@@ -258,13 +291,15 @@ public:
     return *this;
   }
 
-  Transform3f inverseTimes(const Transform3f& other) const
+  /// @brief inverse the transform and multiply with another
+  inline Transform3f inverseTimes(const Transform3f& other) const
   {
     const Quaternion3f& q_inv = fcl::conj(q);
     return Transform3f(q_inv * other.q, q_inv.transform(other.T - T));
   }
 
-  const Transform3f& operator *= (const Transform3f& other)
+  /// @brief multiply with another transform
+  inline const Transform3f& operator *= (const Transform3f& other)
   {
     matrix_set = false;
     T = q.transform(other.T) + T;
@@ -272,18 +307,21 @@ public:
     return *this;
   }
 
-  Transform3f operator * (const Transform3f& other) const
+  /// @brief multiply with another transform
+  inline Transform3f operator * (const Transform3f& other) const
   {
     Quaternion3f q_new = q * other.q;
     return Transform3f(q_new, q.transform(other.T) + T);
   }
 
-  bool isIdentity() const
+  /// @brief check whether the transform is identity
+  inline bool isIdentity() const
   {
     return q.isIdentity() && T.isZero();
   }
 
-  void setIdentity()
+  /// @brief set the transform to be identity transform
+  inline void setIdentity()
   {
     R.setIdentity();
     T.setValue(0);
@@ -293,8 +331,10 @@ public:
 
 };
 
+/// @brief inverse the transform
 Transform3f inverse(const Transform3f& tf);
 
+/// @brief compute the relative transform between two transforms: tf2 = tf * tf1
 void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
                        Transform3f& tf);
 
