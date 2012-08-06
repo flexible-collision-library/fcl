@@ -53,7 +53,7 @@ namespace fcl
 class OcTree : public CollisionGeometry
 {
 private:
-  boost::shared_ptr<octomap::OcTree> tree;
+  boost::shared_ptr<const octomap::OcTree> tree;
 public:
 
   /// @brief OcTreeNode must implement the following interfaces:
@@ -63,10 +63,10 @@ public:
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<octomap::OcTree>(new octomap::OcTree(resolution))) {}
+  OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution))) {}
 
   /// @brief construct octree from octomap
-  OcTree(const boost::shared_ptr<octomap::OcTree>& tree_) : tree(tree_) {}
+  OcTree(const boost::shared_ptr<const octomap::OcTree>& tree_) : tree(tree_) {}
 
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() 
@@ -105,12 +105,6 @@ public:
   inline bool isNodeUncertain(const OcTreeNode* node) const
   {
     return (!isNodeOccupied(node)) && (!isNodeFree(node));
-  }
-
-  /// @brief update the occupied information for a cell
-  inline void updateNode(FCL_REAL x, FCL_REAL y, FCL_REAL z, bool occupied)
-  {
-    tree->updateNode(octomap::point3d(x, y, z), occupied);
   }
 
   /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
