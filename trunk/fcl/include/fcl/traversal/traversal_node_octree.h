@@ -104,12 +104,36 @@ public:
                            const CollisionRequest& request_,
                            CollisionResult& result_) const
   {
-    crequest = &request_;
-    cresult = &result_;
+    if(request_.enable_cost && request_.use_approximate_cost)
+    {
+      CollisionRequest request_no_cost(request_);
+      request_no_cost.enable_cost = false;
+      
+      crequest = &request_no_cost;
+      cresult = &result_;
 
-    OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
-                               tree2, 0,
-                               tf1, tf2);
+      OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
+                                 tree2, 0,
+                                 tf1, tf2);
+
+      Box box;
+      Transform3f box_tf;
+      constructBox(tree2->getBV(0).bv, tf2, box, box_tf);
+      
+      OcTreeShapeIntersect(tree1, box,
+                           tf1, box_tf,
+                           request_,
+                           result_);
+    }
+    else
+    {
+      crequest = &request_;
+      cresult = &result_;
+
+      OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
+                                 tree2, 0,
+                                 tf1, tf2);
+    }
   }
 
   /// @brief distance between octree and mesh
@@ -135,12 +159,36 @@ public:
                            CollisionResult& result_) const
   
   {
-    crequest = &request_;
-    cresult = &result_;
+    if(request_.enable_cost && request_.use_approximate_cost)
+    {
+      CollisionRequest request_no_cost(request_);
+      request_no_cost.enable_cost = false;
+      
+      crequest = &request_no_cost;
+      cresult = &result_;
 
-    OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
-                               tree1, 0,
-                               tf2, tf1);
+      OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
+                                 tree1, 0,
+                                 tf2, tf1);
+
+      Box box;
+      Transform3f box_tf;
+      constructBox(tree1->getBV(0).bv, tf1, box, box_tf);
+      
+      ShapeOcTreeIntersect(box, tree2, 
+                           box_tf, tf2,
+                           request_,
+                           result_);
+    }
+    else
+    {
+      crequest = &request_;
+      cresult = &result_;
+
+      OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
+                                 tree1, 0,
+                                 tf2, tf1);
+    }
   }
 
   /// @brief distance between mesh and octree
@@ -415,31 +463,6 @@ private:
         if(OcTreeShapeIntersectRecurse(tree1, NULL, child_bv, s, obb2, tf1, tf2))
           return true;
       }
-        /*
-      else if(!s.isFree() && crequest->enable_cost) // if one child is null, then construct one uncertain node
-      {
-	AABB child_bv;
-	computeChildBV(bv1, i, child_bv);
-	OBB obb1;
-	convertBV(child_bv, tf1, obb1);
-	if(obb1.overlap(obb2))
-        {
-          Box box;
-          Transform3f box_tf;
-          constructBox(child_bv, tf1, box, box_tf);
-
-          if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
-          {
-            AABB overlap_part;
-            AABB aabb1, aabb2;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
-            computeBV<AABB, S>(s, tf2, aabb2);
-            aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);          
-          }
-        }	
-      }
-        */
     }
 
     return false;    

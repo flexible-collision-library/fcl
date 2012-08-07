@@ -88,6 +88,7 @@ class Converter<AABB, OBB>
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
   {    
+    /*
     bv2.To = tf1.transform(bv1.center());
 
     /// Sort the AABB edges so that AABB extents are ordered.
@@ -121,6 +122,14 @@ public:
     bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
     bv2.axis[1] = R.getColumn(id[1]);
     bv2.axis[2] = R.getColumn(id[2]);
+    */
+
+    bv2.To = tf1.transform(bv1.center());
+    bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
+    const Matrix3f& R = tf1.getRotation();
+    bv2.axis[0] = R.getColumn(0);
+    bv2.axis[1] = R.getColumn(1);
+    bv2.axis[2] = R.getColumn(2);    
   }
 };
 

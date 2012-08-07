@@ -180,13 +180,18 @@ struct CollisionRequest
   /// @brief whether the cost sources will be computed
   bool enable_cost;
 
+  /// @brief whether the cost computation is approximated
+  bool use_approximate_cost;
+
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
                    size_t num_max_cost_sources_ = 1,
-                   bool enable_cost_ = false) : num_max_contacts(num_max_contacts_),
-                                                enable_contact(enable_contact_),
-                                                num_max_cost_sources(num_max_cost_sources_),
-                                                enable_cost(enable_cost_)
+                   bool enable_cost_ = false,
+                   bool use_approximate_cost_ = true) : num_max_contacts(num_max_contacts_),
+                                                        enable_contact(enable_contact_),
+                                                        num_max_cost_sources(num_max_cost_sources_),
+                                                        enable_cost(enable_cost_),
+                                                        use_approximate_cost(use_approximate_cost_)
   {
   }
 
