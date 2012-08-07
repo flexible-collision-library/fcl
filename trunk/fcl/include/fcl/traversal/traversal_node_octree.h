@@ -329,8 +329,8 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
-	    // std::cout << "octree cost " << root1->getOccupancy() << std::endl;
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);
+	    //	    std::cout << "1 octree cost " << root1->getOccupancy() << std::endl;
+	    //            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);
           }
 
           return crequest->isSatisfied(*cresult);
@@ -354,8 +354,8 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
-	    // std::cout << "octree cost " << root1->getOccupancy() << std::endl;
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);            
+	    //	    std::cout << "2 octree cost " << root1->getOccupancy() << std::endl;
+	    //            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);            
           }
         }
         
@@ -387,6 +387,32 @@ private:
         
         if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, obb2, tf1, tf2))
           return true;
+      }
+      else if(!s.isFree() && crequest->enable_cost) // if one child is null, then construct one uncertain node
+      {
+	AABB child_bv;
+	computeChildBV(bv1, i, child_bv);
+	OBB obb1;
+	convertBV(child_bv, tf1, obb1);
+	//	if(obb1.overlap(obb2))
+	  {
+	    Box box;
+	    Transform3f box_tf;
+	    constructBox(child_bv, tf1, box, box_tf);
+
+	    if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+	      {
+		AABB overlap_part;
+		AABB aabb1, aabb2;
+		computeBV<AABB, Box>(box, box_tf, aabb1);
+		//		cresult->addCostSource(CostSource(aabb1, 0.2), crequest->num_max_cost_sources);          
+		computeBV<AABB, S>(s, tf2, aabb2);
+		aabb1.overlap(aabb2, overlap_part);
+		std::cout << overlap_part.min_ << " " << overlap_part.max_ << std::endl;
+		//		std::cout << "default octree cost " << tree1->getOccupancyThres() << std::endl;
+		cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);          
+	      }
+	  }	
       }
     }
 
@@ -534,7 +560,7 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
             aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
+	    //            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }
 
           return crequest->isSatisfied(*cresult);
@@ -566,7 +592,7 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
             aabb1.overlap(aabb2, overlap_part);
-            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
+	    //            cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }
         }
         
@@ -602,6 +628,39 @@ private:
           if(OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2))
             return true;
         }
+	else if(!tree2->isFree() && crequest->enable_cost)
+	  {
+	    AABB child_bv;
+	    computeChildBV(bv1, i, child_bv);
+
+	    OBB obb1, obb2;
+	    convertBV(child_bv, tf1, obb1);
+	    convertBV(tree2->getBV(root2).bv, tf2, obb2);
+	    // if(obb1.overlap(obb2))
+	      {
+
+		Box box;
+		Transform3f box_tf;
+		constructBox(child_bv, tf1, box, box_tf);
+	    
+		int primitive_id = tree2->getBV(root2).primitiveId();
+		const Triangle& tri_id = tree2->tri_indices[primitive_id];
+		const Vec3f& p1 = tree2->vertices[tri_id[0]];
+		const Vec3f& p2 = tree2->vertices[tri_id[1]];
+		const Vec3f& p3 = tree2->vertices[tri_id[2]];
+
+		if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
+		  {
+		    AABB overlap_part;
+		    AABB aabb1;
+		    computeBV<AABB, Box>(box, box_tf, aabb1);
+		    AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
+		    aabb1.overlap(aabb2, overlap_part);
+		    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
+	    
+		  }
+	      }
+	  }
       }
     }
     else
@@ -749,7 +808,7 @@ private:
           computeBV<AABB, Box>(box1, box1_tf, aabb1);
           computeBV<AABB, Box>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
-          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
+	  //          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
 
         return crequest->isSatisfied(*cresult);
@@ -772,7 +831,7 @@ private:
           computeBV<AABB, Box>(box1, box1_tf, aabb1);
           computeBV<AABB, Box>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
-          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
+	  //          cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
 
         return false;
