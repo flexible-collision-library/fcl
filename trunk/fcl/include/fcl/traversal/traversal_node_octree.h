@@ -329,6 +329,7 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
+	    // std::cout << "octree cost " << root1->getOccupancy() << std::endl;
             cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);
           }
 
@@ -353,6 +354,7 @@ private:
             computeBV<AABB, Box>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
+	    // std::cout << "octree cost " << root1->getOccupancy() << std::endl;
             cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * s.cost_density), crequest->num_max_cost_sources);            
           }
         }

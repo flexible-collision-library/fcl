@@ -125,23 +125,41 @@ struct CostSource
   /// @brief cost density in the AABB region
   FCL_REAL cost_density;
 
+  FCL_REAL total_cost;
+
   CostSource(const Vec3f& aabb_min_, const Vec3f& aabb_max_, FCL_REAL cost_density_) : aabb_min(aabb_min_),
                                                                                        aabb_max(aabb_max_),
                                                                                        cost_density(cost_density_)
   {
+    total_cost = cost_density * (aabb_max[0] - aabb_min[0]) * (aabb_max[1] - aabb_min[1]) * (aabb_max[2] - aabb_min[2]);
   }
 
   CostSource(const AABB& aabb, FCL_REAL cost_density_) : aabb_min(aabb.min_),
                                                          aabb_max(aabb.max_),
                                                          cost_density(cost_density_)
   {
+    total_cost = cost_density * (aabb_max[0] - aabb_min[0]) * (aabb_max[1] - aabb_min[1]) * (aabb_max[2] - aabb_min[2]);
   }
 
   CostSource() {}
 
   bool operator < (const CostSource& other) const
   {
-    return cost_density < other.cost_density;
+    if(total_cost < other.total_cost) 
+      return false;
+    if(total_cost > other.total_cost)
+      return true;
+    
+    if(cost_density < other.cost_density)
+      return false;
+    if(cost_density > other.cost_density)
+      return true;
+  
+    for(size_t i = 0; i < 3; ++i)
+      if(aabb_min[i] != other.aabb_min[i])
+	return aabb_min[i] < other.aabb_min[i];
+ 
+    return false;
   }
 };
 
@@ -201,8 +219,8 @@ public:
   inline void addCostSource(const CostSource& c, std::size_t num_max_cost_sources)
   {
     cost_sources.insert(c);
-    if(cost_sources.size() > num_max_cost_sources)
-      cost_sources.erase(cost_sources.begin());            
+    while (cost_sources.size() > num_max_cost_sources)
+      cost_sources.erase(--cost_sources.end());
   }
 
   /// @brief return binary collision result

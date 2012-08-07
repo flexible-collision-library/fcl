@@ -80,6 +80,8 @@ public:
   inline AABB getRootBV() const
   {
     FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
+
+    // std::cout << "octree size " << delta << std::endl;
     return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
   }
 
