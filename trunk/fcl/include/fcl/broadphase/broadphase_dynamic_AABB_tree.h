@@ -125,12 +125,12 @@ public:
     {
     case GEOM_OCTREE:
       {
-        if(!octree_as_geometry_collide)
-        {
-          const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
-          collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
-        }
-        else
+        //if(!octree_as_geometry_collide)
+        //{
+        //  const OcTree* octree = static_cast<const OcTree*>(obj->getCollisionGeometry());
+        //  collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback); 
+        //}
+        //else
           collisionRecurse(dtree.getRoot(), obj, cdata, callback);
       }
       break;

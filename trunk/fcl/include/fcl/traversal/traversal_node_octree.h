@@ -338,7 +338,7 @@ private:
     {
       OBB obb1;
       convertBV(bv1, tf1, obb1);
-      if(obb1.overlap(obb2))
+      // if(obb1.overlap(obb2))
       {
         Box box;
         Transform3f box_tf;
@@ -351,7 +351,7 @@ private:
           computeBV<AABB, Box>(box, box_tf, aabb1);
           computeBV<AABB, S>(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
-          cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);          
+	  cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);          
         }
       }
 
