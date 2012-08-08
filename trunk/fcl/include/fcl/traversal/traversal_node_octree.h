@@ -104,36 +104,12 @@ public:
                            const CollisionRequest& request_,
                            CollisionResult& result_) const
   {
-    if(request_.enable_cost && request_.use_approximate_cost)
-    {
-      CollisionRequest request_no_cost(request_);
-      request_no_cost.enable_cost = false;
-      
-      crequest = &request_no_cost;
-      cresult = &result_;
+    crequest = &request_;
+    cresult = &result_;
 
-      OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
-                                 tree2, 0,
-                                 tf1, tf2);
-
-      Box box;
-      Transform3f box_tf;
-      constructBox(tree2->getBV(0).bv, tf2, box, box_tf);
-      
-      OcTreeShapeIntersect(tree1, box,
-                           tf1, box_tf,
-                           request_,
-                           result_);
-    }
-    else
-    {
-      crequest = &request_;
-      cresult = &result_;
-
-      OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
-                                 tree2, 0,
-                                 tf1, tf2);
-    }
+    OcTreeMeshIntersectRecurse(tree1, tree1->getRoot(), tree1->getRootBV(),
+                               tree2, 0,
+                               tf1, tf2);
   }
 
   /// @brief distance between octree and mesh
@@ -159,36 +135,12 @@ public:
                            CollisionResult& result_) const
   
   {
-    if(request_.enable_cost && request_.use_approximate_cost)
-    {
-      CollisionRequest request_no_cost(request_);
-      request_no_cost.enable_cost = false;
-      
-      crequest = &request_no_cost;
-      cresult = &result_;
+    crequest = &request_;
+    cresult = &result_;
 
-      OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
-                                 tree1, 0,
-                                 tf2, tf1);
-
-      Box box;
-      Transform3f box_tf;
-      constructBox(tree1->getBV(0).bv, tf1, box, box_tf);
-      
-      ShapeOcTreeIntersect(box, tree2, 
-                           box_tf, tf2,
-                           request_,
-                           result_);
-    }
-    else
-    {
-      crequest = &request_;
-      cresult = &result_;
-
-      OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
-                                 tree1, 0,
-                                 tf2, tf1);
-    }
+    OcTreeMeshIntersectRecurse(tree2, tree2->getRoot(), tree2->getRootBV(),
+                               tree1, 0,
+                               tf2, tf1);
   }
 
   /// @brief distance between mesh and octree
@@ -338,7 +290,7 @@ private:
     {
       OBB obb1;
       convertBV(bv1, tf1, obb1);
-      // if(obb1.overlap(obb2))
+      if(obb1.overlap(obb2))
       {
         Box box;
         Transform3f box_tf;
@@ -827,7 +779,92 @@ private:
                               const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
                               const Transform3f& tf1, const Transform3f& tf2) const
   {
-    if(!root1->hasChildren() && !root2->hasChildren())
+    if(!root1 && !root2)
+    {
+      OBB obb1, obb2;
+      convertBV(bv1, tf1, obb1);
+      convertBV(bv2, tf2, obb2);
+
+      if(obb1.overlap(obb2))
+      {
+        Box box1, box2;
+        Transform3f box1_tf, box2_tf;
+        constructBox(bv1, tf1, box1, box1_tf);
+        constructBox(bv2, tf2, box2, box2_tf);
+        
+        AABB overlap_part;
+        AABB aabb1, aabb2;
+        computeBV<AABB, Box>(box1, box1_tf, aabb1);
+        computeBV<AABB, Box>(box2, box2_tf, aabb2);
+        aabb1.overlap(aabb2, overlap_part);
+        cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->getOccupancyThres()), crequest->num_max_cost_sources);
+      }
+
+      return false;
+    }
+    else if(!root1 && root2)
+    {
+      if(root2->hasChildren())
+      {
+        for(unsigned int i = 0; i < 8; ++i)
+        {
+          if(root2->childExists(i))
+          {
+            const OcTree::OcTreeNode* child = root2->getChild(i);
+            AABB child_bv;
+            computeChildBV(bv2, i, child_bv);
+            if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, child, child_bv, tf1, tf2))
+              return true;
+          }
+          else 
+          {
+            AABB child_bv;
+            computeChildBV(bv2, i, child_bv);
+            if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, child_bv, tf1, tf2))
+              return true;
+          }
+        }
+      }
+      else
+      {
+        if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, bv2, tf1, tf2))
+          return true;
+      }
+      
+      return false;
+    }
+    else if(root1 && !root2)
+    {
+      if(root1->hasChildren())
+      {
+        for(unsigned int i = 0; i < 8; ++i)
+        {
+          if(root1->childExists(i))
+          {
+            const OcTree::OcTreeNode* child = root1->getChild(i);
+            AABB child_bv;
+            computeChildBV(bv1, i,  child_bv);
+            if(OcTreeIntersectRecurse(tree1, child, child_bv, tree2, NULL, bv2, tf1, tf2))
+              return true;
+          }
+          else
+          {
+            AABB child_bv;
+            computeChildBV(bv1, i, child_bv);
+            if(OcTreeIntersectRecurse(tree1, NULL, child_bv, tree2, NULL, bv2, tf1, tf2))
+              return true;
+          }
+        }
+      }
+      else
+      {
+        if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, bv2, tf1, tf2))
+          return true;
+      }
+      
+      return false;
+    }
+    else if(!root1->hasChildren() && !root2->hasChildren())
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2)) // occupied area
       {
@@ -935,6 +972,16 @@ private:
                                     tf1, tf2))
             return true;
         }
+        else if(!tree2->isNodeFree(root2) && crequest->enable_cost)
+        {
+          AABB child_bv;
+          computeChildBV(bv1, i, child_bv);
+          
+          if(OcTreeIntersectRecurse(tree1, NULL, child_bv,
+                                    tree2, root2, bv2,
+                                    tf1, tf2))
+            return true;
+        }
       }
     }
     else
@@ -949,6 +996,16 @@ private:
           
           if(OcTreeIntersectRecurse(tree1, root1, bv1,
                                     tree2, child, child_bv,
+                                    tf1, tf2))
+            return true;
+        }
+        else if(!tree1->isNodeFree(root1) && crequest->enable_cost)
+        {
+          AABB child_bv;
+          computeChildBV(bv2, i, child_bv);
+
+          if(OcTreeIntersectRecurse(tree1, root1, bv1,
+                                    tree2, NULL, child_bv,
                                     tf1, tf2))
             return true;
         }

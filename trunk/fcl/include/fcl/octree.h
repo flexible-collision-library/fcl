@@ -54,6 +54,9 @@ class OcTree : public CollisionGeometry
 {
 private:
   boost::shared_ptr<const octomap::OcTree> tree;
+
+  FCL_REAL default_occupancy;
+
 public:
 
   /// @brief OcTreeNode must implement the following interfaces:
@@ -63,10 +66,16 @@ public:
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution))) {}
+  OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))                               
+  {
+    default_occupancy = tree->getOccupancyThres();
+  }
 
   /// @brief construct octree from octomap
-  OcTree(const boost::shared_ptr<const octomap::OcTree>& tree_) : tree(tree_) {}
+  OcTree(const boost::shared_ptr<const octomap::OcTree>& tree_) : tree(tree_)
+  {
+    default_occupancy = tree->getOccupancyThres();
+  }
 
   /// @brief compute the AABB for the octree in its local coordinate system
   void computeLocalAABB() 
@@ -135,10 +144,26 @@ public:
     return boxes;
   }
 
-  /// @brief the threshold used to decide whether one node is occupied
+  /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree occupied_thresold
   FCL_REAL getOccupancyThres() const
   {
     return tree->getOccupancyThres();
+  }
+
+  /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree free_threshold
+  FCL_REAL getFreeThres() const
+  {
+    return 0.0;
+  }
+
+  FCL_REAL getDefaultOccupancy() const
+  {
+    return default_occupancy;
+  }
+
+  void setCellDefaultOccupancy(FCL_REAL d)
+  {
+    default_occupancy = d;
   }
 
   /// @brief return object type, it is an octree

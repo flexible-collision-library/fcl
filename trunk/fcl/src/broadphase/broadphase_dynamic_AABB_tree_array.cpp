@@ -362,7 +362,42 @@ bool DynamicAABBTreeCollisionManager_Array::selfDistanceRecurse(DynamicAABBNode*
 bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Transform3f& tf2, void* cdata, CollisionCallBack callback)
 {
   DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* root1 = nodes1 + root1_id;
-  if(root1->isLeaf() && !root2->hasChildren())
+  if(!root2)
+  {
+    if(root1->isLeaf())
+    {
+      CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
+
+      if(!obj1->isFree())
+      {
+        OBB obb1, obb2;
+        convertBV(root1->bv, Transform3f(), obb1);
+        convertBV(root2_bv, tf2, obb2);
+      
+        if(obb1.overlap(obb2))
+        {
+          Box* box = new Box();
+          Transform3f box_tf;
+          constructBox(root2_bv, tf2, *box, box_tf);
+        
+          box->cost_density = tree2->getDefaultOccupancy();
+
+          CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+          return callback(obj1, &obj2, cdata);
+        }
+      }
+    }
+    else
+    {
+      if(collisionRecurse_(nodes1, root1->children[0], tree2, NULL, root2_bv, tf2, cdata, callback))
+        return true;
+      if(collisionRecurse_(nodes1, root1->children[1], tree2, NULL, root2_bv, tf2, cdata, callback))
+        return true;
+    }
+
+    return false;
+  }
+  else if(root1->isLeaf() && !root2->hasChildren())
   {
     CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
     if(!tree2->isNodeFree(root2) && !obj1->isFree())
@@ -414,6 +449,13 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
         if(collisionRecurse_(nodes1, root1_id, tree2, child, child_bv, tf2, cdata, callback))
           return true;
       }
+      else
+      {
+        AABB child_bv;
+        computeChildBV(root2_bv, i, child_bv);
+        if(collisionRecurse_(nodes1, root1_id, tree2, NULL, child_bv, tf2, cdata, callback))
+          return true;
+      }
     }
   }
 
@@ -423,10 +465,42 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
 bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* nodes1, size_t root1_id, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Vec3f& tf2, void* cdata, CollisionCallBack callback)
 {
   DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* root1 = nodes1 + root1_id;
-  if(root1->isLeaf() && !root2->hasChildren())
+  if(!root2)
+  {
+    if(root1->isLeaf())
+    {
+      CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
+
+      if(!obj1->isFree())
+      {
+        const AABB& root_bv_t = translate(root2_bv, tf2);
+        if(root1->bv.overlap(root_bv_t))
+        {
+          Box* box = new Box();
+          Transform3f box_tf;
+          constructBox(root2_bv, tf2, *box, box_tf);
+
+          box->cost_density = tree2->getDefaultOccupancy();
+
+          CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+          return callback(obj1, &obj2, cdata);
+        }
+      }
+    }
+    else
+    {
+      if(collisionRecurse_(nodes1, root1->children[0], tree2, NULL, root2_bv, tf2, cdata, callback))
+        return true;
+      if(collisionRecurse_(nodes1, root1->children[1], tree2, NULL, root2_bv, tf2, cdata, callback))
+        return true;
+    }
+
+    return false;
+  }
+  else if(root1->isLeaf() && !root2->hasChildren())
   {
     CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
-    if(!tree2->isNodeFree(root2))
+    if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {
       const AABB& root_bv_t = translate(root2_bv, tf2);
       if(root1->bv.overlap(root_bv_t))
@@ -467,6 +541,13 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
         computeChildBV(root2_bv, i, child_bv);
 
         if(collisionRecurse_(nodes1, root1_id, tree2, child, child_bv, tf2, cdata, callback))
+          return true;
+      }
+      else
+      {
+        AABB child_bv;
+        computeChildBV(root2_bv, i, child_bv);
+        if(collisionRecurse_(nodes1, root1_id, tree2, NULL, child_bv, tf2, cdata, callback))
           return true;
       }
     }
