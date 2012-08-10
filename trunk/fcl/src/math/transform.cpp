@@ -327,6 +327,49 @@ Quaternion3f inverse(const Quaternion3f& q)
   return res.inverse();
 }
 
+Vec3f Quaternion3f::getColumn(std::size_t i) const
+{
+  switch(i)
+  {
+  case 0:
+    return Vec3f(data[0] * data[0] + data[1] * data[1] - data[2] * data[2] - data[3] * data[3],
+                 2 * (- data[0] * data[3] + data[1] * data[2]),
+                 2 * (data[1] * data[3] + data[0] * data[2]));
+  case 1:
+    return Vec3f(2 * (data[1] * data[2] + data[0] * data[3]),
+                 data[0] * data[0] - data[1] * data[1] + data[2] * data[2] - data[3] * data[3],
+                 2 * (data[2] * data[3] - data[0] * data[1]));
+  case 2:
+    return Vec3f(2 * (data[1] * data[3] - data[0] * data[2]),
+                 2 * (data[2] * data[3] + data[0] * data[1]),
+                 data[0] * data[0] - data[1] * data[1] - data[2] * data[2] + data[3] * data[3]);
+  default:
+    return Vec3f();
+  }
+}
+
+Vec3f Quaternion3f::getRow(std::size_t i) const
+{
+  switch(i)
+  {
+  case 0:
+    return Vec3f(data[0] * data[0] + data[1] * data[1] - data[2] * data[2] - data[3] * data[3],
+                 2 * (data[0] * data[3] + data[1] * data[2]),
+                 2 * (data[1] * data[3] - data[0] * data[2]));
+  case 1:
+    return Vec3f(2 * (data[1] * data[2] - data[0] * data[3]),
+                 data[0] * data[0] - data[1] * data[1] + data[2] * data[2] - data[3] * data[3],
+                 2 * (data[2] * data[3] + data[0] * data[1]));
+  case 2:
+    return Vec3f(2 * (data[1] * data[3] + data[0] * data[2]),
+                 2 * (data[2] * data[3] - data[0] * data[1]),
+                 data[0] * data[0] - data[1] * data[1] - data[2] * data[2] + data[3] * data[3]);
+  default:
+    return Vec3f();
+  }
+}
+
+
 const Matrix3f& Transform3f::getRotationInternal() const
 {
   boost::mutex::scoped_lock slock(const_cast<boost::mutex&>(lock_));

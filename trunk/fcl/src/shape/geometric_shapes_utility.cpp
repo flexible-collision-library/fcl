@@ -215,6 +215,36 @@ std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const Transform3f
 
 } // end detail
 
+Halfspace transform(const Halfspace& a, const Transform3f& tf)
+{
+  /// suppose the initial halfspace is n * x <= d
+  /// after transform (R, T), x --> x' = R x + T
+  /// and the new half space becomes n' * x' <= d'
+  /// where n' = R * n
+  ///   and d' = d + n' * T
+
+  Vec3f n = tf.getQuatRotation().transform(a.n);
+  FCL_REAL d = a.d + n.dot(tf.getTranslation());
+
+  return Halfspace(n, d);
+}
+
+
+Plane transform(const Plane& a, const Transform3f& tf)
+{
+  /// suppose the initial halfspace is n * x <= d
+  /// after transform (R, T), x --> x' = R x + T
+  /// and the new half space becomes n' * x' <= d'
+  /// where n' = R * n
+  ///   and d' = d + n' * T
+
+  Vec3f n = tf.getQuatRotation().transform(a.n);
+  FCL_REAL d = a.d + n.dot(tf.getTranslation());
+
+  return Plane(n, d);
+}
+
+
 
 template<>
 void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
@@ -308,31 +338,66 @@ void computeBV<AABB, Triangle2>(const Triangle2& s, const Transform3f& tf, AABB&
   bv = AABB(tf.transform(s.a), tf.transform(s.b), tf.transform(s.c));
 }
 
-template<>
-void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
-{
-  const Matrix3f& R = tf.getRotation();
 
-  Vec3f n = R * s.n;
+template<>
+void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB& bv)
+{
+  Halfspace new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;
 
   AABB bv_;
+  bv_.min_ = Vec3f(-std::numeric_limits<FCL_REAL>::max());
+  bv_.max_ = Vec3f(std::numeric_limits<FCL_REAL>::max());
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     // normal aligned with x axis
-    if(n[0] < 0) bv_.min_[0] = -s.d;
-    else if(n[0] > 0) bv_.max_[0] = s.d;
+    if(n[0] < 0) bv_.min_[0] = -d;
+    else if(n[0] > 0) bv_.max_[0] = d;
   }
   else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     // normal aligned with y axis
-    if(n[1] < 0) bv_.min_[1] = -s.d;
-    else if(n[1] > 0) bv_.max_[1] = s.d;
+    if(n[1] < 0) bv_.min_[1] = -d;
+    else if(n[1] > 0) bv_.max_[1] = d;
   }
   else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
   {
     // normal aligned with z axis
-    if(n[2] < 0) bv_.min_[2] = -s.d;
-    else if(n[2] > 0) bv_.max_[2] = s.d;
+    if(n[2] < 0) bv_.min_[2] = -d;
+    else if(n[2] > 0) bv_.max_[2] = d;
+  }
+
+  bv = bv_;  
+}
+
+template<>
+void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
+{
+  Plane new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;  
+
+  AABB bv_;
+  bv_.min_ = Vec3f(-std::numeric_limits<FCL_REAL>::max());
+  bv_.max_ = Vec3f(std::numeric_limits<FCL_REAL>::max());
+  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    // normal aligned with x axis
+    if(n[0] < 0) { bv_.min_[0] = bv_.max_[0] = -d; }
+    else if(n[0] > 0) { bv_.min_[0] = bv_.max_[0] = d; }
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    // normal aligned with y axis
+    if(n[1] < 0) { bv_.min_[1] = bv_.max_[1] = -d; }
+    else if(n[1] > 0) { bv_.min_[1] = bv_.max_[1] = d; }
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+  {
+    // normal aligned with z axis
+    if(n[2] < 0) { bv_.min_[2] = bv_.max_[2] = -d; }
+    else if(n[2] > 0) { bv_.min_[2] = bv_.max_[2] = d; }
   }
 
   bv = bv_;
@@ -419,59 +484,454 @@ void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
+void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& bv)
+{
+  /// Half space can only have very rough OBB
+  bv.axis[0] = Vec3f(1, 0, 0);
+  bv.axis[1] = Vec3f(0, 1, 0);
+  bv.axis[2] = Vec3f(0, 0, 1);
+  bv.To = Vec3f(0, 0, 0);
+  bv.extent.setValue(std::numeric_limits<FCL_REAL>::max());
+}
+
+template<>
+void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f& tf, RSS& bv)
+{
+  /// Half space can only have very rough RSS
+  bv.axis[0] = Vec3f(1, 0, 0);
+  bv.axis[1] = Vec3f(0, 1, 0);
+  bv.axis[2] = Vec3f(0, 0, 1);
+  bv.Tr = Vec3f(0, 0, 0);
+  bv.l[0] = bv.l[1] = bv.r = std::numeric_limits<FCL_REAL>::max();
+}
+
+template<>
+void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf, OBBRSS& bv)
+{
+  computeBV<OBB, Halfspace>(s, tf, bv.obb);
+  computeBV<RSS, Halfspace>(s, tf, bv.rss);
+}
+
+template<>
+void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS& bv)
+{
+  bv.num_spheres = 1;
+  computeBV<OBB, Halfspace>(s, tf, bv.obb);
+  bv.spheres[0].o = Vec3f();
+  bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
+}
+
+template<>
+void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<16>& bv)
+{
+  Halfspace new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;
+
+  const std::size_t D = 8;
+  for(std::size_t i = 0; i < D; ++i)
+    bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+  for(std::size_t i = D; i < 2 * D; ++i)
+    bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+  
+  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D) = d;
+    else bv.dist(0) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(D + 1) = d;
+    else bv.dist(1) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+  {
+    if(n[2] > 0) bv.dist(D + 2) = d;
+    else bv.dist(2) = -d;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+  {
+    if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
+    else bv.dist(3) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+  {
+    if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
+    else bv.dist(4) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+  {
+    if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
+    else bv.dist(5) = n[1] * d * 2;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
+    else bv.dist(6) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
+    else bv.dist(7) = n[0] * d * 2;
+  }
+}
+
+template<>
+void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<18>& bv)
+{
+  Halfspace new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;
+
+  const std::size_t D = 9;
+
+  for(std::size_t i = 0; i < D; ++i)
+    bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+  for(std::size_t i = D; i < 2 * D; ++i)
+    bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+  
+  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D) = d;
+    else bv.dist(0) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(D + 1) = d;
+    else bv.dist(1) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+  {
+    if(n[2] > 0) bv.dist(D + 2) = d;
+    else bv.dist(2) = -d;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+  {
+    if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
+    else bv.dist(3) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+  {
+    if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
+    else bv.dist(4) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+  {
+    if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
+    else bv.dist(5) = n[1] * d * 2;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
+    else bv.dist(6) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
+    else bv.dist(7) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(D + 8) = n[1] * d * 2;
+    else bv.dist(8) = n[1] * d * 2;
+  }
+}
+
+template<>
+void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<24>& bv)
+{
+  Halfspace new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;
+
+  const std::size_t D = 12;
+
+  for(std::size_t i = 0; i < D; ++i)
+    bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+  for(std::size_t i = D; i < 2 * D; ++i)
+    bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+  
+  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D) = d;
+    else bv.dist(0) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(D + 1) = d;
+    else bv.dist(1) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+  {
+    if(n[2] > 0) bv.dist(D + 2) = d;
+    else bv.dist(2) = -d;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+  {
+    if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
+    else bv.dist(3) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+  {
+    if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
+    else bv.dist(4) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+  {
+    if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
+    else bv.dist(5) = n[1] * d * 2;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
+    else bv.dist(6) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
+    else bv.dist(7) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(D + 8) = n[1] * d * 2;
+    else bv.dist(8) = n[1] * d * 2;
+  }
+  else if(n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 9) = n[0] * d * 3;
+    else bv.dist(9) = n[0] * d * 3;
+  }
+  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(D + 10) = n[0] * d * 3;
+    else bv.dist(10) = n[0] * d * 3;
+  }
+  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(D + 11) = n[1] * d * 3;
+    else bv.dist(11) = n[1] * d * 3;
+  }
+}
+
+
+
+template<>
 void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
-
-  // generate other two axes orthonormal to plane normal
-  generateCoordinateSystem(s.n, bv.axis[1], bv.axis[2]);
-  bv.axis[0] = s.n;
+  Vec3f n = tf.getQuatRotation().transform(s.n);
+  generateCoordinateSystem(n, bv.axis[1], bv.axis[2]);
+  bv.axis[0] = n;
 
   bv.extent.setValue(0, std::numeric_limits<FCL_REAL>::max(), std::numeric_limits<FCL_REAL>::max());
 
-  Vec3f p = s.n * s.d;
-  bv.To = R * p + T;
+  Vec3f p = s.n * s.d; 
+  bv.To = tf.transform(p); /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T 
 }
 
 template<>
 void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  Vec3f n = tf.getQuatRotation().transform(s.n);
 
-  generateCoordinateSystem(s.n, bv.axis[1], bv.axis[2]);
-  bv.axis[0] = s.n;
+  generateCoordinateSystem(n, bv.axis[1], bv.axis[2]);
+  bv.axis[0] = n;
 
   bv.l[0] = std::numeric_limits<FCL_REAL>::max();
   bv.l[1] = std::numeric_limits<FCL_REAL>::max();
 
-  bv.r = std::numeric_limits<FCL_REAL>::max();
+  bv.r = 0;
+  
+  Vec3f p = s.n * s.d;
+  bv.Tr = tf.transform(p);
 }
 
 template<>
 void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf, OBBRSS& bv)
 {
+  computeBV<OBB, Plane>(s, tf, bv.obb);
+  computeBV<RSS, Plane>(s, tf, bv.rss);
 }
 
 template<>
 void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv)
 {
+  bv.num_spheres = 1;
+  computeBV<OBB, Plane>(s, tf, bv.obb);
+  bv.spheres[0].o = Vec3f();
+  bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
 }
 
 template<>
 void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>& bv)
 {
+  Plane new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;
+
+  const std::size_t D = 8;
+
+  for(std::size_t i = 0; i < D; ++i)
+    bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+  for(std::size_t i = D; i < 2 * D; ++i)
+    bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+  
+  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
+    else bv.dist(0) = bv.dist(D) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
+    else bv.dist(1) = bv.dist(D + 1) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+  {
+    if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
+    else bv.dist(2) = bv.dist(D + 2) = -d;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+  {
+    bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+  {
+    bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+  {
+    bv.dist(6) = bv.dist(D + 5) = n[1] * d * 2;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
+  }
 }
 
 template<>
 void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>& bv)
 {
+  Plane new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;
+
+  const std::size_t D = 9;
+
+  for(std::size_t i = 0; i < D; ++i)
+    bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+  for(std::size_t i = D; i < 2 * D; ++i)
+    bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+  
+  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
+    else bv.dist(0) = bv.dist(D) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
+    else bv.dist(1) = bv.dist(D + 1) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+  {
+    if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
+    else bv.dist(2) = bv.dist(D + 2) = -d;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+  {
+    bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+  {
+    bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+  {
+    bv.dist(5) = bv.dist(D + 5) = n[1] * d * 2;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+  {
+    bv.dist(8) = bv.dist(D + 8) = n[1] * d * 2;
+  }
 }
 
 template<>
 void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv)
 {
+  Plane new_s = transform(s, tf);
+  const Vec3f& n = new_s.n;
+  const FCL_REAL& d = new_s.d;
+
+  const std::size_t D = 12;
+
+  for(std::size_t i = 0; i < D; ++i)
+    bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+  for(std::size_t i = D; i < 2 * D; ++i)
+    bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+  
+  if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
+    else bv.dist(0) = bv.dist(D) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+  {
+    if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
+    else bv.dist(1) = bv.dist(D + 1) = -d;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+  {
+    if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
+    else bv.dist(2) = bv.dist(D + 2) = -d;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+  {
+    bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+  {
+    bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+  {
+    bv.dist(5) = bv.dist(D + 5) = n[1] * d * 2;
+  }
+  else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
+  }
+  else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
+  }
+  else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+  {
+    bv.dist(8) = bv.dist(D + 8) = n[1] * d * 2;
+  }
+  else if(n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+  {
+    bv.dist(9) = bv.dist(D + 9) = n[0] * d * 3;
+  }
+  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+  {
+    bv.dist(10) = bv.dist(D + 10) = n[0] * d * 3;
+  }
+  else if(n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+  {
+    bv.dist(11) = bv.dist(D + 11) = n[1] * d * 3;
+  }
 }
 
 

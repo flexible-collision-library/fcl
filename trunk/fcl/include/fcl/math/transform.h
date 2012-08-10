@@ -130,6 +130,10 @@ public:
   inline FCL_REAL& getY() { return data[2]; }
   inline FCL_REAL& getZ() { return data[3]; }
 
+  Vec3f getColumn(std::size_t i) const;
+
+  Vec3f getRow(std::size_t i) const;
+
 private:
 
   FCL_REAL data[4];

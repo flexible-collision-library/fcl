@@ -46,6 +46,15 @@ namespace fcl
 
 /// @brief KDOP class describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
 ///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
+/// For K = 16, the planes are 6 AABB planes and 10 diagonal planes that cut off some space of the edges:
+/// (-1,0,0) and (1,0,0)  -> indices 0 and 8
+/// (0,-1,0) and (0,1,0)  -> indices 1 and 9
+/// (0,0,-1) and (0,0,1)  -> indices 2 and 10
+/// (-1,-1,0) and (1,1,0) -> indices 3 and 11
+/// (-1,0,-1) and (1,0,1) -> indices 4 and 12
+/// (0,-1,-1) and (0,1,1) -> indices 5 and 13
+/// (-1,1,0) and (1,-1,0) -> indices 6 and 14
+/// (-1,0,1) and (1,0,-1) -> indices 7 and 15
 /// For K = 18, the planes are 6 AABB planes and 12 diagonal planes that cut off some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 9
 /// (0,-1,0) and (0,1,0)  -> indices 1 and 10
@@ -56,6 +65,19 @@ namespace fcl
 /// (-1,1,0) and (1,-1,0) -> indices 6 and 15
 /// (-1,0,1) and (1,0,-1) -> indices 7 and 16
 /// (0,-1,1) and (0,1,-1) -> indices 8 and 17
+/// For K = 18, the planes are 6 AABB planes and 18 diagonal planes that cut off some space of the edges:
+/// (-1,0,0) and (1,0,0)  -> indices 0 and 12
+/// (0,-1,0) and (0,1,0)  -> indices 1 and 13
+/// (0,0,-1) and (0,0,1)  -> indices 2 and 14
+/// (-1,-1,0) and (1,1,0) -> indices 3 and 15
+/// (-1,0,-1) and (1,0,1) -> indices 4 and 16
+/// (0,-1,-1) and (0,1,1) -> indices 5 and 17
+/// (-1,1,0) and (1,-1,0) -> indices 6 and 18
+/// (-1,0,1) and (1,0,-1) -> indices 7 and 19
+/// (0,-1,1) and (0,1,-1) -> indices 8 and 20
+/// (-1, -1, 1) and (1, 1, -1) --> indices 9 and 21
+/// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
+/// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
 template<size_t N>
 class KDOP
 {

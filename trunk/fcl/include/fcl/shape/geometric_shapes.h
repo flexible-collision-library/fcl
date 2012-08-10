@@ -258,6 +258,43 @@ protected:
   void fillEdges();
 };
 
+
+/// @brief Half Space: this is equivalent to the Plane in ODE. The separation plane is defined as n * x = d;
+/// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
+/// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
+class Halfspace : public ShapeBase
+{
+public:
+  /// @brief Construct a half space with normal direction and offset
+  Halfspace(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_)
+  {
+    unitNormalTest();
+  }
+
+  /// @brief Construct a plane with normal direction and offset
+  Halfspace(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : n(a, b, c), d(d_)
+  {
+    unitNormalTest();
+  }
+
+  /// @brief Compute AABB
+  void computeLocalAABB();
+
+  /// @brief Get node type: a half space
+  NODE_TYPE getNodeType() const { return GEOM_HALFSPACE; }
+  
+  /// @brief Plane normal
+  Vec3f n;
+  
+  /// @brief Plane offset
+  FCL_REAL d;
+
+protected:
+
+  /// @brief Turn non-unit normal into unit
+  void unitNormalTest();
+};
+
 /// @brief Infinite plane 
 class Plane : public ShapeBase
 {

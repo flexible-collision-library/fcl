@@ -139,9 +139,6 @@ public:
 
   /// @brief The distance between two kIOS
   FCL_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
-
-private:    
-    
 };
 
 

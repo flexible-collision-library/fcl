@@ -97,6 +97,22 @@ void Convex::fillEdges()
   }
 }
 
+void Halfspace::unitNormalTest()
+{
+  FCL_REAL l = n.length();
+  if(l > 0)
+  {
+    FCL_REAL inv_l = 1.0 / l;
+    n *= inv_l;
+    d *= inv_l;
+  }
+  else
+  {
+    n.setValue(1, 0, 0);
+    d = 0;
+  }  
+}
+
 void Plane::unitNormalTest()
 {
   FCL_REAL l = n.length();
@@ -150,6 +166,13 @@ void Cylinder::computeLocalAABB()
 }
 
 void Convex::computeLocalAABB()
+{
+  computeBV<AABB>(*this, Transform3f(), aabb_local);
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
+}
+
+void Halfspace::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();

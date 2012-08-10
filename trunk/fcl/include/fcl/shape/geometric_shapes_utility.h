@@ -89,8 +89,9 @@ void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv);
 template<>
 void computeBV<AABB, Triangle2>(const Triangle2& s, const Transform3f& tf, AABB& bv);
 
+template<>
+void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB& bv);
 
-/// @brief the bounding volume for half space back of plane for OBB, it is the plane itself
 template<>
 void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv);
 
@@ -115,7 +116,11 @@ template<>
 void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv);
 
 template<>
+void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& bv);
+
+template<>
 void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv);
+
 
 template<>
 void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv);
@@ -169,6 +174,9 @@ void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transf
 
 void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf);
 
+Halfspace transform(const Halfspace& a, const Transform3f& tf);
+
+Plane transform(const Plane& a, const Transform3f& tf);
 
 }
 
