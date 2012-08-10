@@ -170,12 +170,12 @@ public:
   {
     if(t.getQuatRotation().isIdentity())
     {
-      aabb = cgeom->aabb_local;
+      aabb = translate(cgeom->aabb_local, t.getTranslation());
     }
     else
     {
       Vec3f center = t.transform(cgeom->aabb_center);
-      Vec3f delta(cgeom->aabb_radius, cgeom->aabb_radius, cgeom->aabb_radius);
+      Vec3f delta(cgeom->aabb_radius);
       aabb.min_ = center - delta;
       aabb.max_ = center + delta;
     }
