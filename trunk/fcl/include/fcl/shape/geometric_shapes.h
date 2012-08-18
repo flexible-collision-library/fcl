@@ -272,9 +272,23 @@ public:
   }
 
   /// @brief Construct a plane with normal direction and offset
-  Halfspace(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : n(a, b, c), d(d_)
+  Halfspace(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : ShapeBase(), n(a, b, c), d(d_)
   {
     unitNormalTest();
+  }
+
+  Halfspace() : ShapeBase(), n(1, 0, 0), d(0)
+  {
+  }
+
+  FCL_REAL signedDistance(const Vec3f& p) const
+  {
+    return n.dot(p) - d;
+  }
+
+  FCL_REAL distance(const Vec3f& p) const
+  {
+    return std::abs(n.dot(p) - d);
   }
 
   /// @brief Compute AABB
@@ -306,9 +320,22 @@ public:
   }
   
   /// @brief Construct a plane with normal direction and offset 
-  Plane(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : n(a, b, c), d(d_)
+  Plane(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : ShapeBase(), n(a, b, c), d(d_)
   {
     unitNormalTest();
+  }
+
+  Plane() : ShapeBase(), n(1, 0, 0), d(0)
+  {}
+
+  FCL_REAL signedDistance(const Vec3f& p) const
+  {
+    return n.dot(p) - d;
+  }
+
+  FCL_REAL distance(const Vec3f& p) const
+  {
+    return std::abs(n.dot(p) - d);
   }
 
   /// @brief Compute AABB 

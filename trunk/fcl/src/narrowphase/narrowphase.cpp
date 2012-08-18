@@ -1264,13 +1264,13 @@ bool sphereHalfspaceIntersect(const Sphere& s1, const Transform3f& tf1,
                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
   Halfspace new_s2 = transform(s2, tf2);
-  FCL_REAL k = tf1.getTranslation().dot(new_s2.n);
-  FCL_REAL depth = new_s2.d - k + s1.radius;
+  const Vec3f& center = tf1.getTranslation();
+  FCL_REAL depth = s1.radius - new_s2.signedDistance(center);
   if(depth >= 0)
   {
     if(normal) *normal = -new_s2.n; // pointing from s1 to s2
     if(penetration_depth) *penetration_depth = depth;
-    if(contact_points) *contact_points = tf1.getTranslation() - new_s2.n * s1.radius + new_s2.n * (depth * 0.5);
+    if(contact_points) *contact_points = center - new_s2.n * s1.radius + new_s2.n * (depth * 0.5);
     return true;
   }
   else
@@ -1282,9 +1282,8 @@ bool sphereHalfspaceIntersect(const Sphere& s1, const Transform3f& tf1,
 /// so (R^T n) (a v1 + b v2 + c v3) + n * T <= d
 /// check whether d - n * T - (R^T n) (a v1 + b v2 + c v3) >= 0 for some a, b, c
 /// the max value of left side is d - n * T + |(R^T n) (a v1 + b v2 + c v3)|, check that is enough
-bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
-                           const Halfspace& s2, const Transform3f& tf2,
-                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1, 
+                           const Halfspace& s2, const Transform3f& tf2)
 {
   Halfspace new_s2 = transform(s2, tf2);
   
@@ -1294,27 +1293,72 @@ bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
   Vec3f Q = R.transposeTimes(new_s2.n);
   Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
   Vec3f B = abs(A);
-  
-  FCL_REAL depth = new_s2.d + 0.5 * (B[0] + B[1] + B[2]) - (new_s2.n).dot(tf1.getTranslation());
-  if(depth < 0) return false;
 
-  /// find deepest point
-  Vec3f p = tf1.getTranslation();
+  FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - new_s2.signedDistance(T);
+  return (depth >= 0);
+}
 
-  for(std::size_t i = 0; i < 3; ++i)
+
+bool boxHalfspaceIntersect(const Box& s1, const Transform3f& tf1,
+                           const Halfspace& s2, const Transform3f& tf2,
+                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+{
+  if(!contact_points && !penetration_depth && !normal)
+    return boxHalfspaceIntersect(s1, tf1, s2, tf2);
+  else
   {
-    if(A[i] > 0)
-      p -= R.getColumn(i) * (0.5 * s1.side[i]);
+    Halfspace new_s2 = transform(s2, tf2);
+  
+    const Matrix3f& R = tf1.getRotation();
+    const Vec3f& T = tf1.getTranslation();
+  
+    Vec3f Q = R.transposeTimes(new_s2.n);
+    Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
+    Vec3f B = abs(A);
+
+    FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - new_s2.signedDistance(T);
+    if(depth < 0) return false;
+    
+    Vec3f axis[3];
+    axis[0] = R.getColumn(0);
+    axis[1] = R.getColumn(1);
+    axis[2] = R.getColumn(2);
+
+    /// find deepest point
+    Vec3f p(T);
+    int sign = 0;
+
+    if(std::abs(Q[0] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[0] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
+    {
+      sign = (A[0] > 0) ? -1 : 1;
+      p += axis[0] * (0.5 * s1.side[0] * sign);
+    }    
+    else if(std::abs(Q[1] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[1] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
+    {
+      sign = (A[1] > 0) ? -1 : 1;
+      p += axis[1] * (0.5 * s1.side[1] * sign);
+    }
+    else if(std::abs(Q[2] - 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(Q[2] + 1) < halfspaceIntersectTolerance<FCL_REAL>())
+    {
+      sign = (A[2] > 0) ? -1 : 1;
+      p += axis[2] * (0.5 * s1.side[2] * sign);
+    }
     else
-      p += R.getColumn(i) * (0.5 * s1.side[i]);
+    {
+      for(std::size_t i = 0; i < 3; ++i)
+      {
+        sign = (A[i] > 0) ? -1 : 1;
+        p += axis[i] * (0.5 * s1.side[i] * sign);
+      }
+    }
+
+    /// compute the contact point from the deepest point
+    if(penetration_depth) *penetration_depth = depth;
+    if(normal) *normal = -new_s2.n;
+    if(contact_points) *contact_points = p + new_s2.n * (depth * 0.5);
+    
+    return true;
   }
-
-  /// compute the contact point from the deepest point
-  if(penetration_depth) *penetration_depth = depth;
-  if(normal) *normal = -new_s2.n;
-  if(contact_points) *contact_points = p + new_s2.n * (depth * 0.5);
-
-  return true;
 }
 
 bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
@@ -1327,25 +1371,40 @@ bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
   const Vec3f& T = tf1.getTranslation();
 
   Vec3f dir_z = R.getColumn(2);
-  Vec3f Q = R.transposeTimes(new_s2.n);
 
-  FCL_REAL sign = (Q[2] > 0) ? -1 : 1;
-  Vec3f p = tf1.getTranslation() + dir_z * (s1.lz * 0.5 * sign);
-
-  FCL_REAL k = p.dot(new_s2.n);
-  FCL_REAL depth = new_s2.d - k + s1.radius;
-  if(depth < 0) return false;
-  
-  if(penetration_depth) *penetration_depth = depth;
-  if(normal) *normal = -new_s2.n;
-  if(contact_points) 
+  FCL_REAL cosa = dir_z.dot(new_s2.n);
+  if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
   {
-    Vec3f c = p - new_s2.n * s1.radius; // deepest
-    c += dir_z * (0.5 * depth / Q[2]);
-    *contact_points = c;
-  }
+    FCL_REAL signed_dist = new_s2.signedDistance(T);
+    FCL_REAL depth = s1.radius - signed_dist;
+    if(depth < 0) return false;
 
-  return true;
+    if(penetration_depth) *penetration_depth = depth;
+    if(normal) *normal = -new_s2.n;
+    if(contact_points) *contact_points = T + new_s2.n * (0.5 * depth - s1.radius);
+
+    return true;
+  }
+  else
+  {
+    int sign = (cosa > 0) ? -1 : 1;
+    Vec3f p = T + dir_z * (s1.lz * 0.5 * sign);
+
+    FCL_REAL signed_dist = new_s2.signedDistance(p);
+    FCL_REAL depth = s1.radius - signed_dist;
+    if(depth < 0) return false;
+  
+    if(penetration_depth) *penetration_depth = depth;
+    if(normal) *normal = -new_s2.n;
+    if(contact_points) 
+    {
+      // deepest point
+      Vec3f c = p - new_s2.n * s1.radius;
+      *contact_points = c + new_s2.n * (0.5 * depth);
+    }
+
+    return true;
+  }
 }
 
 
@@ -1359,92 +1418,44 @@ bool cylinderHalfspaceIntersect(const Cylinder& s1, const Transform3f& tf1,
   const Vec3f& T = tf1.getTranslation();
 
   Vec3f dir_z = R.getColumn(2);
-  Vec3f p1 = tf1.getTranslation() + dir_z * (0.5 * s1.lz);
-  Vec3f p2 = tf1.getTranslation() - dir_z * (0.5 * s1.lz);
+  FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  FCL_REAL s = dir_z.dot(new_s2.n);
-  if(s < 0) 
-    s += 1;
-  else 
-    s -= 1;
-
-  if(std::abs(s) < halfspaceIntersectTolerance<FCL_REAL>()) // cylinder perpendicular to the halfspace
+  if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
   {
-    FCL_REAL d1 = new_s2.d - (new_s2.n).dot(p1);
-    FCL_REAL d2 = new_s2.d - (new_s2.n).dot(p2);
-    
-    if(d1 >= d2)
-    {
-      if(d1 >= 0)
-      {
-        if(contact_points) *contact_points = p1 + new_s2.n * (0.5 * d1);
-        if(penetration_depth) *penetration_depth = d1;
-        if(normal) *normal = -new_s2.n;
-        return true;
-      }
-      else
-        return false;
-    }
+    FCL_REAL signed_dist = new_s2.signedDistance(T);
+    FCL_REAL depth = s1.radius - signed_dist;
+    if(depth < 0) return false;
+
+    if(penetration_depth) *penetration_depth = depth;
+    if(normal) *normal = -new_s2.n;
+    if(contact_points) *contact_points = T + new_s2.n * (0.5 * depth - s1.radius);
+
+    return true;
+  }
+  else
+  {
+    Vec3f C = dir_z * cosa - new_s2.n;
+    if(std::abs(cosa + 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < halfspaceIntersectTolerance<FCL_REAL>())
+      C = Vec3f(0, 0, 0);
     else
     {
-      if(d2 >= 0) 
-      {
-        if(contact_points) *contact_points = p2 + new_s2.n * (0.5 * d2);
-        if(penetration_depth) *penetration_depth = d2;
-        if(normal) *normal = -new_s2.n;
-        return true;
-      }
-      else
-        return false;
+      FCL_REAL s = C.length();
+      s = s1.radius / s;
+      C *= s;
     }
-  }  
-  else // cylinder not perpendicular to the halfspace
-  {
-    FCL_REAL t = (new_s2.n).dot(dir_z);
-    Vec3f C = dir_z * t - new_s2.n;
-    FCL_REAL s = C.length();
-    s = s1.radius / s;
-    C *= s;
-    
-    // deepest point of disc1
-    Vec3f c1 = C + p1;
-    FCL_REAL depth1 = new_s2.d - (new_s2.n).dot(c1);
-    
-    Vec3f c2 = C + p2;
-    FCL_REAL depth2 = new_s2.d - (new_s2.n).dot(c2);
 
-    if(depth1 >= 0 && depth2 >= 0)
+    int sign = (cosa > 0) ? -1 : 1;
+    // deepest point
+    Vec3f p = T + dir_z * (s1.lz * 0.5 * sign) + C;
+    FCL_REAL depth = -new_s2.signedDistance(p);
+    if(depth < 0) return false;
+    else
     {
-      if(depth1 > depth2)
-      {
-        if(penetration_depth) *penetration_depth = depth1;
-        if(normal) *normal = -new_s2.n;
-        if(contact_points) *contact_points = c1 + dir_z * (0.5 * depth1 / s);
-      }
-      else
-      {
-        if(penetration_depth) *penetration_depth = depth2;
-        if(normal) *normal = -new_s2.n;
-        if(contact_points) *contact_points = c2 + dir_z * (0.5 * depth2 / s);        
-      }
-      return true;
-    }
-    else if(depth1 >= 0)
-    {
-      if(penetration_depth) *penetration_depth = depth1;
+      if(penetration_depth) *penetration_depth = depth;
       if(normal) *normal = -new_s2.n;
-      if(contact_points) *contact_points = c1 + dir_z * (0.5 * depth1 / s);
+      if(contact_points) *contact_points = p + new_s2.n * (0.5 * depth);
       return true;
     }
-    else if(depth2 >= 0)
-    {
-      if(penetration_depth) *penetration_depth = depth2;
-      if(normal) *normal = -new_s2.n;
-      if(contact_points) *contact_points = c2 + dir_z * (0.5 * depth2 / s);        
-      return true;
-    }
-    else 
-      return false;    
   }
 }
 
@@ -1459,93 +1470,48 @@ bool coneHalfspaceIntersect(const Cone& s1, const Transform3f& tf1,
   const Vec3f& T = tf1.getTranslation();
 
   Vec3f dir_z = R.getColumn(2);
-  Vec3f p1 = tf1.getTranslation() + dir_z * (0.5 * s1.lz);
-  Vec3f p2 = tf1.getTranslation() - dir_z * (0.5 * s1.lz);
+  FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  FCL_REAL s = dir_z.dot(new_s2.n);
-  if(s < 0) 
-    s += 1;
-  else 
-    s -= 1;
-
-  
-  if(std::abs(s) < halfspaceIntersectTolerance<FCL_REAL>())
+  if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
   {
-    FCL_REAL d1 = new_s2.d - (new_s2.n).dot(p1);
-    FCL_REAL d2 = new_s2.d - (new_s2.n).dot(p2);
-    
-    if(d1 >= d2)
-    {
-      if(d1 >= 0)
-      {
-        if(contact_points) *contact_points = p1 + new_s2.n * (0.5 * d1);
-        if(penetration_depth) *penetration_depth = d1;
-        if(normal) *normal = -new_s2.n;
-        return true;
-      }
-      else
-        return false;
-    }
+    FCL_REAL signed_dist = new_s2.signedDistance(T);
+    FCL_REAL depth = s1.radius - signed_dist;
+    if(depth < 0) return false;
     else
     {
-      if(d2 >= 0) 
-      {
-        if(contact_points) *contact_points = p2 + new_s2.n * (0.5 * d2);
-        if(penetration_depth) *penetration_depth = d2;
-        if(normal) *normal = -new_s2.n;
-        return true;
-      }
-      else
-        return false;
+      if(penetration_depth) *penetration_depth = depth;
+      if(normal) *normal = -new_s2.n;
+      if(contact_points) *contact_points = T - dir_z * (s1.lz * 0.5) + new_s2.n * (0.5 * depth - s1.radius);
+      return true;
     }
   }
   else
   {
-    FCL_REAL t = (new_s2.n).dot(dir_z);
-    Vec3f C = dir_z * t - new_s2.n;
-    FCL_REAL s = C.length();
-    s = s1.radius / s;
-    C *= s;
-    
-    // deepest point of disc1
-    Vec3f c1 = p1;
-    FCL_REAL depth1 = new_s2.d - (new_s2.n).dot(c1);
-    
-    Vec3f c2 = C + p2;
-    FCL_REAL depth2 = new_s2.d - (new_s2.n).dot(c2);
+    Vec3f C = dir_z * cosa - new_s2.n;
+    if(std::abs(cosa + 1) < halfspaceIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < halfspaceIntersectTolerance<FCL_REAL>())
+      C = Vec3f(0, 0, 0);
+    else
+    {
+      FCL_REAL s = C.length();
+      s = s1.radius / s;
+      C *= s;
+    }
 
-    if(depth1 >= 0 && depth2 >= 0)
+    Vec3f p1 = T + dir_z * (0.5 * s1.lz);
+    Vec3f p2 = T - dir_z * (0.5 * s1.lz) + C;
+    
+    FCL_REAL d1 = new_s2.signedDistance(p1);
+    FCL_REAL d2 = new_s2.signedDistance(p2);
+
+    if(d1 > 0 && d2 > 0) return false;
+    else
     {
-      if(depth1 > depth2)
-      {
-        if(penetration_depth) *penetration_depth = depth1;
-        if(normal) *normal = -new_s2.n;
-        if(contact_points) *contact_points = c1 + dir_z * (0.5 * depth1 / s);
-      }
-      else
-      {
-        if(penetration_depth) *penetration_depth = depth2;
-        if(normal) *normal = -new_s2.n;
-        if(contact_points) *contact_points = c2 + dir_z * (0.5 * depth2 / s);        
-      }
-      return true;
-    }
-    else if(depth1 >= 0)
-    {
-      if(penetration_depth) *penetration_depth = depth1;
+      FCL_REAL depth = -std::min(d1, d2);
+      if(penetration_depth) *penetration_depth = depth;
       if(normal) *normal = -new_s2.n;
-      if(contact_points) *contact_points = c1 + dir_z * (0.5 * depth1 / s);
+      if(contact_points) *contact_points = ((d1 < d2) ? p1 : p2) + new_s2.n * (0.5 * depth);
       return true;
-    }
-    else if(depth2 >= 0)
-    {
-      if(penetration_depth) *penetration_depth = depth2;
-      if(normal) *normal = -new_s2.n;
-      if(contact_points) *contact_points = c2 + dir_z * (0.5 * depth2 / s);        
-      return true;
-    }
-    else 
-      return false;    
+    }                                           
   }
 }
 
@@ -1556,14 +1522,13 @@ bool convexHalfspaceIntersect(const Convex& s1, const Transform3f& tf1,
   Halfspace new_s2 = transform(s2, tf2);
 
   Vec3f v;
-  FCL_REAL depth = 1;
+  FCL_REAL depth = std::numeric_limits<FCL_REAL>::max();
 
   for(std::size_t i = 0; i < s1.num_points; ++i)
   {
-    Vec3f p = s1.points[i];
-    p = tf1.transform(p);
+    Vec3f p = tf1.transform(s1.points[i]);
     
-    FCL_REAL d = (new_s2.n).dot(p) - new_s2.d;
+    FCL_REAL d = new_s2.signedDistance(p);
     if(d < depth)
     {
       depth = d;
@@ -1573,7 +1538,7 @@ bool convexHalfspaceIntersect(const Convex& s1, const Transform3f& tf1,
 
   if(depth <= 0)
   {
-    if(contact_points) *contact_points = v;
+    if(contact_points) *contact_points = v - new_s2.n * (0.5 * depth);
     if(penetration_depth) *penetration_depth = depth;
     if(normal) *normal = -new_s2.n;
     return true;
@@ -1582,25 +1547,25 @@ bool convexHalfspaceIntersect(const Convex& s1, const Transform3f& tf1,
     return false;
 }
 
-bool triangleHalfspaceIntersect(const Triangle2& s1, const Transform3f& tf1,
-                                const Halfspace& s2, const Transform3f& tf2,
+bool halfspaceTriangleIntersect(const Halfspace& s1, const Transform3f& tf1,
+                                const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                                 Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
-  Halfspace new_s2 = transform(s2, tf2);
-  
-  Vec3f v = tf1.transform(s1.a);
-  FCL_REAL depth = (new_s2.n).dot(v) - new_s2.d;
-  
-  Vec3f p = tf1.transform(s1.b);
-  FCL_REAL d = (new_s2.n).dot(p) - new_s2.d;
+  Halfspace new_s1 = transform(s1, tf1);
+
+  Vec3f v = tf2.transform(P1);
+  FCL_REAL depth = new_s1.signedDistance(v);
+
+  Vec3f p = tf2.transform(P2);
+  FCL_REAL d = new_s1.signedDistance(p);
   if(d < depth)
   {
     depth = d;
     v = p;
   }
 
-  p = tf1.transform(s1.c);
-  d = (new_s2.n).dot(p) - new_s2.d;
+  p = tf2.transform(P3);
+  d = new_s1.signedDistance(p);
   if(d < depth)
   {
     depth = d;
@@ -1609,14 +1574,15 @@ bool triangleHalfspaceIntersect(const Triangle2& s1, const Transform3f& tf1,
 
   if(depth <= 0)
   {
-    if(contact_points) *contact_points = v;
-    if(penetration_depth) *penetration_depth = depth;
-    if(normal) *normal = -new_s2.n;
+    if(penetration_depth) *penetration_depth = -depth;
+    if(normal) *normal = new_s1.n;
+    if(contact_points) *contact_points = v - new_s1.n * (0.5 * depth);
     return true;
   }
   else
     return false;
 }
+
 
 /// @brief return whether plane collides with halfspace
 /// if the separation plane of the halfspace is parallel with the plane
@@ -1767,20 +1733,15 @@ bool spherePlaneIntersect(const Sphere& s1, const Transform3f& tf1,
                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
   Plane new_s2 = transform(s2, tf2);
-  
-  FCL_REAL k = tf1.getTranslation().dot(new_s2.n) - new_s2.d;
-  FCL_REAL depth = - std::abs(k) + s1.radius;
+ 
+  const Vec3f& center = tf1.getTranslation();
+  FCL_REAL signed_dist = new_s2.signedDistance(center);
+  FCL_REAL depth = - std::abs(signed_dist) + s1.radius;
   if(depth >= 0)
   {
-    if(normal) *normal = -new_s2.n;
+    if(normal) *normal = (signed_dist > 0) ? -new_s2.n : new_s2.n;
     if(penetration_depth) *penetration_depth = depth;
-    if(contact_points)
-    {
-      if(k < 0)
-        *contact_points = tf1.getTranslation() + new_s2.n * depth;
-      else
-        *contact_points = tf1.getTranslation() - new_s2.n * depth;
-    }
+    if(contact_points) *contact_points = center - new_s2.n * signed_dist;
 
     return true;
   }
@@ -1808,43 +1769,54 @@ bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
   Vec3f A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
   Vec3f B = abs(A);
 
-  FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - std::abs(new_s2.d - (new_s2.n).dot(tf1.getTranslation()));
+  FCL_REAL signed_dist = new_s2.signedDistance(T);
+  FCL_REAL depth = 0.5 * (B[0] + B[1] + B[2]) - std::abs(signed_dist);
   if(depth < 0) return false;
 
-  // find the deepest point
-  Vec3f p = tf1.getTranslation();
+  Vec3f axis[3];
+  axis[0] = R.getColumn(0);
+  axis[1] = R.getColumn(1);
+  axis[2] = R.getColumn(2);
 
-  if(new_s2.d - (new_s2.n).dot(tf1.getTranslation()) < 0)
+  // find the deepest point
+  Vec3f p = T;
+
+  // when center is on the positive side of the plane, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the minimum
+  // otherwise, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the maximum
+  int sign = (signed_dist > 0) ? 1 : -1;
+
+  if(std::abs(Q[0] - 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(Q[0] + 1) < planeIntersectTolerance<FCL_REAL>())
   {
-    // use a, b, c make (R^T n) (a v1 + b v2 + c v3) the minimum
-    for(std::size_t i = 0; i < 3; ++i)
-    {
-      if(A[i] > 0)
-        p -= R.getColumn(i) * (0.5 * s1.side[i]);
-      else 
-        p += R.getColumn(i) * (0.5 * s1.side[i]);
-    }
+    int sign2 = (A[0] > 0) ? -1 : 1;
+    sign2 *= sign;
+    p += axis[0] * (0.5 * s1.side[0] * sign2);
+  }
+  else if(std::abs(Q[1] - 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(Q[1] + 1) < planeIntersectTolerance<FCL_REAL>())
+  {
+    int sign2 = (A[1] > 0) ? -1 : 1;
+    sign2 *= sign;
+    p += axis[1] * (0.5 * s1.side[1] * sign2);
+  }
+  else if(std::abs(Q[2] - 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(Q[2] + 1) < planeIntersectTolerance<FCL_REAL>())
+  {
+    int sign2 = (A[2] > 0) ? -1 : 1;
+    sign2 *= sign;
+    p += axis[2] * (0.5 * s1.side[2] * sign2);
   }
   else
   {
-    // use a, b, c make (R^T n) (a v1 + b v2 + c v3) the maximum
     for(std::size_t i = 0; i < 3; ++i)
     {
-      if(A[i] > 0)
-        p += R.getColumn(i) * (0.5 * s1.side[i]);
-      else
-        p -= R.getColumn(i) * (0.5 * s1.side[i]);
+      int sign2 = (A[i] > 0) ? -1 : 1;
+      sign2 *= sign;
+      p += axis[i] * (0.5 * s1.side[i] * sign2);
     }
   }
 
   // compute the contact point by project the deepest point onto the plane
   if(penetration_depth) *penetration_depth = depth;
-  if(normal) *normal = -new_s2.n;
-  if(contact_points)
-  {
-    FCL_REAL k = new_s2.d - (new_s2.n).dot(p);
-    *contact_points = p + new_s2.n * k;
-  }
+  if(normal) *normal = (signed_dist > 0) ? -new_s2.n : new_s2.n;
+  if(contact_points) *contact_points = p - new_s2.n * new_s2.signedDistance(p);
 
   return true;
 }
@@ -1859,11 +1831,11 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
   const Vec3f& T = tf1.getTranslation();
 
   Vec3f dir_z = R.getColumn(2);
-  Vec3f p1 = tf1.getTranslation() + dir_z * (0.5 * s1.lz);
-  Vec3f p2 = tf2.getTranslation() - dir_z * (0.5 * s1.lz);
+  Vec3f p1 = T + dir_z * (0.5 * s1.lz);
+  Vec3f p2 = T - dir_z * (0.5 * s1.lz);
   
-  FCL_REAL d1 = (new_s2.n).dot(p1) + new_s2.d;
-  FCL_REAL d2 = (new_s2.n).dot(p2) + new_s2.d;
+  FCL_REAL d1 = new_s2.signedDistance(p1);
+  FCL_REAL d2 = new_s2.signedDistance(p2);
 
   // two end points on different side of the plane
   if(d1 * d2 <= 0)
@@ -1889,126 +1861,67 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
     const Vec3f& T = tf1.getTranslation();
 
     Vec3f dir_z = R.getColumn(2);
-    Vec3f p1 = tf1.getTranslation() + dir_z * (0.5 * s1.lz);
-    Vec3f p2 = tf1.getTranslation() - dir_z * (0.5 * s1.lz);
+
+
+    Vec3f p1 = T + dir_z * (0.5 * s1.lz);
+    Vec3f p2 = T - dir_z * (0.5 * s1.lz);
     
-    FCL_REAL d1 = (new_s2.n).dot(p1) + new_s2.d;
-    FCL_REAL d2 = (new_s2.n).dot(p2) + new_s2.d;
+    FCL_REAL d1 = new_s2.signedDistance(p1);
+    FCL_REAL d2 = new_s2.signedDistance(p2);
+
+    FCL_REAL abs_d1 = std::abs(d1);
+    FCL_REAL abs_d2 = std::abs(d2);
 
     // two end points on different side of the plane
     // the contact point is the intersect of axis with the plane
     // the normal is the direction to avoid intersection
     // the depth is the minimum distance to resolve the collision
-    if(d1 * d2 <= 0)
+    if(d1 * d2 < 0)
     {
-      FCL_REAL abs_d1 = std::abs(d1);
-      FCL_REAL abs_d2 = std::abs(d2);
       if(abs_d1 < abs_d2)
       {
         if(penetration_depth) *penetration_depth = abs_d1 + s1.radius;
         if(contact_points) *contact_points = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-        if(normal)
-        {
-          if(d1 < 0)
-            *normal = -new_s2.n;
-          else 
-            *normal = new_s2.n;
-        }
+        if(normal) *normal = (d1 < 0) ? -new_s2.n : new_s2.n;
       }
       else
       {
         if(penetration_depth) *penetration_depth = abs_d2 + s1.radius;
         if(contact_points) *contact_points = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-        if(normal)
-        {
-          if(d2 < 0)
-            *normal = -new_s2.n;
-          else
-            *normal = new_s2.n;
-        }
+        if(normal) *normal = (d2 < 0) ? -new_s2.n : new_s2.n;
       }
       return true;
     }
 
-    FCL_REAL abs_d1 = std::abs(d1);
-    FCL_REAL abs_d2 = std::abs(d2);
-
-    if(abs_d1 <= s1.radius && abs_d2 <= s1.radius)
-    {
-      if(abs_d1 < abs_d2)
-      {
-        if(penetration_depth) *penetration_depth = s1.radius - abs_d1;
-        if(d1 < 0) // both on the negative side of the plane
-        {
-          Vec3f c1 = p1 + new_s2.n * (s1.radius - abs_d2);
-          Vec3f c2 = p2 + new_s2.n * (s1.radius - abs_d1);
-          if(contact_points) *contact_points = (c1 + c2) * 0.5;
-          if(normal) *normal = new_s2.n;
-        }
-        else
-        {
-          Vec3f c1 = p1 - new_s2.n * (s1.radius - abs_d2);
-          Vec3f c2 = p2 - new_s2.n * (s1.radius - abs_d1);
-          if(contact_points) *contact_points = (c1 + c2) * 0.5;
-          if(normal) *normal = -new_s2.n;          
-        }
-      }
-      else
-      {
-        *penetration_depth = s1.radius - abs_d2;
-        if(d1 < 0) // both on the negative side of the plane
-        {
-          Vec3f c1 = p1 + new_s2.n * (s1.radius - abs_d2);
-          Vec3f c2 = p2 + new_s2.n * (s1.radius - abs_d1);
-          if(contact_points) *contact_points = (c1 + c2) * 0.5;
-          if(normal) *normal = new_s2.n;
-        }
-        else
-        {
-          Vec3f c1 = p1 - new_s2.n * (s1.radius - abs_d2);
-          Vec3f c2 = p2 - new_s2.n * (s1.radius - abs_d1);
-          if(contact_points) *contact_points = (c1 + c2) * 0.5;
-          if(normal) *normal = -new_s2.n;          
-        }
-      }
-      return true;
-    }
-    else if(abs_d1 <= s1.radius)
-    {
-      if(penetration_depth) *penetration_depth = s1.radius - abs_d1;
-      if(d1 < 0)
-      {
-        Vec3f c = p1 + new_s2.n * (s1.radius - abs_d1);
-        if(contact_points) *contact_points = c;
-        if(normal) *normal = new_s2.n;
-      }
-      else
-      {
-        Vec3f c = p1 - new_s2.n * (s1.radius - abs_d1);
-        if(contact_points) *contact_points = c;
-        if(normal) *normal = -new_s2.n;
-      }
-      return true;
-    }
-    else if(abs_d2 <= s1.radius)
-    {
-      if(penetration_depth) *penetration_depth = s1.radius - abs_d2;
-      if(d2 < 0)
-      {
-        Vec3f c = p2 + new_s2.n * (s1.radius - abs_d2);
-        if(contact_points) *contact_points = c;
-        if(normal) *normal = new_s2.n;
-      }
-      else
-      {
-        Vec3f c = p2 - new_s2.n * (s1.radius - abs_d2);
-        if(contact_points) *contact_points = c;
-        if(normal) *normal = -new_s2.n;
-      }
-      return true;
-    }
-    else
+    if(abs_d1 > s1.radius && abs_d2 > s1.radius)
       return false;
+    else
+    {
+      if(penetration_depth) *penetration_depth = s1.radius - std::min(abs_d1, abs_d2);
+        
+      if(contact_points)
+      {
+        if(abs_d1 <= s1.radius && abs_d2 <= s1.radius)
+        {
+          Vec3f c1 = p1 - new_s2.n * d2;
+          Vec3f c2 = p2 - new_s2.n * d1;
+          *contact_points = (c1 + c2) * 0.5;
+        }
+        else if(abs_d1 <= s1.radius)
+        {
+          Vec3f c = p1 - new_s2.n * d1;
+          *contact_points = c;
+        }
+        else if(abs_d2 <= s1.radius)
+        {
+          Vec3f c = p2 - new_s2.n * d2;
+          *contact_points = c;
+        }
+      }
+        
+      if(normal) *normal = (d1 < 0) ? new_s2.n : -new_s2.n;
+      return true;
+    }
   }
 }
 
@@ -2028,8 +1941,9 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
   Vec3f Q = R.transposeTimes(new_s2.n);
 
   FCL_REAL term = std::abs(Q[2]) * s1.lz + s1.radius * std::sqrt(Q[0] * Q[0] + Q[1] * Q[1]);
-  FCL_REAL dist = (new_s2.n).dot(tf1.getTranslation()) - new_s2.d;
-  FCL_REAL depth = term - std::abs(dist);
+  FCL_REAL dist = new_s2.distance(T);
+  FCL_REAL depth = term - dist;
+
   if(depth < 0)
     return false;
   else
@@ -2050,56 +1964,38 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
     const Vec3f& T = tf1.getTranslation();
   
     Vec3f dir_z = R.getColumn(2);
-    Vec3f p1 = tf1.getTranslation() + dir_z * (0.5 * s1.lz);
-    Vec3f p2 = tf1.getTranslation() - dir_z * (0.5 * s1.lz);
+    FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-    FCL_REAL s = dir_z.dot(new_s2.n);
-    if(s < 0) 
-      s += 1;
-    else 
-      s -= 1;
-
-    if(std::abs(s) < planeIntersectTolerance<FCL_REAL>())
+    if(std::abs(cosa) < planeIntersectTolerance<FCL_REAL>())
     {
-      FCL_REAL d1 = (new_s2.n).dot(p1) - new_s2.d;
-      FCL_REAL d2 = (new_s2.n).dot(p2) - new_s2.d;
-      if(d1 * d2 > 0) return false;
+      FCL_REAL d = new_s2.signedDistance(T);
+      FCL_REAL depth = s1.radius - std::abs(d);
+      if(depth < 0) return false;
       else
       {
-        FCL_REAL abs_d1 = std::abs(d1);
-        FCL_REAL abs_d2 = std::abs(d2);
-        if(abs_d1 > abs_d2)
-        {
-          if(penetration_depth) *penetration_depth = abs_d2;
-          if(contact_points) *contact_points = p2 - new_s2.n * d2;
-          if(normal)
-          {
-            if(d2 < 0) *normal = -new_s2.n;
-            else *normal = new_s2.n;
-          }
-        }
-        else
-        {
-          if(penetration_depth) *penetration_depth = abs_d1;
-          if(contact_points) *contact_points = p1 - new_s2.n * d1;
-          if(normal)
-          {
-            if(d1 < 0) *normal = -new_s2.n;
-            else *normal = new_s2.n;
-          }
-        }
+        if(penetration_depth) *penetration_depth = depth;
+        if(normal) *normal = (d < 0) ? new_s2.n : -new_s2.n;
+        if(contact_points) *contact_points = T - new_s2.n * d;
         return true;
       }
     }
     else
     {
-      FCL_REAL t = (new_s2.n).dot(dir_z);
-      Vec3f C = dir_z * t - new_s2.n;
-      FCL_REAL s = C.length();
-      s = s1.radius / s;
-      C *= s;
+      Vec3f C = dir_z * cosa - new_s2.n;
+      if(std::abs(cosa + 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < planeIntersectTolerance<FCL_REAL>())
+        C = Vec3f(0, 0, 0);
+      else
+      {
+        FCL_REAL s = C.length();
+        s = s1.radius / s;
+        C *= s;
+      }
+
+      Vec3f p1 = T + dir_z * (0.5 * s1.lz);
+      Vec3f p2 = T - dir_z * (0.5 * s1.lz);
+
       Vec3f c1, c2;
-      if(t > 0)
+      if(cosa > 0)
       {
         c1 = p1 - C;
         c2 = p2 + C;
@@ -2110,10 +2006,10 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
         c2 = p2 - C;
       }
 
-      FCL_REAL d1 = (new_s2.n).dot(c1) - new_s2.d;
-      FCL_REAL d2 = (new_s2.n).dot(c2) - new_s2.d;
+      FCL_REAL d1 = new_s2.signedDistance(c1);
+      FCL_REAL d2 = new_s2.signedDistance(c2);
 
-      if(d1 * d2 < 0)
+      if(d1 * d2 <= 0)
       {
         FCL_REAL abs_d1 = std::abs(d1);
         FCL_REAL abs_d2 = std::abs(d2);
@@ -2121,32 +2017,19 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
         if(abs_d1 > abs_d2)
         {
           if(penetration_depth) *penetration_depth = abs_d2;
-          if(contact_points) *contact_points = p1 - new_s2.n * ((new_s2.n).dot(p1) - new_s2.d);
-          if(normal)
-          {
-            if(d1 < 0) 
-              *normal = -new_s2.n;
-            else 
-              *normal = new_s2.n;
-          }
+          if(contact_points) *contact_points = c2 - new_s2.n * d2;
+          if(normal) *normal = (d2 < 0) ? -new_s2.n : new_s2.n;
         }
         else
         {
           if(penetration_depth) *penetration_depth = abs_d1;
-          if(contact_points) *contact_points = p2 + new_s2.n * (-(new_s2.n).dot(p2) + new_s2.d);
-          if(normal)
-          {
-            if(d2 < 0)
-              *normal = -new_s2.n;
-            else
-              *normal = new_s2.n;
-          }
+          if(contact_points) *contact_points = c1 - new_s2.n * d1;
+          if(normal) *normal = (d1 < 0) ? -new_s2.n : new_s2.n;
         }
         return true;
       }
       else
         return false;
-
     }
   }
 }
@@ -2161,152 +2044,222 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
   const Vec3f& T = tf1.getTranslation();
   
   Vec3f dir_z = R.getColumn(2);
-  Vec3f p1 = tf1.getTranslation() + dir_z * (0.5 * s1.lz);
-  Vec3f p2 = tf1.getTranslation() - dir_z * (0.5 * s1.lz);
+  FCL_REAL cosa = dir_z.dot(new_s2.n);
 
-  FCL_REAL s = dir_z.dot(new_s2.n);
-  if(s < 0) 
-    s += 1;
-  else 
-    s -= 1;
-
-  if(std::abs(s) < planeIntersectTolerance<FCL_REAL>())
+  if(std::abs(cosa) < planeIntersectTolerance<FCL_REAL>())
   {
-    FCL_REAL d1 = (new_s2.n).dot(p1) - new_s2.d;
-    FCL_REAL d2 = (new_s2.n).dot(p2) - new_s2.d;
-    if(d1 * d2 > 0) return false;
+    FCL_REAL d = new_s2.signedDistance(T);
+    FCL_REAL depth = s1.radius - std::abs(d);
+    if(depth < 0) return false;
     else
     {
-      FCL_REAL abs_d1 = std::abs(d1);
-      FCL_REAL abs_d2 = std::abs(d2);
-      if(abs_d1 > abs_d2)
-      {
-        if(penetration_depth) *penetration_depth = abs_d2;
-        if(contact_points) *contact_points = p2 - new_s2.n * d2;
-        if(normal)
-        {
-          if(d2 < 0) *normal = -new_s2.n;
-          else *normal = new_s2.n;
-        }
-      }
-      else
-      {
-        if(penetration_depth) *penetration_depth = abs_d1;
-        if(contact_points) *contact_points = p1 - new_s2.n * d1;
-        if(normal)
-        {
-          if(d1 < 0) *normal = -new_s2.n;
-          else *normal = new_s2.n;
-        }
-      }
+      if(penetration_depth) *penetration_depth = depth;
+      if(normal) *normal = (d < 0) ? new_s2.n : -new_s2.n;
+      if(contact_points) *contact_points = T - dir_z * (0.5 * s1.lz) + dir_z * (0.5 * depth / s1.radius * s1.lz) - new_s2.n * d;
       return true;
     }
   }
   else
   {
-    FCL_REAL t = (new_s2.n).dot(dir_z);
-    Vec3f C = dir_z * t - new_s2.n;
-    FCL_REAL s = C.length();
-    s = s1.radius / s;
-    C *= s;
-    Vec3f c1(p1), c2;
-    if(t > 0)
-      c2 = p2 + C;
+    Vec3f C = dir_z * cosa - new_s2.n;
+    if(std::abs(cosa + 1) < planeIntersectTolerance<FCL_REAL>() || std::abs(cosa - 1) < planeIntersectTolerance<FCL_REAL>())
+      C = Vec3f(0, 0, 0);
     else
-      c2 = p2 - C;
-
-    FCL_REAL d1 = (new_s2.n).dot(c1) - new_s2.d;
-    FCL_REAL d2 = (new_s2.n).dot(c2) - new_s2.d;
-
-    if(d1 * d2 < 0)
     {
-      FCL_REAL abs_d1 = std::abs(d1);
-      FCL_REAL abs_d2 = std::abs(d2);
+      FCL_REAL s = C.length();
+      s = s1.radius / s;
+      C *= s;
+    }
 
-      if(abs_d1 > abs_d2)
+    Vec3f c[3];
+    c[0] = T + dir_z * (0.5 * s1.lz);
+    c[1] = T - dir_z * (0.5 * s1.lz) + C;
+    c[2] = T - dir_z * (0.5 * s1.lz) - C;
+
+    FCL_REAL d[3];
+    d[0] = new_s2.signedDistance(c[0]);
+    d[1] = new_s2.signedDistance(c[1]);
+    d[2] = new_s2.signedDistance(c[2]);
+
+    if((d[0] >= 0 && d[1] >= 0 && d[2] >= 0) || (d[0] <= 0 && d[1] <= 0 && d[2] <= 0))
+      return false;
+    else
+    {
+      bool positive[3];
+      for(std::size_t i = 0; i < 3; ++i)
+        positive[i] = (d[i] >= 0);
+
+      int n_positive = 0;
+      FCL_REAL d_positive = 0, d_negative = 0;
+      for(std::size_t i = 0; i < 3; ++i)
       {
-        if(penetration_depth) *penetration_depth = abs_d2;
-        if(contact_points) *contact_points = p1 - new_s2.n * ((new_s2.n).dot(p1) - new_s2.d);
-        if(normal)
+        if(positive[i]) 
         {
-          if(d1 < 0) 
-            *normal = -new_s2.n;
-          else 
-            *normal = new_s2.n;
+          n_positive++;
+          if(d_positive <= d[i]) d_positive = d[i];
+        }
+        else
+        {
+          if(d_negative <= -d[i]) d_negative = -d[i];
         }
       }
-      else
+
+      if(penetration_depth) *penetration_depth = std::min(d_positive, d_negative);
+      if(normal) *normal = (d_positive > d_negative) ? -new_s2.n : new_s2.n;
+      if(contact_points)
       {
-        if(penetration_depth) *penetration_depth = abs_d1;
-        if(contact_points) *contact_points = p2 + new_s2.n * (-(new_s2.n).dot(p2) + new_s2.d);
-        if(normal)
-        {
-          if(d2 < 0)
-            *normal = -new_s2.n;
-          else
-            *normal = new_s2.n;
+        Vec3f p[2];
+        Vec3f q;
+            
+        FCL_REAL p_d[2];
+        FCL_REAL q_d;
+
+        if(n_positive == 2)
+        {            
+          for(std::size_t i = 0, j = 0; i < 3; ++i)
+          {
+            if(positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+            else { q = c[i]; q_d = d[i]; }
+          }
+
+          Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
+          Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
+          *contact_points = (t1 + t2) * 0.5;
+        }
+        else
+        {            
+          for(std::size_t i = 0, j = 0; i < 3; ++i)
+          {
+            if(!positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+            else { q = c[i]; q_d = d[i]; }
+          }
+
+          Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
+          Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
+          *contact_points = (t1 + t2) * 0.5;            
         }
       }
       return true;
     }
-    else
-      return false;
-
   }
 }
 
-bool trianglePlaneIntersect(const Triangle2& s1, const Transform3f& tf1,
-                            const Plane& s2, const Transform3f& tf2,
-                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+bool convexPlaneIntersect(const Convex& s1, const Transform3f& tf1,
+                          const Plane& s2, const Transform3f& tf2,
+                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
   Plane new_s2 = transform(s2, tf2);
 
-  Vec3f p1 = tf1.transform(s1.a);
-  Vec3f p2 = tf1.transform(s1.b);
-  Vec3f p3 = tf1.transform(s1.c);
-  FCL_REAL d1 = (new_s2.n).dot(p1) - new_s2.d;
-  FCL_REAL d2 = (new_s2.n).dot(p2) - new_s2.d;
-  FCL_REAL d3 = (new_s2.n).dot(p3) - new_s2.d;
-  
-  if(d1 >= 0 && d2 >= 0 && d3 >= 0) return false;
-  if(d1 <= 0 && d2 <= 0 && d3 <= 0) return false;
+  Vec3f v_min, v_max;
+  FCL_REAL d_min = std::numeric_limits<FCL_REAL>::max(), d_max = -std::numeric_limits<FCL_REAL>::max();
 
-  FCL_REAL abs_d1 = std::abs(d1);
-  FCL_REAL abs_d2 = std::abs(d2);
-  FCL_REAL abs_d3 = std::abs(d3);
+  for(std::size_t i = 0; i < s1.num_points; ++i)
+  {
+    Vec3f p = tf1.transform(s1.points[i]);
+    
+    FCL_REAL d = new_s2.signedDistance(p);
+    
+    if(d < d_min) { d_min = d; v_min = p; }
+    if(d > d_max) { d_max = d; v_max = p; }
+  }
   
-  FCL_REAL depth = std::max(std::max(abs_d1, abs_d2), abs_d3);
-  if(penetration_depth) *penetration_depth = depth;
-  
-  if((d1 > 0 && d2 > 0 && d3 < 0) || (d1 < 0 && d2 < 0 && d3 > 0))
+  if(d_min * d_max > 0) return false;
+  else
   {
-    Vec3f c1 = p1 * (d3 / (d3 + d1)) + p3 * (d1 / (d3 + d1));
-    Vec3f c2 = p2 * (d3 / (d3 + d2)) + p3 * (d2 / (d3 + d2));
-    if(contact_points) *contact_points = (c1 + c2) * 0.5;
-    if(normal)
-      if(depth == std::abs(d3)) *normal = (d3 < 0) ? -new_s2.n : new_s2.n;
-      else *normal = (d1 < 0) ? -new_s2.n : new_s2.n;
+    if(d_min + d_max > 0)
+    {
+      if(penetration_depth) *penetration_depth = -d_min;
+      if(normal) *normal = -new_s2.n;
+      if(contact_points) *contact_points = v_min - new_s2.n * d_min;
+    }
+    else
+    {
+      if(penetration_depth) *penetration_depth = d_max;
+      if(normal) *normal = new_s2.n;
+      if(contact_points) *contact_points = v_max - new_s2.n * d_max;
+    }
+    return true;
   }
-  else if((d1 > 0 && d3 > 0 && d2 < 0) || (d1 < 0 && d3 < 0 && d2 > 0))
-  {
-    Vec3f c1 = p1 * (d2 / (d2 + d1)) + p2 * (d1 / (d2 + d1));
-    Vec3f c2 = p3 * (d2 / (d3 + d2)) + p2 * (d3 / (d3 + d2));
-    if(contact_points) *contact_points = (c1 + c2) * 0.5;
-    if(normal)
-      if(depth == std::abs(d2)) *normal = (d2 < 0) ? -new_s2.n : new_s2.n;
-      else *normal = (d1 < 0) ? -new_s2.n : new_s2.n;
-  }
-  else if((d2 > 0 && d3 > 0 && d1 < 0) || (d2 < 0 && d3 < 0 && d1 > 0))
-  {
-    Vec3f c1 = p2 * (d1 / (d2 + d1)) + p1 * (d2 / (d2 + d1));
-    Vec3f c2 = p3 * (d1 / (d3 + d1)) + p1 * (d3 / (d3 + d1));
-    if(contact_points) *contact_points = (c1 + c2) * 0.5;
-    if(normal) 
-      if(depth == std::abs(d1)) *normal = (d1 < 0) ? -new_s2.n : new_s2.n;
-      else *normal = (d2 < 0) ? -new_s2.n : new_s2.n;
-  }
+}
 
-  return true;
+
+
+bool planeTriangleIntersect(const Plane& s1, const Transform3f& tf1,
+                            const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
+                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+{
+  Plane new_s1 = transform(s1, tf1);
+
+  Vec3f c[3];
+  c[0] = tf2.transform(P1);
+  c[1] = tf2.transform(P2);
+  c[2] = tf2.transform(P3);
+
+  FCL_REAL d[3];
+  d[0] = new_s1.signedDistance(c[0]);
+  d[1] = new_s1.signedDistance(c[1]);
+  d[2] = new_s1.signedDistance(c[2]);
+
+  if((d[0] >= 0 && d[1] >= 0 && d[2] >= 0) || (d[0] <= 0 && d[1] <= 0 && d[2] <= 0))
+    return false;
+  else
+  {
+    bool positive[3];
+    for(std::size_t i = 0; i < 3; ++i)
+      positive[i] = (d[i] > 0);
+
+    int n_positive = 0;
+    FCL_REAL d_positive = 0, d_negative = 0;
+    for(std::size_t i = 0; i < 3; ++i)
+    {
+      if(positive[i])
+      {
+        n_positive++;
+        if(d_positive <= d[i]) d_positive = d[i];
+      }
+      else
+      {
+        if(d_negative <= -d[i]) d_negative = -d[i];
+      }
+    }
+
+    if(penetration_depth) *penetration_depth = std::min(d_positive, d_negative);
+    if(normal) *normal = (d_positive > d_negative) ? new_s1.n : -new_s1.n;
+    if(contact_points)
+    {
+      Vec3f p[2];
+      Vec3f q;
+      
+      FCL_REAL p_d[2];
+      FCL_REAL q_d;
+      
+      if(n_positive == 2)
+      {
+        for(std::size_t i = 0, j = 0; i < 3; ++i)
+        {
+          if(positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+          else { q = c[i]; q_d = d[i]; }
+        }
+
+        Vec3f t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
+        Vec3f t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
+        *contact_points = (t1 + t2) * 0.5;
+      }
+      else
+      {
+        for(std::size_t i = 0, j = 0; i < 3; ++i)
+        {
+          if(!positive[i]) { p[j] = c[i]; p_d[j] = d[i]; j++; }
+          else { q = c[i]; q_d = d[i]; }
+        }
+
+        Vec3f t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
+        Vec3f t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
+        *contact_points = (t1 + t2) * 0.5;            
+      }
+    }
+    return true;
+  }
 }
 
 bool halfspacePlaneIntersect(const Halfspace& s1, const Transform3f& tf1,
@@ -2347,6 +2300,139 @@ bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Tr
   return details::sphereSphereIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
 
+template<>
+bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
+                                                const Box& s2, const Transform3f& tf2,
+                                                Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Sphere, Halfspace>(const Sphere& s1, const Transform3f& tf1,
+                                                         const Halfspace& s2, const Transform3f& tf2,
+                                                         Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::sphereHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Box, Halfspace>(const Box& s1, const Transform3f& tf1,
+                                                      const Halfspace& s2, const Transform3f& tf2,
+                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::boxHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Capsule, Halfspace>(const Capsule& s1, const Transform3f& tf1,
+                                                          const Halfspace& s2, const Transform3f& tf2,
+                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::capsuleHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Cylinder, Halfspace>(const Cylinder& s1, const Transform3f& tf1,
+                                                           const Halfspace& s2, const Transform3f& tf2,
+                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::cylinderHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Cone, Halfspace>(const Cone& s1, const Transform3f& tf1,
+                                                       const Halfspace& s2, const Transform3f& tf2,
+                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::coneHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
+                                                            const Halfspace& s2, const Transform3f& tf2,
+                                                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  Halfspace s;
+  Vec3f p, d;
+  FCL_REAL depth;
+  int ret;
+  return details::halfspaceIntersect(s1, tf1, s2, tf2, p, d, s, depth, ret);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
+                                                        const Halfspace& s2, const Transform3f& tf2,
+                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  Plane pl;
+  Vec3f p, d;
+  FCL_REAL depth;
+  int ret;
+  return details::planeHalfspaceIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Sphere, Plane>(const Sphere& s1, const Transform3f& tf1,
+                                                     const Plane& s2, const Transform3f& tf2,
+                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::spherePlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
+                                                  const Plane& s2, const Transform3f& tf2,
+                                                  Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::boxPlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Capsule, Plane>(const Capsule& s1, const Transform3f& tf1,
+                                                      const Plane& s2, const Transform3f& tf2,
+                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::capsulePlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Cylinder, Plane>(const Cylinder& s1, const Transform3f& tf1,
+                                                       const Plane& s2, const Transform3f& tf2,
+                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::cylinderPlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Cone, Plane>(const Cone& s1, const Transform3f& tf1,
+                                                   const Plane& s2, const Transform3f& tf2,
+                                                   Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::conePlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
+                                                        const Plane& s2, const Transform3f& tf2,
+                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  Plane pl;
+  Vec3f p, d;
+  FCL_REAL depth;
+  int ret;
+  return details::halfspacePlaneIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Plane, Plane>(const Plane& s1, const Transform3f& tf1,
+                                                    const Plane& s2, const Transform3f& tf2,
+                                                    Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::planeIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+
 template<> 
 bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf,
                                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
@@ -2360,6 +2446,24 @@ bool GJKSolver_libccd::shapeTriangleIntersect(const Sphere& s, const Transform3f
 {
   return details::sphereTriangleIntersect(s, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P3), contact_points, penetration_depth, normal);
 }
+
+
+template<>
+bool GJKSolver_libccd::shapeTriangleIntersect(const Halfspace& s, const Transform3f& tf1,
+                                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::halfspaceTriangleIntersect(s, tf1, P1, P2, P3, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeTriangleIntersect(const Plane& s, const Transform3f& tf1,
+                                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::planeTriangleIntersect(s, tf1, P1, P2, P3, tf2, contact_points, penetration_depth, normal);
+}
+
+
+
 
 template<>
 bool GJKSolver_libccd::shapeDistance<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
@@ -2389,6 +2493,8 @@ bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const Tran
 
 
 
+
+
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
                                                      const Sphere& s2, const Transform3f& tf2,
@@ -2396,6 +2502,140 @@ bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Tra
 {
   return details::sphereSphereIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
+                                               const Box& s2, const Transform3f& tf2,
+                                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Sphere, Halfspace>(const Sphere& s1, const Transform3f& tf1,
+                                                        const Halfspace& s2, const Transform3f& tf2,
+                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::sphereHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Box, Halfspace>(const Box& s1, const Transform3f& tf1,
+                                                     const Halfspace& s2, const Transform3f& tf2,
+                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::boxHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Capsule, Halfspace>(const Capsule& s1, const Transform3f& tf1,
+                                                         const Halfspace& s2, const Transform3f& tf2,
+                                                         Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::capsuleHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Cylinder, Halfspace>(const Cylinder& s1, const Transform3f& tf1,
+                                                          const Halfspace& s2, const Transform3f& tf2,
+                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::cylinderHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Cone, Halfspace>(const Cone& s1, const Transform3f& tf1,
+                                                      const Halfspace& s2, const Transform3f& tf2,
+                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::coneHalfspaceIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
+                                                           const Halfspace& s2, const Transform3f& tf2,
+                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  Halfspace s;
+  Vec3f p, d;
+  FCL_REAL depth;
+  int ret;
+  
+  return details::halfspaceIntersect(s1, tf1, s2, tf2, p, d, s, depth, ret);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
+                                                       const Halfspace& s2, const Transform3f& tf2,
+                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  Plane pl;
+  Vec3f p, d;
+  FCL_REAL depth;
+  int ret;
+  return details::planeHalfspaceIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Sphere, Plane>(const Sphere& s1, const Transform3f& tf1,
+                                                    const Plane& s2, const Transform3f& tf2,
+                                                    Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::spherePlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
+                                                 const Plane& s2, const Transform3f& tf2,
+                                                 Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::boxPlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Capsule, Plane>(const Capsule& s1, const Transform3f& tf1,
+                                                     const Plane& s2, const Transform3f& tf2,
+                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::capsulePlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Cylinder, Plane>(const Cylinder& s1, const Transform3f& tf1,
+                                                      const Plane& s2, const Transform3f& tf2,
+                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::cylinderPlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Cone, Plane>(const Cone& s1, const Transform3f& tf1,
+                                                  const Plane& s2, const Transform3f& tf2,
+                                                  Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::conePlaneIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
+                                                       const Plane& s2, const Transform3f& tf2,
+                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  Plane pl;
+  Vec3f p, d;
+  FCL_REAL depth;
+  int ret;
+  return details::halfspacePlaneIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Plane, Plane>(const Plane& s1, const Transform3f& tf1,
+                                                   const Plane& s2, const Transform3f& tf2,
+                                                   Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::planeIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
 
 template<> 
 bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f& tf,
@@ -2411,6 +2651,20 @@ bool GJKSolver_indep::shapeTriangleIntersect(const Sphere& s, const Transform3f&
   return details::sphereTriangleIntersect(s, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P3), contact_points, penetration_depth, normal);
 }
 
+template<>
+bool GJKSolver_indep::shapeTriangleIntersect(const Halfspace& s, const Transform3f& tf1,
+                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::halfspaceTriangleIntersect(s, tf1, P1, P2, P3, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_indep::shapeTriangleIntersect(const Plane& s, const Transform3f& tf1,
+                                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  return details::planeTriangleIntersect(s, tf1, P1, P2, P3, tf2, contact_points, penetration_depth, normal);
+}
+
 
 template<>
 bool GJKSolver_indep::shapeDistance<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
@@ -2419,7 +2673,6 @@ bool GJKSolver_indep::shapeDistance<Sphere, Sphere>(const Sphere& s1, const Tran
 {
   return details::sphereSphereDistance(s1, tf1, s2, tf2, dist);
 }
-
 
 template<>
 bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const Transform3f& tf,
@@ -2438,21 +2691,7 @@ bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const Trans
 }
 
 
-template<>
-bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
-                                                const Box& s2, const Transform3f& tf2,
-                                                Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
-}
 
-template<>
-bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
-                                               const Box& s2, const Transform3f& tf2,
-                                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-{
-  return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
-}
 
 
 
