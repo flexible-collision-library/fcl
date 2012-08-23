@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011, Willow Garage, Inc.
+ *  Copyright (c) 2012, Willow Garage, Inc.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+#ifndef FCL_CONFIG_
+#define FCL_CONFIG_
 
-#ifndef FCL_SIMD_H
-#define FCL_SIMD_H
-
-#include "fcl/simd/math_simd_details.h"
+#define FCL_VERSION "@FCL_VERSION@"
+#cmakedefine01 FCL_HAVE_SSE
 
 #endif

@@ -37,9 +37,14 @@
 #ifndef FCL_VEC_3F_H
 #define FCL_VEC_3F_H
 
+#include "fcl/config.h"
 #include "fcl/data_types.h"
 #include "fcl/math/math_details.h"
-#include "fcl/simd/math_simd_details.h"
+
+#if FCL_HAVE_SSE
+#  include "fcl/simd/math_simd_details.h"
+#endif
+
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -213,10 +218,11 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
   }
 }
 
-
-typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;
-//typedef Vec3fX<details::sse_meta_f4> Vec3f;
-
+#if FCL_HAVE_SSE
+  typedef Vec3fX<details::sse_meta_f4> Vec3f;
+#else
+  typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;
+#endif
 
 static inline std::ostream& operator << (std::ostream& o, const Vec3f& v)
 {
