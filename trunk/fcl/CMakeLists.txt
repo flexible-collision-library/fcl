@@ -9,8 +9,9 @@ project(fcl CXX C)
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 
 set(CMAKE_BUILD_TYPE Release)
-
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+
 
 # Check for SSE flags
 set(FCL_HAVE_SSE 0)
