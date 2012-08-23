@@ -73,25 +73,11 @@ static inline __m128 vec_sel(__m128 a, __m128 b, unsigned int mask)
   return vec_sel(a, b, _mm_set1_ps(*(float*)&mask));
 }
 
-static inline __m128 vec_splat(__m128 a, int e)
-{
-  return _mm_shuffle_ps(a, a, _MM_SHUFFLE(e, e, e, e));
-}
+#define vec_splat(a, e) _mm_shuffle_ps((a), (a), _MM_SHUFFLE((e), (e), (e), (e)))
+#define vec_splatd(a, e) _mm_shuffle_pd((a), (a), _MM_SHUFFLE2((e), (e)))
 
-static inline __m128d vec_splat(__m128d a, int e)
-{
-  return _mm_shuffle_pd(a, a, _MM_SHUFFLE2(e, e));
-}
-
-static inline __m128 _mm_ror_ps(__m128 x, int e)
-{
-  return (e % 4) ? _mm_shuffle_ps(x, x, _MM_SHUFFLE((e+3)%4, (e+2)%4, (e+1)%4, e%4)) : x;
-}
-
-static inline __m128 _mm_rol_ps(__m128 x, int e)
-{
-  return (e % 4) ? _mm_shuffle_ps(x, x, _MM_SHUFFLE((7-e)%4, (6-e)%4, (5-e)%4, (4-e)%4)) : x;
-}
+#define _mm_ror_ps(x, e) (((e) % 4) ? _mm_shuffle_ps((x), (x), _MM_SHUFFLE(((e)+3)%4, ((e)+2)%4, ((e)+1)%4, (e)%4)) : (x))
+#define _mm_rol_ps(x, e) (((e) % 4) ? _mm_shuffle_ps((x), (x), _MM_SHUFFLE((7-(e))%4, (6-(e))%4, (5-(e))%4, (4-(e))%4)) : x)
 
 static inline __m128 newtonraphson_rsqrt4(const __m128 v)
 {
@@ -327,7 +313,7 @@ static inline __m128d dot_prod3(__m128d x0, __m128d x1, __m128d y0, __m128d y1)
 {
   register __m128d m1 = _mm_mul_pd(x0, y0);
   register __m128d m2 = _mm_mul_pd(x1, y1);
-  return _mm_add_pd(_mm_add_pd(vec_splat(m1, 0), vec_splat(m1, 1)), vec_splat(m2, 0));
+  return _mm_add_pd(_mm_add_pd(vec_splatd(m1, 0), vec_splatd(m1, 1)), vec_splatd(m2, 0));
 }
 
 static inline double dot_prod3(const sse_meta_d4& x, const sse_meta_d4& y)

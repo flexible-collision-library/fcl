@@ -525,7 +525,7 @@ public:
   InterpMotion(const Matrix3f& R1, const Vec3f& T1,
                const Matrix3f& R2, const Vec3f& T2,
                const Vec3f& O) : tf1(R1, T1),
-                                 tf2(T2, T2),
+                                 tf2(R2, T2),
                                  tf(tf1),
                                  reference_p(O)
   {

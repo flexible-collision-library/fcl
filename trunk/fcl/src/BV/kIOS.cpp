@@ -88,7 +88,7 @@ kIOS& kIOS::operator += (const Vec3f& p)
   }
 
   obb += p;
-
+  return *this;
 }
 
 kIOS kIOS::operator + (const kIOS& other) const
@@ -205,6 +205,7 @@ kIOS translate(const kIOS& bv, const Vec3f& t)
   }
   
   translate(res.obb, t);
+  return res;
 }
 
 

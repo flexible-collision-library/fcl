@@ -54,6 +54,7 @@ OBBRSS translate(const OBBRSS& bv, const Vec3f& t)
   OBBRSS res(bv);
   res.obb.To += t;
   res.rss.Tr += t;
+  return res;
 }
 
 
