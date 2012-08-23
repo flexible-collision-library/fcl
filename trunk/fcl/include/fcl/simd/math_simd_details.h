@@ -77,7 +77,8 @@ static inline __m128 vec_sel(__m128 a, __m128 b, unsigned int mask)
 #define vec_splatd(a, e) _mm_shuffle_pd((a), (a), _MM_SHUFFLE2((e), (e)))
 
 #define _mm_ror_ps(x, e) (((e) % 4) ? _mm_shuffle_ps((x), (x), _MM_SHUFFLE(((e)+3)%4, ((e)+2)%4, ((e)+1)%4, (e)%4)) : (x))
-#define _mm_rol_ps(x, e) (((e) % 4) ? _mm_shuffle_ps((x), (x), _MM_SHUFFLE((7-(e))%4, (6-(e))%4, (5-(e))%4, (4-(e))%4)) : x)
+
+#define _mm_rol_ps(x, e) (((e) % 4) ? _mm_shuffle_ps((x), (x), _MM_SHUFFLE((7-(e))%4, (6-(e))%4, (5-(e))%4, (4-(e))%4)) : (x))
 
 static inline __m128 newtonraphson_rsqrt4(const __m128 v)
 {
