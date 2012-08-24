@@ -43,7 +43,7 @@ endif()
 if(MSVC OR MSVC90 OR MSVC10)
     add_definitions(-DBOOST_ALL_NO_LIB)
 endif()
-find_package(Boost COMPONENTS thread REQUIRED)
+find_package(Boost COMPONENTS thread system REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 # make sure we know what flag we used for SSE 
