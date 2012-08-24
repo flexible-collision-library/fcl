@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.4.6)
+cmake_minimum_required(VERSION 2.8)
 project(fcl CXX C)
 
 # Set the build type.  Options are:
@@ -9,9 +9,10 @@ project(fcl CXX C)
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 
 set(CMAKE_BUILD_TYPE Release)
-set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
+include(FCLVersion)
 
 # Check for SSE flags
 set(FCL_HAVE_SSE 0)
@@ -26,22 +27,28 @@ else()
   message(STATUS "FCL does not use SSE")
 endif()
 
-# Check for Octomap flags
+# Find Octomap (optional)
+find_package(PkgConfig REQUIRED)
 set(FCL_HAVE_OCTOMAP 0)
-include(FCLCheckOctomap)
-fcl_check_for_octomap()
-if (OCTOMAP_FLAGS)
-  message(STATUS "FCL uses octomap")
-  add_definitions(${OCTOMAP_FLAGS})
+pkg_check_modules(OCTOMAP QUIET octomap)
+if (OCTOMAP_INCLUDE_DIRS)
+  include_directories(${OCTOMAP_INCLUDE_DIRS})
+  link_directories(${OCTOMAP_LIBRARY_DIRS})
   set(FCL_HAVE_OCTOMAP 1)
+  message(STATUS "FCL uses Octomap")
 else()
-  message(STATUS "FCL does not use octomap")
+  message(STATUS "FCL does not use Octomap")
 endif()
+
+if(MSVC OR MSVC90 OR MSVC10)
+    add_definitions(-DBOOST_ALL_NO_LIB)
+endif()
+find_package(Boost COMPONENTS thread REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
 
 # make sure we know what flag we used for SSE 
 include_directories("include")
 
-find_package(PkgConfig)
 pkg_check_modules(CCD REQUIRED ccd)
 include_directories(${CCD_INCLUDE_DIRS})
 link_directories(${CCD_LIBRARY_DIRS})
@@ -51,7 +58,6 @@ if(OCTOMAP_FOUND)
     include_directories(${OCTOMAP_INCLUDE_DIRS})
     link_directories(${OCTOMAP_LIBRARY_DIRS})
 endif()
-
 
 add_subdirectory(include/fcl)
 add_subdirectory(src)

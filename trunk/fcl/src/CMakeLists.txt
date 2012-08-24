@@ -45,6 +45,6 @@ add_library(${PROJECT_NAME} SHARED
   profile.cpp
   collision_data.cpp)
 
-target_link_libraries(${PROJECT_NAME} ${CCD_LIBRARIES} ${OCTOMAP_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${CCD_LIBRARIES} ${OCTOMAP_LIBRARIES} ${Boost_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION lib/ LIBRARY DESTINATION lib/)
