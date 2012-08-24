@@ -158,6 +158,8 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       return Vec3f(0, 0, 0);
     }
     break;
+  default:
+    ; // nothing
   }
 
   return Vec3f(0, 0, 0);

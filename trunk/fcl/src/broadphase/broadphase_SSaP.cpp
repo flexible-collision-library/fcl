@@ -463,7 +463,7 @@ void SSaPCollisionManager::collide(BroadPhaseCollisionManager* other_manager_, v
   }
   else
   {
-    for(it = other_manager->objs_x.begin(), end != other_manager->objs_x.end(); it != end; ++it)
+    for(it = other_manager->objs_x.begin(), end = other_manager->objs_x.end(); it != end; ++it)
       if(collide_(*it, cdata, callback)) return;
   }  
 }

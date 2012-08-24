@@ -98,6 +98,7 @@ TaylorModel TaylorModel::operator + (FCL_REAL d) const
 TaylorModel& TaylorModel::operator += (FCL_REAL d)
 {
   coeffs_[0] += d;
+  return *this;
 }
 
 TaylorModel TaylorModel::operator + (const TaylorModel& other) const
