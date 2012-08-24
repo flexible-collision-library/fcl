@@ -148,7 +148,7 @@ public:
   void leafTesting(int, int) const
   {
     FCL_REAL distance;
-    nsolver->shapeDistance(*model1, tf1, *model2, tf2, &distance);
+    !nsolver->shapeDistance(*model1, tf1, *model2, tf2, &distance);
     result->update(distance, model1, model2, DistanceResult::NONE, DistanceResult::NONE);
   }
 
