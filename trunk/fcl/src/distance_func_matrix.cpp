@@ -43,6 +43,7 @@
 namespace fcl
 {
 
+#if FCL_HAVE_OCTOMAP
 template<typename T_SH, typename NarrowPhaseSolver>
 FCL_REAL ShapeOcTreeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
                              const DistanceRequest& request, DistanceResult& result)
@@ -123,7 +124,7 @@ FCL_REAL OcTreeBVHDistance(const CollisionGeometry* o1, const Transform3f& tf1, 
   return result.min_distance;
 }
 
-
+#endif
 
 template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
 FCL_REAL ShapeShapeDistance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const NarrowPhaseSolver* nsolver,
@@ -422,6 +423,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[BV_kIOS][BV_kIOS] = &BVHDistance<kIOS, NarrowPhaseSolver>;
   distance_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHDistance<OBBRSS, NarrowPhaseSolver>;
 
+#if FCL_HAVE_OCTOMAP
   distance_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeDistance<Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeDistance<Sphere, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeDistance<Capsule, NarrowPhaseSolver>;
@@ -457,6 +459,9 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<16>, NarrowPhaseSolver>;
   distance_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<18>, NarrowPhaseSolver>;
   distance_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeDistance<KDOP<24>, NarrowPhaseSolver>;
+#endif
+
+
 }
 
 template struct DistanceFunctionMatrix<GJKSolver_libccd>;

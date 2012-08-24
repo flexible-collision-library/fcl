@@ -37,5 +37,6 @@
 
 #define FCL_VERSION "@FCL_VERSION@"
 #cmakedefine01 FCL_HAVE_SSE
+#cmakedefine01 FCL_HAVE_OCTOMAP
 
 #endif

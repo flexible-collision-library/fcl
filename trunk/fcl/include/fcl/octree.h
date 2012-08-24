@@ -57,6 +57,9 @@ private:
 
   FCL_REAL default_occupancy;
 
+  FCL_REAL occupancy_threshold;
+  FCL_REAL free_threshold;
+
 public:
 
   /// @brief OcTreeNode must implement the following interfaces:
@@ -69,12 +72,20 @@ public:
   OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))                               
   {
     default_occupancy = tree->getOccupancyThres();
+
+    // default occupancy/free threshold is consistent with default setting from octomap
+    occupancy_threshold = tree->getOccupancyThres();
+    free_threshold = 0;
   }
 
   /// @brief construct octree from octomap
   OcTree(const boost::shared_ptr<const octomap::OcTree>& tree_) : tree(tree_)
   {
     default_occupancy = tree->getOccupancyThres();
+
+    // default occupancy/free threshold is consistent with default setting from octomap
+    occupancy_threshold = tree->getOccupancyThres();
+    free_threshold = 0;
   }
 
   /// @brief compute the AABB for the octree in its local coordinate system
@@ -103,13 +114,15 @@ public:
   /// @brief whether one node is completely occupied
   inline bool isNodeOccupied(const OcTreeNode* node) const
   {
-    return tree->isNodeOccupied(node);
+    // return tree->isNodeOccupied(node);
+    return node->getOccupancy() >= occupancy_threshold;
   }  
 
   /// @brief whether one node is completely free
   inline bool isNodeFree(const OcTreeNode* node) const
   {
-    return false; // default no definitely free node
+    // return false; // default no definitely free node
+    return node->getOccupancy() <= free_threshold;
   }
 
   /// @brief whether one node is uncertain
@@ -128,7 +141,8 @@ public:
         it != end;
         ++it)
     {
-      if(tree->isNodeOccupied(*it))
+      // if(tree->isNodeOccupied(*it))
+      if(isNodeOccupied(&*it))
       {
         FCL_REAL size = it.getSize();
         FCL_REAL x = it.getX();
@@ -147,13 +161,13 @@ public:
   /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree occupied_thresold
   FCL_REAL getOccupancyThres() const
   {
-    return tree->getOccupancyThres();
+    return occupancy_threshold;
   }
 
   /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree free_threshold
   FCL_REAL getFreeThres() const
   {
-    return 0.0;
+    return free_threshold;
   }
 
   FCL_REAL getDefaultOccupancy() const
@@ -164,6 +178,16 @@ public:
   void setCellDefaultOccupancy(FCL_REAL d)
   {
     default_occupancy = d;
+  }
+
+  void setOccupancyThres(FCL_REAL d)
+  {
+    occupancy_threshold = d;
+  }
+
+  void setFreeThres(FCL_REAL d)
+  {
+    free_threshold = d;
   }
 
   /// @brief return object type, it is an octree

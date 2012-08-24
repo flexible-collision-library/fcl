@@ -41,11 +41,17 @@
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_shapes.h"
 #include "fcl/traversal/traversal_node_bvh_shape.h"
+
+#if FCL_HAVE_OCTOMAP
 #include "fcl/traversal/traversal_node_octree.h"
+#endif
+
 #include "fcl/BVH/BVH_utility.h"
 
 namespace fcl
 {
+
+#if FCL_HAVE_OCTOMAP
 /// @brief Initialize traversal node for collision between two octrees, given current object transform
 template<typename NarrowPhaseSolver>
 bool initialize(OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
@@ -275,6 +281,8 @@ bool initialize(OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
 
   return true;
 }
+
+#endif
 
 
 /// @brief Initialize traversal node for collision between two geometric shapes, given current object transform

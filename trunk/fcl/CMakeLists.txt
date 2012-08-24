@@ -26,6 +26,18 @@ else()
   message(STATUS "FCL does not use SSE")
 endif()
 
+# Check for Octomap flags
+set(FCL_HAVE_OCTOMAP 0)
+include(FCLCheckOctomap)
+fcl_check_for_octomap()
+if (OCTOMAP_FLAGS)
+  message(STATUS "FCL uses octomap")
+  add_definitions(${OCTOMAP_FLAGS})
+  set(FCL_HAVE_OCTOMAP 1)
+else()
+  message(STATUS "FCL does not use octomap")
+endif()
+
 # make sure we know what flag we used for SSE 
 include_directories("include")
 
