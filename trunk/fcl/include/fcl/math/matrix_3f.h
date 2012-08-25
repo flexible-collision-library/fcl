@@ -407,8 +407,11 @@ typename T::meta_type quadraticForm(const Matrix3fX<T>& R, const Vec3fX<typename
 }
 
 
-typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
-//typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
+#if FCL_HAVE_SSE
+  typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
+#else
+  typedef Matrix3fX<details::Vec3Data<FCL_REAL> > Matrix3f;
+#endif
 
 static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
 {
@@ -428,7 +431,7 @@ public:
   Matrix3f Sigma;
 
   /// @brief Variations along the eign axes
-  FCL_REAL sigma[3];
+  Matrix3f::U sigma[3];
 
   /// @brief Eigen axes of the variation matrix
   Vec3f axis[3];

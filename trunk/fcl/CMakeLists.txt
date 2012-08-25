@@ -14,17 +14,15 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 include(FCLVersion)
 
-# Check for SSE flags
+# Whether to enable SSE
+option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
 set(FCL_HAVE_SSE 0)
-include(FCLCheckSSE)
-fcl_check_for_sse()
-if (SSE_FLAGS)
-  message(STATUS "FCL uses SSE")
-  add_definitions(${SSE_FLAGS})
-  set(FCL_HAVE_SSE 0)
-  # waiting for Jia to fix this; not using sse anyway
-else()
-  message(STATUS "FCL does not use SSE")
+if(FCL_USE_SSE)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(FCL_HAVE_SSE 1)
+    add_definitions(-march=native)
+  endif()
+  # TODO: do something similar for other compilers
 endif()
 
 # Find Octomap (optional)

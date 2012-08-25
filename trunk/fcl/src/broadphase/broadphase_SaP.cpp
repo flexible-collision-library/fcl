@@ -117,9 +117,9 @@ void SaPCollisionManager::registerObjects(const std::vector<CollisionObject*>& o
     for(size_t coord = 0; coord < 3; ++coord)
     { 
       std::sort(endpoints.begin(), endpoints.end(), 
-                boost::bind(std::less<FCL_REAL>(),
-                            boost::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const >(&EndPoint::getVal), _1, coord),
-                            boost::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const >(&EndPoint::getVal), _2, coord)));
+                boost::bind(std::less<Vec3f::U>(),
+                            boost::bind(static_cast<Vec3f::U (EndPoint::*)(size_t) const >(&EndPoint::getVal), _1, coord),
+                            boost::bind(static_cast<Vec3f::U (EndPoint::*)(size_t) const >(&EndPoint::getVal), _2, coord)));
 
       endpoints[0]->prev[coord] = NULL;
       endpoints[0]->next[coord] = endpoints[1];
@@ -508,9 +508,9 @@ bool SaPCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionC
   
   // compute stop_pos by binary search, this is cheaper than check it in while iteration linearly
   std::vector<EndPoint*>::const_iterator res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
-                                                                   boost::bind(std::less<FCL_REAL>(),
-                                                                               boost::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _1, axis),
-                                                                               boost::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _2, axis)));
+                                                                   boost::bind(std::less<Vec3f::U>(),
+                                                                               boost::bind(static_cast<Vec3f::U (EndPoint::*)(size_t) const>(&EndPoint::getVal), _1, axis),
+                                                                               boost::bind(static_cast<Vec3f::U (EndPoint::*)(size_t) const>(&EndPoint::getVal), _2, axis)));
   
   EndPoint* end_pos = NULL;
   if(res_it != velist[axis].end())
@@ -574,9 +574,9 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
     
  
     std::vector<EndPoint*>::const_iterator res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
-                                                                     boost::bind(std::less<FCL_REAL>(),
-                                                                                 boost::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _1, axis),
-                                                                                 boost::bind(static_cast<FCL_REAL (EndPoint::*)(size_t) const>(&EndPoint::getVal), _2, axis)));
+                                                                     boost::bind(std::less<Vec3f::U>(),
+                                                                                 boost::bind(static_cast<Vec3f::U (EndPoint::*)(size_t) const>(&EndPoint::getVal), _1, axis),
+                                                                                 boost::bind(static_cast<Vec3f::U (EndPoint::*)(size_t) const>(&EndPoint::getVal), _2, axis)));
 
     EndPoint* end_pos = NULL;
     if(res_it != velist[axis].end())

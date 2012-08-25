@@ -74,7 +74,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
   computeVertices(b2, vertex + 8);
   Matrix3f M;
   Vec3f E[3];
-  FCL_REAL s[3] = {0, 0, 0};
+  Matrix3f::U s[3] = {0, 0, 0};
 
   // obb axes
   Vec3f& R0 = b.axis[0];

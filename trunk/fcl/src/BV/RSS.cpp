@@ -1076,7 +1076,7 @@ RSS RSS::operator + (const RSS& other) const
 
   Matrix3f M; // row first matrix
   Vec3f E[3]; // row first eigen-vectors
-  FCL_REAL s[3] = {0, 0, 0};
+  Matrix3f::U s[3] = {0, 0, 0};
 
   getCovariance(v, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
