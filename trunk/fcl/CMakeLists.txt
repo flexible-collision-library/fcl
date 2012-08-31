@@ -26,10 +26,23 @@ if(FCL_USE_SSE)
 endif()
 
 # Find Octomap (optional)
-find_package(PkgConfig REQUIRED)
+find_package(PkgConfig QUIET)
 set(FCL_HAVE_OCTOMAP 0)
-pkg_check_modules(OCTOMAP QUIET octomap)
-if (OCTOMAP_INCLUDE_DIRS)
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(OCTOMAP QUIET octomap)
+endif()
+if(NOT OCTOMAP_FOUND)
+    # if pkfconfig is not installed, then fall back on more fragile detection
+    # of octomap
+    find_path(OCTOMAP_INCLUDE_DIRS octomap.h
+        PATH_SUFFIXES octomap)
+    find_path(OCTOMAP_LIBRARY_DIRS
+        ${CMAKE_SHARED_LIBRARY_PREFIX}octomap${CMAKE_SHARED_LIBRARY_SUFFIX})
+    if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
+        set(OCTOMAP_LIBRARIES "octomap;octomath")
+    endif()
+endif()
+if (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
   include_directories(${OCTOMAP_INCLUDE_DIRS})
   link_directories(${OCTOMAP_LIBRARY_DIRS})
   set(FCL_HAVE_OCTOMAP 1)
@@ -47,15 +60,24 @@ include_directories(${Boost_INCLUDE_DIR})
 # make sure we know what flag we used for SSE 
 include_directories("include")
 
-pkg_check_modules(CCD REQUIRED ccd)
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(CCD REQUIRED ccd)
+endif()
+if(NOT CCD_FOUND)
+    # if pkfconfig is not installed, then fall back on more fragile detection
+    # of ccd
+    find_path(CCD_INCLUDE_DIRS ccd.h
+        PATH_SUFFIXES ccd)
+    find_path(CCD_LIBRARY_DIRS
+        ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
+    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY_DIRS)
+        set(CCD_LIBRARIES "ccd")
+    else()
+        message(FATAL_ERROR "Libccd is required by FCL")
+    endif()
+endif()
 include_directories(${CCD_INCLUDE_DIRS})
 link_directories(${CCD_LIBRARY_DIRS})
-
-pkg_check_modules(OCTOMAP QUIET octomap)
-if(OCTOMAP_FOUND)
-    include_directories(${OCTOMAP_INCLUDE_DIRS})
-    link_directories(${OCTOMAP_LIBRARY_DIRS})
-endif()
 
 add_subdirectory(include/fcl)
 add_subdirectory(src)
