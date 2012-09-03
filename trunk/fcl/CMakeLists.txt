@@ -1,13 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(fcl CXX C)
 
-# Set the build type.  Options are:
-#  Coverage       : w/ debug symbols, w/o optimization, w/ code-coverage
-#  Debug          : w/ debug symbols, w/o optimization
-#  Release        : w/o debug symbols, w/ optimization
-#  RelWithDebInfo : w/ debug symbols, w/ optimization
-#  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-
 set(CMAKE_BUILD_TYPE Release)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
@@ -85,5 +78,10 @@ add_subdirectory(src)
 set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc")
 configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
 
-install(DIRECTORY include/ DESTINATION include FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY include/ DESTINATION include
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".DS_Store" EXCLUDE
+  PATTERN ".svn" EXCLUDE
+)
+
 install(FILES "${pkg_conf_file}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)

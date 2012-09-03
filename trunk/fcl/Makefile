@@ -1,1 +1,3 @@
-include $(shell rospack find mk)/cmake.mk
+all:	
+	mkdir -p build
+	cd build && cmake .. && make
