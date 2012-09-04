@@ -85,3 +85,12 @@ install(DIRECTORY include/ DESTINATION include
 )
 
 install(FILES "${pkg_conf_file}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
+
+
+enable_testing()
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
+add_executable(test_fcl_collision test/test_fcl_collision.cpp test/test_fcl_utility.cpp)
+target_link_libraries(test_fcl_collision ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES})
+
+GTEST_ADD_TESTS(test_fcl_collision "" test/test_fcl_collision.cpp)
