@@ -1876,7 +1876,7 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
     // the contact point is the intersect of axis with the plane
     // the normal is the direction to avoid intersection
     // the depth is the minimum distance to resolve the collision
-    if(d1 * d2 < 0)
+    if(d1 * d2 < -planeIntersectTolerance<FCL_REAL>())
     {
       if(abs_d1 < abs_d2)
       {

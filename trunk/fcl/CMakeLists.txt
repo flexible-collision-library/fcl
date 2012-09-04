@@ -102,3 +102,25 @@ GTEST_ADD_TESTS(test_fcl_distance "" test/test_fcl_distance.cpp)
 add_executable(test_fcl_geometric_shapes test/test_fcl_geometric_shapes.cpp test/test_fcl_utility.cpp)
 target_link_libraries(test_fcl_geometric_shapes ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES})
 GTEST_ADD_TESTS(test_fcl_geometric_shapes "" test/test_fcl_geometric_shapes.cpp)
+
+add_executable(test_fcl_broadphase test/test_fcl_broadphase.cpp test/test_fcl_utility.cpp)
+target_link_libraries(test_fcl_broadphase ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES})
+GTEST_ADD_TESTS(test_fcl_broadphase "" test/test_fcl_broadphase.cpp)
+
+add_executable(test_fcl_shape_mesh_consistency test/test_fcl_shape_mesh_consistency.cpp test/test_fcl_utility.cpp)
+target_link_libraries(test_fcl_shape_mesh_consistency ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES})
+GTEST_ADD_TESTS(test_fcl_shape_mesh_consistency "" test/test_fcl_shape_mesh_consistency.cpp)
+
+add_executable(test_fcl_frontlist test/test_fcl_frontlist.cpp test/test_fcl_utility.cpp)
+target_link_libraries(test_fcl_frontlist ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES})
+GTEST_ADD_TESTS(test_fcl_frontlist "" test/test_fcl_frontlist.cpp)
+
+add_executable(test_fcl_math test/test_fcl_math.cpp test/test_fcl_utility.cpp)
+target_link_libraries(test_fcl_math ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES})
+GTEST_ADD_TESTS(test_fcl_math "" test/test_fcl_math.cpp)
+
+if (FCL_HAVE_OCTOMAP)
+  add_executable(test_fcl_octomap test/test_fcl_octomap.cpp test/test_fcl_utility.cpp)
+  target_link_libraries(test_fcl_octomap ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES})
+  GTEST_ADD_TESTS(test_fcl_octomap "" test/test_fcl_octomap.cpp)
+endif()
