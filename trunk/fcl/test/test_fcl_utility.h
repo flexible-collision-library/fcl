@@ -62,6 +62,15 @@ void generateRandomTransforms_ccd(FCL_REAL extents[6], std::vector<Transform3f>&
                                  const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
                                  const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2);
 
+
+/// @ brief Structure for minimum distance between two meshes and the corresponding nearest point pair
+struct DistanceRes
+{
+  double distance;
+  Vec3f p1;
+  Vec3f p2;
+};
+
 /// @brief Collision data stores the collision request and the result given by collision algorithm. 
 struct CollisionData
 {
