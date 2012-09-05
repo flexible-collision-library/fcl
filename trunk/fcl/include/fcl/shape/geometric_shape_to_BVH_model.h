@@ -298,7 +298,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
 
   for(unsigned int i = 0; i < tot; ++i)
   {
-    Triangle tmp(h_num * tot + 1, (h_num - 1) * tot + (i == tot - 1) ? 0 : (i + 1), (h_num - 1) * tot + i);
+    Triangle tmp(h_num * tot + 1, (h_num - 1) * tot + ((i == tot - 1) ? 0 : (i + 1)), (h_num - 1) * tot + i);
     tri_indices.push_back(tmp);
   }
 
