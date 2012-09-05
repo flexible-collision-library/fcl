@@ -34,6 +34,9 @@
 
 /** \author Jia Pan */
 
+#define BOOST_TEST_MODULE "FCL_COLLISION"
+#include <boost/test/unit_test.hpp>
+
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
@@ -42,8 +45,8 @@
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/narrowphase/narrowphase.h"
 #include "test_fcl_utility.h"
-#include <gtest/gtest.h>
-
+#include "fcl_resources/config.h"
+#include <boost/filesystem.hpp>
 
 using namespace fcl;
 
@@ -74,7 +77,7 @@ bool enable_contact = true;
 std::vector<Contact> global_pairs;
 std::vector<Contact> global_pairs_now;
 
-TEST(OBB_test, OBB_Box_test)
+BOOST_AUTO_TEST_CASE(OBB_Box_test)
 {
   FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::vector<Transform3f> rotate_transform;
@@ -114,11 +117,11 @@ TEST(OBB_test, OBB_Box_test)
     bool overlap_obb = obb1.overlap(obb2);
     bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, NULL, NULL, NULL);
     
-    ASSERT_TRUE(overlap_obb == overlap_box);
+    BOOST_CHECK(overlap_obb == overlap_box);
   }
 }
 
-TEST(OBB_test, OBB_shape_test)
+BOOST_AUTO_TEST_CASE(OBB_shape_test)
 {
   FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::vector<Transform3f> rotate_transform;
@@ -152,7 +155,7 @@ TEST(OBB_test, OBB_shape_test)
  
       bool overlap_obb = obb1.overlap(obb2);
       bool overlap_sphere = solver.shapeIntersect(box1, box1_tf, sphere, transforms[i], NULL, NULL, NULL);
-      ASSERT_TRUE(overlap_obb >= overlap_sphere);
+      BOOST_CHECK(overlap_obb >= overlap_sphere);
     }
 
     {
@@ -161,7 +164,7 @@ TEST(OBB_test, OBB_shape_test)
       
       bool overlap_obb = obb1.overlap(obb2);
       bool overlap_capsule = solver.shapeIntersect(box1, box1_tf, capsule, transforms[i], NULL, NULL, NULL);
-      ASSERT_TRUE(overlap_obb >= overlap_capsule);
+      BOOST_CHECK(overlap_obb >= overlap_capsule);
     }
 
     {
@@ -170,7 +173,7 @@ TEST(OBB_test, OBB_shape_test)
       
       bool overlap_obb = obb1.overlap(obb2);
       bool overlap_cone = solver.shapeIntersect(box1, box1_tf, cone, transforms[i], NULL, NULL, NULL);
-      ASSERT_TRUE(overlap_obb >= overlap_cone);
+      BOOST_CHECK(overlap_obb >= overlap_cone);
     }
 
     {
@@ -179,12 +182,12 @@ TEST(OBB_test, OBB_shape_test)
       
       bool overlap_obb = obb1.overlap(obb2);
       bool overlap_cylinder = solver.shapeIntersect(box1, box1_tf, cylinder, transforms[i], NULL, NULL, NULL);
-      ASSERT_TRUE(overlap_obb >= overlap_cylinder);
+      BOOST_CHECK(overlap_obb >= overlap_cylinder);
     }
   }
 }
 
-TEST(OBB_test, OBB_AABB_test)
+BOOST_AUTO_TEST_CASE(OBB_AABB_test)
 {
   FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
@@ -220,17 +223,19 @@ TEST(OBB_test, OBB_AABB_test)
       std::cout << obb2.To << " " << obb2.extent << " " << obb2.axis[0] << " " << obb2.axis[1] << " " << obb2.axis[2] << std::endl;
     }
 
-    ASSERT_TRUE(overlap_aabb == overlap_obb);
+    BOOST_CHECK(overlap_aabb == overlap_obb);
   }
   std::cout << std::endl;
 }
 
-TEST(collision_test, mesh_mesh)
+BOOST_AUTO_TEST_CASE(mesh_mesh)
 {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
-  loadOBJFile("../test/env.obj", p1, t1);
-  loadOBJFile("../test/rob.obj", p2, t2);
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  
+  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+  loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
 
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
@@ -248,558 +253,552 @@ TEST(collision_test, mesh_mesh)
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
 
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
 
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
 
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<OBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     
     collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
     
     collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
     
     collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
     test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
-    ASSERT_TRUE(global_pairs.size() == global_pairs_now.size());
+    BOOST_CHECK(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
-      ASSERT_TRUE(global_pairs[j].b1 == global_pairs_now[j].b1);
-      ASSERT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
+      BOOST_CHECK(global_pairs[j].b1 == global_pairs_now[j].b1);
+      BOOST_CHECK(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
   }
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }
 
 

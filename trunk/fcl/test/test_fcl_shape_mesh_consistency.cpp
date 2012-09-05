@@ -34,22 +34,26 @@
 
 /** \author Jia Pan */
 
+#define BOOST_TEST_MODULE "FCL_SHAPE_MESH_CONSISTENCY"
+#include <boost/test/unit_test.hpp>
+
 #include "fcl/narrowphase/narrowphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
 #include "fcl/distance.h"
 #include "fcl/collision.h"
 #include "test_fcl_utility.h"
-#include <gtest/gtest.h>
 
 
 using namespace fcl;
+
+#define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 
 GJKSolver_libccd solver1;
 GJKSolver_indep solver2;
 
 FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
 
-TEST(consistency_distance, spheresphere_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_libccd)
 {
   Sphere s1(20);
   Sphere s2(20);
@@ -69,15 +73,15 @@ TEST(consistency_distance, spheresphere_libccd)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);  
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -90,15 +94,15 @@ TEST(consistency_distance, spheresphere_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
   pose.setTranslation(Vec3f(40.1, 0, 0));
@@ -106,15 +110,15 @@ TEST(consistency_distance, spheresphere_libccd)
   res.clear(), res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
 
   for(std::size_t i = 0; i < 10; ++i)
@@ -128,19 +132,19 @@ TEST(consistency_distance, spheresphere_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver1, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   }
 }
 
-TEST(consistency_distance, boxbox_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_libccd)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -161,15 +165,15 @@ TEST(consistency_distance, boxbox_libccd)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -182,15 +186,15 @@ TEST(consistency_distance, boxbox_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver1, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   }
 
   pose.setTranslation(Vec3f(15.1, 0, 0));
@@ -198,15 +202,15 @@ TEST(consistency_distance, boxbox_libccd)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -219,19 +223,19 @@ TEST(consistency_distance, boxbox_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver1, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   }
 }
 
-TEST(consistency_distance, cylindercylinder_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_libccd)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -252,15 +256,15 @@ TEST(consistency_distance, cylindercylinder_libccd)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -273,15 +277,15 @@ TEST(consistency_distance, cylindercylinder_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver1, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   }
   
   pose.setTranslation(Vec3f(15, 0, 0)); // libccd cannot use small value here :( 
@@ -289,15 +293,15 @@ TEST(consistency_distance, cylindercylinder_libccd)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -310,19 +314,19 @@ TEST(consistency_distance, cylindercylinder_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver1, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   }
 }
 
-TEST(consistency_distance, conecone_libccd)
+BOOST_AUTO_TEST_CASE(consistency_distance_conecone_libccd)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -343,14 +347,14 @@ TEST(consistency_distance, conecone_libccd)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -363,15 +367,15 @@ TEST(consistency_distance, conecone_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver1, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
   
   pose.setTranslation(Vec3f(15, 0, 0)); // libccd cannot use small value here :( 
@@ -379,15 +383,15 @@ TEST(consistency_distance, conecone_libccd)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver1, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver1, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -400,20 +404,20 @@ TEST(consistency_distance, conecone_libccd)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver1, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver1, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   }
 }
 
 
-TEST(consistency_distance, spheresphere_GJK)
+BOOST_AUTO_TEST_CASE(consistency_distance_spheresphere_GJK)
 {
   Sphere s1(20);
   Sphere s2(20);
@@ -433,15 +437,15 @@ TEST(consistency_distance, spheresphere_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);  
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);  
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
 
   for(std::size_t i = 0; i < 10; ++i)
@@ -455,15 +459,15 @@ TEST(consistency_distance, spheresphere_GJK)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
   pose.setTranslation(Vec3f(40.1, 0, 0));
@@ -471,15 +475,15 @@ TEST(consistency_distance, spheresphere_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
 
 
   for(std::size_t i = 0; i < 10; ++i)
@@ -493,19 +497,19 @@ TEST(consistency_distance, spheresphere_GJK)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
   }
 }
 
-TEST(consistency_distance, boxbox_GJK)
+BOOST_AUTO_TEST_CASE(consistency_distance_boxbox_GJK)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -526,15 +530,15 @@ TEST(consistency_distance, boxbox_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -547,15 +551,15 @@ TEST(consistency_distance, boxbox_GJK)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   }
 
   pose.setTranslation(Vec3f(15.1, 0, 0));
@@ -563,15 +567,15 @@ TEST(consistency_distance, boxbox_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -584,19 +588,19 @@ TEST(consistency_distance, boxbox_GJK)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   }
 }
 
-TEST(consistency_distance, cylindercylinder_GJK)
+BOOST_AUTO_TEST_CASE(consistency_distance_cylindercylinder_GJK)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -617,15 +621,15 @@ TEST(consistency_distance, cylindercylinder_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -641,21 +645,21 @@ TEST(consistency_distance, cylindercylinder_GJK)
     if(fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
       std::cout << "low resolution: " << res1.min_distance << " " << res.min_distance << std::endl;
     else
-      ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+      BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
     if(fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
       std::cout << "low resolution: " << res1.min_distance << " " << res.min_distance << std::endl;
     else
-      ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+      BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
     if(fabs(res1.min_distance - res.min_distance) / res.min_distance > 0.05)
       std::cout << "low resolution: " << res1.min_distance << " " << res.min_distance << std::endl;
     else
-      ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+      BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
   
   pose.setTranslation(Vec3f(10.1, 0, 0));
@@ -663,15 +667,15 @@ TEST(consistency_distance, cylindercylinder_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -684,19 +688,19 @@ TEST(consistency_distance, cylindercylinder_GJK)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   }
 }
 
-TEST(consistency_distance, conecone_GJK)
+BOOST_AUTO_TEST_CASE(consistency_distance_conecone_GJK)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -717,15 +721,15 @@ TEST(consistency_distance, conecone_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -738,15 +742,15 @@ TEST(consistency_distance, conecone_GJK)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
   
   pose.setTranslation(Vec3f(10.1, 0, 0));
@@ -754,15 +758,15 @@ TEST(consistency_distance, conecone_GJK)
   res.clear(); res1.clear();
   distance(&s1, Transform3f(), &s2, pose, &solver2, request, res);
   distance(&s1_rss, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
   distance(&s1, Transform3f(), &s2_rss, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
   distance(&s1_rss, Transform3f(), &s2, pose, &solver2, request, res1);
-  ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+  BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
@@ -775,21 +779,21 @@ TEST(consistency_distance, conecone_GJK)
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, &solver2, request, res);
     distance(&s1_rss, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1, pose1, &s2_rss, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
     res1.clear();
     distance(&s1_rss, pose1, &s2, pose2, &solver2, request, res1);
-    ASSERT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
+    BOOST_CHECK(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   }
 }
 
 
 
-TEST(consistency_collision, spheresphere_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_libccd)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -818,31 +822,31 @@ TEST(consistency_collision, spheresphere_libccd)
   // all are reasonable
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(40, 0, 0));
   pose_aabb.setTranslation(Vec3f(40, 0, 0));
@@ -850,31 +854,31 @@ TEST(consistency_collision, spheresphere_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   
   pose.setTranslation(Vec3f(30, 0, 0));
   pose_aabb.setTranslation(Vec3f(30, 0, 0));
@@ -882,31 +886,31 @@ TEST(consistency_collision, spheresphere_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   
   pose.setTranslation(Vec3f(29.9, 0, 0));
   pose_aabb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
@@ -914,31 +918,31 @@ TEST(consistency_collision, spheresphere_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
 
   pose.setTranslation(Vec3f(-29.9, 0, 0));
@@ -947,31 +951,31 @@ TEST(consistency_collision, spheresphere_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(-30, 0, 0));
   pose_aabb.setTranslation(Vec3f(-30, 0, 0));
@@ -979,34 +983,34 @@ TEST(consistency_collision, spheresphere_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
 
-TEST(consistency_collision, boxbox_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_libccd)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -1035,31 +1039,31 @@ TEST(consistency_collision, boxbox_libccd)
   // all are reasonable
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(15.01, 0, 0));
   pose_aabb.setTranslation(Vec3f(15.01, 0, 0));
@@ -1067,31 +1071,31 @@ TEST(consistency_collision, boxbox_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(14.99, 0, 0));
   pose_aabb.setTranslation(Vec3f(14.99, 0, 0));
@@ -1099,34 +1103,34 @@ TEST(consistency_collision, boxbox_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 }
 
-TEST(consistency_collision, spherebox_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_libccd)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -1155,31 +1159,31 @@ TEST(consistency_collision, spherebox_libccd)
   // all are reasonable
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(22.4, 0, 0));
   pose_aabb.setTranslation(Vec3f(22.4, 0, 0));
@@ -1187,31 +1191,31 @@ TEST(consistency_collision, spherebox_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(22.51, 0, 0));
   pose_aabb.setTranslation(Vec3f(22.51, 0, 0));
@@ -1219,34 +1223,34 @@ TEST(consistency_collision, spherebox_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
 
-TEST(consistency_collision, cylindercylinder_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_libccd)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -1274,31 +1278,31 @@ TEST(consistency_collision, cylindercylinder_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(10.01, 0, 0));
   pose_aabb.setTranslation(Vec3f(10.01, 0, 0));
@@ -1306,34 +1310,34 @@ TEST(consistency_collision, cylindercylinder_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
 
-TEST(consistency_collision, conecone_libccd)
+BOOST_AUTO_TEST_CASE(consistency_collision_conecone_libccd)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -1361,31 +1365,31 @@ TEST(consistency_collision, conecone_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(10.1, 0, 0));
   pose_aabb.setTranslation(Vec3f(10.1, 0, 0));
@@ -1393,31 +1397,31 @@ TEST(consistency_collision, conecone_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(0, 0, 9.9));
   pose_aabb.setTranslation(Vec3f(0, 0, 9.9));
@@ -1425,31 +1429,31 @@ TEST(consistency_collision, conecone_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(0, 0, 10.1));
   pose_aabb.setTranslation(Vec3f(0, 0, 10.1));
@@ -1457,37 +1461,37 @@ TEST(consistency_collision, conecone_libccd)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver1, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
 
 
 
 
-TEST(consistency_collision, spheresphere_GJK)
+BOOST_AUTO_TEST_CASE(consistency_collision_spheresphere_GJK)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -1516,31 +1520,31 @@ TEST(consistency_collision, spheresphere_GJK)
   // all are reasonable
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(40, 0, 0));
   pose_aabb.setTranslation(Vec3f(40, 0, 0));
@@ -1548,31 +1552,31 @@ TEST(consistency_collision, spheresphere_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   
   pose.setTranslation(Vec3f(30, 0, 0));
   pose_aabb.setTranslation(Vec3f(30, 0, 0));
@@ -1580,31 +1584,31 @@ TEST(consistency_collision, spheresphere_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   
   pose.setTranslation(Vec3f(29.9, 0, 0));
   pose_aabb.setTranslation(Vec3f(29.8, 0, 0)); // 29.9 fails, result depends on mesh precision
@@ -1612,31 +1616,31 @@ TEST(consistency_collision, spheresphere_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
 
   pose.setTranslation(Vec3f(-29.9, 0, 0));
@@ -1645,31 +1649,31 @@ TEST(consistency_collision, spheresphere_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(-30, 0, 0));
   pose_aabb.setTranslation(Vec3f(-30, 0, 0));
@@ -1677,34 +1681,34 @@ TEST(consistency_collision, spheresphere_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
 
-TEST(consistency_collision, boxbox_GJK)
+BOOST_AUTO_TEST_CASE(consistency_collision_boxbox_GJK)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -1733,31 +1737,31 @@ TEST(consistency_collision, boxbox_GJK)
   // all are reasonable
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(15.01, 0, 0));
   pose_aabb.setTranslation(Vec3f(15.01, 0, 0));
@@ -1765,31 +1769,31 @@ TEST(consistency_collision, boxbox_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(14.99, 0, 0));
   pose_aabb.setTranslation(Vec3f(14.99, 0, 0));
@@ -1797,34 +1801,34 @@ TEST(consistency_collision, boxbox_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 }
 
-TEST(consistency_collision, spherebox_GJK)
+BOOST_AUTO_TEST_CASE(consistency_collision_spherebox_GJK)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -1853,31 +1857,31 @@ TEST(consistency_collision, spherebox_GJK)
   // all are reasonable
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(22.4, 0, 0));
   pose_aabb.setTranslation(Vec3f(22.4, 0, 0));
@@ -1885,31 +1889,31 @@ TEST(consistency_collision, spherebox_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(22.51, 0, 0));
   pose_aabb.setTranslation(Vec3f(22.51, 0, 0));
@@ -1917,34 +1921,34 @@ TEST(consistency_collision, spherebox_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
 
-TEST(consistency_collision, cylindercylinder_GJK)
+BOOST_AUTO_TEST_CASE(consistency_collision_cylindercylinder_GJK)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -1972,31 +1976,31 @@ TEST(consistency_collision, cylindercylinder_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(10.01, 0, 0));
   pose_aabb.setTranslation(Vec3f(10.01, 0, 0));
@@ -2004,34 +2008,34 @@ TEST(consistency_collision, cylindercylinder_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
 
-TEST(consistency_collision, conecone_GJK)
+BOOST_AUTO_TEST_CASE(consistency_collision_conecone_GJK)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -2059,31 +2063,31 @@ TEST(consistency_collision, conecone_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(10.1, 0, 0));
   pose_aabb.setTranslation(Vec3f(10.1, 0, 0));
@@ -2091,31 +2095,31 @@ TEST(consistency_collision, conecone_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 
   pose.setTranslation(Vec3f(0, 0, 9.9));
   pose_aabb.setTranslation(Vec3f(0, 0, 9.9));
@@ -2123,31 +2127,31 @@ TEST(consistency_collision, conecone_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_TRUE(res);
+  BOOST_CHECK(res);
 
   pose.setTranslation(Vec3f(0, 0, 10.1));
   pose_aabb.setTranslation(Vec3f(0, 0, 10.1));
@@ -2155,41 +2159,29 @@ TEST(consistency_collision, conecone_GJK)
 
   result.clear();
   res = (collide(&s1, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_aabb, pose_aabb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2_obb, pose_obb, &s1, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_aabb, pose_aabb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1, Transform3f(), &s2_obb, pose_obb, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_aabb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s2, pose, &s1_obb, Transform3f(), &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
   result.clear();
   res = (collide(&s1_aabb, Transform3f(), &s2, pose, &solver2, request, result) > 0);
-  ASSERT_FALSE(res);
+  BOOST_CHECK_FALSE(res);
 }
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-
-
-
-
-
-

@@ -14,7 +14,7 @@
   <rosdep name="octomap" />
 
   <export>
-    <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lfcl"/>
+    <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/build/lib -L${prefix}/build/lib -lfcl"/>
   </export>
 
 </package>

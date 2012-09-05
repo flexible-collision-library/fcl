@@ -34,15 +34,20 @@
 
 /** \author Jia Pan */
 
+#define BOOST_TEST_MODULE "FCL_OCTOMAP"
+#include <boost/test/unit_test.hpp>
+
 #include "fcl/octree.h"
 #include "fcl/traversal/traversal_node_octree.h"
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
 #include "fcl/math/transform.h"
 #include "test_fcl_utility.h"
-#include <gtest/gtest.h>
+#include "fcl_resources/config.h"
+#include <boost/filesystem.hpp>
 
 using namespace fcl;
+
 
 struct TStruct
 {
@@ -90,19 +95,19 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive);
 template<typename BV>
 void octomap_distance_test_BVH(std::size_t n);
 
-TEST(test_octomap_cost, cost)
+BOOST_AUTO_TEST_CASE(test_octomap_cost)
 {
   octomap_cost_test(200, 100, 10, false, false);
   octomap_cost_test(200, 1000, 10, false, false);
 }
 
-TEST(test_octomap_cost, cost_mesh)
+BOOST_AUTO_TEST_CASE(test_octomap_cost_mesh)
 {
   octomap_cost_test(200, 100, 10, true, false);
   octomap_cost_test(200, 1000, 10, true, false);
 }
 
-TEST(test_octomap, collision)
+BOOST_AUTO_TEST_CASE(test_octomap_collision)
 {
   octomap_collision_test(200, 100, false, 10, false, false);
   octomap_collision_test(200, 1000, false, 10, false, false);
@@ -110,7 +115,7 @@ TEST(test_octomap, collision)
   octomap_collision_test(200, 1000, true, 1, false, false);
 }
 
-TEST(test_octomap, collision_mesh)
+BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh)
 {
   octomap_collision_test(200, 100, false, 10, true, true);
   octomap_collision_test(200, 1000, false, 10, true, true);
@@ -118,7 +123,7 @@ TEST(test_octomap, collision_mesh)
   octomap_collision_test(200, 1000, true, 1, true, true);
 }
 
-TEST(test_octomap, collision_mesh_octomap_box)
+BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh_octomap_box)
 {
   octomap_collision_test(200, 100, false, 10, true, false);
   octomap_collision_test(200, 1000, false, 10, true, false);
@@ -126,50 +131,44 @@ TEST(test_octomap, collision_mesh_octomap_box)
   octomap_collision_test(200, 1000, true, 1, true, false);
 }
 
-TEST(test_octomap, distance)
+BOOST_AUTO_TEST_CASE(test_octomap_distance)
 {
   octomap_distance_test(200, 100, false, false);
   octomap_distance_test(200, 1000, false, false);
 }
 
-TEST(test_octomap, distance_mesh)
+BOOST_AUTO_TEST_CASE(test_octomap_distance_mesh)
 {
   octomap_distance_test(200, 100, true, true);
   octomap_distance_test(200, 1000, true, true);
 }
 
-TEST(test_octomap, distance_mesh_octomap_box)
+BOOST_AUTO_TEST_CASE(test_octomap_distance_mesh_octomap_box)
 {
   octomap_distance_test(200, 100, true, false);
   octomap_distance_test(200, 1000, true, false);
 }
 
 
-TEST(test_octomap_bvh_obb, collision_obb)
+BOOST_AUTO_TEST_CASE(test_octomap_bvh_obb_collision_obb)
 {
   octomap_collision_test_BVH<OBB>(5, false);
   octomap_collision_test_BVH<OBB>(5, true);
 }
 
-TEST(test_octomap_bvh_rss_d, distance_rss)
+BOOST_AUTO_TEST_CASE(test_octomap_bvh_rss_d_distance_rss)
 {
   octomap_distance_test_BVH<RSS>(5);
 }
 
-TEST(test_octomap_bvh_obb_d, distance_obb)
+BOOST_AUTO_TEST_CASE(test_octomap_bvh_obb_d_distance_obb)
 {
   octomap_distance_test_BVH<OBBRSS>(5);
 }
 
-TEST(test_octomap_bvh_kios_d, distance_kios)
+BOOST_AUTO_TEST_CASE(test_octomap_bvh_kios_d_distance_kios)
 {
   octomap_distance_test_BVH<kIOS>(5);
-}
-
-int main(int argc, char** argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }
 
 template<typename BV>
@@ -177,7 +176,9 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive)
 {
   std::vector<Vec3f> p1;
   std::vector<Triangle> t1;
-  loadOBJFile("../test/env.obj", p1, t1);
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+
   BVHModel<BV>* m1 = new BVHModel<BV>();
   boost::shared_ptr<CollisionGeometry> m1_ptr(m1);
 
@@ -225,12 +226,12 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive)
     if(exhaustive)
     {
       std::cout << cdata.result.numContacts() << " " << cdata2.result.numContacts() << std::endl;
-      ASSERT_TRUE(cdata.result.numContacts() == cdata2.result.numContacts());
+      BOOST_CHECK(cdata.result.numContacts() == cdata2.result.numContacts());
     }
     else
     {
       std::cout << (cdata.result.numContacts() > 0) << " " << (cdata2.result.numContacts() > 0) << std::endl;
-      ASSERT_TRUE((cdata.result.numContacts() > 0) == (cdata2.result.numContacts() > 0));
+      BOOST_CHECK((cdata.result.numContacts() > 0) == (cdata2.result.numContacts() > 0));
     }
   }
 }
@@ -241,7 +242,9 @@ void octomap_distance_test_BVH(std::size_t n)
 {
   std::vector<Vec3f> p1;
   std::vector<Triangle> t1;
-  loadOBJFile("../test/env.obj", p1, t1);
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+
   BVHModel<BV>* m1 = new BVHModel<BV>();
   boost::shared_ptr<CollisionGeometry> m1_ptr(m1);
 
@@ -286,7 +289,7 @@ void octomap_distance_test_BVH(std::size_t n)
     delete manager;
 
     std::cout << dist1 << " " << dist2 << std::endl;
-    ASSERT_TRUE(std::abs(dist1 - dist2) < 0.001);
+    BOOST_CHECK(std::abs(dist1 - dist2) < 0.001);
   }
 }
 
@@ -391,8 +394,8 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
 
   }
 
-  if(use_mesh) ASSERT_TRUE((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0));
-  else ASSERT_TRUE(cdata.result.numContacts() >= cdata2.result.numContacts());
+  if(use_mesh) BOOST_CHECK((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0));
+  else BOOST_CHECK(cdata.result.numContacts() >= cdata2.result.numContacts());
 
   delete manager;
   delete manager2;
@@ -483,13 +486,13 @@ void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaust
   std::cout << cdata.result.numContacts() << " " << cdata3.result.numContacts() << " " << cdata2.result.numContacts() << std::endl;
   if(exhaustive)
   {
-    if(use_mesh) ASSERT_TRUE((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0));
-    else ASSERT_TRUE(cdata.result.numContacts() == cdata2.result.numContacts());
+    if(use_mesh) BOOST_CHECK((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0));
+    else BOOST_CHECK(cdata.result.numContacts() == cdata2.result.numContacts());
   }
   else
   {
-    if(use_mesh) ASSERT_TRUE((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0));
-    else ASSERT_TRUE((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0)); // because AABB return collision when two boxes contact
+    if(use_mesh) BOOST_CHECK((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0));
+    else BOOST_CHECK((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0)); // because AABB return collision when two boxes contact
   }
 
   delete manager;
@@ -576,9 +579,9 @@ void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh
   std::cout << cdata.result.min_distance << " " << cdata3.result.min_distance << " " << cdata2.result.min_distance << std::endl;
 
   if(cdata.result.min_distance < 0)
-    ASSERT_TRUE(cdata2.result.min_distance <= 0);
+    BOOST_CHECK(cdata2.result.min_distance <= 0);
   else
-    ASSERT_TRUE(std::abs(cdata.result.min_distance - cdata2.result.min_distance) < 1e-3);
+    BOOST_CHECK(std::abs(cdata.result.min_distance - cdata2.result.min_distance) < 1e-3);
 
   delete manager;
   delete manager2;

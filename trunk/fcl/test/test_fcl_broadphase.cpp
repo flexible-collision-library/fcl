@@ -34,11 +34,14 @@
 
 /** \author Jia Pan */
 
+
+#define BOOST_TEST_MODULE "FCL_BROADPHASE"
+#include <boost/test/unit_test.hpp>
+
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
 #include "fcl/math/transform.h"
 #include "test_fcl_utility.h"
-#include <gtest/gtest.h>
 
 #if USE_GOOGLEHASH
 #include <sparsehash/sparse_hash_map>
@@ -47,6 +50,8 @@
 #endif
 
 #include <boost/math/constants/constants.hpp>
+#include <iostream>
+#include <iomanip>
 
 using namespace fcl;
 
@@ -106,28 +111,28 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 #endif
 
 /// check the update, only return collision or not
-TEST(test_core_bf, broad_phase_update_collision_binary)
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_binary)
 {
   broad_phase_update_collision_test(2000, 100, 1000, 1, false);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, false);
 }
 
 /// check the update, return 10 contacts
-TEST(test_core_bf, broad_phase_update_collision)
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision)
 {
   broad_phase_update_collision_test(2000, 100, 1000, 10, false);
   broad_phase_update_collision_test(2000, 1000, 1000, 10, false);
 }
 
 /// check the update, exhaustive
-TEST(test_core_bf, broad_phase_update_collision_exhaustive)
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_update_collision_exhaustive)
 {
   broad_phase_update_collision_test(2000, 100, 1000, 1, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, true);
 }
 
 /// check broad phase distance
-TEST(test_core_bf, broad_phase_distance)
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_distance)
 {
   broad_phase_distance_test(200, 100, 100);
   broad_phase_distance_test(200, 1000, 100);
@@ -136,7 +141,7 @@ TEST(test_core_bf, broad_phase_distance)
 }
 
 /// check broad phase self distance
-TEST(test_core_bf, broad_phase_self_distance)
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_self_distance)
 {
   broad_phase_self_distance_test(200, 512);
   broad_phase_self_distance_test(200, 1000);
@@ -144,7 +149,7 @@ TEST(test_core_bf, broad_phase_self_distance)
 }
 
 /// check broad phase collision and self collision, only return collision or not
-TEST(test_core_bf, broad_phase_collision_binary)
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_collision_binary)
 {
   broad_phase_collision_test(2000, 100, 1000, 1, false);
   broad_phase_collision_test(2000, 1000, 1000, 1, false);
@@ -153,35 +158,35 @@ TEST(test_core_bf, broad_phase_collision_binary)
 }
 
 /// check broad phase collision and self collision, return 10 contacts
-TEST(test_core_bf, broad_phase_collision)
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_collision)
 {
   broad_phase_collision_test(2000, 100, 1000, 10, false);
   broad_phase_collision_test(2000, 1000, 1000, 10, false);
 }
 
 /// check broad phase update, in mesh, only return collision or not
-TEST(test_core_mesh_bf, broad_phase_update_collision_mesh_binary)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_binary)
 {
   broad_phase_update_collision_test(2000, 100, 1000, false, true);
   broad_phase_update_collision_test(2000, 1000, 1000, false, true);
 }
 
 /// check broad phase update, in mesh, return 10 contacts
-TEST(test_core_mesh_bf, broad_phase_update_collision_mesh)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh)
 {
   broad_phase_update_collision_test(2000, 100, 1000, 10, false, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 10, false, true);
 }
 
 /// check broad phase update, in mesh, exhaustive
-TEST(test_core_mesh_bf, broad_phase_update_collision_mesh_exhaustive)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_exhaustive)
 {
   broad_phase_update_collision_test(2000, 100, 1000, 1, true, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, true, true);
 }
 
 /// check broad phase distance
-TEST(test_core_mesh_bf, broad_phase_distance_mesh)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_distance_mesh)
 {
   broad_phase_distance_test(200, 100, 100, true);
   broad_phase_distance_test(200, 1000, 100, true);
@@ -190,7 +195,7 @@ TEST(test_core_mesh_bf, broad_phase_distance_mesh)
 }
 
 /// check broad phase self distance
-TEST(test_core_mesh_bf, broad_phase_self_distance_mesh)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_self_distance_mesh)
 {
   broad_phase_self_distance_test(200, 512, true);
   broad_phase_self_distance_test(200, 1000, true);
@@ -198,34 +203,25 @@ TEST(test_core_mesh_bf, broad_phase_self_distance_mesh)
 }
 
 /// check broad phase collision and self collision, return only collision or not, in mesh
-TEST(test_core_mesh_bf, broad_phase_collision_mesh_binary)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh_binary)
 {
   broad_phase_collision_test(2000, 100, 1000, 1, false, true);
   broad_phase_collision_test(2000, 1000, 1000, 1, false, true);
 }
 
 /// check broad phase collision and self collision, return 10 contacts, in mesh
-TEST(test_core_mesh_bf, broad_phase_collision_mesh)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh)
 {
   broad_phase_collision_test(2000, 100, 1000, 10, false, true);
   broad_phase_collision_test(2000, 1000, 1000, 10, false, true);
 }
 
 /// check broad phase collision and self collision, exhaustive, in mesh
-TEST(test_core_mesh_bf, broad_phase_collision_mesh_exhaustive)
+BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh_exhaustive)
 {
   broad_phase_collision_test(2000, 100, 1000, 1, true, true);
   broad_phase_collision_test(2000, 1000, 1000, 1, true, true);
 }
-
-
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-
 
 void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
 {
@@ -512,7 +508,7 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
   if(exhaustive)
   {
     for(size_t i = 1; i < managers.size(); ++i)
-      ASSERT_TRUE(self_data[i].result.numContacts() == self_data[0].result.numContacts());
+      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
   }
   else
   {
@@ -521,10 +517,10 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
       self_res[i] = (self_data[i].result.numContacts() > 0);
   
     for(size_t i = 1; i < self_res.size(); ++i)
-      ASSERT_TRUE(self_res[0] == self_res[i]);
+      BOOST_CHECK(self_res[0] == self_res[i]);
 
     for(size_t i = 1; i < managers.size(); ++i)
-      ASSERT_TRUE(self_data[i].result.numContacts() == self_data[0].result.numContacts());
+      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
   }
 
 
@@ -553,7 +549,7 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
     if(exhaustive)
     {
       for(size_t j = 1; j < managers.size(); ++j)
-        ASSERT_TRUE(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
     }
     else
     {
@@ -561,10 +557,10 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
       for(size_t j = 0; j < query_res.size(); ++j)
         query_res[j] = (query_data[j].result.numContacts() > 0);
       for(size_t j = 1; j < query_res.size(); ++j)
-        ASSERT_TRUE(query_res[0] == query_res[j]);
+        BOOST_CHECK(query_res[0] == query_res[j]);
 
       for(size_t j = 1; j < managers.size(); ++j)
-        ASSERT_TRUE(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
     }
   }
 
@@ -690,7 +686,7 @@ void broad_phase_self_distance_test(double env_scale, std::size_t env_size, bool
   // std::cout << std::endl;
 
   for(size_t i = 1; i < managers.size(); ++i)
-    ASSERT_TRUE(fabs(self_data[0].result.min_distance - self_data[i].result.min_distance) < DELTA ||
+    BOOST_CHECK(fabs(self_data[0].result.min_distance - self_data[i].result.min_distance) < DELTA ||
                 fabs(self_data[0].result.min_distance - self_data[i].result.min_distance) / fabs(self_data[0].result.min_distance) < DELTA);
 
   for(size_t i = 0; i < env.size(); ++i)
@@ -834,7 +830,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size, std::size
     // std::cout << std::endl;
 
     for(size_t j = 1; j < managers.size(); ++j)
-      ASSERT_TRUE(fabs(query_data[0].result.min_distance - query_data[j].result.min_distance) < DELTA ||
+      BOOST_CHECK(fabs(query_data[0].result.min_distance - query_data[j].result.min_distance) < DELTA ||
                   fabs(query_data[0].result.min_distance - query_data[j].result.min_distance) / fabs(query_data[0].result.min_distance) < DELTA);
   }
 
@@ -1008,7 +1004,7 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
   if(exhaustive)
   {
     for(size_t i = 1; i < managers.size(); ++i)
-      ASSERT_TRUE(self_data[i].result.numContacts() == self_data[0].result.numContacts());
+      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
   }
   else
   {
@@ -1017,10 +1013,10 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
       self_res[i] = (self_data[i].result.numContacts() > 0);
   
     for(size_t i = 1; i < self_res.size(); ++i)
-      ASSERT_TRUE(self_res[0] == self_res[i]);
+      BOOST_CHECK(self_res[0] == self_res[i]);
 
     for(size_t i = 1; i < managers.size(); ++i)
-      ASSERT_TRUE(self_data[i].result.numContacts() == self_data[0].result.numContacts());
+      BOOST_CHECK(self_data[i].result.numContacts() == self_data[0].result.numContacts());
   }
 
 
@@ -1049,7 +1045,7 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
     if(exhaustive)
     {
       for(size_t j = 1; j < managers.size(); ++j)
-        ASSERT_TRUE(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
     }
     else
     {
@@ -1057,10 +1053,10 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
       for(size_t j = 0; j < query_res.size(); ++j)
         query_res[j] = (query_data[j].result.numContacts() > 0);
       for(size_t j = 1; j < query_res.size(); ++j)
-        ASSERT_TRUE(query_res[0] == query_res[j]);
+        BOOST_CHECK(query_res[0] == query_res[j]);
 
       for(size_t j = 1; j < managers.size(); ++j)
-        ASSERT_TRUE(query_data[j].result.numContacts() == query_data[0].result.numContacts());
+        BOOST_CHECK(query_data[j].result.numContacts() == query_data[0].result.numContacts());
     }
   }
 
