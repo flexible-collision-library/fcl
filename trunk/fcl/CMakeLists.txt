@@ -80,7 +80,7 @@ set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc")
 configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
 
 install(DIRECTORY include/ DESTINATION include
-  FILES_MATCHING PATTERN "*.h"
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
   PATTERN ".DS_Store" EXCLUDE
   PATTERN ".svn" EXCLUDE
 )
