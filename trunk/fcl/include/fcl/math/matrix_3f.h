@@ -176,6 +176,42 @@ public:
     data.setZero();
   }
 
+  /// @brief Set the matrix from euler angles YPR around ZYX axes
+  /// @param eulerX Roll about X axis
+  /// @param eulerY Pitch around Y axis
+  /// @param eulerZ Yaw aboud Z axis
+  ///  
+  /// These angles are used to produce a rotation matrix. The euler
+  /// angles are applied in ZYX order. I.e a vector is first rotated 
+  /// about X then Y and then Z
+  inline void setEulerZYX(FCL_REAL eulerX, FCL_REAL eulerY, FCL_REAL eulerZ)
+  {
+    FCL_REAL ci(cos(eulerX));
+    FCL_REAL cj(cos(eulerY));
+    FCL_REAL ch(cos(eulerZ));
+    FCL_REAL si(sin(eulerX));
+    FCL_REAL sj(sin(eulerY));
+    FCL_REAL sh(sin(eulerZ));
+    FCL_REAL cc = ci * ch;
+    FCL_REAL cs = ci * sh;
+    FCL_REAL sc = si * ch;
+    FCL_REAL ss = si * sh;
+
+    setValue(cj * ch, sj * sc - cs, sj * cc + ss,
+             cj * sh, sj * ss + cc, sj * cs - sc, 
+             -sj,     cj * si,      cj * ci);
+
+  }
+
+  /// @brief Set the matrix from euler angles using YPR around YXZ respectively
+  /// @param yaw Yaw about Y axis
+  /// @param pitch Pitch about X axis
+  /// @param roll Roll about Z axis 
+  void setEulerYPR(FCL_REAL yaw, FCL_REAL pitch, FCL_REAL roll)
+  {
+    setEulerZYX(roll, pitch, yaw);
+  }
+
   inline U determinant() const
   {
     return data.determinant();
@@ -408,9 +444,9 @@ typename T::meta_type quadraticForm(const Matrix3fX<T>& R, const Vec3fX<typename
 
 
 #if FCL_HAVE_SSE
-  typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
+typedef Matrix3fX<details::sse_meta_f12> Matrix3f;
 #else
-  typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
+typedef Matrix3fX<details::Matrix3Data<FCL_REAL> > Matrix3f;
 #endif
 
 static inline std::ostream& operator << (std::ostream& o, const Matrix3f& m)
