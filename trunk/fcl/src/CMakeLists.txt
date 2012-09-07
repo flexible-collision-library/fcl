@@ -46,6 +46,9 @@ add_library(${PROJECT_NAME} SHARED
   articulated_model/joint.cpp
   articulated_model/model_config.cpp
   articulated_model/model.cpp
+  ccd/interpolation/interpolation.cpp
+  ccd/interpolation/interpolation_factory.cpp
+  ccd/interpolation/interpolation_linear.cpp
   profile.cpp
   collision_data.cpp)
 
