@@ -42,6 +42,10 @@ add_library(${PROJECT_NAME} SHARED
   narrowphase/gjk_libccd.cpp
   narrowphase/narrowphase.cpp
   broadphase/hierarchy_tree.cpp
+  articulated_model/joint_config.cpp
+  articulated_model/joint.cpp
+  articulated_model/model_config.cpp
+  articulated_model/model.cpp
   profile.cpp
   collision_data.cpp)
 
