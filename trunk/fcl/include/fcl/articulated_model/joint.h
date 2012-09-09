@@ -45,78 +45,119 @@
 #include <map>
 #include <limits>
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 namespace fcl
 {
 
 class JointConfig;
+class Link;
+
+enum JointType {JT_UNKNOWN, JT_PRISMATIC, JT_REVOLUTE, JT_BALLEULER};
 
 /// @brief Base Joint
 class Joint
 {
 public:
-  Joint(const std::string& name, std::size_t dofs_num);
+
+  Joint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+        const Transform3f& transform_to_parent,
+        const std::string& name);
+
+  Joint(const std::string& name);
 
   virtual ~Joint() {}
 
-  /// @brief Get joint's name
-  std::string getName() const;
+  const std::string& getName() const;
+  void setName(const std::string& name);
 
-  /// @brief Get Joint's degrees of freedom
-  std::size_t getDOFs() const;
+  virtual Transform3f getLocalTransform() const = 0;
 
-  /// @brief How joint works
-  virtual Transform3f append(const JointConfig& q, const Transform3f& t) const = 0;
+  virtual std::size_t getNumDofs() const = 0;
 
-  bool isCompatible(const JointConfig& q) const;
+  boost::shared_ptr<JointConfig> getJointConfig() const;
+  void setJointConfig(const boost::shared_ptr<JointConfig>& joint_cfg);
+
+  boost::shared_ptr<Link> getParentLink() const;
+  boost::shared_ptr<Link> getChildLink() const;
+
+  void setParentLink(const boost::shared_ptr<Link>& link);
+  void setChildLink(const boost::shared_ptr<Link>& link);
+
+  JointType getJointType() const;
+
+  const Transform3f& getTransformToParent() const;
+  void setTransformToParent(const Transform3f& t);
   
-private:
-  std::string name_;	
-  std::size_t dofs_num_;
+protected:
+
+  /// links to parent and child are only for connection, so weak_ptr to avoid cyclic dependency
+  boost::weak_ptr<Link> link_parent_, link_child_;
+
+  JointType type_;
+
+  std::string name_;
+  
+  boost::shared_ptr<JointConfig> joint_cfg_;
+
+  Transform3f transform_to_parent_;
 };
 
 
 class PrismaticJoint : public Joint
 {
 public:
-  PrismaticJoint(const std::string& name, const Vec3f& axis);
+  PrismaticJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+                 const Transform3f& transform_to_parent,
+                 const std::string& name,
+                 const Vec3f& axis);
 
   virtual ~PrismaticJoint() {}
 
-  Vec3f getAxis() const;
+  Transform3f getLocalTransform() const;
 
-  Transform3f append(const JointConfig& q, const Transform3f& t) const;
+  std::size_t getNumDofs() const;
 
-private:
-  Vec3f axis_; // prismatic axis
+  const Vec3f& getAxis() const;
+
+protected:
+  Vec3f axis_;
 };
-
 
 class RevoluteJoint : public Joint
 {
 public:
-  RevoluteJoint(const std::string& name, const Vec3f& axis);
+  RevoluteJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+                const Transform3f& transform_to_parent,
+                const std::string& name,
+                const Vec3f& axis);
 
   virtual ~RevoluteJoint() {}
 
-  Vec3f getAxis() const;
+  Transform3f getLocalTransform() const;
 
-  Transform3f append(const JointConfig& q, const Transform3f& t) const;
-  
-private:
-  Vec3f axis_; // revolute axis
+  std::size_t getNumDofs() const;
+
+  const Vec3f& getAxis() const;
+
+protected:
+  Vec3f axis_;
 };
 
-class SphericJoint : public Joint
+
+
+class BallEulerJoint : public Joint
 {
 public:
-  SphericJoint(const std::string& name);
+  BallEulerJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+                 const Transform3f& transform_to_parent,
+                 const std::string& name);
 
-  virtual ~SphericJoint() {}
+  virtual ~BallEulerJoint() {}
 
-  Transform3f append(const JointConfig& q, const Transform3f& t) const;
- 
-private:
+  std::size_t getNumDofs() const;
+
+  Transform3f getLocalTransform() const; 
 };
 
 

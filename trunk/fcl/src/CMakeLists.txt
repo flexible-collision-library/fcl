@@ -44,6 +44,7 @@ add_library(${PROJECT_NAME} SHARED
   broadphase/hierarchy_tree.cpp
   articulated_model/joint_config.cpp
   articulated_model/joint.cpp
+  articulated_model/link.cpp
   articulated_model/model_config.cpp
   articulated_model/model.cpp
   ccd/interpolation/interpolation.cpp

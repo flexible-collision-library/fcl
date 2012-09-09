@@ -35,81 +35,153 @@
 /** \author Dalibor Matura, Jia Pan */
 
 #include "fcl/articulated_model/joint.h"
+#include "fcl/articulated_model/link.h"
 #include "fcl/articulated_model/joint_config.h"
 
 namespace fcl
 {
 
-Joint::Joint(const std::string& name, std::size_t dofs_num) :
-  name_(name),
-  dofs_num_(dofs_num)
+Joint::Joint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+             const Transform3f& transform_to_parent,
+             const std::string& name) :
+  link_parent_(link_parent), link_child_(link_child),
+  transform_to_parent_(transform_to_parent),
+  name_(name)
+{}
+
+Joint::Joint(const std::string& name) :
+  name_(name)
 {
 }
 
-std::string Joint::getName() const
+const std::string& Joint::getName() const
 {
   return name_;
 }
 
-std::size_t Joint::getDOFs() const
+void Joint::setName(const std::string& name)
 {
-  return dofs_num_;
+  name_ = name;
 }
 
-bool Joint::isCompatible(const JointConfig& q) const
+boost::shared_ptr<JointConfig> Joint::getJointConfig() const
 {
-  return this == q.getJoint().get();
+  return joint_cfg_;
 }
 
-PrismaticJoint::PrismaticJoint(const std::string& name, const Vec3f& axis) :
-  Joint(name, 1),
+void Joint::setJointConfig(const boost::shared_ptr<JointConfig>& joint_cfg)
+{
+  joint_cfg_ = joint_cfg;
+}
+
+boost::shared_ptr<Link> Joint::getParentLink() const
+{
+  return link_parent_.lock();
+}
+
+boost::shared_ptr<Link> Joint::getChildLink() const
+{
+  return link_child_.lock();
+}
+
+void Joint::setParentLink(const boost::shared_ptr<Link>& link)
+{
+  link_parent_ = link;
+}
+
+void Joint::setChildLink(const boost::shared_ptr<Link>& link)
+{
+  link_child_ = link;
+}
+
+JointType Joint::getJointType() const
+{
+  return type_;
+}
+
+const Transform3f& Joint::getTransformToParent() const
+{
+  return transform_to_parent_;
+}
+
+void Joint::setTransformToParent(const Transform3f& t)
+{
+  transform_to_parent_ = t;
+}
+
+
+PrismaticJoint::PrismaticJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+                               const Transform3f& transform_to_parent,
+                               const std::string& name,
+                               const Vec3f& axis) :
+  Joint(link_parent, link_child, transform_to_parent, name),
   axis_(axis)
 {
-  axis_.normalize();
+  type_ = JT_PRISMATIC;
 }
 
-Vec3f PrismaticJoint::getAxis() const
+const Vec3f& PrismaticJoint::getAxis() const
 {
   return axis_;
 }
 
-Transform3f PrismaticJoint::append(const JointConfig& q, const Transform3f& t) const
+std::size_t PrismaticJoint::getNumDofs() const
 {
-  BOOST_ASSERT(isCompatible(q));
-  /// axis_ is in local frame
-  return Transform3f(axis_ * q[0]) * t; 
+  return 1;
 }
 
-RevoluteJoint::RevoluteJoint(const std::string& name, const Vec3f& axis) :
-  Joint(name, 1),
+Transform3f PrismaticJoint::getLocalTransform() const
+{
+  const Quaternion3f& quat = transform_to_parent_.getQuatRotation();
+  const Vec3f& transl = transform_to_parent_.getTranslation();
+  return Transform3f(quat, quat.transform(axis_ * (*joint_cfg_)[0]) + transl);
+}
+
+
+RevoluteJoint::RevoluteJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+                             const Transform3f& transform_to_parent,
+                             const std::string& name,
+                             const Vec3f& axis) :
+  Joint(link_parent, link_child, transform_to_parent, name),
   axis_(axis)
 {
-  axis_.normalize();
+  type_ = JT_REVOLUTE;
 }
 
-Vec3f RevoluteJoint::getAxis() const
+const Vec3f& RevoluteJoint::getAxis() const
 {
   return axis_;
 }
 
-Transform3f RevoluteJoint::append(const JointConfig& q, const Transform3f& t) const
+std::size_t RevoluteJoint::getNumDofs() const
 {
-  BOOST_ASSERT(isCompatible(q));
+  return 1;
+}
+
+Transform3f RevoluteJoint::getLocalTransform() const
+{
   Quaternion3f quat;
-  quat.fromAxisAngle(axis_, q[0]);
-  return Transform3f(quat) * t;
+  quat.fromAxisAngle(axis_, (*joint_cfg_)[0]);
+  return Transform3f(transform_to_parent_.getQuatRotation() * quat, transform_to_parent_.getTranslation());
 }
 
-SphericJoint::SphericJoint(const std::string& name) :
-  Joint(name, 3)
+
+BallEulerJoint::BallEulerJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+                               const Transform3f& transform_to_parent,
+                               const std::string& name) :
+  Joint(link_parent, link_child, transform_to_parent, name)
 {}
 
-Transform3f SphericJoint::append(const JointConfig& q, const Transform3f& t) const
+std::size_t BallEulerJoint::getNumDofs() const
 {
-  BOOST_ASSERT(isCompatible(q));
+  return 3;
+}
+
+Transform3f BallEulerJoint::getLocalTransform() const
+{
   Matrix3f rot;
-  rot.setEulerYPR(q[0], q[1], q[2]);
-  return Transform3f(rot) * t;
+  rot.setEulerYPR((*joint_cfg_)[0], (*joint_cfg_)[1], (*joint_cfg_)[2]);
+  return transform_to_parent_ * Transform3f(rot);
 }
 
 

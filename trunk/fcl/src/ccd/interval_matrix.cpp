@@ -218,11 +218,46 @@ IMatrix3& IMatrix3::operator -= (const IMatrix3& m)
   return *this;
 }
 
+IMatrix3& IMatrix3::rotationConstrain()
+{
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    for(std::size_t j = 0; j < 3; ++j)
+    {
+      if(v_[i][j][0] < -1) v_[i][j][0] = -1;
+      else if(v_[i][j][0] > 1) v_[i][j][0] = 1;
+
+      if(v_[i][j][1] < -1) v_[i][j][1] = -1;
+      else if(v_[i][j][1] > 1) v_[i][j][1] = 1;
+    }
+  }
+
+  return *this;
+}
+
 void IMatrix3::print() const
 {
   std::cout << "[" << v_[0][0][0] << "," << v_[0][0][1] << "]" << " [" << v_[0][1][0] << "," << v_[0][1][1] << "]" << " [" << v_[0][2][0] << "," << v_[0][2][1] << "]" << std::endl;
   std::cout << "[" << v_[1][0][0] << "," << v_[1][0][1] << "]" << " [" << v_[1][1][0] << "," << v_[1][1][1] << "]" << " [" << v_[1][2][0] << "," << v_[1][2][1] << "]" << std::endl;
   std::cout << "[" << v_[2][0][0] << "," << v_[2][0][1] << "]" << " [" << v_[2][1][0] << "," << v_[2][1][1] << "]" << " [" << v_[2][2][0] << "," << v_[2][2][1] << "]" << std::endl;
+}
+
+IMatrix3 rotationConstrain(const IMatrix3& m)
+{
+  IMatrix3 res;
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    for(std::size_t j = 0; j < 3; ++j)
+    {
+      if(m(i, j)[0] < -1) res(i, j)[0] = -1;
+      else if(m(i, j)[0] > 1) res(i, j)[0] = 1;
+
+      if(m(i, j)[1] < -1) res(i, j)[1] = -1;
+      else if(m(i, j)[1] > 1) res(i, j)[1] = 1;      
+    }
+  }
+
+  return res;
 }
 
 }

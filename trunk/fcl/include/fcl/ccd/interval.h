@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_INTERVAL_H
-#define FCL_INTERVAL_H
+#ifndef FCL_CCD_INTERVAL_H
+#define FCL_CCD_INTERVAL_H
 
 #include "fcl/data_types.h"
 

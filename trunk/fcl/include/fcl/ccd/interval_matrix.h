@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_INTERVAL_MATRIX_H
-#define FCL_INTERVAL_MATRIX_H
+#ifndef FCL_CCD_INTERVAL_MATRIX_H
+#define FCL_CCD_INTERVAL_MATRIX_H
 
 #include "fcl/ccd/interval.h"
 #include "fcl/ccd/interval_vector.h"
@@ -95,9 +95,12 @@ struct IMatrix3
   IMatrix3& operator *= (const IMatrix3& m);
   IMatrix3& operator *= (const Matrix3f& m);
 
+  IMatrix3& rotationConstrain();
 
   void print() const;
 };
+
+IMatrix3 rotationConstrain(const IMatrix3& m);
 
 }
 

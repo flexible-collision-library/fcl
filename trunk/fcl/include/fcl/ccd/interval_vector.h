@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_INTERVAL_VECTOR_H
-#define FCL_INTERVAL_VECTOR_H
+#ifndef FCL_CCD_INTERVAL_VECTOR_H
+#define FCL_CCD_INTERVAL_VECTOR_H
 
 #include "fcl/ccd/interval.h"
 #include "fcl/math/vec_3f.h"

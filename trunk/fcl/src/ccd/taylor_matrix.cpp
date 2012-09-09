@@ -263,5 +263,52 @@ void TMatrix3::setTimeInterval(const boost::shared_ptr<TimeInterval>& time_inter
   v_[2].setTimeInterval(time_interval);
 }
 
+TMatrix3& TMatrix3::rotationConstrain()
+{
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    for(std::size_t j = 0; j < 3; ++j)
+    {
+      if(v_[i][j].r_[0] < -1) v_[i][j].r_[0] = -1;
+      else if(v_[i][j].r_[0] > 1) v_[i][j].r_[0] = 1;
+
+      if(v_[i][j].r_[1] < -1) v_[i][j].r_[1] = -1;
+      else if(v_[i][j].r_[1] > 1) v_[i][j].r_[1] = 1;
+
+      if((v_[i][j].r_[0] == -1) && (v_[i][j].r_[1] == 1))
+      {
+        v_[i][j].coeffs_[0] = v_[i][j].coeffs_[1] = v_[i][j].coeffs_[2] = v_[i][j].coeffs_[3] = 0;
+      }
+    }
+  }
+
+  return *this;
+}
+
+
+TMatrix3 rotationConstrain(const TMatrix3& m)
+{
+  TMatrix3 res;
+
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    for(std::size_t j = 0; j < 3; ++j)
+    {
+      if(m(i, j).r_[0] < -1) res(i, j).r_[0] = -1;
+      else if(m(i, j).r_[0] > 1) res(i, j).r_[0] = 1;
+
+      if(m(i, j).r_[1] < -1) res(i, j).r_[1] = -1;
+      else if(m(i, j).r_[1] > 1) res(i, j).r_[1] = 1;
+
+      if((m(i, j).r_[0] == -1) && (m(i, j).r_[1] == 1))
+      {
+        res(i, j).coeffs_[0] = res(i, j).coeffs_[1] = res(i, j).coeffs_[2] = res(i, j).coeffs_[3] = 0;
+      }
+    }
+  }
+
+  return res;
+}
+
 
 }

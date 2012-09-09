@@ -80,10 +80,5 @@ JointConfig& ModelConfig::getJointConfigByJoint(boost::shared_ptr<Joint> joint)
   return getJointConfigByJointName(joint->getName());
 }
 
-bool ModelConfig::operator == (const ModelConfig& model_cfg) const
-{
-  return (joint_cfgs_map_.size() == model_cfg.joint_cfgs_map_.size()) &&
-    std::equal(joint_cfgs_map_.begin(), joint_cfgs_map_.end(), model_cfg.joint_cfgs_map_.begin());
-}
 
 }

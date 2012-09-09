@@ -34,8 +34,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TAYLOR_VECTOR_H
-#define FCL_TAYLOR_VECTOR_H
+#ifndef FCL_CCD_TAYLOR_VECTOR_H
+#define FCL_CCD_TAYLOR_VECTOR_H
 
 #include "fcl/ccd/interval_vector.h"
 #include "fcl/ccd/taylor_model.h"

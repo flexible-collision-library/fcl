@@ -39,6 +39,7 @@
 
 #include "fcl/data_types.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 #include <vector>
 
 namespace fcl
@@ -53,9 +54,12 @@ public:
 
   JointConfig(const JointConfig& joint_cfg);
 
-  JointConfig(boost::shared_ptr<Joint> joint, FCL_REAL default_value = 0);
+  JointConfig(const boost::shared_ptr<Joint>& joint,
+              FCL_REAL default_value = 0,
+              FCL_REAL default_value_min = 0,
+              FCL_REAL default_value_max = 0);
 
-  std::size_t size() const;
+  std::size_t getDim() const;
 
   inline FCL_REAL operator [] (std::size_t i) const
   {
@@ -67,14 +71,26 @@ public:
     return values_[i];
   }
 
-  bool operator == (const JointConfig& joint_cfg) const;
+  FCL_REAL getValue(std::size_t i) const;
 
+  FCL_REAL& getValue(std::size_t i);
+  
+  FCL_REAL getLimitMin(std::size_t i) const;
+  
+  FCL_REAL& getLimitMin(std::size_t i);
+  
+  FCL_REAL getLimitMax(std::size_t i) const;
+  
+  FCL_REAL& getLimitMax(std::size_t i);
+  
   boost::shared_ptr<Joint> getJoint() const;
 
 private:
-  boost::shared_ptr<Joint> joint_;
-
+  boost::weak_ptr<Joint> joint_;
+  
   std::vector<FCL_REAL> values_;
+  std::vector<FCL_REAL> limits_min_;
+  std::vector<FCL_REAL> limits_max_;
 };
 
 }

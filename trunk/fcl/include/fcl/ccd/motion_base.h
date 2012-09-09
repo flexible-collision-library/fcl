@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_MOTION_BASE_H
-#define FCL_MOTION_BASE_H
+#ifndef FCL_CCD_MOTION_BASE_H
+#define FCL_CCD_MOTION_BASE_H
 
 
 #include "fcl/math/transform.h"

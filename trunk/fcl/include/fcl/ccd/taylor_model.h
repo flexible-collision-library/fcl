@@ -34,8 +34,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TAYLOR_MODEL_H
-#define FCL_TAYLOR_MODEL_H
+#ifndef FCL_CCD_TAYLOR_MODEL_H
+#define FCL_CCD_TAYLOR_MODEL_H
 
 #include "fcl/ccd/interval.h"
 #include <boost/shared_ptr.hpp>

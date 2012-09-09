@@ -34,8 +34,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TAYLOR_MATRIX_H
-#define FCL_TAYLOR_MATRIX_H
+#ifndef FCL_CCD_TAYLOR_MATRIX_H
+#define FCL_CCD_TAYLOR_MATRIX_H
 
 
 #include "fcl/math/matrix_3f.h"
@@ -86,7 +86,11 @@ struct TMatrix3
   FCL_REAL diameter() const;
 
   void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
+
+  TMatrix3& rotationConstrain();
 };
+
+TMatrix3 rotationConstrain(const TMatrix3& m);
 
 }
 

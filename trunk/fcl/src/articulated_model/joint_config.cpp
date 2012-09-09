@@ -44,30 +44,63 @@ JointConfig::JointConfig() {}
 
 JointConfig::JointConfig(const JointConfig& joint_cfg) :
   joint_(joint_cfg.joint_),
-  values_(joint_cfg.values_)
+  values_(joint_cfg.values_),
+  limits_min_(joint_cfg.limits_min_),
+  limits_max_(joint_cfg.limits_max_)
 {
 }
 
-JointConfig::JointConfig(boost::shared_ptr<Joint> joint, FCL_REAL default_value) :
+JointConfig::JointConfig(const boost::shared_ptr<Joint>& joint,
+                         FCL_REAL default_value,
+                         FCL_REAL default_value_min,
+                         FCL_REAL default_value_max) :
   joint_(joint)
 {
-  values_.resize(joint->getDOFs(), default_value);
+  values_.resize(joint->getNumDofs(), default_value);
+  limits_min_.resize(joint->getNumDofs(), default_value_min);
+  limits_max_.resize(joint->getNumDofs(), default_value_max);
 }
 
-std::size_t JointConfig::size() const
+std::size_t JointConfig::getDim() const
 {
   return values_.size();
 }
 
-bool JointConfig::operator == (const JointConfig& joint_cfg) const
+FCL_REAL JointConfig::getValue(std::size_t i) const
 {
-  return (joint_ == joint_cfg.joint_) &&
-    std::equal(values_.begin(), values_.end(), joint_cfg.values_.begin());
+  return values_[i];
 }
+
+FCL_REAL& JointConfig::getValue(std::size_t i)
+{
+  return values_[i];
+}
+
+FCL_REAL JointConfig::getLimitMin(std::size_t i) const
+{
+  return limits_min_[i];
+}
+
+FCL_REAL& JointConfig::getLimitMin(std::size_t i)
+{
+  return limits_min_[i];
+}
+
+FCL_REAL JointConfig::getLimitMax(std::size_t i) const
+{
+  return limits_max_[i];
+}
+
+FCL_REAL& JointConfig::getLimitMax(std::size_t i)
+{
+  return limits_max_[i];
+}
+
+
 
 boost::shared_ptr<Joint> JointConfig::getJoint() const
 {
-  return joint_;
+  return joint_.lock();
 }
 
 }

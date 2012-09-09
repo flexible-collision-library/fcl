@@ -41,105 +41,118 @@
 namespace fcl
 {
 
-Model::Model(const std::string& name) :
-  name_(name)
+
+boost::shared_ptr<Link> Model::getRoot() const
 {
+  return root_link_;
 }
 
-boost::shared_ptr<Model> Model::getSharedPtr()
+boost::shared_ptr<Link> Model::getLink(const std::string& name) const
 {
-  return shared_from_this();
+  boost::shared_ptr<Link> ptr;
+  std::map<std::string, boost::shared_ptr<Link> >::const_iterator it = links_.find(name);
+  if(it == links_.end())
+    ptr.reset();
+  else
+    ptr = it->second;
+  return ptr;
 }
 
-std::string Model::getName() const
+boost::shared_ptr<Joint> Model::getJoint(const std::string& name) const
+{
+  boost::shared_ptr<Joint> ptr;
+  std::map<std::string, boost::shared_ptr<Joint> >::const_iterator it = joints_.find(name);
+  if(it == joints_.end())
+    ptr.reset();
+  else
+    ptr = it->second;
+  return ptr;
+}
+
+const std::string& Model::getName() const
 {
   return name_;
 }
 
-void Model::addJoint(boost::shared_ptr<Joint> joint, const std::string& parent_name)
+std::vector<boost::shared_ptr<Link> > Model::getLinks() const
 {
-  if(parent_name == "")
-    joints_tree_.createRoot(joint->getName(), joint);
-  else
-    joints_tree_.createNode(joint->getName(), joint, parent_name);
-}
-
-boost::shared_ptr<Joint> Model::getJointByName(const std::string& joint_name) const
-{
-  boost::shared_ptr<GeneralTreeNode<std::string, boost::shared_ptr<Joint> > > node = joints_tree_.getNodeByKey(joint_name);
-
-  return node->getValue();
-}
-
-boost::shared_ptr<Joint> Model::getJointParentByName(const std::string& joint_name) const
-{
-  boost::shared_ptr<GeneralTreeNode<std::string, boost::shared_ptr<Joint> > > node = joints_tree_.getNodeByKey(joint_name);
-
-  boost::shared_ptr<GeneralTreeNode<std::string, boost::shared_ptr<Joint> > > parent_node = node->getParent();
-
-  if(parent_node.use_count() == 0)
-    return boost::shared_ptr<Joint>();
-  else
-    return parent_node->getValue();
-}
-
-boost::shared_ptr<Joint> Model::getJointParent(boost::shared_ptr<Joint> joint) const
-{
-  return getJointParentByName(joint->getName());
-}
-
-bool Model::hasJointParentByName(const std::string& joint_name) const
-{
-  boost::shared_ptr<GeneralTreeNode<std::string, boost::shared_ptr<Joint> > > node = joints_tree_.getNodeByKey(joint_name);
-
-  return node->hasParent();
-}
-
-bool Model::hasJointParent(boost::shared_ptr<Joint> joint) const
-{
-  return hasJointParentByName(joint->getName());
-}
-
-std::size_t Model::getJointNum() const
-{
-  return joints_tree_.getNodesNum();
-}
-
-std::map<std::string, boost::shared_ptr<Joint> > Model::getJointsMap() const
-{
-  return joints_tree_.getValuesMap();
-}
-
-bool Model::isCompatible(const ModelConfig& model_config) const
-{
-  std::map<std::string, JointConfig> joint_cfgs_map = model_config.getJointCfgsMap();
-  std::map<std::string, boost::shared_ptr<Joint> > joints_map = getJointsMap();
-
-  std::map<std::string, boost::shared_ptr<Joint> >::const_iterator it;
-
-  for(it = joints_map.begin(); it != joints_map.end(); ++it)
+  std::vector<boost::shared_ptr<Link> > links;
+  for(std::map<std::string, boost::shared_ptr<Link> >::const_iterator it = links_.begin(); it != links_.end(); ++it)
   {
-    std::map<std::string, JointConfig>::const_iterator it2 = joint_cfgs_map.find(it->first);
-    if(it2 == joint_cfgs_map.end()) return false;
-
-    if(it2->second.getJoint() != it->second) return false;
+    links.push_back(it->second);
   }
 
-  return true;
+  return links;
 }
 
-std::vector<boost::shared_ptr<Joint> > Model::getJointsChain(const std::string& last_joint_name) const
+std::size_t Model::getNumLinks() const
 {
-  std::vector<boost::shared_ptr<Joint> > chain;
-  boost::shared_ptr<Joint> joint = getJointByName(last_joint_name);
+  return links_.size();
+}
 
-  while(joint.use_count() != 0)
+std::size_t Model::getNumJoints() const
+{
+  return joints_.size();
+}
+
+std::size_t Model::getNumDofs() const
+{
+  std::size_t dof = 0;
+  for(std::map<std::string, boost::shared_ptr<Joint> >::const_iterator it = joints_.begin(); it != joints_.end(); ++it)
   {
-    chain.push_back(joint);
-    joint = getJointParent(joint);
+    dof += it->second->getNumDofs();
   }
 
-  return chain;
+  return dof;
+}
+
+void Model::addLink(const boost::shared_ptr<Link>& link)
+{
+  links_[link->getName()] = link;
+}
+
+void Model::addJoint(const boost::shared_ptr<Joint>& joint)
+{
+  joints_[joint->getName()] = joint;
+}
+
+void Model::initRoot(const std::map<std::string, std::string>& link_parent_tree)
+{
+  root_link_.reset();
+
+  /// find the links that have no parent in the tree
+  for(std::map<std::string, boost::shared_ptr<Link> >::const_iterator it = links_.begin(); it != links_.end(); ++it)
+  {
+    std::map<std::string, std::string>::const_iterator parent = link_parent_tree.find(it->first);
+    if(parent == link_parent_tree.end())
+    {
+      if(!root_link_)
+      {
+        root_link_ = getLink(it->first);
+      }
+      else
+      {
+        throw ModelParseError("Two root links found: [" + root_link_->getName() + "] and [" + it->first + "]");
+      }
+    }
+  }
+
+  if(!root_link_)
+    throw ModelParseError("No root link found.");
+}
+
+void Model::initTree(std::map<std::string, std::string>& link_parent_tree)
+{
+  for(std::map<std::string, boost::shared_ptr<Joint> >::iterator it = joints_.begin(); it != joints_.end(); ++it)
+  {
+    std::string parent_link_name = it->second->getParentLink()->getName();
+    std::string child_link_name = it->second->getChildLink()->getName();
+
+    it->second->getParentLink()->addChildJoint(it->second);
+    it->second->getChildLink()->setParentJoint(it->second);
+
+    link_parent_tree[child_link_name] = parent_link_name;
+  }
 }
 
 }

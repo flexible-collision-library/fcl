@@ -35,8 +35,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_MOTION_H
-#define FCL_MOTION_H
+#ifndef FCL_CCD_MOTION_H
+#define FCL_CCD_MOTION_H
 
 #include "fcl/ccd/motion_base.h"
 #include "fcl/intersect.h"
