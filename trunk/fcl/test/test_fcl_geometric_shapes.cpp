@@ -41,7 +41,6 @@
 #include "fcl/narrowphase/narrowphase.h"
 #include "fcl/collision.h"
 #include "test_fcl_utility.h"
-#include <gtest/gtest.h>
 #include <iostream>
 
 using namespace fcl;
