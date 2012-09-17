@@ -109,7 +109,7 @@ TaylorModel TaylorModel::operator + (const TaylorModel& other) const
 
 TaylorModel TaylorModel::operator - (const TaylorModel& other) const
 {
-  assert(other.time_interval__ == time_interval_);
+  assert(other.time_interval_ == time_interval_);
   return TaylorModel(coeffs_[0] - other.coeffs_[0], coeffs_[1] - other.coeffs_[1], coeffs_[2] - other.coeffs_[2], coeffs_[3] - other.coeffs_[3], r_ - other.r_, time_interval_);
 }
 TaylorModel& TaylorModel::operator += (const TaylorModel& other)

@@ -38,6 +38,7 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <boost\math\special_functions\fpclassify.hpp>
 
 namespace fcl
 {
@@ -1198,7 +1199,7 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
 
   // clamp result so t is on the segment P,A
 
-  if((t < 0) || std::isnan(t)) t = 0; else if(t > 1) t = 1;
+  if((t < 0) || boost::math::isnan(t)) t = 0; else if(t > 1) t = 1;
 
   // find u for point on ray Q,B closest to point at t
 
@@ -1208,13 +1209,13 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
   // closest points, otherwise, clamp u, recompute and
   // clamp t
 
-  if((u <= 0) || std::isnan(u))
+  if((u <= 0) || boost::math::isnan(u))
   {
     Y = Q;
 
     t = A_dot_T / A_dot_A;
 
-    if((t <= 0) || std::isnan(t))
+    if((t <= 0) || boost::math::isnan(t))
     {
       X = P;
       VEC = Q - P;
@@ -1237,7 +1238,7 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
 
     t = (A_dot_B + A_dot_T) / A_dot_A;
 
-    if((t <= 0) || std::isnan(t))
+    if((t <= 0) || boost::math::isnan(t))
     {
       X = P;
       VEC = Y - P;
@@ -1259,7 +1260,7 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
   {
     Y = Q + B * u;
 
-    if((t <= 0) || std::isnan(t))
+    if((t <= 0) || boost::math::isnan(t))
     {
       X = P;
       TMP = T.cross(B);

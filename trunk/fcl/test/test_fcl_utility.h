@@ -42,6 +42,7 @@
 #include "fcl/collision_object.h"
 
 #ifdef _WIN32
+#define NOMINMAX  // required to avoid compilation errors with Visual Studio 2010
 #include <windows.h>
 #else
 #include <sys/time.h>

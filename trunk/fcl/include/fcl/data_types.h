@@ -38,7 +38,7 @@
 #define FCL_DATA_TYPES_H
 
 #include <cstddef>
-#include <inttypes.h>
+#include <cstdint>
 
 namespace fcl
 {

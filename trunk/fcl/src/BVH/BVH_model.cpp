@@ -234,6 +234,7 @@ int BVHModel<BV>::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
   }
 
   tri_indices[num_tris].set(offset, offset + 1, offset + 2);
+  num_tris++;
 
   return BVH_OK;
 }

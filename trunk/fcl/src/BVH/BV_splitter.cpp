@@ -279,4 +279,9 @@ bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const
 }
 
 
+template class BVSplitter<RSS>;
+template class BVSplitter<OBBRSS>;
+template class BVSplitter<OBB>;
+template class BVSplitter<kIOS>;
+
 }

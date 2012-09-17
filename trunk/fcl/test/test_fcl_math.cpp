@@ -36,7 +36,9 @@
 #define BOOST_TEST_MODULE "FCL_MATH"
 #include <boost/test/unit_test.hpp>
 
-#include "fcl/simd/math_simd_details.h"
+#if FCL_HAVE_SSE
+  #include "fcl/simd/math_simd_details.h"
+#endif
 #include "fcl/math/vec_3f.h"
 #include "fcl/math/matrix_3f.h"
 #include "fcl/broadphase/morton.h"
@@ -94,8 +96,8 @@ BOOST_AUTO_TEST_CASE(vec_test_basic_vec32)
   BOOST_CHECK(abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  BOOST_CHECK(abs(v1.sqrLength() - 50) < 1e-5);
-  BOOST_CHECK(abs(v1.length() - sqrt(50)) < 1e-5);
+  BOOST_CHECK(abs(v1.sqrLength() - 50.0) < 1e-5);
+  BOOST_CHECK(abs(v1.length() - sqrt(50.0)) < 1e-5);
   BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
 }
 
@@ -149,8 +151,8 @@ BOOST_AUTO_TEST_CASE(vec_test_basic_vec64)
   BOOST_CHECK(abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f64(3.0, 4.0, 5.0);
-  BOOST_CHECK(abs(v1.sqrLength() - 50) < 1e-5);
-  BOOST_CHECK(abs(v1.length() - sqrt(50)) < 1e-5);
+  BOOST_CHECK(abs(v1.sqrLength() - 50.0) < 1e-5);
+  BOOST_CHECK(abs(v1.length() - sqrt(50.0)) < 1e-5);
   BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
 
 
