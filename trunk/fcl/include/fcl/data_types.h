@@ -46,8 +46,8 @@ namespace fcl
 typedef double FCL_REAL;
 typedef uint64_t FCL_INT64;
 typedef int64_t FCL_UINT64;
-typedef unsigned int FCL_UINT32;
-typedef int FCL_INT32;
+typedef uint32_t FCL_UINT32;
+typedef int32_t FCL_INT32;
 
 /// @brief Triangle with 3 indices for points
 class Triangle
