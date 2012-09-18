@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 project(fcl CXX C)
 
-set(CMAKE_BUILD_TYPE Release)
+# set the default build type
+if (NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE Release)
+endif()
+
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
