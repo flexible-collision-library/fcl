@@ -38,7 +38,7 @@
 #include <iostream>
 #include <limits>
 #include <vector>
-#include <boost\math\special_functions\fpclassify.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace fcl
 {

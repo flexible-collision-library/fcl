@@ -38,7 +38,7 @@
 #define FCL_DATA_TYPES_H
 
 #include <cstddef>
-#include <cstdint>
+#include <boost/cstdint.hpp>
 
 namespace fcl
 {
