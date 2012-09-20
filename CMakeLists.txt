@@ -11,6 +11,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 include(FCLVersion)
 
+option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" OFF)
+
 # Whether to enable SSE
 option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
 set(FCL_HAVE_SSE 0)
