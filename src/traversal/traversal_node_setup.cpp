@@ -178,5 +178,56 @@ bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
   return details::setupMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, request, result);
 }
 
+namespace details
+{
+
+
+template<typename BV, typename OrientedDistanceNode>
+static inline bool setupMeshConservativeAdvancementOrientedDistanceNode(OrientedDistanceNode& node,
+                                                                        const BVHModel<BV>& model1, const Transform3f& tf1,
+                                                                        const BVHModel<BV>& model2, const Transform3f& tf2,
+                                                                        FCL_REAL w)
+{
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
+    return false;
+
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.vertices1 = model1.vertices;
+  node.vertices2 = model2.vertices;
+
+  node.tri_indices1 = model1.tri_indices;
+  node.tri_indices2 = model2.tri_indices;
+
+  node.w = w;
+
+  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
+
+  return true;
+}
+
+}
+
+
+bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node,
+                const BVHModel<RSS>& model1, const Transform3f& tf1,
+                const BVHModel<RSS>& model2, const Transform3f& tf2,
+                FCL_REAL w)
+{
+  return details::setupMeshConservativeAdvancementOrientedDistanceNode(node, model1, tf1, model2, tf2, w);
+}
+
+
+bool initialize(MeshConservativeAdvancementTraversalNodeOBBRSS& node,
+                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
+                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
+                FCL_REAL w)
+{
+  return details::setupMeshConservativeAdvancementOrientedDistanceNode(node, model1, tf1, model2, tf2, w);
+}
+
+
+
 
 }

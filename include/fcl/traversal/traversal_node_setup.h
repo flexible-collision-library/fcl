@@ -1048,9 +1048,9 @@ bool initialize(MeshContinuousCollisionTraversalNode<BV>& node,
 /// @brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms
 template<typename BV>
 bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
-                BVHModel<BV>& model1,
-                BVHModel<BV>& model2,
-                const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, FCL_REAL w = 1,
+                BVHModel<BV>& model1, const Transform3f& tf1,
+                BVHModel<BV>& model2, const Transform3f& tf2,
+                FCL_REAL w = 1,
                 bool use_refit = false, bool refit_bottomup = false)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
@@ -1060,7 +1060,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = R1 * p + T1;
+    Vec3f new_v = tf1.transform(p);
     vertices_transformed1[i] = new_v;
   }
 
@@ -1069,7 +1069,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = R2 * p + T2;
+    Vec3f new_v = tf2.transform(p);
     vertices_transformed2[i] = new_v;
   }
 
@@ -1097,27 +1097,15 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
 
 
 /// @brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms, specialized for RSS
-inline bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node, const BVHModel<RSS>& model1, const BVHModel<RSS>& model2,
-                       const Matrix3f& R1, const Vec3f& T1, const Matrix3f& R2, const Vec3f& T2, FCL_REAL w = 1)
-{
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
-    return false;
+bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node,
+                const BVHModel<RSS>& model1, const Transform3f& tf1,
+                const BVHModel<RSS>& model2, const Transform3f& tf2,
+                FCL_REAL w = 1);
 
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.vertices1 = model1.vertices;
-  node.vertices2 = model2.vertices;
-
-  node.tri_indices1 = model1.tri_indices;
-  node.tri_indices2 = model2.tri_indices;
-
-  node.w = w;
-
-  relativeTransform(R1, T1, R2, T2, node.R, node.T);
-
-  return true;
-}
+bool initialize(MeshConservativeAdvancementTraversalNodeOBBRSS& node,
+                const BVHModel<OBBRSS>& model1, const Transform3f& tf1,
+                const BVHModel<OBBRSS>& model2, const Transform3f& tf2,
+                FCL_REAL w = 1);
 
 }
 

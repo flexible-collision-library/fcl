@@ -662,7 +662,8 @@ public:
 
 struct ConservativeAdvancementStackData
 {
-  ConservativeAdvancementStackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, FCL_REAL d_) : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
+  ConservativeAdvancementStackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, FCL_REAL d_)
+    : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
 
   Vec3f P1;
   Vec3f P2;
@@ -846,6 +847,9 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const;
 template<>
 bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const;
 
+template<>
+bool MeshConservativeAdvancementTraversalNode<OBBRSS>::canStop(FCL_REAL c) const;
+
 
 class MeshConservativeAdvancementTraversalNodeRSS : public MeshConservativeAdvancementTraversalNode<RSS>
 {
@@ -862,6 +866,20 @@ public:
   Vec3f T;
 };
 
+class MeshConservativeAdvancementTraversalNodeOBBRSS : public MeshConservativeAdvancementTraversalNode<OBBRSS>
+{
+public:
+  MeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1);
+
+  FCL_REAL BVTesting(int b1, int b2) const;
+
+  void leafTesting(int b1, int b2) const;
+
+  bool canStop(FCL_REAL c) const;
+
+  Matrix3f R;
+  Vec3f T;
+};
 }
 
 

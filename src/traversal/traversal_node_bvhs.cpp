@@ -428,11 +428,33 @@ void MeshDistanceTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
 }
 
 
-/// for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
-template<>
-bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
+
+namespace details
 {
-  if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
+
+template<typename BV>
+const Vec3f& getBVAxis(const BV& bv, int i)
+{
+  return bv.axis[i];
+}
+
+template<>
+const Vec3f& getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
+{
+  return bv.obb.axis[i];
+}
+
+
+template<typename BV>
+bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
+                                                     FCL_REAL min_distance,
+                                                     FCL_REAL abs_err, FCL_REAL rel_err, FCL_REAL w,
+                                                     const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                     const MotionBase<BV>* motion1, const MotionBase<BV>* motion2,
+                                                     std::vector<ConservativeAdvancementStackData>& stack,
+                                                     FCL_REAL& delta_t)
+{
+  if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
   {
     const ConservativeAdvancementStackData& data = stack.back();
     FCL_REAL d = data.d;
@@ -457,10 +479,13 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
 
     assert(c == d);
 
-    Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[1] +  model1->getBV(c1).bv.axis[2] * n[2];
+    Vec3f n_transformed =
+      getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
+      getBVAxis(model1->getBV(c1).bv, 1) * n[1] +
+      getBVAxis(model1->getBV(c1).bv, 2) * n[2];
 
-    FCL_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
-    FCL_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
+    FCL_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, n_transformed);
 
     FCL_REAL bound = bound1 + bound2;
 
@@ -487,12 +512,55 @@ bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
 
     return false;
   }
+}
+
+}
+
+/// for OBB, RSS and OBBRSS, there is local coordinate of BV, so normal need to be transformed
+template<>
+bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
+{
+  return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
+                                                                  this->abs_err, this->rel_err, w,
+                                                                  this->model1, this->model2,
+                                                                  motion1, motion2,
+                                                                  stack, delta_t);
 }
 
 template<>
 bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const
 {
-  if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
+  return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
+                                                                  this->abs_err, this->rel_err, w,
+                                                                  this->model1, this->model2,
+                                                                  motion1, motion2,
+                                                                  stack, delta_t);
+}
+
+template<>
+bool MeshConservativeAdvancementTraversalNode<OBBRSS>::canStop(FCL_REAL c) const
+{
+  return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
+                                                                  this->abs_err, this->rel_err, w,
+                                                                  this->model1, this->model2,
+                                                                  motion1, motion2,
+                                                                  stack, delta_t);
+}
+
+
+namespace details
+{
+
+template<typename BV>
+bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
+                                                    FCL_REAL min_distance,
+                                                    FCL_REAL abs_err, FCL_REAL rel_err, FCL_REAL w,
+                                                    const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                    const MotionBase<BV>* motion1, const MotionBase<BV>* motion2,
+                                                    std::vector<ConservativeAdvancementStackData>& stack,
+                                                    FCL_REAL& delta_t)
+{
+  if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
   {
     const ConservativeAdvancementStackData& data = stack.back();
     FCL_REAL d = data.d;
@@ -517,10 +585,18 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const
 
     assert(c == d);
 
-    Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[1] +  model1->getBV(c1).bv.axis[2] * n[2];
+    // n is in local frame of c1, so we need to turn n into the global frame
+    Vec3f n_transformed =
+      getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
+      getBVAxis(model1->getBV(c1).bv, 1) * n[2] +
+      getBVAxis(model1->getBV(c1).bv, 2) * n[2];
+    Matrix3f R0;
+    motion1->getCurrentRotation(R0);
+    n_transformed = R0 * n_transformed;
+    n_transformed.normalize();
 
-    FCL_REAL bound1 = motion1->computeMotionBound(this->model1->getBV(c1).bv, n_transformed);
-    FCL_REAL bound2 = motion2->computeMotionBound(this->model2->getBV(c2).bv, n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
+    FCL_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
 
     FCL_REAL bound = bound1 + bound2;
 
@@ -549,31 +625,24 @@ bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const
   }
 }
 
-
-MeshConservativeAdvancementTraversalNodeRSS::MeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_) : MeshConservativeAdvancementTraversalNode<RSS>(w_)
-{
-  R.setIdentity();
-  // default T is 0
-}
-
-FCL_REAL MeshConservativeAdvancementTraversalNodeRSS::BVTesting(int b1, int b2) const
-{
-  if(enable_statistics) num_bv_tests++;
-  Vec3f P1, P2;
-  FCL_REAL d = distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv, &P1, &P2);
-
-  stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
-
-  return d;
-}
-
-
-void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) const
+template<typename BV>
+void meshConservativeAdvancementOrientedNodeLeafTesting(int b1, int b2,
+                                                        const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                        const Triangle* tri_indices1, const Triangle* tri_indices2,
+                                                        const Vec3f* vertices1, const Vec3f* vertices2,
+                                                        const Matrix3f& R, const Vec3f& T,
+                                                        const MotionBase<BV>* motion1, const MotionBase<BV>* motion2,
+                                                        bool enable_statistics,
+                                                        FCL_REAL& min_distance,
+                                                        Vec3f& p1, Vec3f& p2,
+                                                        int& last_tri_id1, int& last_tri_id2,
+                                                        FCL_REAL& delta_t,
+                                                        int& num_leaf_tests)
 {
   if(enable_statistics) num_leaf_tests++;
 
-  const BVNode<RSS>& node1 = model1->getBV(b1);
-  const BVNode<RSS>& node2 = model2->getBV(b2);
+  const BVNode<BV>& node1 = model1->getBV(b1);
+  const BVNode<BV>& node2 = model2->getBV(b2);
 
   int primitive_id1 = node1.primitiveId();
   int primitive_id2 = node2.primitiveId();
@@ -628,68 +697,100 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
     delta_t = cur_delta_t;
 }
 
+}
+
+
+MeshConservativeAdvancementTraversalNodeRSS::MeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_)
+  : MeshConservativeAdvancementTraversalNode<RSS>(w_)
+{
+  R.setIdentity();
+}
+
+FCL_REAL MeshConservativeAdvancementTraversalNodeRSS::BVTesting(int b1, int b2) const
+{
+  if(enable_statistics) num_bv_tests++;
+  Vec3f P1, P2;
+  FCL_REAL d = distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv, &P1, &P2);
+
+  stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
+
+  return d;
+}
+
+
+void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) const
+{
+  details::meshConservativeAdvancementOrientedNodeLeafTesting(b1, b2,
+                                                              model1, model2,
+                                                              tri_indices1, tri_indices2,
+                                                              vertices1, vertices2,
+                                                              R, T,
+                                                              motion1, motion2,
+                                                              enable_statistics,
+                                                              min_distance,
+                                                              p1, p2,
+                                                              last_tri_id1, last_tri_id2,
+                                                              delta_t,
+                                                              num_leaf_tests);
+}
+
 bool MeshConservativeAdvancementTraversalNodeRSS::canStop(FCL_REAL c) const
 {
-  if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
-  {
-    const ConservativeAdvancementStackData& data = stack.back();
-    FCL_REAL d = data.d;
-    Vec3f n;
-    int c1, c2;
+  return details::meshConservativeAdvancementOrientedNodeCanStop(c,
+                                                                 min_distance,
+                                                                 abs_err, rel_err, w,
+                                                                 model1, model2,
+                                                                 motion1, motion2,
+                                                                 stack,
+                                                                 delta_t);
+}
 
-    if(d > c)
-    {
-      const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
-      d = data2.d;
-      n = data2.P2 - data2.P1;
-      c1 = data2.c1;
-      c2 = data2.c2;
-      stack[stack.size() - 2] = stack[stack.size() - 1];
-    }
-    else
-    {
-      n = data.P2 - data.P1;
-      c1 = data.c1;
-      c2 = data.c2;
-    }
 
-    assert(c == d);
 
-    // n is in local frame of RSS c1, so we need to turn n into the global frame
-    Vec3f n_transformed = model1->getBV(c1).bv.axis[0] * n[0] + model1->getBV(c1).bv.axis[1] * n[2] + model1->getBV(c1).bv.axis[2] * n[2];
-    Matrix3f R0;
-    motion1->getCurrentRotation(R0);
-    n_transformed = R0 * n_transformed;
-    n_transformed.normalize();
 
-    FCL_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
-    FCL_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
+MeshConservativeAdvancementTraversalNodeOBBRSS::MeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_)
+  : MeshConservativeAdvancementTraversalNode<OBBRSS>(w_)
+{
+  R.setIdentity();
+}
 
-    FCL_REAL bound = bound1 + bound2;
+FCL_REAL MeshConservativeAdvancementTraversalNodeOBBRSS::BVTesting(int b1, int b2) const
+{
+  if(enable_statistics) num_bv_tests++;
+  Vec3f P1, P2;
+  FCL_REAL d = distance(R, T, model1->getBV(b1).bv, model2->getBV(b2).bv, &P1, &P2);
 
-    FCL_REAL cur_delta_t;
-    if(bound <= c) cur_delta_t = 1;
-    else cur_delta_t = c / bound;
+  stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
-    if(cur_delta_t < delta_t)
-      delta_t = cur_delta_t;
+  return d;
+}
 
-    stack.pop_back();
 
-    return true;
-  }
-  else
-  {
-    const ConservativeAdvancementStackData& data = stack.back();
-    FCL_REAL d = data.d;
+void MeshConservativeAdvancementTraversalNodeOBBRSS::leafTesting(int b1, int b2) const
+{
+  details::meshConservativeAdvancementOrientedNodeLeafTesting(b1, b2,
+                                                              model1, model2,
+                                                              tri_indices1, tri_indices2,
+                                                              vertices1, vertices2,
+                                                              R, T,
+                                                              motion1, motion2,
+                                                              enable_statistics,
+                                                              min_distance,
+                                                              p1, p2,
+                                                              last_tri_id1, last_tri_id2,
+                                                              delta_t,
+                                                              num_leaf_tests);
+}
 
-    if(d > c)
-      stack[stack.size() - 2] = stack[stack.size() - 1];
-
-    stack.pop_back();
-
-    return false;
-  }
+bool MeshConservativeAdvancementTraversalNodeOBBRSS::canStop(FCL_REAL c) const
+{
+  return details::meshConservativeAdvancementOrientedNodeCanStop(c,
+                                                                 min_distance,
+                                                                 abs_err, rel_err, w,
+                                                                 model1, model2,
+                                                                 motion1, motion2,
+                                                                 stack,
+                                                                 delta_t);
 }
 
 

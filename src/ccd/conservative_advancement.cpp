@@ -106,7 +106,7 @@ int conservativeAdvancement(const CollisionGeometry* o1,
 
   MeshConservativeAdvancementTraversalNodeRSS node;
 
-  initialize(node, *model1, *model2, tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation());
+  initialize(node, *model1, tf1, *model2, tf2);
 
   node.motion1 = motion1;
   node.motion2 = motion2;
