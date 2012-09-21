@@ -46,11 +46,11 @@
 namespace fcl
 {
 
-template<typename BV>
+template<typename BV, typename ConservativeAdvancementNode, typename CollisionNode>
 int conservativeAdvancement(const CollisionGeometry* o1,
-                            MotionBase<BV>* motion1,
+                            MotionBase* motion1,
                             const CollisionGeometry* o2,
-                            MotionBase<BV>* motion2,
+                            MotionBase* motion2,
                             const CollisionRequest& request,
                             CollisionResult& result,
                             FCL_REAL& toc);

@@ -450,7 +450,7 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
                                                      FCL_REAL min_distance,
                                                      FCL_REAL abs_err, FCL_REAL rel_err, FCL_REAL w,
                                                      const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                                     const MotionBase<BV>* motion1, const MotionBase<BV>* motion2,
+                                                     const MotionBase* motion1, const MotionBase* motion2,
                                                      std::vector<ConservativeAdvancementStackData>& stack,
                                                      FCL_REAL& delta_t)
 {
@@ -484,8 +484,9 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
       getBVAxis(model1->getBV(c1).bv, 1) * n[1] +
       getBVAxis(model1->getBV(c1).bv, 2) * n[2];
 
-    FCL_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
-    FCL_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, n_transformed);
+    TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
+    FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
 
     FCL_REAL bound = bound1 + bound2;
 
@@ -556,7 +557,7 @@ bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
                                                     FCL_REAL min_distance,
                                                     FCL_REAL abs_err, FCL_REAL rel_err, FCL_REAL w,
                                                     const BVHModel<BV>* model1, const BVHModel<BV>* model2,
-                                                    const MotionBase<BV>* motion1, const MotionBase<BV>* motion2,
+                                                    const MotionBase* motion1, const MotionBase* motion2,
                                                     std::vector<ConservativeAdvancementStackData>& stack,
                                                     FCL_REAL& delta_t)
 {
@@ -595,8 +596,9 @@ bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
     n_transformed = R0 * n_transformed;
     n_transformed.normalize();
 
-    FCL_REAL bound1 = motion1->computeMotionBound(model1->getBV(c1).bv, n_transformed);
-    FCL_REAL bound2 = motion2->computeMotionBound(model2->getBV(c2).bv, -n_transformed);
+    TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, -n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
+    FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
 
     FCL_REAL bound = bound1 + bound2;
 
@@ -631,7 +633,7 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(int b1, int b2,
                                                         const Triangle* tri_indices1, const Triangle* tri_indices2,
                                                         const Vec3f* vertices1, const Vec3f* vertices2,
                                                         const Matrix3f& R, const Vec3f& T,
-                                                        const MotionBase<BV>* motion1, const MotionBase<BV>* motion2,
+                                                        const MotionBase* motion1, const MotionBase* motion2,
                                                         bool enable_statistics,
                                                         FCL_REAL& min_distance,
                                                         Vec3f& p1, Vec3f& p2,
@@ -684,8 +686,10 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(int b1, int b2,
   motion1->getCurrentRotation(R0);
   Vec3f n_transformed = R0 * n;
   n_transformed.normalize();
-  FCL_REAL bound1 = motion1->computeMotionBound(t11, t12, t13, n_transformed);
-  FCL_REAL bound2 = motion2->computeMotionBound(t21, t22, t23, -n_transformed);
+
+  TriangleMotionBoundVisitor mb_visitor1(t11, t12, t13, n_transformed), mb_visitor2(t21, t22, t23, -n_transformed);
+  FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
+  FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
 
   FCL_REAL bound = bound1 + bound2;
 

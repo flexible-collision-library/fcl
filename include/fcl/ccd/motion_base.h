@@ -45,7 +45,66 @@
 namespace fcl
 {
 
+class MotionBase;
+
+class SplineMotion;
+class ScrewMotion;
+class InterpMotion;
+
+/// @brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects
+class BVMotionBoundVisitor
+{
+public:
+  virtual FCL_REAL visit(const MotionBase& motion) const = 0;
+  virtual FCL_REAL visit(const SplineMotion& motion) const = 0;
+  virtual FCL_REAL visit(const ScrewMotion& motion) const = 0;
+  virtual FCL_REAL visit(const InterpMotion& motion) const = 0;
+};
+
 template<typename BV>
+class TBVMotionBoundVisitor : public BVMotionBoundVisitor
+{
+public:
+  TBVMotionBoundVisitor(const BV& bv_, const Vec3f& n_) : bv(bv_), n(n_) {}
+
+  virtual FCL_REAL visit(const MotionBase& motion) const { return 0; }
+  virtual FCL_REAL visit(const SplineMotion& motion) const { return 0; }
+  virtual FCL_REAL visit(const ScrewMotion& motion) const { return 0; }
+  virtual FCL_REAL visit(const InterpMotion& motion) const { return 0; }
+
+protected:
+  BV bv;
+  Vec3f n;
+};
+
+template<>
+FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const;
+
+template<>
+FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const;
+
+template<>
+FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const;
+
+
+
+class TriangleMotionBoundVisitor
+{
+public:
+  TriangleMotionBoundVisitor(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_, const Vec3f& n_) :
+    a(a_), b(b_), c(c_), n(n_) {}
+
+  virtual FCL_REAL visit(const MotionBase& motion) const { return 0; }
+  virtual FCL_REAL visit(const SplineMotion& motion) const;
+  virtual FCL_REAL visit(const ScrewMotion& motion) const;
+  virtual FCL_REAL visit(const InterpMotion& motion) const;
+
+protected:
+  Vec3f a, b, c, n;
+};
+
+
+
 class MotionBase
 {
 public:
@@ -55,10 +114,10 @@ public:
   virtual bool integrate(double dt) = 0;
 
   /** \brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects */
-  virtual FCL_REAL computeMotionBound(const BV& bv, const Vec3f& n) const = 0;
+  virtual FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const= 0;
 
   /** \brief Compute the motion bound for a triangle, given the closest direction n between two query objects */
-  virtual FCL_REAL computeMotionBound(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& n) const = 0;
+  virtual FCL_REAL computeMotionBound(const TriangleMotionBoundVisitor& mb_visitor) const = 0;
 
   /** \brief Get the rotation and translation in current step */
   virtual void getCurrentTransform(Matrix3f& R, Vec3f& T) const = 0;

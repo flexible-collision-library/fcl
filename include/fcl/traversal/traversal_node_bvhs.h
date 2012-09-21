@@ -137,7 +137,6 @@ public:
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable FCL_REAL query_time_seconds;
-
 };
 
 
@@ -744,8 +743,9 @@ public:
     // n is the local frame of object 1
     Vec3f n = P2 - P1;
     // here n is already in global frame as we assume the body is in original configuration (I, 0) for general BVH
-    FCL_REAL bound1 = motion1->computeMotionBound(p1, p2, p3, n);
-    FCL_REAL bound2 = motion2->computeMotionBound(q1, q2, q3, n);
+    TriangleMotionBoundVisitor mb_visitor1(p1, p2, p3, n), mb_visitor2(q1, q2, q3, n);
+    FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
+    FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
 
     FCL_REAL bound = bound1 + bound2;
 
@@ -785,8 +785,9 @@ public:
 
       assert(c == d);
 
-      FCL_REAL bound1 = motion1->computeMotionBound((this->tree1 + c1)->bv, n);
-      FCL_REAL bound2 = motion2->computeMotionBound((this->tree2 + c2)->bv, n);
+      TBVMotionBoundVisitor<BV> mb_visitor1((this->tree1 + c1)->bv, n), mb_visitor2((this->tree2 + c2)->bv, n);
+      FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
+      FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
 
       FCL_REAL bound = bound1 + bound2;
 
@@ -833,8 +834,8 @@ public:
   mutable FCL_REAL delta_t;
 
   /// @brief Motions for the two objects in query
-  MotionBase<BV>* motion1;
-  MotionBase<BV>* motion2;
+  MotionBase* motion1;
+  MotionBase* motion2;
 
   mutable std::vector<ConservativeAdvancementStackData> stack;
 };

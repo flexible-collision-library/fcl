@@ -47,11 +47,11 @@ namespace fcl
 
 {
 
-template<typename BV>
+template<typename BV, typename ConservativeAdvancementNode, typename CollisionNode>
 int conservativeAdvancement(const CollisionGeometry* o1,
-                            MotionBase<BV>* motion1,
+                            MotionBase* motion1,
                             const CollisionGeometry* o2,
-                            MotionBase<BV>* motion2,
+                            MotionBase* motion2,
                             const CollisionRequest& request,
                             CollisionResult& result,
                             FCL_REAL& toc)
@@ -75,15 +75,15 @@ int conservativeAdvancement(const CollisionGeometry* o1,
     return 0;
 
 
-  const BVHModel<RSS>* model1 = (const BVHModel<RSS>*)o1;
-  const BVHModel<RSS>* model2 = (const BVHModel<RSS>*)o2;
+  const BVHModel<BV>* model1 = (const BVHModel<BV>*)o1;
+  const BVHModel<BV>* model2 = (const BVHModel<BV>*)o2;
 
   Transform3f tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
   // whether the first start configuration is in collision
-  MeshCollisionTraversalNodeRSS cnode;
+  CollisionNode cnode;
   if(!initialize(cnode, *model1, tf1, *model2, tf2, request, result))
     std::cout << "initialize error" << std::endl;
 
@@ -102,15 +102,13 @@ int conservativeAdvancement(const CollisionGeometry* o1,
     // std::cout << "zero collide" << std::endl;
     return b;
   }
-
-
-  MeshConservativeAdvancementTraversalNodeRSS node;
+  
+  ConservativeAdvancementNode node;
 
   initialize(node, *model1, tf1, *model2, tf2);
 
   node.motion1 = motion1;
   node.motion2 = motion2;
-
 
   do
   {
@@ -155,13 +153,21 @@ int conservativeAdvancement(const CollisionGeometry* o1,
 }
 
 
-template int conservativeAdvancement<RSS>(const CollisionGeometry* o1,
-                                          MotionBase<RSS>* motion1,
-                                          const CollisionGeometry* o2,
-                                          MotionBase<RSS>* motion2,
-                                          const CollisionRequest& request,
-                                          CollisionResult& result,
-                                          FCL_REAL& toc);
+template
+int conservativeAdvancement<RSS, MeshConservativeAdvancementTraversalNodeRSS, MeshCollisionTraversalNodeRSS>(const CollisionGeometry* o1,
+                                                                                                             MotionBase* motion1,
+                                                                                                             const CollisionGeometry* o2,
+                                                                                                             MotionBase* motion2,
+                                                                                                             const CollisionRequest& request,
+                                                                                                             CollisionResult& result,
+                                                                                                             FCL_REAL& toc);
 
+template int conservativeAdvancement<OBBRSS, MeshConservativeAdvancementTraversalNodeOBBRSS, MeshCollisionTraversalNodeOBBRSS>(const CollisionGeometry* o1,
+                                                                                                                               MotionBase* motion1,
+                                                                                                                               const CollisionGeometry* o2,
+                                                                                                                               MotionBase* motion2,
+                                                                                                                               const CollisionRequest& request,
+                                                                                                                               CollisionResult& result,
+                                                                                                                               FCL_REAL& toc);
 
 }
