@@ -40,6 +40,8 @@
 
 
 #include "fcl/math/transform.h"
+#include "fcl/ccd/taylor_matrix.h"
+#include "fcl/ccd/taylor_vector.h"
 #include "fcl/BV/RSS.h"
 
 namespace fcl
@@ -108,10 +110,14 @@ protected:
 class MotionBase
 {
 public:
+  MotionBase() : time_interval_(boost::shared_ptr<TimeInterval>(new TimeInterval(0, 1)))
+  {
+  }
+  
   virtual ~MotionBase() {}
 
   /** \brief Integrate the motion from 0 to dt */
-  virtual bool integrate(double dt) = 0;
+  virtual bool integrate(double dt) const = 0;
 
   /** \brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects */
   virtual FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const= 0;
@@ -127,6 +133,17 @@ public:
   virtual void getCurrentTranslation(Vec3f& T) const = 0;
 
   virtual void getCurrentTransform(Transform3f& tf) const = 0;
+
+  virtual void getTaylorModel(TMatrix3& tm, TVector3& tv) const = 0;
+
+  const boost::shared_ptr<TimeInterval>& getTimeInterval() const
+  {
+    return time_interval_;
+  }
+protected:
+
+  boost::shared_ptr<TimeInterval> time_interval_;
+  
 };
 
 

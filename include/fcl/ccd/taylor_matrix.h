@@ -45,10 +45,11 @@
 namespace fcl
 {
 
-struct TMatrix3
+class TMatrix3
 {
   TVector3 v_[3];
-
+  
+public:
   TMatrix3();
   TMatrix3(const boost::shared_ptr<TimeInterval>& time_interval);
   TMatrix3(TaylorModel m[3][3]);
@@ -75,22 +76,44 @@ struct TMatrix3
 
   TMatrix3 operator + (const TMatrix3& m) const;
   TMatrix3& operator += (const TMatrix3& m);
+  TMatrix3 operator + (const Matrix3f& m) const;
+  TMatrix3& operator += (const Matrix3f& m);
 
   TMatrix3 operator - (const TMatrix3& m) const;
   TMatrix3& operator -= (const TMatrix3& m);
+  TMatrix3 operator - (const Matrix3f& m) const;
+  TMatrix3& operator -= (const Matrix3f& m);
+  TMatrix3 operator - () const;
 
   IMatrix3 getBound() const;
+  IMatrix3 getBound(FCL_REAL l, FCL_REAL r) const;
+  IMatrix3 getBound(FCL_REAL t) const;
+
+  IMatrix3 getTightBound() const;
+  IMatrix3 getTightBound(FCL_REAL l, FCL_REAL r) const;
+
+
   void print() const;
   void setIdentity();
   void setZero();
   FCL_REAL diameter() const;
 
   void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
+  void setTimeInterval(FCL_REAL l, FCL_REAL r);
+
+  const boost::shared_ptr<TimeInterval>& getTimeInterval() const;
 
   TMatrix3& rotationConstrain();
 };
 
 TMatrix3 rotationConstrain(const TMatrix3& m);
+
+TMatrix3 operator * (const Matrix3f& m, const TaylorModel& a);
+TMatrix3 operator * (const TaylorModel& a, const Matrix3f& m);
+TMatrix3 operator * (const TaylorModel& a, const TMatrix3& m);
+TMatrix3 operator * (FCL_REAL d, const TMatrix3& m);
+TMatrix3 operator + (const Matrix3f& m1, const TMatrix3& m2);
+TMatrix3 operator - (const Matrix3f& m1, const TMatrix3& m2);
 
 }
 

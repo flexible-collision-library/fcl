@@ -56,7 +56,7 @@ public:
   
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
-  bool integrate(double dt);
+  bool integrate(double dt) const;
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
   FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const
@@ -92,6 +92,84 @@ public:
     tf_ = tf;
   }
 
+  void getTaylorModel(TMatrix3& tm, TVector3& tv) const
+  {
+    // set tv
+    Vec3f c[4];
+    c[0] = (Td[0] + Td[1] * 4 + Td[2] + Td[3]) * (1/6.0);
+    c[1] = (-Td[0] + Td[2]) * (1/2.0);
+    c[2] = (Td[0] - Td[1] * 2 + Td[2]) * (1/2.0);
+    c[3] = (-Td[0] + Td[1] * 3 - Td[2] * 3 + Td[3]) * (1/6.0);
+    tv.setTimeInterval(getTimeInterval());
+    for(std::size_t i = 0; i < 3; ++i)
+    {
+      for(std::size_t j = 0; j < 4; ++j)
+      {
+        tv[i].coeff(j) = c[j][i];
+      }
+    }
+
+    // set tm
+    Matrix3f I(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    // R(t) = R(t0) + R'(t0) (t-t0) + 1/2 R''(t0)(t-t0)^2 + 1 / 6 R'''(t0) (t-t0)^3 + 1 / 24 R''''(l)(t-t0)^4; t0 = 0.5
+    /// 1. compute M(1/2)
+    Vec3f Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
+    FCL_REAL Rt0_len = Rt0.length();
+    FCL_REAL inv_Rt0_len = 1.0 / Rt0_len;
+    FCL_REAL inv_Rt0_len_3 = inv_Rt0_len * inv_Rt0_len * inv_Rt0_len;
+    FCL_REAL inv_Rt0_len_5 = inv_Rt0_len_3 * inv_Rt0_len * inv_Rt0_len;
+    FCL_REAL theta0 = Rt0_len;
+    FCL_REAL costheta0 = cos(theta0);
+    FCL_REAL sintheta0 = sin(theta0);
+    
+    Vec3f Wt0 = Rt0 * inv_Rt0_len;
+    Matrix3f hatWt0;
+    hat(hatWt0, Wt0);
+    Matrix3f hatWt0_sqr = hatWt0 * hatWt0;
+    Matrix3f Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
+
+    /// 2. compute M'(1/2)
+    Vec3f dRt0 = (-Rd[0] - Rd[1] * 5 + Rd[2] * 5 + Rd[3]) * (1 / 8.0);
+    FCL_REAL Rt0_dot_dRt0 = Rt0.dot(dRt0);
+    FCL_REAL dtheta0 = Rt0_dot_dRt0 * inv_Rt0_len;
+    Vec3f dWt0 = dRt0 * inv_Rt0_len - Rt0 * (Rt0_dot_dRt0 * inv_Rt0_len_3);
+    Matrix3f hatdWt0;
+    hat(hatdWt0, dWt0);
+    Matrix3f dMt0 = hatdWt0 * sintheta0 + hatWt0 * (costheta0 * dtheta0) + hatWt0_sqr * (sintheta0 * dtheta0) + (hatWt0 * hatdWt0 + hatdWt0 * hatWt0) * (1 - costheta0);
+
+    /// 3.1. compute M''(1/2)
+    Vec3f ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
+    FCL_REAL Rt0_dot_ddRt0 = Rt0.dot(ddRt0);
+    FCL_REAL dRt0_dot_dRt0 = dRt0.sqrLength();
+    FCL_REAL ddtheta0 = (Rt0_dot_ddRt0 + dRt0_dot_dRt0) * inv_Rt0_len - Rt0_dot_dRt0 * Rt0_dot_dRt0 * inv_Rt0_len_3;
+    Vec3f ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
+    Matrix3f hatddWt0;
+    hat(hatddWt0, ddWt0);
+    Matrix3f ddMt0 =
+      hatddWt0 * sintheta0 +
+      hatWt0 * (costheta0 * dtheta0 - sintheta0 * dtheta0 * dtheta0 + costheta0 * ddtheta0) +
+      hatdWt0 * (costheta0 * dtheta0) +
+      (hatWt0 * hatdWt0 + hatdWt0 * hatWt0) * (sintheta0 * dtheta0 * 2) +
+      hatdWt0 * hatdWt0 * (2 * (1 - costheta0)) +
+      hatWt0 * hatWt0 * (costheta0 * dtheta0 * dtheta0 + sintheta0 * ddtheta0) +
+      (hatWt0 * hatddWt0 + hatddWt0 + hatWt0) * (1 - costheta0);
+
+
+    tm.setTimeInterval(getTimeInterval());
+    for(std::size_t i = 0; i < 3; ++i)
+    {
+      for(std::size_t j = 0; j < 3; ++j)
+      {
+        tm(i, j).coeff(0) = Mt0(i, j) - dMt0(i, j) * 0.5 + ddMt0(i, j) * 0.25 * 0.5;
+        tm(i, j).coeff(1) = dMt0(i, j) - ddMt0(i, j) * 0.5;
+        tm(i, j).coeff(2) = ddMt0(i, j) * 0.5;
+        tm(i, j).coeff(3) = 0;
+
+        tm(i, j).remainder() = Interval(-1/48.0, 1/48.0); /// not correct, should fix
+      }
+    } 
+  }
+
 protected:
   void computeSplineParameter()
   {
@@ -110,10 +188,10 @@ protected:
 
   FCL_REAL Rd0Rd0, Rd0Rd1, Rd0Rd2, Rd0Rd3, Rd1Rd1, Rd1Rd2, Rd1Rd3, Rd2Rd2, Rd2Rd3, Rd3Rd3;
   //// @brief The transformation at current time t
-  Transform3f tf;
+  mutable Transform3f tf;
 
   /// @brief The time related with tf
-  FCL_REAL tf_t;
+  mutable FCL_REAL tf_t;
 
 public:
   FCL_REAL computeTBound(const Vec3f& n) const;
@@ -163,12 +241,12 @@ public:
 
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
-  bool integrate(double dt)
+  bool integrate(double dt) const
   {
     if(dt > 1) dt = 1;
-
+    
     tf.setQuatRotation(absoluteRotation(dt));
-
+    
     Quaternion3f delta_rot = deltaRotation(dt);
     tf.setTranslation(p + axis * (dt * linear_vel) + delta_rot.transform(tf1.getTranslation() - p));
 
@@ -208,6 +286,29 @@ public:
   void getCurrentTransform(Transform3f& tf_) const
   {
     tf_ = tf;
+  }
+
+  void getTaylorModel(TMatrix3& tm, TVector3& tv) const
+  {
+    Matrix3f hat_axis;
+    hat(hat_axis, axis);
+
+    TaylorModel cos_model(getTimeInterval());
+    generateTaylorModelForCosFunc(cos_model, angular_vel, 0);
+    
+    TaylorModel sin_model(getTimeInterval());
+    generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
+
+    TMatrix3 delta_R = hat_axis * sin_model - hat_axis * hat_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+
+    TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
+    generateTaylorModelForLinearFunc(a, 0, linear_vel * axis[0]);
+    generateTaylorModelForLinearFunc(b, 0, linear_vel * axis[1]);
+    generateTaylorModelForLinearFunc(c, 0, linear_vel * axis[2]);
+    TVector3 delta_T = p - delta_R * p + TVector3(a, b, c);
+
+    tm = delta_R * tf1.getRotation();
+    tv = delta_R * tf1.getTranslation() + delta_T;
   }
 
 protected:
@@ -256,7 +357,7 @@ protected:
   Transform3f tf2;
 
   /// @brief The transformation at current time t
-  Transform3f tf;
+  mutable Transform3f tf;
 
   /// @brief screw axis
   Vec3f axis;
@@ -322,7 +423,7 @@ public:
 
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
-  bool integrate(double dt);
+  bool integrate(double dt) const;
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
   FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const
@@ -358,6 +459,28 @@ public:
     tf_ = tf;
   }
 
+  void getTaylorModel(TMatrix3& tm, TVector3& tv) const
+  {
+    Matrix3f hat_angular_axis;
+    hat(hat_angular_axis, angular_axis);
+
+    TaylorModel cos_model(getTimeInterval());
+    generateTaylorModelForCosFunc(cos_model, angular_vel, 0);
+    TaylorModel sin_model(getTimeInterval());
+    generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
+
+    TMatrix3 delta_R = hat_angular_axis * sin_model - hat_angular_axis * hat_angular_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+
+    TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
+    generateTaylorModelForLinearFunc(a, 0, linear_vel[0]);
+    generateTaylorModelForLinearFunc(b, 0, linear_vel[1]);
+    generateTaylorModelForLinearFunc(c, 0, linear_vel[2]);
+    TVector3 delta_T(a, b, c);
+    
+    tm = delta_R * tf1.getRotation();
+    tv = tf1.transform(reference_p) + delta_T - delta_R * tf1.getQuatRotation().transform(reference_p);
+  }
+
 protected:
 
   void computeVelocity();
@@ -373,7 +496,7 @@ protected:
   Transform3f tf2;
 
   /// @brief The transformation at current time t
-  Transform3f tf;
+  mutable Transform3f tf;
 
   /// @brief Linear velocity
   Vec3f linear_vel;

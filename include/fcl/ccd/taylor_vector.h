@@ -43,24 +43,31 @@
 namespace fcl
 {
 
-struct TVector3
+class TVector3
 {
   TaylorModel i_[3];
 
+public:
+  
   TVector3();
   TVector3(const boost::shared_ptr<TimeInterval>& time_interval);
   TVector3(TaylorModel v[3]);
   TVector3(const TaylorModel& v0, const TaylorModel& v1, const TaylorModel& v2);
   TVector3(const Vec3f& v, const boost::shared_ptr<TimeInterval>& time_interval);
-
+  
   TVector3 operator + (const TVector3& other) const;
   TVector3& operator += (const TVector3& other);
 
-  TVector3 operator + (FCL_REAL d) const;
-  TVector3& operator += (FCL_REAL d);
+  TVector3 operator + (const Vec3f& other) const;
+  TVector3& operator += (const Vec3f& other);
 
   TVector3 operator - (const TVector3& other) const;
   TVector3& operator -= (const TVector3& other);
+
+  TVector3 operator - (const Vec3f& other) const;
+  TVector3& operator -= (const Vec3f& other);
+
+  TVector3 operator - () const;
 
   TVector3 operator * (const TaylorModel& d) const;
   TVector3& operator *= (const TaylorModel& d);
@@ -76,7 +83,11 @@ struct TVector3
   TVector3 cross(const Vec3f& other) const;
 
   IVector3 getBound() const;
+  IVector3 getBound(FCL_REAL l, FCL_REAL r) const;
   IVector3 getBound(FCL_REAL t) const;
+
+  IVector3 getTightBound() const;
+  IVector3 getTightBound(FCL_REAL l, FCL_REAL r) const;
 
   void print() const;
   FCL_REAL volumn() const;
@@ -85,10 +96,17 @@ struct TVector3
   TaylorModel squareLength() const;
 
   void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
+  void setTimeInterval(FCL_REAL l, FCL_REAL r);
+
+  const boost::shared_ptr<TimeInterval>& getTimeInterval() const;
 };
 
 void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity);
 
+
+TVector3 operator * (const Vec3f& v, const TaylorModel& a);
+TVector3 operator + (const Vec3f& v1, const TVector3& v2);
+TVector3 operator - (const Vec3f& v1, const TVector3& v2);
 
 }
 

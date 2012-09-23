@@ -834,8 +834,8 @@ public:
   mutable FCL_REAL delta_t;
 
   /// @brief Motions for the two objects in query
-  MotionBase* motion1;
-  MotionBase* motion2;
+  const MotionBase* motion1;
+  const MotionBase* motion2;
 
   mutable std::vector<ConservativeAdvancementStackData> stack;
 };

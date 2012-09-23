@@ -52,12 +52,28 @@ struct TimeInterval
   Interval t4_; // [t1, t2]^4
   Interval t5_; // [t1, t2]^5
   Interval t6_; // [t1, t2]^6
+
+  TimeInterval() {}
+  TimeInterval(FCL_REAL l, FCL_REAL r)
+  {
+    setValue(l, r);
+  }
+
+  void setValue(FCL_REAL l, FCL_REAL r)
+  {
+    t_.setValue(l, r);
+    t2_.setValue(l * t_[0], r * t_[1]);
+    t3_.setValue(l * t2_[0], r * t2_[1]);
+    t4_.setValue(l * t3_[0], r * t3_[1]);
+    t5_.setValue(l * t4_[0], r * t4_[1]);
+    t6_.setValue(l * t5_[0], r * t5_[1]);    
+  }
 };
 
 /// @brief TaylorModel implements a third order Taylor model, i.e., a cubic approximation of a function
 /// over a time interval, with an interval remainder.
 /// All the operations on two Taylor models assume their time intervals are the same.
-struct TaylorModel
+class TaylorModel
 {
   /// @brief time interval
   boost::shared_ptr<TimeInterval> time_interval_;
@@ -68,11 +84,28 @@ struct TaylorModel
   /// @brief interval remainder
   Interval r_;
 
-  void setTimeInterval(FCL_REAL l, FCL_REAL r);
-  void setTimeInterval(const boost::shared_ptr<TimeInterval> time_interval)
+public:
+
+  void setTimeInterval(FCL_REAL l, FCL_REAL r)
+  {
+    time_interval_->setValue(l, r);
+  }
+  
+  void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval)
   {
     time_interval_ = time_interval;
   }
+
+  const boost::shared_ptr<TimeInterval>& getTimeInterval() const
+  {
+    return time_interval_;
+  }
+
+  FCL_REAL coeff(std::size_t i) const { return coeffs_[i]; }
+  FCL_REAL& coeff(std::size_t i) { return coeffs_[i]; }
+  const Interval& remainder() const { return r_; }
+  Interval& remainder() { return r_; }
+  
 
   TaylorModel();
   TaylorModel(const boost::shared_ptr<TimeInterval>& time_interval);
@@ -88,6 +121,9 @@ struct TaylorModel
 
   TaylorModel operator + (FCL_REAL d) const;
   TaylorModel& operator += (FCL_REAL d);
+
+  TaylorModel operator - (FCL_REAL d) const;
+  TaylorModel& operator -= (FCL_REAL d);
 
   TaylorModel operator * (const TaylorModel& other) const;
   TaylorModel operator * (FCL_REAL d) const;
@@ -109,8 +145,17 @@ struct TaylorModel
   void setZero();
 };
 
+TaylorModel operator * (FCL_REAL d, const TaylorModel& a);
+TaylorModel operator + (FCL_REAL d, const TaylorModel& a);
+TaylorModel operator - (FCL_REAL d, const TaylorModel& a);
+
+/// @brief Generate Taylor model for cos(w t + q0)
 void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0);
+
+/// @brief Generate Taylor model for sin(w t + q0)
 void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0);
+
+/// @brief Generate Taylor model for p + v t
 void generateTaylorModelForLinearFunc(TaylorModel& tm, FCL_REAL p, FCL_REAL v);
 
 }

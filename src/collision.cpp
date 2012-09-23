@@ -139,3 +139,40 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
 }
 
 }
+
+#include "fcl/ccd/conservative_advancement.h"
+#include "fcl/traversal/traversal_node_bvhs.h"
+namespace fcl
+{
+std::size_t collide(const ContinuousCollisionObject* o1, const ContinuousCollisionObject* o2,
+                    const CollisionRequest& request,
+                    CollisionResult& result)
+{
+  FCL_REAL toc;
+  return conservativeAdvancement<RSS, MeshConservativeAdvancementTraversalNodeRSS, MeshCollisionTraversalNodeRSS>(
+                                                                                                                  o1->getCollisionGeometry(),
+                                                                                                                  o1->getMotion(),
+                                                                                                                  o2->getCollisionGeometry(),
+                                                                                                                  o2->getMotion(),
+                                                                                                                  request,
+                                                                                                                  result,
+                                                                                                                  toc);
+}
+
+std::size_t collide(const CollisionGeometry* o1, const MotionBase* motion1,
+                    const CollisionGeometry* o2, const MotionBase* motion2,
+                    const CollisionRequest& request,
+                    CollisionResult& result)
+{
+  FCL_REAL toc;
+  return conservativeAdvancement<RSS, MeshConservativeAdvancementTraversalNodeRSS, MeshCollisionTraversalNodeRSS>(
+                                                                                                                  o1, motion1,
+                                                                                                                  o2, motion2,
+                                                                                                                  request,
+                                                                                                                  result,
+                                                                                                                  toc);  
+}
+
+
+
+}

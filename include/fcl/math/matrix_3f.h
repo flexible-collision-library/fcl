@@ -321,6 +321,12 @@ public:
 };
 
 template<typename T>
+void hat(Matrix3fX<T>& mat, const Vec3fX<typename T::vector_type>& vec)
+{
+  mat.setValue(0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0);
+}
+
+template<typename T>
 void relativeTransform(const Matrix3fX<T>& R1, const Vec3fX<typename T::vector_type>& t1,
                        const Matrix3fX<T>& R2, const Vec3fX<typename T::vector_type>& t2,
                        Matrix3fX<T>& R, Vec3fX<typename T::vector_type>& t)

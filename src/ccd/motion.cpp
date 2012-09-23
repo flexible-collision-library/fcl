@@ -149,7 +149,7 @@ SplineMotion::SplineMotion(const Vec3f& Td0, const Vec3f& Td1, const Vec3f& Td2,
   integrate(0.0);
 }
 
-bool SplineMotion::integrate(double dt)
+bool SplineMotion::integrate(double dt) const
 {
   if(dt > 1) dt = 1;
 
@@ -488,7 +488,7 @@ InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_, con
 {
 }
 
-bool InterpMotion::integrate(double dt)
+bool InterpMotion::integrate(double dt) const
 {
   if(dt > 1) dt = 1;
 

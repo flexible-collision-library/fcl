@@ -154,6 +154,14 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
 
 
+
+
+
+bool defaultContinuousCollisionFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_);
+
+bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_, FCL_REAL& dist);
+
+
 }
 
 #endif

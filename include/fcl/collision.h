@@ -71,6 +71,15 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
                     const CollisionGeometry* o2, const Transform3f& tf2,
                     const CollisionRequest& request,
                     CollisionResult& result);
+
+std::size_t collide(const ContinuousCollisionObject* o1, const ContinuousCollisionObject* o2,
+                    const CollisionRequest& request,
+                    CollisionResult& result);
+
+std::size_t collide(const CollisionGeometry* o1, const MotionBase* motion1,
+                    const CollisionGeometry* o2, const MotionBase* motion2,
+                    const CollisionRequest& request,
+                    CollisionResult& result);
 }
 
 #endif

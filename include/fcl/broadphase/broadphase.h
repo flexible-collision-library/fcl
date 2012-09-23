@@ -146,6 +146,86 @@ protected:
 };
 
 
+/// @brief Callback for continuous collision between two objects. Return value is whether can stop now.
+typedef bool (*ContinuousCollisionCallBack)(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata);
+
+/// @brief Callback for continuous distance between two objects, Return value is whether can stop now, also return the minimum distance till now.
+typedef bool (*ContinuousDistanceCallBack)(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata, FCL_REAL& dist);
+
+
+/// @brief Base class for broad phase continuous collision. It helps to accelerate the continuous collision/distance between N objects. Also support self collision, self distance and collision/distance with another M objects.
+class BroadPhaseContinuousCollisionManager
+{
+public:
+  BroadPhaseContinuousCollisionManager()
+  {
+  }
+
+  virtual ~BroadPhaseContinuousCollisionManager() {}
+
+  /// @brief add objects to the manager
+  virtual void registerObjects(const std::vector<ContinuousCollisionObject*>& other_objs)
+  {
+    for(size_t i = 0; i < other_objs.size(); ++i)
+      registerObject(other_objs[i]);
+  }
+
+  /// @brief add one object to the manager
+  virtual void registerObject(ContinuousCollisionObject* obj) = 0;
+
+  /// @brief remove one object from the manager
+  virtual void unregisterObject(ContinuousCollisionObject* obj) = 0;
+
+  /// @brief initialize the manager, related with the specific type of manager
+  virtual void setup() = 0;
+
+  /// @brief update the condition of manager
+  virtual void update() = 0;
+
+  /// @brief update the manager by explicitly given the object updated
+  virtual void update(ContinuousCollisionObject* updated_obj)
+  {
+    update();
+  }
+
+  /// @brief update the manager by explicitly given the set of objects update
+  virtual void update(const std::vector<ContinuousCollisionObject*>& updated_objs)
+  {
+    update();
+  }
+
+  /// @brief clear the manager
+  virtual void clear() = 0;
+
+  /// @brief return the objects managed by the manager
+  virtual void getObjects(std::vector<ContinuousCollisionObject*>& objs) const = 0;
+
+  /// @brief perform collision test between one object and all the objects belonging to the manager
+  virtual void collide(ContinuousCollisionObject* obj, void* cdata, CollisionCallBack callback) const = 0;
+
+  /// @brief perform distance computation between one object and all the objects belonging to the manager
+  virtual void distance(ContinuousCollisionObject* obj, void* cdata, DistanceCallBack callback) const = 0;
+
+  /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
+  virtual void collide(void* cdata, CollisionCallBack callback) const = 0;
+
+  /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
+  virtual void distance(void* cdata, DistanceCallBack callback) const = 0;
+
+  /// @brief perform collision test with objects belonging to another manager
+  virtual void collide(BroadPhaseContinuousCollisionManager* other_manager, void* cdata, CollisionCallBack callback) const = 0;
+
+  /// @brief perform distance test with objects belonging to another manager
+  virtual void distance(BroadPhaseContinuousCollisionManager* other_manager, void* cdata, DistanceCallBack callback) const = 0;
+
+  /// @brief whether the manager is empty
+  virtual bool empty() const = 0;
+  
+  /// @brief the number of objects managed by the manager
+  virtual size_t size() const = 0;
+};
+
+
 }
 
 

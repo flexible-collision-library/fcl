@@ -49,9 +49,9 @@ namespace fcl
 
 template<typename BV, typename ConservativeAdvancementNode, typename CollisionNode>
 int conservativeAdvancement(const CollisionGeometry* o1,
-                            MotionBase* motion1,
+                            const MotionBase* motion1,
                             const CollisionGeometry* o2,
-                            MotionBase* motion2,
+                            const MotionBase* motion2,
                             const CollisionRequest& request,
                             CollisionResult& result,
                             FCL_REAL& toc)
@@ -75,8 +75,8 @@ int conservativeAdvancement(const CollisionGeometry* o1,
     return 0;
 
 
-  const BVHModel<BV>* model1 = (const BVHModel<BV>*)o1;
-  const BVHModel<BV>* model2 = (const BVHModel<BV>*)o2;
+  const BVHModel<BV>* model1 = static_cast<const BVHModel<BV>*>(o1);
+  const BVHModel<BV>* model2 = static_cast<const BVHModel<BV>*>(o2);
 
   Transform3f tf1, tf2;
   motion1->getCurrentTransform(tf1);
@@ -155,17 +155,17 @@ int conservativeAdvancement(const CollisionGeometry* o1,
 
 template
 int conservativeAdvancement<RSS, MeshConservativeAdvancementTraversalNodeRSS, MeshCollisionTraversalNodeRSS>(const CollisionGeometry* o1,
-                                                                                                             MotionBase* motion1,
+                                                                                                             const MotionBase* motion1,
                                                                                                              const CollisionGeometry* o2,
-                                                                                                             MotionBase* motion2,
+                                                                                                             const MotionBase* motion2,
                                                                                                              const CollisionRequest& request,
                                                                                                              CollisionResult& result,
                                                                                                              FCL_REAL& toc);
 
 template int conservativeAdvancement<OBBRSS, MeshConservativeAdvancementTraversalNodeOBBRSS, MeshCollisionTraversalNodeOBBRSS>(const CollisionGeometry* o1,
-                                                                                                                               MotionBase* motion1,
+                                                                                                                               const MotionBase* motion1,
                                                                                                                                const CollisionGeometry* o2,
-                                                                                                                               MotionBase* motion2,
+                                                                                                                               const MotionBase* motion2,
                                                                                                                                const CollisionRequest& request,
                                                                                                                                CollisionResult& result,
                                                                                                                                FCL_REAL& toc);

@@ -81,20 +81,14 @@ TVector3 TVector3::operator + (const TVector3& other) const
   return TVector3(i_[0] + other.i_[0], i_[1] + other.i_[1], i_[2] + other.i_[2]);
 }
 
-TVector3 TVector3::operator + (FCL_REAL d) const
-{
-  return TVector3(i_[0], i_[1], i_[2] + d);
-}
-
-TVector3& TVector3::operator += (FCL_REAL d)
-{
-  i_[2] += d;
-  return *this;
-}
-
 TVector3 TVector3::operator - (const TVector3& other) const
 {
   return TVector3(i_[0] - other.i_[0], i_[1] - other.i_[1], i_[2] - other.i_[2]);
+}
+
+TVector3 TVector3::operator - () const
+{
+  return TVector3(-i_[0], -i_[1], -i_[2]);
 }
 
 TVector3& TVector3::operator += (const TVector3& other)
@@ -112,6 +106,33 @@ TVector3& TVector3::operator -= (const TVector3& other)
   i_[2] -= other.i_[2];
   return *this;
 }
+
+TVector3 TVector3::operator + (const Vec3f& other) const
+{
+  return TVector3(i_[0] + other[0], i_[1] + other[1], i_[2] + other[2]);
+}
+
+TVector3& TVector3::operator += (const Vec3f& other)
+{
+  i_[0] += other[0];
+  i_[1] += other[1];
+  i_[2] += other[2];
+  return *this;
+}
+
+TVector3 TVector3::operator - (const Vec3f& other) const
+{
+  return TVector3(i_[0] - other[0], i_[1] - other[1], i_[2] - other[2]);
+}
+
+TVector3& TVector3::operator -= (const Vec3f& other)
+{
+  i_[0] -= other[0];
+  i_[1] -= other[1];
+  i_[2] -= other[2];
+  return *this;
+}
+
 
 TVector3 TVector3::operator * (const TaylorModel& d) const
 {
@@ -183,6 +204,27 @@ IVector3 TVector3::getBound() const
   return IVector3(i_[0].getBound(), i_[1].getBound(), i_[2].getBound());
 }
 
+IVector3 TVector3::getBound(FCL_REAL l, FCL_REAL r) const
+{
+  return IVector3(i_[0].getBound(l, r), i_[1].getBound(l, r), i_[2].getBound(l, r));
+}
+
+IVector3 TVector3::getBound(FCL_REAL t) const
+{
+  return IVector3(i_[0].getBound(t), i_[1].getBound(t), i_[2].getBound(t));
+}
+
+IVector3 TVector3::getTightBound() const
+{
+  return IVector3(i_[0].getTightBound(), i_[1].getTightBound(), i_[2].getTightBound());
+}
+
+IVector3 TVector3::getTightBound(FCL_REAL l, FCL_REAL r) const
+{
+  return IVector3(i_[0].getTightBound(l, r), i_[1].getTightBound(l, r), i_[2].getTightBound(l, r));
+}
+
+
 void TVector3::print() const
 {
   i_[0].print();
@@ -190,10 +232,6 @@ void TVector3::print() const
   i_[2].print();
 }
 
-IVector3 TVector3::getBound(FCL_REAL t) const
-{
-  return IVector3(i_[0].getBound(t), i_[1].getBound(t), i_[2].getBound(t));
-}
 
 TaylorModel TVector3::squareLength() const
 {
@@ -207,14 +245,45 @@ void TVector3::setTimeInterval(const boost::shared_ptr<TimeInterval>& time_inter
   i_[2].setTimeInterval(time_interval);
 }
 
+void TVector3::setTimeInterval(FCL_REAL l, FCL_REAL r)
+{
+  i_[0].setTimeInterval(l, r);
+  i_[1].setTimeInterval(l, r);
+  i_[2].setTimeInterval(l, r);
+}
+
+const boost::shared_ptr<TimeInterval>& TVector3::getTimeInterval() const
+{
+  return i_[0].getTimeInterval();
+}
+
 void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity)
 {
-  generateTaylorModelForLinearFunc(v.i_[0], position[0], velocity[0]);
-  generateTaylorModelForLinearFunc(v.i_[1], position[1], velocity[1]);
-  generateTaylorModelForLinearFunc(v.i_[2], position[2], velocity[2]);
+  generateTaylorModelForLinearFunc(v[0], position[0], velocity[0]);
+  generateTaylorModelForLinearFunc(v[1], position[1], velocity[1]);
+  generateTaylorModelForLinearFunc(v[2], position[2], velocity[2]);
 }
 
 
+TVector3 operator * (const Vec3f& v, const TaylorModel& a)
+{
+  TVector3 res(a.getTimeInterval());
+  res[0] = a * v[0];
+  res[1] = a * v[1];
+  res[2] = a * v[2];
+
+  return res;
+}
+
+TVector3 operator + (const Vec3f& v1, const TVector3& v2)
+{
+  return v2 + v1;
+}
+
+TVector3 operator - (const Vec3f& v1, const TVector3& v2)
+{
+  return -v2 + v1;
+}
 
 
 
