@@ -44,13 +44,15 @@
 #include "fcl/BVH/BV_fitter.h"
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
 
 namespace fcl
 {
 
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 template<typename BV>
-class BVHModel : public CollisionGeometry
+class BVHModel : public CollisionGeometry,
+                 private boost::noncopyable
 {
 
 public:
