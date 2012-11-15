@@ -787,7 +787,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
         contact_points[i] = deepest_points2[i];
       }
 
-      *normal = -n1;
+      *normal = n1;
       *penetration_depth = penetration_depth2;
     }
     else
@@ -798,7 +798,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
         contact_points[i] = deepest_points1[i];
       }
 
-      *normal = n2;
+      *normal = -n2;
       *penetration_depth = penetration_depth1;
     }
   }
@@ -905,7 +905,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
         contact_points[i] = deepest_points2[i];
       }
 
-      *normal = -n1;
+      *normal = n1;
       *penetration_depth = penetration_depth2;
     }
     else
@@ -916,7 +916,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
         contact_points[i] = deepest_points1[i];
       }
 
-      *normal = n2;
+      *normal = -n2;
       *penetration_depth = penetration_depth1;
     }
   }
