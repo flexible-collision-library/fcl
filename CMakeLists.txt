@@ -58,7 +58,8 @@ if(MSVC OR MSVC90 OR MSVC10)
 endif()
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
-include_directories("include")
+# FCL's own include dir should be at the front of the include path
+include_directories(BEFORE "include")
 
 if(PKG_CONFIG_FOUND)
     pkg_check_modules(CCD REQUIRED ccd)
