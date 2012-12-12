@@ -89,7 +89,6 @@ configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
 install(DIRECTORY include/ DESTINATION include
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
   PATTERN ".DS_Store" EXCLUDE
-  PATTERN ".svn" EXCLUDE
 )
 
 install(FILES "${pkg_conf_file}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
