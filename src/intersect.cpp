@@ -900,7 +900,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
     if(penetration_depth1 > penetration_depth2)
     {
       *num_contact_points = std::min(num_deepest_points2, (unsigned int)2);
-      for(unsigned int i = 0; i < num_deepest_points2; ++i)
+      for(unsigned int i = 0; i < *num_contact_points; ++i)
       {
         contact_points[i] = deepest_points2[i];
       }
@@ -911,7 +911,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
     else
     {
       *num_contact_points = std::min(num_deepest_points1, (unsigned int)2);
-      for(unsigned int i = 0; i < num_deepest_points1; ++i)
+      for(unsigned int i = 0; i < *num_contact_points; ++i)
       {
         contact_points[i] = deepest_points1[i];
       }
