@@ -62,8 +62,13 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 include_directories(BEFORE "include")
 
 if(PKG_CONFIG_FOUND)
-    pkg_check_modules(CCD REQUIRED ccd)
+  pkg_check_modules(CCD ccd)
+  # check to see if the pkg is installed under the libccd name
+  if(NOT CCD_FOUND)
+    pkg_check_modules(CCD libccd)
+  endif()
 endif()
+
 if(NOT CCD_FOUND)
     # if pkfconfig is not installed, then fall back on more fragile detection
     # of ccd
