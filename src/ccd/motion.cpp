@@ -525,5 +525,6 @@ Quaternion3f InterpMotion::absoluteRotation(FCL_REAL dt) const
   return delta_t * tf1.getQuatRotation();
 }
 
+template class TBVMotionBoundVisitor<RSS>;
 
 }
