@@ -39,6 +39,11 @@
 
 #include <boost/assert.hpp>
 
+// Define for boost version < 1.47
+#ifndef BOOST_ASSERT_MSG
+#define BOOST_ASSERT_MSG(expr, msg) ((void)0)
+#endif
+
 namespace fcl 
 {
 
