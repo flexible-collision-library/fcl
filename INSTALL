@@ -1,0 +1,32 @@
+
+Dependencies:
+============
+
+ - Boost (thread, date_time, unit_test_framework, filesystem)
+ - libccd (available at http://libccd.danfis.cz/)
+ - octomap (optional dependency, available at http://octomap.github.com)
+
+Boost and libccd are mandatory dependencies. If octomap is not found,
+collision detection with octrees will not be possible.
+
+For installation, CMake will also be needed (http://cmake.org).
+
+Install:
+=======
+
+* Linux / Mac OS:
+  The CMakeLists.txt can be used to generate makefiles; For example, one may use operations such as:
+
+  mkdir build
+  cd build
+  cmake ..
+  make -jN # N is the maximum number of parallel compile jobs
+  
+Once the compilation is finished,
+  make install
+will install the project. To specify the installation prefix,
+pass the parameter -DCMAKE_INSTALL_PREFIX=/my/prefix/ to the "cmake .." command above.
+
+
+* Visual Studio:
+  The CMakeLists.txt can be used to generate a Visual Studio project, using the cmake build tool.
