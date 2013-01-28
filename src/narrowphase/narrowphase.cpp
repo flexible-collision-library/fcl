@@ -213,7 +213,6 @@ bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
       }
       else
       {
-        FCL_REAL distance = 0;
         if(normal_) *normal_ = normal;
         if(contact_points) *contact_points = contact_point;
         if(penetration_depth) *penetration_depth = -radius;
@@ -1217,10 +1216,10 @@ bool boxBoxIntersect(const Box& s1, const Transform3f& tf1,
   int return_code; 
   Vec3f normal;
   FCL_REAL depth;
-  int cnum = boxBox2(s1.side, tf1.getRotation(), tf1.getTranslation(),
-                     s2.side, tf2.getRotation(), tf2.getTranslation(),
-                     normal, &depth, &return_code,
-                     4, contacts);
+  /* int cnum = */ boxBox2(s1.side, tf1.getRotation(), tf1.getTranslation(),
+                           s2.side, tf2.getRotation(), tf2.getTranslation(),
+                           normal, &depth, &return_code,
+                           4, contacts);
 
   if(normal_) *normal_ = normal;
   if(penetration_depth_) *penetration_depth_ = depth;
@@ -1524,7 +1523,7 @@ bool convexHalfspaceIntersect(const Convex& s1, const Transform3f& tf1,
   Vec3f v;
   FCL_REAL depth = std::numeric_limits<FCL_REAL>::max();
 
-  for(std::size_t i = 0; i < s1.num_points; ++i)
+  for(int i = 0; i < s1.num_points; ++i)
   {
     Vec3f p = tf1.transform(s1.points[i]);
     
@@ -2112,7 +2111,7 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
         Vec3f q;
             
         FCL_REAL p_d[2];
-        FCL_REAL q_d;
+        FCL_REAL q_d(0);
 
         if(n_positive == 2)
         {            
@@ -2153,7 +2152,7 @@ bool convexPlaneIntersect(const Convex& s1, const Transform3f& tf1,
   Vec3f v_min, v_max;
   FCL_REAL d_min = std::numeric_limits<FCL_REAL>::max(), d_max = -std::numeric_limits<FCL_REAL>::max();
 
-  for(std::size_t i = 0; i < s1.num_points; ++i)
+  for(int i = 0; i < s1.num_points; ++i)
   {
     Vec3f p = tf1.transform(s1.points[i]);
     
@@ -2231,7 +2230,7 @@ bool planeTriangleIntersect(const Plane& s1, const Transform3f& tf1,
       Vec3f q;
       
       FCL_REAL p_d[2];
-      FCL_REAL q_d;
+      FCL_REAL q_d(0);
       
       if(n_positive == 2)
       {

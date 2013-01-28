@@ -87,7 +87,7 @@ std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1,
     NODE_TYPE node_type1 = o1->getNodeType();
     NODE_TYPE node_type2 = o2->getNodeType();
   
-    if(object_type1 == OT_GEOM & object_type2 == OT_BVH)
+    if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
     {  
       if(!looktable.collision_matrix[node_type2][node_type1])
       {

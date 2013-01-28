@@ -6,15 +6,25 @@ if (NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# This shouldn't be necessary, but there has been trouble
+# with MSVC being set off, but MSVCXX ON.
+if(MSVC OR MSVC90 OR MSVC10)
+    set(MSVC ON)
+endif (MSVC OR MSVC90 OR MSVC10)
+
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
-
+include(CompilerSettings)
 include(FCLVersion)
 
-option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" OFF)
+if(MSVC OR IS_ICPC)
+  option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" ON)
+else()
+  option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" OFF)
+endif()
 
 # Whether to enable SSE
-option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
+option(FCL_USE_SSE "Whether FCL should SSE instructions" OFF)
 set(FCL_HAVE_SSE 0)
 if(FCL_USE_SSE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -53,7 +63,7 @@ endif()
 find_package(Boost COMPONENTS thread date_time filesystem system unit_test_framework REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
-if(MSVC OR MSVC90 OR MSVC10)
+if(MSVC)
     add_definitions(-DBOOST_ALL_NO_LIB)
 endif()
 add_definitions(-DBOOST_TEST_DYN_LINK)

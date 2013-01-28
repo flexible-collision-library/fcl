@@ -308,7 +308,7 @@ struct BVTQ
   std::priority_queue<BVT, std::vector<BVT>, BVT_Comparer> pq;
 
   /** \brief Queue size */
-  int qsize;
+  unsigned int qsize;
 };
 
 

@@ -68,7 +68,7 @@ public:
   /// @brief Get GJK object from a shape
   /// Notice that only local transformation is applied.
   /// Gloal transformation are considered later
-  static void* createGJKObject(const T& s, const Transform3f& tf) { return NULL; }
+  static void* createGJKObject(const T& /* s */, const Transform3f& /*tf*/) { return NULL; }
 
   /// @brief Delete GJK object
   static void deleteGJKObject(void* o) {}

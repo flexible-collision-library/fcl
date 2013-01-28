@@ -285,13 +285,13 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
 
 void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
 {
-  int n_edge = std::floor(std::pow(n, 1/3.0));
+  unsigned int n_edge = std::floor(std::pow(n, 1/3.0));
 
   FCL_REAL step_size = env_scale * 2 / n_edge;
   FCL_REAL delta_size = step_size * 0.05;
   FCL_REAL single_size = step_size - 2 * delta_size;
   
-  std::size_t i = 0;
+  unsigned int i = 0;
   for(; i < n_edge * n_edge * n_edge / 4; ++i)
   {
     int x = i % (n_edge * n_edge);
@@ -347,7 +347,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
 
 void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
 {
-  int n_edge = std::floor(std::pow(n, 1/3.0));
+  unsigned int n_edge = std::floor(std::pow(n, 1/3.0));
 
   FCL_REAL step_size = env_scale * 2 / n_edge;
   FCL_REAL delta_size = step_size * 0.05;

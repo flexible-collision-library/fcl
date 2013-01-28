@@ -302,7 +302,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(model2, tf2, shape_aabb);
-      bool res = AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
+      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
     }
   }
@@ -313,7 +313,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(model2, tf2, shape_aabb);
-      bool res = AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
+      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
@@ -759,7 +759,7 @@ namespace details
 {
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
-void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
+void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
                                               const BVHModel<BV>* model1, const S& model2,
                                               Vec3f* vertices, Triangle* tri_indices,
                                               const Transform3f& tf1,
@@ -767,7 +767,7 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int b2,
                                               const NarrowPhaseSolver* nsolver,
                                               bool enable_statistics,
                                               int & num_leaf_tests,
-                                              const DistanceRequest& request,
+                                              const DistanceRequest& /* request */,
                                               DistanceResult& result)
 {
   if(enable_statistics) num_leaf_tests++;
@@ -792,7 +792,7 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
                                                   Vec3f* vertices, Triangle* tri_indices, int init_tri_id,
                                                   const S& model2, const Transform3f& tf1, const Transform3f& tf2,
                                                   const NarrowPhaseSolver* nsolver,
-                                                  const DistanceRequest& request,
+                                                  const DistanceRequest& /* request */,
                                                   DistanceResult& result)
 {
   const Triangle& init_tri = tri_indices[init_tri_id];

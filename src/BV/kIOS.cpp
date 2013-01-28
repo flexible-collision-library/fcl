@@ -135,7 +135,7 @@ FCL_REAL kIOS::size() const
 FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
 {
   FCL_REAL d_max = 0;
-  unsigned int id_a = -1, id_b = -1;
+  int id_a = -1, id_b = -1;
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
