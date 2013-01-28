@@ -1018,7 +1018,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     normal2 = -normal;
 
   nr = Rb->transposeTimes(normal2);
-  anr = abs(anr);
+  anr = abs(nr);
 
   // find the largest compontent of anr: this corresponds to the normal
   // for the indident face. the other axis numbers of the indicent face
