@@ -659,7 +659,7 @@ static inline FCL_REAL maximumDistance_pointcloud(Vec3f* ps, Vec3f* ps2, unsigne
   if(!indices) indirect_index = false;
 
   FCL_REAL maxD = 0;
-  for(unsigned int i = 0; i < n; ++i)
+  for(int i = 0; i < n; ++i)
   {
     int index = indirect_index ? indices[i] : i;
 
