@@ -45,50 +45,50 @@ namespace fcl
 namespace details
 {
 
+// Compute the point on a line segment that is the closest point on the
+// segment to to another point. The code is inspired by the explanation
+// given by Dan Sunday's page:
+//   http://geomalgorithms.com/a02-_lines.html
+static inline void lineSegmentPointClosestToPoint (const Vec3f &p, const Vec3f &s1, const Vec3f &s2, Vec3f &sp) {
+	Vec3f v = s2 - s1;
+	Vec3f w = p - s1;
+
+	FCL_REAL c1 = w.dot(v);
+	FCL_REAL c2 = v.dot(v);
+
+	if (c1 <= 0) {
+		sp = s1;
+	} else if (c2 <= c1) {
+		sp = s2;
+	} else {
+		FCL_REAL b = c1/c2;
+		Vec3f Pb = s1 + v * b;
+		sp = Pb;
+	}
+}
+
 bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1, 
                             const Capsule& s2, const Transform3f& tf2,
                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal_)
 {
-	// Code is inspired by the explanation given by Dan Sunday's page:
-	//   http://geomalgorithms.com/a02-_lines.html
 	Transform3f tf2_inv (tf2);
 	tf2_inv.inverse();
 
 	Vec3f pos1 (0., 0., 0.5 * s2.lz);
 	Vec3f pos2 (0., 0., -0.5 * s2.lz);
-
 	Vec3f s_c = tf2_inv.transform(tf1.transform(Vec3f()));
 
-	Vec3f v = pos2 - pos1;
-	Vec3f w = s_c - pos1;
+	Vec3f segment_point;
 
-	FCL_REAL c1 = w.dot(v);
-	FCL_REAL c2 = v.dot(v);
-
-	Vec3f base;
-	Vec3f diff;
-	Vec3f normal;
-
-	if (c1 <= 0) {
-		diff = s_c - pos1;
-		base = pos1;
-	} else if (c2 <= c1) {
-		diff = s_c - pos2;
-		base = pos2;
-	} else {
-		FCL_REAL b = c1/c2;
-		Vec3f Pb = pos1 + v * b;
-
-		diff = s_c - Pb;
-		base = Pb;
-	}
+	lineSegmentPointClosestToPoint (s_c, pos1, pos2, segment_point);
+	Vec3f diff = s_c - segment_point;
 
 	FCL_REAL distance = diff.length() - s1.radius - s2.radius;
 
 	if (distance > 0)
 		return false;
 
-	normal = diff.normalize() * - FCL_REAL(1);
+	Vec3f normal = diff.normalize() * - FCL_REAL(1);
 
 	if (distance < 0 && penetration_depth)
 		*penetration_depth = -distance;
@@ -97,13 +97,13 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
 		*normal_ = tf2.getQuatRotation().transform(normal);
 
 	if (contact_points) {
-		*contact_points = tf2.transform(base + normal * distance);
+		*contact_points = tf2.transform(segment_point + normal * distance);
 	}
 
 	/*
 	std::cout << "tf2 rot  = " << tf2.getRotation() << std::endl;
 	std::cout << "distance = " << distance << std::endl;
-	std::cout << "base     = " << base << std::endl;
+	std::cout << "segment_point     = " << segment_point << std::endl;
 	std::cout << "diff     = " << diff << std::endl;
 	std::cout << "normal(l)= " << (*normal_) << std::endl;
 	std::cout << "normal(w)= " << normal << std::endl;
