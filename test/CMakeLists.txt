@@ -27,6 +27,8 @@ add_fcl_test(test_fcl_shape_mesh_consistency test_fcl_shape_mesh_consistency.cpp
 add_fcl_test(test_fcl_frontlist test_fcl_frontlist.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_math test_fcl_math.cpp test_fcl_utility.cpp)
 
+add_fcl_test(test_fcl_sphere_capsule test_fcl_sphere_capsule.cpp)
+
 if (FCL_HAVE_OCTOMAP)
   add_fcl_test(test_fcl_octomap test_fcl_octomap.cpp test_fcl_utility.cpp)
 endif()

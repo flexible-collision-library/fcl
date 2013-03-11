@@ -45,6 +45,75 @@ namespace fcl
 namespace details
 {
 
+bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1, 
+                            const Capsule& s2, const Transform3f& tf2,
+                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal_)
+{
+	// Code is inspired by the explanation given by Dan Sunday's page:
+	//   http://geomalgorithms.com/a02-_lines.html
+	Transform3f tf2_inv (tf2);
+	tf2_inv.inverse();
+
+	Vec3f pos1 (0., 0., 0.5 * s2.lz);
+	Vec3f pos2 (0., 0., -0.5 * s2.lz);
+
+	Vec3f s_c = tf2_inv.transform(tf1.transform(Vec3f()));
+
+	Vec3f v = pos2 - pos1;
+	Vec3f w = s_c - pos1;
+
+	FCL_REAL c1 = w.dot(v);
+	FCL_REAL c2 = v.dot(v);
+
+	Vec3f base;
+	Vec3f diff;
+	Vec3f normal;
+
+	if (c1 <= 0) {
+		diff = s_c - pos1;
+		base = pos1;
+	} else if (c2 <= c1) {
+		diff = s_c - pos2;
+		base = pos2;
+	} else {
+		FCL_REAL b = c1/c2;
+		Vec3f Pb = pos1 + v * b;
+
+		diff = s_c - Pb;
+		base = Pb;
+	}
+
+	FCL_REAL distance = diff.length() - s1.radius - s2.radius;
+
+	if (distance > 0)
+		return false;
+
+	normal = diff.normalize() * - FCL_REAL(1);
+
+	if (distance < 0 && penetration_depth)
+		*penetration_depth = -distance;
+
+	if (normal_)
+		*normal_ = tf2.getQuatRotation().transform(normal);
+
+	if (contact_points) {
+		*contact_points = tf2.transform(base + normal * distance);
+	}
+
+	/*
+	std::cout << "tf2 rot  = " << tf2.getRotation() << std::endl;
+	std::cout << "distance = " << distance << std::endl;
+	std::cout << "base     = " << base << std::endl;
+	std::cout << "diff     = " << diff << std::endl;
+	std::cout << "normal(l)= " << (*normal_) << std::endl;
+	std::cout << "normal(w)= " << normal << std::endl;
+	std::cout << "contact  = " << (*contact_points) << std::endl;
+	std::cout << "origin = " << tf2.transform(Vec3f()) << std::endl;
+	*/
+
+	return true;
+}
+
 bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1, 
                            const Sphere& s2, const Transform3f& tf2,
                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
@@ -2290,6 +2359,13 @@ bool planeIntersect(const Plane& s1, const Transform3f& tf1,
 
 } // details
 
+template<>
+bool GJKSolver_libccd::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
+                                                       const Capsule &s2, const Transform3f& tf2,
+                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+	return details::sphereCapsuleIntersect (s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
@@ -2492,7 +2568,13 @@ bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const Tran
 
 
 
-
+template<>
+bool GJKSolver_indep::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
+                                                       const Capsule &s2, const Transform3f& tf2,
+                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+	return details::sphereCapsuleIntersect (s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
