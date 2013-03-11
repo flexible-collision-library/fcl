@@ -160,7 +160,9 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Distance_test_collision)
 	Capsule capsule (50, 200.);
 	Transform3f capsule_transform (Vec3f (0., 0., 100));
 
-	BOOST_CHECK (!solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
+	FCL_REAL distance;
+
+	BOOST_CHECK (!solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Distance_test_separated)
