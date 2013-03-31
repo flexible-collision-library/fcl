@@ -229,6 +229,8 @@ FCL_REAL BVHDistance(const CollisionGeometry* o1, const Transform3f& tf1, const 
 
   initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, request, result);
   distance(&node);
+  delete obj1_tmp;
+  delete obj2_tmp;
   
   return result.min_distance;
 }
