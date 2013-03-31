@@ -123,7 +123,7 @@ void SaPCollisionManager::registerObjects(const std::vector<CollisionObject*>& o
 
       endpoints[0]->prev[coord] = NULL;
       endpoints[0]->next[coord] = endpoints[1];
-      for(int i = 1; i < endpoints.size() - 1; ++i)
+      for(size_t i = 1; i < endpoints.size() - 1; ++i)
       {
         endpoints[i]->prev[coord] = endpoints[i-1];
         endpoints[i]->next[coord] = endpoints[i+1];
@@ -498,7 +498,7 @@ bool SaPCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionC
   const AABB& obj_aabb = obj->getAABB();
 
   FCL_REAL min_val = obj_aabb.min_[axis];
-  FCL_REAL max_val = obj_aabb.max_[axis];
+  //  FCL_REAL max_val = obj_aabb.max_[axis];
 
   EndPoint dummy;
   SaPAABB dummy_aabb;
@@ -564,7 +564,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
   {
     old_min_distance = min_dist;
     FCL_REAL min_val = aabb.min_[axis];
-    FCL_REAL max_val = aabb.max_[axis];
+    //    FCL_REAL max_val = aabb.max_[axis];
 
     EndPoint dummy; 
     SaPAABB dummy_aabb;

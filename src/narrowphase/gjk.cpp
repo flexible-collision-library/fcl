@@ -141,7 +141,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
       Vec3f* curp = convex->points;
       Vec3f bestv;
-      for(size_t i = 0; i < convex->num_points; ++i, curp+=1)
+      for(int i = 0; i < convex->num_points; ++i, curp+=1)
       {
         FCL_REAL dot = dir.dot(*curp);
         if(dot > maxdot)
@@ -402,6 +402,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   {
   case Valid: distance = ray.length(); break;
   case Inside: distance = 0; break;
+  default: break;
   }
   return status;
 }
@@ -509,8 +510,6 @@ bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist)
 
   if(a_dot_nab < 0) // the origin is on the outside part of ab
   {
-    FCL_REAL ba_l2 = ba.sqrLength();
-
     // following is similar to projectOrigin for two points
     // however, as we dont need to compute the parameterization, dont need to compute 0 or 1
     FCL_REAL a_dot_ba = a->w.dot(ba); 

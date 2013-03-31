@@ -87,6 +87,7 @@ struct ccd_triangle_t : public ccd_obj_t
   ccd_vec3_t c;
 };
 
+/*
 static void tripleCross(const ccd_vec3_t* a, const ccd_vec3_t* b, 
                         const ccd_vec3_t* c, ccd_vec3_t* d)
 {
@@ -338,6 +339,7 @@ static int doSimplex4Dist(ccd_simplex_t *simplex, ccd_vec3_t *dir, ccd_real_t* d
   return doSimplex3Dist(simplex, dir, dist);
 }
 
+
 static int doSimplexDist(ccd_simplex_t *simplex, ccd_vec3_t *dir, ccd_real_t* dist)
 {
   if(ccdSimplexSize(simplex) == 2)
@@ -358,6 +360,7 @@ static int doSimplexDist(ccd_simplex_t *simplex, ccd_vec3_t *dir, ccd_real_t* di
     return doSimplex4Dist(simplex, dir, dist);
   }
 }
+
 
 
 static ccd_real_t __ccdGJKDist(const void *obj1, const void *obj2,
@@ -435,7 +438,7 @@ static ccd_real_t __ccdGJKDist(const void *obj1, const void *obj2,
   // intersection wasn't found
   return min_dist;
 }
-
+*/
 
 /** Basic shape to ccd shape */
 static void shapeToGJK(const ShapeBase& s, const Transform3f& tf, ccd_obj_t* o)

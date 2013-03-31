@@ -44,6 +44,7 @@ namespace fcl
 
 template<typename BV>
 BVHModel<BV>::BVHModel(const BVHModel<BV>& other) : CollisionGeometry(other),
+                                                    boost::noncopyable(),
                                                     num_tris(other.num_tris),
                                                     num_vertices(other.num_vertices),
                                                     build_state(other.build_state),
