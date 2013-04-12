@@ -278,9 +278,11 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
+    double h_i = h / 2 - (i + 1) * hd;
+    double rh = r * (0.5 - h_i / h);
     for(unsigned int j = 0; j < tot; ++j)
     {
-      points.push_back(Vec3f(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd));
+      points.push_back(Vec3f(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
     }
   }
 
