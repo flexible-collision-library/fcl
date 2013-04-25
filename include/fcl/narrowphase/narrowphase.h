@@ -195,6 +195,12 @@ struct GJKSolver_libccd
 };
 
 
+/// @brief Fast implementation for sphere-capsule collision
+template<>
+bool GJKSolver_libccd::shapeIntersect<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
+                                                      const Capsule& s2, const Transform3f& tf2,
+                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+
 /// @brief Fast implementation for sphere-sphere collision
 template<>
 bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
@@ -295,6 +301,12 @@ bool GJKSolver_libccd::shapeTriangleIntersect(const Halfspace& s, const Transfor
 template<>
 bool GJKSolver_libccd::shapeTriangleIntersect(const Plane& s, const Transform3f& tf1,
                                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+
+/// @brief Fast implementation for sphere-capsule distance
+template<>
+bool GJKSolver_libccd::shapeDistance<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
+                                                      const Capsule& s2, const Transform3f& tf2,
+                                                     FCL_REAL* dist) const;
 
 /// @brief Fast implementation for sphere-sphere distance
 template<>
