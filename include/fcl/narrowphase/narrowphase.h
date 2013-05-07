@@ -598,6 +598,11 @@ struct GJKSolver_indep
   FCL_REAL gjk_max_iterations;
 };
 
+template<>
+bool GJKSolver_indep::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
+                                                       const Capsule &s2, const Transform3f& tf2,
+                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+
 /// @brief Fast implementation for sphere-sphere collision                                            
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
@@ -698,6 +703,11 @@ template<>
 bool GJKSolver_indep::shapeTriangleIntersect(const Plane& s, const Transform3f& tf1,
                                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
 
+
+template<>
+bool GJKSolver_indep::shapeDistance<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
+                                                    const Capsule& s2, const Transform3f& tf2,
+                                                    FCL_REAL* dist) const;
 
 /// @brief Fast implementation for sphere-sphere distance
 template<>
