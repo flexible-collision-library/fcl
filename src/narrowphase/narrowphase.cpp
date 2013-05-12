@@ -150,7 +150,7 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
   }
 
   if(contact_points)
-    *contact_points = tf1.transform(Vec3f()) + diff * 0.5;
+    *contact_points = tf1.transform(Vec3f()) - diff * s1.radius / (s1.radius + s2.radius);
   
   return true;
 }
