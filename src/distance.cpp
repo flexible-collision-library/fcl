@@ -106,25 +106,45 @@ FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
   return res;
 }
 
-template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_libccd* nsolver, const DistanceRequest& request, DistanceResult& result);
-template FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const GJKSolver_indep* nsolver, const DistanceRequest& request, DistanceResult& result);
-template FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver_libccd* nsolver, const DistanceRequest& request, DistanceResult& result);
-template FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const GJKSolver_indep* nsolver, const DistanceRequest& request, DistanceResult& result);
 
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const DistanceRequest& request, DistanceResult& result)
 {
-  GJKSolver_libccd solver;
-  return distance<GJKSolver_libccd>(o1, o2, &solver, request, result);
+  switch(request.gjk_solver_type)
+  {
+  case GST_LIBCCD:
+    {
+      GJKSolver_libccd solver;
+      return distance<GJKSolver_libccd>(o1, o2, &solver, request, result);
+    }
+  case GST_INDEP:
+    {
+      GJKSolver_indep solver;
+      return distance<GJKSolver_indep>(o1, o2, &solver, request, result);
+    }
+  default:
+    return -1; // error
+  }
 }
 
 FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
                   const CollisionGeometry* o2, const Transform3f& tf2,
                   const DistanceRequest& request, DistanceResult& result)
 {
-  GJKSolver_libccd solver;
-  return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
-  // GJKSolver_indep solver;
-  // return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
+  switch(request.gjk_solver_type)
+  {
+  case GST_LIBCCD:
+    {
+      GJKSolver_libccd solver;
+      return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
+    }
+  case GST_INDEP:
+    {
+      GJKSolver_indep solver;
+      return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
+    }
+  default:
+    return -1;
+  }
 }
 
 

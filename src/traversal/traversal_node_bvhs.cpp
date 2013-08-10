@@ -465,14 +465,14 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
     {
       const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
       d = data2.d;
-      n = data2.P2 - data2.P1;
+      n = data2.P2 - data2.P1; n.normalize();
       c1 = data2.c1;
       c2 = data2.c2;
       stack[stack.size() - 2] = stack[stack.size() - 1];
     }
     else
     {
-      n = data.P2 - data.P1;
+      n = data.P2 - data.P1; n.normalize();
       c1 = data.c1;
       c2 = data.c2;
     }
@@ -572,14 +572,14 @@ bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
     {
       const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
       d = data2.d;
-      n = data2.P2 - data2.P1;
+      n = data2.P2 - data2.P1; n.normalize();
       c1 = data2.c1;
       c2 = data2.c2;
       stack[stack.size() - 2] = stack[stack.size() - 1];
     }
     else
     {
-      n = data.P2 - data.P1;
+      n = data.P2 - data.P1; n.normalize();
       c1 = data.c1;
       c2 = data.c2;
     }
@@ -591,9 +591,9 @@ bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
       getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
       getBVAxis(model1->getBV(c1).bv, 1) * n[2] +
       getBVAxis(model1->getBV(c1).bv, 2) * n[2];
-    Matrix3f R0;
+    Quaternion3f R0;
     motion1->getCurrentRotation(R0);
-    n_transformed = R0 * n_transformed;
+    n_transformed = R0.transform(n_transformed);
     n_transformed.normalize();
 
     TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, -n_transformed);
@@ -682,10 +682,10 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(int b1, int b2,
   /// n is the local frame of object 1, pointing from object 1 to object2
   Vec3f n = P2 - P1;
   /// turn n into the global frame, pointing from object 1 to object 2
-  Matrix3f R0;
+  Quaternion3f R0;
   motion1->getCurrentRotation(R0);
-  Vec3f n_transformed = R0 * n;
-  n_transformed.normalize();
+  Vec3f n_transformed = R0.transform(n);
+  n_transformed.normalize(); // normalized here
 
   TriangleMotionBoundVisitor mb_visitor1(t11, t12, t13, n_transformed), mb_visitor2(t21, t22, t23, -n_transformed);
   FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
@@ -732,7 +732,7 @@ void MeshConservativeAdvancementTraversalNodeRSS::leafTesting(int b1, int b2) co
                                                               motion1, motion2,
                                                               enable_statistics,
                                                               min_distance,
-                                                              p1, p2,
+                                                              closest_p1, closest_p2,
                                                               last_tri_id1, last_tri_id2,
                                                               delta_t,
                                                               num_leaf_tests);
@@ -780,7 +780,7 @@ void MeshConservativeAdvancementTraversalNodeOBBRSS::leafTesting(int b1, int b2)
                                                               motion1, motion2,
                                                               enable_statistics,
                                                               min_distance,
-                                                              p1, p2,
+                                                              closest_p1, closest_p2,
                                                               last_tri_id1, last_tri_id2,
                                                               delta_t,
                                                               num_leaf_tests);

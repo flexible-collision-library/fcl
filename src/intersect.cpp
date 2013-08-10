@@ -1533,6 +1533,20 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
   return triDistance(S, T_transformed, P, Q);
 }
 
+
+FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
+                                       const Transform3f& tf,
+                                       Vec3f& P, Vec3f& Q)
+{
+  Vec3f T_transformed[3];
+  T_transformed[0] = tf.transform(T[0]);
+  T_transformed[1] = tf.transform(T[1]);
+  T_transformed[2] = tf.transform(T[2]);
+
+  return triDistance(S, T_transformed, P, Q);
+}
+
+
 FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                                        const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
                                        const Matrix3f& R, const Vec3f& Tl,
@@ -1543,5 +1557,265 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const V
   Vec3f T3_transformed = R * T3 + Tl;
   return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
+
+FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+                                       const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
+                                       const Transform3f& tf,
+                                       Vec3f& P, Vec3f& Q)
+{
+  Vec3f T1_transformed = tf.transform(T1);
+  Vec3f T2_transformed = tf.transform(T2);
+  Vec3f T3_transformed = tf.transform(T3);
+  return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
+}
+
+
+
+
+
+Project::ProjectResult Project::projectLine(const Vec3f& a, const Vec3f& b, const Vec3f& p)
+{
+  ProjectResult res;
+
+  const Vec3f d = b - a;
+  const FCL_REAL l = d.sqrLength();
+
+  if(l > 0)
+  {
+    const FCL_REAL t = (p - a).dot(d);
+    res.parameterization[1] = (t >= l) ? 1 : ((t <= 0) ? 0 : (t / l));
+    res.parameterization[0] = 1 - res.parameterization[1];
+    if(t >= l) { res.sqr_distance = (p - b).sqrLength(); res.encode = 2; /* 0x10 */ }
+    else if(t <= 0) { res.sqr_distance = (p - a).sqrLength(); res.encode = 1; /* 0x01 */ }
+    else { res.sqr_distance = (a + d * res.parameterization[1] - p).sqrLength(); res.encode = 3; /* 0x00 */ }
+  }
+
+  return res;
+}
+
+Project::ProjectResult Project::projectTriangle(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& p)
+{
+  ProjectResult res;
+	
+  static const size_t nexti[3] = {1, 2, 0};
+  const Vec3f* vt[] = {&a, &b, &c};
+  const Vec3f dl[] = {a - b, b - c, c - a};
+  const Vec3f& n = dl[0].cross(dl[1]);
+  const FCL_REAL l = n.sqrLength();
+	
+  if(l > 0)
+  {
+    FCL_REAL mindist = -1;
+    for(size_t i = 0; i < 3; ++i)
+    {
+      if((*vt[i] - p).dot(dl[i].cross(n)) > 0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
+      {
+        size_t j = nexti[i];
+        ProjectResult res_line = projectLine(*vt[i], *vt[j], p);
+
+        if(mindist < 0 || res_line.sqr_distance < mindist)
+        {
+          mindist = res_line.sqr_distance;
+          res.encode = static_cast<size_t>(((res_line.encode&1)?1<<i:0) + ((res_line.encode&2)?1<<j:0));
+          res.parameterization[i] = res_line.parameterization[0];
+          res.parameterization[j] = res_line.parameterization[1];
+          res.parameterization[nexti[j]] = 0;
+        }
+      }
+    }
+    
+    if(mindist < 0) // the origin project is within the triangle
+    {
+      FCL_REAL d = (a - p).dot(n);
+      FCL_REAL s = sqrt(l);
+      Vec3f p_to_project = n * (d / l);
+      mindist = p_to_project.sqrLength();
+      res.encode = 7; // m = 0x111
+      res.parameterization[0] = dl[1].cross(b - p -p_to_project).length() / s;
+      res.parameterization[1] = dl[2].cross(c - p -p_to_project).length() / s;
+      res.parameterization[2] = 1 - res.parameterization[0] - res.parameterization[1];
+    }
+
+    res.sqr_distance = mindist;
+  }
+
+  return  res;
+
+}
+
+Project::ProjectResult Project::projectTetrahedra(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, const Vec3f& p)
+{
+  ProjectResult res;
+
+  static const size_t nexti[] = {1, 2, 0};
+  const Vec3f* vt[] = {&a, &b, &c, &d};
+  const Vec3f dl[3] = {a-d, b-d, c-d};
+  FCL_REAL vl = triple(dl[0], dl[1], dl[2]); 
+  bool ng = (vl * (a-p).dot((b-c).cross(a-b))) <= 0;
+  if(ng && std::abs(vl) > 0) // abs(vl) == 0, the tetrahedron is degenerated; if ng is false, then the last vertex in the tetrahedron does not grow toward the origin (in fact origin is on the other side of the abc face)
+  {
+    FCL_REAL mindist = -1;
+
+    for(size_t i = 0; i < 3; ++i)
+    {
+      size_t j = nexti[i];
+      FCL_REAL s = vl * (d-p).dot(dl[i].cross(dl[j]));
+      if(s > 0) // the origin is to the outside part of a triangle face, then the optimal can only be on the triangle face
+      {
+        ProjectResult res_triangle = projectTriangle(*vt[i], *vt[j], d, p);
+        if(mindist < 0 || res_triangle.sqr_distance < mindist)
+        {
+          mindist = res_triangle.sqr_distance;
+          res.encode = static_cast<size_t>( (res_triangle.encode&1?1<<i:0) + (res_triangle.encode&2?1<<j:0) + (res_triangle.encode&4?8:0) );
+          res.parameterization[i] = res_triangle.parameterization[0];
+          res.parameterization[j] = res_triangle.parameterization[1];
+          res.parameterization[nexti[j]] = 0;
+          res.parameterization[3] = res_triangle.parameterization[2];
+        }
+      }
+    }
+
+    if(mindist < 0)
+    {
+      mindist = 0;
+      res.encode = 15;
+      res.parameterization[0] = triple(c - p, b - p, d - p) / vl;
+      res.parameterization[1] = triple(a - p, c - p, d - p) / vl;
+      res.parameterization[2] = triple(b - p, a - p, d - p) / vl;
+      res.parameterization[3] = 1 - (res.parameterization[0] + res.parameterization[1] + res.parameterization[2]);
+    }
+
+    res.sqr_distance = mindist;
+  }
+  else if(!ng)
+  {
+    res = projectTriangle(a, b, c, p);
+    res.parameterization[3] = 0;
+  }
+  return res;
+}
+
+Project::ProjectResult Project::projectLineOrigin(const Vec3f& a, const Vec3f& b)
+{
+  ProjectResult res;
+
+  const Vec3f d = b - a;
+  const FCL_REAL l = d.sqrLength();
+
+  if(l > 0)
+  {
+    const FCL_REAL t = - a.dot(d);
+    res.parameterization[1] = (t >= l) ? 1 : ((t <= 0) ? 0 : (t / l));
+    res.parameterization[0] = 1 - res.parameterization[1];
+    if(t >= l) { res.sqr_distance = b.sqrLength(); res.encode = 2; /* 0x10 */ }
+    else if(t <= 0) { res.sqr_distance = a.sqrLength(); res.encode = 1; /* 0x01 */ }
+    else { res.sqr_distance = (a + d * res.parameterization[1]).sqrLength(); res.encode = 3; /* 0x00 */ }
+  }
+
+  return res;
+}
+
+Project::ProjectResult Project::projectTriangleOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c)
+{
+  ProjectResult res;
+	
+  static const size_t nexti[3] = {1, 2, 0};
+  const Vec3f* vt[] = {&a, &b, &c};
+  const Vec3f dl[] = {a - b, b - c, c - a};
+  const Vec3f& n = dl[0].cross(dl[1]);
+  const FCL_REAL l = n.sqrLength();
+	
+  if(l > 0)
+  {
+    FCL_REAL mindist = -1;
+    for(size_t i = 0; i < 3; ++i)
+    {
+      if(vt[i]->dot(dl[i].cross(n)) > 0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
+      {
+        size_t j = nexti[i];
+        ProjectResult res_line = projectLineOrigin(*vt[i], *vt[j]);
+
+        if(mindist < 0 || res_line.sqr_distance < mindist)
+        {
+          mindist = res_line.sqr_distance;
+          res.encode = static_cast<size_t>(((res_line.encode&1)?1<<i:0) + ((res_line.encode&2)?1<<j:0));
+          res.parameterization[i] = res_line.parameterization[0];
+          res.parameterization[j] = res_line.parameterization[1];
+          res.parameterization[nexti[j]] = 0;
+        }
+      }
+    }
+    
+    if(mindist < 0) // the origin project is within the triangle
+    {
+      FCL_REAL d = a.dot(n);
+      FCL_REAL s = sqrt(l);
+      Vec3f o_to_project = n * (d / l);
+      mindist = o_to_project.sqrLength();
+      res.encode = 7; // m = 0x111
+      res.parameterization[0] = dl[1].cross(b - o_to_project).length() / s;
+      res.parameterization[1] = dl[2].cross(c - o_to_project).length() / s;
+      res.parameterization[2] = 1 - res.parameterization[0] - res.parameterization[1];
+    }
+
+    res.sqr_distance = mindist;
+  }
+
+  return  res;
+
+}
+
+Project::ProjectResult Project::projectTetrahedraOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d)
+{
+  ProjectResult res;
+
+  static const size_t nexti[] = {1, 2, 0};
+  const Vec3f* vt[] = {&a, &b, &c, &d};
+  const Vec3f dl[3] = {a-d, b-d, c-d};
+  FCL_REAL vl = triple(dl[0], dl[1], dl[2]); 
+  bool ng = (vl * a.dot((b-c).cross(a-b))) <= 0;
+  if(ng && std::abs(vl) > 0) // abs(vl) == 0, the tetrahedron is degenerated; if ng is false, then the last vertex in the tetrahedron does not grow toward the origin (in fact origin is on the other side of the abc face)
+  {
+    FCL_REAL mindist = -1;
+
+    for(size_t i = 0; i < 3; ++i)
+    {
+      size_t j = nexti[i];
+      FCL_REAL s = vl * d.dot(dl[i].cross(dl[j]));
+      if(s > 0) // the origin is to the outside part of a triangle face, then the optimal can only be on the triangle face
+      {
+        ProjectResult res_triangle = projectTriangleOrigin(*vt[i], *vt[j], d);
+        if(mindist < 0 || res_triangle.sqr_distance < mindist)
+        {
+          mindist = res_triangle.sqr_distance;
+          res.encode = static_cast<size_t>( (res_triangle.encode&1?1<<i:0) + (res_triangle.encode&2?1<<j:0) + (res_triangle.encode&4?8:0) );
+          res.parameterization[i] = res_triangle.parameterization[0];
+          res.parameterization[j] = res_triangle.parameterization[1];
+          res.parameterization[nexti[j]] = 0;
+          res.parameterization[3] = res_triangle.parameterization[2];
+        }
+      }
+    }
+
+    if(mindist < 0)
+    {
+      mindist = 0;
+      res.encode = 15;
+      res.parameterization[0] = triple(c, b, d) / vl;
+      res.parameterization[1] = triple(a, c, d) / vl;
+      res.parameterization[2] = triple(b, a, d) / vl;
+      res.parameterization[3] = 1 - (res.parameterization[0] + res.parameterization[1] + res.parameterization[2]);
+    }
+
+    res.sqr_distance = mindist;
+  }
+  else if(!ng)
+  {
+    res = projectTriangleOrigin(a, b, c);
+    res.parameterization[3] = 0;
+  }
+  return res;
+}
+
 
 }

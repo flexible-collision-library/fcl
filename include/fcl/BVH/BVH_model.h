@@ -216,6 +216,7 @@ public:
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
   boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
 
+
 private:
 
   int num_tris_allocated;

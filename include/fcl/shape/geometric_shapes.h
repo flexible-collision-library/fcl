@@ -56,10 +56,10 @@ public:
 };
 
 /// @brief Triangle stores the points instead of only indices of points
-class Triangle2 : public ShapeBase
+class TriangleP : public ShapeBase
 {
 public:
-  Triangle2(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_) : ShapeBase(), a(a_), b(b_), c(c_)
+  TriangleP(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_) : ShapeBase(), a(a_), b(b_), c(c_)
   {
   }
 

@@ -48,6 +48,9 @@
 namespace fcl
 {
 
+/// @brief Type of narrow phase GJK solver
+enum GJKSolverType {GST_LIBCCD, GST_INDEP};
+
 /// @brief Contact information returned by collision
 struct Contact
 {
@@ -167,7 +170,7 @@ struct CollisionResult;
 
 /// @brief request to the collision algorithm
 struct CollisionRequest
-{
+{  
   /// @brief The maximum number of contacts will return
   size_t num_max_contacts;
 
@@ -183,16 +186,29 @@ struct CollisionRequest
   /// @brief whether the cost computation is approximated
   bool use_approximate_cost;
 
+  /// @brief narrow phase solver
+  GJKSolverType gjk_solver_type;
+
+  /// @brief whether enable gjk intial guess
+  bool enable_cached_gjk_guess;
+  
+  /// @brief the gjk intial guess set by user
+  Vec3f cached_gjk_guess;
+
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
                    size_t num_max_cost_sources_ = 1,
                    bool enable_cost_ = false,
-                   bool use_approximate_cost_ = true) : num_max_contacts(num_max_contacts_),
-                                                        enable_contact(enable_contact_),
-                                                        num_max_cost_sources(num_max_cost_sources_),
-                                                        enable_cost(enable_cost_),
-                                                        use_approximate_cost(use_approximate_cost_)
+                   bool use_approximate_cost_ = true,
+                   GJKSolverType gjk_solver_type_ = GST_LIBCCD) : num_max_contacts(num_max_contacts_),
+                                                                  enable_contact(enable_contact_),
+                                                                  num_max_cost_sources(num_max_cost_sources_),
+                                                                  enable_cost(enable_cost_),
+                                                                  use_approximate_cost(use_approximate_cost_),
+                                                                  gjk_solver_type(gjk_solver_type_)
   {
+    enable_cached_gjk_guess = false;
+    cached_gjk_guess = Vec3f(1, 0, 0);
   }
 
   bool isSatisfied(const CollisionResult& result) const;
@@ -207,6 +223,9 @@ private:
 
   /// @brief cost sources
   std::set<CostSource> cost_sources;
+
+public:
+  Vec3f cached_gjk_guess;
 
 public:
   CollisionResult()
@@ -277,6 +296,7 @@ public:
   }
 };
 
+
 struct DistanceResult;
 
 /// @brief request to the distance computation
@@ -285,12 +305,28 @@ struct DistanceRequest
   /// @brief whether to return the nearest points
   bool enable_nearest_points;
 
-  DistanceRequest(bool enable_nearest_points_ = false) : enable_nearest_points(enable_nearest_points_)
+  /// @brief error threshold for approximate distance
+  FCL_REAL rel_err; // relative error, between 0 and 1
+  FCL_REAL abs_err; // absoluate error
+
+  /// @brief narrow phase solver type
+  GJKSolverType gjk_solver_type;
+
+
+
+  DistanceRequest(bool enable_nearest_points_ = false,
+                  FCL_REAL rel_err_ = 0.0,
+                  FCL_REAL abs_err_ = 0.0,
+                  GJKSolverType gjk_solver_type_ = GST_LIBCCD) : enable_nearest_points(enable_nearest_points_),
+                                                                rel_err(rel_err_),
+                                                                abs_err(abs_err_),
+                                                                gjk_solver_type(gjk_solver_type_)
   {
   }
 
   bool isSatisfied(const DistanceResult& result) const;
 };
+
 
 /// @brief distance result
 struct DistanceResult
@@ -386,6 +422,94 @@ public:
     b1 = NONE;
     b2 = NONE;
   }
+};
+
+
+enum CCDMotionType {CCDM_TRANS, CCDM_LINEAR, CCDM_SCREW, CCDM_SPLINE};
+enum CCDSolverType {CCDC_NAIVE, CCDC_CONSERVATIVE_ADVANCEMENT, CCDC_RAY_SHOOTING, CCDC_POLYNOMIAL_SOLVER};
+
+
+struct ContinuousCollisionRequest
+{
+  /// @brief maximum num of iterations
+  std::size_t num_max_iterations;
+
+  /// @brief error in first contact time
+  FCL_REAL toc_err;
+
+  /// @brief ccd motion type
+  CCDMotionType ccd_motion_type;
+
+  /// @brief gjk solver type
+  GJKSolverType gjk_solver_type;
+
+  /// @brief ccd solver type
+  CCDSolverType ccd_solver_type;
+  
+  ContinuousCollisionRequest(std::size_t num_max_iterations_ = 10,
+                             FCL_REAL toc_err_ = 0,
+                             CCDMotionType ccd_motion_type_ = CCDM_TRANS,
+                             GJKSolverType gjk_solver_type_ = GST_LIBCCD,
+                             CCDSolverType ccd_solver_type_ = CCDC_NAIVE) : num_max_iterations(num_max_iterations_),
+                                                                            toc_err(toc_err_),
+                                                                            ccd_motion_type(ccd_motion_type_),
+                                                                            gjk_solver_type(gjk_solver_type_),
+                                                                            ccd_solver_type(ccd_solver_type_)
+  {
+  }
+  
+};
+/// @brief continuous collision result
+struct ContinuousCollisionResult
+{
+  /// @brief collision or not
+  bool is_collide;
+  
+  /// @brief time of contact in [0, 1]
+  FCL_REAL time_of_contact;
+  
+  ContinuousCollisionResult() : is_collide(false), time_of_contact(1.0)
+  {
+  }
+};
+
+
+enum PenetrationDepthType {PDT_LOCAL, PDT_AL};
+
+struct PenetrationDepthMetricBase
+{
+  virtual FCL_REAL operator() (const Transform3f& tf1, const Transform3f& tf2) const = 0;
+};
+
+struct WeightEuclideanPDMetric : public PenetrationDepthMetricBase
+{
+  
+};
+
+struct PenetrationDepthRequest
+{
+  /// @brief PD algorithm type
+  PenetrationDepthType pd_type;
+
+  /// @brief gjk solver type
+  GJKSolverType gjk_solver_type;
+
+  PenetrationDepthRequest(PenetrationDepthType pd_type_ = PDT_LOCAL,
+                          GJKSolverType gjk_solver_type_ = GST_LIBCCD) : pd_type(pd_type_),
+                                                                         gjk_solver_type(gjk_solver_type_)
+  {
+  }
+};
+
+struct PenetrationDepthResult
+{
+  /// @brief penetration depth value
+  FCL_REAL pd_value;
+
+  /// @brief the transform where the collision is resolved
+  Transform3f resolve_trans;
+
+  
 };
 
 

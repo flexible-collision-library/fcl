@@ -115,6 +115,7 @@ public:
 
   /// @brief threshold for free (<= is free)
   FCL_REAL threshold_free;
+
 };
 
 /// @brief the object for collision or distance computation, contains the geometry and the transform information

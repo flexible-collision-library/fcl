@@ -46,12 +46,83 @@
 namespace fcl
 {
 
+class TranslationMotion : public MotionBase
+{
+public:
+  /// @brief Construct motion from intial and goal transform
+  TranslationMotion(const Transform3f& tf1,
+                    const Transform3f& tf2) : MotionBase(),
+                                              rot(tf1.getQuatRotation()),
+                                              trans_start(tf1.getTranslation()),
+                                              trans_range(tf2.getTranslation() - tf1.getTranslation())
+  {
+  }
+
+  TranslationMotion(const Matrix3f& R, const Vec3f& T1, const Vec3f& T2) : MotionBase()
+  {
+    rot.fromRotation(R);
+    trans_start = T1;
+    trans_range = T2 - T1;
+  }
+
+  bool integrate(FCL_REAL dt) const
+  {
+    if(dt > 1) dt = 1;
+    tf = Transform3f(rot, trans_start + trans_range * dt);
+    return true;
+  }
+
+  FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const
+  {
+    return mb_visitor.visit(*this);
+  }
+
+  FCL_REAL computeMotionBound(const TriangleMotionBoundVisitor& mb_visitor) const
+  {
+    return mb_visitor.visit(*this);
+  }
+
+  void getCurrentTransform(Transform3f& tf_) const
+  {
+    tf_ = tf;
+  }
+
+  void getTaylorModel(TMatrix3& tm, TVector3& tv) const
+  {
+  }
+
+  Vec3f getVelocity() const
+  {
+    return trans_range;
+  }
+
+ private:
+  /// @brief initial and goal transforms
+  Quaternion3f rot;
+  Vec3f trans_start, trans_range;
+
+  mutable Transform3f tf;
+};
+
 class SplineMotion : public MotionBase
 {
 public:
   /// @brief Construct motion from 4 deBoor points
   SplineMotion(const Vec3f& Td0, const Vec3f& Td1, const Vec3f& Td2, const Vec3f& Td3,
                const Vec3f& Rd0, const Vec3f& Rd1, const Vec3f& Rd2, const Vec3f& Rd3);
+
+  // @brief Construct motion from initial and goal transform
+  SplineMotion(const Matrix3f& R1, const Vec3f& T1,
+               const Matrix3f& R2, const Vec3f& T2) : MotionBase()
+  {
+    // TODO
+  }
+
+  SplineMotion(const Transform3f& tf1,
+               const Transform3f& tf2) : MotionBase()
+  {
+    // TODO
+  }
 
   
   /// @brief Integrate the motion from 0 to dt
@@ -71,22 +142,6 @@ public:
   }
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
-  {
-    R = tf.getRotation();
-    T = tf.getTranslation();
-  }
-
-  void getCurrentRotation(Matrix3f& R) const
-  {
-    R = tf.getRotation();
-  }
-
-  void getCurrentTranslation(Vec3f& T) const
-  {
-    T = tf.getTranslation();
-  }
-
   void getCurrentTransform(Transform3f& tf_) const
   {
     tf_ = tf;
@@ -209,7 +264,7 @@ class ScrewMotion : public MotionBase
 {
 public:
   /// @brief Default transformations are all identities
-  ScrewMotion()
+  ScrewMotion() : MotionBase()
   {
     // Default angular velocity is zero
     axis.setValue(1, 0, 0);
@@ -223,7 +278,8 @@ public:
 
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation
   ScrewMotion(const Matrix3f& R1, const Vec3f& T1,
-              const Matrix3f& R2, const Vec3f& T2) : tf1(R1, T1),
+              const Matrix3f& R2, const Vec3f& T2) : MotionBase(),
+                                                     tf1(R1, T1),
                                                      tf2(R2, T2),
                                                      tf(tf1)
   {
@@ -267,22 +323,6 @@ public:
 
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
-  {
-    R = tf.getRotation();
-    T = tf.getTranslation();
-  }
-
-  void getCurrentRotation(Matrix3f& R) const
-  {
-    R = tf.getRotation();
-  }
-
-  void getCurrentTranslation(Vec3f& T) const
-  {
-    T = tf.getTranslation();
-  }
-
   void getCurrentTransform(Transform3f& tf_) const
   {
     tf_ = tf;
@@ -438,22 +478,6 @@ public:
   }
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
-  {
-    R = tf.getRotation();
-    T = tf.getTranslation();
-  }
-
-  void getCurrentRotation(Matrix3f& R) const
-  {
-    R = tf.getRotation();
-  }
-
-  void getCurrentTranslation(Vec3f& T) const
-  {
-    T = tf.getTranslation();
-  }
-
   void getCurrentTransform(Transform3f& tf_) const
   {
     tf_ = tf;

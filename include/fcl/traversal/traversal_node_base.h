@@ -145,6 +145,20 @@ public:
   bool enable_statistics;
 };
 
+
+struct ConservativeAdvancementStackData
+{
+  ConservativeAdvancementStackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, FCL_REAL d_)
+    : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
+
+  Vec3f P1;
+  Vec3f P2;
+  int c1;
+  int c2;
+  FCL_REAL d;
+};
+
+
 }
 
 #endif

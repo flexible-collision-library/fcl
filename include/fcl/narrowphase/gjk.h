@@ -68,18 +68,20 @@ struct MinkowskiDiff
   {
     return getSupport(shapes[0], d);
   }
-
+  
   /// @brief support function for shape1
   inline Vec3f support1(const Vec3f& d) const
   {
     return toshape0.transform(getSupport(shapes[1], toshape1 * d));
   }
 
+  /// @brief support function for the pair of shapes
   inline Vec3f support(const Vec3f& d) const
   {
     return support0(d) - support1(-d);
   }
 
+  /// @brief support function for the d-th shape (d = 0 or 1)
   inline Vec3f support(const Vec3f& d, size_t index) const
   {
     if(index)
@@ -88,23 +90,31 @@ struct MinkowskiDiff
       return support0(d);
   }
 
+  /// @brief support function for translating shape0, which is translating at velocity v
+  inline Vec3f support0(const Vec3f& d, const Vec3f& v) const
+  {
+    if(d.dot(v) <= 0)
+      return getSupport(shapes[0], d);
+    else
+      return getSupport(shapes[0], d) + v;
+  }
+
+  /// @brief support function for the pair of shapes, where shape0 is translating at velocity v
+  inline Vec3f support(const Vec3f& d, const Vec3f& v) const
+  {
+    return support0(d, v) - support1(-d);
+  }
+
+  /// @brief support function for the d-th shape (d = 0 or 1), where shape0 is translating at velocity v
+  inline Vec3f support(const Vec3f& d, const Vec3f& v, size_t index) const
+  {
+    if(index)
+      return support1(d);
+    else
+      return support0(d, v);
+  }
 };
 
-/// @brief project origin on to a line (a, b). w[0:1] return the (0, 1) parameterization of the projected point. 
-/// m is a encode about the result case: 0x10--> project is larger than b; 0x01--> project is smaller than a;
-/// 0x11-> within the line;
-/// return value is distance between the origin and its projection.
-FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, FCL_REAL* w, size_t& m);
-
-/// @brief project origin on to a triangle (a, b, c). w[0:2] return the (0, 1) parameterization of the projected point. 
-/// m is a encode about the result case.
-/// return value is distance between the origin and its projection.
-FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, FCL_REAL* w, size_t& m);
-
-/// @brief project origin on to a tetrahedra (a, b, c, d). w[0:3] return the (0, 1) parameterization of the projected point. 
-/// m is a encode about the result case.
-/// return value is distance between the origin and its projection.
-FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, FCL_REAL* w, size_t& m);
 
 /// @brief class for GJK algorithm
 struct GJK
@@ -113,7 +123,7 @@ struct GJK
   {
     /// @brief support direction
     Vec3f d; 
-    /// @brieg support vector
+    /// @brieg support vector (i.e., the furthest point on the shape along the support direction)
     Vec3f w;
   };
 
@@ -124,7 +134,9 @@ struct GJK
     /// @brief weight 
     FCL_REAL p[4];
     /// @brief size of simplex (number of vertices)
-    size_t rank; 
+    size_t rank;
+
+    Simplex() : rank(0) {}
   };
 
   enum Status {Valid, Inside, Failed};
@@ -149,6 +161,9 @@ struct GJK
   /// @brief apply the support function along a direction, the result is return in sv
   void getSupport(const Vec3f& d, SimplexV& sv) const;
 
+  /// @brief apply the support function along a direction, the result is return is sv, here shape0 is translating at velocity v
+  void getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const;
+
   /// @brief discard one vertex from the simplex
   void removeVertex(Simplex& simplex);
 
@@ -158,12 +173,15 @@ struct GJK
   /// @brief whether the simplex enclose the origin
   bool encloseOrigin();
 
-  /// @brief get the underlying simplex using in GJK
+  /// @brief get the underlying simplex using in GJK, can be used for cache in next iteration
   inline Simplex* getSimplex() const
   {
     return simplex;
   }
-  
+
+  /// @brief get the guess from current simplex
+  Vec3f getGuessFromSimplex() const;
+
 private:
   SimplexV store_v[4];
   SimplexV* free_v[4];
@@ -286,7 +304,6 @@ public:
 
 
 } // details
-
 
 
 

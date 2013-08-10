@@ -145,6 +145,24 @@ struct DistanceData
 
 };
 
+/// @brief Continuous collision data stores the continuous collision request and result given the continuous collision algorithm.
+struct ContinuousCollisionData
+{
+  ContinuousCollisionData()
+  {
+    done = false;
+  }
+
+  /// @brief Continuous collision request
+  ContinuousCollisionRequest request;
+
+  /// @brief Continuous collision result
+  ContinuousCollisionResult result;
+
+  /// @brief Whether the continuous collision iteration can stop
+  bool done;
+};
+
 
 
 /// @brief Default collision callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now.

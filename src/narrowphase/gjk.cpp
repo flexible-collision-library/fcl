@@ -35,6 +35,7 @@
 /** \author Jia Pan */
 
 #include "fcl/narrowphase/gjk.h"
+#include "fcl/intersect.h"
 
 namespace fcl
 {
@@ -48,7 +49,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   {
   case GEOM_TRIANGLE:
     {
-      const Triangle2* triangle = static_cast<const Triangle2*>(shape);
+      const TriangleP* triangle = static_cast<const TriangleP*>(shape);
       FCL_REAL dota = dir.dot(triangle->a);
       FCL_REAL dotb = dir.dot(triangle->b);
       FCL_REAL dotc = dir.dot(triangle->c);
@@ -154,126 +155,13 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
     }
     break;
   case GEOM_PLANE:
-    {
-      return Vec3f(0, 0, 0);
-    }
-    break;
+	break;
   default:
     ; // nothing
   }
 
   return Vec3f(0, 0, 0);
 }
-
-
-FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, FCL_REAL* w, size_t& m)
-{
-  const Vec3f d = b - a;
-  const FCL_REAL l = d.sqrLength();
-  if(l > 0)
-  {
-    const FCL_REAL t(l > 0 ? - a.dot(d) / l : 0);
-    if(t >= 1) { w[0] = 0; w[1] = 1; m = 2; return b.sqrLength(); } // m = 0x10 
-    else if(t <= 0) { w[0] = 1; w[1] = 0; m = 1; return a.sqrLength(); } // m = 0x01
-    else { w[0] = 1 - (w[1] = t); m = 3; return (a + d * t).sqrLength(); } // m = 0x11
-  }
-
-  return -1;
-}
-
-FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, FCL_REAL* w, size_t& m)
-{
-  static const size_t nexti[3] = {1, 2, 0};
-  const Vec3f* vt[] = {&a, &b, &c};
-  const Vec3f dl[] = {a - b, b - c, c - a};
-  const Vec3f& n = dl[0].cross(dl[1]);
-  const FCL_REAL l = n.sqrLength();
-
-  if(l > 0)
-  {
-    FCL_REAL mindist = -1;
-    FCL_REAL subw[2] = {0, 0};
-    size_t subm = 0;
-    for(size_t i = 0; i < 3; ++i)
-    {
-      if(vt[i]->dot(dl[i].cross(n)) > 0) // origin is to the outside part of the triangle edge, then the optimal can only be on the edge
-      {
-        size_t j = nexti[i];
-        FCL_REAL subd = projectOrigin(*vt[i], *vt[j], subw, subm);
-        if(mindist < 0 || subd < mindist)
-        {
-          mindist = subd;
-          m = static_cast<size_t>(((subm&1)?1<<i:0) + ((subm&2)?1<<j:0));
-          w[i] = subw[0];
-          w[j] = subw[1];
-          w[nexti[j]] = 0;
-        }
-      }
-    }
-    
-    if(mindist < 0) // the origin project is within the triangle
-    {
-      FCL_REAL d = a.dot(n);
-      FCL_REAL s = sqrt(l);
-      Vec3f p = n * (d / l);
-      mindist = p.sqrLength();
-      m = 7; // m = 0x111
-      w[0] = dl[1].cross(b-p).length() / s;
-      w[1] = dl[2].cross(c-p).length() / s;
-      w[2] = 1 - (w[0] + w[1]);
-    }
-
-    return mindist;
-  }
-  return -1;
-}
-
-FCL_REAL projectOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, FCL_REAL* w, size_t& m)
-{
-  static const size_t nexti[] = {1, 2, 0};
-  const Vec3f* vt[] = {&a, &b, &c, &d};
-  const Vec3f dl[3] = {a-d, b-d, c-d};
-  FCL_REAL vl = triple(dl[0], dl[1], dl[2]); 
-  bool ng = (vl * a.dot((b-c).cross(a-b))) <= 0;
-  if(ng && std::abs(vl) > 0) // abs(vl) == 0, the tetrahedron is degenerated; if ng is false, then the last vertex in the tetrahedron does not grow toward the origin (in fact origin is on the other side of the abc face)
-  {
-    FCL_REAL mindist = -1;
-    FCL_REAL subw[3] = {0, 0, 0};
-    size_t subm = 0;
-    for(size_t i = 0; i < 3; ++i)
-    {
-      size_t j = nexti[i];
-      FCL_REAL s = vl * d.dot(dl[i].cross(dl[j]));
-      if(s > 0) // the origin is to the outside part of a triangle face, then the optimal can only be on the triangle face
-      {
-        FCL_REAL subd = projectOrigin(*vt[i], *vt[j], d, subw, subm);
-        if(mindist < 0 || subd < mindist)
-        {
-          mindist = subd;
-          m = static_cast<size_t>( (subm&1?1<<i:0) + (subm&2?1<<j:0) + (subm&4?8:0) );
-          w[i] = subw[0];
-          w[j] = subw[1];
-          w[nexti[j]] = 0;
-          w[3] = subw[2];
-        }
-      }
-    }
-
-    if(mindist < 0)
-    {
-      mindist = 0;
-      m = 15;
-      w[0] = triple(c, b, d) / vl;
-      w[1] = triple(a, c, d) / vl;
-      w[2] = triple(b, a, d) / vl;
-      w[3] = 1 - (w[0] + w[1] + w[2]);
-    }
-    
-    return mindist;
-  }
-  return -1;
-}
-
 
 void GJK::initialize()
 {
@@ -282,12 +170,19 @@ void GJK::initialize()
   status = Failed;
   current = 0;
   distance = 0.0;
+  simplex = NULL;
 }
+
+
+Vec3f GJK::getGuessFromSimplex() const
+{
+  return ray;
+}
+
 
 GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 {
   size_t iterations = 0;
-  FCL_REAL sqdist = 0;
   FCL_REAL alpha = 0;
   Vec3f lastw[4];
   size_t clastw = 0;
@@ -304,29 +199,29 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   distance = 0.0;
   simplices[0].rank = 0;
   ray = guess;
-    
-  FCL_REAL sqrl = ray.sqrLength();
-  appendVertex(simplices[0], (sqrl>0) ? -ray : Vec3f(1, 0, 0));
+
+  appendVertex(simplices[0], (ray.sqrLength() > 0) ? -ray : Vec3f(1, 0, 0));
   simplices[0].p[0] = 1;
   ray = simplices[0].c[0]->w;
-  sqdist = sqrl;
-  lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray;
+  lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
 
   do
   {
     size_t next = 1 - current;
     Simplex& curr_simplex = simplices[current];
     Simplex& next_simplex = simplices[next];
-      
-    FCL_REAL rl = ray.sqrLength();
-    if(rl < tolerance) // means origin is near the face of original simplex, return touch
+
+    // check A: when origin is near the existing simplex, stop
+    FCL_REAL rl = ray.length();
+    if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
       status = Inside;
       break;
     }
 
     appendVertex(curr_simplex, -ray); // see below, ray points away from origin
-      
+
+    // check B: when the new support point is close to previous support points, stop (as the new simplex is degenerated)
     Vec3f& w = curr_simplex.c[curr_simplex.rank - 1]->w;
     bool found = false;
     for(size_t i = 0; i < 4; ++i)
@@ -347,7 +242,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       lastw[clastw = (clastw+1)&3] = w;
     }
 
-    // check for termination, from bullet
+    // check C: when the new support point is close to the sub-simplex where the ray point lies, stop (as the new simplex again is degenerated)
     FCL_REAL omega = ray.dot(w) / rl;
     alpha = std::max(alpha, omega);
     if((rl - alpha) - tolerance * rl <= 0)
@@ -356,36 +251,34 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
       break;
     }
 
-    // reduce simplex and decide the extend direction
-    FCL_REAL weights[4];
-    size_t mask = 0; // decide the simplex vertices that compose the minimal distance
+    Project::ProjectResult project_res;
     switch(curr_simplex.rank)
     {
     case 2:
-      sqdist = projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, weights, mask); break;
+      project_res = Project::projectLineOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w); break;
     case 3:
-      sqdist = projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, weights, mask); break;
+      project_res = Project::projectTriangleOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w); break;
     case 4:
-      sqdist = projectOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, curr_simplex.c[3]->w, weights, mask); break;
+      project_res = Project::projectTetrahedraOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, curr_simplex.c[3]->w); break;
     }
       
-    if(sqdist >= 0)
+    if(project_res.sqr_distance >= 0)
     {
       next_simplex.rank = 0;
       ray = Vec3f();
       current = next;
       for(size_t i = 0; i < curr_simplex.rank; ++i)
       {
-        if(mask & (1 << i))
+        if(project_res.encode & (1 << i))
         {
           next_simplex.c[next_simplex.rank] = curr_simplex.c[i];
-          next_simplex.p[next_simplex.rank++] = weights[i];
-          ray += curr_simplex.c[i]->w * weights[i];
+          next_simplex.p[next_simplex.rank++] = project_res.parameterization[i]; // weights[i];
+          ray += curr_simplex.c[i]->w * project_res.parameterization[i]; // weights[i];
         }
         else
           free_v[nfree++] = curr_simplex.c[i];
       }
-      if(mask == 15) status = Inside; // the origin is within the 4-simplex, collision
+      if(project_res.encode == 15) status = Inside; // the origin is within the 4-simplex, collision
     }
     else
     {
@@ -411,6 +304,12 @@ void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
 {
   sv.d = normalize(d);
   sv.w = shape.support(sv.d);
+}
+
+void GJK::getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const
+{
+  sv.d = normalize(d);
+  sv.w = shape.support(sv.d, v);
 }
 
 void GJK::removeVertex(Simplex& simplex)

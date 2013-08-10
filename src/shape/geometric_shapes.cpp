@@ -186,7 +186,7 @@ void Plane::computeLocalAABB()
   aabb_radius = (aabb_local.min_ - aabb_center).length();
 }
 
-void Triangle2::computeLocalAABB()
+void TriangleP::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();

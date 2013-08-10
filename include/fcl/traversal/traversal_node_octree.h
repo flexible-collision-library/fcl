@@ -247,9 +247,10 @@ private:
         constructBox(bv1, tf1, box, box_tf);
  
         FCL_REAL dist;
-        solver->shapeDistance(box, box_tf, s, tf2, &dist);
+        Vec3f closest_p1, closest_p2;
+        solver->shapeDistance(box, box_tf, s, tf2, &dist, &closest_p1, &closest_p2);
         
-        dresult->update(dist, tree1, &s, root1 - tree1->getRoot(), DistanceResult::NONE);
+        dresult->update(dist, tree1, &s, root1 - tree1->getRoot(), DistanceResult::NONE, closest_p1, closest_p2);
         
         return drequest->isSatisfied(*dresult);
       }
@@ -440,7 +441,8 @@ private:
         const Vec3f& p3 = tree2->vertices[tri_id[2]];
         
         FCL_REAL dist;
-        solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2, &dist);
+        Vec3f closest_p1, closest_p2;
+        solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2, &dist, &closest_p1, &closest_p2);
 
         dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), primitive_id);
 
@@ -709,9 +711,10 @@ private:
         constructBox(bv2, tf2, box2, box2_tf);
 
         FCL_REAL dist;
-        solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist);
+        Vec3f closest_p1, closest_p2;
+        solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist, &closest_p1, &closest_p2);
 
-        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot());
+        dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), closest_p1, closest_p2);
         
         return drequest->isSatisfied(*dresult);
       }

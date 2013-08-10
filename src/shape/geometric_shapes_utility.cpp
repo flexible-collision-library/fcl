@@ -203,7 +203,7 @@ std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf)
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const Transform3f& tf)
+std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f& tf)
 {
   std::vector<Vec3f> result(3);
   result[0] = tf.transform(triangle.a);
@@ -333,7 +333,7 @@ void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, Triangle2>(const Triangle2& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf, AABB& bv)
 {
   bv = AABB(tf.transform(s.a), tf.transform(s.b), tf.transform(s.c));
 }

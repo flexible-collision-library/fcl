@@ -55,7 +55,7 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& t
 std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf);
 std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf);
 std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf);
-std::vector<Vec3f> getBoundVertices(const Triangle2& triangle, const Transform3f& tf);
+std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f& tf);
 } 
 /// @endcond
 
@@ -87,7 +87,7 @@ template<>
 void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Triangle2>(const Triangle2& s, const Transform3f& tf, AABB& bv);
+void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf, AABB& bv);
 
 template<>
 void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB& bv);

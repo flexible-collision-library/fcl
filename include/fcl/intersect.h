@@ -91,13 +91,13 @@ public:
 
   /// @brief CCD intersect between one vertex and one face, using additional filter 
   static bool intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                           const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                           FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
+                                    const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
+                                    FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
 
   /// @brief CCD intersect between two edges, using additional filter 
   static bool intersect_EE_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                           const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                           FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
+                                    const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
+                                    FCL_REAL* collision_time, Vec3f* p_i, bool useNewton = true);
 
   /// @brief CCD intersect between one vertex and and one edge 
   static bool intersect_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
@@ -204,7 +204,7 @@ private:
 
   /// @brief filter for intersection, works for both VF and EE 
   static bool intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                           const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1);
+                                    const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1);
 
   /// @brief distance of point v to a plane n * x - t = 0 
   static FCL_REAL distanceToPlane(const Vec3f& n, FCL_REAL t, const Vec3f& v);
@@ -246,6 +246,46 @@ private:
   static const unsigned int MAX_TRIANGLE_CLIPS = 8;
 };
 
+/// @brief Project functions
+class Project
+{
+public:
+  struct ProjectResult
+  {
+    /// @brief Parameterization of the projected point (based on the simplex to be projected, use 2 or 3 or 4 of the array)
+    FCL_REAL parameterization[4];
+
+    /// @brief square distance from the query point to the projected simplex
+    FCL_REAL sqr_distance;
+
+    /// @brief the code of the projection type
+    unsigned int encode;
+
+    ProjectResult() : sqr_distance(-1), encode(0)
+    {
+    }
+  };
+
+  /// @brief Project point p onto line a-b
+  static ProjectResult projectLine(const Vec3f& a, const Vec3f& b, const Vec3f& p);
+
+  /// @brief Project point p onto triangle a-b-c
+  static ProjectResult projectTriangle(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& p);
+
+  /// @brief Project point p onto tetrahedra a-b-c-d
+  static ProjectResult projectTetrahedra(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, const Vec3f& p);
+
+  /// @brief Project origin (0) onto line a-b
+  static ProjectResult projectLineOrigin(const Vec3f& a, const Vec3f& b);
+
+  /// @brief Project origin (0) onto triangle a-b-c
+  static ProjectResult projectTriangleOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c);
+
+  /// @brief Project origin (0) onto tetrahedran a-b-c-d
+  static ProjectResult projectTetrahedraOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d);
+};
+
+/// @brief Triangle distance functions
 class TriangleDistance
 {
 public:
@@ -256,7 +296,7 @@ public:
   /// X, Y are the closest points on the two segments
   /// VEC is the vector between X and Y
   static void segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q, const Vec3f& B,
-                   Vec3f& VEC, Vec3f& X, Vec3f& Y);
+                        Vec3f& VEC, Vec3f& X, Vec3f& Y);
 
   /// @brief Compute the closest points on two triangles given their absolute coordinate, and returns the distance between them
   /// S and T are two triangles
@@ -279,10 +319,20 @@ public:
                               const Matrix3f& R, const Vec3f& Tl,
                               Vec3f& P, Vec3f& Q);
 
+  static FCL_REAL triDistance(const Vec3f S[3], const Vec3f T[3],
+                              const Transform3f& tf,
+                              Vec3f& P, Vec3f& Q);
+
   static FCL_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
                               const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
                               const Matrix3f& R, const Vec3f& Tl,
                               Vec3f& P, Vec3f& Q);
+
+  static FCL_REAL triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
+                              const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
+                              const Transform3f& tf,
+                              Vec3f& P, Vec3f& Q);
+
 };
 
 

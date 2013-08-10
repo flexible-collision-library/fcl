@@ -115,7 +115,7 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const SplineMotion& motion) const
 }
 
 SplineMotion::SplineMotion(const Vec3f& Td0, const Vec3f& Td1, const Vec3f& Td2, const Vec3f& Td3,
-                           const Vec3f& Rd0, const Vec3f& Rd1, const Vec3f& Rd2, const Vec3f& Rd3)
+                           const Vec3f& Rd0, const Vec3f& Rd1, const Vec3f& Rd2, const Vec3f& Rd3) : MotionBase()
 {
   Td[0] = Td0;
   Td[1] = Td1;
@@ -437,7 +437,7 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const InterpMotion& motion) const
   return mu;  
 }
 
-InterpMotion::InterpMotion()
+InterpMotion::InterpMotion() : MotionBase()
 {
   // Default angular velocity is zero
   angular_axis.setValue(1, 0, 0);
@@ -449,20 +449,20 @@ InterpMotion::InterpMotion()
 }
 
 InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
-                           const Matrix3f& R2, const Vec3f& T2) :
-  tf1(R1, T1),
-  tf2(R2, T2),
-  tf(tf1)
+                           const Matrix3f& R2, const Vec3f& T2) : MotionBase(),
+                                                                  tf1(R1, T1),
+                                                                  tf2(R2, T2),
+                                                                  tf(tf1)
 {
   // Compute the velocities for the motion
   computeVelocity();
 }
 
 
-InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_) :
-  tf1(tf1_),
-  tf2(tf2_),
-  tf(tf1)
+InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_) : MotionBase(),
+                                                                               tf1(tf1_),
+                                                                               tf2(tf2_),
+                                                                               tf(tf1)
 {
   // Compute the velocities for the motion
   computeVelocity();
@@ -470,21 +470,21 @@ InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_) :
 
 InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
                            const Matrix3f& R2, const Vec3f& T2,
-                           const Vec3f& O) :
-  tf1(R1, T1),
-  tf2(R2, T2),
-  tf(tf1),
-  reference_p(O)
+                           const Vec3f& O) : MotionBase(),
+                                             tf1(R1, T1),
+                                             tf2(R2, T2),
+                                             tf(tf1),
+                                             reference_p(O)
 {
   // Compute the velocities for the motion
   computeVelocity();
 }
 
-InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_, const Vec3f& O) :
-  tf1(tf1_),
-  tf2(tf2_),
-  tf(tf1),
-  reference_p(O)
+InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_, const Vec3f& O) : MotionBase(),
+                                                                                               tf1(tf1_),
+                                                                                               tf2(tf2_),
+                                                                                               tf(tf1),
+                                                                                               reference_p(O)
 {
 }
 
@@ -523,6 +523,20 @@ Quaternion3f InterpMotion::absoluteRotation(FCL_REAL dt) const
 {
   Quaternion3f delta_t = deltaRotation(dt);
   return delta_t * tf1.getQuatRotation();
+}
+
+
+/// @brief Compute the motion bound for a bounding volume along a given direction n
+template<>
+FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const TranslationMotion& motion) const
+{
+  return motion.getVelocity().dot(n);
+}
+
+/// @brief Compute the motion bound for a triangle along a given direction n
+FCL_REAL TriangleMotionBoundVisitor::visit(const TranslationMotion& motion) const
+{
+  return motion.getVelocity().dot(n);
 }
 
 template class TBVMotionBoundVisitor<RSS>;

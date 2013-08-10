@@ -203,8 +203,21 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
   const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
   const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
 
+  if(request.enable_cached_gjk_guess)
+  {
+    nsolver->enableCachedGuess(true);
+    nsolver->setCachedGuess(request.cached_gjk_guess);
+  }
+  else
+  {
+    nsolver->enableCachedGuess(true);
+  }
+
   initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
   collide(&node);
+
+  if(request.enable_cached_gjk_guess)
+    result.cached_gjk_guess = nsolver->getCachedGuess();
 
   return result.numContacts();
 }

@@ -46,16 +46,6 @@ namespace fcl
 /// @brief Main distance interface: given two collision objects, and the requirements for contacts, including whether return the nearest points, this function performs the distance between them. 
 /// Return value is the minimum distance generated between the two objects.
 
-template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver,
-                  const DistanceRequest& request, DistanceResult& result);
-
-template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3f& tf1,
-                  const CollisionGeometry* o2, const Transform3f& tf2,
-                  const NarrowPhaseSolver* nsolver,
-                  const DistanceRequest& request, DistanceResult& result);
-
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
                   const DistanceRequest& request, DistanceResult& result);
 

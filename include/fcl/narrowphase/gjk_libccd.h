@@ -160,7 +160,7 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, FCL_REAL tolerance,
-                 FCL_REAL* dist);
+                 FCL_REAL* dist, Vec3f* p1, Vec3f* p2);
 
 
 } // details

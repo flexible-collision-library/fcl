@@ -52,6 +52,7 @@ class MotionBase;
 class SplineMotion;
 class ScrewMotion;
 class InterpMotion;
+class TranslationMotion;
 
 /// @brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects
 class BVMotionBoundVisitor
@@ -61,6 +62,7 @@ public:
   virtual FCL_REAL visit(const SplineMotion& motion) const = 0;
   virtual FCL_REAL visit(const ScrewMotion& motion) const = 0;
   virtual FCL_REAL visit(const InterpMotion& motion) const = 0;
+  virtual FCL_REAL visit(const TranslationMotion& motion) const = 0;
 };
 
 template<typename BV>
@@ -73,6 +75,7 @@ public:
   virtual FCL_REAL visit(const SplineMotion& motion) const { return 0; }
   virtual FCL_REAL visit(const ScrewMotion& motion) const { return 0; }
   virtual FCL_REAL visit(const InterpMotion& motion) const { return 0; }
+  virtual FCL_REAL visit(const TranslationMotion& motion) const { return 0; }
 
 protected:
   BV bv;
@@ -88,6 +91,8 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const;
 template<>
 FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const;
 
+template<>
+FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const TranslationMotion& motion) const;
 
 
 class TriangleMotionBoundVisitor
@@ -100,6 +105,7 @@ public:
   virtual FCL_REAL visit(const SplineMotion& motion) const;
   virtual FCL_REAL visit(const ScrewMotion& motion) const;
   virtual FCL_REAL visit(const InterpMotion& motion) const;
+  virtual FCL_REAL visit(const TranslationMotion& motion) const;
 
 protected:
   Vec3f a, b, c, n;
@@ -120,17 +126,48 @@ public:
   virtual bool integrate(double dt) const = 0;
 
   /** \brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects */
-  virtual FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const= 0;
+  virtual FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const = 0;
 
   /** \brief Compute the motion bound for a triangle, given the closest direction n between two query objects */
   virtual FCL_REAL computeMotionBound(const TriangleMotionBoundVisitor& mb_visitor) const = 0;
 
   /** \brief Get the rotation and translation in current step */
-  virtual void getCurrentTransform(Matrix3f& R, Vec3f& T) const = 0;
+  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
+  {
+    Transform3f tf;
+    getCurrentTransform(tf);
+    R = tf.getRotation();
+    T = tf.getTranslation();
+  }
 
-  virtual void getCurrentRotation(Matrix3f& R) const = 0;
+  void getCurrentTransform(Quaternion3f& Q, Vec3f& T) const
+  {
+    Transform3f tf;
+    getCurrentTransform(tf);
+    Q = tf.getQuatRotation();
+    T = tf.getTranslation();
+  }
 
-  virtual void getCurrentTranslation(Vec3f& T) const = 0;
+  void getCurrentRotation(Matrix3f& R) const
+  {
+    Transform3f tf;
+    getCurrentTransform(tf);
+    R = tf.getRotation();
+  }
+
+  void getCurrentRotation(Quaternion3f& Q) const
+  {
+    Transform3f tf;
+    getCurrentTransform(tf);
+    Q = tf.getQuatRotation();
+  }
+
+  void getCurrentTranslation(Vec3f& T) const
+  {
+    Transform3f tf;
+    getCurrentTransform(tf);
+    T = tf.getTranslation();
+  }
 
   virtual void getCurrentTransform(Transform3f& tf) const = 0;
 
