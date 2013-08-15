@@ -36,5 +36,14 @@ if (FCL_HAVE_OCTOMAP)
 endif()
 
 if (FCL_HAVE_TINYXML)
-#  add_fcl_test(test_fcl_xmldata test_fcl_xmldata.cpp test_fcl_utility.cpp libsvm/svm.cpp)
+  add_executable(test_fcl_xmldata test_fcl_xmldata.cpp test_fcl_utility.cpp libsvm/svm.cpp)
+  target_link_libraries(test_fcl_xmldata
+    fcl
+    ${TINYXML_LIBRARY_DIRS}
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_THREAD_LIBRARY}
+    ${Boost_DATE_TIME_LIBRARY}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  add_test(test_fcl_xmldata ${EXECUTABLE_OUTPUT_PATH}/test_fcl_xmldata)
+
 endif()
