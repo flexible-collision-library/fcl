@@ -42,5 +42,7 @@
 
 #cmakedefine01 FCL_HAVE_SSE
 #cmakedefine01 FCL_HAVE_OCTOMAP
+#cmakedefine01 FCL_HAVE_FLANN
+#cmakedefine01 FCL_HAVE_TINYXML
 
 #endif

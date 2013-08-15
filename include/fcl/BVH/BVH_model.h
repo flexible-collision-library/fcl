@@ -191,6 +191,62 @@ public:
     makeParentRelativeRecurse(0, I, Vec3f());
   }
 
+  Vec3f computeCOM() const
+  {
+    FCL_REAL vol = 0;
+    Vec3f com;
+    for(int i = 0; i < num_tris; ++i)
+    {
+      const Triangle& tri = tri_indices[i];
+      FCL_REAL d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+      vol += d_six_vol;
+      com += (vertices[tri[0]] + vertices[tri[1]] + vertices[tri[2]]) * d_six_vol;
+    }
+
+    return com / (vol * 4);
+  }
+
+  FCL_REAL computeVolume() const
+  {
+    FCL_REAL vol = 0;
+    for(int i = 0; i < num_tris; ++i)
+    {
+      const Triangle& tri = tri_indices[i];
+      FCL_REAL d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+      vol += d_six_vol;
+    }
+
+    return vol / 6;
+  }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    Matrix3f C(0, 0, 0,
+               0, 0, 0,
+               0, 0, 0);
+
+    Matrix3f C_canonical(1/60.0, 1/120.0, 1/120.0,
+                         1/120.0, 1/60.0, 1/120.0,
+                         1/120.0, 1/120.0, 1/60.0);
+
+    for(int i = 0; i < num_tris; ++i)
+    {
+      const Triangle& tri = tri_indices[i];
+      const Vec3f& v1 = vertices[tri[0]];
+      const Vec3f& v2 = vertices[tri[1]];
+      const Vec3f& v3 = vertices[tri[2]];
+      FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
+      Matrix3f A(v1, v2, v3);
+      C += transpose(A) * C_canonical * A * d_six_vol;
+    }
+
+    FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
+
+    return Matrix3f(trace_C - C(0, 0), -C(0, 1), -C(0, 2),
+                    -C(1, 0), trace_C - C(1, 1), -C(1, 2),
+                    -C(2, 0), -C(2, 1), trace_C - C(2, 2));
+  }
+
 public:
   /// @brief Geometry point data
   Vec3f* vertices;

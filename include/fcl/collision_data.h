@@ -39,6 +39,10 @@
 #define FCL_COLLISION_DATA_H
 
 #include "fcl/collision_object.h"
+#include "fcl/learning/classifier.h"
+#include "fcl/knn/nearest_neighbors.h"
+
+
 #include "fcl/math/vec_3f.h"
 #include <vector>
 #include <set>
@@ -447,7 +451,7 @@ struct ContinuousCollisionRequest
   CCDSolverType ccd_solver_type;
   
   ContinuousCollisionRequest(std::size_t num_max_iterations_ = 10,
-                             FCL_REAL toc_err_ = 0,
+                             FCL_REAL toc_err_ = 0.0001,
                              CCDMotionType ccd_motion_type_ = CCDM_TRANS,
                              GJKSolverType gjk_solver_type_ = GST_LIBCCD,
                              CCDSolverType ccd_solver_type_ = CCDC_NAIVE) : num_max_iterations(num_max_iterations_),
@@ -467,6 +471,8 @@ struct ContinuousCollisionResult
   
   /// @brief time of contact in [0, 1]
   FCL_REAL time_of_contact;
+
+  Transform3f contact_tf1, contact_tf2;
   
   ContinuousCollisionResult() : is_collide(false), time_of_contact(1.0)
   {
@@ -474,28 +480,36 @@ struct ContinuousCollisionResult
 };
 
 
-enum PenetrationDepthType {PDT_LOCAL, PDT_AL};
+enum PenetrationDepthType {PDT_TRANSLATIONAL, PDT_GENERAL_EULER, PDT_GENERAL_QUAT, PDT_GENERAL_EULER_BALL, PDT_GENERAL_QUAT_BALL};
 
-struct PenetrationDepthMetricBase
-{
-  virtual FCL_REAL operator() (const Transform3f& tf1, const Transform3f& tf2) const = 0;
-};
+enum KNNSolverType {KNN_LINEAR, KNN_GNAT, KNN_SQRTAPPROX};
 
-struct WeightEuclideanPDMetric : public PenetrationDepthMetricBase
-{
-  
-};
 
 struct PenetrationDepthRequest
 {
+  void* classifier;
+
+  NearestNeighbors<Transform3f>::DistanceFunction distance_func;
+
+  /// @brief KNN solver type
+  KNNSolverType knn_solver_type;
+  
   /// @brief PD algorithm type
   PenetrationDepthType pd_type;
 
   /// @brief gjk solver type
   GJKSolverType gjk_solver_type;
 
-  PenetrationDepthRequest(PenetrationDepthType pd_type_ = PDT_LOCAL,
-                          GJKSolverType gjk_solver_type_ = GST_LIBCCD) : pd_type(pd_type_),
+  std::vector<Transform3f> contact_vectors;
+
+  PenetrationDepthRequest(void* classifier_,
+                          NearestNeighbors<Transform3f>::DistanceFunction distance_func_,
+                          KNNSolverType knn_solver_type_ = KNN_LINEAR,
+                          PenetrationDepthType pd_type_ = PDT_TRANSLATIONAL,
+                          GJKSolverType gjk_solver_type_ = GST_LIBCCD) : classifier(classifier_),
+                                                                         distance_func(distance_func_),
+                                                                         knn_solver_type(knn_solver_type_),
+                                                                         pd_type(pd_type_),
                                                                          gjk_solver_type(gjk_solver_type_)
   {
   }
@@ -507,9 +521,7 @@ struct PenetrationDepthResult
   FCL_REAL pd_value;
 
   /// @brief the transform where the collision is resolved
-  Transform3f resolve_trans;
-
-  
+  Transform3f resolved_tf; 
 };
 
 

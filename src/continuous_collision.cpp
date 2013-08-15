@@ -50,6 +50,9 @@ FCL_REAL continuousCollideNaive(const CollisionGeometry* o1, const MotionBase* m
   for(std::size_t i = 0; i < n_iter; ++i)
   {
     FCL_REAL t = i / (FCL_REAL) (n_iter - 1);
+    motion1->integrate(t);
+    motion2->integrate(t);
+    
     motion1->getCurrentTransform(cur_tf1);
     motion2->getCurrentTransform(cur_tf2);
 
@@ -60,6 +63,8 @@ FCL_REAL continuousCollideNaive(const CollisionGeometry* o1, const MotionBase* m
     {
       result.is_collide = true;
       result.time_of_contact = t;
+      result.contact_tf1 = cur_tf1;
+      result.contact_tf2 = cur_tf2;
       return t;
     }
   }
@@ -112,6 +117,16 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1_, const Tran
 
   result.is_collide = (node.pairs.size() > 0);
   result.time_of_contact = node.time_of_contact;
+
+  if(result.is_collide)
+  {
+    motion1->integrate(node.time_of_contact);
+    motion2->integrate(node.time_of_contact);
+    motion1->getCurrentTransform(tf1);
+    motion2->getCurrentTransform(tf2);
+    result.contact_tf1 = tf1;
+    result.contact_tf2 = tf2;
+  }
 
   return result.time_of_contact;
 }
@@ -198,6 +213,18 @@ FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometry* o1, c
 
   if(!nsolver_)
     delete nsolver;
+
+  if(result.is_collide)
+  {
+    motion1->integrate(result.time_of_contact);
+    motion2->integrate(result.time_of_contact);
+
+    Transform3f tf1, tf2;
+    motion1->getCurrentTransform(tf1);
+    motion2->getCurrentTransform(tf2);
+    result.contact_tf1 = tf1;
+    result.contact_tf2 = tf2;
+  }
 
   return res;
 }

@@ -36,6 +36,7 @@
 
 
 #include "fcl/math/transform.h"
+#include <boost/math/constants/constants.hpp>
 
 namespace fcl
 {
@@ -326,6 +327,37 @@ Quaternion3f inverse(const Quaternion3f& q)
   Quaternion3f res(q);
   return res.inverse();
 }
+
+void Quaternion3f::fromEuler(FCL_REAL a, FCL_REAL b, FCL_REAL c)
+{
+  Matrix3f R;
+  R.setEulerYPR(a, b, c);
+
+  fromRotation(R);
+}
+
+void Quaternion3f::toEuler(FCL_REAL& a, FCL_REAL& b, FCL_REAL& c) const
+{
+  Matrix3f R;
+  toRotation(R);
+  a = atan2(R(1, 0), R(0, 0));
+  b = asin(-R(2, 0));
+  c = atan2(R(2, 1), R(2, 2));
+
+  if(b == boost::math::constants::pi<double>() * 0.5)
+  {
+    if(a > 0)
+      a -= boost::math::constants::pi<double>();
+    else 
+      a += boost::math::constants::pi<double>();
+
+    if(c > 0)
+      c -= boost::math::constants::pi<double>();
+    else
+      c += boost::math::constants::pi<double>();
+  }
+}
+
 
 Vec3f Quaternion3f::getColumn(std::size_t i) const
 {

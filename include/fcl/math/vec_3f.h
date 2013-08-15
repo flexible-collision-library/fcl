@@ -131,6 +131,17 @@ public:
   inline bool equal(const Vec3fX& other, U epsilon = std::numeric_limits<U>::epsilon() * 100) const { return details::equal(data, other.data, epsilon); }
   inline Vec3fX<T>& negate() { data.negate(); return *this; }
 
+  bool operator == (const Vec3fX& other) const
+  {
+    return equal(other, 0);
+  }
+
+  bool operator != (const Vec3fX& other) const
+  {
+    return !(*this == other);
+  }
+
+
   inline Vec3fX<T>& ubound(const Vec3fX<T>& u)
   {
     data.ubound(u.data);

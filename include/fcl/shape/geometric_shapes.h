@@ -93,6 +93,22 @@ public:
 
   /// @brief Get node type: a box
   NODE_TYPE getNodeType() const { return GEOM_BOX; }
+
+  FCL_REAL computeVolume() const
+  {
+    return side[0] * side[1] * side[2];
+  }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    FCL_REAL V = computeVolume();
+    FCL_REAL a2 = side[0] * side[0] * V;
+    FCL_REAL b2 = side[1] * side[1] * V;
+    FCL_REAL c2 = side[2] * side[2] * V;
+    return Matrix3f((b2 + c2) / 12, 0, 0,
+                    0, (a2 + c2) / 12, 0,
+                    0, 0, (a2 + b2) / 12);
+  }
 };
 
 /// @brief Center at zero point sphere
@@ -111,6 +127,19 @@ public:
 
   /// @brief Get node type: a sphere 
   NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    FCL_REAL I = 0.4 * radius * radius * computeVolume();
+    return Matrix3f(I, 0, 0,
+                    0, I, 0,
+                    0, 0, I);
+  }
+
+  FCL_REAL computeVolume() const
+  {
+    return 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius / 3;
+  }
 };
 
 /// @brief Center at zero point capsule 
@@ -132,6 +161,25 @@ public:
 
   /// @brief Get node type: a capsule 
   NODE_TYPE getNodeType() const { return GEOM_CAPSULE; }
+
+  FCL_REAL computeVolume() const
+  {
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius *(lz + radius * 4/3.0);
+  }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    FCL_REAL v_cyl = radius * radius * lz * boost::math::constants::pi<FCL_REAL>();
+    FCL_REAL v_sph = radius * radius * radius * boost::math::constants::pi<FCL_REAL>() * 4 / 3.0;
+    
+    FCL_REAL ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
+    FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
+
+    return Matrix3f(ix, 0, 0,
+                    0, ix, 0,
+                    0, 0, iz);
+  }
+  
 };
 
 /// @brief Center at zero cone 
@@ -153,6 +201,27 @@ public:
 
   /// @brief Get node type: a cone 
   NODE_TYPE getNodeType() const { return GEOM_CONE; }
+
+  FCL_REAL computeVolume() const
+  {
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius * lz / 3;
+  }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    FCL_REAL V = computeVolume();
+    FCL_REAL ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
+    FCL_REAL iz = 0.3 * V * radius * radius;
+
+    return Matrix3f(ix, 0, 0,
+                    0, ix, 0,
+                    0, 0, iz);
+  }
+
+  Vec3f computeCOM() const
+  {
+    return Vec3f(0, 0, -0.25 * lz);
+  }
 };
 
 /// @brief Center at zero cylinder 
@@ -175,6 +244,21 @@ public:
 
   /// @brief Get node type: a cylinder 
   NODE_TYPE getNodeType() const { return GEOM_CYLINDER; }
+
+  FCL_REAL computeVolume() const
+  {
+    return boost::math::constants::pi<FCL_REAL>() * radius * radius * lz;
+  }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    FCL_REAL V = computeVolume();
+    FCL_REAL ix = V * (3 * radius * radius + lz * lz) / 12;
+    FCL_REAL iz = V * radius * radius / 2;
+    return Matrix3f(ix, 0, 0,
+                    0, ix, 0,
+                    0, 0, iz);
+  }
 };
 
 /// @brief Convex polytope 
@@ -252,6 +336,124 @@ public:
 
   /// @brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) 
   Vec3f center;
+
+  /// based on http://number-none.com/blow/inertia/bb_inertia.doc
+  Matrix3f computeMomentofInertia() const
+  {
+    
+    Matrix3f C(0, 0, 0,
+               0, 0, 0,
+               0, 0, 0);
+
+    Matrix3f C_canonical(1/60.0, 1/120.0, 1/120.0,
+                         1/120.0, 1/60.0, 1/120.0,
+                         1/120.0, 1/120.0, 1/60.0);
+
+    int* points_in_poly = polygons;
+    int* index = polygons + 1;
+    for(int i = 0; i < num_planes; ++i)
+    {
+      Vec3f plane_center;
+
+      // compute the center of the polygon
+      for(int j = 0; j < *points_in_poly; ++j)
+        plane_center += points[index[j]];
+      plane_center = plane_center * (1.0 / *points_in_poly);
+
+      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
+      const Vec3f& v3 = plane_center;
+      for(int j = 0; j < *points_in_poly; ++j)
+      {
+        int e_first = index[j];
+        int e_second = index[(j+1)%*points_in_poly];
+        const Vec3f& v1 = points[e_first];
+        const Vec3f& v2 = points[e_second];
+        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
+        Matrix3f A(v1, v2, v3); // this is A' in the original document
+        C += transpose(A) * C_canonical * A * d_six_vol; // change accordingly
+      }
+      
+      points_in_poly += (*points_in_poly + 1);
+      index = points_in_poly + 1;
+    }
+
+    FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
+
+    return Matrix3f(trace_C - C(0, 0), -C(0, 1), -C(0, 2),
+                    -C(1, 0), trace_C - C(1, 1), -C(1, 2),
+                    -C(2, 0), -C(2, 1), trace_C - C(2, 2));
+    
+  }
+
+  Vec3f computeCOM() const
+  {
+    Vec3f com;
+    FCL_REAL vol = 0;
+    int* points_in_poly = polygons;
+    int* index = polygons + 1;
+    for(int i = 0; i < num_planes; ++i)
+    {
+      Vec3f plane_center;
+
+      // compute the center of the polygon
+      for(int j = 0; j < *points_in_poly; ++j)
+        plane_center += points[index[j]];
+      plane_center = plane_center * (1.0 / *points_in_poly);
+
+      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
+      const Vec3f& v3 = plane_center;
+      for(int j = 0; j < *points_in_poly; ++j)
+      {
+        int e_first = index[j];
+        int e_second = index[(j+1)%*points_in_poly];
+        const Vec3f& v1 = points[e_first];
+        const Vec3f& v2 = points[e_second];
+        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
+        vol += d_six_vol;
+        com += (points[e_first] + points[e_second] + plane_center) * d_six_vol;
+      }
+      
+      points_in_poly += (*points_in_poly + 1);
+      index = points_in_poly + 1;
+    }
+
+    return com / (vol * 4); // here we choose zero as the reference
+  }
+
+  FCL_REAL computeVolume() const
+  {
+    FCL_REAL vol = 0;
+    int* points_in_poly = polygons;
+    int* index = polygons + 1;
+    for(int i = 0; i < num_planes; ++i)
+    {
+      Vec3f plane_center;
+
+      // compute the center of the polygon
+      for(int j = 0; j < *points_in_poly; ++j)
+        plane_center += points[index[j]];
+      plane_center = plane_center * (1.0 / *points_in_poly);
+
+      // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
+      const Vec3f& v3 = plane_center;
+      for(int j = 0; j < *points_in_poly; ++j)
+      {
+        int e_first = index[j];
+        int e_second = index[(j+1)%*points_in_poly];
+        const Vec3f& v1 = points[e_first];
+        const Vec3f& v2 = points[e_second];
+        FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
+        vol += d_six_vol;
+      }
+      
+      points_in_poly += (*points_in_poly + 1);
+      index = points_in_poly + 1;
+    }
+
+    return vol / 6;
+  }
+
+  
 
 protected:
   /// @brief Get edge information 

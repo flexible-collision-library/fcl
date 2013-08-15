@@ -186,6 +186,12 @@ public:
     return (max_ - min_).sqrLength();
   }
 
+  /// @brief Radius of the AABB
+  inline FCL_REAL radius() const
+  {
+    return (max_ - min_).length() / 2;
+  }
+
   /// @brief Center of the AABB
   inline  Vec3f center() const
   {

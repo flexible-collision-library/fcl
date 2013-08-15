@@ -77,6 +77,12 @@ public:
   /// @brief Quaternion to matrix
   void toRotation(Matrix3f& R) const;
 
+  /// @brief Euler to quaternion
+  void fromEuler(FCL_REAL a, FCL_REAL b, FCL_REAL c);
+
+  /// @brief Quaternion to Euler
+  void toEuler(FCL_REAL& a, FCL_REAL& b, FCL_REAL& c) const;
+
   /// @brief Axes to quaternion
   void fromAxes(const Vec3f axis[3]);
 
@@ -134,6 +140,26 @@ public:
 
   Vec3f getRow(std::size_t i) const;
 
+  bool operator == (const Quaternion3f& other) const
+  {
+    for(std::size_t i = 0; i < 4; ++i)
+    {
+      if(data[i] != other[i])
+        return false;
+    }
+    return true;
+  }
+
+  bool operator != (const Quaternion3f& other) const
+  {
+    return !(*this == other);
+  }
+
+  FCL_REAL operator [] (std::size_t i) const
+  {
+    return data[i];
+  }
+
 private:
 
   FCL_REAL data[4];
@@ -144,6 +170,7 @@ Quaternion3f conj(const Quaternion3f& q);
 
 /// @brief inverse of quaternion
 Quaternion3f inverse(const Quaternion3f& q);
+
 
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f
@@ -331,6 +358,16 @@ public:
     T.setValue(0);
     q = Quaternion3f();
     matrix_set = true;
+  }
+
+  bool operator == (const Transform3f& other) const
+  {
+    return (q == other.getQuatRotation()) && (T == other.getTranslation());
+  }
+
+  bool operator != (const Transform3f& other) const
+  {
+    return !(*this == other);
   }
 
 };

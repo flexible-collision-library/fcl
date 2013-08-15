@@ -116,6 +116,33 @@ public:
   /// @brief threshold for free (<= is free)
   FCL_REAL threshold_free;
 
+  /// @brief compute center of mass
+  virtual Vec3f computeCOM() const { return Vec3f(); }
+
+  /// @brief compute the inertia matrix, related to the origin
+  virtual Matrix3f computeMomentofInertia() const { return Matrix3f(); }
+
+  /// @brief compute the volume
+  virtual FCL_REAL computeVolume() const { return 0; }
+
+  /// @brief compute the inertia matrix, related to the com
+  virtual Matrix3f computeMomentofInertiaRelatedToCOM() const
+  {
+    Matrix3f C = computeMomentofInertia();
+    Vec3f com = computeCOM();
+    FCL_REAL V = computeVolume();
+
+    return Matrix3f(C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
+                    C(0, 1) + V * com[0] * com[1],
+                    C(0, 2) + V * com[0] * com[2],
+                    C(1, 0) + V * com[1] * com[0],
+                    C(1, 1) - V * (com[0] * com[0] + com[2] * com[2]),
+                    C(1, 2) + V * com[1] * com[2],
+                    C(2, 0) + V * com[2] * com[0],
+                    C(2, 1) + V * com[2] * com[1],
+                    C(2, 2) - V * (com[0] * com[0] + com[1] * com[1]));
+  }
+
 };
 
 /// @brief the object for collision or distance computation, contains the geometry and the transform information
