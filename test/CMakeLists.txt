@@ -2,7 +2,6 @@ macro(add_fcl_test test_name)
   add_executable(${ARGV})
   target_link_libraries(${test_name}
     fcl
-    ${TINYXML_LIBRARY_DIRS}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${Boost_DATE_TIME_LIBRARY}
@@ -37,5 +36,5 @@ if (FCL_HAVE_OCTOMAP)
 endif()
 
 if (FCL_HAVE_TINYXML)
-  add_fcl_test(test_fcl_xmldata test_fcl_xmldata.cpp test_fcl_utility.cpp libsvm/svm.cpp)
+#  add_fcl_test(test_fcl_xmldata test_fcl_xmldata.cpp test_fcl_utility.cpp libsvm/svm.cpp)
 endif()

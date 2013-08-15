@@ -1,10 +1,11 @@
 #define BOOST_TEST_MODULE "FCL_XMLDATA"
+#include <tinyxml.h>
+
 #include <boost/test/unit_test.hpp>
 
 #include "fcl/intersect.h"
 #include "fcl/collision.h"
 #include "fcl/BVH/BVH_model.h"
-#include <tinyxml.h>
 #include <boost/filesystem.hpp>
 #include <sstream>
 

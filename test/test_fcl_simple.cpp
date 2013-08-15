@@ -5,7 +5,6 @@
 #include "fcl/collision.h"
 #include "fcl/BVH/BVH_model.h"
 #include "fcl_resources/config.h"
-#include <tinyxml.h>
 #include <boost/filesystem.hpp>
 #include <sstream>
 #include "fcl/math/vec_nf.h"
