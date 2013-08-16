@@ -837,14 +837,124 @@ public:
 
 
 /// @brief for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
-template<>
-bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const;
+namespace details
+{
+
+template<typename BV>
+const Vec3f& getBVAxis(const BV& bv, int i)
+{
+  return bv.axis[i];
+}
 
 template<>
-bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const;
+inline const Vec3f& getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
+{
+  return bv.obb.axis[i];
+}
+
+
+template<typename BV>
+bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
+                                                     FCL_REAL min_distance,
+                                                     FCL_REAL abs_err, FCL_REAL rel_err, FCL_REAL w,
+                                                     const BVHModel<BV>* model1, const BVHModel<BV>* model2,
+                                                     const MotionBase* motion1, const MotionBase* motion2,
+                                                     std::vector<ConservativeAdvancementStackData>& stack,
+                                                     FCL_REAL& delta_t)
+{
+  if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
+  {
+    const ConservativeAdvancementStackData& data = stack.back();
+    FCL_REAL d = data.d;
+    Vec3f n;
+    int c1, c2;
+
+    if(d > c)
+    {
+      const ConservativeAdvancementStackData& data2 = stack[stack.size() - 2];
+      d = data2.d;
+      n = data2.P2 - data2.P1; n.normalize();
+      c1 = data2.c1;
+      c2 = data2.c2;
+      stack[stack.size() - 2] = stack[stack.size() - 1];
+    }
+    else
+    {
+      n = data.P2 - data.P1; n.normalize();
+      c1 = data.c1;
+      c2 = data.c2;
+    }
+
+    assert(c == d);
+
+    Vec3f n_transformed =
+      getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
+      getBVAxis(model1->getBV(c1).bv, 1) * n[1] +
+      getBVAxis(model1->getBV(c1).bv, 2) * n[2];
+
+    TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, n_transformed);
+    FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
+    FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
+
+    FCL_REAL bound = bound1 + bound2;
+
+    FCL_REAL cur_delta_t;
+    if(bound <= c) cur_delta_t = 1;
+    else cur_delta_t = c / bound;
+
+    if(cur_delta_t < delta_t)
+      delta_t = cur_delta_t;
+
+    stack.pop_back();
+
+    return true;
+  }
+  else
+  {
+    const ConservativeAdvancementStackData& data = stack.back();
+    FCL_REAL d = data.d;
+
+    if(d > c)
+      stack[stack.size() - 2] = stack[stack.size() - 1];
+
+    stack.pop_back();
+
+    return false;
+  }
+}
+
+}
+
+/// for OBB, RSS and OBBRSS, there is local coordinate of BV, so normal need to be transformed
+template<>
+inline bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
+{
+  return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
+                                                                  this->abs_err, this->rel_err, w,
+                                                                  this->model1, this->model2,
+                                                                  motion1, motion2,
+                                                                  stack, delta_t);
+}
 
 template<>
-bool MeshConservativeAdvancementTraversalNode<OBBRSS>::canStop(FCL_REAL c) const;
+inline bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const
+{
+  return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
+                                                                  this->abs_err, this->rel_err, w,
+                                                                  this->model1, this->model2,
+                                                                  motion1, motion2,
+                                                                  stack, delta_t);
+}
+
+template<>
+inline bool MeshConservativeAdvancementTraversalNode<OBBRSS>::canStop(FCL_REAL c) const
+{
+  return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
+                                                                  this->abs_err, this->rel_err, w,
+                                                                  this->model1, this->model2,
+                                                                  motion1, motion2,
+                                                                  stack, delta_t);
+}
 
 
 class MeshConservativeAdvancementTraversalNodeRSS : public MeshConservativeAdvancementTraversalNode<RSS>
