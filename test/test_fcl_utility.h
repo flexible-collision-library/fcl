@@ -83,6 +83,8 @@ private:
 /// @brief Load an obj mesh file
 void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
 
+void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
+
 /// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 
 /// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
 void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform);

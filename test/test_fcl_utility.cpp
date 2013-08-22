@@ -4,6 +4,7 @@
 #include "fcl/distance.h"
 #include <cstdio>
 #include <cstddef>
+#include <fstream>
 
 namespace fcl
 {
@@ -182,6 +183,29 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
       }
     }
   }
+}
+
+
+void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles)
+{
+  std::ofstream os(filename);
+  if(!os)
+  {
+    std::cerr << "file not exist" << std::endl;
+    return;
+  }
+
+  for(std::size_t i = 0; i < points.size(); ++i)
+  {
+    os << "v " << points[i][0] << " " << points[i][1] << " " << points[i][2] << std::endl;
+  }
+
+  for(std::size_t i = 0; i < triangles.size(); ++i)
+  {
+    os << "f " << triangles[i][0] + 1 << " " << triangles[i][1] + 1 << " " << triangles[i][2] + 1 << std::endl;
+  }
+
+  os.close();
 }
 
 

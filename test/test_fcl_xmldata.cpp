@@ -84,7 +84,7 @@ static void loadSceneFile(const std::string& filename,
           tri->Attribute("g2", &v2);
           tri->Attribute("g3", &v3);
 
-          Triangle t(v1, v2, v3);
+          Triangle t(v1-1, v2-1, v3-1);
 
           if(tri_id - 1 == (int)triangles.size())
             triangles.push_back(t);
@@ -215,6 +215,53 @@ BOOST_AUTO_TEST_CASE(scene_test)
   // std::cout << result1.numContacts() << std::endl;
 }
 
+static std::string num2string(int i)
+{
+  std::string result;
+  std::ostringstream convert;
+  convert << i;
+  result = convert.str();
+  return result;
+}
+
+static void xml2obj(const std::string& in_filename, const std::string& out_filename_base)
+{
+  std::vector<std::vector<Vec3f> > points_array;
+  std::vector<std::vector<Triangle> > triangles_array;
+  std::vector<std::pair<Transform3f, Transform3f> > motions;
+  loadSceneFile(in_filename, points_array, triangles_array, motions);
+
+  std::size_t n_obj = points_array.size();
+  // save objs in local frame
+  for(std::size_t i = 0; i < n_obj; ++i)
+  {
+    std::string out_filenameL = out_filename_base + num2string(i+1) + "L.obj";
+    saveOBJFile(out_filenameL.c_str(), points_array[i], triangles_array[i]);
+  }
+
+  // save objs in frame 1
+  for(std::size_t i = 0; i < n_obj; ++i)
+  {
+    std::string out_filenameF1 = out_filename_base + num2string(i+1) + "Frame1.obj";
+    std::vector<Vec3f> points(points_array[i].size());
+    for(std::size_t j = 0; j < points.size(); ++j)
+      points[j] = motions[i].first.transform(points_array[i][j]);
+
+    saveOBJFile(out_filenameF1.c_str(), points, triangles_array[i]);
+  }
+
+  // save objs in frame 2
+  for(std::size_t i = 0; i < n_obj; ++i)
+  {
+    std::string out_filenameF2 = out_filename_base + num2string(i+1) + "Frame2.obj";
+    std::vector<Vec3f> points(points_array[i].size());
+    for(std::size_t j = 0; j < points.size(); ++j)
+      points[j] = motions[i].second.transform(points_array[i][j]);
+
+    saveOBJFile(out_filenameF2.c_str(), points, triangles_array[i]);
+  }
+}
+
 static void scenePenetrationTest(const std::string& filename)
 {
   std::vector<std::vector<Vec3f> > points_array;
@@ -261,6 +308,7 @@ static void scenePenetrationTest(const std::string& filename)
   std::cout << "pd value 2 " << result1.pd_value << std::endl;
 }
 
+
 BOOST_AUTO_TEST_CASE(scene_test_penetration)
 {
   boost::filesystem::path path(TEST_RESOURCES_DIR);
@@ -291,4 +339,37 @@ BOOST_AUTO_TEST_CASE(scene_test_penetration)
   std::string filename9 = (path / "scenario-1-2-3/Model_3_Scenario_3.txt").string();
   scenePenetrationTest(filename9);
   
+}
+
+
+BOOST_AUTO_TEST_CASE(xml2obj_test)
+{
+  boost::filesystem::path path(TEST_RESOURCES_DIR);
+  std::string filename1 = (path / "scenario-1-2-3/Model_1_Scenario_1.txt").string();
+  xml2obj(filename1, "Model_1_Scenario_1");
+
+  std::string filename2 = (path / "scenario-1-2-3/Model_1_Scenario_2.txt").string();
+  xml2obj(filename2, "Model_1_Scenario_2");
+  
+  std::string filename3 = (path / "scenario-1-2-3/Model_1_Scenario_3.txt").string();
+  xml2obj(filename3, "Model_1_Scenario_3");
+
+  std::string filename4 = (path / "scenario-1-2-3/Model_2_Scenario_1.txt").string();
+  xml2obj(filename4, "Model_2_Scenario_1");
+
+  std::string filename5 = (path / "scenario-1-2-3/Model_2_Scenario_2.txt").string();
+  xml2obj(filename5, "Model_2_Scenario_2");
+
+  std::string filename6 = (path / "scenario-1-2-3/Model_2_Scenario_3.txt").string();
+  xml2obj(filename6, "Model_2_Scenario_3");
+
+  std::string filename7 = (path / "scenario-1-2-3/Model_3_Scenario_1.txt").string();
+  xml2obj(filename7, "Model_3_Scenario_1");
+
+  std::string filename8 = (path / "scenario-1-2-3/Model_3_Scenario_2.txt").string();
+  xml2obj(filename8, "Model_3_Scenario_2");
+
+  std::string filename9 = (path / "scenario-1-2-3/Model_3_Scenario_3.txt").string();
+  xml2obj(filename9, "Model_3_Scenario_3");
+
 }
