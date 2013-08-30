@@ -294,51 +294,149 @@ static void scenePenetrationTest(const std::string& filename)
 
   classifier.save(filename + "model.txt");
 
+  /*
   PenetrationDepthRequest request0(&classifier, default_transform_distance_func);
   request0.contact_vectors = contact_vectors;
   PenetrationDepthResult result0;
 
   penetrationDepth(m1, motions[0].first, m2, motions[0].second, request0, result0);
   std::cout << "pd value 1 " << result0.pd_value << std::endl;
+  std::cout << "resolved tf translation " << result0.resolved_tf.getTranslation() << std::endl;
+  std::cout << "resolved tf rotation " << result0.resolved_tf.getRotation() << std::endl;
+
+  int num_pd_contacts = 1; // only one contact for pd, you can set a larger number if you want more
+  CollisionRequest pd_contact_request1(num_pd_contacts, true);
+  CollisionResult pd_contact_result1;
+  collide(m1, motions[0].first, m2, result0.resolved_tf, pd_contact_request1, pd_contact_result1);
+  if(pd_contact_result1.numContacts() > 0)
+  {
+    Contact contact1 = pd_contact_result1.getContact(0);
+    std::cout << "contact pos " << contact1.pos << std::endl;
+    std::cout << "contact normal " << contact1.normal << std::endl;
+  }
 
   PenetrationDepthRequest request1(&classifier, default_transform_distance_func);
   request1.contact_vectors = contact_vectors;
   PenetrationDepthResult result1;
   penetrationDepth(m1, motions[1].first, m2, motions[1].second, request1, result1);
   std::cout << "pd value 2 " << result1.pd_value << std::endl;
+  std::cout << "resolved tf translation " << result1.resolved_tf.getTranslation() << std::endl;
+  std::cout << "resolved tf rotation " << result1.resolved_tf.getRotation() << std::endl;
+
+  CollisionRequest pd_contact_request2(num_pd_contacts, true);
+  CollisionResult pd_contact_result2;
+  collide(m1, motions[1].first, m2, result1.resolved_tf, pd_contact_request2, pd_contact_result2);
+  if(pd_contact_result2.numContacts() > 0)
+  {
+    Contact contact2 = pd_contact_result2.getContact(0);
+    std::cout << "contact pos " << contact2.pos << std::endl;
+    std::cout << "contact normal " << contact2.normal << std::endl;
+  }
+  */
+
+  for(std::size_t frame_id = 0; frame_id < motions.size(); ++frame_id)
+  {
+    PenetrationDepthRequest request(&classifier, default_transform_distance_func);
+    request.contact_vectors = contact_vectors;
+    PenetrationDepthResult result;
+
+    penetrationDepth(m1, motions[frame_id].first, m2, motions[frame_id].second, request, result);
+    std::cout << "pd value " << frame_id << " " << result.pd_value << std::endl;
+    std::cout << "resolved tf translation " << result.resolved_tf.getTranslation() << std::endl;
+    std::cout << "resolved tf rotation " << result.resolved_tf.getRotation() << std::endl;
+
+    int num_pd_contacts = 1; // only one contact for pd, you can set a larger number if you want more
+    CollisionRequest pd_contact_request(num_pd_contacts, true);
+    CollisionResult pd_contact_result;
+    collide(m1, motions[frame_id].first, m2, result.resolved_tf, pd_contact_request, pd_contact_result);
+    if(pd_contact_result.numContacts() > 0)
+    {
+      Contact contact = pd_contact_result.getContact(0);
+      std::cout << "contact pos " << contact.pos << std::endl;
+      std::cout << "contact normal " << contact.normal << std::endl;
+    }
+  }
 }
 
 
 BOOST_AUTO_TEST_CASE(scene_test_penetration)
 {
   boost::filesystem::path path(TEST_RESOURCES_DIR);
+
+  std::cout << "scenario-1-2-3/Model_1_Scenario_1" << std::endl;
   std::string filename1 = (path / "scenario-1-2-3/Model_1_Scenario_1.txt").string();
   scenePenetrationTest(filename1);
 
+  std::cout << std::endl;
+
+  std::cout << "scenario-1-2-3/Model_1_Scenario_2" << std::endl;
   std::string filename2 = (path / "scenario-1-2-3/Model_1_Scenario_2.txt").string();
   scenePenetrationTest(filename2);
 
+  std::cout << std::endl;
+
+  std::cout << "scenario-1-2-3/Model_1_Scenario_3" << std::endl;
   std::string filename3 = (path / "scenario-1-2-3/Model_1_Scenario_3.txt").string();
   scenePenetrationTest(filename3);
 
+  std::cout << std::endl;
+
+  std::cout << "scenario-1-2-3/Model_2_Scenario_1" << std::endl;
   std::string filename4 = (path / "scenario-1-2-3/Model_2_Scenario_1.txt").string();
   scenePenetrationTest(filename4);
 
+  std::cout << std::endl;
+    
+  std::cout << "scenario-1-2-3/Model_2_Scenario_2" << std::endl;
   std::string filename5 = (path / "scenario-1-2-3/Model_2_Scenario_2.txt").string();
   scenePenetrationTest(filename5);
 
+  std::cout << std::endl;
+
+  std::cout << "scenario-1-2-3/Model_2_Scenario_3" << std::endl;
   std::string filename6 = (path / "scenario-1-2-3/Model_2_Scenario_3.txt").string();
   scenePenetrationTest(filename6);
 
+  std::cout << std::endl;
+
+  std::cout << "scenario-1-2-3/Model_3_Scenario_1" << std::endl;
   std::string filename7 = (path / "scenario-1-2-3/Model_3_Scenario_1.txt").string();
   scenePenetrationTest(filename7);
 
+  std::cout << std::endl;
+    
+  std::cout << "scenario-1-2-3/Model_3_Scenario_2" << std::endl;
   std::string filename8 = (path / "scenario-1-2-3/Model_3_Scenario_2.txt").string();
   scenePenetrationTest(filename8);
 
+  std::cout << std::endl;
+
+  std::cout << "scenario-1-2-3/Model_3_Scenario_3" << std::endl;
   std::string filename9 = (path / "scenario-1-2-3/Model_3_Scenario_3.txt").string();
   scenePenetrationTest(filename9);
-  
+
+  std::cout << std::endl;
+
+  std::cout << "newdata/Model_1_Scenario_3" << std::endl;
+  std::string filename10 = (path / "newdata/Model_1_Scenario_3.xml").string();
+  scenePenetrationTest(filename10);
+
+  std::cout << std::endl;
+
+
+  std::cout << "newdata/Model_2_Scenario_3" << std::endl;
+  std::string filename11 = (path / "newdata/Model_2_Scenario_3.xml").string();
+  scenePenetrationTest(filename11);
+
+  std::cout << std::endl;
+
+
+  std::cout << "newdata/Model_3_Scenario_3" << std::endl;
+  std::string filename12 = (path / "newdata/Model_3_Scenario_3.xml").string();
+  scenePenetrationTest(filename12);
+
+  std::cout << std::endl;
+
 }
 
 

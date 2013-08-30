@@ -428,6 +428,14 @@ void relativeTransform(const Transform3f& tf1, const Transform3f& tf2,
   tf = Transform3f(q1_inv * tf2.getQuatRotation(), q1_inv.transform(tf2.getTranslation() - tf1.getTranslation()));
 }
 
+void relativeTransform2(const Transform3f& tf1, const Transform3f& tf2,
+                       Transform3f& tf)
+{
+  const Quaternion3f& q1inv = fcl::conj(tf1.getQuatRotation());
+  const Quaternion3f& q2_q1inv = tf2.getQuatRotation() * q1inv;
+  tf = Transform3f(q2_q1inv, tf2.getTranslation() - q2_q1inv.transform(tf1.getTranslation()));
+}
+
 
 
 }
