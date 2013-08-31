@@ -5,6 +5,7 @@
 
 #include "fcl/intersect.h"
 #include "fcl/collision.h"
+#include "fcl/math/sampling.h"
 #include "fcl/BVH/BVH_model.h"
 #include <boost/filesystem.hpp>
 #include <sstream>
@@ -17,6 +18,8 @@
 
 
 using namespace fcl;
+
+
 
 static void loadSceneFile(const std::string& filename,
                           std::vector<std::vector<Vec3f> >& points_array,
@@ -294,46 +297,6 @@ static void scenePenetrationTest(const std::string& filename)
 
   classifier.save(filename + "model.txt");
 
-  /*
-  PenetrationDepthRequest request0(&classifier, default_transform_distance_func);
-  request0.contact_vectors = contact_vectors;
-  PenetrationDepthResult result0;
-
-  penetrationDepth(m1, motions[0].first, m2, motions[0].second, request0, result0);
-  std::cout << "pd value 1 " << result0.pd_value << std::endl;
-  std::cout << "resolved tf translation " << result0.resolved_tf.getTranslation() << std::endl;
-  std::cout << "resolved tf rotation " << result0.resolved_tf.getRotation() << std::endl;
-
-  int num_pd_contacts = 1; // only one contact for pd, you can set a larger number if you want more
-  CollisionRequest pd_contact_request1(num_pd_contacts, true);
-  CollisionResult pd_contact_result1;
-  collide(m1, motions[0].first, m2, result0.resolved_tf, pd_contact_request1, pd_contact_result1);
-  if(pd_contact_result1.numContacts() > 0)
-  {
-    Contact contact1 = pd_contact_result1.getContact(0);
-    std::cout << "contact pos " << contact1.pos << std::endl;
-    std::cout << "contact normal " << contact1.normal << std::endl;
-  }
-
-  PenetrationDepthRequest request1(&classifier, default_transform_distance_func);
-  request1.contact_vectors = contact_vectors;
-  PenetrationDepthResult result1;
-  penetrationDepth(m1, motions[1].first, m2, motions[1].second, request1, result1);
-  std::cout << "pd value 2 " << result1.pd_value << std::endl;
-  std::cout << "resolved tf translation " << result1.resolved_tf.getTranslation() << std::endl;
-  std::cout << "resolved tf rotation " << result1.resolved_tf.getRotation() << std::endl;
-
-  CollisionRequest pd_contact_request2(num_pd_contacts, true);
-  CollisionResult pd_contact_result2;
-  collide(m1, motions[1].first, m2, result1.resolved_tf, pd_contact_request2, pd_contact_result2);
-  if(pd_contact_result2.numContacts() > 0)
-  {
-    Contact contact2 = pd_contact_result2.getContact(0);
-    std::cout << "contact pos " << contact2.pos << std::endl;
-    std::cout << "contact normal " << contact2.normal << std::endl;
-  }
-  */
-
   for(std::size_t frame_id = 0; frame_id < motions.size(); ++frame_id)
   {
     PenetrationDepthRequest request(&classifier, default_transform_distance_func);
@@ -361,6 +324,7 @@ static void scenePenetrationTest(const std::string& filename)
 
 BOOST_AUTO_TEST_CASE(scene_test_penetration)
 {
+  RNG::setSeed(1);
   boost::filesystem::path path(TEST_RESOURCES_DIR);
 
   std::cout << "scenario-1-2-3/Model_1_Scenario_1" << std::endl;
