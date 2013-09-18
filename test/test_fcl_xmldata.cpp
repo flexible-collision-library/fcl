@@ -13,6 +13,7 @@
 
 #include "libsvm_classifier.h"
 #include "fcl/penetration_depth.h"
+#include "fcl/collision_data.h"
 #include "fcl_resources/config.h"
 #include "test_fcl_utility.h"
 
@@ -73,7 +74,7 @@ static void loadSceneFile(const std::string& filename,
           grid = grid->NextSiblingElement("GRID");
         }
 
-        // std::cout << "#vertices " << n_vertices << std::endl;
+        std::cout << "#vertices " << n_vertices << std::endl;
 
         TiXmlElement* tri = object->FirstChildElement("TRIA");
         int n_tris = 0;
@@ -103,7 +104,7 @@ static void loadSceneFile(const std::string& filename,
           tri = tri->NextSiblingElement("TRIA");
         }
 
-        // std::cout << "#triangles " << n_tris << std::endl;
+        std::cout << "#triangles " << n_tris << std::endl;
 
         if(object_id - 1 == (int)points_array.size())
         {
@@ -127,7 +128,7 @@ static void loadSceneFile(const std::string& filename,
         i++;
       }
 
-      // std::cout << "#objects " << i << std::endl;
+      std::cout << "#objects " << i << std::endl;
     }
 
     motion = doc.FirstChildElement("MOTION");
@@ -180,7 +181,7 @@ static void loadSceneFile(const std::string& filename,
         n_frame++;
       }
 
-      // std::cout << "#frames " << n_frame << std::endl;
+      std::cout << "#frames " << n_frame << std::endl;
     }
   }
   else
@@ -265,7 +266,8 @@ static void xml2obj(const std::string& in_filename, const std::string& out_filen
   }
 }
 
-static void scenePenetrationTest(const std::string& filename)
+
+static void scenePenetrationTest(const std::string& filename, PenetrationDepthType pd_type = PDT_GENERAL_EULER)
 {
   std::vector<std::vector<Vec3f> > points_array;
   std::vector<std::vector<Triangle> > triangles_array;
@@ -293,7 +295,7 @@ static void scenePenetrationTest(const std::string& filename)
   std::size_t KNN_K = 10;
   LibSVMClassifier<6> classifier;
   
-  std::vector<Transform3f> contact_vectors = penetrationDepthModelLearning(&o1, &o2, PDT_GENERAL_EULER, &classifier, 10000, 0, KNN_GNAT, KNN_K);
+  std::vector<Transform3f> contact_vectors = penetrationDepthModelLearning(&o1, &o2, pd_type, &classifier, 100000, 0, KNN_GNAT, KNN_K);
 
   classifier.save(filename + "model.txt");
 
@@ -326,6 +328,12 @@ BOOST_AUTO_TEST_CASE(scene_test_penetration)
 {
   RNG::setSeed(1);
   boost::filesystem::path path(TEST_RESOURCES_DIR);
+
+  /*
+  std::cout << "manyframes/Model_4" << std::endl;
+  std::string filename0 = (path / "manyframes/Model_4.xml").string();
+  scenePenetrationTest(filename0);
+  */
 
   std::cout << "scenario-1-2-3/Model_1_Scenario_1" << std::endl;
   std::string filename1 = (path / "scenario-1-2-3/Model_1_Scenario_1.txt").string();
@@ -403,10 +411,19 @@ BOOST_AUTO_TEST_CASE(scene_test_penetration)
 
 }
 
-
 BOOST_AUTO_TEST_CASE(xml2obj_test)
 {
   boost::filesystem::path path(TEST_RESOURCES_DIR);
+
+  std::string filename_manyframe0 = (path / "manyframes/Model_5.xml").string();
+  xml2obj(filename_manyframe0, "Model_5");
+
+  std::string filename_manyframe1 = (path / "manyframes/Model_1.xml").string();
+  xml2obj(filename_manyframe1, "Model_1");
+  
+  std::string filename_manyframe2 = (path / "manyframes/Model_4.xml").string();
+  xml2obj(filename_manyframe2, "Model_4");
+  
   std::string filename1 = (path / "scenario-1-2-3/Model_1_Scenario_1.txt").string();
   xml2obj(filename1, "Model_1_Scenario_1");
 

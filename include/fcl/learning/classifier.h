@@ -71,6 +71,8 @@ template<std::size_t N>
 class SVMClassifier
 {
 public:
+
+  ~SVMClassifier() {}
   
   virtual PredictResult predict(const Vecnf<N>& q) const = 0;
   virtual std::vector<PredictResult> predict(const std::vector<Vecnf<N> >& qs) const = 0;

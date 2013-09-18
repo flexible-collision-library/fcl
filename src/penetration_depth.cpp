@@ -402,6 +402,8 @@ FCL_REAL penetrationDepth(const CollisionGeometry* o1, const Transform3f& tf1,
   result.pd_value = request.distance_func(result.resolved_tf, tf2);
   result.pd_value = std::sqrt(result.pd_value);
 
+  delete knn_solver;
+
   return result.pd_value;
 }
 

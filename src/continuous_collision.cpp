@@ -18,24 +18,24 @@ ConservativeAdvancementFunctionMatrix<GJKSolver>& getConservativeAdvancementFunc
   return table;
 }
 
-MotionBase* getMotionBase(const Transform3f& tf_beg, const Transform3f& tf_end, CCDMotionType motion_type)
+MotionBasePtr getMotionBase(const Transform3f& tf_beg, const Transform3f& tf_end, CCDMotionType motion_type)
 {
   switch(motion_type)
   {
   case CCDM_TRANS:
-    return new TranslationMotion(tf_beg, tf_end);
+    return MotionBasePtr(new TranslationMotion(tf_beg, tf_end));
     break;
   case CCDM_LINEAR:
-    return new InterpMotion(tf_beg, tf_end);
+    return MotionBasePtr(new InterpMotion(tf_beg, tf_end));
     break;
   case CCDM_SCREW:
-    return new ScrewMotion(tf_beg, tf_end);
+    return MotionBasePtr(new ScrewMotion(tf_beg, tf_end));
     break;
   case CCDM_SPLINE:
-    return new SplineMotion(tf_beg, tf_end);
+    return MotionBasePtr(new SplineMotion(tf_beg, tf_end));
     break;
   default:
-    return NULL;
+    return MotionBasePtr();
   }
 }
 
@@ -304,10 +304,10 @@ FCL_REAL continuousCollide(const CollisionGeometry* o1, const Transform3f& tf1_b
                            const ContinuousCollisionRequest& request,
                            ContinuousCollisionResult& result)
 {
-  MotionBase* motion1 = getMotionBase(tf1_beg, tf1_end, request.ccd_motion_type);
-  MotionBase* motion2 = getMotionBase(tf2_beg, tf2_end, request.ccd_motion_type);
+  MotionBasePtr motion1 = getMotionBase(tf1_beg, tf1_end, request.ccd_motion_type);
+  MotionBasePtr motion2 = getMotionBase(tf2_beg, tf2_end, request.ccd_motion_type);
 
-  return continuousCollide(o1, motion1, o2, motion2, request, result);
+  return continuousCollide(o1, motion1.get(), o2, motion2.get(), request, result);
 }
 
 
