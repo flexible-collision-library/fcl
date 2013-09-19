@@ -139,10 +139,10 @@ penetrationDepth(o1, o2,request, result);
 ```
 
 For more examples, please refer to the test folder:
--test_fcl_collision.cpp: provide examples for collision test
--test_fcl_distance.cpp: provide examples for distance test
--test_fcl_broadphase.cpp: provide examples for broadphase collision/distance test
--test_fcl_frontlist.cpp: provide examples for frontlist collision acceleration
--test_fcl_global_penetration.cpp: provide examples for global penetration depth test
--test_fcl_xmldata.cpp: provide examples for more global penetration depth test based on xml data
--test_fcl_octomap.cpp: provide examples for collision/distance computation between octomap data and other data types.
+- test_fcl_collision.cpp: provide examples for collision test
+- test_fcl_distance.cpp: provide examples for distance test
+- test_fcl_broadphase.cpp: provide examples for broadphase collision/distance test
+- test_fcl_frontlist.cpp: provide examples for frontlist collision acceleration
+- test_fcl_global_penetration.cpp: provide examples for global penetration depth test
+- test_fcl_xmldata.cpp: provide examples for more global penetration depth test based on xml data
+- test_fcl_octomap.cpp: provide examples for collision/distance computation between octomap data and other data types.
