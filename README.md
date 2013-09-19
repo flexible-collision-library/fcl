@@ -24,6 +24,10 @@ FCL has the following features
 
 ## Installation
 
+Before compiling FCL, please make sure boost and libccd (for collision checking between convex objects and is available here https://github.com/danfis/libccd) are installed. For libccd, make sure to compile from github version instead of the zip file from the webpage, because one bug fixing is not included in the zipped version.
+
+Some optional libraries need to be installed for some optional capability of FCL. For octree collision, please install the octomap library from http://octomap.github.com. For global penetration depth, please install FLANN from https://github.com/mariusmuja/flann. For global penetration depth test, please install tinyxml.
+
 CMakeLists.txt is used to generate makefiles in Linux or Visual studio projects in windows. In command line, run
 ``` cmake
 mkdir build
@@ -34,7 +38,7 @@ Next, in linux, use make to compile the code.
 
 In windows, there will generate a visual studio project and then you can compile the code.
 
-### Interfaces
+## Interfaces
 Before starting the proximity computation, we need first to set the geometry and transform for the objects involving in computation. The geometry of an object is represented as a mesh soup, which can be set as follows:
 
 ```cpp
@@ -133,3 +137,12 @@ PenetrationDepthResult result;
 // perform global penetration depth test
 penetrationDepth(o1, o2,request, result);
 ```
+
+For more examples, please refer to the test folder:
+-test_fcl_collision.cpp: provide examples for collision test
+-test_fcl_distance.cpp: provide examples for distance test
+-test_fcl_broadphase.cpp: provide examples for broadphase collision/distance test
+-test_fcl_frontlist.cpp: provide examples for frontlist collision acceleration
+-test_fcl_global_penetration.cpp: provide examples for global penetration depth test
+-test_fcl_xmldata.cpp: provide examples for more global penetration depth test based on xml data
+-test_fcl_octomap.cpp: provide examples for collision/distance computation between octomap data and other data types.
