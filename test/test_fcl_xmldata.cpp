@@ -74,7 +74,7 @@ static void loadSceneFile(const std::string& filename,
           grid = grid->NextSiblingElement("GRID");
         }
 
-        std::cout << "#vertices " << n_vertices << std::endl;
+        // std::cout << "#vertices " << n_vertices << std::endl;
 
         TiXmlElement* tri = object->FirstChildElement("TRIA");
         int n_tris = 0;
@@ -104,7 +104,7 @@ static void loadSceneFile(const std::string& filename,
           tri = tri->NextSiblingElement("TRIA");
         }
 
-        std::cout << "#triangles " << n_tris << std::endl;
+        // std::cout << "#triangles " << n_tris << std::endl;
 
         if(object_id - 1 == (int)points_array.size())
         {
@@ -128,7 +128,7 @@ static void loadSceneFile(const std::string& filename,
         i++;
       }
 
-      std::cout << "#objects " << i << std::endl;
+      // std::cout << "#objects " << i << std::endl;
     }
 
     motion = doc.FirstChildElement("MOTION");
@@ -181,7 +181,7 @@ static void loadSceneFile(const std::string& filename,
         n_frame++;
       }
 
-      std::cout << "#frames " << n_frame << std::endl;
+      // std::cout << "#frames " << n_frame << std::endl;
     }
   }
   else
@@ -329,11 +329,12 @@ BOOST_AUTO_TEST_CASE(scene_test_penetration)
   RNG::setSeed(1);
   boost::filesystem::path path(TEST_RESOURCES_DIR);
 
-  /*
-  std::cout << "manyframes/Model_4" << std::endl;
-  std::string filename0 = (path / "manyframes/Model_4.xml").string();
+  std::cout << "manyframes/Model_5" << std::endl;
+  std::string filename0 = (path / "manyframes/Model_5.xml").string();
   scenePenetrationTest(filename0);
-  */
+
+  return;
+
 
   std::cout << "scenario-1-2-3/Model_1_Scenario_1" << std::endl;
   std::string filename1 = (path / "scenario-1-2-3/Model_1_Scenario_1.txt").string();

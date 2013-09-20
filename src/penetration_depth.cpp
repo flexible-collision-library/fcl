@@ -89,44 +89,25 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
       FCL_REAL r2 = o2->getCollisionGeometry()->aabb_radius;
       Vec3f c1 = o1->getCollisionGeometry()->aabb_center;
       Vec3f c2 = o2->getCollisionGeometry()->aabb_center;
-      
-      FCL_REAL r = r1 + r2 + c1.length() + c2.length() + margin;
+
+      FCL_REAL r = r1 + r2 + margin;
       sampler.setBound(Vec3f(-r, -r, -r), Vec3f(r, r, r));
-      
+
       std::vector<Item<6> > data(n_samples);
       for(std::size_t i = 0; i < n_samples; ++i)
       {
         Vecnf<6> q = sampler.sample();
-
         Quaternion3f quat;
         quat.fromEuler(q[3], q[4], q[5]);
-        Transform3f tf(quat, Vec3f(q[0], q[1], q[2]));
-        
+        Transform3f tf(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2]));
         CollisionRequest request;
         CollisionResult result;
         
         int n_collide = collide(o1->getCollisionGeometry(), Transform3f(),
                                 o2->getCollisionGeometry(), tf, request, result);
 
-        data[i] = Item<6>(q, (n_collide > 0));
+        data[i] = Item<6>(q, (n_collide > 0));        
       }
-
-      /*
-        Vecnf<6> scaler_lower_bound, scaler_upper_bound;
-        for(std::size_t i = 0; i < 3; ++i)
-        {
-        scaler_lower_bound[i] = -r;
-        scaler_upper_bound[i] = r;
-        }
-
-        for(std::size_t i = 3; i < 6; ++i)
-        {
-        scaler_lower_bound[i] = -boost::math::constants::pi<FCL_REAL>();
-        scaler_upper_bound[i] = boost::math::constants::pi<FCL_REAL>();
-        }
-      
-        classifier.setScaler(Scaler<6>(scaler_lower_bound, scaler_upper_bound));
-      */
       
       classifier->setScaler(computeScaler(data));
 
@@ -139,9 +120,9 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
         Quaternion3f quat;
         quat.fromEuler(q[3], q[4], q[5]);
         if(svs[i].label)
-          support_transforms_positive.push_back(Transform3f(quat, Vec3f(q[0], q[1], q[2])));
+          support_transforms_positive.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
         else
-          support_transforms_negative.push_back(Transform3f(quat, Vec3f(q[0], q[1], q[2])));
+          support_transforms_negative.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
       }
       
       break;
@@ -155,9 +136,8 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
       FCL_REAL r2 = o2->getCollisionGeometry()->aabb_radius;
       Vec3f c1 = o1->getCollisionGeometry()->aabb_center;
       Vec3f c2 = o2->getCollisionGeometry()->aabb_center;
-      
-      FCL_REAL r = r1 + r2 + c1.length() + c2.length() + margin;
 
+      FCL_REAL r = r1 + r2 + margin;
       sampler.setBound(Vec3f(-r, -r, -r), Vec3f(r, r, r));
       
       std::vector<Item<7> > data(n_samples);
@@ -166,7 +146,7 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
         Vecnf<7> q = sampler.sample();
         
         Quaternion3f quat(q[3], q[4], q[5], q[6]);
-        Transform3f tf(quat, Vec3f(q[0], q[1], q[2]));
+        Transform3f tf(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2]));
         
         CollisionRequest request;
         CollisionResult result;
@@ -185,10 +165,11 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
       for(std::size_t i = 0; i < svs.size(); ++i)
       {
         const Vecnf<7>& q = svs[i].q;
+        Quaternion3f quat(q[3], q[4], q[5], q[6]);
         if(svs[i].label)
-          support_transforms_positive.push_back(Transform3f(Quaternion3f(q[3], q[4], q[5], q[6]), Vec3f(q[0], q[1], q[2])));
+          support_transforms_positive.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
         else
-          support_transforms_negative.push_back(Transform3f(Quaternion3f(q[3], q[4], q[5], q[6]), Vec3f(q[0], q[1], q[2])));
+          support_transforms_negative.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
       }
       
       break;
@@ -203,7 +184,7 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
       Vec3f c1 = o1->getCollisionGeometry()->aabb_center;
       Vec3f c2 = o2->getCollisionGeometry()->aabb_center;
 
-      sampler.setBound(c1, r1 + margin, r2 + margin, c2);
+      sampler.setBound(r1 + r2 + margin);
       
       std::vector<Item<6> > data(n_samples);
       for(std::size_t i = 0; i < n_samples; ++i)
@@ -212,7 +193,7 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
 
         Quaternion3f quat;
         quat.fromEuler(q[3], q[4], q[5]);
-        Transform3f tf(quat, Vec3f(q[0], q[1], q[2]));
+        Transform3f tf(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2]));
         
         CollisionRequest request;
         CollisionResult result;
@@ -234,9 +215,9 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
         Quaternion3f quat;
         quat.fromEuler(q[3], q[4], q[5]);
         if(svs[i].label)
-          support_transforms_positive.push_back(Transform3f(quat, Vec3f(q[0], q[1], q[2])));
+          support_transforms_positive.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
         else
-          support_transforms_negative.push_back(Transform3f(quat, Vec3f(q[0], q[1], q[2])));
+          support_transforms_negative.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
       }
             
       break;
@@ -251,7 +232,7 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
       Vec3f c1 = o1->getCollisionGeometry()->aabb_center;
       Vec3f c2 = o2->getCollisionGeometry()->aabb_center;
 
-      sampler.setBound(c1, r1 + margin, r2 + margin, c2);
+      sampler.setBound(r1 + r2 + margin);
       
       std::vector<Item<7> > data(n_samples);
       for(std::size_t i = 0; i < n_samples; ++i)
@@ -259,8 +240,7 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
         Vecnf<7> q = sampler.sample();
 
         Quaternion3f quat(q[3], q[4], q[5], q[6]);
-
-        Transform3f tf(quat, Vec3f(q[0], q[1], q[2]));
+        Transform3f tf(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2]));
         
         CollisionRequest request;
         CollisionResult result;
@@ -279,10 +259,11 @@ std::vector<Transform3f> penetrationDepthModelLearning(const CollisionObject* o1
       for(std::size_t i = 0; i < svs.size(); ++i)
       {
         const Vecnf<7>& q = svs[i].q;
+        Quaternion3f quat(q[3], q[4], q[5], q[6]);
         if(svs[i].label)
-          support_transforms_positive.push_back(Transform3f(Quaternion3f(q[3], q[4], q[5], q[6]), Vec3f(q[0], q[1], q[2])));
+          support_transforms_positive.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
         else
-          support_transforms_negative.push_back(Transform3f(Quaternion3f(q[3], q[4], q[5], q[6]), Vec3f(q[0], q[1], q[2])));
+          support_transforms_negative.push_back(Transform3f(quat, -quat.transform(c2) + c1 + Vec3f(q[0], q[1], q[2])));
       }
       
       break;

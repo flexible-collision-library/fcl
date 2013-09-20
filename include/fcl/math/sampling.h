@@ -383,50 +383,25 @@ class SamplerSE3Euler_ball : public SamplerBase
 public:
   SamplerSE3Euler_ball() {}
 
-  SamplerSE3Euler_ball(const Vec3f& c_,
-                       FCL_REAL r1, FCL_REAL r2,
-                       const Vec3f& c_ref)
+  SamplerSE3Euler_ball(FCL_REAL r_) : r(r_)
   {
-    setBound(c_, r1, r2, c_ref);
   }
 
-  SamplerSE3Euler_ball(const Vec3f& c_,
-                       FCL_REAL r_min_, FCL_REAL r_max_)
+  void setBound(const FCL_REAL& r_)
   {
-    setBound(c_, r_min_, r_max_);
+    r = r_;
   }
-
-  void setBound(const Vec3f& c_,
-                FCL_REAL r1, FCL_REAL r2,
-                const Vec3f& cref_)
+  
+  void getBound(FCL_REAL& r_) const
   {
-    c = c_;
-    FCL_REAL cref_len = cref_.length();
-    r_min = std::max<FCL_REAL>(cref_len - (r1 + r2), 0);
-    r_max = cref_len + r1 + r2;
-  }
-
-  void setBound(const Vec3f& c_,
-                FCL_REAL r_min_, FCL_REAL r_max_)
-  {
-    c = c_;
-    r_min = r_min_;
-    r_max = r_max_;
-  }
-
-  void getBound(Vec3f& c_,
-                FCL_REAL& r_min_, FCL_REAL& r_max_) const
-  {
-    c_ = c;
-    r_min_ = r_min;
-    r_max_ = r_max;
+    r_ = r;
   }
 
   Vecnf<6> sample() const
   {
     Vecnf<6> q;
     FCL_REAL x, y, z;
-    rng.ball(r_min, r_max, x, y, z);
+    rng.ball(0, r, x, y, z);
     q[0] = x;
     q[1] = y;
     q[2] = z;
@@ -445,8 +420,8 @@ public:
   }
 
 protected:
-  Vec3f c;
-  FCL_REAL r_min, r_max;
+  FCL_REAL r;
+
 };
 
 
@@ -455,50 +430,24 @@ class SamplerSE3Quat_ball : public SamplerBase
 public:
   SamplerSE3Quat_ball() {}
 
-  SamplerSE3Quat_ball(const Vec3f& c_,
-                      FCL_REAL r1, FCL_REAL r2,
-                      const Vec3f& c_ref)
+  SamplerSE3Quat_ball(FCL_REAL r_) : r(r_)
+  {}
+
+  void setBound(const FCL_REAL& r_)
   {
-    setBound(c_, r1, r2, c_ref);
+    r = r_;
   }
 
-  SamplerSE3Quat_ball(const Vec3f& c_,
-                      FCL_REAL r_min_, FCL_REAL r_max_)
+  void getBound(FCL_REAL& r_) const
   {
-    setBound(c_, r_min_, r_max_);
-  }
-
-  void setBound(const Vec3f& c_,
-                FCL_REAL r1, FCL_REAL r2,
-                const Vec3f& cref_)
-  {
-    c = c_;
-    FCL_REAL cref_len = cref_.length();
-    r_min = std::max<FCL_REAL>(cref_len - (r1 + r2), 0);
-    r_max = cref_len + r1 + r2;
-  }
-
-  void setBound(const Vec3f& c_,
-                FCL_REAL r_min_, FCL_REAL r_max_)
-  {
-    c = c_;
-    r_min = r_min_;
-    r_max = r_max_;
-  }
-
-  void getBound(Vec3f& c_,
-                FCL_REAL& r_min_, FCL_REAL& r_max_) const
-  {
-    c_ = c;
-    r_min_ = r_min;
-    r_max_ = r_max;
+    r_ = r;
   }
 
   Vecnf<7> sample() const
   {
     Vecnf<7> q;
     FCL_REAL x, y, z;
-    rng.ball(r_min, r_max, x, y, z);
+    rng.ball(0, r, x, y, z);
     q[0] = x;
     q[1] = y;
     q[2] = z;
@@ -514,8 +463,7 @@ public:
   }
 
 protected:
-  Vec3f c;
-  FCL_REAL r_min, r_max;
+  FCL_REAL r;
 };
 
 
