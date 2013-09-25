@@ -37,5 +37,5 @@
 #ifndef FCL_TEST_RESOURCES_CONFIG_
 #define FCL_TEST_RESOURCES_CONFIG_
 
-#define TEST_RESOURCES_DIR "/home/jia/Workspace/fcl2/test/fcl_resources"
+#define TEST_RESOURCES_DIR "/home/jia/Workspace/fcl/test/fcl_resources"
 #endif

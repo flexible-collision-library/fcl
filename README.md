@@ -6,7 +6,7 @@ FCL is a library for performing three types of proximity queries on a pair of ge
  - Distance computation: computing the minimum distance between a pair of models, i.e., the distance between the closest pair of points.
  - Tolerance verification: determining whether two models are closer or farther than a tolerance distance.
  - Continuous collision detection: detecting whether the two moving models overlap during the movement, and optionally, the time of contact.
- - Global penetration depth: detecting the minimum motion required to separate two in-collision objects, and return the configuration where the collision has been resolved.
+# - Global penetration depth: detecting the minimum motion required to separate two in-collision objects, and return the configuration where the collision has been resolved.
  - Contact information: for collision detection, continuous collision detection and global penetration depth, the contact information (including contact normals and contact points) can be returned optionally.
 
 FCL has the following features
@@ -123,20 +123,20 @@ ContinuousCollisionResult result;
 // perform continuous collision test
 continuousCollide(o1, tf_goal_o1, o2, tf_goal_o2, request, result);
 ```
-For global penetration depth computation, we need a pre-computation step. Beside that, the online penetration depth function uses exactly the same pipeline as shown above:
-```cpp
-// Given two objects o1 and o2
-CollisionObject* o1 = ...
-CollisionObject* o2 = ...
-// the precomputation step for global penetration computation (see test_fcl_xmldata.cpp for an example)
-...
-// set the penetration depth request structure, here we just use the default setting
-PenetrationDepthRequest request;
-// result will be returned via the penetration depth result structure
-PenetrationDepthResult result;
-// perform global penetration depth test
-penetrationDepth(o1, o2,request, result);
-```
+#For global penetration depth computation, we need a pre-computation step. Beside that, the online penetration depth function uses exactly the same pipeline as shown above:
+#```cpp
+#// Given two objects o1 and o2
+#CollisionObject* o1 = ...
+#CollisionObject* o2 = ...
+#// the precomputation step for global penetration computation (see test_fcl_xmldata.cpp for an example)
+#...
+#// set the penetration depth request structure, here we just use the default setting
+#PenetrationDepthRequest request;
+#// result will be returned via the penetration depth result structure
+#PenetrationDepthResult result;
+#// perform global penetration depth test
+#penetrationDepth(o1, o2,request, result);
+#```
 
 FCL supports broadphase collision/distance between two groups of objects and can avoid the n square complexity. For collision, broadphase algorithm can return all the collision pairs. For distance, it can return the pair with the minimum distance. FCL uses a CollisionManager structure to manage all the objects involving the collision or distance operations.
 ```cpp
@@ -186,6 +186,6 @@ For more examples, please refer to the test folder:
 - test_fcl_distance.cpp: provide examples for distance test
 - test_fcl_broadphase.cpp: provide examples for broadphase collision/distance test
 - test_fcl_frontlist.cpp: provide examples for frontlist collision acceleration
-- test_fcl_global_penetration.cpp: provide examples for global penetration depth test
-- test_fcl_xmldata.cpp: provide examples for more global penetration depth test based on xml data
+#- test_fcl_global_penetration.cpp: provide examples for global penetration depth test
+#- test_fcl_xmldata.cpp: provide examples for more global penetration depth test based on xml data
 - test_fcl_octomap.cpp: provide examples for collision/distance computation between octomap data and other data types.
