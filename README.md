@@ -123,20 +123,6 @@ ContinuousCollisionResult result;
 // perform continuous collision test
 continuousCollide(o1, tf_goal_o1, o2, tf_goal_o2, request, result);
 ```
-#For global penetration depth computation, we need a pre-computation step. Beside that, the online penetration depth function uses exactly the same pipeline as shown above:
-#```cpp
-#// Given two objects o1 and o2
-#CollisionObject* o1 = ...
-#CollisionObject* o2 = ...
-#// the precomputation step for global penetration computation (see test_fcl_xmldata.cpp for an example)
-#...
-#// set the penetration depth request structure, here we just use the default setting
-#PenetrationDepthRequest request;
-#// result will be returned via the penetration depth result structure
-#PenetrationDepthResult result;
-#// perform global penetration depth test
-#penetrationDepth(o1, o2,request, result);
-#```
 
 FCL supports broadphase collision/distance between two groups of objects and can avoid the n square complexity. For collision, broadphase algorithm can return all the collision pairs. For distance, it can return the pair with the minimum distance. FCL uses a CollisionManager structure to manage all the objects involving the collision or distance operations.
 ```cpp
