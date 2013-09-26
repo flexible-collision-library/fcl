@@ -6,8 +6,7 @@ FCL is a library for performing three types of proximity queries on a pair of ge
  - Distance computation: computing the minimum distance between a pair of models, i.e., the distance between the closest pair of points.
  - Tolerance verification: determining whether two models are closer or farther than a tolerance distance.
  - Continuous collision detection: detecting whether the two moving models overlap during the movement, and optionally, the time of contact.
-# - Global penetration depth: detecting the minimum motion required to separate two in-collision objects, and return the configuration where the collision has been resolved.
- - Contact information: for collision detection, continuous collision detection and global penetration depth, the contact information (including contact normals and contact points) can be returned optionally.
+ - Contact information: for collision detection and continuous collision detection, the contact information (including contact normals and contact points) can be returned optionally.
 
 FCL has the following features
  - C++ interface, heavily use the boost
