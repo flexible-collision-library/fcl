@@ -45,6 +45,7 @@ public:
     problem.W = NULL;
   }
 
+
   void setCSVM() { param.svm_type = C_SVC; }
   void setNuSVM() { param.svm_type = NU_SVC; }
   void setC(FCL_REAL C) { param.C = C; }

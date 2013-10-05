@@ -183,6 +183,8 @@ protected:
   
 };
 
+typedef boost::shared_ptr<MotionBase> MotionBasePtr;
+
 
 }
 
