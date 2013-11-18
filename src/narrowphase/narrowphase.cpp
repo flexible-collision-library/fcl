@@ -46,8 +46,6 @@ namespace fcl
 namespace details
 {
 
-#define DEBUG 1
-
 // Clamp n to lie within the range [min, max]
 float clamp(float n, float min, float max) {
     if (n < min) return min;
