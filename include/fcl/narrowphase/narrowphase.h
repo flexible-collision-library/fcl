@@ -116,7 +116,7 @@ struct GJKSolver_libccd
                        const S2& s2, const Transform3f& tf2,
                        FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
     {
-        std::cerr << "no specialization code found for " << typeid(S1).name() << " & " << typeid(S2).name() << std::endl;
+//        std::cerr << "no specialization code found for " << typeid(S1).name() << " & " << typeid(S2).name() << std::endl;
 
         void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
         void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);
@@ -375,6 +375,11 @@ template<>
 bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const Transform3f& tf1, 
                                                      const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                                                      FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
+// @brief Computation of the distance result for capsule capsule. Closest points are based on two line-seqments.
+template<>
+bool GJKSolver_libccd::shapeDistance<Capsule, Capsule>(const Capsule& s1, const Transform3f& tf1,
+                                                       const Capsule& s2, const Transform3f& tf2,
+                                                       FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
 
 
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
@@ -531,7 +536,7 @@ struct GJKSolver_indep
                        const S2& s2, const Transform3f& tf2,
                        FCL_REAL* distance, Vec3f* p1, Vec3f* p2) const
     {
-        std::cerr << "no specialization code found for " << typeid(S1).name() << " & " << typeid(S2).name() << std::endl;
+//        std::cerr << "no specialization code found for " << typeid(S1).name() << " & " << typeid(S2).name() << std::endl;
 
         Vec3f guess(1, 0, 0);
         if(enable_cached_guess) guess = cached_guess;
@@ -842,16 +847,12 @@ bool GJKSolver_indep::shapeDistance<Sphere, Capsule>(const Sphere& s1, const Tra
                                                      const Capsule& s2, const Transform3f& tf2,
                                                      FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
 
+// @brief Computation of the distance result for capsule capsule. Closest points are based on two line-seqments.
 template<>
 bool GJKSolver_indep::shapeDistance<Capsule, Capsule>(const Capsule& s1, const Transform3f& tf1,
                                                       const Capsule& s2, const Transform3f& tf2,
                                                       FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
 
-
-template<>
-bool GJKSolver_libccd::shapeDistance<Capsule, Capsule>(const Capsule& s1, const Transform3f& tf1,
-                                                       const Capsule& s2, const Transform3f& tf2,
-                                                       FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
 
 /// @brief Fast implementation for sphere-sphere distance
 template<>

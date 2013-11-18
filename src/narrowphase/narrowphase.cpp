@@ -137,6 +137,7 @@ bool capsuleCapsuleDistance(const Capsule& s1, const Transform3f& tf1,
     Vec3f p1(tf1.getTranslation());
     Vec3f p2(tf2.getTranslation());
 
+    // line seqment composes two points. First point is given by the origin, second point is computed by the origin transformed along z.
     // extension along z-axis means transformation with identity matrix and translation vector z pos
     Transform3f transformQ1(Vec3f(0,0,s1.lz));
     transformQ1 = tf1 * transformQ1;
@@ -147,6 +148,7 @@ bool capsuleCapsuleDistance(const Capsule& s1, const Transform3f& tf1,
     transformQ2 = tf2 * transformQ2;
     Vec3f q2 = transformQ2.getTranslation();
 
+    // s and t correspont to the length of the line seqment
     float s, t;
     Vec3f c1, c2;
 
@@ -157,36 +159,14 @@ bool capsuleCapsuleDistance(const Capsule& s1, const Transform3f& tf1,
     Vec3f distVec = c2 -c1;
     distVec.normalize();
 
+    // extend the point to be border of the capsule.
+    // Done by following the directional unit vector for the length of the capsule radius
     *p1_res = c1 + distVec*s1.radius;
-
-//    Vec3f p1_frame1 = c1 + distVec*s1.radius;
-//    Matrix3f tf1_rot = tf1.getRotation();
-//    *p1_res = tf1_rot.inverse() * p1_frame1;
 
     distVec = c1-c2;
     distVec.normalize();
 
     *p2_res = c2 + distVec*s2.radius;
-//    Vec3f p2_frame2 = c2 + distVec*s2.radius;
-//    Matrix3f tf2_rot = tf2.getRotation();
-//    *p2_res = tf2_rot.inverse() * p2_frame2;
-
-#if DEBUG
-    std::cerr << "debug output of capsule capsule computation" << std::endl;
-    std::cerr << "tf1 looks like: " << tf1.getRotation() << std::endl;
-    std::cerr << "p1 looks like: " << p1 << std::endl;
-    std::cerr << "q1 looks like: " << q1 << std::endl;
-    std::cerr << "tf2 looks like: " << tf2.getRotation() << std::endl;
-    std::cerr << "p2 looks like: " << p2 << std::endl;
-    std::cerr << "q2 looks like: " << q2 << std::endl;
-    std::cerr << "p1_res looks like: " << *p1_res << std::endl;
-    std::cerr << "dist value of capsule capsule " << *dist << std::endl;
-    std::cerr << "t looks like " << t << std::endl;
-    std::cerr << "s looks like " << s << std::endl;
-    std::cerr << "c1 looks like " << c1 << std::endl;
-    std::cerr << "c2 looks like " << c2 << std::endl;
-    std::cerr << "p2_res looks like: " << *p2_res << std::endl;
-#endif
 
   return true;
 }
