@@ -39,6 +39,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/narrowphase_capstocaps.h"
 #include "fcl/collision.h"
 #include "test_fcl_utility.h"
 #include "fcl/ccd/motion.h"
@@ -1862,12 +1863,12 @@ BOOST_AUTO_TEST_CASE(shapeDistance_spheresphere)
   Sphere s2(10);
 
   Transform3f transform;
-  generateRandomTransform(extents, transform);
+  //generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist = -1;
   Vec3f closest_p1, closest_p2;
-  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
+  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(0, 40, 0)), &dist, &closest_p1, &closest_p2);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
   BOOST_CHECK(res);
 
@@ -1922,9 +1923,10 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxbox)
 {                      
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
+  Vec3f closest_p1, closest_p2;
 
   Transform3f transform;
-  generateRandomTransform(extents, transform);
+  //generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
@@ -1937,9 +1939,43 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxbox)
   BOOST_CHECK(dist < 0);
   BOOST_CHECK_FALSE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(15.1, 0, 0)), &dist);
+  std::cerr << " SOVLER NUMBER 1" << std::endl;
+  res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist, &closest_p1, &closest_p2);
+  std::cerr << "computed points in box to box" << closest_p1 << " & " << closest_p2 << "with dist: " << dist<< std::endl;
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
   BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)), &dist, &closest_p1, &closest_p2);
+  std::cerr << "computed points in box to box" << closest_p1 << " & " << closest_p2 << "with dist: " << dist<< std::endl;
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.2, 0)), &dist, &closest_p1, &closest_p2);
+  std::cerr << "computed points in box to box" << closest_p1 << " & " << closest_p2 << "with dist: " << dist<< std::endl;
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 10.1, 0)), &dist, &closest_p1, &closest_p2);
+  std::cerr << "computed points in box to box" << closest_p1 << " & " << closest_p2 << "with dist: " << dist<< std::endl;
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist, &closest_p1, &closest_p2);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)), &dist, &closest_p1, &closest_p2);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.1, 0)), &dist, &closest_p1, &closest_p2);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 10.1, 0)), &dist, &closest_p1, &closest_p2);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(15.1, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
@@ -2719,40 +2755,6 @@ BOOST_AUTO_TEST_CASE(conecone)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(conecylinder)
-{
-  Cylinder s1(5, 10);
-  Cone s2(5, 10);
 
-  Transform3f transform;
-  generateRandomTransform(extents, transform);
-
-  bool res;
-  FCL_REAL dist;
-
-  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
-
-  res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
-
-  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
-
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
-
-  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
-
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
-}
 
 
