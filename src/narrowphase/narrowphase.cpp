@@ -135,7 +135,7 @@ bool capsuleCapsuleDistance(const Capsule& s1, const Transform3f& tf1,
     Vec3f p1(tf1.getTranslation());
     Vec3f p2(tf2.getTranslation());
 
-    // line seqment composes two points. First point is given by the origin, second point is computed by the origin transformed along z.
+    // line segment composes two points. First point is given by the origin, second point is computed by the origin transformed along z.
     // extension along z-axis means transformation with identity matrix and translation vector z pos
     Transform3f transformQ1(Vec3f(0,0,s1.lz));
     transformQ1 = tf1 * transformQ1;
@@ -146,7 +146,7 @@ bool capsuleCapsuleDistance(const Capsule& s1, const Transform3f& tf1,
     transformQ2 = tf2 * transformQ2;
     Vec3f q2 = transformQ2.getTranslation();
 
-    // s and t correspont to the length of the line seqment
+    // s and t correspont to the length of the line segment
     float s, t;
     Vec3f c1, c2;
 
