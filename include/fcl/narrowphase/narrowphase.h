@@ -373,6 +373,11 @@ template<>
 bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const Transform3f& tf1, 
                                                      const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                                                      FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
+// @brief Computation of the distance result for capsule capsule. Closest points are based on two line-segments.
+template<>
+bool GJKSolver_libccd::shapeDistance<Capsule, Capsule>(const Capsule& s1, const Transform3f& tf1,
+						       const Capsule& s2, const Transform3f& tf2,
+						       FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
 
 
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
@@ -837,6 +842,13 @@ template<>
 bool GJKSolver_indep::shapeDistance<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
                                                      const Capsule& s2, const Transform3f& tf2,
                                                      FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
+
+// @brief Computation of the distance result for capsule capsule. Closest points are based on two line-segments.
+ template<>
+   bool GJKSolver_indep::shapeDistance<Capsule, Capsule>(const Capsule& s1, const Transform3f& tf1,
+							 const Capsule& s2, const Transform3f& tf2,
+							 FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const;
+
 
 /// @brief Fast implementation for sphere-sphere distance
 template<>
