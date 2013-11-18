@@ -46,6 +46,154 @@ namespace fcl
 namespace details
 {
 
+#define DEBUG 1
+
+// Clamp n to lie within the range [min, max]
+float clamp(float n, float min, float max) {
+    if (n < min) return min;
+    if (n > max) return max;
+    return n;
+}
+
+// Computes closest points C1 and C2 of S1(s)=P1+s*(Q1-P1) and
+// S2(t)=P2+t*(Q2-P2), returning s and t. Function result is squared
+// distance between between S1(s) and S2(t)
+float closestPtSegmentSegment(Vec3f p1, Vec3f q1, Vec3f p2, Vec3f q2,
+                              float &s, float &t, Vec3f &c1, Vec3f &c2)
+{
+    const float EPSILON = 0.001;
+    Vec3f d1 = q1 - p1; // Direction vector of segment S1
+    Vec3f d2 = q2 - p2; // Direction vector of segment S2
+    Vec3f r = p1 - p2;
+    float a = d1.dot(d1); // Squared length of segment S1, always nonnegative
+
+    float e = d2.dot(d2); // Squared length of segment S2, always nonnegative
+    float f = d2.dot(r);
+    // Check if either or both segments degenerate into points
+    if (a <= EPSILON && e <= EPSILON) {
+        // Both segments degenerate into points
+        s = t = 0.0f;
+        c1 = p1;
+        c2 = p2;
+        Vec3f diff = c1-c2;
+        float res = diff.dot(diff);
+        return res;
+    }
+    if (a <= EPSILON) {
+        // First segment degenerates into a point
+        s = 0.0f;
+        t = f / e; // s = 0 => t = (b*s + f) / e = f / e
+        t = clamp(t, 0.0f, 1.0f);
+    } else {
+        float c = d1.dot(r);
+        if (e <= EPSILON) {
+            // Second segment degenerates into a point
+            t = 0.0f;
+            s = clamp(-c / a, 0.0f, 1.0f); // t = 0 => s = (b*t - c) / a = -c / a
+        } else {
+            // The general nondegenerate case starts here
+            float b = d1.dot(d2);
+            float denom = a*e-b*b; // Always nonnegative
+            // If segments not parallel, compute closest point on L1 to L2 and
+            // clamp to segment S1. Else pick arbitrary s (here 0)
+            if (denom != 0.0f) {
+                std::cerr << "demoninator equals zero, using 0 as reference" << std::endl;
+                s = clamp((b*f - c*e) / denom, 0.0f, 1.0f);
+            } else s = 0.0f;
+            // Compute point on L2 closest to S1(s) using
+            // t = Dot((P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e
+            t = (b*s + f) / e;
+
+            //
+            //If t in [0,1] done. Else clamp t, recompute s for the new value
+            //of t using s = Dot((P2 + D2*t) - P1,D1) / Dot(D1,D1)= (t*b - c) / a
+            //and clamp s to [0, 1]
+            if(t < 0.0f) {
+                t = 0.0f;
+                s = clamp(-c / a, 0.0f, 1.0f);
+            } else if (t > 1.0f) {
+                t = 1.0f;
+                s = clamp((b - c) / a, 0.0f, 1.0f);
+            }
+        }
+    }
+    c1 = p1 + d1 * s;
+    c2 = p2 + d2 * t;
+    Vec3f diff = c1-c2;
+    float res = diff.dot(diff);
+    return res;
+}
+
+
+// Computes closest points C1 and C2 of S1(s)=P1+s*(Q1-P1) and
+// S2(t)=P2+t*(Q2-P2), returning s and t. Function result is squared
+// distance between between S1(s) and S2(t)
+
+bool capsuleCapsuleDistance(const Capsule& s1, const Transform3f& tf1,
+                           const Capsule& s2, const Transform3f& tf2,
+                           FCL_REAL* dist, Vec3f* p1_res, Vec3f* p2_res)
+{
+
+    Vec3f p1(tf1.getTranslation());
+    Vec3f p2(tf2.getTranslation());
+
+    // extension along z-axis means transformation with identity matrix and translation vector z pos
+    Transform3f transformQ1(Vec3f(0,0,s1.lz));
+    transformQ1 = tf1 * transformQ1;
+    Vec3f q1 = transformQ1.getTranslation();
+
+
+    Transform3f transformQ2(Vec3f(0,0,s2.lz));
+    transformQ2 = tf2 * transformQ2;
+    Vec3f q2 = transformQ2.getTranslation();
+
+    float s, t;
+    Vec3f c1, c2;
+
+    float result = closestPtSegmentSegment(p1, q1, p2, q2, s, t, c1, c2);
+    *dist = sqrt(result)-s1.radius-s2.radius;
+
+    // getting directional unit vector
+    Vec3f distVec = c2 -c1;
+    distVec.normalize();
+
+    *p1_res = c1 + distVec*s1.radius;
+
+//    Vec3f p1_frame1 = c1 + distVec*s1.radius;
+//    Matrix3f tf1_rot = tf1.getRotation();
+//    *p1_res = tf1_rot.inverse() * p1_frame1;
+
+    distVec = c1-c2;
+    distVec.normalize();
+
+    *p2_res = c2 + distVec*s2.radius;
+//    Vec3f p2_frame2 = c2 + distVec*s2.radius;
+//    Matrix3f tf2_rot = tf2.getRotation();
+//    *p2_res = tf2_rot.inverse() * p2_frame2;
+
+#if DEBUG
+    std::cerr << "debug output of capsule capsule computation" << std::endl;
+    std::cerr << "tf1 looks like: " << tf1.getRotation() << std::endl;
+    std::cerr << "p1 looks like: " << p1 << std::endl;
+    std::cerr << "q1 looks like: " << q1 << std::endl;
+    std::cerr << "tf2 looks like: " << tf2.getRotation() << std::endl;
+    std::cerr << "p2 looks like: " << p2 << std::endl;
+    std::cerr << "q2 looks like: " << q2 << std::endl;
+    std::cerr << "p1_res looks like: " << *p1_res << std::endl;
+    std::cerr << "dist value of capsule capsule " << *dist << std::endl;
+    std::cerr << "t looks like " << t << std::endl;
+    std::cerr << "s looks like " << s << std::endl;
+    std::cerr << "c1 looks like " << c1 << std::endl;
+    std::cerr << "c2 looks like " << c2 << std::endl;
+    std::cerr << "p2_res looks like: " << *p2_res << std::endl;
+#endif
+
+  return true;
+}
+
+
+
+
 // Compute the point on a line segment that is the closest point on the
 // segment to to another point. The code is inspired by the explanation
 // given by Dan Sunday's page:
@@ -2858,7 +3006,20 @@ bool GJKSolver_indep::shapeTriangleDistance<Sphere>(const Sphere& s, const Trans
 }
 
 
-
+template<>
+bool GJKSolver_indep::shapeDistance<Capsule, Capsule>(const Capsule& s1, const Transform3f& tf1,
+                                                     const Capsule& s2, const Transform3f& tf2,
+                                                     FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
+{
+  return details::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
+}
+template<>
+bool GJKSolver_libccd::shapeDistance<Capsule, Capsule>(const Capsule& s1, const Transform3f& tf1,
+                                                     const Capsule& s2, const Transform3f& tf2,
+                                                     FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
+{
+  return details::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
+}
 
 
 
