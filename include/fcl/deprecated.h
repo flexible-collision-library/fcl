@@ -55,13 +55,14 @@
 // compilers support it.
 # ifdef __GNUC__
 #  define FCL_DEPRECATED __attribute__ ((deprecated))
+# elif defined _MSC_VER
+#  define FCL_DEPRECATED __declspec (deprecated)
+# elif defined(clang)
+#  define FL_DEPRECATED \
+  attribute((deprecated("FCL: Use of this method is deprecated")))
 # else
-#  ifdef _MSC_VER
-#   define FCL_DEPRECATED __declspec (deprecated)
-#  else
 // If the compiler is not recognized, drop the feature.
-#   define FCL_DEPRECATED /* nothing */
-#  endif // __MSVC__
-# endif // __GNUC__
+#  define FCL_DEPRECATED /* nothing */
+# endif
 
 #endif //! FCL_DEPRECATED_HH
