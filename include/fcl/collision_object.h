@@ -38,6 +38,7 @@
 #ifndef FCL_COLLISION_OBJECT_BASE_H
 #define FCL_COLLISION_OBJECT_BASE_H
 
+#include <fcl/deprecated.h>
 #include "fcl/BV/AABB.h"
 #include "fcl/math/transform.h"
 #include "fcl/ccd/motion_base.h"
@@ -295,9 +296,15 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  const CollisionGeometry* getCollisionGeometry() const
+  const CollisionGeometry* getCollisionGeometry() const FCL_DEPRECATED
   {
     return cgeom.get();
+  }
+
+  /// @brief get geometry from the object instance
+  boost::shared_ptr<const CollisionGeometry> collisionGeometry() const
+  {
+    return cgeom;
   }
 
   /// @brief get object's cost density
@@ -437,9 +444,15 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  inline const CollisionGeometry* getCollisionGeometry() const
+  inline const CollisionGeometry* getCollisionGeometry() const FCL_DEPRECATED
   {
     return cgeom.get();
+  }
+
+  /// @brief get geometry from the object instance
+  inline boost::shared_ptr<const CollisionGeometry> collisionGeometry() const
+  {
+    return cgeom;
   }
 
 protected:
