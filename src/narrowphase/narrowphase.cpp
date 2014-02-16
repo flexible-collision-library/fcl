@@ -1637,7 +1637,7 @@ bool capsuleHalfspaceIntersect(const Capsule& s1, const Transform3f& tf1,
   Vec3f dir_z = R.getColumn(2);
 
   FCL_REAL cosa = dir_z.dot(new_s2.n);
-  if(cosa < halfspaceIntersectTolerance<FCL_REAL>())
+  if(std::abs(cosa) < halfspaceIntersectTolerance<FCL_REAL>())
   {
     FCL_REAL signed_dist = new_s2.signedDistance(T);
     FCL_REAL depth = s1.radius - signed_dist;
