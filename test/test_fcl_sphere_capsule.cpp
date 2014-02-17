@@ -189,27 +189,3 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Distance_test_separated)
 	BOOST_CHECK (is_separated);
 	BOOST_CHECK (distance == 25.);
 }
-
-BOOST_AUTO_TEST_CASE(Capsule_Capsule_Distance_test_separated)
-{
-	GJKSolver_libccd solver;
-
-	Capsule sphere1 (50, 0);
-	Transform3f sphere1_transform(Vec3f (0., 0., 0));
-
-	Capsule capsule (50, 00.);
-	Transform3f capsule_transform (Vec3f (150., 0., 0));
-
-	FCL_REAL distance = 0.;
-	Vec3f p1;
-	Vec3f p2;
-	bool is_separated = solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance, &p1, &p2);
-
-	std::cerr << "computed distance: " << distance << std::endl;
-	std::cerr << "computed p1: " << p1 << std::endl;
-	std::cerr << "computed p2: " << p2 << std::endl;
-
-
-	BOOST_CHECK (is_separated);
-	BOOST_CHECK (distance == 25.);
-}
