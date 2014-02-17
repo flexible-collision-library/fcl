@@ -69,7 +69,7 @@ public:
   /// @brief get the type of the object
   virtual OBJECT_TYPE getObjectType() const { return OT_UNKNOWN; }
 
-  /// @brief get the node type 
+  /// @brief get the node type
   virtual NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
   /// @brief compute the AABB for object in local coordinate
@@ -150,27 +150,25 @@ public:
 class CollisionObject
 {
 public:
-  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_) : cgeom(cgeom_)
+ CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_) :
+    cgeom(cgeom_), cgeom_const(cgeom_)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) : cgeom(cgeom_), t(tf)
+  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) :
+    cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
   CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
-      cgeom(cgeom_), t(Transform3f(R, T))
+      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3f(R, T))
   {
     cgeom->computeLocalAABB();
     computeAABB();
-  }
-
-  CollisionObject()
-  {
   }
 
   ~CollisionObject()
@@ -302,9 +300,9 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  boost::shared_ptr<const CollisionGeometry> collisionGeometry() const
+  const boost::shared_ptr<const CollisionGeometry>& collisionGeometry() const
   {
-    return cgeom;
+    return cgeom_const;
   }
 
   /// @brief get object's cost density
@@ -340,6 +338,7 @@ public:
 protected:
 
   boost::shared_ptr<CollisionGeometry> cgeom;
+  boost::shared_ptr<const CollisionGeometry> cgeom_const;
 
   Transform3f t;
 
@@ -355,15 +354,15 @@ protected:
 class ContinuousCollisionObject
 {
 public:
-  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_) : cgeom(cgeom_)
+  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_) :
+    cgeom(cgeom_), cgeom_const(cgeom_)
   {
   }
 
-  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_, const boost::shared_ptr<MotionBase>& motion_) : cgeom(cgeom_), motion(motion_)
+  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_, const boost::shared_ptr<MotionBase>& motion_) :
+    cgeom(cgeom_), cgeom_const(cgeom), motion(motion_)
   {
   }
-
-  ContinuousCollisionObject() {}
 
   ~ContinuousCollisionObject() {}
 
@@ -450,14 +449,15 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  inline boost::shared_ptr<const CollisionGeometry> collisionGeometry() const
+  inline const boost::shared_ptr<const CollisionGeometry>& collisionGeometry() const
   {
-    return cgeom;
+    return cgeom_const;
   }
 
 protected:
 
   boost::shared_ptr<CollisionGeometry> cgeom;
+  boost::shared_ptr<const CollisionGeometry> cgeom_const;
 
   boost::shared_ptr<MotionBase> motion;
 

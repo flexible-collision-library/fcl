@@ -78,7 +78,7 @@ struct SortByZLow
 class DummyCollisionObject : public CollisionObject
 {
 public:
-  DummyCollisionObject(const AABB& aabb_) : CollisionObject()
+  DummyCollisionObject(const AABB& aabb_) : CollisionObject(boost::shared_ptr<CollisionGeometry>())
   {
     aabb = aabb_;
   }
