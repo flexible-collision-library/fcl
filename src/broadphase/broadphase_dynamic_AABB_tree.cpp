@@ -739,7 +739,7 @@ void DynamicAABBTreeCollisionManager::update(const std::vector<CollisionObject*>
 void DynamicAABBTreeCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
   if(size() == 0) return;
-  switch(obj->getCollisionGeometry()->getNodeType())
+  switch(obj->collisionGeometry()->getNodeType())
   {
 #if FCL_HAVE_OCTOMAP
   case GEOM_OCTREE:
@@ -763,7 +763,7 @@ void DynamicAABBTreeCollisionManager::distance(CollisionObject* obj, void* cdata
 {
   if(size() == 0) return;
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
-  switch(obj->getCollisionGeometry()->getNodeType())
+  switch(obj->collisionGeometry()->getNodeType())
   {
 #if FCL_HAVE_OCTOMAP
   case GEOM_OCTREE:

@@ -316,8 +316,8 @@ FCL_REAL continuousCollide(const CollisionObject* o1, const Transform3f& tf1_end
                            const ContinuousCollisionRequest& request,
                            ContinuousCollisionResult& result)
 {
-  return continuousCollide(o1->getCollisionGeometry(), o1->getTransform(), tf1_end,
-                           o2->getCollisionGeometry(), o2->getTransform(), tf2_end,
+  return continuousCollide(o1->collisionGeometry().get(), o1->getTransform(), tf1_end,
+                           o2->collisionGeometry().get(), o2->getTransform(), tf2_end,
                            request, result);
 }
 
@@ -326,8 +326,8 @@ FCL_REAL collide(const ContinuousCollisionObject* o1, const ContinuousCollisionO
                  const ContinuousCollisionRequest& request,
                  ContinuousCollisionResult& result)
 {
-  return continuousCollide(o1->getCollisionGeometry(), o1->getMotion(),
-                           o2->getCollisionGeometry(), o2->getMotion(),
+  return continuousCollide(o1->collisionGeometry().get(), o1->getMotion(),
+                           o2->collisionGeometry().get(), o2->getMotion(),
                            request, result);
 }
 
