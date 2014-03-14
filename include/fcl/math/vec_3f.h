@@ -125,9 +125,12 @@ public:
   }
 
   inline U length() const { return sqrt(details::dot_prod3(data, data)); }
+  inline U norm() const { return sqrt(details::dot_prod3(data, data)); }
   inline U sqrLength() const { return details::dot_prod3(data, data); }
+  inline U squaredNorm() const { return details::dot_prod3(data, data); }
   inline void setValue(U x, U y, U z) { data.setValue(x, y, z); }
   inline void setValue(U x) { data.setValue(x); }
+  inline void setZero () {data.setValue (0); }
   inline bool equal(const Vec3fX& other, U epsilon = std::numeric_limits<U>::epsilon() * 100) const { return details::equal(data, other.data, epsilon); }
   inline Vec3fX<T>& negate() { data.negate(); return *this; }
 
@@ -240,6 +243,13 @@ static inline std::ostream& operator << (std::ostream& o, const Vec3f& v)
   o << "(" << v[0] << " " << v[1] << " " << v[2] << ")";
   return o;
 }
+
+ template <typename T>
+   inline Vec3fX <T> operator * (const typename Vec3fX <T>::U& t,
+				 const Vec3fX <T>& v)
+   {
+     return Vec3fX <T> (v.data * t);
+   }
 
 
 }

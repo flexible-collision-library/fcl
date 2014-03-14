@@ -171,6 +171,14 @@ public:
     data.setIdentity();
   }
 
+  inline bool isIdentity () const
+  {
+    return
+      data (0,0) == 1 && data (0,1) == 0 && data (0,2) == 0 &&
+      data (0,0) == 0 && data (0,1) == 1 && data (0,2) == 0 &&
+      data (0,0) == 0 && data (0,1) == 0 && data (0,2) == 1;
+  }
+
   inline void setZero()
   {
     data.setZero();
