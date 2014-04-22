@@ -388,7 +388,7 @@ bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
   Vec3f contact_point;
   if(is_inside_contact_plane)
   {
-    if(projectInTriangle(P1, P2, P3, center, normal))
+    if(projectInTriangle(P1, P2, P3, normal, center))
     {
       has_contact = true;
       contact_point = center - normal * distance_from_plane;
