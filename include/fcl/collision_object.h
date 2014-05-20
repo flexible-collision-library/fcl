@@ -153,8 +153,11 @@ public:
  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_) :
     cgeom(cgeom_), cgeom_const(cgeom_)
   {
-    cgeom->computeLocalAABB();
-    computeAABB();
+    if (cgeom)
+    {
+      cgeom->computeLocalAABB();
+      computeAABB();
+    }
   }
 
   CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) :
