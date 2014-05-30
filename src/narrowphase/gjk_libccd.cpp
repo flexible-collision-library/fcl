@@ -579,11 +579,12 @@ static void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
   ccdVec3Set(&pos2, CCD_ZERO, CCD_ZERO, -o->height);
 
   ccdVec3Copy(v, &dir);
+  ccdVec3Normalize (v);
   ccdVec3Scale(v, o->radius);
   ccdVec3Add(&pos1, v);
   ccdVec3Add(&pos2, v);
 
-  if(ccdVec3Dot(&dir, &pos1) > ccdVec3Dot(&dir, &pos2))
+  if(ccdVec3Z (&dir) > 0)
     ccdVec3Copy(v, &pos1);
   else
     ccdVec3Copy(v, &pos2);
