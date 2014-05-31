@@ -316,8 +316,10 @@ Quaternion3f& Quaternion3f::inverse()
 
 Vec3f Quaternion3f::transform(const Vec3f& v) const
 {
-  Quaternion3f r = (*this) * Quaternion3f(0, v[0], v[1], v[2]) * (fcl::conj(*this));
-  return Vec3f(r.data[1], r.data[2], r.data[3]);
+  Vec3f u(getX(), getY(), getZ());
+  double s = getW();
+  Vec3f vprime = 2*u.dot(v)*u + (s*s - u.dot(u))*v + 2*s*u.cross(v);
+  return vprime;
 }
 
 Quaternion3f conj(const Quaternion3f& q)
