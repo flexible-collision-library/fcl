@@ -49,14 +49,20 @@ Quaternion3f::Quaternion3f()
   data[3] = 0;
 }
 
-Quaternion3f::Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
+Quaternion3f::Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d, bool normalize)
 {
   //catch rounding errors to make sure we are normalized
-  double l=sqrtf(a*a+b*b+c*c+d*d);
-  data[0] = a/l;
-  data[1] = b/l;
-  data[2] = c/l;
-  data[3] = d/l;
+  data[0] = a;
+  data[1] = b;
+  data[2] = c;
+  data[3] = d;
+
+  if(normalize){
+    double l=sqrtf(a*a+b*b+c*c+d*d);
+    for(uint i=0;i<4;i++){
+      data[i]/=l;
+    }
+  }
 }
 void Quaternion3f::fromRotation(const Matrix3f& R)
 {

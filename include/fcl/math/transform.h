@@ -50,7 +50,7 @@ class Quaternion3f
 public:
   /// @brief Default quaternion is identity rotation
   Quaternion3f();
-  Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d);
+  Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d, bool normalize=false);
 
   /// @brief checks that quaternion is normalized
   void assertNormalized() const;
