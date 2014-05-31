@@ -36,8 +36,10 @@
 
 
 #define BOOST_TEST_MODULE "FCL_GEOMETRIC_SHAPES"
+#define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE ((x + 1.0), (1.0), (eps))
 #include <boost/test/unit_test.hpp>
 
+#include <cmath>
 #include <fcl/distance.h>
 #include <fcl/math/transform.h>
 #include <fcl/collision.h>
@@ -61,14 +63,53 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   fcl::CollisionObject capsule (capsuleGeometry, tf1);
   fcl::CollisionObject box (boxGeometry, tf2);
 
+  // test distance
   fcl::distance (&capsule, &box, distanceRequest, distanceResult);
   // Nearest point on capsule
-  const fcl::Vec3f& o1 (distanceResult.nearest_points [0]);
+  fcl::Vec3f o1 (distanceResult.nearest_points [0]);
   // Nearest point on box
-  const fcl::Vec3f& o2 (distanceResult.nearest_points [1]);
+  fcl::Vec3f o2 (distanceResult.nearest_points [1]);
   BOOST_CHECK_CLOSE (distanceResult.min_distance, 0.5, 1e-4);
-  BOOST_CHECK_CLOSE (o1 [0], -2, 1e-4);
-  BOOST_CHECK_CLOSE (o1 [1], 0, 1e-4);
-  BOOST_CHECK_CLOSE (o2 [0], .5, 1e-4);
-  BOOST_CHECK_CLOSE (o1 [1], 0, 1e-4);
+  BOOST_CHECK_CLOSE (o1 [0], -2.0, 1e-4);
+  CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
+  BOOST_CHECK_CLOSE (o2 [0],  0.5, 1e-4);
+  BOOST_CHECK_CLOSE (o1 [1],  0.0, 1e-4);
+
+  // Move capsule above box
+  tf1 = fcl::Transform3f (fcl::Vec3f (0., 0., 8.));
+  capsule.setTransform (tf1);
+
+  // test distance
+  distanceResult.clear ();
+  fcl::distance (&capsule, &box, distanceRequest, distanceResult);
+  o1 = distanceResult.nearest_points [0];
+  o2 = distanceResult.nearest_points [1];
+
+  BOOST_CHECK_CLOSE (distanceResult.min_distance, 2.0, 1e-4);
+  CHECK_CLOSE_TO_0 (o1 [0], 1e-4);
+  CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
+  BOOST_CHECK_CLOSE (o1 [2], -4.0, 1e-4);
+
+  CHECK_CLOSE_TO_0 (o2 [0], 1e-4);
+  CHECK_CLOSE_TO_0 (o2 [1], 1e-4);
+  BOOST_CHECK_CLOSE (o2 [2],  2.0, 1e-4);
+
+  // Rotate capsule around y axis by pi/2 and move it behind box
+  tf1.setTranslation (fcl::Vec3f (-10., 0., 0.));
+  tf1.setQuatRotation (fcl::Quaternion3f (sqrt(2)/2, 0, sqrt(2)/2, 0));
+  capsule.setTransform (tf1);
+
+  // test distance
+  distanceResult.clear ();
+  fcl::distance (&capsule, &box, distanceRequest, distanceResult);
+  o1 = distanceResult.nearest_points [0];
+  o2 = distanceResult.nearest_points [1];
+
+  BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-4);
+  CHECK_CLOSE_TO_0 (o1 [0], 1e-4);
+  CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
+  BOOST_CHECK_CLOSE (o1 [2],  4.0, 1e-4);
+  BOOST_CHECK_CLOSE (o2 [0], -0.5, 1e-4);
+  CHECK_CLOSE_TO_0 (o2 [1], 1e-4);
+  CHECK_CLOSE_TO_0 (o2 [2], 1e-4);
 }
