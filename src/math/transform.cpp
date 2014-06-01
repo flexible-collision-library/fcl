@@ -59,9 +59,25 @@ Quaternion3f::Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
 
 Quaternion3f& Quaternion3f::normalize()
 {
-  double l = sqrtf(a*a + b*b + c*c + d*d);
-  for (uint i = 0 ; i < 4 ; i++){
-    data[i] /= l;
+  double l = data[0]*data[0] + data[1]*data[1] + data[2]*data[2] + data[3]*data[3];
+  double error = std::abs(1.0 - l);
+  const double epsilon = 2.107342e-08;
+
+  if (error < epsilon) {
+    for (uint i = 0 ; i < 4 ; i++) {
+      data[i] /= 0.5*(1+l);
+    }
+  } else {
+    if ( l < 1e-6 ) {
+      data[0] = 1;
+      data[1] = 0;
+      data[2] = 0;
+      data[3] = 0;
+    } else {
+      for (uint i = 0 ; i < 4 ; i++) {
+        data[i] /= sqrt(l);
+      }
+    }
   }
   return *this;
 } 
