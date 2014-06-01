@@ -41,22 +41,6 @@
 namespace fcl
 {
 
-Quaternion3f::Quaternion3f()
-{
-  data[0] = 1;
-  data[1] = 0;
-  data[2] = 0;
-  data[3] = 0;
-}
-
-Quaternion3f::Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
-{
-  data[0] = a;
-  data[1] = b;
-  data[2] = c;
-  data[3] = d;
-}
-
 Quaternion3f& Quaternion3f::normalize()
 {
   double l = data[0]*data[0] + data[1]*data[1] + data[2]*data[2] + data[3]*data[3];
