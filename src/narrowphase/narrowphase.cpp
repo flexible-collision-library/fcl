@@ -45,7 +45,7 @@ namespace fcl
 
 namespace details
 {
-
+#if 0
   // Clamp n to lie within the range [min, max]
   float clamp(float n, float min, float max) {
     if (n < min) return min;
@@ -169,7 +169,7 @@ namespace details
     return true;
   }
 
-
+#endif
 
 
 // Compute the point on a line segment that is the closest point on the
@@ -2989,7 +2989,7 @@ bool GJKSolver_indep::shapeDistance<Capsule, Capsule>(const Capsule& s1, const T
 							const Capsule& s2, const Transform3f& tf2,
 							FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
 {
-  return details::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  abort ();
 }
 
 template<>
@@ -2997,7 +2997,7 @@ bool GJKSolver_libccd::shapeDistance<Capsule, Capsule>(const Capsule& s1, const 
 						       const Capsule& s2, const Transform3f& tf2,
 						       FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
 {
-  return details::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
+  abort ();
 }
 
 } // fcl
