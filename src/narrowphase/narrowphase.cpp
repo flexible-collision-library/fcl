@@ -703,7 +703,7 @@ bool sphereTriangleDistance(const Sphere& sp, const Transform3f& tf,
     result = Project::projectTriangle(P1, P2, P3, o);
     if(result.sqr_distance > sp.radius * sp.radius)
     {
-      if(dist) *dist = std::sqrt(result.sqr_distance);
+      if(dist) *dist = std::sqrt(result.sqr_distance) - sp.radius;
       Vec3f project_p = P1 * result.parameterization[0] + P2 * result.parameterization[1] + P3 * result.parameterization[2];
       Vec3f dir = o - project_p;
       dir.normalize();
@@ -725,7 +725,7 @@ bool sphereTriangleDistance(const Sphere& sp, const Transform3f& tf1,
                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
                             FCL_REAL* dist, Vec3f* p1, Vec3f* p2)
 {
-  bool res = details::sphereTriangleDistance(sp, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P2), dist, p1, p2);
+  bool res = details::sphereTriangleDistance(sp, tf1, tf2.transform(P1), tf2.transform(P2), tf2.transform(P3), dist, p1, p2);
   if(p2) *p2 = inverse(tf2).transform(*p2);
 
   return res;
