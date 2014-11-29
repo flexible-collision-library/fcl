@@ -947,6 +947,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // the normal should be flipped.
 
   int best_col_id = -1;
+  const Matrix3f* normalR = 0;
   FCL_REAL tmp = 0;
 
   s = - std::numeric_limits<FCL_REAL>::max();
@@ -961,6 +962,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2; 
     best_col_id = 0;
+    normalR = &R1;
     invert_normal = (tmp < 0);
     code = 1;
   }
@@ -972,6 +974,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2; 
     best_col_id = 1;
+    normalR = &R1;
     invert_normal = (tmp < 0);
     code = 2;
   }
@@ -983,6 +986,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 2;
+    normalR = &R1;
     invert_normal = (tmp < 0);
     code = 3;
   }
@@ -995,6 +999,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 0;
+    normalR = &R2;
+    invert_normal = (tmp < 0);
     code = 4;
   }
 
@@ -1005,6 +1011,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 1;
+    normalR = &R2;
+    invert_normal = (tmp < 0);
     code = 5;
   }
 
@@ -1015,6 +1023,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 2;
+    normalR = &R2;
+    invert_normal = (tmp < 0);
     code = 6;
   }
   
@@ -1037,7 +1047,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 7;
@@ -1055,7 +1065,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 8;
@@ -1073,7 +1083,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 9;
@@ -1092,7 +1102,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 10;
@@ -1110,7 +1120,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 11;
@@ -1128,7 +1138,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 12;
@@ -1147,7 +1157,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 13;
@@ -1165,7 +1175,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 14;
@@ -1183,7 +1193,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 15;
@@ -1197,14 +1207,14 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // if we get to this point, the boxes interpenetrate. compute the normal
   // in global coordinates.
   if(best_col_id != -1) 
-    normal = R.getColumn(best_col_id);
+    normal = normalR->getColumn(best_col_id);
   else 
     normal = R1 * normalC;
   
   if(invert_normal) 
     normal.negate();
 
-  *depth = -s;
+  *depth = -s; // s is negative when the boxes are in collision
 
   // compute contact point(s)
 
