@@ -1249,8 +1249,9 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     pb += ub * beta;
     
     
-    Vec3f pointInWorld((pa + pb) * 0.5);
-    contacts.push_back(ContactPoint(-normal, pointInWorld, -*depth));
+    // Vec3f pointInWorld((pa + pb) * 0.5);
+    // contacts.push_back(ContactPoint(-normal, pointInWorld, -*depth));
+    contacts.push_back(ContactPoint(-normal,pb,-*depth));
     *return_code = code;
     
     return 1;
@@ -1481,7 +1482,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   return cnum;
 }
 
-
+bool compareContactPoints(const ContactPoint& c1,const ContactPoint& c2) { return c1.depth < c2.depth; } // Accending order, assuming penetration depth is a negative number!
 
 bool boxBoxIntersect(const Box& s1, const Transform3f& tf1,
                      const Box& s2, const Transform3f& tf2,
@@ -1502,14 +1503,19 @@ bool boxBoxIntersect(const Box& s1, const Transform3f& tf1,
   if(contact_points)
   {
     Vec3f contact_point;
-    for(size_t i = 0; i < contacts.size(); ++i)
-    {
-      contact_point += contacts[i].point;
+    if (contacts.size()>0) {
+      std::sort(contacts.begin(), contacts.end(), compareContactPoints);
+      *contact_points = contacts[0].point;
+      if(penetration_depth_) *penetration_depth_ = -contacts[0].depth;
     }
+    // for(size_t i = 0; i < contacts.size(); ++i)
+    // {
+    //   contact_point += contacts[i].point;
+    // }
 
-    contact_point = contact_point / (FCL_REAL)contacts.size();
+    // contact_point = contact_point / (FCL_REAL)contacts.size();
 
-    *contact_points = contact_point;
+    // *contact_points = contact_point;
   }
 
   return return_code != 0;
