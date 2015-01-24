@@ -85,6 +85,10 @@ void Quaternion3f::fromRotation(const Matrix3f& R)
 
 void Quaternion3f::toRotation(Matrix3f& R) const
 {
+  assert (.99 < data [0]*data [0] + data [1]*data [1] +
+	  data [2]*data [2] + data [3]*data [3]);
+  assert (data [0]*data [0] + data [1]*data [1] +
+	  data [2]*data [2] + data [3]*data [3] < 1.01);
   FCL_REAL twoX  = 2.0*data[1];
   FCL_REAL twoY  = 2.0*data[2];
   FCL_REAL twoZ  = 2.0*data[3];
@@ -312,8 +316,10 @@ Quaternion3f& Quaternion3f::inverse()
 
 Vec3f Quaternion3f::transform(const Vec3f& v) const
 {
-  Quaternion3f r = (*this) * Quaternion3f(0, v[0], v[1], v[2]) * (fcl::conj(*this));
-  return Vec3f(r.data[1], r.data[2], r.data[3]);
+  Vec3f u(getX(), getY(), getZ());
+  double s = getW();
+  Vec3f vprime = 2*u.dot(v)*u + (s*s - u.dot(u))*v + 2*s*u.cross(v);
+  return vprime;
 }
 
 Quaternion3f conj(const Quaternion3f& q)

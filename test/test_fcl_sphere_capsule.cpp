@@ -167,6 +167,7 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Distance_test_collision)
 	FCL_REAL distance;
 
 	BOOST_CHECK (!solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance));
+
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Distance_test_separated)
@@ -181,8 +182,9 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Distance_test_separated)
 	Transform3f capsule_transform (Vec3f (0., 0., 175));
 
 	FCL_REAL distance = 0.;
+	Vec3f p1;
+	Vec3f p2;
 	bool is_separated = solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance);
-
 
 	BOOST_CHECK (is_separated);
 	BOOST_CHECK (distance == 25.);

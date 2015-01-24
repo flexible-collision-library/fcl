@@ -167,7 +167,7 @@ template<typename T1, std::size_t N1,
 void repack(const Vec_n<T1, N1>& input,
             Vec_n<T2, N2>& output)
 {
-  int n = std::min(N1, N2);
+  std::size_t n = std::min(N1, N2);
   for(std::size_t i = 0; i < n; ++i)
     output[i] = input[i];
 }

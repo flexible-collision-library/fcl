@@ -78,7 +78,7 @@ struct SortByZLow
 class DummyCollisionObject : public CollisionObject
 {
 public:
-  DummyCollisionObject(const AABB& aabb_) : CollisionObject()
+  DummyCollisionObject(const AABB& aabb_) : CollisionObject(boost::shared_ptr<CollisionGeometry>())
   {
     aabb = aabb_;
   }
@@ -432,7 +432,7 @@ void SSaPCollisionManager::distance(void* cdata, DistanceCallBack callback) cons
   if(size() == 0) return;
 
   std::vector<CollisionObject*>::const_iterator it, it_end;
-  // size_t axis = selectOptimalAxis(objs_x, objs_y, objs_z, it, it_end);
+  selectOptimalAxis(objs_x, objs_y, objs_z, it, it_end);
 
   FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
   for(; it != it_end; ++it)

@@ -28,7 +28,10 @@ add_fcl_test(test_fcl_frontlist test_fcl_frontlist.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_math test_fcl_math.cpp test_fcl_utility.cpp)
 
 add_fcl_test(test_fcl_sphere_capsule test_fcl_sphere_capsule.cpp)
+add_fcl_test(test_fcl_capsule_capsule test_fcl_capsule_capsule.cpp)
 add_fcl_test(test_fcl_simple test_fcl_simple.cpp)
+add_fcl_test(test_fcl_capsule_box_1 test_fcl_capsule_box_1.cpp)
+add_fcl_test(test_fcl_capsule_box_2 test_fcl_capsule_box_2.cpp)
 #add_fcl_test(test_fcl_global_penetration test_fcl_global_penetration.cpp libsvm/svm.cpp test_fcl_utility.cpp)
 
 if (FCL_HAVE_OCTOMAP)

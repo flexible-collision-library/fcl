@@ -54,7 +54,7 @@ template<typename NarrowPhaseSolver>
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver,
                   const DistanceRequest& request, DistanceResult& result)
 {
-  return distance<NarrowPhaseSolver>(o1->getCollisionGeometry(), o1->getTransform(), o2->getCollisionGeometry(), o2->getTransform(), nsolver,
+  return distance<NarrowPhaseSolver>(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
                                      request, result);
 }
 
