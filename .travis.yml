@@ -30,6 +30,9 @@ script:
   # Configure
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 
+  # Build
+  - make -j4
+
   # Run unit tests
   - make test
 
