@@ -41,36 +41,11 @@
 #include "fcl/narrowphase/gjk.h"
 #include "fcl/narrowphase/gjk_libccd.h"
 
-
-
 namespace fcl
 {
-
-
-
 /// @brief collision and distance solver based on libccd library.
 struct GJKSolver_libccd
 {
-  /// @brief intersection checking between two shapes
-  template<typename S1, typename S2>
-  bool shapeIntersect(const S1& s1, const Transform3f& tf1,
-                      const S2& s2, const Transform3f& tf2,
-                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-  {
-    void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
-    void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);
-
-    bool res = details::GJKCollide(o1, details::GJKInitializer<S1>::getSupportFunction(), details::GJKInitializer<S1>::getCenterFunction(),
-                                   o2, details::GJKInitializer<S2>::getSupportFunction(), details::GJKInitializer<S2>::getCenterFunction(),
-                                   max_collision_iterations, collision_tolerance,
-                                   contact_points, penetration_depth, normal);
-
-    details::GJKInitializer<S1>::deleteGJKObject(o1);
-    details::GJKInitializer<S2>::deleteGJKObject(o2);
-
-    return res;
-  }
-
   /// @brief intersection checking between two shapes
   template<typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1,
@@ -284,7 +259,7 @@ struct GJKSolver_libccd
 template<>
 bool GJKSolver_libccd::shapeIntersect<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
                                                        const Capsule& s2, const Transform3f& tf2,
-                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                       std::vector<ContactPoint>* contacts) const;
 
 /// @brief Fast implementation for sphere-sphere collision
 template<>
@@ -296,77 +271,77 @@ bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Tr
 template<>
 bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
                                                 const Box& s2, const Transform3f& tf2,
-                                                Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Sphere, Halfspace>(const Sphere& s1, const Transform3f& tf1,
                                                          const Halfspace& s2, const Transform3f& tf2,
-                                                         Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                         std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Box, Halfspace>(const Box& s1, const Transform3f& tf1,
                                                       const Halfspace& s2, const Transform3f& tf2,
-                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                      std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Capsule, Halfspace>(const Capsule& s1, const Transform3f& tf1,
                                                           const Halfspace& s2, const Transform3f& tf2,
-                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                          std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Cylinder, Halfspace>(const Cylinder& s1, const Transform3f& tf1,
                                                            const Halfspace& s2, const Transform3f& tf2,
-                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                           std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Cone, Halfspace>(const Cone& s1, const Transform3f& tf1,
                                                        const Halfspace& s2, const Transform3f& tf2,
-                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                       std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
                                                             const Halfspace& s2, const Transform3f& tf2,
-                                                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                            std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
                                                         const Halfspace& s2, const Transform3f& tf2,
-                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                        std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Sphere, Plane>(const Sphere& s1, const Transform3f& tf1,
                                                      const Plane& s2, const Transform3f& tf2,
-                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                     std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
                                                   const Plane& s2, const Transform3f& tf2,
-                                                  Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                  std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Capsule, Plane>(const Capsule& s1, const Transform3f& tf1,
                                                       const Plane& s2, const Transform3f& tf2,
-                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                      std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Cylinder, Plane>(const Cylinder& s1, const Transform3f& tf1,
                                                        const Plane& s2, const Transform3f& tf2,
-                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                       std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Cone, Plane>(const Cone& s1, const Transform3f& tf1,
                                                    const Plane& s2, const Transform3f& tf2,
-                                                   Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                   std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
                                                         const Plane& s2, const Transform3f& tf2,
-                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                        std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Plane, Plane>(const Plane& s1, const Transform3f& tf1,
                                                     const Plane& s2, const Transform3f& tf2,
-                                                    Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                    std::vector<ContactPoint>* contacts) const;
 
 /// @brief Fast implementation for sphere-triangle collision
 template<> 
@@ -420,54 +395,6 @@ bool GJKSolver_libccd::shapeDistance<Capsule, Capsule>(const Capsule& s1, const 
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
 struct GJKSolver_indep
 {  
-  /// @brief intersection checking between two shapes
-  template<typename S1, typename S2>
-  bool shapeIntersect(const S1& s1, const Transform3f& tf1,
-                      const S2& s2, const Transform3f& tf2,
-                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-  {
-    Vec3f guess(1, 0, 0);
-    if(enable_cached_guess) guess = cached_guess;
-
-    details::MinkowskiDiff shape;
-    shape.shapes[0] = &s1;
-    shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
-    shape.toshape0 = tf1.inverseTimes(tf2);
-
-    details::GJK gjk(gjk_max_iterations, gjk_tolerance);
-    details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
-    if(enable_cached_guess) cached_guess = gjk.getGuessFromSimplex();
-
-    switch(gjk_status)
-    {
-    case details::GJK::Inside:
-      {
-        details::EPA epa(epa_max_face_num, epa_max_vertex_num, epa_max_iterations, epa_tolerance);
-        details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
-        if(epa_status != details::EPA::Failed)
-        {
-          Vec3f w0;
-          for(size_t i = 0; i < epa.result.rank; ++i)
-          {
-            w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
-          }
-          if(penetration_depth) *penetration_depth = -epa.depth;
-          if(normal) *normal = -epa.normal;
-          if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
-          return true;
-        }
-        else return false;
-      }
-      break;
-    default:
-      ;
-    }
-
-    return false;
-  }
-  // TODO: Remove above shapeIntersect() and use below one.
-
   /// @brief intersection checking between two shapes
   template<typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1,
@@ -824,7 +751,7 @@ struct GJKSolver_indep
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
                                                       const Capsule &s2, const Transform3f& tf2,
-                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                      std::vector<ContactPoint>* contacts) const;
 
 /// @brief Fast implementation for sphere-sphere collision                                            
 template<>
@@ -836,77 +763,77 @@ bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Tra
 template<>
 bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
                                                const Box& s2, const Transform3f& tf2,
-                                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                               std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Halfspace>(const Sphere& s1, const Transform3f& tf1,
                                                         const Halfspace& s2, const Transform3f& tf2,
-                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                        std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Box, Halfspace>(const Box& s1, const Transform3f& tf1,
                                                      const Halfspace& s2, const Transform3f& tf2,
-                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                     std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Capsule, Halfspace>(const Capsule& s1, const Transform3f& tf1,
                                                          const Halfspace& s2, const Transform3f& tf2,
-                                                         Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                         std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Cylinder, Halfspace>(const Cylinder& s1, const Transform3f& tf1,
                                                           const Halfspace& s2, const Transform3f& tf2,
-                                                          Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                          std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Cone, Halfspace>(const Cone& s1, const Transform3f& tf1,
                                                       const Halfspace& s2, const Transform3f& tf2,
-                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                      std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
                                                            const Halfspace& s2, const Transform3f& tf2,
-                                                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                           std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
                                                        const Halfspace& s2, const Transform3f& tf2,
-                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                       std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Plane>(const Sphere& s1, const Transform3f& tf1,
                                                     const Plane& s2, const Transform3f& tf2,
-                                                    Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                    std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
                                                  const Plane& s2, const Transform3f& tf2,
-                                                 Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                 std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Capsule, Plane>(const Capsule& s1, const Transform3f& tf1,
                                                      const Plane& s2, const Transform3f& tf2,
-                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                     std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Cylinder, Plane>(const Cylinder& s1, const Transform3f& tf1,
                                                       const Plane& s2, const Transform3f& tf2,
-                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                      std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Cone, Plane>(const Cone& s1, const Transform3f& tf1,
                                                   const Plane& s2, const Transform3f& tf2,
-                                                  Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                  std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
                                                        const Plane& s2, const Transform3f& tf2,
-                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                       std::vector<ContactPoint>* contacts) const;
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Plane, Plane>(const Plane& s1, const Transform3f& tf1,
                                                    const Plane& s2, const Transform3f& tf2,
-                                                   Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const;
+                                                   std::vector<ContactPoint>* contacts) const;
 
 /// @brief Fast implementation for sphere-triangle collision
 template<> 
