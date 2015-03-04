@@ -265,31 +265,25 @@ bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   return true;
 }
 
-bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1, 
+bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
                            const Sphere& s2, const Transform3f& tf2,
-                           Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
+                           std::vector<ContactPoint>* contacts)
 {
   Vec3f diff = tf1.transform(Vec3f()) - tf2.transform(Vec3f());
   FCL_REAL len = diff.length();
   if(len > s1.radius + s2.radius)
     return false;
 
-  if(penetration_depth) 
-    *penetration_depth = s1.radius + s2.radius - len;
-  if(normal) 
+  if(contacts)
   {
-    if(len > 0)
-      *normal = diff / len;
-    else
-      *normal = diff;
+    const Vec3f normal = len > 0 ? diff / len : diff;
+    const Vec3f point = tf1.transform(Vec3f()) - diff * s1.radius / (s1.radius + s2.radius);
+    const FCL_REAL penetration_depth = s1.radius + s2.radius - len;
+    contacts->push_back(ContactPoint(normal, point, penetration_depth));
   }
 
-  if(contact_points)
-    *contact_points = tf1.transform(Vec3f()) - diff * s1.radius / (s1.radius + s2.radius);
-  
   return true;
 }
-
 
 bool sphereSphereDistance(const Sphere& s1, const Transform3f& tf1,
                           const Sphere& s2, const Transform3f& tf2,
@@ -730,17 +724,6 @@ bool sphereTriangleDistance(const Sphere& sp, const Transform3f& tf1,
 
   return res;
 }
-
-
-  
-struct ContactPoint
-{
-  Vec3f normal;
-  Vec3f point;
-  FCL_REAL depth;
-  ContactPoint(const Vec3f& n, const Vec3f& p, FCL_REAL d) : normal(n), point(p), depth(d) {}
-};
-
 
 static inline void lineClosestApproach(const Vec3f& pa, const Vec3f& ua,
                                        const Vec3f& pb, const Vec3f& ub,
@@ -1478,7 +1461,7 @@ bool boxBoxIntersect(const Box& s1, const Transform3f& tf1,
                      Vec3f* contact_points, FCL_REAL* penetration_depth_, Vec3f* normal_)
 {
   std::vector<ContactPoint> contacts;
-  int return_code; 
+  int return_code;
   Vec3f normal;
   FCL_REAL depth;
   /* int cnum = */ boxBox2(s1.side, tf1.getRotation(), tf1.getTranslation(),
@@ -1494,13 +1477,32 @@ bool boxBoxIntersect(const Box& s1, const Transform3f& tf1,
     Vec3f contact_point;
     for(size_t i = 0; i < contacts.size(); ++i)
     {
-      contact_point += contacts[i].point;
+      contact_point += contacts[i].pos;
     }
 
     contact_point = contact_point / (FCL_REAL)contacts.size();
 
     *contact_points = contact_point;
   }
+
+  return return_code != 0;
+}
+
+bool boxBoxIntersectMulti(const Box& s1, const Transform3f& tf1,
+                          const Box& s2, const Transform3f& tf2,
+                          std::vector<ContactPoint>* contacts_)
+{
+  std::vector<ContactPoint> contacts;
+  int return_code;
+  Vec3f normal;
+  FCL_REAL depth;
+  /* int cnum = */ boxBox2(s1.side, tf1.getRotation(), tf1.getTranslation(),
+                           s2.side, tf2.getRotation(), tf2.getTranslation(),
+                           normal, &depth, &return_code,
+                           4, contacts);
+
+  if(contacts_)
+    *contacts_ = contacts;
 
   return return_code != 0;
 }
@@ -2560,15 +2562,15 @@ bool GJKSolver_libccd::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const T
                                                        const Capsule &s2, const Transform3f& tf2,
                                                        Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  return details::sphereCapsuleIntersect (s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  return details::sphereCapsuleIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
                                                       const Sphere& s2, const Transform3f& tf2,
-                                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                                                      std::vector<ContactPoint>* contacts) const
 {
-  return details::sphereSphereIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  return details::sphereSphereIntersect(s1, tf1, s2, tf2, contacts);
 }
 
 template<>
@@ -2577,6 +2579,14 @@ bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const Transform3f
                                                 Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
   return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
+                                                const Box& s2, const Transform3f& tf2,
+                                                std::vector<ContactPoint>* contacts) const
+{
+  return details::boxBoxIntersectMulti(s1, tf1, s2, tf2, contacts);
 }
 
 template<>
@@ -2777,23 +2787,32 @@ bool GJKSolver_indep::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Tr
                                                       const Capsule &s2, const Transform3f& tf2,
                                                       Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
 {
-  return details::sphereCapsuleIntersect (s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  return details::sphereCapsuleIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
 }
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Transform3f& tf1,
                                                      const Sphere& s2, const Transform3f& tf2,
-                                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                                                     std::vector<ContactPoint>* contacts) const
 {
-  return details::sphereSphereIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  return details::sphereSphereIntersect(s1, tf1, s2, tf2, contacts);
 }
+
+//template<>
+//bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
+//                                               const Box& s2, const Transform3f& tf2,
+//                                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+//{
+//  return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+//}
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
                                                const Box& s2, const Transform3f& tf2,
-                                               Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                                               std::vector<ContactPoint>* contacts) const
 {
-  return details::boxBoxIntersect(s1, tf1, s2, tf2, contact_points, penetration_depth, normal);
+  return details::boxBoxIntersectMulti(s1, tf1, s2, tf2, contacts);
+  // TODO: Change all the shapeIntersect for different shapes.
 }
 
 template<>
