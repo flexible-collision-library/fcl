@@ -221,7 +221,13 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   CollisionRequest request;
   CollisionResult result;
 
+  Vec3f contact;
+  FCL_REAL depth;
+  Vec3f normal;
+  std::vector<ContactPoint> contacts;
   bool res;
+
+  const double tolerance = 1e-6;
 
   res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL);
   BOOST_CHECK(res);
@@ -260,6 +266,36 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   result.clear();
   res = (collide(&s1, transform, &s2, transform * Transform3f(q), request, result) > 0);
   BOOST_CHECK(res);
+
+
+  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 30)), &contacts);
+  BOOST_CHECK(res);
+  BOOST_CHECK(contacts.size() == 4);
+
+  Vec3f p1(-5, -5, 25);
+  Vec3f p2(-5, +5, 25);
+  Vec3f p3(+5, +5, 25);
+  Vec3f p4(+5, -5, 25);
+
+  getContactInfo(contacts, 0, contact, normal, depth);
+  BOOST_CHECK(std::abs(depth) < tolerance);
+  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)));
+  BOOST_CHECK(contact.equal(Vec3f(-5, -5, 25)));
+
+  getContactInfo(contacts, 1, contact, normal, depth);
+  BOOST_CHECK(std::abs(depth) < tolerance);
+  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)));
+  BOOST_CHECK(contact.equal(Vec3f(-5, 5, 25)));
+
+  getContactInfo(contacts, 2, contact, normal, depth);
+  BOOST_CHECK(std::abs(depth) < tolerance);
+  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)));
+  BOOST_CHECK(contact.equal(Vec3f(5, 5, 25)));
+
+  getContactInfo(contacts, 3, contact, normal, depth);
+  BOOST_CHECK(std::abs(depth) < tolerance);
+  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)));
+  BOOST_CHECK(contact.equal(Vec3f(5, -5, 25)));
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
