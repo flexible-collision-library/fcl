@@ -1,0 +1,41 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+compiler:
+  - gcc
+  - clang
+
+env:
+  - BUILD_TYPE=Debug
+  - BUILD_TYPE=Release
+
+matrix:
+  exclude:
+    - os: osx
+      compiler: gcc
+
+install:
+  # Install dependencies for FCL
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then 'ci/install_linux.sh' ; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx"   ]; then 'ci/install_osx.sh'   ; fi
+
+script:
+  # Create build directory
+  - mkdir build
+  - cd build 
+
+  # Configure
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
+
+  # Build
+  - make -j4
+
+  # Run unit tests
+  - make test
+
+  # Make sure we can install with no issues
+  - sudo make -j4 install
+
