@@ -341,7 +341,7 @@ private:
               const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
               size_t num_adding_contacts;
 
-              // If the free space is not enough to the new contacts, then contacts of greater penetration are added first.
+              // If the free space is not enough to add all the new contacts, then contacts of greater penetration are added first.
               if (free_space < contacts.size())
               {
                 std::partial_sort(contacts.begin(), contacts.end() + free_space, contacts.end(), comparePenDepth);
@@ -910,7 +910,7 @@ private:
             const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
             size_t num_adding_contacts;
 
-            // If the free space is not enough to the new contacts, then contacts of greater penetration are added first.
+            // If the free space is not enough to add all the new contacts, then contacts of greater penetration are added first.
             if (free_space < contacts.size())
             {
               std::partial_sort(contacts.begin(), contacts.end() + free_space, contacts.end(), comparePenDepth);

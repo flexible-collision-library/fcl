@@ -37,6 +37,8 @@
 #ifndef FCL_NARROWPHASE_H
 #define FCL_NARROWPHASE_H
 
+#include <algorithm>
+
 #include "fcl/collision_data.h"
 #include "fcl/narrowphase/gjk.h"
 #include "fcl/narrowphase/gjk_libccd.h"
@@ -47,15 +49,11 @@ namespace fcl
 struct GJKSolver_libccd
 {
   /// @brief intersection checking between two shapes
+  /// @deprecated use shapeIntersect(const S1&, const Transform3f&, const S2&, const Transform3f&, std::vector<ContactPoint>*) const
   template<typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1,
                       const S2& s2, const Transform3f& tf2,
-                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
-  {
-    std::vector<ContactPoint> contacts;
-    bool res = shapeIntersect(s1, tf1, s2, tf2, &contacts);
-    return res;
-  }
+                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const FCL_DEPRECATED;
 
   /// @brief intersection checking between two shapes
   template<typename S1, typename S2>
@@ -265,6 +263,41 @@ struct GJKSolver_libccd
 
 };
 
+template<typename S1, typename S2>
+bool GJKSolver_libccd::shapeIntersect(const S1& s1, const Transform3f& tf1,
+                                      const S2& s2, const Transform3f& tf2,
+                                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  bool res;
+
+  if (contact_points || penetration_depth || normal)
+  {
+    std::vector<ContactPoint> contacts;
+
+    res = shapeIntersect(s1, tf1, s2, tf2, &contacts);
+
+    if (!contacts.empty())
+    {
+      // Get the deepest contact point
+      const ContactPoint& maxDepthContact = (*std::min_element(contacts.begin(), contacts.end(), &comparePenDepth));
+
+      if (contact_points)
+        *contact_points = maxDepthContact.pos;
+
+      if (penetration_depth)
+        *penetration_depth = maxDepthContact.penetration_depth;
+
+      if (normal)
+        *normal = maxDepthContact.normal;
+    }
+  }
+  else
+  {
+    res = shapeIntersect(s1, tf1, s2, tf2, NULL);
+  }
+
+  return res;
+}
 
 /// @brief Fast implementation for sphere-capsule collision
 template<>
@@ -278,7 +311,7 @@ bool GJKSolver_libccd::shapeIntersect<Sphere, Sphere>(const Sphere& s1, const Tr
                                                       const Sphere& s2, const Transform3f& tf2,
                                                       std::vector<ContactPoint>* contacts) const;
 
-/// @brief Fast implementation for box-box collision                                                 
+/// @brief Fast implementation for box-box collision
 template<>
 bool GJKSolver_libccd::shapeIntersect<Box, Box>(const Box& s1, const Transform3f& tf1,
                                                 const Box& s2, const Transform3f& tf2,
@@ -406,6 +439,13 @@ bool GJKSolver_libccd::shapeDistance<Capsule, Capsule>(const Capsule& s1, const 
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
 struct GJKSolver_indep
 {  
+  /// @brief intersection checking between two shapes
+  /// @deprecated use shapeIntersect(const S1&, const Transform3f&, const S2&, const Transform3f&, std::vector<ContactPoint>*) const
+  template<typename S1, typename S2>
+  bool shapeIntersect(const S1& s1, const Transform3f& tf1,
+                      const S2& s2, const Transform3f& tf2,
+                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const FCL_DEPRECATED;
+
   /// @brief intersection checking between two shapes
   template<typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1,
@@ -758,6 +798,42 @@ struct GJKSolver_indep
   /// @brief smart guess
   mutable Vec3f cached_guess;
 };
+
+template<typename S1, typename S2>
+bool GJKSolver_indep::shapeIntersect(const S1& s1, const Transform3f& tf1,
+                                     const S2& s2, const Transform3f& tf2,
+                                     Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+{
+  bool res;
+
+  if (contact_points || penetration_depth || normal)
+  {
+    std::vector<ContactPoint> contacts;
+
+    res = shapeIntersect(s1, tf1, s2, tf2, &contacts);
+
+    if (!contacts.empty())
+    {
+      // Get the deepest contact point
+      const ContactPoint& maxDepthContact = (*std::min_element(contacts.begin(), contacts.end(), &comparePenDepth));
+
+      if (contact_points)
+        *contact_points = maxDepthContact.pos;
+
+      if (penetration_depth)
+        *penetration_depth = maxDepthContact.penetration_depth;
+
+      if (normal)
+        *normal = maxDepthContact.normal;
+    }
+  }
+  else
+  {
+    res = shapeIntersect(s1, tf1, s2, tf2, NULL);
+  }
+
+  return res;
+}
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
