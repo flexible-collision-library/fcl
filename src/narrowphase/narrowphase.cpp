@@ -929,6 +929,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // the normal should be flipped.
 
   int best_col_id = -1;
+  const Matrix3f* normalR = 0;
   FCL_REAL tmp = 0;
 
   s = - std::numeric_limits<FCL_REAL>::max();
@@ -943,6 +944,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2; 
     best_col_id = 0;
+    normalR = &R1;
     invert_normal = (tmp < 0);
     code = 1;
   }
@@ -954,6 +956,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2; 
     best_col_id = 1;
+    normalR = &R1;
     invert_normal = (tmp < 0);
     code = 2;
   }
@@ -965,6 +968,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 2;
+    normalR = &R1;
     invert_normal = (tmp < 0);
     code = 3;
   }
@@ -977,6 +981,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 0;
+    normalR = &R2;
+    invert_normal = (tmp < 0);
     code = 4;
   }
 
@@ -987,6 +993,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 1;
+    normalR = &R2;
+    invert_normal = (tmp < 0);
     code = 5;
   }
 
@@ -997,6 +1005,8 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   {
     s = s2;
     best_col_id = 2;
+    normalR = &R2;
+    invert_normal = (tmp < 0);
     code = 6;
   }
   
@@ -1010,7 +1020,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
   s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 0), R(1, 0));
   l = n.length();
   if(l > eps) 
@@ -1019,7 +1029,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 7;
@@ -1028,7 +1038,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
   s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 1), R(1, 1));
   l = n.length();
   if(l > eps) 
@@ -1037,7 +1047,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 8;
@@ -1046,7 +1056,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
   s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(0, -R(2, 2), R(1, 2));
   l = n.length();
   if(l > eps) 
@@ -1055,7 +1065,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 9;
@@ -1065,7 +1075,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u2 x (v1,v2,v3)
   tmp = pp[0] * R(2, 0) - pp[2] * R(0, 0);
   s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 0), 0, -R(0, 0));
   l = n.length();
   if(l > eps) 
@@ -1074,7 +1084,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 10;
@@ -1083,7 +1093,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
   s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 1), 0, -R(0, 1));
   l = n.length();
   if(l > eps) 
@@ -1092,7 +1102,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 11;
@@ -1101,7 +1111,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
   s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(R(2, 2), 0, -R(0, 2));
   l = n.length();
   if(l > eps) 
@@ -1110,7 +1120,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 12;
@@ -1120,7 +1130,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // separating axis = u3 x (v1,v2,v3)
   tmp = pp[1] * R(0, 0) - pp[0] * R(1, 0);
   s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 0), R(0, 0), 0);
   l = n.length();
   if(l > eps) 
@@ -1129,7 +1139,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 13;
@@ -1138,7 +1148,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
   tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
   s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 1), R(0, 1), 0);
   l = n.length();
   if(l > eps) 
@@ -1147,7 +1157,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 14;
@@ -1156,7 +1166,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   
   tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
   s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
-  if(s2 > eps) { *return_code = 0; return 0; }
+  if(s2 > 0) { *return_code = 0; return 0; }
   n = Vec3f(-R(1, 2), R(0, 2), 0);
   l = n.length();
   if(l > eps) 
@@ -1165,7 +1175,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     if(s2 * fudge_factor > s)
     {
       s = s2;
-      best_col_id = 0;
+      best_col_id = -1;
       normalC = n / l;
       invert_normal = (tmp < 0);
       code = 15;
@@ -1179,14 +1189,14 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
   // if we get to this point, the boxes interpenetrate. compute the normal
   // in global coordinates.
   if(best_col_id != -1) 
-    normal = R.getColumn(best_col_id);
+    normal = normalR->getColumn(best_col_id);
   else 
     normal = R1 * normalC;
   
   if(invert_normal) 
     normal.negate();
 
-  *depth = -s;
+  *depth = -s; // s is negative when the boxes are in collision
 
   // compute contact point(s)
 
@@ -1204,11 +1214,11 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     }
   
     // find a point pb on the intersecting edge of box 2
-    Vec3f pb;
-    pb = T2;
+    Vec3f pb(T2);
+
     for(int j = 0; j < 3; ++j)
     {
-      sign = (R2.transposeDot(j, normal) > 0) ? 1 : -1;
+      sign = (R2.transposeDot(j, normal) > 0) ? -1 : 1;
       pb += R2.getColumn(j) * (B[j] * sign);
     }
 
@@ -1221,8 +1231,9 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     pb += ub * beta;
     
     
-    Vec3f pointInWorld((pa + pb) * 0.5);
-    contacts.push_back(ContactPoint(-normal, pointInWorld, -*depth));
+    // Vec3f pointInWorld((pa + pb) * 0.5);
+    // contacts.push_back(ContactPoint(-normal, pointInWorld, -*depth));
+    contacts.push_back(ContactPoint(-normal,pb,-*depth));
     *return_code = code;
     
     return 1;
@@ -1440,7 +1451,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
     for(int j = 0; j < maxc; ++j) 
     {
-      Vec3f posInWorld = points[iret[j] * 3] + (*pa);
+      Vec3f posInWorld = points[iret[j]] + (*pa);
       if(code < 4)
         contacts.push_back(ContactPoint(-normal, posInWorld, -dep[iret[j]]));
       else
