@@ -14,7 +14,7 @@ sudo apt-get -qq --yes --force-yes install libccd-dev
 sudo apt-get -qq --yes --force-yes install libflann-dev
 
 # Octomap
-git clone git@github.com:OctoMap/octomap.git
+git clone https://github.com/OctoMap/octomap
 git checkout tags/v1.6.8
 cd console_bridge
 mkdir build
