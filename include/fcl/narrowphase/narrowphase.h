@@ -50,6 +50,17 @@ struct GJKSolver_libccd
   template<typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1,
                       const S2& s2, const Transform3f& tf2,
+                      Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+  {
+    std::vector<ContactPoint> contacts;
+    bool res = shapeIntersect(s1, tf1, s2, tf2, &contacts);
+    return res;
+  }
+
+  /// @brief intersection checking between two shapes
+  template<typename S1, typename S2>
+  bool shapeIntersect(const S1& s1, const Transform3f& tf1,
+                      const S2& s2, const Transform3f& tf2,
                       std::vector<ContactPoint>* contacts) const
   {
     void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
