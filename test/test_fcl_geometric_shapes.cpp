@@ -37,6 +37,7 @@
 
 #define BOOST_TEST_MODULE "FCL_GEOMETRIC_SHAPES"
 #include <boost/test/unit_test.hpp>
+#include <boost/math/constants/constants.hpp>
 
 #include "fcl/narrowphase/narrowphase.h"
 #include "fcl/collision.h"
@@ -62,6 +63,18 @@ void getContactInfo(const std::vector<ContactPoint>& contacts, size_t index,
 }
 
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
+
+BOOST_AUTO_TEST_CASE(sphere_shape)
+{
+  const double tol = 1e-12;
+  const double radius = 5.0;
+  const double pi = boost::math::constants::pi<FCL_REAL>();
+
+  Sphere s(radius);
+
+  const double volume = 4.0 / 3.0 * pi * radius * radius * radius;
+  BOOST_CHECK_CLOSE(volume, s.computeVolume(), tol);
+}
 
 BOOST_AUTO_TEST_CASE(gjkcache)
 {
