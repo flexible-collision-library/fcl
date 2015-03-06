@@ -138,7 +138,7 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius / 3;
+    return 4.0 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius / 3.0;
   }
 };
 
