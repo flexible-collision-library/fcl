@@ -234,12 +234,12 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transfo
   model.computeLocalAABB();
 }
 
-/// @brief Generate BVH model from sphere
+/// @brief Generate BVH model from ellipsoid
 /// The difference between generateBVHModel is that it gives the number of triangles faces N for an ellipsoid with unit radii (1, 1, 1). For ellipsoid of radii (a, b, c),
 /// then the number of triangles is ((a^p * b^p + b^p * c^p + c^p * a^p)/3)^(1/p) * N, where p is 1.6075, so that the area represented by a single triangle is approximately the same.
 /// Reference: https://en.wikipedia.org/wiki/Ellipsoid#Approximate_formula
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3f& pose, unsigned int n_faces_for_unit_sphere)
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3f& pose, unsigned int n_faces_for_unit_ellipsoid)
 {
   const FCL_REAL p = 1.6075;
 
@@ -248,7 +248,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transfo
   const FCL_REAL& cp = std::pow(shape.radii[2], p);
 
   const FCL_REAL ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
-  const FCL_REAL n_low_bound = std::sqrt(n_faces_for_unit_sphere / 2.0) * ratio;
+  const FCL_REAL n_low_bound = std::sqrt(n_faces_for_unit_ellipsoid / 2.0) * ratio;
 
   const unsigned int ring = std::ceil(n_low_bound);
   const unsigned int seg = std::ceil(n_low_bound);

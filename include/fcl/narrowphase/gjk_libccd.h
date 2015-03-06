@@ -96,6 +96,17 @@ public:
   static void deleteGJKObject(void* o);
 };
 
+/// @brief initialize GJK Ellipsoid
+template<>
+class GJKInitializer<Ellipsoid>
+{
+public:
+  static GJKSupportFunction getSupportFunction();
+  static GJKCenterFunction getCenterFunction();
+  static void* createGJKObject(const Ellipsoid& s, const Transform3f& tf);
+  static void deleteGJKObject(void* o);
+};
+
 /// @brief initialize GJK Box
 template<>
 class GJKInitializer<Box>
