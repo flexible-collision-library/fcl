@@ -1,5 +1,4 @@
-## FCL -- The Flexible Collision Library
-
+## FCL -- The Flexible Collision Library [![Build Status](https://travis-ci.org/flexible-collision-library/fcl.svg)](https://travis-ci.org/flexible-collision-library/fcl)
 
 FCL is a library for performing three types of proximity queries on a pair of geometric models composed of triangles. 
  - Collision detection: detecting whether the two models overlap, and optionally, all of the triangles that overlap.
@@ -13,10 +12,15 @@ FCL has the following features
  - Compilable for either linux or win32 (both makefiles and Microsoft Visual projects can be generated using cmake)
  - No special topological constraints or adjacency information required for input models – all that is necessary is a list of the model's triangles
  - Supported different object shapes:
-  + sphere
   + box
+  + sphere
+  + ellipsoid
+  + capsule
   + cone
   + cylinder
+  + convex
+  + half-space
+  + plane
   + mesh
   + octree (optional, octrees are represented using the octomap library http://octomap.github.com)
 

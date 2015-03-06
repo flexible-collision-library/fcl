@@ -68,7 +68,7 @@ std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
   std::vector<Vec3f> result(12);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
   FCL_REAL edge_size = sphere.radius * 6 / (sqrt(27.0) + sqrt(15.0));
-  
+
   FCL_REAL a = edge_size;
   FCL_REAL b = m * edge_size;
   result[0] = tf.transform(Vec3f(0, a, b));
@@ -83,6 +83,47 @@ std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
   result[9] = tf.transform(Vec3f(b, 0, -a));
   result[10] = tf.transform(Vec3f(-b, 0, a));
   result[11] = tf.transform(Vec3f(-b, 0, -a));
+
+  return result;
+}
+
+std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3f& tf)
+{
+  // we use scaled icosahedron to bound the ellipsoid
+
+  std::vector<Vec3f> result(12);
+
+  const FCL_REAL phi = (1.0 + sqrt(5.0)) / 2.0;  // golden ratio
+  // TODO: Replace with constexpr when we migrate to C++11 or
+  //       boost::math::constants::phi<FCL_REAL>() if boost version is greater
+  //       than 1.50.
+
+  const FCL_REAL a = std::sqrt(3.0) / (phi * phi);
+  const FCL_REAL b = phi * a;
+
+  const FCL_REAL& A = ellipsoid.radii[0];
+  const FCL_REAL& B = ellipsoid.radii[1];
+  const FCL_REAL& C = ellipsoid.radii[2];
+
+  const FCL_REAL Aa = A * a;
+  const FCL_REAL Ab = A * b;
+  const FCL_REAL Ba = B * a;
+  const FCL_REAL Bb = B * b;
+  const FCL_REAL Ca = C * a;
+  const FCL_REAL Cb = C * b;
+
+  result[0] = tf.transform(Vec3f(0, Ba, Cb));
+  result[1] = tf.transform(Vec3f(0, -Ba, Cb));
+  result[2] = tf.transform(Vec3f(0, Ba, -Cb));
+  result[3] = tf.transform(Vec3f(0, -Ba, -Cb));
+  result[4] = tf.transform(Vec3f(Aa, Bb, 0));
+  result[5] = tf.transform(Vec3f(-Aa, Bb, 0));
+  result[6] = tf.transform(Vec3f(Aa, -Bb, 0));
+  result[7] = tf.transform(Vec3f(-Aa, -Bb, 0));
+  result[8] = tf.transform(Vec3f(Ab, 0, Ca));
+  result[9] = tf.transform(Vec3f(Ab, 0, -Ca));
+  result[10] = tf.transform(Vec3f(-Ab, 0, Ca));
+  result[11] = tf.transform(Vec3f(-Ab, 0, -Ca));
 
   return result;
 }
@@ -272,6 +313,21 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
 }
 
 template<>
+void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, AABB& bv)
+{
+  const Matrix3f& R = tf.getRotation();
+  const Vec3f& T = tf.getTranslation();
+
+  FCL_REAL x_range = (fabs(R(0, 0) * s.radii[0]) + fabs(R(0, 1) * s.radii[1]) + fabs(R(0, 2) * s.radii[2]));
+  FCL_REAL y_range = (fabs(R(1, 0) * s.radii[0]) + fabs(R(1, 1) * s.radii[1]) + fabs(R(1, 2) * s.radii[2]));
+  FCL_REAL z_range = (fabs(R(2, 0) * s.radii[0]) + fabs(R(2, 1) * s.radii[1]) + fabs(R(2, 2) * s.radii[2]));
+
+  Vec3f v_delta(x_range, y_range, z_range);
+  bv.max_ = T + v_delta;
+  bv.min_ = T - v_delta;
+}
+
+template<>
 void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
 {
   const Matrix3f& R = tf.getRotation();
@@ -427,6 +483,19 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
   bv.axis[1].setValue(0, 1, 0);
   bv.axis[2].setValue(0, 0, 1);
   bv.extent.setValue(s.radius);
+}
+
+template<>
+void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, OBB& bv)
+{
+  const Matrix3f& R = tf.getRotation();
+  const Vec3f& T = tf.getTranslation();
+
+  bv.To = T;
+  bv.axis[0] = R.getColumn(0);
+  bv.axis[1] = R.getColumn(1);
+  bv.axis[2] = R.getColumn(2);
+  bv.extent = s.radii;
 }
 
 template<>

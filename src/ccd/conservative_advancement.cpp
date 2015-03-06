@@ -719,6 +719,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][GEOM_BOX] = &ShapeConservativeAdvancement<Box, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_BOX][GEOM_SPHERE] = &ShapeConservativeAdvancement<Box, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Box, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_BOX][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Box, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_BOX][GEOM_CONE] = &ShapeConservativeAdvancement<Box, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_BOX][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Box, Cylinder, NarrowPhaseSolver>;
@@ -727,14 +728,25 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
     
   conservative_advancement_matrix[GEOM_SPHERE][GEOM_BOX] = &ShapeConservativeAdvancement<Sphere, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][GEOM_SPHERE] = &ShapeConservativeAdvancement<Sphere, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Sphere, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Sphere, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][GEOM_CONE] = &ShapeConservativeAdvancement<Sphere, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Sphere, Cylinder, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][GEOM_CONVEX] = &ShapeConservativeAdvancement<Sphere, Convex, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][GEOM_PLANE] = &ShapeConservativeAdvancement<Sphere, Plane, NarrowPhaseSolver>;
 
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_BOX] = &ShapeConservativeAdvancement<Ellipsoid, Box, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_SPHERE] = &ShapeConservativeAdvancement<Ellipsoid, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Ellipsoid, Ellipsoid, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Ellipsoid, Capsule, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_CONE] = &ShapeConservativeAdvancement<Ellipsoid, Cone, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Ellipsoid, Cylinder, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] = &ShapeConservativeAdvancement<Ellipsoid, Convex, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][GEOM_PLANE] = &ShapeConservativeAdvancement<Ellipsoid, Plane, NarrowPhaseSolver>;
+
   conservative_advancement_matrix[GEOM_CAPSULE][GEOM_BOX] = &ShapeConservativeAdvancement<Capsule, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][GEOM_SPHERE] = &ShapeConservativeAdvancement<Capsule, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Capsule, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Capsule, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][GEOM_CONE] = &ShapeConservativeAdvancement<Capsule, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Capsule, Cylinder, NarrowPhaseSolver>;
@@ -743,6 +755,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_CONE][GEOM_BOX] = &ShapeConservativeAdvancement<Cone, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][GEOM_SPHERE] = &ShapeConservativeAdvancement<Cone, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Cone, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Cone, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][GEOM_CONE] = &ShapeConservativeAdvancement<Cone, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Cone, Cylinder, NarrowPhaseSolver>;
@@ -751,6 +764,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_CYLINDER][GEOM_BOX] = &ShapeConservativeAdvancement<Cylinder, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][GEOM_SPHERE] = &ShapeConservativeAdvancement<Cylinder, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Cylinder, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Cylinder, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][GEOM_CONE] = &ShapeConservativeAdvancement<Cylinder, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Cylinder, Cylinder, NarrowPhaseSolver>;
@@ -759,6 +773,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_CONVEX][GEOM_BOX] = &ShapeConservativeAdvancement<Convex, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONVEX][GEOM_SPHERE] = &ShapeConservativeAdvancement<Convex, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Convex, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONVEX][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Convex, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONVEX][GEOM_CONE] = &ShapeConservativeAdvancement<Convex, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONVEX][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Convex, Cylinder, NarrowPhaseSolver>;
@@ -767,6 +782,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_PLANE][GEOM_BOX] = &ShapeConservativeAdvancement<Plane, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_PLANE][GEOM_SPHERE] = &ShapeConservativeAdvancement<Plane, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][GEOM_ELLIPSOID] = &ShapeConservativeAdvancement<Plane, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_PLANE][GEOM_CAPSULE] = &ShapeConservativeAdvancement<Plane, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_PLANE][GEOM_CONE] = &ShapeConservativeAdvancement<Plane, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_PLANE][GEOM_CYLINDER] = &ShapeConservativeAdvancement<Plane, Cylinder, NarrowPhaseSolver>;
@@ -775,6 +791,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[BV_AABB][GEOM_BOX] = &BVHShapeConservativeAdvancement<AABB, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<AABB, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<AABB, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<AABB, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_AABB][GEOM_CONE] = &BVHShapeConservativeAdvancement<AABB, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<AABB, Cylinder, NarrowPhaseSolver>;
@@ -783,6 +800,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   
   conservative_advancement_matrix[BV_OBB][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBB, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBB, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<OBB, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<OBB, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBB][GEOM_CONE] = &BVHShapeConservativeAdvancement<OBB, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<OBB, Cylinder, NarrowPhaseSolver>;
@@ -791,6 +809,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBBRSS, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBBRSS, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<OBBRSS, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<OBBRSS, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeConservativeAdvancement<OBBRSS, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<OBBRSS, Cylinder, NarrowPhaseSolver>;
@@ -799,6 +818,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[BV_RSS][GEOM_BOX] = &BVHShapeConservativeAdvancement<RSS, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<RSS, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<RSS, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<RSS, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_RSS][GEOM_CONE] = &BVHShapeConservativeAdvancement<RSS, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<RSS, Cylinder, NarrowPhaseSolver>;
@@ -807,6 +827,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOP<16>, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOP<16>, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<KDOP<16>, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOP<16>, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOP<16>, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOP<16>, Cylinder, NarrowPhaseSolver>;
@@ -815,6 +836,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOP<18>, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOP<18>, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<KDOP<18>, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOP<18>, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOP<18>, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOP<18>, Cylinder, NarrowPhaseSolver>;
@@ -823,6 +845,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOP<24>, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOP<24>, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<KDOP<24>, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOP<24>, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOP<24>, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOP<24>, Cylinder, NarrowPhaseSolver>;
@@ -831,6 +854,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeConservativeAdvancement<kIOS, Box, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<kIOS, Sphere, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_ELLIPSOID] = &BVHShapeConservativeAdvancement<kIOS, Ellipsoid, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<kIOS, Capsule, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeConservativeAdvancement<kIOS, Cone, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<kIOS, Cylinder, NarrowPhaseSolver>;
@@ -840,6 +864,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][BV_AABB] = &ShapeBVHConservativeAdvancement<Box, AABB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_AABB] = &ShapeBVHConservativeAdvancement<Sphere, AABB, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_AABB] = &ShapeBVHConservativeAdvancement<Ellipsoid, AABB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_AABB] = &ShapeBVHConservativeAdvancement<Capsule, AABB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_AABB] = &ShapeBVHConservativeAdvancement<Cone, AABB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_AABB] = &ShapeBVHConservativeAdvancement<Cylinder, AABB, NarrowPhaseSolver>;
@@ -848,6 +873,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   
   conservative_advancement_matrix[GEOM_BOX][BV_OBB] = &ShapeBVHConservativeAdvancement<Box, OBB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_OBB] = &ShapeBVHConservativeAdvancement<Sphere, OBB, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_OBB] = &ShapeBVHConservativeAdvancement<Ellipsoid, OBB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_OBB] = &ShapeBVHConservativeAdvancement<Capsule, OBB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_OBB] = &ShapeBVHConservativeAdvancement<Cone, OBB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_OBB] = &ShapeBVHConservativeAdvancement<Cylinder, OBB, NarrowPhaseSolver>;
@@ -856,6 +882,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][BV_RSS] = &ShapeBVHConservativeAdvancement<Box, RSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_RSS] = &ShapeBVHConservativeAdvancement<Sphere, RSS, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_RSS] = &ShapeBVHConservativeAdvancement<Ellipsoid, RSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_RSS] = &ShapeBVHConservativeAdvancement<Capsule, RSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_RSS] = &ShapeBVHConservativeAdvancement<Cone, RSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_RSS] = &ShapeBVHConservativeAdvancement<Cylinder, RSS, NarrowPhaseSolver>;
@@ -864,6 +891,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Box, OBBRSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Sphere, OBBRSS, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Ellipsoid, OBBRSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Capsule, OBBRSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Cone, OBBRSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Cylinder, OBBRSS, NarrowPhaseSolver>;
@@ -872,6 +900,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Box, KDOP<16>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Sphere, KDOP<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Ellipsoid, KDOP<16>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Capsule, KDOP<16>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Cone, KDOP<16>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Cylinder, KDOP<16>, NarrowPhaseSolver>;
@@ -880,6 +909,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Box, KDOP<18>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Sphere, KDOP<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Ellipsoid, KDOP<18>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Capsule, KDOP<18>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Cone, KDOP<18>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Cylinder, KDOP<18>, NarrowPhaseSolver>;
@@ -888,6 +918,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Box, KDOP<24>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Sphere, KDOP<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Ellipsoid, KDOP<24>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Capsule, KDOP<24>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Cone, KDOP<24>, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Cylinder, KDOP<24>, NarrowPhaseSolver>;
@@ -896,6 +927,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
   conservative_advancement_matrix[GEOM_BOX][BV_kIOS] = &ShapeBVHConservativeAdvancement<Box, kIOS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Sphere, kIOS, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_ELLIPSOID][BV_kIOS] = &ShapeBVHConservativeAdvancement<Ellipsoid, kIOS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CAPSULE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Capsule, kIOS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CONE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Cone, kIOS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_CYLINDER][BV_kIOS] = &ShapeBVHConservativeAdvancement<Cylinder, kIOS, NarrowPhaseSolver>;
