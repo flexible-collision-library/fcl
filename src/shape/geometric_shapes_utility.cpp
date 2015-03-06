@@ -95,7 +95,7 @@ std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3
 
   const FCL_REAL phi = boost::math::constants::phi<FCL_REAL>();  // golden ratio
 
-  const FCL_REAL a = ellipsoid.radii[0] * std::sqrt(3.0) / (phi * phi);
+  const FCL_REAL a = std::sqrt(3.0) / (phi * phi);
   const FCL_REAL b = phi * a;
 
   const FCL_REAL& A = ellipsoid.radii[0];
