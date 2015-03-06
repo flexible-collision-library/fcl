@@ -43,6 +43,7 @@
 #include "fcl/collision.h"
 #include "test_fcl_utility.h"
 #include "fcl/ccd/motion.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 #include <iostream>
 
 using namespace fcl;
@@ -66,13 +67,13 @@ void getContactInfo(const std::vector<ContactPoint>& contacts, size_t index,
 
 BOOST_AUTO_TEST_CASE(sphere_shape)
 {
-  const double tol = 1e-12;
-  const double radius = 5.0;
-  const double pi = boost::math::constants::pi<FCL_REAL>();
+  const FCL_REAL tol = 1e-12;
+  const FCL_REAL radius = 1.0;
+  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
 
   Sphere s(radius);
 
-  const double volume = 4.0 / 3.0 * pi * radius * radius * radius;
+  const FCL_REAL volume = 4.0 / 3.0 * pi * radius * radius * radius;
   BOOST_CHECK_CLOSE(volume, s.computeVolume(), tol);
 }
 
@@ -135,6 +136,30 @@ BOOST_AUTO_TEST_CASE(gjkcache)
     BOOST_CHECK(result1[i] == result2[i]);
   }
 }
+
+// Shape intersection test coverage (libccd)
+//
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// |            | box | ellipsoid | sphere | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |           |   O    |         |      |          |   O   |      O     |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|     O     |        |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|///////////|   O    |         |      |          |   O   |      O     |     O    |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|///////////|////////|         |      |          |   O   |      O     |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|///////////|////////|/////////|  O   |    O     |   O   |      O     |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|///////////|////////|/////////|//////|    O     |   O   |      O     |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|///////////|////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|///////////|////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|///////////|////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
 {
@@ -1783,7 +1808,6 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
   BOOST_CHECK_FALSE(res);
 }
 
-
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
 {
   Cone s(5, 10);
@@ -2222,7 +2246,115 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
   BOOST_CHECK_FALSE(res);
 }
 
+BOOST_AUTO_TEST_CASE(shapeIntersection_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
 
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+  Transform3f identity;
+
+  CollisionRequest request;
+  CollisionResult result;
+  bool res;
+
+  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(30, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(30, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(30.01, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(30.01, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(29.99, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(29.99, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(29.9, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeIntersect(s1, transform, s2, transform, NULL);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform, request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-29.99, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-29.99, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-29.99, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-29.99, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-30, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-30, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+}
+
+// Shape distance test coverage (libccd)
+//
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// |            | box | ellipsoid | sphere | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |           |   O    |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|     O     |        |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|///////////|   O    |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|///////////|////////|         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|///////////|////////|/////////|  O   |    O     |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|///////////|////////|/////////|//////|    O     |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|///////////|////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|///////////|////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|///////////|////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
 
 BOOST_AUTO_TEST_CASE(shapeDistance_spheresphere)
 {  
@@ -2424,8 +2556,6 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder)
   BOOST_CHECK(res);
 }
 
-
-
 BOOST_AUTO_TEST_CASE(shapeDistance_conecone)
 {
   Cone s1(5, 10);
@@ -2498,7 +2628,91 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder)
   BOOST_CHECK(res);
 }
 
+BOOST_AUTO_TEST_CASE(shapeDistance_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
 
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  bool res;
+  FCL_REAL dist = -1;
+  Vec3f closest_p1, closest_p2;
+
+  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist, &closest_p1, &closest_p2);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+}
+
+// Shape intersection test coverage (built-in GJK)
+//
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// |            | box | ellipsoid | sphere | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |           |   O    |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|     O     |        |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|///////////|   O    |         |      |          |       |            |    O     |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|///////////|////////|         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|///////////|////////|/////////|  O   |    O     |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|///////////|////////|/////////|//////|    O     |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|///////////|////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|///////////|////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|///////////|////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheresphere)
 {
@@ -2855,7 +3069,6 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecylinder)
   BOOST_CHECK_FALSE(res);
 }
 
-
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
 {
   Sphere s(10);
@@ -2885,10 +3098,144 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
   BOOST_CHECK(res);
 }
 
+BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
 
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
 
+  CollisionRequest request;
+  CollisionResult result;
 
-BOOST_AUTO_TEST_CASE(spheresphere)
+  std::vector<ContactPoint> contacts;
+  bool res;
+
+  request.gjk_solver_type = GST_INDEP; // use indep GJK solver
+
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &contacts);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &contacts);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(30, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(30, 0, 0)), &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(30, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(30.01, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(30.01, 0, 0)), &contacts);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(30.01, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(29.9, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(29.9, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, transform, s2, transform, NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, transform, s2, transform, &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform, request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-29.9, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-29.9, 0, 0)), &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-29.9, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-30, 0, 0)), NULL);
+  BOOST_CHECK(res);
+  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-30, 0, 0)), &contacts);
+  BOOST_CHECK(res);
+  result.clear();
+  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-30, 0, 0)), request, result) > 0);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), NULL);
+  BOOST_CHECK_FALSE(res);
+  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), &contacts);
+  BOOST_CHECK_FALSE(res);
+  result.clear();
+  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), request, result) > 0);
+  BOOST_CHECK_FALSE(res);
+}
+
+// Shape distance test coverage (built-in GJK)
+//
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// |            | box | ellipsoid | sphere | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |           |   O    |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|     O     |        |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|///////////|   O    |         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|///////////|////////|         |      |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|///////////|////////|/////////|  O   |          |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|///////////|////////|/////////|//////|    O     |       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|///////////|////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|///////////|////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|///////////|////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+-----------+--------+---------+------+----------+-------+------------+----------+
+
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_spheresphere)
 {  
   Sphere s1(20);
   Sphere s2(10);
@@ -2949,7 +3296,7 @@ BOOST_AUTO_TEST_CASE(spheresphere)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(boxbox)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxbox)
 {                      
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -2985,7 +3332,7 @@ BOOST_AUTO_TEST_CASE(boxbox)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(boxsphere)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxsphere)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -3021,7 +3368,7 @@ BOOST_AUTO_TEST_CASE(boxsphere)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(cylindercylinder)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -3057,9 +3404,7 @@ BOOST_AUTO_TEST_CASE(cylindercylinder)
   BOOST_CHECK(res);
 }
 
-
-
-BOOST_AUTO_TEST_CASE(conecone)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -3095,6 +3440,63 @@ BOOST_AUTO_TEST_CASE(conecone)
   BOOST_CHECK(res);
 }
 
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
 
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
 
+  bool res;
+  FCL_REAL dist = -1;
+
+  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+}
 

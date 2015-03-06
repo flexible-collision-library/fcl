@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test)
   FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::vector<Transform3f> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
-  
+
   AABB aabb1;
   aabb1.min_ = Vec3f(-600, -600, -600);
   aabb1.max_ = Vec3f(600, 600, 600);
@@ -103,11 +103,11 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test)
   {
     AABB aabb;
     aabb.min_ = aabb1.min_ * 0.5;
-    aabb.max_ = aabb1.max_ * 0.5;    
+    aabb.max_ = aabb1.max_ * 0.5;
 
     OBB obb2;
     convertBV(aabb, transforms[i], obb2);
-    
+
     Box box2;
     Transform3f box2_tf;
     constructBox(aabb, transforms[i], box2, box2_tf);
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test)
 
     bool overlap_obb = obb1.overlap(obb2);
     bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, NULL);
-    
+
     BOOST_CHECK(overlap_obb == overlap_box);
   }
 }
@@ -149,13 +149,22 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test)
     OBB obb2;
     GJKSolver_libccd solver;
  
-    {  
+    {
       Sphere sphere(len);
       computeBV(sphere, transforms[i], obb2);
- 
+
       bool overlap_obb = obb1.overlap(obb2);
       bool overlap_sphere = solver.shapeIntersect(box1, box1_tf, sphere, transforms[i], NULL);
       BOOST_CHECK(overlap_obb >= overlap_sphere);
+    }
+
+    {
+      Ellipsoid ellipsoid(len, len, len);
+      computeBV(ellipsoid, transforms[i], obb2);
+
+      bool overlap_obb = obb1.overlap(obb2);
+      bool overlap_ellipsoid = solver.shapeIntersect(box1, box1_tf, ellipsoid, transforms[i], NULL);
+      BOOST_CHECK(overlap_obb >= overlap_ellipsoid);
     }
 
     {
