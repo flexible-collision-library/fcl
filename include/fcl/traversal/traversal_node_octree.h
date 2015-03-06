@@ -297,14 +297,14 @@ private:
         Transform3f box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
-        if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+        if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
         {
           AABB overlap_part;
           AABB aabb1, aabb2;
           computeBV<AABB, Box>(box, box_tf, aabb1);
           computeBV<AABB, S>(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
-	  cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);          
+          cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);
         }
       }
 
@@ -325,7 +325,7 @@ private:
           bool is_intersect = false;
           if(!crequest->enable_contact)
           {
-            if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+            if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
             {
               is_intersect = true;
               if(cresult->numContacts() < crequest->num_max_contacts)
@@ -334,15 +334,26 @@ private:
           }
           else
           {
-            Vec3f contact;
-            FCL_REAL depth;
-            Vec3f normal;
-
-            if(solver->shapeIntersect(box, box_tf, s, tf2, &contact, &depth, &normal))
+            std::vector<ContactPoint> contacts;
+            if(solver->shapeIntersect(box, box_tf, s, tf2, &contacts))
             {
               is_intersect = true;
-              if(cresult->numContacts() < crequest->num_max_contacts)
-                cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE, contact, normal, depth));
+              const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
+              size_t num_adding_contacts;
+
+              // If the free space is not enough to add all the new contacts, then contacts of greater penetration are added first.
+              if (free_space < contacts.size())
+              {
+                std::partial_sort(contacts.begin(), contacts.end() + free_space, contacts.end(), comparePenDepth);
+                num_adding_contacts = free_space;
+              }
+              else
+              {
+                num_adding_contacts = contacts.size();
+              }
+
+              for(size_t i = 0; i < num_adding_contacts; ++i)
+                cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
             }
           }
 
@@ -369,7 +380,7 @@ private:
           Transform3f box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
-          if(solver->shapeIntersect(box, box_tf, s, tf2, NULL, NULL, NULL))
+          if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
           {
             AABB overlap_part;
             AABB aabb1, aabb2;
@@ -892,14 +903,26 @@ private:
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
-          Vec3f contact;
-          FCL_REAL depth;
-          Vec3f normal;
-          if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contact, &depth, &normal))
+          std::vector<ContactPoint> contacts;
+          if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contacts))
           {
             is_intersect = true;
-            if(cresult->numContacts() < crequest->num_max_contacts)
-              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contact, normal, depth));
+            const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
+            size_t num_adding_contacts;
+
+            // If the free space is not enough to add all the new contacts, then contacts of greater penetration are added first.
+            if (free_space < contacts.size())
+            {
+              std::partial_sort(contacts.begin(), contacts.end() + free_space, contacts.end(), comparePenDepth);
+              num_adding_contacts = free_space;
+            }
+            else
+            {
+              num_adding_contacts = contacts.size();
+            }
+
+            for(size_t i = 0; i < num_adding_contacts; ++i)
+              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
           }
         }
 
