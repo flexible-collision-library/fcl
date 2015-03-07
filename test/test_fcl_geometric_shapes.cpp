@@ -2809,7 +2809,7 @@ BOOST_AUTO_TEST_CASE(reversibleShapeIntersection_allshapes)
 
   // If new shape intersection algorithm is added for two distinct primitive
   // shapes, uncommnet associated lines. For example, box-sphere intersection
-  // algorithm is added, then uncommnet box-sphere and sphere-box.
+  // algorithm is added, then uncommnet box-sphere.
 
 //  testReversibleShapeIntersection(box, sphere, distance);
 //  testReversibleShapeIntersection(box, capsule, distance);
@@ -2818,47 +2818,25 @@ BOOST_AUTO_TEST_CASE(reversibleShapeIntersection_allshapes)
   testReversibleShapeIntersection(box, plane, distance);
   testReversibleShapeIntersection(box, halfspace, distance);
 
-//  testReversibleShapeIntersection(sphere, box, distance);
   testReversibleShapeIntersection(sphere, capsule, distance);
 //  testReversibleShapeIntersection(sphere, cone, distance);
 //  testReversibleShapeIntersection(sphere, cylinder, distance);
   testReversibleShapeIntersection(sphere, plane, distance);
   testReversibleShapeIntersection(sphere, halfspace, distance);
 
-//  testReversibleShapeIntersection(capsule, box, distance);
-  testReversibleShapeIntersection(capsule, sphere, distance);
 //  testReversibleShapeIntersection(capsule, cone, distance);
 //  testReversibleShapeIntersection(capsule, cylinder, distance);
   testReversibleShapeIntersection(capsule, plane, distance);
   testReversibleShapeIntersection(capsule, halfspace, distance);
 
-//  testReversibleShapeIntersection(cone, box, distance);
-//  testReversibleShapeIntersection(cone, sphere, distance);
-//  testReversibleShapeIntersection(cone, capsule, distance);
 //  testReversibleShapeIntersection(cone, cylinder, distance);
   testReversibleShapeIntersection(cone, plane, distance);
   testReversibleShapeIntersection(cone, halfspace, distance);
 
-//  testReversibleShapeIntersection(cylinder, box, distance);
-//  testReversibleShapeIntersection(cylinder, sphere, distance);
-//  testReversibleShapeIntersection(cylinder, capsule, distance);
-//  testReversibleShapeIntersection(cylinder, cone, distance);
   testReversibleShapeIntersection(cylinder, plane, distance);
   testReversibleShapeIntersection(cylinder, halfspace, distance);
 
-  testReversibleShapeIntersection(plane, box, distance);
-  testReversibleShapeIntersection(plane, sphere, distance);
-  testReversibleShapeIntersection(plane, capsule, distance);
-  testReversibleShapeIntersection(plane, cone, distance);
-  testReversibleShapeIntersection(plane, cylinder, distance);
-//  testReversibleShapeIntersection(plane, halfspace, distance);
-
-  testReversibleShapeIntersection(halfspace, box, distance);
-  testReversibleShapeIntersection(halfspace, sphere, distance);
-  testReversibleShapeIntersection(halfspace, capsule, distance);
-  testReversibleShapeIntersection(halfspace, cone, distance);
-  testReversibleShapeIntersection(halfspace, cylinder, distance);
-//  testReversibleShapeIntersection(halfspace, plane, distance);
+  testReversibleShapeIntersection(plane, halfspace, distance);
 }
 
 template<typename S1, typename S2>
@@ -2918,7 +2896,7 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
 
   // If new shape distance algorithm is added for two distinct primitive
   // shapes, uncommnet associated lines. For example, box-sphere intersection
-  // algorithm is added, then uncommnet box-sphere and sphere-box.
+  // algorithm is added, then uncommnet box-sphere.
 
 //  testReversibleShapeDistance(box, sphere, distance);
 //  testReversibleShapeDistance(box, capsule, distance);
@@ -2927,46 +2905,24 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
 //  testReversibleShapeDistance(box, plane, distance);
 //  testReversibleShapeDistance(box, halfspace, distance);
 
-//  testReversibleShapeDistance(sphere, box, distance);
   testReversibleShapeDistance(sphere, capsule, distance);
 //  testReversibleShapeDistance(sphere, cone, distance);
 //  testReversibleShapeDistance(sphere, cylinder, distance);
 //  testReversibleShapeDistance(sphere, plane, distance);
 //  testReversibleShapeDistance(sphere, halfspace, distance);
 
-//  testReversibleShapeDistance(capsule, box, distance);
-  testReversibleShapeDistance(capsule, sphere, distance);
 //  testReversibleShapeDistance(capsule, cone, distance);
 //  testReversibleShapeDistance(capsule, cylinder, distance);
 //  testReversibleShapeDistance(capsule, plane, distance);
 //  testReversibleShapeDistance(capsule, halfspace, distance);
 
-//  testReversibleShapeDistance(cone, box, distance);
-//  testReversibleShapeDistance(cone, sphere, distance);
-//  testReversibleShapeDistance(cone, capsule, distance);
 //  testReversibleShapeDistance(cone, cylinder, distance);
 //  testReversibleShapeDistance(cone, plane, distance);
 //  testReversibleShapeDistance(cone, halfspace, distance);
 
-//  testReversibleShapeDistance(cylinder, box, distance);
-//  testReversibleShapeDistance(cylinder, sphere, distance);
-//  testReversibleShapeDistance(cylinder, capsule, distance);
-//  testReversibleShapeDistance(cylinder, cone, distance);
 //  testReversibleShapeDistance(cylinder, plane, distance);
 //  testReversibleShapeDistance(cylinder, halfspace, distance);
 
-//  testReversibleShapeDistance(plane, box, distance);
-//  testReversibleShapeDistance(plane, sphere, distance);
-//  testReversibleShapeDistance(plane, capsule, distance);
-//  testReversibleShapeDistance(plane, cone, distance);
-//  testReversibleShapeDistance(plane, cylinder, distance);
 //  testReversibleShapeDistance(plane, halfspace, distance);
-
-//  testReversibleShapeDistance(halfspace, box, distance);
-//  testReversibleShapeDistance(halfspace, sphere, distance);
-//  testReversibleShapeDistance(halfspace, capsule, distance);
-//  testReversibleShapeDistance(halfspace, cone, distance);
-//  testReversibleShapeDistance(halfspace, cylinder, distance);
-//  testReversibleShapeDistance(halfspace, plane, distance);
 }
 
