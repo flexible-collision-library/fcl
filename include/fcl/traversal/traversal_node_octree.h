@@ -338,22 +338,25 @@ private:
             if(solver->shapeIntersect(box, box_tf, s, tf2, &contacts))
             {
               is_intersect = true;
-              const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
-              size_t num_adding_contacts;
-
-              // If the free space is not enough to add all the new contacts, then contacts of greater penetration are added first.
-              if (free_space < contacts.size())
+              if(crequest->num_max_contacts > cresult->numContacts())
               {
-                std::partial_sort(contacts.begin(), contacts.end() + free_space, contacts.end(), comparePenDepth);
-                num_adding_contacts = free_space;
-              }
-              else
-              {
-                num_adding_contacts = contacts.size();
-              }
+                const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
+                size_t num_adding_contacts;
 
-              for(size_t i = 0; i < num_adding_contacts; ++i)
-                cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+                // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
+                if (free_space < contacts.size())
+                {
+                  std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), comparePenDepth);
+                  num_adding_contacts = free_space;
+                }
+                else
+                {
+                  num_adding_contacts = contacts.size();
+                }
+
+                for(size_t i = 0; i < num_adding_contacts; ++i)
+                  cresult->addContact(Contact(tree1, &s, root1 - tree1->getRoot(), Contact::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+              }
             }
           }
 
@@ -907,22 +910,25 @@ private:
           if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contacts))
           {
             is_intersect = true;
-            const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
-            size_t num_adding_contacts;
-
-            // If the free space is not enough to add all the new contacts, then contacts of greater penetration are added first.
-            if (free_space < contacts.size())
+            if(crequest->num_max_contacts > cresult->numContacts())
             {
-              std::partial_sort(contacts.begin(), contacts.end() + free_space, contacts.end(), comparePenDepth);
-              num_adding_contacts = free_space;
-            }
-            else
-            {
-              num_adding_contacts = contacts.size();
-            }
+              const size_t free_space = crequest->num_max_contacts - cresult->numContacts();
+              size_t num_adding_contacts;
 
-            for(size_t i = 0; i < num_adding_contacts; ++i)
-              cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+              // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
+              if (free_space < contacts.size())
+              {
+                std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), comparePenDepth);
+                num_adding_contacts = free_space;
+              }
+              else
+              {
+                num_adding_contacts = contacts.size();
+              }
+
+              for(size_t i = 0; i < num_adding_contacts; ++i)
+                cresult->addContact(Contact(tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+            }
           }
         }
 

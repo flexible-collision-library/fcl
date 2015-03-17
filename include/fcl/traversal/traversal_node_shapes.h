@@ -82,22 +82,25 @@ public:
         if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contacts))
         {
           is_collision = true;
-          const size_t free_space = request.num_max_contacts - result->numContacts();
-          size_t num_adding_contacts;
-
-          // If the free space is not enough to add all the new contacts, then contacts of greater penetration are added first.
-          if (free_space < contacts.size())
+          if(request.num_max_contacts > result->numContacts())
           {
-            std::partial_sort(contacts.begin(), contacts.end() + free_space, contacts.end(), comparePenDepth);
-            num_adding_contacts = free_space;
-          }
-          else
-          {
-            num_adding_contacts = contacts.size();
-          }
+            const size_t free_space = request.num_max_contacts - result->numContacts();
+            size_t num_adding_contacts;
 
-          for(size_t i = 0; i < num_adding_contacts; ++i)
-            result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+            // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
+            if (free_space < contacts.size())
+            {
+              std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), comparePenDepth);
+              num_adding_contacts = free_space;
+            }
+            else
+            {
+              num_adding_contacts = contacts.size();
+            }
+
+            for(size_t i = 0; i < num_adding_contacts; ++i)
+              result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+          }
         }
       }
       else
