@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_self_distance)
 /// check broad phase collision and self collision, only return collision or not
 BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_collision_binary)
 {
-#ifdef BUILD_TYPE_DEBUG
+#ifdef FCL_BUILD_TYPE_DEBUG
   broad_phase_collision_test(2000, 10, 100, 1, false);
   broad_phase_collision_test(2000, 100, 100, 1, false);
   broad_phase_collision_test(2000, 10, 100, 1, true);
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_binary)
 /// check broad phase update, in mesh, return 10 contacts
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh)
 {
-#ifdef BUILD_TYPE_DEBUG
+#ifdef FCL_BUILD_TYPE_DEBUG
   broad_phase_update_collision_test(200, 10, 100, 10, false, true);
   broad_phase_update_collision_test(200, 100, 100, 10, false, true);
 #else
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh)
 /// check broad phase update, in mesh, exhaustive
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_exhaustive)
 {
-#ifdef BUILD_TYPE_DEBUG
+#ifdef FCL_BUILD_TYPE_DEBUG
   broad_phase_update_collision_test(2000, 10, 100, 1, true, true);
   broad_phase_update_collision_test(2000, 100, 100, 1, true, true);
 #else
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_exhaust
 /// check broad phase distance
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_distance_mesh)
 {
-#ifdef BUILD_TYPE_DEBUG
+#ifdef FCL_BUILD_TYPE_DEBUG
   broad_phase_distance_test(200, 10, 10, true);
   broad_phase_distance_test(200, 100, 10, true);
   broad_phase_distance_test(2000, 10, 10, true);
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_self_distance_mesh)
 /// check broad phase collision and self collision, return only collision or not, in mesh
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh_binary)
 {
-#ifdef BUILD_TYPE_DEBUG
+#ifdef FCL_BUILD_TYPE_DEBUG
   broad_phase_collision_test(2000, 10, 100, 1, false, true);
   broad_phase_collision_test(2000, 100, 100, 1, false, true);
 #else
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh_binary)
 /// check broad phase collision and self collision, return 10 contacts, in mesh
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh)
 {
-#ifdef BUILD_TYPE_DEBUG
+#ifdef FCL_BUILD_TYPE_DEBUG
   broad_phase_collision_test(2000, 10, 100, 10, false, true);
   broad_phase_collision_test(2000, 100, 100, 10, false, true);
 #else
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh)
 /// check broad phase collision and self collision, exhaustive, in mesh
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_collision_mesh_exhaustive)
 {
-#ifdef BUILD_TYPE_DEBUG
+#ifdef FCL_BUILD_TYPE_DEBUG
   broad_phase_collision_test(2000, 10, 100, 1, true, true);
   broad_phase_collision_test(2000, 100, 100, 1, true, true);
 #else

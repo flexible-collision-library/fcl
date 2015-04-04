@@ -45,7 +45,7 @@
 #cmakedefine01 FCL_HAVE_FLANN
 #cmakedefine01 FCL_HAVE_TINYXML
 
-#cmakedefine01 BUILD_TYPE_DEBUG
-#cmakedefine01 BUILD_TYPE_RELEASE
+#cmakedefine01 FCL_BUILD_TYPE_DEBUG
+#cmakedefine01 FCL_BUILD_TYPE_RELEASE
 
 #endif
