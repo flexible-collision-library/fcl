@@ -115,9 +115,10 @@ BOOST_AUTO_TEST_CASE(front_list)
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test<RSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    // Disabled broken test lines. Please see #25.
+    // res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    // res2 = collide_front_list_Test<RSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
+    // BOOST_CHECK(res == res2);
     res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test<RSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
     BOOST_CHECK(res == res2);

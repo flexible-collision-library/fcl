@@ -37,6 +37,7 @@
 #define BOOST_TEST_MODULE "FCL_OCTOMAP"
 #include <boost/test/unit_test.hpp>
 
+#include "fcl/config.h"
 #include "fcl/octree.h"
 #include "fcl/traversal/traversal_node_octree.h"
 #include "fcl/broadphase/broadphase.h"
@@ -117,18 +118,32 @@ BOOST_AUTO_TEST_CASE(test_octomap_collision)
 
 BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test(200, 10, false, 10, true, true);
+  octomap_collision_test(200, 100, false, 10, true, true);
+  octomap_collision_test(200, 10, true, 1, true, true);
+  octomap_collision_test(200, 100, true, 1, true, true);
+#else
   octomap_collision_test(200, 100, false, 10, true, true);
   octomap_collision_test(200, 1000, false, 10, true, true);
   octomap_collision_test(200, 100, true, 1, true, true);
   octomap_collision_test(200, 1000, true, 1, true, true);
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh_octomap_box)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test(200, 10, false, 10, true, false);
+  octomap_collision_test(200, 100, false, 10, true, false);
+  octomap_collision_test(200, 10, true, 1, true, false);
+  octomap_collision_test(200, 100, true, 1, true, false);
+#else
   octomap_collision_test(200, 100, false, 10, true, false);
   octomap_collision_test(200, 1000, false, 10, true, false);
   octomap_collision_test(200, 100, true, 1, true, false);
   octomap_collision_test(200, 1000, true, 1, true, false);
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(test_octomap_distance)
@@ -139,16 +154,25 @@ BOOST_AUTO_TEST_CASE(test_octomap_distance)
 
 BOOST_AUTO_TEST_CASE(test_octomap_distance_mesh)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test(200, 5, true, true);
+  octomap_distance_test(200, 50, true, true);
+#else
   octomap_distance_test(200, 100, true, true);
   octomap_distance_test(200, 1000, true, true);
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(test_octomap_distance_mesh_octomap_box)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test(200, 10, true, false);
+  octomap_distance_test(200, 100, true, false);
+#else
   octomap_distance_test(200, 100, true, false);
   octomap_distance_test(200, 1000, true, false);
+#endif
 }
-
 
 BOOST_AUTO_TEST_CASE(test_octomap_bvh_obb_collision_obb)
 {
@@ -168,7 +192,11 @@ BOOST_AUTO_TEST_CASE(test_octomap_bvh_obb_d_distance_obb)
 
 BOOST_AUTO_TEST_CASE(test_octomap_bvh_kios_d_distance_kios)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test_BVH<kIOS>(2);
+#else
   octomap_distance_test_BVH<kIOS>(5);
+#endif
 }
 
 template<typename BV>

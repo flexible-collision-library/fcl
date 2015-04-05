@@ -175,8 +175,8 @@ public:
   {
     return
       data (0,0) == 1 && data (0,1) == 0 && data (0,2) == 0 &&
-      data (0,0) == 0 && data (0,1) == 1 && data (0,2) == 0 &&
-      data (0,0) == 0 && data (0,1) == 0 && data (0,2) == 1;
+      data (1,0) == 0 && data (1,1) == 1 && data (1,2) == 0 &&
+      data (2,0) == 0 && data (2,1) == 0 && data (2,2) == 1;
   }
 
   inline void setZero()
