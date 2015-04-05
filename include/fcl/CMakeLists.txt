@@ -1,2 +1,4 @@
-file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" VERSION_DIR)
-configure_file("${VERSION_DIR}/config.h.in" "${VERSION_DIR}/config.h")
+file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" FCL_CONFIG_IN_DIR)
+file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" FCL_CONFIG_OUT_DIR)
+configure_file("${FCL_CONFIG_IN_DIR}/config.h.in" "${FCL_CONFIG_OUT_DIR}/config.h")
+install(FILES "${FCL_CONFIG_OUT_DIR}/config.h" DESTINATION include/fcl)
