@@ -2808,8 +2808,8 @@ BOOST_AUTO_TEST_CASE(reversibleShapeIntersection_allshapes)
   FCL_REAL distance = 5.0;
 
   // If new shape intersection algorithm is added for two distinct primitive
-  // shapes, uncommnet associated lines. For example, box-sphere intersection
-  // algorithm is added, then uncommnet box-sphere.
+  // shapes, uncomment associated lines. For example, box-sphere intersection
+  // algorithm is added, then uncomment box-sphere.
 
 //  testReversibleShapeIntersection(box, sphere, distance);
 //  testReversibleShapeIntersection(box, capsule, distance);
@@ -2895,8 +2895,8 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
   FCL_REAL distance = 15.0;
 
   // If new shape distance algorithm is added for two distinct primitive
-  // shapes, uncommnet associated lines. For example, box-sphere intersection
-  // algorithm is added, then uncommnet box-sphere.
+  // shapes, uncomment associated lines. For example, box-sphere intersection
+  // algorithm is added, then uncomment box-sphere.
 
 //  testReversibleShapeDistance(box, sphere, distance);
 //  testReversibleShapeDistance(box, capsule, distance);
