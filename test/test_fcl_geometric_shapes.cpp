@@ -1774,7 +1774,6 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
   Vec3f contact;
   FCL_REAL depth;
   Vec3f normal;
-  bool res;
   
   tf1 = Transform3f();
   tf2 = Transform3f();
