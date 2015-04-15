@@ -113,90 +113,257 @@ BOOST_AUTO_TEST_CASE(gjkcache)
   }
 }
 
+template <typename S1, typename S2>
+void printComparisonError(const std::string& comparison_type,
+                          const S1& s1, const Transform3f& tf1,
+                          const S2& s2, const Transform3f& tf2,
+                          GJKSolverType solver_type,
+                          const Vec3f& contact_or_normal,
+                          const Vec3f& expected_contact_or_normal,
+                          bool check_opposite_normal,
+                          FCL_REAL tol)
+{
+  std::cout << "Disagreement between " << comparison_type
+            << " and expected_" << comparison_type << " for "
+            << getNodeTypeName(s1.getNodeType()) << " and "
+            << getNodeTypeName(s2.getNodeType()) << " with '"
+            << getGJKSolverName(solver_type) << "' solver." << std::endl
+            << "tf1.quaternion: " << tf1.getQuatRotation() << std::endl
+            << "tf1.translation: " << tf1.getTranslation() << std::endl
+            << "tf2.quaternion: " << tf2.getQuatRotation() << std::endl
+            << "tf2.translation: " << tf2.getTranslation() << std::endl
+            << comparison_type << ": " << contact_or_normal << std::endl
+            << "expected_" << comparison_type << ": " << expected_contact_or_normal;
+
+  if (check_opposite_normal)
+    std::cout << " or " << -expected_contact_or_normal;
+
+  std::cout << std::endl
+            << "difference: " << (contact_or_normal - expected_contact_or_normal).norm() << std::endl
+            << "tolerance: " << tol << std::endl;
+}
+
+template <typename S1, typename S2>
+void printComparisonError(const std::string& comparison_type,
+                          const S1& s1, const Transform3f& tf1,
+                          const S2& s2, const Transform3f& tf2,
+                          GJKSolverType solver_type,
+                          FCL_REAL depth,
+                          FCL_REAL expected_depth,
+                          FCL_REAL tol)
+{
+  std::cout << "Disagreement between " << comparison_type
+            << " and expected_" << comparison_type << " for "
+            << getNodeTypeName(s1.getNodeType()) << " and "
+            << getNodeTypeName(s2.getNodeType()) << " with '"
+            << getGJKSolverName(solver_type) << "' solver." << std::endl
+            << "tf1.quaternion: " << tf1.getQuatRotation() << std::endl
+            << "tf1.translation: " << tf1.getTranslation() << std::endl
+            << "tf2.quaternion: " << tf2.getQuatRotation() << std::endl
+            << "tf2.translation: " << tf2.getTranslation() << std::endl
+            << "depth: " << depth << std::endl
+            << "expected_depth: " << expected_depth << std::endl
+            << "difference: " << std::fabs(depth - expected_depth) << std::endl
+            << "tolerance: " << tol << std::endl;
+}
+
+template <typename S1, typename S2>
+void compareContact(const S1& s1, const Transform3f& tf1,
+                    const S2& s2, const Transform3f& tf2,
+                    GJKSolverType solver_type,
+                    const Vec3f& contact, Vec3f* expected_point,
+                    FCL_REAL depth, FCL_REAL* expected_depth,
+                    const Vec3f& normal, Vec3f* expected_normal, bool check_opposite_normal,
+                    FCL_REAL tol)
+{
+  if (expected_point)
+  {
+    bool contact_equal = contact.equal(*expected_point, tol);
+    BOOST_CHECK(contact_equal);
+    if (!contact_equal)
+      printComparisonError("contact", s1, tf1, s2, tf2, solver_type, contact, *expected_point, false, tol);
+  }
+
+  if (expected_depth)
+  {
+    bool depth_equal = std::fabs(depth - *expected_depth) < tol;
+    BOOST_CHECK(depth_equal);
+    if (!depth_equal)
+      printComparisonError("depth", s1, tf1, s2, tf2, solver_type, depth, *expected_depth, tol);
+  }
+
+  if (expected_normal)
+  {
+    bool normal_equal = normal.equal(*expected_normal, tol);
+
+    if (!normal_equal && check_opposite_normal)
+      normal_equal = normal.equal(-(*expected_normal), tol);
+
+    BOOST_CHECK(normal_equal);
+    if (!normal_equal)
+      printComparisonError("normal", s1, tf1, s2, tf2, solver_type, normal, *expected_normal, check_opposite_normal, tol);
+  }
+}
+
+template <typename S1, typename S2>
+void testShapeInersection(const S1& s1, const Transform3f& tf1,
+                          const S2& s2, const Transform3f& tf2,
+                          GJKSolverType solver_type,
+                          bool expected_res,
+                          Vec3f* expected_point = NULL,
+                          FCL_REAL* expected_depth = NULL,
+                          Vec3f* expected_normal = NULL,
+                          bool check_opposite_normal = false,
+                          FCL_REAL tol = 1e-9)
+{
+  CollisionRequest request;
+  request.gjk_solver_type = solver_type;
+  CollisionResult result;
+
+  Vec3f contact;
+  FCL_REAL depth;
+  Vec3f normal;  // normal direction should be from object 1 to object 2
+  bool res;
+
+  if (solver_type == GST_LIBCCD)
+  {
+    res = solver1.shapeIntersect(s1, tf1, s2, tf2, NULL, NULL, NULL);
+  }
+  else if (solver_type == GST_INDEP)
+  {
+    res = solver2.shapeIntersect(s1, tf1, s2, tf2, NULL, NULL, NULL);
+  }
+  else
+  {
+    std::cerr << "Invalid GJK solver. Test aborted." << std::endl;
+    return;
+  }
+  BOOST_CHECK_EQUAL(res, expected_res);
+
+  if (solver_type == GST_LIBCCD)
+  {
+    res = solver1.shapeIntersect(s1, tf1, s2, tf2, &contact, &depth, &normal);
+  }
+  else if (solver_type == GST_INDEP)
+  {
+    res = solver2.shapeIntersect(s1, tf1, s2, tf2, &contact, &depth, &normal);
+  }
+  else
+  {
+    std::cerr << "Invalid GJK solver. Test aborted." << std::endl;
+    return;
+  }
+  BOOST_CHECK_EQUAL(res, expected_res);
+  if (expected_res)
+    compareContact(s1, tf1, s2, tf2, solver_type, contact, expected_point, depth, expected_depth, normal, expected_normal, check_opposite_normal, tol);
+
+  if (s1.getNodeType() == GEOM_HALFSPACE || s2.getNodeType() == GEOM_HALFSPACE)
+  {
+    std::cout << "Abort test since Halfspace is not registered to the collision matrix. "
+              << "Please see issue #57." << std::endl;
+    return;
+  }
+
+  request.enable_contact = false;
+  result.clear();
+  res = (collide(&s1, tf1, &s2, tf2, request, result) > 0);
+  BOOST_CHECK_EQUAL(res, expected_res);
+
+  request.enable_contact = true;
+  result.clear();
+  res = (collide(&s1, tf1, &s2, tf2, request, result) > 0);
+  BOOST_CHECK_EQUAL(res, expected_res);
+  if (expected_res)
+  {
+    BOOST_CHECK_EQUAL(result.numContacts(), 1);
+    if (result.numContacts() == 1)
+    {
+      Contact contact = result.getContact(0);
+      compareContact(s1, tf1, s2, tf2, solver_type, contact.pos, expected_point, contact.penetration_depth, expected_depth, contact.normal, expected_normal, check_opposite_normal, tol);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
-  Transform3f identity;
 
-  CollisionRequest request;
-  CollisionResult result;
-  bool res;
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
 
-  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(40, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(40, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(30, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(30, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(30, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
-  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(30.01, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(30.01, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(30.01, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(30.01, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(29.9, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
-  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(29.9, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
-  res = solver1.shapeIntersect(s1, transform, s2, transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform, request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
-  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform;
+  normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
-  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-29.9, 0, 0));
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
-  res = solver1.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-30, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-30, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-29.9, 0, 0));
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
-  res = solver1.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-30.0, 0, 0));
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-30.01, 0, 0));
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-30.01, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
