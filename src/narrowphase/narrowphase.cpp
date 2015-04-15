@@ -269,13 +269,16 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
                            const Sphere& s2, const Transform3f& tf2,
                            Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal)
 {
-  Vec3f diff = tf1.transform(Vec3f()) - tf2.transform(Vec3f());
+  Vec3f diff = tf2.transform(Vec3f()) - tf1.transform(Vec3f());
   FCL_REAL len = diff.length();
   if(len > s1.radius + s2.radius)
     return false;
 
   if(penetration_depth) 
     *penetration_depth = s1.radius + s2.radius - len;
+
+  // If the centers of two sphere are at the same position, the normal is (0, 0, 0).
+  // Otherwise, normal is pointing from center of object 1 to center of object 2
   if(normal) 
   {
     if(len > 0)
@@ -285,7 +288,7 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
   }
 
   if(contact_points)
-    *contact_points = tf1.transform(Vec3f()) - diff * s1.radius / (s1.radius + s2.radius);
+    *contact_points = tf1.transform(Vec3f()) + diff * s1.radius / (s1.radius + s2.radius);
   
   return true;
 }
@@ -423,7 +426,7 @@ bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
 
   if(has_contact)
   {
-    Vec3f contact_to_center = center - contact_point;
+    Vec3f contact_to_center = contact_point - center;
     FCL_REAL distance_sqr = contact_to_center.sqrLength();
 
     if(distance_sqr < radius_with_threshold * radius_with_threshold)
@@ -437,7 +440,7 @@ bool sphereTriangleIntersect(const Sphere& s, const Transform3f& tf,
       }
       else
       {
-        if(normal_) *normal_ = normal;
+        if(normal_) *normal_ = -normal;
         if(contact_points) *contact_points = contact_point;
         if(penetration_depth) *penetration_depth = -radius;
       }

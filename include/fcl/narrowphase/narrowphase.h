@@ -416,7 +416,7 @@ struct GJKSolver_indep
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
-          if(normal) *normal = -epa.normal;
+          if(normal) *normal = epa.normal;
           if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
           return true;
         }
