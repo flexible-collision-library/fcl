@@ -717,6 +717,88 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle)
   BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
+BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle)
+{
+  Halfspace hs(Vec3f(1, 0, 0), 0);
+  Vec3f t[3];
+  t[0].setValue(20, 0, 0);
+  t[1].setValue(-20, 0, 0);
+  t[2].setValue(0, 20, 0);
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
+  bool res;
+
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+
+  t[0].setValue(20, 0, 0);
+  t[1].setValue(0, -20, 0);
+  t[2].setValue(0, 20, 0);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
+  BOOST_CHECK(res);
+  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  BOOST_CHECK(res);
+  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+}
+
+BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle)
+{
+  Plane hs(Vec3f(1, 0, 0), 0);
+  Vec3f t[3];
+  t[0].setValue(20, 0, 0);
+  t[1].setValue(-20, 0, 0);
+  t[2].setValue(0, 20, 0);
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
+  bool res;
+
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+
+  t[0].setValue(20, 0, 0);
+  t[1].setValue(-0.1, -20, 0);
+  t[2].setValue(-0.1, 20, 0);
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
+  BOOST_CHECK(res);
+  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+
+  res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  BOOST_CHECK(res);
+  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+}
+
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
 {
   Sphere s(10);
