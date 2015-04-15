@@ -2653,124 +2653,81 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheresphere)
   Sphere s1(20);
   Sphere s2(10);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  CollisionRequest request;
-  CollisionResult result;
+//  Vec3f contact;
+//  FCL_REAL depth;
+  Vec3f normal;
 
-  Vec3f contact;
-  FCL_REAL penetration_depth;
-  Vec3f normal;  
-  bool res;
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(40, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  request.gjk_solver_type = GST_INDEP; // use indep GJK solver
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(40, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res); 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(30, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(40, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(30.01, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(30.01, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(30, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(30, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(30, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(29.9, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(29.9, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(30.01, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(30.01, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(30.01, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
+  tf1 = transform;
+  tf2 = transform;
+  normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-29.9, 0, 0));
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-29.9, 0, 0));
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-30.0, 0, 0));
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-30.01, 0, 0));
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(), request, result) > 0);
-  BOOST_CHECK(res);
-
-
-  res = solver2.shapeIntersect(s1, transform, s2, transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform, &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform, request, result) > 0);
-  BOOST_CHECK(res);
-
-
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-29.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
-
-
-
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-29.9, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
-
-
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-30, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(-30, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  result.clear();
-  res = (collide(&s1, Transform3f(), &s2, Transform3f(Vec3f(-30, 0, 0)), request, result) > 0);
-  BOOST_CHECK(res);
-
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
-  result.clear();
-  res = (collide(&s1, transform, &s2, transform * Transform3f(Vec3f(-30.01, 0, 0)), request, result) > 0);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-30.01, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
@@ -2778,45 +2735,49 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f contact;
-  FCL_REAL penetration_depth;
-  Vec3f normal;  
-  bool res;
-
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-
-  res = solver2.shapeIntersect(s1, transform, s2, transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform, &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(15, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(15, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(15.01, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(15.01, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
 
   Quaternion3f q;
   q.fromAxisAngle(Vec3f(0, 0, 1), (FCL_REAL)3.140 / 6);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(q), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(q), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
-  
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(q), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(q), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+
+  tf1 = transform;
+  tf2 = transform;
+  // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(15, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(15.01, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(q);
+  normal = Transform3f(q).getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(q);
+  normal = Transform3f(q).getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherebox)
@@ -2824,43 +2785,46 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherebox)
   Sphere s1(20);
   Box s2(5, 5, 5);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f contact;
-  FCL_REAL penetration_depth;
-  Vec3f normal;  
-  bool res;
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform, &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform;
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(22.5, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(22.5, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(22.5, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, 1e-7);  // built-in GJK solver requires larger tolerance than libccd
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(22.51, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(22.51, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(22.51, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(22.4, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(22.4, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(22.4, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, 1e-2);  // built-in GJK solver requires larger tolerance than libccd
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(22.4, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(22.4, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(22.4, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
+  // built-in GJK solver returns incorrect normal.
+  // testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
@@ -2868,43 +2832,46 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f contact;
-  FCL_REAL penetration_depth;
-  Vec3f normal;  
-  bool res;
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform, &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform;
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(9.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(9.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(9.9, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, 3e-1);  // built-in GJK solver requires larger tolerance than libccd
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(9.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(9.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true);
+  // built-in GJK solver returns incorrect normal.
+  // testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(10, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(10, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(10, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(10.01, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecone)
@@ -2912,53 +2879,57 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecone)
   Cone s1(5, 10);
   Cone s2(5, 10);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f contact;
-  FCL_REAL penetration_depth;
-  Vec3f normal;  
-  bool res;
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform, &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform;
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(9.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(9.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(9.9, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal, false, 5.7e-1);  // built-in GJK solver requires larger tolerance than libccd
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(9.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(9.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
+  // built-in GJK solver returns incorrect normal.
+  // testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(10.1, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(10.1, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 9.9)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 9.9)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 9.9));
+  normal.setValue(0, 0, 1);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 9.9)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 9.9)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
+  normal = transform.getRotation() * Vec3f(0, 0, 1);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
+  // built-in GJK solver returns incorrect normal.
+  // testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecylinder)
@@ -2966,63 +2937,62 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecylinder)
   Cylinder s1(5, 10);
   Cone s2(5, 10);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  Vec3f contact;
-  FCL_REAL penetration_depth;
-  Vec3f normal;  
-  bool res;
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform, &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform;
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(9.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(9.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(9.9, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(9.9, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(9.9, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(10, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(10, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(10, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(10, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(10, 0, 0)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(10, 0, 0));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 9.9)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 9.9)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 9.9));
+  normal.setValue(0, 0, 1);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 9.9)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 9.9)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
+  normal = transform.getRotation() * Vec3f(0, 0, 1);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
+  // built-in GJK solver returns incorrect normal.
+  // testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 10)), NULL, NULL, NULL);
-  BOOST_CHECK(res);
-  res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 10)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 10));
+  normal.setValue(0, 0, 1);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 10.1)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res);
-  res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 10.1)), &contact, &penetration_depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 
