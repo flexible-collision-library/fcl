@@ -2827,6 +2827,52 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherebox)
   // testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 }
 
+BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherecapsule)
+{
+  Sphere s1(20);
+  Capsule s2(5, 10);
+
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  // Vec3f point;
+  // FCL_REAL depth;
+  Vec3f normal;
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
+
+  tf1 = transform;
+  tf2 = transform;
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, NULL);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(24.9, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(24.9, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(25, 0, 0));
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(25.1, 0, 0));
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, false);
+}
+
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
 {
   Cylinder s1(5, 10);
