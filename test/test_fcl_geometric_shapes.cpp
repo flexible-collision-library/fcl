@@ -884,62 +884,73 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere)
   Sphere s(10);
   Plane hs(Vec3f(1, 0, 0), 0);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
   FCL_REAL depth;
   Vec3f normal;
-  bool res;
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 10) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)) || normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setZero();
+  depth = 10;
+  normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 10) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 10;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(5, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(5, 0, 0));
+  contact.setValue(5, 0, 0);
+  depth = 5;
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(5, 0, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(5, 0, 0));
+  contact = transform.transform(Vec3f(5, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(-5, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-5, 0, 0));
+  contact.setValue(-5, 0, 0);
+  depth = 5;
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(-5, 0, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-5, 0, 0));
+  contact = transform.transform(Vec3f(-5, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-10.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-10.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-10.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-10.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(10.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(10.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
-
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(10.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(10.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
@@ -1030,65 +1041,78 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
 {
   Box s(5, 10, 20);
   Plane hs(Vec3f(1, 0, 0), 0);
-  
+
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
   FCL_REAL depth;
   Vec3f normal;
-  bool res;
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)) || normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 2.5;
+  normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(1.25, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 1.25) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(1.25, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(1.25, 0, 0));
+  contact.setValue(1.25, 0, 0);
+  depth = 1.25;
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(1.25, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 1.25) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(1.25, 0, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
+  contact = transform.transform(Vec3f(1.25, 0, 0));
+  depth = 1.25;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-1.25, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 1.25) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(-1.25, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-1.25, 0, 0));
+  contact.setValue(-1.25, 0, 0);
+  depth = 1.25;
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-1.25, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 1.25) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(-1.25, 0, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
+  contact = transform.transform(Vec3f(-1.25, 0, 0));
+  depth = 1.25;
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(2.51, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(2.51, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(2.51, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(2.51, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.51, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-2.51, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-2.51, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-2.51, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(transform.getQuatRotation()), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
+  tf1 = Transform3f(transform.getQuatRotation());
+  tf2 = Transform3f();
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
@@ -1314,167 +1338,199 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   Capsule s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
   FCL_REAL depth;
   Vec3f normal;
-  bool res;
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)) || normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(2.5, 0, 0));
+  contact.setValue(2.5, 0, 0);
+  depth = 2.5;
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(2.5, 0, 0))));
-  
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(-2.5, 0, 0)));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
+  contact = transform.transform(Vec3f(2.5, 0, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(-2.5, 0, 0))));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-2.5, 0, 0));
+  contact.setValue(-2.5, 0, 0);
+  depth = 2.5;
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
+  contact = transform.transform(Vec3f(-2.5, 0, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
   hs = Plane(Vec3f(0, 1, 0), 0);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, -1, 0)) || normal.equal(Vec3f(0, 1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, -1, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(0, 1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 2.5, 0));
+  contact.setValue(0, 2.5, 0);
+  depth = 2.5;
+  normal.setValue(0, 1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 2.5, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
+  contact = transform.transform(Vec3f(0, 2.5, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, 1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, -2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, -1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -2.5, 0));
+  contact.setValue(0, -2.5, 0);
+  depth = 2.5;
+  normal.setValue(0, -1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, -2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, -1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, -2.5, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
+  contact = transform.transform(Vec3f(0, -2.5, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, -1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, -5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, -5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
   hs = Plane(Vec3f(0, 0, 1), 0);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 10) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)) || normal.equal(Vec3f(0, 0, 1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 10;
+  normal.setValue(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 10) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, -1))) || normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, 1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 10;
+  normal = transform.getRotation() * Vec3f(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, 2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 7.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, 1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 2.5));
+  contact.setValue(0, 0, 2.5);
+  depth = 7.5;
+  normal.setValue(0, 0, 1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, 2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 7.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, 1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
+  contact = transform.transform(Vec3f(0, 0, 2.5));
+  depth = 7.5;
+  normal = transform.getRotation() * Vec3f(0, 0, 1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, -2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 7.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -2.5));
+  contact.setValue(0, 0, -2.5);
+  depth = 7.5;
+  normal.setValue(0, 0, -1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, -2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 7.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, -1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, -2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
+  contact = transform.transform(Vec3f(0, 0, -2.5));
+  depth = 7.5;
+  normal = transform.getRotation() * Vec3f(0, 0, -1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, 10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, 10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, -10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, -10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
@@ -1700,167 +1756,199 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
   Cylinder s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
   FCL_REAL depth;
   Vec3f normal;
-  bool res;
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)) || normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(2.5, 0, 0));
+  contact.setValue(2.5, 0, 0);
+  depth = 2.5;
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(2.5, 0, 0))));
-  
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(-2.5, 0, 0)));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
+  contact = transform.transform(Vec3f(2.5, 0, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(-2.5, 0, 0))));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-2.5, 0, 0));
+  contact.setValue(-2.5, 0, 0);
+  depth = 2.5;
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
+  contact = transform.transform(Vec3f(-2.5, 0, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
   hs = Plane(Vec3f(0, 1, 0), 0);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, -1, 0)) || normal.equal(Vec3f(0, 1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, -1, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(0, 1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 2.5, 0));
+  contact.setValue(0, 2.5, 0);
+  depth = 2.5;
+  normal.setValue(0, 1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 2.5, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
+  contact = transform.transform(Vec3f(0, 2.5, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, 1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, -2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, -1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -2.5, 0));
+  contact.setValue(0, -2.5, 0);
+  depth = 2.5;
+  normal.setValue(0, -1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, -2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, -1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, -2.5, 0))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
+  contact = transform.transform(Vec3f(0, -2.5, 0));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, -1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, -5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, -5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
   hs = Plane(Vec3f(0, 0, 1), 0);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)) || normal.equal(Vec3f(0, 0, 1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, -1))) || normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, 1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, 2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, 1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 2.5));
+  contact.setValue(0, 0, 2.5);
+  depth = 2.5;
+  normal.setValue(0, 0, 1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, 2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, 1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
+  contact = transform.transform(Vec3f(0, 0, 2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, 0, 1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, -2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -2.5));
+  contact.setValue(0, 0, -2.5);
+  depth = 2.5;
+  normal.setValue(0, 0, -1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, -2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, -1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, -2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
+  contact = transform.transform(Vec3f(0, 0, -2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, 0, -1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, 10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, 10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, -10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, -10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 
@@ -2087,167 +2175,199 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
   Cone s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
 
+  Transform3f tf1;
+  Transform3f tf2;
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
   Vec3f contact;
   FCL_REAL depth;
   Vec3f normal;
-  bool res;
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)) || normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(2.5, 0, -2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(2.5, 0, 0));
+  contact.setValue(2.5, 0, -2.5);
+  depth = 2.5;
+  normal.setValue(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(2.5, 0, -2.5))));
-  
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(-1, 0, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(-2.5, 0, -2.5)));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(2.5, 0, 0));
+  contact = transform.transform(Vec3f(2.5, 0, -2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(-2.5, 0, -2.5))));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-2.5, 0, 0));
+  contact.setValue(-2.5, 0, -2.5);
+  depth = 2.5;
+  normal.setValue(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-2.5, 0, 0));
+  contact = transform.transform(Vec3f(-2.5, 0, -2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(-5.1, 0, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-5.1, 0, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
   hs = Plane(Vec3f(0, 1, 0), 0);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, -1, 0)) || normal.equal(Vec3f(0, 1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, -1, 0))) || normal.equal(transform.getQuatRotation().transform(Vec3f(0, 1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 2.5, -2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 2.5, 0));
+  contact.setValue(0, 2.5, -2.5);
+  depth = 2.5;
+  normal.setValue(0, 1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 2.5, -2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 2.5, 0));
+  contact = transform.transform(Vec3f(0, 2.5, -2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, 1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, -2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, -1, 0)));
-  BOOST_CHECK(contact.equal(Vec3f(0, -2.5, -2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -2.5, 0));
+  contact.setValue(0, -2.5, -2.5);
+  depth = 2.5;
+  normal.setValue(0, -1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, -2.5, 0)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, -1, 0))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, -2.5, -2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -2.5, 0));
+  contact = transform.transform(Vec3f(0, -2.5, -2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, -1, 0);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, -5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, -5.1, 0)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -5.1, 0));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
   hs = Plane(Vec3f(0, 0, 1), 0);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)) || normal.equal(Vec3f(0, 0, 1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 0)));
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contact.setValue(0, 0, 0);
+  depth = 5;
+  normal.setValue(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform, &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, -1))) || normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, 1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 0))));
+  tf1 = transform;
+  tf2 = transform;
+  contact = transform.transform(Vec3f(0, 0, 0));
+  depth = 5;
+  normal = transform.getRotation() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal, true);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, 2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, 1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 2.5));
+  contact.setValue(0, 0, 2.5);
+  depth = 2.5;
+  normal.setValue(0, 0, 1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, 2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, 1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, 2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 2.5));
+  contact = transform.transform(Vec3f(0, 0, 2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, 0, 1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, -2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(Vec3f(0, 0, -1)));
-  BOOST_CHECK(contact.equal(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -2.5));
+  contact.setValue(0, 0, -2.5);
+  depth = 2.5;
+  normal.setValue(0, 0, -1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, -2.5)), &contact, &depth, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
-  BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(0, 0, -1))));
-  BOOST_CHECK(contact.equal(transform.transform(Vec3f(0, 0, -2.5))));
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -2.5));
+  contact = transform.transform(Vec3f(0, 0, -2.5));
+  depth = 2.5;
+  normal = transform.getRotation() * Vec3f(0, 0, -1);
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, true, &contact, &depth, &normal);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, 10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, 10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(0, 0, -10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  res = solver1.shapeIntersect(s, transform, hs, transform * Transform3f(Vec3f(0, 0, -10.1)), &contact, &depth, &normal);
-  BOOST_CHECK_FALSE(res);
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -10.1));
+  testShapeInersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 
