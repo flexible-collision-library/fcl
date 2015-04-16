@@ -149,6 +149,26 @@ BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_self_distance)
   broad_phase_self_distance_test(200, 5000);
 }
 
+/// check broad phase collision for empty collision object set and quaries
+BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_collision_empty)
+{
+  broad_phase_collision_test(2000, 0, 0, 10, false, false);
+  broad_phase_collision_test(2000, 0, 1000, 10, false, false);
+  broad_phase_collision_test(2000, 100, 0, 10, false, false);
+
+  broad_phase_collision_test(2000, 0, 0, 10, false, true);
+  broad_phase_collision_test(2000, 0, 1000, 10, false, true);
+  broad_phase_collision_test(2000, 100, 0, 10, false, true);
+
+  broad_phase_collision_test(2000, 0, 0, 10, true, false);
+  broad_phase_collision_test(2000, 0, 1000, 10, true, false);
+  broad_phase_collision_test(2000, 100, 0, 10, true, false);
+
+  broad_phase_collision_test(2000, 0, 0, 10, true, true);
+  broad_phase_collision_test(2000, 0, 1000, 10, true, true);
+  broad_phase_collision_test(2000, 100, 0, 10, true, true);
+}
+
 /// check broad phase collision and self collision, only return collision or not
 BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_collision_binary)
 {
