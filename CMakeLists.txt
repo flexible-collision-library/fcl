@@ -6,6 +6,19 @@ if (NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# Set build type variable
+set(FCL_BUILD_TYPE_RELEASE FALSE)
+set(FCL_BUILD_TYPE_DEBUG FALSE)
+
+string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
+if("${CMAKE_BUILD_TYPE_UPPERCASE}" STREQUAL "RELEASE")
+  set(FCL_BUILD_TYPE_RELEASE TRUE)
+elseif("${CMAKE_BUILD_TYPE_UPPERCASE}" STREQUAL "DEBUG")
+  set(FCL_BUILD_TYPE_DEBUG TRUE)
+else()
+  message(STATUS "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} unknown. Valid options are: Debug Release")
+endif()
+
 # This shouldn't be necessary, but there has been trouble
 # with MSVC being set off, but MSVCXX ON.
 if(MSVC OR MSVC90 OR MSVC10)
@@ -92,6 +105,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 if(PKG_CONFIG_FOUND)
   pkg_check_modules(CCD ccd)
@@ -120,15 +134,16 @@ link_directories(${CCD_LIBRARY_DIRS})
 add_subdirectory(include/fcl)
 add_subdirectory(src)
 
-set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc")
-configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
+set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
+set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
+configure_file("${pkg_conf_file_in}" "${pkg_conf_file_out}" @ONLY)
 
 install(DIRECTORY include/ DESTINATION include
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
   PATTERN ".DS_Store" EXCLUDE
 )
 
-install(FILES "${pkg_conf_file}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
+install(FILES "${pkg_conf_file_out}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
 
 
 enable_testing()
