@@ -89,6 +89,8 @@ void SaPCollisionManager::unregisterObject(CollisionObject* obj)
 
 void SaPCollisionManager::registerObjects(const std::vector<CollisionObject*>& other_objs)
 {
+  if(other_objs.empty()) return;
+
   if(size() > 0)
     BroadPhaseCollisionManager::registerObjects(other_objs);
   else
@@ -272,6 +274,8 @@ void SaPCollisionManager::registerObject(CollisionObject* obj)
 
 void SaPCollisionManager::setup()
 {
+  if(size() == 0) return;
+
   FCL_REAL scale[3];
   scale[0] = (velist[0].back())->getVal(0) - velist[0][0]->getVal(0);
   scale[1] = (velist[1].back())->getVal(1) - velist[1][0]->getVal(1);;

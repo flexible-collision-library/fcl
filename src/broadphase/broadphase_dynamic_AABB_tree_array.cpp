@@ -657,6 +657,8 @@ bool distanceRecurse(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* nod
 
 void DynamicAABBTreeCollisionManager_Array::registerObjects(const std::vector<CollisionObject*>& other_objs)
 {
+  if(other_objs.empty()) return;
+
   if(size() > 0)
   {
     BroadPhaseCollisionManager::registerObjects(other_objs);
