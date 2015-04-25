@@ -297,7 +297,8 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  const CollisionGeometry* getCollisionGeometry() const FCL_DEPRECATED
+  FCL_DEPRECATED
+  const CollisionGeometry* getCollisionGeometry() const
   {
     return cgeom.get();
   }
@@ -446,7 +447,8 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  inline const CollisionGeometry* getCollisionGeometry() const FCL_DEPRECATED
+  FCL_DEPRECATED
+  inline const CollisionGeometry* getCollisionGeometry() const
   {
     return cgeom.get();
   }
