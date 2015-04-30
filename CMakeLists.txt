@@ -105,6 +105,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 if(PKG_CONFIG_FOUND)
   pkg_check_modules(CCD ccd)
@@ -133,15 +134,16 @@ link_directories(${CCD_LIBRARY_DIRS})
 add_subdirectory(include/fcl)
 add_subdirectory(src)
 
-set(pkg_conf_file "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc")
-configure_file("${pkg_conf_file}.in" "${pkg_conf_file}" @ONLY)
+set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
+set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
+configure_file("${pkg_conf_file_in}" "${pkg_conf_file_out}" @ONLY)
 
 install(DIRECTORY include/ DESTINATION include
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
   PATTERN ".DS_Store" EXCLUDE
 )
 
-install(FILES "${pkg_conf_file}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
+install(FILES "${pkg_conf_file_out}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
 
 # Add uninstall target
 configure_file(
