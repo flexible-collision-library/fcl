@@ -634,6 +634,8 @@ bool selfDistanceRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root,
 
 void DynamicAABBTreeCollisionManager::registerObjects(const std::vector<CollisionObject*>& other_objs)
 {
+  if(other_objs.empty()) return;
+
   if(size() > 0)
   {
     BroadPhaseCollisionManager::registerObjects(other_objs);
