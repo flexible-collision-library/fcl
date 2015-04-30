@@ -257,13 +257,6 @@ void testShapeInersection(const S1& s1, const Transform3f& tf1,
   if (expected_res)
     compareContact(s1, tf1, s2, tf2, solver_type, contact, expected_point, depth, expected_depth, normal, expected_normal, check_opposite_normal, tol);
 
-  if (s1.getNodeType() == GEOM_HALFSPACE)
-  {
-    std::cout << "Abort test since Halfspace is not allowed to be placed in the first collision geometry in the pair. "
-              << "Please see pull request #53." << std::endl;
-    return;
-  }
-
   request.enable_contact = false;
   result.clear();
   res = (collide(&s1, tf1, &s2, tf2, request, result) > 0);
