@@ -41,14 +41,13 @@
 // variable as deprecated (i.e. it will emit a warning when using it).
 //
 // Tagging a function as deprecated:
-//  void foo () FCL_DEPRECATED;
+//  FCL_DEPRECATED void foo ();
 //
 // Tagging a type as deprecated:
-//  class Foo {};
-//  typedef Foo Bar FCL_DEPRECATED;
+//  FCL_DEPRECATED class Foo {};
 //
 // Tagging a variable as deprecated:
-//  int a FCL_DEPRECATED = 0;
+//  FCL_DEPRECATED int a = 0;
 //
 // The use of a macro is required as this is /not/ a standardized
 // feature of C++ language or preprocessor, even if most of the
