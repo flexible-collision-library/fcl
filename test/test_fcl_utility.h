@@ -183,6 +183,8 @@ bool defaultContinuousCollisionFunction(ContinuousCollisionObject* o1, Continuou
 bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_, FCL_REAL& dist);
 
 
+std::string getNodeTypeName(NODE_TYPE node_type);
+
 }
 
 #endif
