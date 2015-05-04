@@ -1,7 +1,7 @@
-/*********************************************************************
+/*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011, Rice University
+ *  Copyright (c) 2011-2015, Rice University.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************/
+ */
 
 /* Author: Mark Moll */
 
@@ -53,7 +53,7 @@ namespace fcl
 
     See:
     S. Brin, "Near neighbor search in large metric spaces," in Proc. 21st
-    Conf. on Very Large Databases (VLDB), pp. 574¡V584, 1995.
+    Conf. on Very Large Databases (VLDB), pp. 574ï¿½V584, 1995.
 
 */
 template<typename _T>
