@@ -400,4 +400,58 @@ bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, Continuous
   return true;
 }
 
+std::string getNodeTypeName(NODE_TYPE node_type)
+{
+  if (node_type == BV_UNKNOWN)
+    return std::string("BV_UNKNOWN");
+  else if (node_type == BV_AABB)
+    return std::string("BV_AABB");
+  else if (node_type == BV_OBB)
+    return std::string("BV_OBB");
+  else if (node_type == BV_RSS)
+    return std::string("BV_RSS");
+  else if (node_type == BV_kIOS)
+    return std::string("BV_kIOS");
+  else if (node_type == BV_OBBRSS)
+    return std::string("BV_OBBRSS");
+  else if (node_type == BV_KDOP16)
+    return std::string("BV_KDOP16");
+  else if (node_type == BV_KDOP18)
+    return std::string("BV_KDOP18");
+  else if (node_type == BV_KDOP24)
+    return std::string("BV_KDOP24");
+  else if (node_type == GEOM_BOX)
+    return std::string("GEOM_BOX");
+  else if (node_type == GEOM_SPHERE)
+    return std::string("GEOM_SPHERE");
+  else if (node_type == GEOM_CAPSULE)
+    return std::string("GEOM_CAPSULE");
+  else if (node_type == GEOM_CONE)
+    return std::string("GEOM_CONE");
+  else if (node_type == GEOM_CYLINDER)
+    return std::string("GEOM_CYLINDER");
+  else if (node_type == GEOM_CONVEX)
+    return std::string("GEOM_CONVEX");
+  else if (node_type == GEOM_PLANE)
+    return std::string("GEOM_PLANE");
+  else if (node_type == GEOM_HALFSPACE)
+    return std::string("GEOM_HALFSPACE");
+  else if (node_type == GEOM_TRIANGLE)
+    return std::string("GEOM_TRIANGLE");
+  else if (node_type == GEOM_OCTREE)
+    return std::string("GEOM_OCTREE");
+  else
+    return std::string("invalid");
+}
+
+std::string getGJKSolverName(GJKSolverType solver_type)
+{
+  if (solver_type == GST_LIBCCD)
+    return std::string("libccd");
+  else if (solver_type == GST_INDEP)
+    return std::string("built-in");
+  else
+    return std::string("invalid");
+}
+
 }

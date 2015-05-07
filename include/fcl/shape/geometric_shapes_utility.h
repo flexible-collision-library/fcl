@@ -127,8 +127,25 @@ template<>
 void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv);
+void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f& tf, RSS& bv);
 
+template<>
+void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf, OBBRSS& bv);
+
+template<>
+void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS& bv);
+
+template<>
+void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<16>& bv);
+
+template<>
+void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<18>& bv);
+
+template<>
+void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<24>& bv);
+
+template<>
+void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv);
 
 template<>
 void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv);
