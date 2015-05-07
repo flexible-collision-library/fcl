@@ -185,6 +185,8 @@ bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, Continuous
 
 std::string getNodeTypeName(NODE_TYPE node_type);
 
+std::string getGJKSolverName(GJKSolverType solver_type);
+
 }
 
 #endif

@@ -444,4 +444,14 @@ std::string getNodeTypeName(NODE_TYPE node_type)
     return std::string("invalid");
 }
 
+std::string getGJKSolverName(GJKSolverType solver_type)
+{
+  if (solver_type == GST_LIBCCD)
+    return std::string("libccd");
+  else if (solver_type == GST_INDEP)
+    return std::string("built-in");
+  else
+    return std::string("invalid");
+}
+
 }
