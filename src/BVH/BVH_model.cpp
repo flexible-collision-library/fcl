@@ -160,7 +160,7 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
 template<typename BV>
 int BVHModel<BV>::addVertex(const Vec3f& p)
 {
-  if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
+  if(build_state != BVH_BUILD_STATE_BEGUN)
   {
     std::cerr << "BVH Warning! Call addVertex() in a wrong order. addVertex() was ignored. Must do a beginModel() to clear the model for addition of new vertices." << std::endl;
     return BVH_ERR_BUILD_OUT_OF_SEQUENCE;
