@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
-  normal.setValue(1, 0, 0);
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
@@ -451,12 +451,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
 
   tf1 = Transform3f();
   tf2 = Transform3f(q);
-  normal = Transform3f(q).getRotation() * Vec3f(1, 0, 0);
+  normal.setValue(1, 0, 0);
   testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(q);
-  normal = Transform3f(q).getRotation() * Vec3f(1, 0, 0);
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
 
   FCL_UINT32 numTests = 1e+2;
@@ -491,9 +491,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
 
   tf1 = transform;
   tf2 = transform;
-  // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (-0.9985590945508502, 0.02998909000838618, -0.04450156368325561).
-  normal.setValue(-0.9985590945508502, 0.02998909000838618, -0.04450156368325561);
-  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  // TODO: Need convention for normal when the centers of two objects are at same position.
+  testShapeInersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(22.5, 0, 0));
@@ -2809,7 +2808,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
-  normal.setValue(1, 0, 0);
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = Transform3f();
@@ -2823,12 +2822,12 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
 
   tf1 = Transform3f();
   tf2 = Transform3f(q);
-  normal = Transform3f(q).getRotation() * Vec3f(1, 0, 0);
+  normal.setValue(1, 0, 0);
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 
   tf1 = transform;
   tf2 = transform * Transform3f(q);
-  normal = Transform3f(q).getRotation() * Vec3f(1, 0, 0);
+  normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeInersection(s1, tf1, s2, tf2, GST_INDEP, true, NULL, NULL, &normal);
 }
 
@@ -3160,7 +3159,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
   t[0].setValue(20, 0, 0);
   t[1].setValue(0, -20, 0);
   t[2].setValue(0, 20, 0);
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
   BOOST_CHECK(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
@@ -3201,7 +3200,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
   t[0].setValue(20, 0, 0);
   t[1].setValue(-0.1, -20, 0);
   t[2].setValue(-0.1, 20, 0);
-  res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
   BOOST_CHECK(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
