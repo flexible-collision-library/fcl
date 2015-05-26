@@ -1,7 +1,8 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011, Willow Garage, Inc.
+ *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2014-2015, Open Source Robotics Foundation
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -14,7 +15,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Willow Garage, Inc. nor the names of its
+ *   * Neither the name of Open Source Robotics Foundation nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -775,13 +776,13 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   }
 
 
-  /// libccd returns dir and pos in world space and dir is pointing from object 2 to object 1
+  /// libccd returns dir and pos in world space and dir is pointing from object 1 to object 2
   res = ccdMPRPenetration(obj1, obj2, &ccd, &depth, &dir, &pos);
   if(res == 0)
   {
     contact_points->setValue(ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos));
     *penetration_depth = depth;
-    normal->setValue(-ccdVec3X(&dir), -ccdVec3Y(&dir), -ccdVec3Z(&dir));
+    normal->setValue(ccdVec3X(&dir), ccdVec3Y(&dir), ccdVec3Z(&dir));
 
     return true;
   }

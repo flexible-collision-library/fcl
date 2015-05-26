@@ -36,6 +36,7 @@ script:
   # Run unit tests
   - make test
 
-  # Make sure we can install with no issues
+  # Make sure we can install and uninstall with no issues
   - sudo make -j4 install
+  - sudo make -j4 uninstall
 

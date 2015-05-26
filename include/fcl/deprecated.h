@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2013, CNRS-LAAS.
+ *  Copyright (c) 2013-2015, CNRS-LAAS and AIST
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Willow Garage, Inc. nor the names of its
+ *   * Neither the name of CNRS-LAAS and AIST nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -41,14 +41,13 @@
 // variable as deprecated (i.e. it will emit a warning when using it).
 //
 // Tagging a function as deprecated:
-//  void foo () FCL_DEPRECATED;
+//  FCL_DEPRECATED void foo ();
 //
 // Tagging a type as deprecated:
-//  class Foo {};
-//  typedef Foo Bar FCL_DEPRECATED;
+//  FCL_DEPRECATED class Foo {};
 //
 // Tagging a variable as deprecated:
-//  int a FCL_DEPRECATED = 0;
+//  FCL_DEPRECATED int a = 0;
 //
 // The use of a macro is required as this is /not/ a standardized
 // feature of C++ language or preprocessor, even if most of the

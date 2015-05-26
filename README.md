@@ -46,7 +46,7 @@ std::vector<Triangle> triangles;
 // code to set the vertices and triangles
 ...
 // BVHModel is a template class for mesh geometry, for default OBBRSS template is used
-typedef BVHModel<OBBRSS>* Model;
+typedef BVHModel<OBBRSS> Model;
 Model* model = new Model();
 // add the mesh data into the BVHModel structure
 model->beginModel();
