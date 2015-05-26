@@ -1506,20 +1506,12 @@ bool boxBoxIntersect(const Box& s1, const Transform3f& tf1,
 
   if(contact_points)
   {
-    Vec3f contact_point;
-    if (contacts.size()>0) {
+    if(contacts.size() > 0)
+    {
       std::sort(contacts.begin(), contacts.end(), compareContactPoints);
       *contact_points = contacts[0].point;
       if(penetration_depth_) *penetration_depth_ = -contacts[0].depth;
     }
-    // for(size_t i = 0; i < contacts.size(); ++i)
-    // {
-    //   contact_point += contacts[i].point;
-    // }
-
-    // contact_point = contact_point / (FCL_REAL)contacts.size();
-
-    // *contact_points = contact_point;
   }
 
   return return_code != 0;
