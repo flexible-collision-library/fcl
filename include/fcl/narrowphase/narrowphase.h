@@ -257,7 +257,7 @@ bool GJKSolver_libccd::shapeIntersect(const S1& s1, const Transform3f& tf1,
     if (!contacts.empty())
     {
       // Get the deepest contact point
-      const ContactPoint& maxDepthContact = (*std::min_element(contacts.begin(), contacts.end(), &comparePenDepth));
+      const ContactPoint& maxDepthContact = *std::max_element(contacts.begin(), contacts.end(), comparePenDepth);
 
       if (contact_points)
         *contact_points = maxDepthContact.pos;
@@ -830,7 +830,7 @@ bool GJKSolver_indep::shapeIntersect(const S1& s1, const Transform3f& tf1,
     if (!contacts.empty())
     {
       // Get the deepest contact point
-      const ContactPoint& maxDepthContact = (*std::min_element(contacts.begin(), contacts.end(), &comparePenDepth));
+      const ContactPoint& maxDepthContact = *std::max_element(contacts.begin(), contacts.end(), comparePenDepth);
 
       if (contact_points)
         *contact_points = maxDepthContact.pos;

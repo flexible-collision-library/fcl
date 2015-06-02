@@ -75,7 +75,7 @@ struct ContactPoint
   {}
 };
 
-/// @brief Return true if _cp1's penentration depth is greater than _cp2's.
+/// @brief Return true if _cp1's penentration depth is less than _cp2's.
 bool comparePenDepth(const ContactPoint& _cp1, const ContactPoint& _cp2);
 
 /// @brief Contact information returned by collision

@@ -42,7 +42,7 @@ namespace fcl
 
 bool comparePenDepth(const ContactPoint& _cp1, const ContactPoint& _cp2)
 {
-  return (_cp1.penetration_depth > _cp2.penetration_depth);
+  return _cp1.penetration_depth < _cp2.penetration_depth;
 }
 
 bool CollisionRequest::isSatisfied(const CollisionResult& result) const
