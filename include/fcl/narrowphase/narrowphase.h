@@ -61,7 +61,7 @@ struct GJKSolver_libccd
   template<typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1,
                       const S2& s2, const Transform3f& tf2,
-                      std::vector<ContactPoint>* contacts) const
+                      std::vector<ContactPoint>* contacts = NULL) const
   {
     void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
     void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);
@@ -96,7 +96,7 @@ struct GJKSolver_libccd
   /// @brief intersection checking between one shape and a triangle
   template<typename S>
   bool shapeTriangleIntersect(const S& s, const Transform3f& tf,
-                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL) const
   {
     void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf);
     void* o2 = details::triCreateGJKObject(P1, P2, P3);
@@ -116,7 +116,7 @@ struct GJKSolver_libccd
   template<typename S>
   bool shapeTriangleIntersect(const S& s, const Transform3f& tf1,
                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                              Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                              Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL) const
   {
     void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf1);
     void* o2 = details::triCreateGJKObject(P1, P2, P3, tf2);
@@ -137,7 +137,7 @@ struct GJKSolver_libccd
   template<typename S1, typename S2>
   bool shapeDistance(const S1& s1, const Transform3f& tf1,
                      const S2& s2, const Transform3f& tf2,
-                     FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
+                     FCL_REAL* dist = NULL, Vec3f* p1 = NULL, Vec3f* p2 = NULL) const
   {
     void* o1 = details::GJKInitializer<S1>::createGJKObject(s1, tf1);
     void* o2 = details::GJKInitializer<S2>::createGJKObject(s2, tf2);
@@ -156,20 +156,12 @@ struct GJKSolver_libccd
     return res;
   }
 
-  template<typename S1, typename S2>
-  bool shapeDistance(const S1& s1, const Transform3f& tf1,
-                     const S2& s2, const Transform3f& tf2,
-                     FCL_REAL* dist) const
-  {
-    return shapeDistance(s1, tf1, s2, tf2, dist, NULL, NULL);
-  }
-
 
   /// @brief distance computation between one shape and a triangle
   template<typename S>
   bool shapeTriangleDistance(const S& s, const Transform3f& tf,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
-                             FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
+                             FCL_REAL* dist = NULL, Vec3f* p1 = NULL, Vec3f* p2 = NULL) const
   {
     void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf);
     void* o2 = details::triCreateGJKObject(P1, P2, P3);
@@ -185,20 +177,12 @@ struct GJKSolver_libccd
 
     return res;
   }
-
-  template<typename S>
-  bool shapeTriangleDistance(const S& s, const Transform3f& tf,
-                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
-                             FCL_REAL* dist)
-  {
-    return shapeTriangleDistance(s, tf, P1, P2, P3, dist, NULL, NULL);
-  }
   
   /// @brief distance computation between one shape and a triangle with transformation
   template<typename S>
   bool shapeTriangleDistance(const S& s, const Transform3f& tf1,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                             FCL_REAL* dist, Vec3f* p1, Vec3f* p2) const
+                             FCL_REAL* dist = NULL, Vec3f* p1 = NULL, Vec3f* p2 = NULL) const
   {
     void* o1 = details::GJKInitializer<S>::createGJKObject(s, tf1);
     void* o2 = details::triCreateGJKObject(P1, P2, P3, tf2);
@@ -216,14 +200,6 @@ struct GJKSolver_libccd
     return res;
   }
 
-  template<typename S>
-  bool shapeTriangleDistance(const S& s, const Transform3f& tf1,
-                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                             FCL_REAL* dist) const
-  {
-    return shapeTriangleDistance(s, tf1, P1, P2, P3, tf2, dist, NULL, NULL);
-  }
-  
   /// @brief default setting for GJK algorithm
   GJKSolver_libccd()
   {
@@ -513,7 +489,7 @@ struct GJKSolver_indep
   template<typename S1, typename S2>
   bool shapeIntersect(const S1& s1, const Transform3f& tf1,
                       const S2& s2, const Transform3f& tf2,
-                      std::vector<ContactPoint>* contacts) const
+                      std::vector<ContactPoint>* contacts = NULL) const
   {
     Vec3f guess(1, 0, 0);
     if(enable_cached_guess) guess = cached_guess;
@@ -564,7 +540,7 @@ struct GJKSolver_indep
   template<typename S>
   bool shapeTriangleIntersect(const S& s, const Transform3f& tf,
                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                              Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                              Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL) const
   {
     TriangleP tri(P1, P2, P3);
     
@@ -613,7 +589,7 @@ struct GJKSolver_indep
   template<typename S>
   bool shapeTriangleIntersect(const S& s, const Transform3f& tf1,
                               const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                              Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal) const
+                              Vec3f* contact_points = NULL, FCL_REAL* penetration_depth = NULL, Vec3f* normal = NULL) const
   {
     TriangleP tri(P1, P2, P3);
 
@@ -662,7 +638,7 @@ struct GJKSolver_indep
   template<typename S1, typename S2>
   bool shapeDistance(const S1& s1, const Transform3f& tf1,
                      const S2& s2, const Transform3f& tf2,
-                     FCL_REAL* distance, Vec3f* p1, Vec3f* p2) const
+                     FCL_REAL* distance = NULL, Vec3f* p1 = NULL, Vec3f* p2 = NULL) const
   {
     Vec3f guess(1, 0, 0);
     if(enable_cached_guess) guess = cached_guess;
@@ -701,19 +677,11 @@ struct GJKSolver_indep
     }
   }
 
-  template<typename S1, typename S2>
-  bool shapeDistance(const S1& s1, const Transform3f& tf1,
-                     const S2& s2, const Transform3f& tf2,
-                     FCL_REAL* distance) const
-  {
-    return shapeDistance(s1, tf1, s2, tf2, distance, NULL, NULL);
-  }
-
   /// @brief distance computation between one shape and a triangle
   template<typename S>
   bool shapeTriangleDistance(const S& s, const Transform3f& tf,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                             FCL_REAL* distance, Vec3f* p1, Vec3f* p2) const
+                             FCL_REAL* distance = NULL, Vec3f* p1 = NULL, Vec3f* p2 = NULL) const
   {
     TriangleP tri(P1, P2, P3);
     Vec3f guess(1, 0, 0);
@@ -750,20 +718,12 @@ struct GJKSolver_indep
       return false;
     }
   }
-
-  template<typename S>
-  bool shapeTriangleDistance(const S& s, const Transform3f& tf,
-                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                             FCL_REAL* distance) const
-  {
-    return shapeTriangleDistance(s, tf, P1, P2, P3, distance, NULL, NULL);
-  }
   
   /// @brief distance computation between one shape and a triangle with transformation
   template<typename S>
   bool shapeTriangleDistance(const S& s, const Transform3f& tf1,
                              const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                             FCL_REAL* distance, Vec3f* p1, Vec3f* p2) const
+                             FCL_REAL* distance = NULL, Vec3f* p1 = NULL, Vec3f* p2 = NULL) const
   {
     TriangleP tri(P1, P2, P3);
     Vec3f guess(1, 0, 0);
@@ -799,14 +759,6 @@ struct GJKSolver_indep
       if(distance) *distance = -1;
       return false;
     }
-  }
-
-  template<typename S>
-  bool shapeTriangleDistance(const S& s, const Transform3f& tf1,
-                             const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf2,
-                             FCL_REAL* distance) const
-  {
-    return shapeTriangleDistance(s, tf1, P1, P2, P3, tf2, distance, NULL, NULL);
   }
   
   /// @brief default setting for GJK algorithm
