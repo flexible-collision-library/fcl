@@ -39,6 +39,7 @@
 #include "fcl/BV/BV.h"
 #include <iostream>
 #include <string.h>
+#include <new>
 
 namespace fcl
 {
@@ -132,7 +133,7 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
 
   if(num_tris_ > 0)
   {
-    tri_indices = new Triangle[num_tris_allocated];
+    tri_indices = new(std::nothrow) Triangle[num_tris_allocated];
     if(!tri_indices)
     {
       std::cerr << "BVH Error! Out of memory for tri_indices array on BeginModel() call!" << std::endl;
@@ -140,7 +141,7 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
     }
   }
 
-  vertices = new Vec3f[num_vertices_allocated];
+  vertices = new(std::nothrow) Vec3f[num_vertices_allocated];
   if(!vertices)
   {
     std::cerr << "BVH Error! Out of memory for vertices array on BeginModel() call!" << std::endl;
@@ -171,7 +172,7 @@ int BVHModel<BV>::addVertex(const Vec3f& p)
 
   if(num_vertices >= num_vertices_allocated)
   {
-    Vec3f* temp = new Vec3f[num_vertices_allocated * 2];
+    Vec3f* temp = new(std::nothrow) Vec3f[num_vertices_allocated * 2];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addVertex() call!" << std::endl;
@@ -201,7 +202,7 @@ int BVHModel<BV>::addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
 
   if(num_vertices + 2 >= num_vertices_allocated)
   {
-    Vec3f* temp = new Vec3f[num_vertices_allocated * 2 + 2];
+    Vec3f* temp = new(std::nothrow) Vec3f[num_vertices_allocated * 2 + 2];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addTriangle() call!" << std::endl;
@@ -261,7 +262,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps)
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
-    Vec3f* temp = new Vec3f[num_vertices_allocated * 2 + num_vertices_to_add - 1];
+    Vec3f* temp = new(std::nothrow) Vec3f[num_vertices_allocated * 2 + num_vertices_to_add - 1];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!" << std::endl;
@@ -296,7 +297,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
-    Vec3f* temp = new Vec3f[num_vertices_allocated * 2 + num_vertices_to_add - 1];
+    Vec3f* temp = new(std::nothrow) Vec3f[num_vertices_allocated * 2 + num_vertices_to_add - 1];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!" << std::endl;
@@ -326,7 +327,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vec3f>& ps, const std::vector<Tr
     {
       num_tris_allocated = 1;
     }
-    Triangle* temp = new Triangle[num_tris_allocated * 2 + num_tris_to_add - 1];
+    Triangle* temp = new(std::nothrow) Triangle[num_tris_allocated * 2 + num_tris_to_add - 1];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for tri_indices array on addSubModel() call!" << std::endl;
@@ -366,7 +367,7 @@ int BVHModel<BV>::endModel()
 
   if(num_tris_allocated > num_tris)
   {
-    Triangle* new_tris = new Triangle[num_tris];
+    Triangle* new_tris = new(std::nothrow) Triangle[num_tris];
     if(!new_tris)
     {
       std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!" << std::endl;
@@ -380,7 +381,7 @@ int BVHModel<BV>::endModel()
 
   if(num_vertices_allocated > num_vertices)
   {
-    Vec3f* new_vertices = new Vec3f[num_vertices];
+    Vec3f* new_vertices = new(std::nothrow) Vec3f[num_vertices];
     if(!new_vertices)
     {
       std::cerr << "BVH Error! Out of memory for vertices array in endModel() call!" << std::endl;
@@ -401,8 +402,8 @@ int BVHModel<BV>::endModel()
     num_bvs_to_be_allocated = 2 * num_tris - 1;
 
 
-  bvs = new BVNode<BV> [num_bvs_to_be_allocated];
-  primitive_indices = new unsigned int [num_bvs_to_be_allocated];
+  bvs = new(std::nothrow) BVNode<BV> [num_bvs_to_be_allocated];
+  primitive_indices = new(std::nothrow) unsigned int [num_bvs_to_be_allocated];
   if(!bvs || !primitive_indices)
   {
     std::cerr << "BVH Error! Out of memory for BV array in endModel()!" << std::endl;
