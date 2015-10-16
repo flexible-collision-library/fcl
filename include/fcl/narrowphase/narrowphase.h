@@ -519,7 +519,7 @@ struct GJKSolver_indep
           }
           if(contacts)
           {
-            Vec3f normal = -epa.normal;
+            Vec3f normal = epa.normal;
             Vec3f point = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
             FCL_REAL depth = -epa.depth;
             contacts->push_back(ContactPoint(normal, point, depth));

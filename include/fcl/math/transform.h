@@ -172,6 +172,12 @@ Quaternion3f conj(const Quaternion3f& q);
 /// @brief inverse of quaternion
 Quaternion3f inverse(const Quaternion3f& q);
 
+static inline std::ostream& operator << (std::ostream& o, const Quaternion3f& q)
+{
+  o << "(" << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << ")";
+  return o;
+}
+
 
 /// @brief Simple transform class used locally by InterpMotion
 class Transform3f

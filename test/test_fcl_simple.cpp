@@ -19,7 +19,7 @@ static FCL_REAL epsilon = 1e-6;
 
 static bool approx(FCL_REAL x, FCL_REAL y)
 {
-  return abs(x - y) < epsilon;
+  return std::abs(x - y) < epsilon;
 }
 
 

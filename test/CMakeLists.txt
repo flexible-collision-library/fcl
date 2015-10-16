@@ -36,6 +36,7 @@ add_fcl_test(test_fcl_simple test_fcl_simple.cpp)
 add_fcl_test(test_fcl_capsule_box_1 test_fcl_capsule_box_1.cpp)
 add_fcl_test(test_fcl_capsule_box_2 test_fcl_capsule_box_2.cpp)
 #add_fcl_test(test_fcl_global_penetration test_fcl_global_penetration.cpp libsvm/svm.cpp test_fcl_utility.cpp)
+add_fcl_test(test_fcl_bvh_models test_fcl_bvh_models.cpp test_fcl_utility.cpp)
 
 if (FCL_HAVE_OCTOMAP)
   add_fcl_test(test_fcl_octomap test_fcl_octomap.cpp test_fcl_utility.cpp)
