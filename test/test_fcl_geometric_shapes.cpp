@@ -44,6 +44,7 @@
 #include "test_fcl_utility.h"
 #include "fcl/ccd/motion.h"
 #include <iostream>
+#include <limits>
 
 using namespace fcl;
 
@@ -224,11 +225,28 @@ bool inspectContactPoints(const S1& s1, const Transform3f& tf1,
   BOOST_CHECK(sameNumContacts);
   if (!sameNumContacts)
   {
-    std::cout << "[compareContacts] The numbers of expected contacts '"
+    std::cout << "\n"
+              << "===== [ geometric shape collision test failure report ] ======\n"
+              << "\n"
+              << "Solver type: " << getGJKSolverName(solver_type) << "\n"
+              << "\n"
+              << "[ Shape 1 ]\n"
+              << "Shape type     : " << getNodeTypeName(s1.getNodeType()) << "\n"
+              << "tf1.quaternion : " << tf1.getQuatRotation() << "\n"
+              << "tf1.translation: " << tf1.getTranslation() << "\n"
+              << "\n"
+              << "[ Shape 2 ]\n"
+              << "Shape type     : " << getNodeTypeName(s2.getNodeType()) << "\n"
+              << "tf2.quaternion : " << tf2.getQuatRotation() << "\n"
+              << "tf2.translation: " << tf2.getTranslation() << "\n"
+              << "\n"
+              << "The numbers of expected contacts '"
               << expected_contacts.size()
               << "' and the number of actual contacts '"
               << actual_contacts.size()
-              << "' are not equal.\n";
+              << "' are not equal.\n"
+              << "\n";
+    return false;
   }
 
   // Check if actual contacts and expected contacts are matched
@@ -262,6 +280,7 @@ bool inspectContactPoints(const S1& s1, const Transform3f& tf1,
       {
         index_to_actual_contacts[i] = j;
         index_to_expected_contacts[j] = i;
+        break;
       }
     }
 
@@ -271,7 +290,8 @@ bool inspectContactPoints(const S1& s1, const Transform3f& tf1,
 
   if (!foundAll)
   {
-    std::cout << "===== [geometric shape collision test fail report] ======\n"
+    std::cout << "\n"
+              << "===== [ geometric shape collision test failure report ] ======\n"
               << "\n"
               << "Solver type: " << getGJKSolverName(solver_type) << "\n"
               << "\n"
@@ -366,6 +386,7 @@ void testShapeIntersection(
 {
   CollisionRequest request;
   request.gjk_solver_type = solver_type;
+  request.num_max_contacts = std::numeric_limits<size_t>::max();
   CollisionResult result;
 
   std::vector<ContactPoint> actual_contacts;
@@ -542,9 +563,14 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-bool compareContactPoints(const Vec3f& c1,const Vec3f& c2)
+bool compareContactPoints1(const Vec3f& c1,const Vec3f& c2)
 {
   return c1[2] < c2[2];
+} // Ascending order
+
+bool compareContactPoints2(const ContactPoint& cp1,const ContactPoint& cp2)
+{
+  return cp1.pos[2] < cp2.pos[2];
 } // Ascending order
 
 void testBoxBoxContactPoints(const Matrix3f& R)
@@ -575,17 +601,28 @@ void testBoxBoxContactPoints(const Matrix3f& R)
 
   std::vector<ContactPoint> contacts;
 
+  // Make sure the two boxes are colliding
+  bool res = solver1.shapeIntersect(s1, tf1, s2, tf2, &contacts);
+  BOOST_CHECK(res);
+
   // Compute global vertices
   for (int i = 0; i < 8; ++i)
     vertices[i] = tf2.transform(vertices[i]);
 
   // Sort the vertices so that the lowest vertex along z-axis comes first
-  std::sort(vertices.begin(), vertices.end(), compareContactPoints);
+  std::sort(vertices.begin(), vertices.end(), compareContactPoints1);
+  std::sort(contacts.begin(), contacts.end(), compareContactPoints2);
 
-  // The lowest vertex along z-axis should be the contact point
-  contacts.resize(1);
-  contacts[0].pos = vertices[0];
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, true, false, false);
+  // The lowest n vertex along z-axis should be the contact point
+  size_t numContacts = contacts.size();
+  numContacts = std::min(static_cast<size_t>(1), numContacts);
+  // TODO: BoxBox algorithm seems not able to find all the colliding vertices.
+  // We just check the deepest one as workaround.
+  for (size_t i = 0; i < numContacts; ++i)
+  {
+    BOOST_CHECK(vertices[i].equal(contacts[i].pos));
+    BOOST_CHECK(Vec3f(0, 0, 1).equal(contacts[i].normal));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
@@ -599,9 +636,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
-  Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
   Quaternion3f q;
   q.fromAxisAngle(Vec3f(0, 0, 1), (FCL_REAL)3.140 / 6);
@@ -609,19 +644,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(4);
+  contacts[0].normal.setValue(1, 0, 0);
+  contacts[1].normal.setValue(1, 0, 0);
+  contacts[2].normal.setValue(1, 0, 0);
+  contacts[3].normal.setValue(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(4);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[1].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[2].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[3].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15, 0, 0));
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(4);
+  contacts[0].normal = Vec3f(1, 0, 0);
+  contacts[1].normal = Vec3f(1, 0, 0);
+  contacts[2].normal = Vec3f(1, 0, 0);
+  contacts[3].normal = Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(15.01, 0, 0));
@@ -629,13 +676,21 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
 
   tf1 = Transform3f();
   tf2 = Transform3f(q);
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(4);
+  contacts[0].normal = Vec3f(1, 0, 0);
+  contacts[1].normal = Vec3f(1, 0, 0);
+  contacts[2].normal = Vec3f(1, 0, 0);
+  contacts[3].normal = Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(q);
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(4);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[1].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[2].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[3].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   FCL_UINT32 numTests = 1e+2;
   for (FCL_UINT32 i = 0; i < numTests; ++i)
