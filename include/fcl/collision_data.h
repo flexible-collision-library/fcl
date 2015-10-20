@@ -69,6 +69,9 @@ struct ContactPoint
   FCL_REAL penetration_depth;
 
   /// @brief Constructor
+  ContactPoint() : normal(Vec3f()), pos(Vec3f()), penetration_depth(0.0) {}
+
+  /// @brief Constructor
   ContactPoint(const Vec3f& n_, const Vec3f& p_, FCL_REAL d_) : normal(n_),
                                                                 pos(p_),
                                                                 penetration_depth(d_)
