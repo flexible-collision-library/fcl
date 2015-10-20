@@ -1236,7 +1236,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
 
     // Vec3f pointInWorld((pa + pb) * 0.5);
     // contacts.push_back(ContactPoint(-normal, pointInWorld, -*depth));
-    contacts.push_back(ContactPoint(-normal,pb,-*depth));
+    contacts.push_back(ContactPoint(normal,pb,-*depth));
     *return_code = code;
 
     return 1;
@@ -1421,7 +1421,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
       for(int j = 0; j < cnum; ++j)
       {
         Vec3f pointInWorld = points[j] + (*pa);
-        contacts.push_back(ContactPoint(-normal, pointInWorld, -dep[j]));
+        contacts.push_back(ContactPoint(normal, pointInWorld, -dep[j]));
       }
     }
     else
@@ -1430,7 +1430,7 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
       for(int j = 0; j < cnum; ++j)
       {
         Vec3f pointInWorld = points[j] + (*pa) - normal * dep[j];
-        contacts.push_back(ContactPoint(-normal, pointInWorld, -dep[j]));
+        contacts.push_back(ContactPoint(normal, pointInWorld, -dep[j]));
       }
     }
   }
@@ -1456,9 +1456,9 @@ int boxBox2(const Vec3f& side1, const Matrix3f& R1, const Vec3f& T1,
     {
       Vec3f posInWorld = points[iret[j]] + (*pa);
       if(code < 4)
-        contacts.push_back(ContactPoint(-normal, posInWorld, -dep[iret[j]]));
+        contacts.push_back(ContactPoint(normal, posInWorld, -dep[iret[j]]));
       else
-        contacts.push_back(ContactPoint(-normal, posInWorld - normal * dep[iret[j]], -dep[iret[j]]));
+        contacts.push_back(ContactPoint(normal, posInWorld - normal * dep[iret[j]], -dep[iret[j]]));
     }
     cnum = maxc;
   }
