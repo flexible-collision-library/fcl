@@ -369,6 +369,7 @@ void testShapeIntersection(const S1& s1, const Transform3f& tf1,
                            FCL_REAL tol = 1e-9)
 {
   // do nothing
+  BOOST_CHECK(false);
 }
 
 template <typename S1, typename S2>
@@ -712,20 +713,20 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
-  Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (-1, 0, 0).
-  normal.setValue(-1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(-1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(22.5, 0, 0));
@@ -737,13 +738,15 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(22.4, 0, 0));
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(22.4, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
@@ -757,48 +760,50 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
-  Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(24.9, 0, 0));
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(24.9, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(25, 0, 0));
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(25, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(25.1, 0, 0));
-  normal.setValue(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(25.1, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -813,29 +818,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
-  Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.01, 0, 0));
@@ -857,29 +864,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
-  Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.001, 0, 0));
@@ -891,13 +900,15 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 9.9));
-  normal.setValue(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(0, 0, 1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
-  normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_conecylinder)
@@ -911,29 +922,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecylinder)
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
-  // FCL_REAL depth;
-  Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
   tf1 = Transform3f();
   tf2 = Transform3f();
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position.
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, NULL);
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(9.9, 0, 0));
-  normal.setValue(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal, false, 0.061);
+  contacts.resize(1);
+  contacts[0].normal.setValue(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 0.061);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
-  normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal, false, 0.46);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 0.46);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.01, 0, 0));
@@ -945,13 +958,15 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecylinder)
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 9.9));
-  normal.setValue(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal.setValue(0, 0, 1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
-  normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, NULL, NULL, &normal);
+  contacts.resize(1);
+  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.01));
