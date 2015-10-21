@@ -782,7 +782,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   tf2 = transform * Transform3f(Vec3f(22.4, 0, 0));
   contacts.resize(1);
   contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
@@ -878,7 +878,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   contacts.resize(1);
   contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.01, 0, 0));
@@ -924,7 +924,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   contacts.resize(1);
   contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(10.001, 0, 0));
@@ -944,7 +944,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   contacts.resize(1);
   contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercone)
@@ -1002,7 +1002,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercone)
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   contacts.resize(1);
   contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(0, 0, 10.01));
@@ -1477,7 +1477,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
   contacts[0].pos.setValue(0, 0, 0);
   contacts[0].penetration_depth = 2.5;
   contacts[0].normal.setValue(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = transform;
   tf2 = transform;
@@ -1485,7 +1485,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 2.5;
   contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
-  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
   tf2 = Transform3f(Vec3f(1.25, 0, 0));
