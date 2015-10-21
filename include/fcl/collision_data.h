@@ -56,6 +56,31 @@ namespace fcl
 /// @brief Type of narrow phase GJK solver
 enum GJKSolverType {GST_LIBCCD, GST_INDEP};
 
+/// @brief Minimal contact information returned by collision
+struct ContactPoint
+{
+  /// @brief Contact normal, pointing from o1 to o2
+  Vec3f normal;
+
+  /// @brief Contact position, in world space
+  Vec3f pos;
+
+  /// @brief Penetration depth
+  FCL_REAL penetration_depth;
+
+  /// @brief Constructor
+  ContactPoint() : normal(Vec3f()), pos(Vec3f()), penetration_depth(0.0) {}
+
+  /// @brief Constructor
+  ContactPoint(const Vec3f& n_, const Vec3f& p_, FCL_REAL d_) : normal(n_),
+                                                                pos(p_),
+                                                                penetration_depth(d_)
+  {}
+};
+
+/// @brief Return true if _cp1's penentration depth is less than _cp2's.
+bool comparePenDepth(const ContactPoint& _cp1, const ContactPoint& _cp2);
+
 /// @brief Contact information returned by collision
 struct Contact
 {
