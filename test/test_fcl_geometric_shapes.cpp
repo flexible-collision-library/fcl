@@ -357,22 +357,6 @@ void getContactPointsFromResult(std::vector<ContactPoint>& contacts, const Colli
 }
 
 template <typename S1, typename S2>
-FCL_DEPRECATED
-void testShapeIntersection(const S1& s1, const Transform3f& tf1,
-                           const S2& s2, const Transform3f& tf2,
-                           GJKSolverType solver_type,
-                           bool expected_res,
-                           Vec3f* expected_point,
-                           FCL_REAL* expected_depth,
-                           Vec3f* expected_normal,
-                           bool check_opposite_normal = false,
-                           FCL_REAL tol = 1e-9)
-{
-  // do nothing
-  BOOST_CHECK(false);
-}
-
-template <typename S1, typename S2>
 void testShapeIntersection(
     const S1& s1, const Transform3f& tf1,
     const S2& s2, const Transform3f& tf2,
