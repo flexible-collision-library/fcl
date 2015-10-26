@@ -4327,8 +4327,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
 
 
   t[0].setValue(20, 0, 0);
-  t[1].setValue(0, -20, 0);
-  t[2].setValue(0, 20, 0);
+  t[1].setValue(-0.1, -20, 0);
+  t[2].setValue(-0.1, 20, 0);
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
   BOOST_CHECK(res);
 
