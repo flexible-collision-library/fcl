@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(OBB_Box_test)
     GJKSolver_libccd solver;
 
     bool overlap_obb = obb1.overlap(obb2);
-    bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, NULL, NULL, NULL);
+    bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, NULL);
     
     BOOST_CHECK(overlap_obb == overlap_box);
   }
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test)
       computeBV(sphere, transforms[i], obb2);
  
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_sphere = solver.shapeIntersect(box1, box1_tf, sphere, transforms[i], NULL, NULL, NULL);
+      bool overlap_sphere = solver.shapeIntersect(box1, box1_tf, sphere, transforms[i], NULL);
       BOOST_CHECK(overlap_obb >= overlap_sphere);
     }
 
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test)
       computeBV(capsule, transforms[i], obb2);
       
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_capsule = solver.shapeIntersect(box1, box1_tf, capsule, transforms[i], NULL, NULL, NULL);
+      bool overlap_capsule = solver.shapeIntersect(box1, box1_tf, capsule, transforms[i], NULL);
       BOOST_CHECK(overlap_obb >= overlap_capsule);
     }
 
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test)
       computeBV(cone, transforms[i], obb2);
       
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_cone = solver.shapeIntersect(box1, box1_tf, cone, transforms[i], NULL, NULL, NULL);
+      bool overlap_cone = solver.shapeIntersect(box1, box1_tf, cone, transforms[i], NULL);
       BOOST_CHECK(overlap_obb >= overlap_cone);
     }
 
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test)
       computeBV(cylinder, transforms[i], obb2);
       
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_cylinder = solver.shapeIntersect(box1, box1_tf, cylinder, transforms[i], NULL, NULL, NULL);
+      bool overlap_cylinder = solver.shapeIntersect(box1, box1_tf, cylinder, transforms[i], NULL);
       BOOST_CHECK(overlap_obb >= overlap_cylinder);
     }
   }

@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_z)
 	Capsule capsule (50, 200.);
 	Transform3f capsule_transform (Vec3f (0., 0., 200));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+  BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_z_negative)
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_z_negative)
 	Capsule capsule (50, 200.);
 	Transform3f capsule_transform (Vec3f (0., 0., -200));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+  BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_x)
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_x)
 	Capsule capsule (50, 200.);
 	Transform3f capsule_transform (Vec3f (150., 0., 0.));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+  BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_capsule_rotated)
@@ -103,30 +103,32 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_capsule_rotated)
 	rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
 	Transform3f capsule_transform (rotation, Vec3f (150., 0., 0.));
 
-	BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL, NULL, NULL));
+  BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
-	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., -50));
+  Sphere sphere1 (50);
+  Transform3f sphere1_transform;
+  sphere1_transform.setTranslation (Vec3f (0., 0., -50));
 
-	Capsule capsule (50, 200.);
-	Transform3f capsule_transform (Vec3f (0., 0., 125));
+  Capsule capsule (50, 200.);
+  Transform3f capsule_transform (Vec3f (0., 0., 125));
 
-	FCL_REAL penetration = 0.;
-	Vec3f contact_point;
-	Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
-	bool is_intersecting = solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, &contact_point, &penetration, &normal);
+  bool is_intersecting = solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, &contacts);
 
-	BOOST_CHECK (is_intersecting);
-	BOOST_CHECK (penetration == 25.);
-	BOOST_CHECK (Vec3f (0., 0., 1.).equal(normal));
-	BOOST_CHECK (Vec3f (0., 0., 0.).equal(contact_point));
+  FCL_REAL penetration = contacts[0].penetration_depth;
+  Vec3f contact_point = contacts[0].pos;
+  Vec3f normal = contacts[0].normal;
+
+  BOOST_CHECK (is_intersecting);
+  BOOST_CHECK (penetration == 25.);
+  BOOST_CHECK (Vec3f (0., 0., 1.).equal(normal));
+  BOOST_CHECK (Vec3f (0., 0., 0.).equal(contact_point));
 }
 
 BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z_rotated)
@@ -142,11 +144,13 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z_rotated)
 	rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
 	Transform3f capsule_transform (rotation, Vec3f (0., 50., 75));
 
-	FCL_REAL penetration = 0.;
-	Vec3f contact_point;
-	Vec3f normal;
+  std::vector<ContactPoint> contacts;
 
-	bool is_intersecting = solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, &contact_point, &penetration, &normal);
+  bool is_intersecting = solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, &contacts);
+
+  FCL_REAL penetration = contacts[0].penetration_depth;
+  Vec3f contact_point = contacts[0].pos;
+  Vec3f normal = contacts[0].normal;
 
 	BOOST_CHECK (is_intersecting);
 	BOOST_CHECK_CLOSE (25, penetration, solver.collision_tolerance);

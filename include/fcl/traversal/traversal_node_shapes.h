@@ -39,6 +39,8 @@
 #ifndef FCL_TRAVERSAL_NODE_SHAPES_H
 #define FCL_TRAVERSAL_NODE_SHAPES_H
 
+#include <algorithm>
+
 #include "fcl/collision_data.h"
 #include "fcl/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/narrowphase.h"
@@ -49,7 +51,6 @@
 
 namespace fcl
 {
-
 
 /// @brief Traversal node for collision between two shapes
 template<typename S1, typename S2, typename NarrowPhaseSolver>
@@ -78,18 +79,34 @@ public:
       bool is_collision = false;
       if(request.enable_contact)
       {
-        Vec3f contact_point, normal;
-        FCL_REAL penetration_depth;
-        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contact_point, &penetration_depth, &normal))
+        std::vector<ContactPoint> contacts;
+        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contacts))
         {
           is_collision = true;
           if(request.num_max_contacts > result->numContacts())
-            result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contact_point, normal, penetration_depth));
+          {
+            const size_t free_space = request.num_max_contacts - result->numContacts();
+            size_t num_adding_contacts;
+
+            // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
+            if (free_space < contacts.size())
+            {
+              std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), boost::bind(comparePenDepth, _2, _1));
+              num_adding_contacts = free_space;
+            }
+            else
+            {
+              num_adding_contacts = contacts.size();
+            }
+
+            for(size_t i = 0; i < num_adding_contacts; ++i)
+              result->addContact(Contact(model1, model2, Contact::NONE, Contact::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+          }
         }
       }
       else
       {
-        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
+        if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL))
         {
           is_collision = true;
           if(request.num_max_contacts > result->numContacts())
@@ -109,7 +126,7 @@ public:
     }
     else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
     {
-      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL, NULL, NULL))
+      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL))
       {
         AABB aabb1, aabb2;
         computeBV<AABB, S1>(*model1, tf1, aabb1);
