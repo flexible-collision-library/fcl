@@ -55,6 +55,18 @@ GJKSolver_indep solver2;
 
 #define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
 
+BOOST_AUTO_TEST_CASE(sphere_shape)
+{
+  const double tol = 1e-12;
+  const double radius = 5.0;
+  const double pi = boost::math::constants::pi<FCL_REAL>();
+
+  Sphere s(radius);
+
+  const double volume = 4.0 / 3.0 * pi * radius * radius * radius;
+  BOOST_CHECK_CLOSE(volume, s.computeVolume(), tol);
+}
+
 BOOST_AUTO_TEST_CASE(gjkcache)
 {
   Cylinder s1(5, 10);
@@ -445,6 +457,30 @@ void testShapeIntersection(
                                      tol));
   }
 }
+
+// Shape intersection test coverage (libccd)
+//
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |   O    |           |         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |         |      |          |   O   |      O     |    O     |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|     O     |         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|  O   |    O     |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|    O     |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
 {
@@ -961,6 +997,75 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
+BOOST_AUTO_TEST_CASE(shapeIntersection_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
+
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+  Transform3f identity;
+
+  std::vector<ContactPoint> contacts;
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(40, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(40, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(30, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(30.01, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(29.99, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(29.9, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-29.99, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-29.99, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-30, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-30.01, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
+}
+
 BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle)
 {
   Sphere s(10);
@@ -1418,6 +1523,462 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
   tf2 = Transform3f();
   contacts.resize(1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
+}
+
+BOOST_AUTO_TEST_CASE(shapeIntersection_halfspaceellipsoid)
+{
+  Ellipsoid s(5, 10, 20);
+  Halfspace hs(Vec3f(1, 0, 0), 0);
+
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  std::vector<ContactPoint> contacts;
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  contacts[0].pos.setValue(-2.5, 0, 0);
+  contacts[0].penetration_depth = 5.0;
+  contacts[0].normal.setValue(-1, 0, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(-2.5, 0, 0));
+  contacts[0].penetration_depth = 5.0;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(-1.875, 0, 0);
+  contacts[0].penetration_depth = 6.25;
+  contacts[0].normal.setValue(-1, 0, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(-1.875, 0, 0));
+  contacts[0].penetration_depth = 6.25;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(-3.125, 0, 0);
+  contacts[0].penetration_depth = 3.75;
+  contacts[0].normal.setValue(-1, 0, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(-3.125, 0, 0));
+  contacts[0].penetration_depth = 3.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(5.01, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0.005, 0, 0);
+  contacts[0].penetration_depth = 10.01;
+  contacts[0].normal.setValue(-1, 0, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(5.01, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0.005, 0, 0));
+  contacts[0].penetration_depth = 10.01;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-5.01, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-5.01, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+
+
+
+  hs = Halfspace(Vec3f(0, 1, 0), 0);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, -5.0, 0);
+  contacts[0].penetration_depth = 10.0;
+  contacts[0].normal.setValue(0, -1, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, -5.0, 0));
+  contacts[0].penetration_depth = 10.0;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, -1, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, -4.375, 0);
+  contacts[0].penetration_depth = 11.25;
+  contacts[0].normal.setValue(0, -1, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, -4.375, 0));
+  contacts[0].penetration_depth = 11.25;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, -1, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, -5.625, 0);
+  contacts[0].penetration_depth = 8.75;
+  contacts[0].normal.setValue(0, -1, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, -5.625, 0));
+  contacts[0].penetration_depth = 8.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, -1, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 10.01, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0.005, 0);
+  contacts[0].penetration_depth = 20.01;
+  contacts[0].normal.setValue(0, -1, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 10.01, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0.005, 0));
+  contacts[0].penetration_depth = 20.01;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, -1, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -10.01, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -10.01, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+
+
+
+  hs = Halfspace(Vec3f(0, 0, 1), 0);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, -10.0);
+  contacts[0].penetration_depth = 20.0;
+  contacts[0].normal.setValue(0, 0, -1);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, -10.0));
+  contacts[0].penetration_depth = 20.0;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 0, -1));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 1.25));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, -9.375);
+  contacts[0].penetration_depth = 21.25;
+  contacts[0].normal.setValue(0, 0, -1);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 1.25));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, -9.375));
+  contacts[0].penetration_depth = 21.25;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 0, -1));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -1.25));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, -10.625);
+  contacts[0].penetration_depth = 18.75;
+  contacts[0].normal.setValue(0, 0, -1);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -1.25));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, -10.625));
+  contacts[0].penetration_depth = 18.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 0, -1));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 20.01));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, 0.005);
+  contacts[0].penetration_depth = 40.01;
+  contacts[0].normal.setValue(0, 0, -1);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 20.01));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, 0.005));
+  contacts[0].penetration_depth = 40.01;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 0, -1));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -20.01));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -20.01));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+}
+
+BOOST_AUTO_TEST_CASE(shapeIntersection_planeellipsoid)
+{
+  Ellipsoid s(5, 10, 20);
+  Plane hs(Vec3f(1, 0, 0), 0);
+
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  std::vector<ContactPoint> contacts;
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, 0);
+  contacts[0].penetration_depth = 5.0;
+  contacts[0].normal.setValue(-1, 0, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
+  contacts[0].penetration_depth = 5.0;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(1.25, 0, 0);
+  contacts[0].penetration_depth = 3.75;
+  contacts[0].normal.setValue(1, 0, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(1.25, 0, 0));
+  contacts[0].penetration_depth = 3.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(1, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(-1.25, 0, 0);
+  contacts[0].penetration_depth = 3.75;
+  contacts[0].normal.setValue(-1, 0, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-1.25, 0, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(-1.25, 0, 0));
+  contacts[0].penetration_depth = 3.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(-1, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(5.01, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(5.01, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-5.01, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-5.01, 0, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+
+
+
+  hs = Plane(Vec3f(0, 1, 0), 0);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0.0, 0);
+  contacts[0].penetration_depth = 10.0;
+  contacts[0].normal.setValue(0, -1, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
+  contacts[0].penetration_depth = 10.0;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, -1, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 1.25, 0);
+  contacts[0].penetration_depth = 8.75;
+  contacts[0].normal.setValue(0, 1, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 1.25, 0));
+  contacts[0].penetration_depth = 8.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 1, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, -1.25, 0);
+  contacts[0].penetration_depth = 8.75;
+  contacts[0].normal.setValue(0, -1, 0);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -1.25, 0));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, -1.25, 0));
+  contacts[0].penetration_depth = 8.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, -1, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 10.01, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 10.01, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, -10.01, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, -10.01, 0));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+
+
+
+  hs = Plane(Vec3f(0, 0, 1), 0);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, 0);
+  contacts[0].penetration_depth = 20.0;
+  contacts[0].normal.setValue(0, 0, -1);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
+  contacts[0].penetration_depth = 20.0;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 0, -1));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 1.25));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, 1.25);
+  contacts[0].penetration_depth = 18.75;
+  contacts[0].normal.setValue(0, 0, 1);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 1.25));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, 1.25));
+  contacts[0].penetration_depth = 18.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 0, 1));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -1.25));
+  contacts.resize(1);
+  contacts[0].pos.setValue(0, 0, -1.25);
+  contacts[0].penetration_depth = 18.75;
+  contacts[0].normal.setValue(0, 0, -1);
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -1.25));
+  contacts.resize(1);
+  contacts[0].pos = transform.transform(Vec3f(0, 0, -1.25));
+  contacts[0].penetration_depth = 18.75;
+  contacts[0].normal = transform.getQuatRotation().transform(Vec3f(0, 0, -1));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, 20.01));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, 20.01));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(0, 0, -20.01));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(0, 0, -20.01));
+  testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
@@ -2789,7 +3350,29 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-
+// Shape distance test coverage (libccd)
+//
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |   O    |           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|     O     |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|  O   |    O     |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|    O     |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 BOOST_AUTO_TEST_CASE(shapeDistance_spheresphere)
 {
@@ -2991,8 +3574,6 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder)
   BOOST_CHECK(res);
 }
 
-
-
 BOOST_AUTO_TEST_CASE(shapeDistance_conecone)
 {
   Cone s1(5, 10);
@@ -3065,7 +3646,91 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder)
   BOOST_CHECK(res);
 }
 
+BOOST_AUTO_TEST_CASE(shapeDistance_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
 
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+
+  bool res;
+  FCL_REAL dist = -1;
+  Vec3f closest_p1, closest_p2;
+
+  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist, &closest_p1, &closest_p2);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+}
+
+// Shape intersection test coverage (built-in GJK)
+//
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |   O    |           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |         |      |          |       |            |     O    |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|     O     |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|  O   |    O     |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|    O     |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheresphere)
 {
@@ -3511,6 +4176,76 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
+BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
+
+  Transform3f tf1;
+  Transform3f tf2;
+
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
+  Transform3f identity;
+
+  std::vector<ContactPoint> contacts;
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(40, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(40, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(30, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(30.01, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(29.99, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(29.9, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f();
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform;
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-29.99, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-29.99, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = Transform3f();
+  tf2 = Transform3f(Vec3f(-30, 0, 0));
+  contacts.resize(1);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
+
+  tf1 = transform;
+  tf2 = transform * Transform3f(Vec3f(-30.01, 0, 0));
+  testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
+}
 
 BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
 {
@@ -3576,8 +4311,8 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
 
 
   t[0].setValue(20, 0, 0);
-  t[1].setValue(0, -20, 0);
-  t[2].setValue(0, 20, 0);
+  t[1].setValue(-0.1, -20, 0);
+  t[2].setValue(-0.1, 20, 0);
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
   BOOST_CHECK(res);
 
@@ -3634,8 +4369,29 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
   BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-
-
+// Shape distance test coverage (built-in GJK)
+//
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |   O    |           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|     O     |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|  O   |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|    O     |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 BOOST_AUTO_TEST_CASE(shapeDistanceGJK_spheresphere)
 {
@@ -3698,7 +4454,7 @@ BOOST_AUTO_TEST_CASE(shapeDistanceGJK_spheresphere)
   BOOST_CHECK_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(hapeDistanceGJK_boxbox)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -3734,7 +4490,7 @@ BOOST_AUTO_TEST_CASE(hapeDistanceGJK_boxbox)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(hapeDistanceGJK_boxsphere)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxsphere)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -3770,7 +4526,7 @@ BOOST_AUTO_TEST_CASE(hapeDistanceGJK_boxsphere)
   BOOST_CHECK(res);
 }
 
-BOOST_AUTO_TEST_CASE(hapeDistanceGJK_cylindercylinder)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -3806,9 +4562,7 @@ BOOST_AUTO_TEST_CASE(hapeDistanceGJK_cylindercylinder)
   BOOST_CHECK(res);
 }
 
-
-
-BOOST_AUTO_TEST_CASE(hapeDistanceGJK_conecone)
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -3844,8 +4598,65 @@ BOOST_AUTO_TEST_CASE(hapeDistanceGJK_conecone)
   BOOST_CHECK(res);
 }
 
+BOOST_AUTO_TEST_CASE(shapeDistanceGJK_ellipsoidellipsoid)
+{
+  Ellipsoid s1(20, 40, 50);
+  Ellipsoid s2(10, 10, 10);
 
+  Transform3f transform;
+  generateRandomTransform(extents, transform);
 
+  bool res;
+  FCL_REAL dist = -1;
+
+  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+
+  res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 10) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(res);
+
+  res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
+  BOOST_CHECK(dist < 0);
+  BOOST_CHECK_FALSE(res);
+}
 
 template<typename S1, typename S2>
 void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distance)
@@ -3894,9 +4705,10 @@ BOOST_AUTO_TEST_CASE(reversibleShapeIntersection_allshapes)
   // reverse case as well. For example, if FCL has sphere-capsule intersection
   // algorithm, then this algorithm should be called for capsule-sphere case.
 
-  // Prepare all kinds of primitive shapes (7) -- box, sphere, capsule, cone, cylinder, plane, halfspace
+  // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
   Box box(10, 10, 10);
   Sphere sphere(5);
+  Ellipsoid ellipsoid(5, 5, 5);
   Capsule capsule(5, 10);
   Cone cone(5, 10);
   Cylinder cylinder(5, 10);
@@ -3911,17 +4723,25 @@ BOOST_AUTO_TEST_CASE(reversibleShapeIntersection_allshapes)
   // algorithm is added, then uncomment box-sphere.
 
 //  testReversibleShapeIntersection(box, sphere, distance);
+//  testReversibleShapeIntersection(box, ellipsoid, distance);
 //  testReversibleShapeIntersection(box, capsule, distance);
 //  testReversibleShapeIntersection(box, cone, distance);
 //  testReversibleShapeIntersection(box, cylinder, distance);
   testReversibleShapeIntersection(box, plane, distance);
   testReversibleShapeIntersection(box, halfspace, distance);
 
+//  testReversibleShapeIntersection(sphere, ellipsoid, distance);
   testReversibleShapeIntersection(sphere, capsule, distance);
 //  testReversibleShapeIntersection(sphere, cone, distance);
 //  testReversibleShapeIntersection(sphere, cylinder, distance);
   testReversibleShapeIntersection(sphere, plane, distance);
   testReversibleShapeIntersection(sphere, halfspace, distance);
+
+//  testReversibleShapeIntersection(ellipsoid, capsule, distance);
+//  testReversibleShapeIntersection(ellipsoid, cone, distance);
+//  testReversibleShapeIntersection(ellipsoid, cylinder, distance);
+//  testReversibleShapeIntersection(ellipsoid, plane, distance);
+//  testReversibleShapeIntersection(ellipsoid, halfspace, distance);
 
 //  testReversibleShapeIntersection(capsule, cone, distance);
 //  testReversibleShapeIntersection(capsule, cylinder, distance);
@@ -3981,9 +4801,10 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
   // reverse case as well. For example, if FCL has sphere-capsule distance
   // algorithm, then this algorithm should be called for capsule-sphere case.
 
-  // Prepare all kinds of primitive shapes (7) -- box, sphere, capsule, cone, cylinder, plane, halfspace
+  // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
   Box box(10, 10, 10);
   Sphere sphere(5);
+  Ellipsoid ellipsoid(5, 5, 5);
   Capsule capsule(5, 10);
   Cone cone(5, 10);
   Cylinder cylinder(5, 10);
@@ -3998,17 +4819,25 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
   // algorithm is added, then uncomment box-sphere.
 
 //  testReversibleShapeDistance(box, sphere, distance);
+//  testReversibleShapeDistance(box, ellipsoid, distance);
 //  testReversibleShapeDistance(box, capsule, distance);
 //  testReversibleShapeDistance(box, cone, distance);
 //  testReversibleShapeDistance(box, cylinder, distance);
 //  testReversibleShapeDistance(box, plane, distance);
 //  testReversibleShapeDistance(box, halfspace, distance);
 
+//  testReversibleShapeDistance(sphere, ellipsoid, distance);
   testReversibleShapeDistance(sphere, capsule, distance);
 //  testReversibleShapeDistance(sphere, cone, distance);
 //  testReversibleShapeDistance(sphere, cylinder, distance);
 //  testReversibleShapeDistance(sphere, plane, distance);
 //  testReversibleShapeDistance(sphere, halfspace, distance);
+
+//  testReversibleShapeDistance(ellipsoid, capsule, distance);
+//  testReversibleShapeDistance(ellipsoid, cone, distance);
+//  testReversibleShapeDistance(ellipsoid, cylinder, distance);
+//  testReversibleShapeDistance(ellipsoid, plane, distance);
+//  testReversibleShapeDistance(ellipsoid, halfspace, distance);
 
 //  testReversibleShapeDistance(capsule, cone, distance);
 //  testReversibleShapeDistance(capsule, cylinder, distance);

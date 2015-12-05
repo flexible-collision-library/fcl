@@ -84,6 +84,20 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       return dir * sphere->radius;
     }
     break;
+  case GEOM_ELLIPSOID:
+    {
+      const Ellipsoid* ellipsoid = static_cast<const Ellipsoid*>(shape);
+
+      const FCL_REAL a2 = ellipsoid->radii[0] * ellipsoid->radii[0];
+      const FCL_REAL b2 = ellipsoid->radii[1] * ellipsoid->radii[1];
+      const FCL_REAL c2 = ellipsoid->radii[2] * ellipsoid->radii[2];
+
+      const Vec3f v(a2 * dir[0], b2 * dir[1], c2 * dir[2]);
+      const FCL_REAL d = std::sqrt(v.dot(dir));
+
+      return v / d;
+    }
+    break;
   case GEOM_CAPSULE:
     {
       const Capsule* capsule = static_cast<const Capsule*>(shape);

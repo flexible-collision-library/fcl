@@ -455,6 +455,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_BOX][GEOM_BOX] = &ShapeShapeCollide<Box, Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_BOX][GEOM_SPHERE] = &ShapeShapeCollide<Box, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_BOX][GEOM_ELLIPSOID] = &ShapeShapeCollide<Box, Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_BOX][GEOM_CAPSULE] = &ShapeShapeCollide<Box, Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_BOX][GEOM_CONE] = &ShapeShapeCollide<Box, Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_BOX][GEOM_CYLINDER] = &ShapeShapeCollide<Box, Cylinder, NarrowPhaseSolver>;
@@ -464,6 +465,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_SPHERE][GEOM_BOX] = &ShapeShapeCollide<Sphere, Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_SPHERE][GEOM_SPHERE] = &ShapeShapeCollide<Sphere, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_SPHERE][GEOM_ELLIPSOID] = &ShapeShapeCollide<Sphere, Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_SPHERE][GEOM_CAPSULE] = &ShapeShapeCollide<Sphere, Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_SPHERE][GEOM_CONE] = &ShapeShapeCollide<Sphere, Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_SPHERE][GEOM_CYLINDER] = &ShapeShapeCollide<Sphere, Cylinder, NarrowPhaseSolver>;
@@ -471,8 +473,19 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[GEOM_SPHERE][GEOM_PLANE] = &ShapeShapeCollide<Sphere, Plane, NarrowPhaseSolver>;
   collision_matrix[GEOM_SPHERE][GEOM_HALFSPACE] = &ShapeShapeCollide<Sphere, Halfspace, NarrowPhaseSolver>;
 
+  collision_matrix[GEOM_ELLIPSOID][GEOM_BOX] = &ShapeShapeCollide<Ellipsoid, Box, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_SPHERE] = &ShapeShapeCollide<Ellipsoid, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_ELLIPSOID] = &ShapeShapeCollide<Ellipsoid, Ellipsoid, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_CAPSULE] = &ShapeShapeCollide<Ellipsoid, Capsule, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_CONE] = &ShapeShapeCollide<Ellipsoid, Cone, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_CYLINDER] = &ShapeShapeCollide<Ellipsoid, Cylinder, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] = &ShapeShapeCollide<Ellipsoid, Convex, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_PLANE] = &ShapeShapeCollide<Ellipsoid, Plane, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_HALFSPACE] = &ShapeShapeCollide<Ellipsoid, Halfspace, NarrowPhaseSolver>;
+
   collision_matrix[GEOM_CAPSULE][GEOM_BOX] = &ShapeShapeCollide<Capsule, Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_CAPSULE][GEOM_SPHERE] = &ShapeShapeCollide<Capsule, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CAPSULE][GEOM_ELLIPSOID] = &ShapeShapeCollide<Capsule, Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_CAPSULE][GEOM_CAPSULE] = &ShapeShapeCollide<Capsule, Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_CAPSULE][GEOM_CONE] = &ShapeShapeCollide<Capsule, Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_CAPSULE][GEOM_CYLINDER] = &ShapeShapeCollide<Capsule, Cylinder, NarrowPhaseSolver>;
@@ -482,6 +495,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_CONE][GEOM_BOX] = &ShapeShapeCollide<Cone, Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONE][GEOM_SPHERE] = &ShapeShapeCollide<Cone, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CONE][GEOM_ELLIPSOID] = &ShapeShapeCollide<Cone, Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONE][GEOM_CAPSULE] = &ShapeShapeCollide<Cone, Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONE][GEOM_CONE] = &ShapeShapeCollide<Cone, Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONE][GEOM_CYLINDER] = &ShapeShapeCollide<Cone, Cylinder, NarrowPhaseSolver>;
@@ -491,6 +505,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_CYLINDER][GEOM_BOX] = &ShapeShapeCollide<Cylinder, Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_CYLINDER][GEOM_SPHERE] = &ShapeShapeCollide<Cylinder, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CYLINDER][GEOM_ELLIPSOID] = &ShapeShapeCollide<Cylinder, Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_CYLINDER][GEOM_CAPSULE] = &ShapeShapeCollide<Cylinder, Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_CYLINDER][GEOM_CONE] = &ShapeShapeCollide<Cylinder, Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_CYLINDER][GEOM_CYLINDER] = &ShapeShapeCollide<Cylinder, Cylinder, NarrowPhaseSolver>;
@@ -500,6 +515,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_CONVEX][GEOM_BOX] = &ShapeShapeCollide<Convex, Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONVEX][GEOM_SPHERE] = &ShapeShapeCollide<Convex, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_CONVEX][GEOM_ELLIPSOID] = &ShapeShapeCollide<Convex, Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONVEX][GEOM_CAPSULE] = &ShapeShapeCollide<Convex, Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONVEX][GEOM_CONE] = &ShapeShapeCollide<Convex, Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONVEX][GEOM_CYLINDER] = &ShapeShapeCollide<Convex, Cylinder, NarrowPhaseSolver>;
@@ -509,6 +525,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_PLANE][GEOM_BOX] = &ShapeShapeCollide<Plane, Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_PLANE][GEOM_SPHERE] = &ShapeShapeCollide<Plane, Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_PLANE][GEOM_ELLIPSOID] = &ShapeShapeCollide<Plane, Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_PLANE][GEOM_CAPSULE] = &ShapeShapeCollide<Plane, Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_PLANE][GEOM_CONE] = &ShapeShapeCollide<Plane, Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_PLANE][GEOM_CYLINDER] = &ShapeShapeCollide<Plane, Cylinder, NarrowPhaseSolver>;
@@ -527,6 +544,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_AABB][GEOM_BOX] = &BVHShapeCollider<AABB, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeCollider<AABB, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_ELLIPSOID] = &BVHShapeCollider<AABB, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeCollider<AABB, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_AABB][GEOM_CONE] = &BVHShapeCollider<AABB, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeCollider<AABB, Cylinder, NarrowPhaseSolver>::collide;
@@ -536,6 +554,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_OBB][GEOM_BOX] = &BVHShapeCollider<OBB, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeCollider<OBB, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_ELLIPSOID] = &BVHShapeCollider<OBB, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeCollider<OBB, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBB][GEOM_CONE] = &BVHShapeCollider<OBB, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeCollider<OBB, Cylinder, NarrowPhaseSolver>::collide;
@@ -545,6 +564,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_RSS][GEOM_BOX] = &BVHShapeCollider<RSS, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeCollider<RSS, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_ELLIPSOID] = &BVHShapeCollider<RSS, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeCollider<RSS, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_RSS][GEOM_CONE] = &BVHShapeCollider<RSS, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeCollider<RSS, Cylinder, NarrowPhaseSolver>::collide;
@@ -554,6 +574,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeCollider<KDOP<16>, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeCollider<KDOP<16>, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOP<16>, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<16>, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeCollider<KDOP<16>, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<16>, Cylinder, NarrowPhaseSolver>::collide;
@@ -563,6 +584,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeCollider<KDOP<18>, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeCollider<KDOP<18>, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOP<18>, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<18>, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeCollider<KDOP<18>, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<18>, Cylinder, NarrowPhaseSolver>::collide;
@@ -572,6 +594,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeCollider<KDOP<24>, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeCollider<KDOP<24>, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOP<24>, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<24>, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeCollider<KDOP<24>, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<24>, Cylinder, NarrowPhaseSolver>::collide;
@@ -581,6 +604,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeCollider<kIOS, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeCollider<kIOS, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_ELLIPSOID] = &BVHShapeCollider<kIOS, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeCollider<kIOS, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeCollider<kIOS, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeCollider<kIOS, Cylinder, NarrowPhaseSolver>::collide;
@@ -590,6 +614,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeCollider<OBBRSS, Box, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeCollider<OBBRSS, Sphere, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_ELLIPSOID] = &BVHShapeCollider<OBBRSS, Ellipsoid, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeCollider<OBBRSS, Capsule, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeCollider<OBBRSS, Cone, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeCollider<OBBRSS, Cylinder, NarrowPhaseSolver>::collide;
@@ -609,6 +634,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 #if FCL_HAVE_OCTOMAP
   collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeCollide<Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeCollide<Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][GEOM_ELLIPSOID] = &OcTreeShapeCollide<Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeCollide<Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeCollide<Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeCollide<Cylinder, NarrowPhaseSolver>;
@@ -618,6 +644,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeCollide<Box, NarrowPhaseSolver>;
   collision_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeCollide<Sphere, NarrowPhaseSolver>;
+  collision_matrix[GEOM_ELLIPSOID][GEOM_OCTREE] = &ShapeOcTreeCollide<Ellipsoid, NarrowPhaseSolver>;
   collision_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeCollide<Capsule, NarrowPhaseSolver>;
   collision_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeCollide<Cone, NarrowPhaseSolver>;
   collision_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeCollide<Cylinder, NarrowPhaseSolver>;

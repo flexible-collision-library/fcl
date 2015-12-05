@@ -145,6 +145,13 @@ void Sphere::computeLocalAABB()
   aabb_radius = radius;
 }
 
+void Ellipsoid::computeLocalAABB()
+{
+  computeBV<AABB>(*this, Transform3f(), aabb_local);
+  aabb_center = aabb_local.center();
+  aabb_radius = (aabb_local.min_ - aabb_center).length();
+}
+
 void Capsule::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);

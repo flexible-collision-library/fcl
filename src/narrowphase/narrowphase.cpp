@@ -1531,6 +1531,46 @@ bool sphereHalfspaceIntersect(const Sphere& s1, const Transform3f& tf1,
   }
 }
 
+bool ellipsoidHalfspaceIntersect(const Ellipsoid& s1, const Transform3f& tf1,
+                                 const Halfspace& s2, const Transform3f& tf2,
+                                 std::vector<ContactPoint>* contacts)
+{
+  // We first compute a single contact in the ellipsoid coordinates, tf1, then
+  // will transform it to the world frame. So we use a new halfspace that is
+  // expressed in the ellipsoid coordinates.
+  const Halfspace& new_s2 = transform(s2, inverse(tf1) * tf2);
+
+  // Compute distance between the ellipsoid's center and a contact plane, whose
+  // normal is equal to the halfspace's normal.
+  const Vec3f normal2(std::pow(new_s2.n[0], 2), std::pow(new_s2.n[1], 2), std::pow(new_s2.n[2], 2));
+  const Vec3f radii2(std::pow(s1.radii[0], 2), std::pow(s1.radii[1], 2), std::pow(s1.radii[2], 2));
+  const FCL_REAL center_to_contact_plane = std::sqrt(normal2.dot(radii2));
+
+  // Depth is the distance between the contact plane and the halfspace.
+  const FCL_REAL depth = center_to_contact_plane + new_s2.d;
+
+  if (depth >= 0)
+  {
+    if (contacts)
+    {
+      // Transform the results to the world coordinates.
+      const Vec3f normal = tf1.getRotation() * -new_s2.n; // pointing from s1 to s2
+      const Vec3f support_vector = (1.0/center_to_contact_plane) * Vec3f(radii2[0]*new_s2.n[0], radii2[1]*new_s2.n[1], radii2[2]*new_s2.n[2]);
+      const Vec3f point_in_halfspace_coords = support_vector * (0.5 * depth / new_s2.n.dot(support_vector) - 1.0);
+      const Vec3f point = tf1.transform(point_in_halfspace_coords); // roughly speaking, a middle point of the intersecting volume
+      const FCL_REAL penetration_depth = depth;
+
+      contacts->push_back(ContactPoint(normal, point, penetration_depth));
+    }
+
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
 /// @brief box half space, a, b, c  = +/- edge size
 /// n^T * (R(o + a v1 + b v2 + c v3) + T) <= d
 /// so (R^T n) (a v1 + b v2 + c v3) + n * T <= d
@@ -2032,6 +2072,48 @@ bool spherePlaneIntersect(const Sphere& s1, const Transform3f& tf1,
     {
       const Vec3f normal = (signed_dist > 0) ? -new_s2.n : new_s2.n;
       const Vec3f point = center - new_s2.n * signed_dist;
+      const FCL_REAL penetration_depth = depth;
+
+      contacts->push_back(ContactPoint(normal, point, penetration_depth));
+    }
+
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool ellipsoidPlaneIntersect(const Ellipsoid& s1, const Transform3f& tf1,
+                             const Plane& s2, const Transform3f& tf2,
+                             std::vector<ContactPoint>* contacts)
+{
+  // We first compute a single contact in the ellipsoid coordinates, tf1, then
+  // will transform it to the world frame. So we use a new plane that is
+  // expressed in the ellipsoid coordinates.
+  const Plane& new_s2 = transform(s2, inverse(tf1) * tf2);
+
+  // Compute distance between the ellipsoid's center and a contact plane, whose
+  // normal is equal to the plane's normal.
+  const Vec3f normal2(std::pow(new_s2.n[0], 2), std::pow(new_s2.n[1], 2), std::pow(new_s2.n[2], 2));
+  const Vec3f radii2(std::pow(s1.radii[0], 2), std::pow(s1.radii[1], 2), std::pow(s1.radii[2], 2));
+  const FCL_REAL center_to_contact_plane = std::sqrt(normal2.dot(radii2));
+
+  const FCL_REAL signed_dist = -new_s2.d;
+
+  // Depth is the distance between the contact plane and the given plane.
+  const FCL_REAL depth = center_to_contact_plane - std::abs(signed_dist);
+
+  if (depth >= 0)
+  {
+    if (contacts)
+    {
+      // Transform the results to the world coordinates.
+      const Vec3f normal = (signed_dist > 0) ? tf1.getRotation() * -new_s2.n : tf1.getRotation() * new_s2.n; // pointing from the ellipsoid's center to the plane
+      const Vec3f support_vector = (1.0/center_to_contact_plane) * Vec3f(radii2[0]*new_s2.n[0], radii2[1]*new_s2.n[1], radii2[2]*new_s2.n[2]);
+      const Vec3f point_in_plane_coords = support_vector * (depth / new_s2.n.dot(support_vector) - 1.0);
+      const Vec3f point = (signed_dist > 0) ? tf1.transform(point_in_plane_coords) : tf1.transform(-point_in_plane_coords); // a middle point of the intersecting volume
       const FCL_REAL penetration_depth = depth;
 
       contacts->push_back(ContactPoint(normal, point, penetration_depth));
@@ -2638,25 +2720,27 @@ bool planeIntersect(const Plane& s1, const Transform3f& tf1,
 
 // Shape intersect algorithms not using libccd
 //
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | box        |  O  |        |         |      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |    O    |      |          |   O   |      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|         |      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|/////////|      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|/////////|//////|          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|/////////|//////|//////////|   O   |      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|/////////|//////|//////////|///////|      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |        |           |         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |    O    |      |          |   O   |      O     |    O     |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|           |         |      |          |   O   |      O     |   TODO   |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|   O   |      O     |    O     |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|      O     |    O     |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 void flipNormal(std::vector<ContactPoint>& contacts)
 {
@@ -2712,6 +2796,24 @@ bool GJKSolver_libccd::shapeIntersect<Halfspace, Sphere>(const Halfspace& s1, co
                                                          std::vector<ContactPoint>* contacts) const
 {
   const bool res = details::sphereHalfspaceIntersect(s2, tf2, s1, tf1, contacts);
+  if (contacts) flipNormal(*contacts);
+  return res;
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Ellipsoid, Halfspace>(const Ellipsoid& s1, const Transform3f& tf1,
+                                                            const Halfspace& s2, const Transform3f& tf2,
+                                                            std::vector<ContactPoint>* contacts) const
+{
+  return details::ellipsoidHalfspaceIntersect(s1, tf1, s2, tf2, contacts);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Halfspace, Ellipsoid>(const Halfspace& s1, const Transform3f& tf1,
+                                                            const Ellipsoid& s2, const Transform3f& tf2,
+                                                            std::vector<ContactPoint>* contacts) const
+{
+  const bool res = details::ellipsoidHalfspaceIntersect(s2, tf2, s1, tf1, contacts);
   if (contacts) flipNormal(*contacts);
   return res;
 }
@@ -2843,6 +2945,24 @@ bool GJKSolver_libccd::shapeIntersect<Plane, Sphere>(const Plane& s1, const Tran
 }
 
 template<>
+bool GJKSolver_libccd::shapeIntersect<Ellipsoid, Plane>(const Ellipsoid& s1, const Transform3f& tf1,
+                                                        const Plane& s2, const Transform3f& tf2,
+                                                        std::vector<ContactPoint>* contacts) const
+{
+  return details::ellipsoidPlaneIntersect(s1, tf1, s2, tf2, contacts);
+}
+
+template<>
+bool GJKSolver_libccd::shapeIntersect<Plane, Ellipsoid>(const Plane& s1, const Transform3f& tf1,
+                                                        const Ellipsoid& s2, const Transform3f& tf2,
+                                                        std::vector<ContactPoint>* contacts) const
+{
+  const bool res = details::ellipsoidPlaneIntersect(s2, tf2, s1, tf1, contacts);
+  if (contacts) flipNormal(*contacts);
+  return res;
+}
+
+template<>
 bool GJKSolver_libccd::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
                                                   const Plane& s2, const Transform3f& tf2,
                                                   std::vector<ContactPoint>* contacts) const
@@ -2955,25 +3075,27 @@ bool GJKSolver_libccd::shapeTriangleIntersect(const Plane& s, const Transform3f&
 
 // Shape distance algorithms not using libccd
 //
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | box        |     |        |         |      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |    O    |      |          |       |            |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|    O    |      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|/////////|      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|/////////|//////|          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|/////////|//////|//////////|       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|/////////|//////|//////////|///////|            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |     |        |           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |    O    |      |          |       |            |     O    |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|    O    |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 template<>
 bool GJKSolver_libccd::shapeDistance<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,
@@ -3028,25 +3150,27 @@ bool GJKSolver_libccd::shapeTriangleDistance<Sphere>(const Sphere& s, const Tran
 
 // Shape intersect algorithms not using built-in GJK algorithm
 //
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | box        |  O  |        |         |      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |    O    |      |          |   O   |      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|         |      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|/////////|      |          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|/////////|//////|          |   O   |      O     |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|/////////|//////|//////////|   O   |      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|/////////|//////|//////////|///////|      O     |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |  O  |        |           |         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |    O    |      |          |   O   |      O     |     O    |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|           |         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|         |      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|      |          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|          |   O   |      O     |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|   O   |      O     |     O    |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|      O     |     O    |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Sphere, Capsule>(const Sphere &s1, const Transform3f& tf1,
@@ -3096,6 +3220,24 @@ bool GJKSolver_indep::shapeIntersect<Halfspace, Sphere>(const Halfspace& s1, con
                                                         std::vector<ContactPoint>* contacts) const
 {
   const bool res = details::sphereHalfspaceIntersect(s2, tf2, s1, tf1, contacts);
+  if (contacts) flipNormal(*contacts);
+  return res;
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Ellipsoid, Halfspace>(const Ellipsoid& s1, const Transform3f& tf1,
+                                                           const Halfspace& s2, const Transform3f& tf2,
+                                                           std::vector<ContactPoint>* contacts) const
+{
+  return details::ellipsoidHalfspaceIntersect(s1, tf1, s2, tf2, contacts);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Halfspace, Ellipsoid>(const Halfspace& s1, const Transform3f& tf1,
+                                                           const Ellipsoid& s2, const Transform3f& tf2,
+                                                           std::vector<ContactPoint>* contacts) const
+{
+  const bool res = details::ellipsoidHalfspaceIntersect(s2, tf2, s1, tf1, contacts);
   if (contacts) flipNormal(*contacts);
   return res;
 }
@@ -3227,6 +3369,24 @@ bool GJKSolver_indep::shapeIntersect<Plane, Sphere>(const Plane& s1, const Trans
 }
 
 template<>
+bool GJKSolver_indep::shapeIntersect<Ellipsoid, Plane>(const Ellipsoid& s1, const Transform3f& tf1,
+                                                       const Plane& s2, const Transform3f& tf2,
+                                                       std::vector<ContactPoint>* contacts) const
+{
+  return details::ellipsoidPlaneIntersect(s1, tf1, s2, tf2, contacts);
+}
+
+template<>
+bool GJKSolver_indep::shapeIntersect<Plane, Ellipsoid>(const Plane& s1, const Transform3f& tf1,
+                                                       const Ellipsoid& s2, const Transform3f& tf2,
+                                                       std::vector<ContactPoint>* contacts) const
+{
+  const bool res = details::ellipsoidPlaneIntersect(s2, tf2, s1, tf1, contacts);
+  if (contacts) flipNormal(*contacts);
+  return res;
+}
+
+template<>
 bool GJKSolver_indep::shapeIntersect<Box, Plane>(const Box& s1, const Transform3f& tf1,
                                                  const Plane& s2, const Transform3f& tf2,
                                                  std::vector<ContactPoint>* contacts) const
@@ -3339,25 +3499,27 @@ bool GJKSolver_indep::shapeTriangleIntersect(const Plane& s, const Transform3f& 
 
 // Shape distance algorithms not using built-in GJK algorithm
 //
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// |            | box | sphere | capsule | cone | cylinder | plane | half-space | triangle |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | box        |     |        |         |      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | sphere     |/////|   O    |    O    |      |          |       |            |    O     |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | capsule    |/////|////////|    O    |      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cone       |/////|////////|/////////|      |          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | cylinder   |/////|////////|/////////|//////|          |       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | plane      |/////|////////|/////////|//////|//////////|       |            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | half-space |/////|////////|/////////|//////|//////////|///////|            |          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
-// | triangle   |/////|////////|/////////|//////|//////////|///////|////////////|          |
-// +------------+-----+--------+---------+------+----------+-------+------------+----------+
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// |            | box | sphere | ellipsoid | capsule | cone | cylinder | plane | half-space | triangle |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | box        |     |        |           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | sphere     |/////|   O    |           |    O    |      |          |       |            |     O    |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | ellipsoid  |/////|////////|           |         |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | capsule    |/////|////////|///////////|    O    |      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cone       |/////|////////|///////////|/////////|      |          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | cylinder   |/////|////////|///////////|/////////|//////|          |       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | plane      |/////|////////|///////////|/////////|//////|//////////|       |            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | half-space |/////|////////|///////////|/////////|//////|//////////|///////|            |          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
+// | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
+// +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 template<>
 bool GJKSolver_indep::shapeDistance<Sphere, Capsule>(const Sphere& s1, const Transform3f& tf1,

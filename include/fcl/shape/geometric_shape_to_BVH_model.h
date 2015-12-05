@@ -167,6 +167,95 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
   generateBVHModel(model, shape, pose, seg, ring);  
 }
 
+/// @brief Generate BVH model from ellipsoid, given the number of segments along longitude and number of rings along latitude.
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3f& pose, unsigned int seg, unsigned int ring)
+{
+  std::vector<Vec3f> points;
+  std::vector<Triangle> tri_indices;
+
+  const FCL_REAL& a = shape.radii[0];
+  const FCL_REAL& b = shape.radii[1];
+  const FCL_REAL& c = shape.radii[2];
+
+  FCL_REAL phi, phid;
+  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  phid = pi * 2 / seg;
+  phi = 0;
+
+  FCL_REAL theta, thetad;
+  thetad = pi / (ring + 1);
+  theta = 0;
+
+  for(unsigned int i = 0; i < ring; ++i)
+  {
+    double theta_ = theta + thetad * (i + 1);
+    for(unsigned int j = 0; j < seg; ++j)
+    {
+      points.push_back(Vec3f(a * sin(theta_) * cos(phi + j * phid), b * sin(theta_) * sin(phi + j * phid), c * cos(theta_)));
+    }
+  }
+  points.push_back(Vec3f(0, 0, c));
+  points.push_back(Vec3f(0, 0, -c));
+
+  for(unsigned int i = 0; i < ring - 1; ++i)
+  {
+    for(unsigned int j = 0; j < seg; ++j)
+    {
+       unsigned int a, b, c, d;
+       a = i * seg + j;
+       b = (j == seg - 1) ? (i * seg) : (i * seg + j + 1);
+       c = (i + 1) * seg + j;
+       d = (j == seg - 1) ? ((i + 1) * seg) : ((i + 1) * seg + j + 1);
+       tri_indices.push_back(Triangle(a, c, b));
+       tri_indices.push_back(Triangle(b, c, d));
+    }
+  }
+
+  for(unsigned int j = 0; j < seg; ++j)
+  {
+    unsigned int a, b;
+    a = j;
+    b = (j == seg - 1) ? 0 : (j + 1);
+    tri_indices.push_back(Triangle(ring * seg, a, b));
+
+    a = (ring - 1) * seg + j;
+    b = (j == seg - 1) ? (ring - 1) * seg : ((ring - 1) * seg + j + 1);
+    tri_indices.push_back(Triangle(a, ring * seg + 1, b));
+  }
+
+  for(unsigned int i = 0; i < points.size(); ++i)
+  {
+    points[i] = pose.transform(points[i]);
+  }
+
+  model.beginModel();
+  model.addSubModel(points, tri_indices);
+  model.endModel();
+  model.computeLocalAABB();
+}
+
+/// @brief Generate BVH model from ellipsoid
+/// The difference between generateBVHModel is that it gives the number of triangles faces N for an ellipsoid with unit radii (1, 1, 1). For ellipsoid of radii (a, b, c),
+/// then the number of triangles is ((a^p * b^p + b^p * c^p + c^p * a^p)/3)^(1/p) * N, where p is 1.6075, so that the area represented by a single triangle is approximately the same.
+/// Reference: https://en.wikipedia.org/wiki/Ellipsoid#Approximate_formula
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3f& pose, unsigned int n_faces_for_unit_ellipsoid)
+{
+  const FCL_REAL p = 1.6075;
+
+  const FCL_REAL& ap = std::pow(shape.radii[0], p);
+  const FCL_REAL& bp = std::pow(shape.radii[1], p);
+  const FCL_REAL& cp = std::pow(shape.radii[2], p);
+
+  const FCL_REAL ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
+  const FCL_REAL n_low_bound = std::sqrt(n_faces_for_unit_ellipsoid / 2.0) * ratio;
+
+  const unsigned int ring = std::ceil(n_low_bound);
+  const unsigned int seg = std::ceil(n_low_bound);
+
+  generateBVHModel(model, shape, pose, seg, ring);
+}
 
 /// @brief Generate BVH model from cylinder, given the number of segments along circle and the number of segments along axis.
 template<typename BV>

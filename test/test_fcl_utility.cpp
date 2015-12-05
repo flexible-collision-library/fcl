@@ -424,6 +424,8 @@ std::string getNodeTypeName(NODE_TYPE node_type)
     return std::string("GEOM_BOX");
   else if (node_type == GEOM_SPHERE)
     return std::string("GEOM_SPHERE");
+  else if (node_type == GEOM_ELLIPSOID)
+    return std::string("GEOM_ELLIPSOID");
   else if (node_type == GEOM_CAPSULE)
     return std::string("GEOM_CAPSULE");
   else if (node_type == GEOM_CONE)
