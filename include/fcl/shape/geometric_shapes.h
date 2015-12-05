@@ -119,14 +119,14 @@ public:
   Sphere(FCL_REAL radius_) : ShapeBase(), radius(radius_)
   {
   }
-  
-  /// @brief Radius of the sphere 
+
+  /// @brief Radius of the sphere
   FCL_REAL radius;
 
-  /// @brief Compute AABB 
+  /// @brief Compute AABB
   void computeLocalAABB();
 
-  /// @brief Get node type: a sphere 
+  /// @brief Get node type: a sphere
   NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
 
   Matrix3f computeMomentofInertia() const
@@ -139,7 +139,46 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return 4 * boost::math::constants::pi<FCL_REAL>() * radius * radius / 3;
+    return 4.0 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius / 3.0;
+  }
+};
+
+/// @brief Center at zero point ellipsoid
+class Ellipsoid : public ShapeBase
+{
+public:
+  Ellipsoid(FCL_REAL a, FCL_REAL b, FCL_REAL c) : ShapeBase(), radii(a, b, c)
+  {
+  }
+
+  Ellipsoid(const Vec3f& radii_) : ShapeBase(), radii(radii_)
+  {
+  }
+
+  /// @brief Radii of the ellipsoid
+  Vec3f radii;
+
+  /// @brief Compute AABB
+  void computeLocalAABB();
+
+  /// @brief Get node type: a sphere
+  NODE_TYPE getNodeType() const { return GEOM_ELLIPSOID; }
+
+  Matrix3f computeMomentofInertia() const
+  {
+    const FCL_REAL V = computeVolume();
+    const FCL_REAL a2 = radii[0] * radii[0] * V;
+    const FCL_REAL b2 = radii[1] * radii[1] * V;
+    const FCL_REAL c2 = radii[2] * radii[2] * V;
+    return Matrix3f(0.2 * (b2 + c2), 0, 0,
+                    0, 0.2 * (a2 + c2), 0,
+                    0, 0, 0.2 * (a2 + b2));
+  }
+
+  FCL_REAL computeVolume() const
+  {
+    const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+    return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
   }
 };
 

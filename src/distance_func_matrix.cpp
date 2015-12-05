@@ -297,6 +297,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[GEOM_BOX][GEOM_BOX] = &ShapeShapeDistance<Box, Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_BOX][GEOM_SPHERE] = &ShapeShapeDistance<Box, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_BOX][GEOM_ELLIPSOID] = &ShapeShapeDistance<Box, Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_BOX][GEOM_CAPSULE] = &ShapeShapeDistance<Box, Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_BOX][GEOM_CONE] = &ShapeShapeDistance<Box, Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_BOX][GEOM_CYLINDER] = &ShapeShapeDistance<Box, Cylinder, NarrowPhaseSolver>;
@@ -306,6 +307,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[GEOM_SPHERE][GEOM_BOX] = &ShapeShapeDistance<Sphere, Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_SPHERE][GEOM_SPHERE] = &ShapeShapeDistance<Sphere, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_SPHERE][GEOM_ELLIPSOID] = &ShapeShapeDistance<Sphere, Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_SPHERE][GEOM_CAPSULE] = &ShapeShapeDistance<Sphere, Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_SPHERE][GEOM_CONE] = &ShapeShapeDistance<Sphere, Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_SPHERE][GEOM_CYLINDER] = &ShapeShapeDistance<Sphere, Cylinder, NarrowPhaseSolver>;
@@ -313,8 +315,19 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[GEOM_SPHERE][GEOM_PLANE] = &ShapeShapeDistance<Sphere, Plane, NarrowPhaseSolver>;
   distance_matrix[GEOM_SPHERE][GEOM_HALFSPACE] = &ShapeShapeDistance<Sphere, Halfspace, NarrowPhaseSolver>;
 
+  distance_matrix[GEOM_ELLIPSOID][GEOM_BOX] = &ShapeShapeDistance<Ellipsoid, Box, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_SPHERE] = &ShapeShapeDistance<Ellipsoid, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_ELLIPSOID] = &ShapeShapeDistance<Ellipsoid, Ellipsoid, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_CAPSULE] = &ShapeShapeDistance<Ellipsoid, Capsule, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_CONE] = &ShapeShapeDistance<Ellipsoid, Cone, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_CYLINDER] = &ShapeShapeDistance<Ellipsoid, Cylinder, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_CONVEX] = &ShapeShapeDistance<Ellipsoid, Convex, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_PLANE] = &ShapeShapeDistance<Ellipsoid, Plane, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_HALFSPACE] = &ShapeShapeDistance<Ellipsoid, Halfspace, NarrowPhaseSolver>;
+
   distance_matrix[GEOM_CAPSULE][GEOM_BOX] = &ShapeShapeDistance<Capsule, Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_CAPSULE][GEOM_SPHERE] = &ShapeShapeDistance<Capsule, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CAPSULE][GEOM_ELLIPSOID] = &ShapeShapeDistance<Capsule, Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_CAPSULE][GEOM_CAPSULE] = &ShapeShapeDistance<Capsule, Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_CAPSULE][GEOM_CONE] = &ShapeShapeDistance<Capsule, Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_CAPSULE][GEOM_CYLINDER] = &ShapeShapeDistance<Capsule, Cylinder, NarrowPhaseSolver>;
@@ -324,6 +337,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[GEOM_CONE][GEOM_BOX] = &ShapeShapeDistance<Cone, Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONE][GEOM_SPHERE] = &ShapeShapeDistance<Cone, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CONE][GEOM_ELLIPSOID] = &ShapeShapeDistance<Cone, Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONE][GEOM_CAPSULE] = &ShapeShapeDistance<Cone, Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONE][GEOM_CONE] = &ShapeShapeDistance<Cone, Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONE][GEOM_CYLINDER] = &ShapeShapeDistance<Cone, Cylinder, NarrowPhaseSolver>;
@@ -333,6 +347,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[GEOM_CYLINDER][GEOM_BOX] = &ShapeShapeDistance<Cylinder, Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_CYLINDER][GEOM_SPHERE] = &ShapeShapeDistance<Cylinder, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CYLINDER][GEOM_ELLIPSOID] = &ShapeShapeDistance<Cylinder, Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_CYLINDER][GEOM_CAPSULE] = &ShapeShapeDistance<Cylinder, Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_CYLINDER][GEOM_CONE] = &ShapeShapeDistance<Cylinder, Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_CYLINDER][GEOM_CYLINDER] = &ShapeShapeDistance<Cylinder, Cylinder, NarrowPhaseSolver>;
@@ -342,6 +357,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[GEOM_CONVEX][GEOM_BOX] = &ShapeShapeDistance<Convex, Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONVEX][GEOM_SPHERE] = &ShapeShapeDistance<Convex, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_CONVEX][GEOM_ELLIPSOID] = &ShapeShapeDistance<Convex, Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONVEX][GEOM_CAPSULE] = &ShapeShapeDistance<Convex, Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONVEX][GEOM_CONE] = &ShapeShapeDistance<Convex, Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONVEX][GEOM_CYLINDER] = &ShapeShapeDistance<Convex, Cylinder, NarrowPhaseSolver>;
@@ -351,6 +367,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[GEOM_PLANE][GEOM_BOX] = &ShapeShapeDistance<Plane, Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_PLANE][GEOM_SPHERE] = &ShapeShapeDistance<Plane, Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_PLANE][GEOM_ELLIPSOID] = &ShapeShapeDistance<Plane, Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_PLANE][GEOM_CAPSULE] = &ShapeShapeDistance<Plane, Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_PLANE][GEOM_CONE] = &ShapeShapeDistance<Plane, Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_PLANE][GEOM_CYLINDER] = &ShapeShapeDistance<Plane, Cylinder, NarrowPhaseSolver>;
@@ -371,6 +388,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   /*
   distance_matrix[BV_AABB][GEOM_BOX] = &BVHShapeDistancer<AABB, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeDistancer<AABB, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_AABB][GEOM_ELLIPSOID] = &BVHShapeDistancer<AABB, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeDistancer<AABB, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_AABB][GEOM_CONE] = &BVHShapeDistancer<AABB, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeDistancer<AABB, Cylinder, NarrowPhaseSolver>::distance;
@@ -380,6 +398,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[BV_OBB][GEOM_BOX] = &BVHShapeDistancer<OBB, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeDistancer<OBB, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_ELLIPSOID] = &BVHShapeDistancer<OBB, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeDistancer<OBB, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBB][GEOM_CONE] = &BVHShapeDistancer<OBB, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeDistancer<OBB, Cylinder, NarrowPhaseSolver>::distance;
@@ -390,6 +409,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[BV_RSS][GEOM_BOX] = &BVHShapeDistancer<RSS, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeDistancer<RSS, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_RSS][GEOM_ELLIPSOID] = &BVHShapeDistancer<RSS, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeDistancer<RSS, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_RSS][GEOM_CONE] = &BVHShapeDistancer<RSS, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeDistancer<RSS, Cylinder, NarrowPhaseSolver>::distance;
@@ -401,6 +421,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   /*
   distance_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeDistancer<KDOP<16>, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeDistancer<KDOP<16>, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_KDOP16][GEOM_ELLIPSOID] = &BVHShapeDistancer<KDOP<16>, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeDistancer<KDOP<16>, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeDistancer<KDOP<16>, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeDistancer<KDOP<16>, Cylinder, NarrowPhaseSolver>::distance;
@@ -410,6 +431,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeDistancer<KDOP<18>, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeDistancer<KDOP<18>, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_KDOP18][GEOM_ELLIPSOID] = &BVHShapeDistancer<KDOP<18>, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeDistancer<KDOP<18>, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeDistancer<KDOP<18>, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeDistancer<KDOP<18>, Cylinder, NarrowPhaseSolver>::distance;
@@ -419,6 +441,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeDistancer<KDOP<24>, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeDistancer<KDOP<24>, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_KDOP24][GEOM_ELLIPSOID] = &BVHShapeDistancer<KDOP<24>, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeDistancer<KDOP<24>, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeDistancer<KDOP<24>, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeDistancer<KDOP<24>, Cylinder, NarrowPhaseSolver>::distance;
@@ -429,6 +452,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeDistancer<kIOS, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeDistancer<kIOS, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_kIOS][GEOM_ELLIPSOID] = &BVHShapeDistancer<kIOS, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeDistancer<kIOS, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeDistancer<kIOS, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeDistancer<kIOS, Cylinder, NarrowPhaseSolver>::distance;
@@ -438,6 +462,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeDistancer<OBBRSS, Box, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeDistancer<OBBRSS, Sphere, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBBRSS][GEOM_ELLIPSOID] = &BVHShapeDistancer<OBBRSS, Ellipsoid, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeDistancer<OBBRSS, Capsule, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeDistancer<OBBRSS, Cone, NarrowPhaseSolver>::distance;
   distance_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeDistancer<OBBRSS, Cylinder, NarrowPhaseSolver>::distance;
@@ -453,6 +478,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 #if FCL_HAVE_OCTOMAP
   distance_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeDistance<Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][GEOM_SPHERE] = &OcTreeShapeDistance<Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][GEOM_ELLIPSOID] = &OcTreeShapeDistance<Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][GEOM_CAPSULE] = &OcTreeShapeDistance<Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][GEOM_CONE] = &OcTreeShapeDistance<Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][GEOM_CYLINDER] = &OcTreeShapeDistance<Cylinder, NarrowPhaseSolver>;
@@ -462,6 +488,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
   distance_matrix[GEOM_BOX][GEOM_OCTREE] = &ShapeOcTreeDistance<Box, NarrowPhaseSolver>;
   distance_matrix[GEOM_SPHERE][GEOM_OCTREE] = &ShapeOcTreeDistance<Sphere, NarrowPhaseSolver>;
+  distance_matrix[GEOM_ELLIPSOID][GEOM_OCTREE] = &ShapeOcTreeDistance<Ellipsoid, NarrowPhaseSolver>;
   distance_matrix[GEOM_CAPSULE][GEOM_OCTREE] = &ShapeOcTreeDistance<Capsule, NarrowPhaseSolver>;
   distance_matrix[GEOM_CONE][GEOM_OCTREE] = &ShapeOcTreeDistance<Cone, NarrowPhaseSolver>;
   distance_matrix[GEOM_CYLINDER][GEOM_OCTREE] = &ShapeOcTreeDistance<Cylinder, NarrowPhaseSolver>;

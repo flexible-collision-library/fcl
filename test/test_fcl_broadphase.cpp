@@ -385,6 +385,19 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int y = (i - n_edge * n_edge * x) % n_edge;
     int z = i - n_edge * n_edge * x - n_edge * y;
 
+    Ellipsoid* ellipsoid = new Ellipsoid(single_size / 2, single_size / 2, single_size / 2);
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(ellipsoid),
+                                      Transform3f(Vec3f(x * step_size + delta_size + 0.5 * single_size - env_scale,
+                                                            y * step_size + delta_size + 0.5 * single_size - env_scale,
+                                                            z * step_size + delta_size + 0.5 * single_size - env_scale))));
+  }
+
+  for(; i < n_edge * n_edge * n_edge / 4; ++i)
+  {
+    int x = i % (n_edge * n_edge);
+    int y = (i - n_edge * n_edge * x) % n_edge;
+    int z = i - n_edge * n_edge * x - n_edge * y;
+
     Cylinder* cylinder = new Cylinder(single_size / 2, single_size);
     env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(cylinder),
                                       Transform3f(Vec3f(x * step_size + delta_size + 0.5 * single_size - env_scale, 
@@ -440,7 +453,22 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
     generateBVHModel(*model, sphere, Transform3f(), 16, 16);
     env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model),
-                                      Transform3f(Vec3f(x * step_size + delta_size + 0.5 * single_size - env_scale, 
+                                      Transform3f(Vec3f(x * step_size + delta_size + 0.5 * single_size - env_scale,
+                                                            y * step_size + delta_size + 0.5 * single_size - env_scale,
+                                                            z * step_size + delta_size + 0.5 * single_size - env_scale))));
+  }
+
+  for(; i < n_edge * n_edge * n_edge / 4; ++i)
+  {
+    int x = i % (n_edge * n_edge);
+    int y = (i - n_edge * n_edge * x) % n_edge;
+    int z = i - n_edge * n_edge * x - n_edge * y;
+
+    Ellipsoid ellipsoid(single_size / 2, single_size / 2, single_size / 2);
+    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    generateBVHModel(*model, ellipsoid, Transform3f(), 16, 16);
+    env.push_back(new CollisionObject(boost::shared_ptr<CollisionGeometry>(model),
+                                      Transform3f(Vec3f(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale))));
   }

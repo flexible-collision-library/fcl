@@ -160,6 +160,15 @@ BOOST_AUTO_TEST_CASE(OBB_shape_test)
     }
 
     {
+      Ellipsoid ellipsoid(len, len, len);
+      computeBV(ellipsoid, transforms[i], obb2);
+
+      bool overlap_obb = obb1.overlap(obb2);
+      bool overlap_ellipsoid = solver.shapeIntersect(box1, box1_tf, ellipsoid, transforms[i], NULL, NULL, NULL);
+      BOOST_CHECK(overlap_obb >= overlap_ellipsoid);
+    }
+
+    {
       Capsule capsule(len, 2 * len);
       computeBV(capsule, transforms[i], obb2);
       

@@ -78,6 +78,11 @@ struct ccd_sphere_t : public ccd_obj_t
   ccd_real_t radius;
 };
 
+struct ccd_ellipsoid_t : public ccd_obj_t
+{
+  ccd_real_t radii[3];
+};
+
 struct ccd_convex_t : public ccd_obj_t
 {
   const Convex* convex;
@@ -548,6 +553,14 @@ static void sphereToGJK(const Sphere& s, const Transform3f& tf, ccd_sphere_t* sp
   sph->radius = s.radius;
 }
 
+static void ellipsoidToGJK(const Ellipsoid& s, const Transform3f& tf, ccd_ellipsoid_t* ellipsoid)
+{
+  shapeToGJK(s, tf, ellipsoid);
+  ellipsoid->radii[0] = s.radii[0];
+  ellipsoid->radii[1] = s.radii[1];
+  ellipsoid->radii[2] = s.radii[2];
+}
+
 static void convexToGJK(const Convex& s, const Transform3f& tf, ccd_convex_t* conv)
 {
   shapeToGJK(s, tf, conv);
@@ -664,6 +677,30 @@ static void supportSphere(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v
   ccdVec3Copy(v, &dir);
   ccdVec3Scale(v, s->radius);
   ccdVec3Scale(v, CCD_ONE / CCD_SQRT(ccdVec3Len2(&dir)));
+
+  // transform support vertex
+  ccdQuatRotVec(v, &s->rot);
+  ccdVec3Add(v, &s->pos);
+}
+
+static void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+{
+  const ccd_ellipsoid_t* s = static_cast<const ccd_ellipsoid_t*>(obj);
+  ccd_vec3_t dir;
+
+  ccdVec3Copy(&dir, dir_);
+  ccdQuatRotVec(&dir, &s->rot_inv);
+
+  ccd_vec3_t abc2;
+  abc2.v[0] = s->radii[0] * s->radii[0];
+  abc2.v[1] = s->radii[1] * s->radii[1];
+  abc2.v[2] = s->radii[2] * s->radii[2];
+
+  v->v[0] = abc2.v[0] * dir.v[0];
+  v->v[1] = abc2.v[1] * dir.v[1];
+  v->v[2] = abc2.v[2] * dir.v[2];
+
+  ccdVec3Scale(v, CCD_ONE / CCD_SQRT(ccdVec3Dot(v, &dir)));
 
   // transform support vertex
   ccdQuatRotVec(v, &s->rot);
@@ -865,6 +902,29 @@ void* GJKInitializer<Sphere>::createGJKObject(const Sphere& s, const Transform3f
 void GJKInitializer<Sphere>::deleteGJKObject(void* o_)
 {
   ccd_sphere_t* o = static_cast<ccd_sphere_t*>(o_);
+  delete o;
+}
+
+GJKSupportFunction GJKInitializer<Ellipsoid>::getSupportFunction()
+{
+  return &supportEllipsoid;
+}
+
+GJKCenterFunction GJKInitializer<Ellipsoid>::getCenterFunction()
+{
+  return &centerShape;
+}
+
+void* GJKInitializer<Ellipsoid>::createGJKObject(const Ellipsoid& s, const Transform3f& tf)
+{
+  ccd_ellipsoid_t* o = new ccd_ellipsoid_t;
+  ellipsoidToGJK(s, tf, o);
+  return o;
+}
+
+void GJKInitializer<Ellipsoid>::deleteGJKObject(void* o_)
+{
+  ccd_ellipsoid_t* o = static_cast<ccd_ellipsoid_t*>(o_);
   delete o;
 }
 
