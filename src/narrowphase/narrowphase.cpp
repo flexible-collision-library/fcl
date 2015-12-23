@@ -44,6 +44,11 @@
 namespace fcl
 {
 
+unsigned int GJKSolver_libccd::max_collision_iterations = 500;
+unsigned int GJKSolver_libccd::max_distance_iterations = 1000;
+FCL_REAL GJKSolver_libccd::collision_tolerance = 1e-6;
+FCL_REAL GJKSolver_libccd::distance_tolerance = 1e-6;
+
 namespace details
 {
 

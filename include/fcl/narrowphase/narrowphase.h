@@ -203,10 +203,6 @@ struct GJKSolver_libccd
   /// @brief default setting for GJK algorithm
   GJKSolver_libccd()
   {
-    max_collision_iterations = 500;
-    max_distance_iterations = 1000;
-    collision_tolerance = 1e-6;
-    distance_tolerance = 1e-6;
   }
 
 
@@ -227,16 +223,16 @@ struct GJKSolver_libccd
 
 
   /// @brief maximum number of iterations used in GJK algorithm for collision
-  unsigned int max_collision_iterations;
+  static unsigned int max_collision_iterations;
 
   /// @brief maximum number of iterations used in GJK algorithm for distance
-  unsigned int max_distance_iterations;
+  static unsigned int max_distance_iterations;
 
   /// @brief the threshold used in GJK algorithm to stop collision iteration
-  FCL_REAL collision_tolerance;
+  static FCL_REAL collision_tolerance;
 
   /// @brief the threshold used in GJK algorithm to stop distance iteration
-  FCL_REAL distance_tolerance;
+  static FCL_REAL distance_tolerance;
   
 
 };
