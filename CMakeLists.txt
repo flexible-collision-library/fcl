@@ -66,7 +66,7 @@ if(NOT OCTOMAP_FOUND)
     # of octomap
     find_path(OCTOMAP_INCLUDE_DIRS octomap.h
         PATH_SUFFIXES octomap)
-    find_path(OCTOMAP_LIBRARY_DIRS
+    find_library(OCTOMAP_LIBRARY_DIRS
         ${CMAKE_SHARED_LIBRARY_PREFIX}octomap${CMAKE_SHARED_LIBRARY_SUFFIX})
     if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
         set(OCTOMAP_LIBRARIES "octomap;octomath")
@@ -128,7 +128,7 @@ if(NOT CCD_FOUND)
     # of ccd
     find_path(CCD_INCLUDE_DIRS ccd.h
         PATH_SUFFIXES ccd)
-    find_path(CCD_LIBRARY_DIRS
+    find_library(CCD_LIBRARY_DIRS
         ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
     if(CCD_INCLUDE_DIRS AND CCD_LIBRARY_DIRS)
         set(CCD_LIBRARIES "ccd")
