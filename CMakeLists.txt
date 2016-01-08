@@ -37,6 +37,7 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 include(CompilerSettings)
 include(FCLVersion)
+include(GNUInstallDirs)
 
 if(MSVC OR IS_ICPC)
   option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" ON)
@@ -146,12 +147,12 @@ set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
 set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
 configure_file("${pkg_conf_file_in}" "${pkg_conf_file_out}" @ONLY)
 
-install(DIRECTORY include/ DESTINATION include
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.h" PATTERN "*.hxx"
   PATTERN ".DS_Store" EXCLUDE
 )
 
-install(FILES "${pkg_conf_file_out}" DESTINATION lib/pkgconfig/ COMPONENT pkgconfig)
+install(FILES "${pkg_conf_file_out}" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig/ COMPONENT pkgconfig)
 
 # Add uninstall target
 configure_file(
