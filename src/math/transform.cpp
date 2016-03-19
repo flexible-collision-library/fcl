@@ -58,9 +58,9 @@ Quaternion3f& Quaternion3f::normalize()
       data[2] = 0;
       data[3] = 0;
     } else {
-      double sl = sqrtf(l);
+      double sl = 1.0/std::sqrt(l);
       for (uint i = 0 ; i < 4 ; i++) {
-        data[i] /= sl;
+        data[i] *= sl;
       }
     }
   }
