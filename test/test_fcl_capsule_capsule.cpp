@@ -37,13 +37,13 @@
 
 #define BOOST_TEST_MODULE "FCL_CAPSULE_CAPSULE"
 #include <boost/test/unit_test.hpp>
+#include <boost/math/constants/constants.hpp>
 
 #include "fcl/collision.h"
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/narrowphase/narrowphase.h"
 
-#include "math.h"
-
+#include <cmath>
 using namespace fcl;
 
 BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin)
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_origin)
   std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
-  BOOST_CHECK(fabs(dist - 10.1) < 0.001);
+  BOOST_CHECK(std::abs(dist - 10.1) < 0.001);
   BOOST_CHECK(res);
 
 }
@@ -92,8 +92,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformXY)
   std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
-  float expected = sqrt(800) - 10;
-  BOOST_CHECK(fabs(expected-dist) < 0.01);
+  FCL_REAL expected = std::sqrt(FCL_REAL(800)) - 10;
+  BOOST_CHECK(std::abs(expected-dist) < 0.01);
   BOOST_CHECK(res);
 
 }
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ)
   std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
+  BOOST_CHECK(std::abs(dist - 0.1) < 0.001);
   BOOST_CHECK(res);
 
 }
@@ -126,6 +126,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ)
 
 BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
 {
+  const FCL_REAL Pi = boost::math::constants::pi<FCL_REAL>();
 
   GJKSolver_indep solver;
   Capsule s1(5, 10);
@@ -137,7 +138,8 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
   Transform3f transform2;
   transform2 = Transform3f(Vec3f(0,0,25.1));
   Matrix3f rot2;
-  rot2.setEulerZYX(0,M_PI_2,0);
+
+  rot2.setEulerZYX(0,Pi/2,0);
   transform2.setRotation(rot2);
 
   bool res;
@@ -148,7 +150,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
   std::cerr << "applied transformation of two caps: " << transform.getRotation() << " & " << transform2.getRotation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
-  BOOST_CHECK(fabs(dist - 5.1) < 0.001);
+  BOOST_CHECK(std::abs(dist - 5.1) < 0.001);
   BOOST_CHECK(res);
 
 }
