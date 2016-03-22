@@ -129,10 +129,10 @@ if(NOT CCD_FOUND)
     # of ccd
     find_path(CCD_INCLUDE_DIRS ccd.h
         PATH_SUFFIXES ccd)
-    find_library(CCD_LIBRARY_DIRS
+    find_library(CCD_LIBRARY
         ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
-    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY_DIRS)
-        set(CCD_LIBRARIES "ccd")
+    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY)
+        set(CCD_LIBRARIES "${CCD_LIBRARY}")
     else()
         message(FATAL_ERROR "Libccd is required by FCL")
     endif()
