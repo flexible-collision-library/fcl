@@ -1,12 +1,12 @@
 #ifndef FCL_MATH_SAMPLING_H
 #define FCL_MATH_SAMPLING_H
 
-#include <math.h>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/assign/list_of.hpp>
+#include "fcl/math/constants.h"
 #include "fcl/math/vec_nf.h"
 #include "fcl/math/transform.h"
 
@@ -186,7 +186,7 @@ public:
     Vecnf<3> q;
     q[0] = rng.uniformReal(lower_bound[0], lower_bound[1]);
     q[1] = rng.uniformReal(lower_bound[1], lower_bound[2]);
-    q[2] = rng.uniformReal(-M_PI, M_PI);
+    q[2] = rng.uniformReal(-constants::pi, constants::pi);
 
     return q;
   }
@@ -226,8 +226,7 @@ public:
     rng.disk(r_min, r_max, x, y);
     q[0] = x + c[0] - cref[0];
     q[1] = y + c[1] - cref[1];
-    q[2] = rng.uniformReal(-M_PI,
-                           M_PI);
+    q[2] = rng.uniformReal(-constants::pi, constants::pi);
 
     return q;
   }

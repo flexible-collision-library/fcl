@@ -35,6 +35,7 @@
 
 /** \author Jia Pan */
 
+#include "fcl/math/constants.h"
 #include "fcl/ccd/taylor_model.h"
 #include <cassert>
 #include <iostream>
@@ -385,8 +386,8 @@ void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
     // cos reaches maximum if there exists an integer k in [(w*t0+q0)/2pi, (w*t1+q0)/2pi];
     // cos reaches minimum if there exists an integer k in [(w*t0+q0-pi)/2pi, (w*t1+q0-pi)/2pi]
 
-    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * M_PI);
-    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * M_PI);
+    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * constants::pi);
+    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * constants::pi);
 
 
     if(w > 0)
@@ -456,8 +457,8 @@ void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
     // sin reaches maximum if there exists an integer k in [(w*t0+q0-pi/2)/2pi, (w*t1+q0-pi/2)/2pi];
     // sin reaches minimum if there exists an integer k in [(w*t0+q0-pi-pi/2)/2pi, (w*t1+q0-pi-pi/2)/2pi]
 
-    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * M_PI) - 0.25;
-    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * M_PI) - 0.25;
+    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * constants::pi) - 0.25;
+    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * constants::pi) - 0.25;
 
     if(w > 0)
     {

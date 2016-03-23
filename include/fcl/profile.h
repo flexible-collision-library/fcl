@@ -59,6 +59,7 @@
 #include <string>
 #include <iostream>
 #include <thread>
+#include <mutex>
 #include <boost/noncopyable.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 

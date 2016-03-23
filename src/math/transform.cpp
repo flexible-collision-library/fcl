@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-
+#include "fcl/math/constants.h"
 #include "fcl/math/transform.h"
 
 namespace fcl
@@ -350,17 +350,17 @@ void Quaternion3f::toEuler(FCL_REAL& a, FCL_REAL& b, FCL_REAL& c) const
   b = asin(-R(2, 0));
   c = atan2(R(2, 1), R(2, 2));
 
-  if(b == M_PI * 0.5)
+  if(b == constants::pi * 0.5)
   {
     if(a > 0)
-      a -= M_PI;
+      a -= constants::pi;
     else 
-      a += M_PI;
+      a += constants::pi;
 
     if(c > 0)
-      c -= M_PI;
+      c -= constants::pi;
     else
-      c += M_PI;
+      c += constants::pi;
   }
 }
 

@@ -38,7 +38,7 @@
 #ifndef FCL_RSS_H
 #define FCL_RSS_H
 
-#include <math.h>
+#include "fcl/math/constants.h"
 #include "fcl/math/vec_3f.h"
 #include "fcl/math/matrix_3f.h"
 
@@ -111,7 +111,7 @@ public:
   /// @brief Volume of the RSS
   inline FCL_REAL volume() const
   {
-    return (l[0] * l[1] * 2 * r + 4 * M_PI * r * r * r);
+    return (l[0] * l[1] * 2 * r + 4 * constants::pi * r * r * r);
   }
 
   /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)

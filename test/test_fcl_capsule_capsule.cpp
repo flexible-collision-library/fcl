@@ -38,6 +38,7 @@
 #define BOOST_TEST_MODULE "FCL_CAPSULE_CAPSULE"
 #include <boost/test/unit_test.hpp>
 
+#include "fcl/math/constants.h"
 #include "fcl/collision.h"
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/narrowphase/narrowphase.h"
@@ -125,7 +126,7 @@ BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ)
 
 BOOST_AUTO_TEST_CASE(distance_capsulecapsule_transformZ2)
 {
-  const FCL_REAL Pi = M_PI;
+  const FCL_REAL Pi = constants::pi;
 
   GJKSolver_indep solver;
   Capsule s1(5, 10);

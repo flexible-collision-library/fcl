@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(sphere_shape)
 {
   const double tol = 1e-12;
   const double radius = 5.0;
-  const double pi = M_PI;
+  const double pi = constants::pi;
 
   Sphere s(radius);
 

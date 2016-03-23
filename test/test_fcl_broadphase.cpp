@@ -1035,7 +1035,7 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
   }
 
   // update the environment
-  FCL_REAL delta_angle_max = 10 / 360.0 * 2 * M_PI;
+  FCL_REAL delta_angle_max = 10 / 360.0 * 2 * constants::pi;
   FCL_REAL delta_trans_max = 0.01 * env_scale;
   for(size_t i = 0; i < env.size(); ++i)
   {

@@ -870,7 +870,7 @@ static inline void cullPoints2(int n, FCL_REAL p[], int m, int i0, int iret[])
   avail[i0] = 0;
   iret[0] = i0;
   iret++;
-  const double pi = M_PI;
+  const double pi = constants::pi;
   for(int j = 1; j < m; ++j) 
   {
     a = j*(2*pi/m) + A[i0];
