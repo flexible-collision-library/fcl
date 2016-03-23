@@ -45,8 +45,7 @@
 #include <vector>
 #include <map>
 #include <limits>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 
 namespace fcl
 {
@@ -61,7 +60,7 @@ class Joint
 {
 public:
 
-  Joint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+  Joint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
         const Transform3f& transform_to_parent,
         const std::string& name);
 
@@ -76,14 +75,14 @@ public:
 
   virtual std::size_t getNumDofs() const = 0;
 
-  boost::shared_ptr<JointConfig> getJointConfig() const;
-  void setJointConfig(const boost::shared_ptr<JointConfig>& joint_cfg);
+  std::shared_ptr<JointConfig> getJointConfig() const;
+  void setJointConfig(const std::shared_ptr<JointConfig>& joint_cfg);
 
-  boost::shared_ptr<Link> getParentLink() const;
-  boost::shared_ptr<Link> getChildLink() const;
+  std::shared_ptr<Link> getParentLink() const;
+  std::shared_ptr<Link> getChildLink() const;
 
-  void setParentLink(const boost::shared_ptr<Link>& link);
-  void setChildLink(const boost::shared_ptr<Link>& link);
+  void setParentLink(const std::shared_ptr<Link>& link);
+  void setChildLink(const std::shared_ptr<Link>& link);
 
   JointType getJointType() const;
 
@@ -93,13 +92,13 @@ public:
 protected:
 
   /// links to parent and child are only for connection, so weak_ptr to avoid cyclic dependency
-  boost::weak_ptr<Link> link_parent_, link_child_;
+  std::weak_ptr<Link> link_parent_, link_child_;
 
   JointType type_;
 
   std::string name_;
   
-  boost::shared_ptr<JointConfig> joint_cfg_;
+  std::shared_ptr<JointConfig> joint_cfg_;
 
   Transform3f transform_to_parent_;
 };
@@ -108,7 +107,7 @@ protected:
 class PrismaticJoint : public Joint
 {
 public:
-  PrismaticJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+  PrismaticJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
                  const Transform3f& transform_to_parent,
                  const std::string& name,
                  const Vec3f& axis);
@@ -128,7 +127,7 @@ protected:
 class RevoluteJoint : public Joint
 {
 public:
-  RevoluteJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+  RevoluteJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
                 const Transform3f& transform_to_parent,
                 const std::string& name,
                 const Vec3f& axis);
@@ -150,7 +149,7 @@ protected:
 class BallEulerJoint : public Joint
 {
 public:
-  BallEulerJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+  BallEulerJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
                  const Transform3f& transform_to_parent,
                  const std::string& name);
 

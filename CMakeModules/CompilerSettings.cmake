@@ -1,3 +1,6 @@
+# force C++11 mode
+add_definitions(-std=c++11)
+
 if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-W -Wall -g -Wextra -Wno-missing-field-initializers -Wno-unused-parameter)
 endif(CMAKE_COMPILER_IS_GNUCXX)

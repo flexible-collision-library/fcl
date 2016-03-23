@@ -347,7 +347,7 @@ private:
                 // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
                 if (free_space < contacts.size())
                 {
-                  std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), boost::bind(comparePenDepth, _2, _1));
+                  std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth, std::placeholders::_2, std::placeholders::_1));
                   num_adding_contacts = free_space;
                 }
                 else
@@ -919,7 +919,7 @@ private:
               // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
               if (free_space < contacts.size())
               {
-                std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), boost::bind(comparePenDepth, _2, _1));
+                std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth, std::placeholders::_2, std::placeholders::_1));
                 num_adding_contacts = free_space;
               }
               else

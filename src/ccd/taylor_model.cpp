@@ -39,8 +39,6 @@
 #include <cassert>
 #include <iostream>
 #include <cmath>
-#include <boost/math/constants/constants.hpp>
-
 
 namespace fcl
 {
@@ -50,18 +48,18 @@ TaylorModel::TaylorModel()
   coeffs_[0] = coeffs_[1] = coeffs_[2] = coeffs_[3] = 0;
 }
 
-TaylorModel::TaylorModel(const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
+TaylorModel::TaylorModel(const std::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
 {
   coeffs_[0] = coeffs_[1] = coeffs_[2] = coeffs_[3] = 0;
 }
 
-TaylorModel::TaylorModel(FCL_REAL coeff, const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
+TaylorModel::TaylorModel(FCL_REAL coeff, const std::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
 {
   coeffs_[0] = coeff;
   coeffs_[1] = coeffs_[2] = coeffs_[3] = r_[0] = r_[1] = 0;
 }
 
-TaylorModel::TaylorModel(FCL_REAL coeffs[3], const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
+TaylorModel::TaylorModel(FCL_REAL coeffs[3], const Interval& r, const std::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
 {
   coeffs_[0] = coeffs[0];
   coeffs_[1] = coeffs[1];
@@ -71,7 +69,7 @@ TaylorModel::TaylorModel(FCL_REAL coeffs[3], const Interval& r, const boost::sha
   r_ = r;
 }
 
-TaylorModel::TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
+TaylorModel::TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r, const std::shared_ptr<TimeInterval>& time_interval) : time_interval_(time_interval)
 {
   coeffs_[0] = c0;
   coeffs_[1] = c1;
@@ -387,8 +385,8 @@ void generateTaylorModelForCosFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
     // cos reaches maximum if there exists an integer k in [(w*t0+q0)/2pi, (w*t1+q0)/2pi];
     // cos reaches minimum if there exists an integer k in [(w*t0+q0-pi)/2pi, (w*t1+q0-pi)/2pi]
 
-    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>());
-    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>());
+    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * M_PI);
+    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * M_PI);
 
 
     if(w > 0)
@@ -458,8 +456,8 @@ void generateTaylorModelForSinFunc(TaylorModel& tm, FCL_REAL w, FCL_REAL q0)
     // sin reaches maximum if there exists an integer k in [(w*t0+q0-pi/2)/2pi, (w*t1+q0-pi/2)/2pi];
     // sin reaches minimum if there exists an integer k in [(w*t0+q0-pi-pi/2)/2pi, (w*t1+q0-pi-pi/2)/2pi]
 
-    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>()) - 0.25;
-    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * boost::math::constants::pi<FCL_REAL>()) - 0.25;
+    FCL_REAL k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * M_PI) - 0.25;
+    FCL_REAL k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * M_PI) - 0.25;
 
     if(w > 0)
     {

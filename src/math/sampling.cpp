@@ -3,7 +3,6 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/math/constants/constants.hpp>
 
 namespace fcl
 {
@@ -99,7 +98,7 @@ void RNG::quaternion(double value[4])
 {
   double x0 = uni_();
   double r1 = sqrt(1.0 - x0), r2 = sqrt(x0);
-  double t1 = 2.0 * boost::math::constants::pi<double>() * uni_(), t2 = 2.0 * boost::math::constants::pi<double>() * uni_();
+  double t1 = 2.0 * M_PI * uni_(), t2 = 2.0 * M_PI * uni_();
   double c1 = cos(t1), s1 = sin(t1);
   double c2 = cos(t2), s2 = sin(t2);
   value[0] = s1 * r1;
@@ -111,9 +110,9 @@ void RNG::quaternion(double value[4])
 // From Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning, by James Kuffner, ICRA 2004
 void RNG::eulerRPY(double value[3])
 {
-  value[0] = boost::math::constants::pi<double>() * (2.0 * uni_() - 1.0);
-  value[1] = acos(1.0 - 2.0 * uni_()) - boost::math::constants::pi<double>() / 2.0;
-  value[2] = boost::math::constants::pi<double>() * (2.0 * uni_() - 1.0);
+  value[0] = M_PI * (2.0 * uni_() - 1.0);
+  value[1] = acos(1.0 - 2.0 * uni_()) - M_PI / 2.0;
+  value[2] = M_PI * (2.0 * uni_() - 1.0);
 }
 	
 void RNG::disk(double r_min, double r_max, double& x, double& y)
@@ -121,7 +120,7 @@ void RNG::disk(double r_min, double r_max, double& x, double& y)
   double a = uniform01();
   double b = uniform01();
   double r = std::sqrt(a * r_max * r_max + (1 - a) * r_min * r_min);
-  double theta = 2 * boost::math::constants::pi<double>() * b;
+  double theta = 2 * M_PI * b;
   x = r * std::cos(theta);
   y = r * std::sin(theta);
 }
@@ -133,7 +132,7 @@ void RNG::ball(double r_min, double r_max, double& x, double& y, double& z)
   double c = uniform01();
   double r = std::pow(a * r_max * r_max * r_max + (1 - a) * r_min * r_min * r_min, 1 / 3.0);
   double theta = std::acos(1 - 2 * b);
-  double phi = 2 * boost::math::constants::pi<double>() * c;
+  double phi = 2 * M_PI * c;
 		
   double costheta = std::cos(theta);
   double sintheta = std::sin(theta);

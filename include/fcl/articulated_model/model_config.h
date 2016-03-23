@@ -42,8 +42,7 @@
 #include "fcl/articulated_model/joint_config.h"
 #include <string>
 #include <map>
-#include <boost/weak_ptr.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace fcl
 {
@@ -55,13 +54,13 @@ public:
 
   ModelConfig(const ModelConfig& model_cfg);
 
-  ModelConfig(std::map<std::string, boost::shared_ptr<Joint> > joints_map);
+  ModelConfig(std::map<std::string, std::shared_ptr<Joint> > joints_map);
 
   JointConfig getJointConfigByJointName(const std::string& joint_name) const;
   JointConfig& getJointConfigByJointName(const std::string& joint_name);
 
-  JointConfig getJointConfigByJoint(boost::shared_ptr<Joint> joint) const;
-  JointConfig& getJointConfigByJoint(boost::shared_ptr<Joint> joint);
+  JointConfig getJointConfigByJoint(std::shared_ptr<Joint> joint) const;
+  JointConfig& getJointConfigByJoint(std::shared_ptr<Joint> joint);
 
   std::map<std::string, JointConfig> getJointCfgsMap() const
   { return joint_cfgs_map_; }

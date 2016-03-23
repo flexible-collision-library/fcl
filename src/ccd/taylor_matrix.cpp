@@ -44,7 +44,7 @@ TMatrix3::TMatrix3()
 {
 }
 
-TMatrix3::TMatrix3(const boost::shared_ptr<TimeInterval>& time_interval)
+TMatrix3::TMatrix3(const std::shared_ptr<TimeInterval>& time_interval)
 {
   setTimeInterval(time_interval);
 }
@@ -64,7 +64,7 @@ TMatrix3::TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3)
 }
 
 
-TMatrix3::TMatrix3(const Matrix3f& m, const boost::shared_ptr<TimeInterval>& time_interval)
+TMatrix3::TMatrix3(const Matrix3f& m, const std::shared_ptr<TimeInterval>& time_interval)
 {
   v_[0] = TVector3(m.getRow(0), time_interval);
   v_[1] = TVector3(m.getRow(1), time_interval);
@@ -320,7 +320,7 @@ FCL_REAL TMatrix3::diameter() const
   return d;
 }
 
-void TMatrix3::setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval)
+void TMatrix3::setTimeInterval(const std::shared_ptr<TimeInterval>& time_interval)
 {
   v_[0].setTimeInterval(time_interval);
   v_[1].setTimeInterval(time_interval);
@@ -334,7 +334,7 @@ void TMatrix3::setTimeInterval(FCL_REAL l, FCL_REAL r)
   v_[2].setTimeInterval(l, r);
 }
 
-const boost::shared_ptr<TimeInterval>& TMatrix3::getTimeInterval() const
+const std::shared_ptr<TimeInterval>& TMatrix3::getTimeInterval() const
 {
   return v_[0].getTimeInterval();
 }

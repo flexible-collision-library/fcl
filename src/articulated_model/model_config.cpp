@@ -53,9 +53,9 @@ ModelConfig::ModelConfig(const ModelConfig& model_cfg) :
   joint_cfgs_map_(model_cfg.joint_cfgs_map_)
 {}
 
-ModelConfig::ModelConfig(std::map<std::string, boost::shared_ptr<Joint> > joints_map)
+ModelConfig::ModelConfig(std::map<std::string, std::shared_ptr<Joint> > joints_map)
 {
-  std::map<std::string, boost::shared_ptr<Joint> >::iterator it;
+  std::map<std::string, std::shared_ptr<Joint> >::iterator it;
   for(it = joints_map.begin(); it != joints_map.end(); ++it)
     joint_cfgs_map_[it->first] = JointConfig(it->second);
 }
@@ -76,12 +76,12 @@ JointConfig& ModelConfig::getJointConfigByJointName(const std::string& joint_nam
   return it->second;
 }
 
-JointConfig ModelConfig::getJointConfigByJoint(boost::shared_ptr<Joint> joint) const
+JointConfig ModelConfig::getJointConfigByJoint(std::shared_ptr<Joint> joint) const
 {
   return getJointConfigByJointName(joint->getName());
 }
 
-JointConfig& ModelConfig::getJointConfigByJoint(boost::shared_ptr<Joint> joint)
+JointConfig& ModelConfig::getJointConfigByJoint(std::shared_ptr<Joint> joint)
 {
   return getJointConfigByJointName(joint->getName());
 }

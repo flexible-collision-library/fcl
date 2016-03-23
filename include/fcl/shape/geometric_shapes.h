@@ -139,7 +139,7 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return 4.0 * boost::math::constants::pi<FCL_REAL>() * radius * radius * radius / 3.0;
+    return 4.0 * M_PI * radius * radius * radius / 3.0;
   }
 };
 
@@ -177,7 +177,7 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+    const FCL_REAL pi = M_PI;
     return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
   }
 };
@@ -204,13 +204,13 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius *(lz + radius * 4/3.0);
+    return M_PI * radius * radius *(lz + radius * 4/3.0);
   }
 
   Matrix3f computeMomentofInertia() const
   {
-    FCL_REAL v_cyl = radius * radius * lz * boost::math::constants::pi<FCL_REAL>();
-    FCL_REAL v_sph = radius * radius * radius * boost::math::constants::pi<FCL_REAL>() * 4 / 3.0;
+    FCL_REAL v_cyl = radius * radius * lz * M_PI;
+    FCL_REAL v_sph = radius * radius * radius * M_PI * 4 / 3.0;
     
     FCL_REAL ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
     FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
@@ -244,7 +244,7 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius * lz / 3;
+    return M_PI * radius * radius * lz / 3;
   }
 
   Matrix3f computeMomentofInertia() const
@@ -287,7 +287,7 @@ public:
 
   FCL_REAL computeVolume() const
   {
-    return boost::math::constants::pi<FCL_REAL>() * radius * radius * lz;
+    return M_PI * radius * radius * lz;
   }
 
   Matrix3f computeMomentofInertia() const

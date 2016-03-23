@@ -117,7 +117,7 @@ protected:
 class MotionBase
 {
 public:
-  MotionBase() : time_interval_(boost::shared_ptr<TimeInterval>(new TimeInterval(0, 1)))
+  MotionBase() : time_interval_(std::shared_ptr<TimeInterval>(new TimeInterval(0, 1)))
   {
   }
   
@@ -174,17 +174,17 @@ public:
 
   virtual void getTaylorModel(TMatrix3& tm, TVector3& tv) const = 0;
 
-  const boost::shared_ptr<TimeInterval>& getTimeInterval() const
+  const std::shared_ptr<TimeInterval>& getTimeInterval() const
   {
     return time_interval_;
   }
 protected:
 
-  boost::shared_ptr<TimeInterval> time_interval_;
+  std::shared_ptr<TimeInterval> time_interval_;
   
 };
 
-typedef boost::shared_ptr<MotionBase> MotionBasePtr;
+typedef std::shared_ptr<MotionBase> MotionBasePtr;
 
 
 }

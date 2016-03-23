@@ -41,7 +41,7 @@
 #include "fcl/data_types.h"
 #include "fcl/ccd/interpolation/interpolation.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace fcl 
 {
@@ -67,7 +67,7 @@ public:
   virtual FCL_REAL getVelocityBound(FCL_REAL time) const;
 
 public:
-  static boost::shared_ptr<Interpolation> create(FCL_REAL start_value, FCL_REAL end_value);
+  static std::shared_ptr<Interpolation> create(FCL_REAL start_value, FCL_REAL end_value);
 
   static void registerToFactory();
 };

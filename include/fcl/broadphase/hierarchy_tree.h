@@ -40,9 +40,9 @@
 
 #include <vector>
 #include <map>
+#include <functional>
 #include "fcl/BV/AABB.h"
 #include "fcl/broadphase/morton.h"
-#include <boost/bind.hpp>
 
 namespace fcl
 {

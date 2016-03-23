@@ -43,7 +43,7 @@
 #include "fcl/BV/AABB.h"
 #include "fcl/math/transform.h"
 #include "fcl/ccd/motion_base.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace fcl
 {
@@ -151,7 +151,7 @@ public:
 class CollisionObject
 {
 public:
- CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_) :
+ CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_) :
     cgeom(cgeom_), cgeom_const(cgeom_)
   {
     if (cgeom)
@@ -161,14 +161,14 @@ public:
     }
   }
 
-  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) :
+  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const boost::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
+  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
       cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3f(R, T))
   {
     cgeom->computeLocalAABB();
@@ -305,7 +305,7 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  const boost::shared_ptr<const CollisionGeometry>& collisionGeometry() const
+  const std::shared_ptr<const CollisionGeometry>& collisionGeometry() const
   {
     return cgeom_const;
   }
@@ -342,8 +342,8 @@ public:
 
 protected:
 
-  boost::shared_ptr<CollisionGeometry> cgeom;
-  boost::shared_ptr<const CollisionGeometry> cgeom_const;
+  std::shared_ptr<CollisionGeometry> cgeom;
+  std::shared_ptr<const CollisionGeometry> cgeom_const;
 
   Transform3f t;
 
@@ -359,12 +359,12 @@ protected:
 class ContinuousCollisionObject
 {
 public:
-  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_) :
+  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry>& cgeom_) :
     cgeom(cgeom_), cgeom_const(cgeom_)
   {
   }
 
-  ContinuousCollisionObject(const boost::shared_ptr<CollisionGeometry>& cgeom_, const boost::shared_ptr<MotionBase>& motion_) :
+  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry>& cgeom_, const std::shared_ptr<MotionBase>& motion_) :
     cgeom(cgeom_), cgeom_const(cgeom), motion(motion_)
   {
   }
@@ -455,17 +455,17 @@ public:
   }
 
   /// @brief get geometry from the object instance
-  inline const boost::shared_ptr<const CollisionGeometry>& collisionGeometry() const
+  inline const std::shared_ptr<const CollisionGeometry>& collisionGeometry() const
   {
     return cgeom_const;
   }
 
 protected:
 
-  boost::shared_ptr<CollisionGeometry> cgeom;
-  boost::shared_ptr<const CollisionGeometry> cgeom_const;
+  std::shared_ptr<CollisionGeometry> cgeom;
+  std::shared_ptr<const CollisionGeometry> cgeom_const;
 
-  boost::shared_ptr<MotionBase> motion;
+  std::shared_ptr<MotionBase> motion;
 
   /// @brief AABB in the global coordinate for the motion
   mutable AABB aabb;

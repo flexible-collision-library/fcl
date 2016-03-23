@@ -38,7 +38,8 @@
 #include "fcl/broadphase/broadphase_interval_tree.h"
 #include <algorithm>
 #include <limits>
-#include <boost/bind.hpp>
+#include <functional>
+
 
 namespace fcl
 {
@@ -50,9 +51,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
 
   EndPoint p;
   p.value = obj->getAABB().min_[0];
-  std::vector<EndPoint>::iterator start1 = std::lower_bound(endpoints[0].begin(), endpoints[0].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+  std::vector<EndPoint>::iterator start1 = std::lower_bound(endpoints[0].begin(), endpoints[0].end(), p);
   p.value = obj->getAABB().max_[0];
-  std::vector<EndPoint>::iterator end1 = std::upper_bound(start1, endpoints[0].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+  std::vector<EndPoint>::iterator end1 = std::upper_bound(start1, endpoints[0].end(), p);
 
   if(start1 < end1)
   {
@@ -76,9 +77,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
   }
 
   p.value = obj->getAABB().min_[1];
-  std::vector<EndPoint>::iterator start2 = std::lower_bound(endpoints[1].begin(), endpoints[1].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+  std::vector<EndPoint>::iterator start2 = std::lower_bound(endpoints[1].begin(), endpoints[1].end(), p);
   p.value = obj->getAABB().max_[1];
-  std::vector<EndPoint>::iterator end2 = std::upper_bound(start2, endpoints[1].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+  std::vector<EndPoint>::iterator end2 = std::upper_bound(start2, endpoints[1].end(), p);
 
   if(start2 < end2)
   {
@@ -103,9 +104,9 @@ void IntervalTreeCollisionManager::unregisterObject(CollisionObject* obj)
 
 
   p.value = obj->getAABB().min_[2];
-  std::vector<EndPoint>::iterator start3 = std::lower_bound(endpoints[2].begin(), endpoints[2].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+  std::vector<EndPoint>::iterator start3 = std::lower_bound(endpoints[2].begin(), endpoints[2].end(), p);
   p.value = obj->getAABB().max_[2];
-  std::vector<EndPoint>::iterator end3 = std::upper_bound(start3, endpoints[2].end(), p, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+  std::vector<EndPoint>::iterator end3 = std::upper_bound(start3, endpoints[2].end(), p);
 
   if(start3 < end3)
   {
@@ -178,9 +179,9 @@ void IntervalTreeCollisionManager::setup()
 {
   if(!setup_)
   {
-    std::sort(endpoints[0].begin(), endpoints[0].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
-    std::sort(endpoints[1].begin(), endpoints[1].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
-    std::sort(endpoints[2].begin(), endpoints[2].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    std::sort(endpoints[0].begin(), endpoints[0].end());
+    std::sort(endpoints[1].begin(), endpoints[1].end());
+    std::sort(endpoints[2].begin(), endpoints[2].end());
 
     for(int i = 0; i < 3; ++i)
       delete interval_trees[i];
@@ -265,7 +266,7 @@ void IntervalTreeCollisionManager::update(CollisionObject* updated_obj)
   for(int i = 0; i < 3; ++i)
   {
     dummy.value = old_aabb.min_[i];
-    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy);
     for(; it != endpoints[i].end(); ++it)
     {
       if(it->obj == updated_obj && it->minmax == 0)
@@ -276,7 +277,7 @@ void IntervalTreeCollisionManager::update(CollisionObject* updated_obj)
     }
 
     dummy.value = old_aabb.max_[i];
-    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy, boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy);
     for(; it != endpoints[i].end(); ++it)
     {
       if(it->obj == updated_obj && it->minmax == 0)
@@ -286,7 +287,7 @@ void IntervalTreeCollisionManager::update(CollisionObject* updated_obj)
       }
     }         
 
-    std::sort(endpoints[i].begin(), endpoints[i].end(), boost::bind(&EndPoint::value, _1) < boost::bind(&EndPoint::value, _2));
+    std::sort(endpoints[i].begin(), endpoints[i].end());
   }
 }
 
