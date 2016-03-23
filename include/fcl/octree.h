@@ -54,7 +54,7 @@ namespace fcl
 class OcTree : public CollisionGeometry
 {
 private:
-  boost::shared_ptr<const octomap::OcTree> tree;
+  boost::shared_ptr<octomap::OcTree> tree;
 
   FCL_REAL default_occupancy;
 
@@ -70,7 +70,7 @@ public:
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))                               
+  OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<octomap::OcTree>(new octomap::OcTree(resolution)))
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -80,7 +80,7 @@ public:
   }
 
   /// @brief construct octree from octomap
-  OcTree(const boost::shared_ptr<const octomap::OcTree>& tree_) : tree(tree_)
+  OcTree(const boost::shared_ptr<octomap::OcTree>& tree_) : tree(tree_)
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -95,6 +95,12 @@ public:
     aabb_local = getRootBV();
     aabb_center = aabb_local.center();
     aabb_radius = (aabb_local.min_ - aabb_center).length();
+  }
+
+  /// @brief get the underlying octree structure
+  boost::shared_ptr<octomap::OcTree> getTree()
+  {
+    return tree;
   }
 
   /// @brief get the bounding volume for the root

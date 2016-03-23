@@ -215,7 +215,7 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive)
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree* tree = new OcTree(boost::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(boost::shared_ptr<octomap::OcTree>(generateOcTree()));
   boost::shared_ptr<CollisionGeometry> tree_ptr(tree);
 
   std::vector<Transform3f> transforms;
@@ -331,7 +331,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree* tree = new OcTree(boost::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(boost::shared_ptr<octomap::OcTree>(generateOcTree()));
   CollisionObject tree_obj((boost::shared_ptr<CollisionGeometry>(tree)));
 
   DynamicAABBTreeCollisionManager* manager = new DynamicAABBTreeCollisionManager();
@@ -451,7 +451,7 @@ void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaust
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree* tree = new OcTree(boost::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(boost::shared_ptr<octomap::OcTree>(generateOcTree()));
   CollisionObject tree_obj((boost::shared_ptr<CollisionGeometry>(tree)));
 
   DynamicAABBTreeCollisionManager* manager = new DynamicAABBTreeCollisionManager();
@@ -550,7 +550,7 @@ void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree* tree = new OcTree(boost::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(boost::shared_ptr<octomap::OcTree>(generateOcTree()));
   CollisionObject tree_obj((boost::shared_ptr<CollisionGeometry>(tree)));
 
   DynamicAABBTreeCollisionManager* manager = new DynamicAABBTreeCollisionManager();
