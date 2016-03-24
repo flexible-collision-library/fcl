@@ -51,10 +51,10 @@ class TVector3
 public:
   
   TVector3();
-  TVector3(const boost::shared_ptr<TimeInterval>& time_interval);
+  TVector3(const std::shared_ptr<TimeInterval>& time_interval);
   TVector3(TaylorModel v[3]);
   TVector3(const TaylorModel& v0, const TaylorModel& v1, const TaylorModel& v2);
-  TVector3(const Vec3f& v, const boost::shared_ptr<TimeInterval>& time_interval);
+  TVector3(const Vec3f& v, const std::shared_ptr<TimeInterval>& time_interval);
   
   TVector3 operator + (const TVector3& other) const;
   TVector3& operator += (const TVector3& other);
@@ -96,10 +96,10 @@ public:
 
   TaylorModel squareLength() const;
 
-  void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
+  void setTimeInterval(const std::shared_ptr<TimeInterval>& time_interval);
   void setTimeInterval(FCL_REAL l, FCL_REAL r);
 
-  const boost::shared_ptr<TimeInterval>& getTimeInterval() const;
+  const std::shared_ptr<TimeInterval>& getTimeInterval() const;
 };
 
 void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity);

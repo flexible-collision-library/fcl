@@ -74,7 +74,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 
           box->cost_density = tree2->getDefaultOccupancy();
           
-          CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+          CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
@@ -108,7 +108,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -173,7 +173,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 
           box->cost_density = tree2->getOccupancyThres(); // thresholds are 0, 1, so uncertain
 
-          CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+          CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
@@ -204,7 +204,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj2(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+        CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -257,7 +257,7 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
       Box* box = new Box();
       Transform3f box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+      CollisionObject obj(std::shared_ptr<CollisionGeometry>(box), box_tf);
       return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;
@@ -346,7 +346,7 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
       Box* box = new Box();
       Transform3f box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject obj(boost::shared_ptr<CollisionGeometry>(box), box_tf);
+      CollisionObject obj(std::shared_ptr<CollisionGeometry>(box), box_tf);
       return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;

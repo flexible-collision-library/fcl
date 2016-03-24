@@ -44,7 +44,7 @@
 #include "fcl/BVH/BV_splitter.h"
 #include "fcl/BVH/BV_fitter.h"
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/noncopyable.hpp>
 
 namespace fcl
@@ -268,10 +268,10 @@ public:
   BVHBuildState build_state;
 
   /// @brief Split rule to split one BV node into two children
-  boost::shared_ptr<BVSplitterBase<BV> > bv_splitter;
+  std::shared_ptr<BVSplitterBase<BV> > bv_splitter;
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  boost::shared_ptr<BVFitterBase<BV> > bv_fitter;
+  std::shared_ptr<BVFitterBase<BV> > bv_fitter;
 
 
 private:

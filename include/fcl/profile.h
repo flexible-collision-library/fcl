@@ -58,7 +58,8 @@
 #include <map>
 #include <string>
 #include <iostream>
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #include <boost/noncopyable.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -332,8 +333,8 @@ private:
 
   void printThreadInfo(std::ostream &out, const PerThread &data);
 
-  boost::mutex                           lock_;
-  std::map<boost::thread::id, PerThread> data_;
+  std::mutex                             lock_;
+  std::map<std::thread::id, PerThread>   data_;
   TimeInfo                               tinfo_;
   bool                                   running_;
   bool                                   printOnDestroy_;

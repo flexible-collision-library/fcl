@@ -43,8 +43,8 @@
 #include "fcl/broadphase/hierarchy_tree.h"
 #include "fcl/BV/BV.h"
 #include "fcl/shape/geometric_shapes_utility.h"
-#include <boost/unordered_map.hpp>
-#include <boost/bind.hpp>
+#include <unordered_map>
+#include <functional>
 #include <limits>
 
 
@@ -55,7 +55,7 @@ class DynamicAABBTreeCollisionManager : public BroadPhaseCollisionManager
 {
 public:
   typedef NodeBase<AABB> DynamicAABBNode;
-  typedef boost::unordered_map<CollisionObject*, DynamicAABBNode*> DynamicAABBTable;
+  typedef std::unordered_map<CollisionObject*, DynamicAABBNode*> DynamicAABBTable;
 
   int max_tree_nonbalanced_level;
   int tree_incremental_balance_pass;
@@ -114,7 +114,7 @@ public:
   void getObjects(std::vector<CollisionObject*>& objs) const
   {
     objs.resize(this->size());
-    std::transform(table.begin(), table.end(), objs.begin(), boost::bind(&DynamicAABBTable::value_type::first, _1));
+    std::transform(table.begin(), table.end(), objs.begin(), std::bind(&DynamicAABBTable::value_type::first, std::placeholders::_1));
   }
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
@@ -152,7 +152,7 @@ public:
 
 private:
   HierarchyTree<AABB> dtree;
-  boost::unordered_map<CollisionObject*, DynamicAABBNode*> table;
+  std::unordered_map<CollisionObject*, DynamicAABBNode*> table;
 
   bool setup_;
 

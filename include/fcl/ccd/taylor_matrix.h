@@ -52,10 +52,10 @@ class TMatrix3
   
 public:
   TMatrix3();
-  TMatrix3(const boost::shared_ptr<TimeInterval>& time_interval);
+  TMatrix3(const std::shared_ptr<TimeInterval>& time_interval);
   TMatrix3(TaylorModel m[3][3]);
   TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3);
-  TMatrix3(const Matrix3f& m, const boost::shared_ptr<TimeInterval>& time_interval);
+  TMatrix3(const Matrix3f& m, const std::shared_ptr<TimeInterval>& time_interval);
 
   TVector3 getColumn(size_t i) const;
   const TVector3& getRow(size_t i) const;
@@ -99,10 +99,10 @@ public:
   void setZero();
   FCL_REAL diameter() const;
 
-  void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval);
+  void setTimeInterval(const std::shared_ptr<TimeInterval>& time_interval);
   void setTimeInterval(FCL_REAL l, FCL_REAL r);
 
-  const boost::shared_ptr<TimeInterval>& getTimeInterval() const;
+  const std::shared_ptr<TimeInterval>& getTimeInterval() const;
 
   TMatrix3& rotationConstrain();
 };

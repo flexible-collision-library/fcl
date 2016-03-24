@@ -48,7 +48,7 @@
 
 BOOST_AUTO_TEST_CASE(distance_capsule_box)
 {
-  typedef boost::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
+  typedef std::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
   // Capsule of radius 2 and of height 4
   CollisionGeometryPtr_t capsuleGeometry (new fcl::Capsule (2., 4.));
   // Box of size 1 by 2 by 4

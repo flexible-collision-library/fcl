@@ -43,15 +43,15 @@ namespace fcl
 {
 
 
-boost::shared_ptr<Link> Model::getRoot() const
+std::shared_ptr<Link> Model::getRoot() const
 {
   return root_link_;
 }
 
-boost::shared_ptr<Link> Model::getLink(const std::string& name) const
+std::shared_ptr<Link> Model::getLink(const std::string& name) const
 {
-  boost::shared_ptr<Link> ptr;
-  std::map<std::string, boost::shared_ptr<Link> >::const_iterator it = links_.find(name);
+  std::shared_ptr<Link> ptr;
+  std::map<std::string, std::shared_ptr<Link> >::const_iterator it = links_.find(name);
   if(it == links_.end())
     ptr.reset();
   else
@@ -59,10 +59,10 @@ boost::shared_ptr<Link> Model::getLink(const std::string& name) const
   return ptr;
 }
 
-boost::shared_ptr<Joint> Model::getJoint(const std::string& name) const
+std::shared_ptr<Joint> Model::getJoint(const std::string& name) const
 {
-  boost::shared_ptr<Joint> ptr;
-  std::map<std::string, boost::shared_ptr<Joint> >::const_iterator it = joints_.find(name);
+  std::shared_ptr<Joint> ptr;
+  std::map<std::string, std::shared_ptr<Joint> >::const_iterator it = joints_.find(name);
   if(it == joints_.end())
     ptr.reset();
   else
@@ -75,10 +75,10 @@ const std::string& Model::getName() const
   return name_;
 }
 
-std::vector<boost::shared_ptr<Link> > Model::getLinks() const
+std::vector<std::shared_ptr<Link> > Model::getLinks() const
 {
-  std::vector<boost::shared_ptr<Link> > links;
-  for(std::map<std::string, boost::shared_ptr<Link> >::const_iterator it = links_.begin(); it != links_.end(); ++it)
+  std::vector<std::shared_ptr<Link> > links;
+  for(std::map<std::string, std::shared_ptr<Link> >::const_iterator it = links_.begin(); it != links_.end(); ++it)
   {
     links.push_back(it->second);
   }
@@ -99,7 +99,7 @@ std::size_t Model::getNumJoints() const
 std::size_t Model::getNumDofs() const
 {
   std::size_t dof = 0;
-  for(std::map<std::string, boost::shared_ptr<Joint> >::const_iterator it = joints_.begin(); it != joints_.end(); ++it)
+  for(std::map<std::string, std::shared_ptr<Joint> >::const_iterator it = joints_.begin(); it != joints_.end(); ++it)
   {
     dof += it->second->getNumDofs();
   }
@@ -107,12 +107,12 @@ std::size_t Model::getNumDofs() const
   return dof;
 }
 
-void Model::addLink(const boost::shared_ptr<Link>& link)
+void Model::addLink(const std::shared_ptr<Link>& link)
 {
   links_[link->getName()] = link;
 }
 
-void Model::addJoint(const boost::shared_ptr<Joint>& joint)
+void Model::addJoint(const std::shared_ptr<Joint>& joint)
 {
   joints_[joint->getName()] = joint;
 }
@@ -122,7 +122,7 @@ void Model::initRoot(const std::map<std::string, std::string>& link_parent_tree)
   root_link_.reset();
 
   /// find the links that have no parent in the tree
-  for(std::map<std::string, boost::shared_ptr<Link> >::const_iterator it = links_.begin(); it != links_.end(); ++it)
+  for(std::map<std::string, std::shared_ptr<Link> >::const_iterator it = links_.begin(); it != links_.end(); ++it)
   {
     std::map<std::string, std::string>::const_iterator parent = link_parent_tree.find(it->first);
     if(parent == link_parent_tree.end())
@@ -144,7 +144,7 @@ void Model::initRoot(const std::map<std::string, std::string>& link_parent_tree)
 
 void Model::initTree(std::map<std::string, std::string>& link_parent_tree)
 {
-  for(std::map<std::string, boost::shared_ptr<Joint> >::iterator it = joints_.begin(); it != joints_.end(); ++it)
+  for(std::map<std::string, std::shared_ptr<Joint> >::iterator it = joints_.begin(); it != joints_.end(); ++it)
   {
     std::string parent_link_name = it->second->getParentLink()->getName();
     std::string child_link_name = it->second->getChildLink()->getName();

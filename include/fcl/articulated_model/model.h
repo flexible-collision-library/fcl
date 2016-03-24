@@ -42,7 +42,7 @@
 #include "fcl/articulated_model/link.h"
 
 #include "fcl/data_types.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <map>
 #include <stdexcept>
@@ -64,9 +64,9 @@ public:
 
   const std::string& getName() const;
   
-  void addLink(const boost::shared_ptr<Link>& link);
+  void addLink(const std::shared_ptr<Link>& link);
 
-  void addJoint(const boost::shared_ptr<Joint>& joint);
+  void addJoint(const std::shared_ptr<Joint>& joint);
 
   void initRoot(const std::map<std::string, std::string>& link_parent_tree);
 
@@ -78,16 +78,16 @@ public:
 
   std::size_t getNumJoints() const;
   
-  boost::shared_ptr<Link> getRoot() const;
-  boost::shared_ptr<Link> getLink(const std::string& name) const;
-  boost::shared_ptr<Joint> getJoint(const std::string& name) const;
+  std::shared_ptr<Link> getRoot() const;
+  std::shared_ptr<Link> getLink(const std::string& name) const;
+  std::shared_ptr<Joint> getJoint(const std::string& name) const;
 
-  std::vector<boost::shared_ptr<Link> > getLinks() const;
-  std::vector<boost::shared_ptr<Joint> > getJoints() const;
+  std::vector<std::shared_ptr<Link> > getLinks() const;
+  std::vector<std::shared_ptr<Joint> > getJoints() const;
 protected:
-  boost::shared_ptr<Link> root_link_;
-  std::map<std::string, boost::shared_ptr<Link> > links_;
-  std::map<std::string, boost::shared_ptr<Joint> > joints_;
+  std::shared_ptr<Link> root_link_;
+  std::map<std::string, std::shared_ptr<Link> > links_;
+  std::map<std::string, std::shared_ptr<Joint> > joints_;
 
   std::string name_;
   

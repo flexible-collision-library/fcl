@@ -38,13 +38,10 @@
 #define BOOST_TEST_MODULE "FCL_SPHERE_CAPSULE"
 #include <boost/test/unit_test.hpp>
 
+#include "fcl/math/constants.h"
 #include "fcl/collision.h"
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/narrowphase/narrowphase.h"
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 
 using namespace fcl;
 
@@ -100,7 +97,7 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_separated_capsule_rotated)
 
 	Capsule capsule (50, 200.);
 	Matrix3f rotation;
-	rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
+	rotation.setEulerZYX (constants::pi * 0.5, 0., 0.);
 	Transform3f capsule_transform (rotation, Vec3f (150., 0., 0.));
 
   BOOST_CHECK (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
@@ -141,7 +138,7 @@ BOOST_AUTO_TEST_CASE(Sphere_Capsule_Intersect_test_penetration_z_rotated)
 
 	Capsule capsule (50, 200.);
 	Matrix3f rotation;
-	rotation.setEulerZYX (M_PI * 0.5, 0., 0.);
+	rotation.setEulerZYX (constants::pi * 0.5, 0., 0.);
 	Transform3f capsule_transform (rotation, Vec3f (0., 50., 75));
 
   std::vector<ContactPoint> contacts;

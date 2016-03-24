@@ -104,7 +104,7 @@ endif()
 # endif()
 
 
-find_package(Boost COMPONENTS thread date_time filesystem system unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS date_time filesystem system unit_test_framework REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 if(MSVC)
@@ -145,6 +145,9 @@ add_subdirectory(src)
 
 set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
 set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
+if(NOT MSVC)
+    set(PKG_CFLAGS "-std=c++11")
+endif()
 configure_file("${pkg_conf_file_in}" "${pkg_conf_file_out}" @ONLY)
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

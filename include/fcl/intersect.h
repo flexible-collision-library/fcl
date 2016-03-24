@@ -237,7 +237,7 @@ private:
   /// @brief compute the cdf(x) 
   static FCL_REAL gaussianCDF(FCL_REAL x)
   {
-    return 0.5 * boost::math::erfc(-x / sqrt(2.0));
+    return 0.5 * std::erfc(-x / sqrt(2.0));
   }
 
 

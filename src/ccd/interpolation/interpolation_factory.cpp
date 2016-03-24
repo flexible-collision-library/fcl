@@ -65,7 +65,7 @@ void InterpolationFactory::registerClass(const InterpolationType type, const Cre
   this->creation_map_[type] = create_function;
 }
 
-boost::shared_ptr<Interpolation> 
+std::shared_ptr<Interpolation> 
 InterpolationFactory::create(const InterpolationType type, const FCL_REAL start_value, const FCL_REAL end_value)
 {
   std::map<InterpolationType, CreateFunction>::const_iterator it = creation_map_.find(type);

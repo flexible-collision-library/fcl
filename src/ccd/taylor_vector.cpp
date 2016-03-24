@@ -44,7 +44,7 @@ TVector3::TVector3()
 {
 }
 
-TVector3::TVector3(const boost::shared_ptr<TimeInterval>& time_interval)
+TVector3::TVector3(const std::shared_ptr<TimeInterval>& time_interval)
 {
   setTimeInterval(time_interval);
 }
@@ -63,7 +63,7 @@ TVector3::TVector3(const TaylorModel& v1, const TaylorModel& v2, const TaylorMod
   i_[2] = v3;
 }
 
-TVector3::TVector3(const Vec3f& v, const boost::shared_ptr<TimeInterval>& time_interval)
+TVector3::TVector3(const Vec3f& v, const std::shared_ptr<TimeInterval>& time_interval)
 {
   i_[0] = TaylorModel(v[0], time_interval);
   i_[1] = TaylorModel(v[1], time_interval);
@@ -239,7 +239,7 @@ TaylorModel TVector3::squareLength() const
   return i_[0] * i_[0] + i_[1] * i_[1] + i_[2] * i_[2];
 }
 
-void TVector3::setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval)
+void TVector3::setTimeInterval(const std::shared_ptr<TimeInterval>& time_interval)
 {
   i_[0].setTimeInterval(time_interval);
   i_[1].setTimeInterval(time_interval);
@@ -253,7 +253,7 @@ void TVector3::setTimeInterval(FCL_REAL l, FCL_REAL r)
   i_[2].setTimeInterval(l, r);
 }
 
-const boost::shared_ptr<TimeInterval>& TVector3::getTimeInterval() const
+const std::shared_ptr<TimeInterval>& TVector3::getTimeInterval() const
 {
   return i_[0].getTimeInterval();
 }

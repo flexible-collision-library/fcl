@@ -39,7 +39,7 @@
 #define FCL_KNN_NEAREST_NEIGHBORS_H
 
 #include <vector>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/function.hpp>
 
 namespace fcl

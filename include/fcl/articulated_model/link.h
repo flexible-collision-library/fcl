@@ -41,7 +41,7 @@
 #include "fcl/data_types.h"
 #include "fcl/collision_object.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <vector>
 
 namespace fcl
@@ -58,11 +58,11 @@ public:
   
   void setName(const std::string& name);
   
-  void addChildJoint(const boost::shared_ptr<Joint>& joint);
+  void addChildJoint(const std::shared_ptr<Joint>& joint);
   
-  void setParentJoint(const boost::shared_ptr<Joint>& joint);
+  void setParentJoint(const std::shared_ptr<Joint>& joint);
   
-  void addObject(const boost::shared_ptr<CollisionObject>& object);
+  void addObject(const std::shared_ptr<CollisionObject>& object);
   
   std::size_t getNumChildJoints() const;
   
@@ -71,11 +71,11 @@ public:
 protected:
   std::string name_;
 
-  std::vector<boost::shared_ptr<CollisionObject> > objects_;
+  std::vector<std::shared_ptr<CollisionObject> > objects_;
 
-  std::vector<boost::shared_ptr<Joint> > children_joints_;
+  std::vector<std::shared_ptr<Joint> > children_joints_;
 
-  boost::shared_ptr<Joint> parent_joint_;
+  std::shared_ptr<Joint> parent_joint_;
 };
 
 }

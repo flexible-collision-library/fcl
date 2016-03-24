@@ -369,7 +369,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_0(const NodeVec
 
       // compute median 
       NodeVecIterator lcenter = lbeg + num_leaves / 2;
-      std::nth_element(lbeg, lcenter, lend, boost::bind(&nodeBaseLess<BV>, _1, _2, boost::ref(best_axis)));
+      std::nth_element(lbeg, lcenter, lend, std::bind(&nodeBaseLess<BV>, std::placeholders::_1, std::placeholders::_2, std::ref(best_axis)));
 
       NodeType* node = createNode(NULL, vol, NULL);
       node->children[0] = topdown_0(lbeg, lcenter);
