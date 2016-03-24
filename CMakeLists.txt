@@ -104,7 +104,7 @@ endif()
 # endif()
 
 
-find_package(Boost COMPONENTS date_time filesystem unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS date_time filesystem system unit_test_framework REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 if(MSVC)
