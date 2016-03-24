@@ -3,7 +3,6 @@
 #include <fcl/narrowphase/narrowphase.h>
 #include <iostream>
 #include <fcl/collision.h>
-#include <boost/foreach.hpp>
 
 using namespace std;
 using namespace fcl;
@@ -48,7 +47,7 @@ int main(int argc, char** argv)
   result.getContacts(contacts);
 
   cout << contacts.size() << " contacts found" << endl;
-  BOOST_FOREACH(Contact& contact, contacts) {
+  for(const Contact &contact : contacts) {
     cout << "position: " << contact.pos << endl;
   }
 }

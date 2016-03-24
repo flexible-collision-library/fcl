@@ -41,7 +41,7 @@
 
 
 #include <memory>
-#include <boost/array.hpp>
+#include <array>
 
 #include <octomap/octomap.h>
 #include "fcl/BV/AABB.h"
@@ -134,9 +134,9 @@ public:
 
   /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
   /// only keep the occupied boxes (i.e., the boxes whose occupied probability is higher enough).
-  inline std::vector<boost::array<FCL_REAL, 6> > toBoxes() const
+  inline std::vector<std::array<FCL_REAL, 6> > toBoxes() const
   {
-    std::vector<boost::array<FCL_REAL, 6> > boxes;
+    std::vector<std::array<FCL_REAL, 6> > boxes;
     boxes.reserve(tree->size() / 2);
     for(octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end();
         it != end;
@@ -152,7 +152,7 @@ public:
         FCL_REAL c = (*it).getOccupancy();
         FCL_REAL t = tree->getOccupancyThres();
 
-        boost::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
+        std::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
         boxes.push_back(box);
       }
     }

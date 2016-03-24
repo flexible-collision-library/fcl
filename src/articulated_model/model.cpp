@@ -37,7 +37,6 @@
 
 #include "fcl/articulated_model/model.h"
 #include "fcl/articulated_model/model_config.h"
-#include <boost/assert.hpp>
 
 namespace fcl
 {

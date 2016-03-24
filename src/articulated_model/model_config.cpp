@@ -38,11 +38,7 @@
 #include "fcl/articulated_model/model_config.h"
 #include "fcl/articulated_model/joint.h"
 #include <algorithm>
-
-// Define for boost version < 1.47
-#ifndef BOOST_ASSERT_MSG
-#define BOOST_ASSERT_MSG(expr, msg) ((void)0)
-#endif
+#include <cassert>
 
 namespace fcl
 {
@@ -63,7 +59,7 @@ ModelConfig::ModelConfig(std::map<std::string, std::shared_ptr<Joint> > joints_m
 JointConfig ModelConfig::getJointConfigByJointName(const std::string& joint_name) const
 {
   std::map<std::string, JointConfig>::const_iterator it = joint_cfgs_map_.find(joint_name);
-  BOOST_ASSERT_MSG((it != joint_cfgs_map_.end()), "Joint name not valid");
+  assert(it != joint_cfgs_map_.end());
 
   return it->second;
 }
@@ -71,7 +67,7 @@ JointConfig ModelConfig::getJointConfigByJointName(const std::string& joint_name
 JointConfig& ModelConfig::getJointConfigByJointName(const std::string& joint_name)
 {
   std::map<std::string, JointConfig>::iterator it = joint_cfgs_map_.find(joint_name);
-  BOOST_ASSERT_MSG((it != joint_cfgs_map_.end()), "Joint name not valid");
+  assert(it != joint_cfgs_map_.end());
 
   return it->second;
 }

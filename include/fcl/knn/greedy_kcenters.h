@@ -50,7 +50,7 @@ class GreedyKCenters
 {
 public:
   /// @brief The definition of a distance function
-  typedef boost::function<double(const _T&, const _T&)> DistanceFunction;
+  typedef std::function<double(const _T&, const _T&)> DistanceFunction;
 
   GreedyKCenters(void)
   {

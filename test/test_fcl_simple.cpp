@@ -11,8 +11,6 @@
 #include "fcl/math/sampling.h"
 #include "fcl/knn/nearest_neighbors_GNAT.h"
 
-#include <boost/assign/list_of.hpp>
-
 using namespace fcl;
 
 static FCL_REAL epsilon = 1e-6;
@@ -86,7 +84,7 @@ BOOST_AUTO_TEST_CASE(Vec_nf_test)
   for(int i = 0; i < 4; ++i)
     upper[i] = 1;
 
-  Vecnf<4> aa(boost::assign::list_of<FCL_REAL>(1)(2).convert_to_container<std::vector<FCL_REAL> >());
+  Vecnf<4> aa(std::vector<FCL_REAL>({1,2}));
   std::cout << aa << std::endl;
 
   SamplerR<4> sampler(lower, upper);

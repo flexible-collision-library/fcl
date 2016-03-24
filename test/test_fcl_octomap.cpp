@@ -631,7 +631,7 @@ void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh
 
 void generateBoxesFromOctomap(std::vector<CollisionObject*>& boxes, OcTree& tree)
 {
-  std::vector<boost::array<FCL_REAL, 6> > boxes_ = tree.toBoxes();
+  std::vector<std::array<FCL_REAL, 6> > boxes_ = tree.toBoxes();
 
   for(std::size_t i = 0; i < boxes_.size(); ++i)
   {
@@ -684,7 +684,7 @@ void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, 
 
 void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& boxes, OcTree& tree)
 {
-  std::vector<boost::array<FCL_REAL, 6> > boxes_ = tree.toBoxes();
+  std::vector<std::array<FCL_REAL, 6> > boxes_ = tree.toBoxes();
 
   for(std::size_t i = 0; i < boxes_.size(); ++i)
   {

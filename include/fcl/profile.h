@@ -60,8 +60,7 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include <boost/noncopyable.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 
 namespace fcl
 {
@@ -71,15 +70,15 @@ namespace time
 {
 
 /// @brief Representation of a point in time
-typedef boost::posix_time::ptime         point;
+typedef std::chrono::system_clock::time_point point;
 
 /// @brief Representation of a time duration
-typedef boost::posix_time::time_duration duration;
+typedef std::chrono::system_clock::duration   duration;
 
 /// @brief Get the current time point
 inline point now(void)
 {
-  return boost::posix_time::microsec_clock::universal_time();
+  return std::chrono::system_clock::now();
 }
 
 /// @brief Return the time duration representing a given number of seconds
@@ -87,13 +86,13 @@ inline duration seconds(double sec)
 {
   long s  = (long)sec;
   long us = (long)((sec - s) * 1000000);
-  return boost::posix_time::seconds(s) + boost::posix_time::microseconds(us);
+  return std::chrono::seconds(s) + std::chrono::microseconds(us);
 }
 
 /// @brief Return the number of seconds that a time duration represents
 inline double seconds(const duration &d)
 {
-  return (double)d.total_microseconds() / 1000000.0;
+  return std::chrono::duration<double>(d).count();
 }
 
 }
@@ -106,9 +105,12 @@ namespace tools
 /// external profiling tools in that it allows the user to count
 /// time spent in various bits of code (sub-function granularity)
 /// or count how many times certain pieces of code are executed.
-class Profiler : private boost::noncopyable
+class Profiler
 {
 public:
+  // non-copyable
+  Profiler(const Profiler&) = delete;
+  Profiler& operator=(const Profiler&) = delete;
 
   /// @brief This instance will call Profiler::begin() when constructed and Profiler::end() when it goes out of scope.
   class ScopedBlock
@@ -267,7 +269,7 @@ private:
   /// @brief Information about time spent in a section of the code 
   struct TimeInfo
   {
-    TimeInfo(void) : total(0, 0, 0, 0), shortest(boost::posix_time::pos_infin), longest(boost::posix_time::neg_infin), parts(0)
+    TimeInfo(void) : total(time::seconds(0.)), shortest(time::duration::max()), longest(time::duration::min()), parts(0)
     {
     }
 

@@ -47,7 +47,6 @@ namespace fcl
 
 /// @brief Interval trees implemented using red-black-trees as described in
 /// the book Introduction_To_Algorithms_ by Cormen, Leisserson, and Rivest.
-/// Can be replaced in part by boost::icl::interval_set, which is only supported after boost 1.46 and does not support delete node routine.
 struct SimpleInterval
 {
 public:

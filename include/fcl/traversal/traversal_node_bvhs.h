@@ -47,7 +47,6 @@
 #include "fcl/intersect.h"
 #include "fcl/ccd/motion.h"
 
-#include <boost/shared_array.hpp>
 #include <memory>
 #include <limits>
 #include <vector>
