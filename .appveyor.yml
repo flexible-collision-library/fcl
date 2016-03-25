@@ -14,6 +14,8 @@ platform: x64
 
 environment:
   CTEST_OUTPUT_ON_FAILURE: 1
+  BOOST_ROOT: C:\Libraries\boost_1_59_0
+  BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
 
 cache:
   - C:\Program Files\libccd
