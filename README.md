@@ -1,4 +1,7 @@
-## FCL -- The Flexible Collision Library [![Build Status](https://travis-ci.org/flexible-collision-library/fcl.svg)](https://travis-ci.org/flexible-collision-library/fcl)
+## FCL -- The Flexible Collision Library 
+
+Linux / OS X [![Build Status](https://travis-ci.org/flexible-collision-library/fcl.svg)](https://travis-ci.org/flexible-collision-library/fcl)
+Windows [![Build status](https://ci.appveyor.com/api/projects/status/rrmxadnj1empitqq?svg=true)](https://ci.appveyor.com/project/mamoll/fcl)
 
 FCL is a library for performing three types of proximity queries on a pair of geometric models composed of triangles. 
  - Collision detection: detecting whether the two models overlap, and optionally, all of the triangles that overlap.
