@@ -39,7 +39,6 @@
 #define FCL_INTERSECT_H
 
 #include "fcl/math/transform.h"
-#include <boost/math/special_functions/erf.hpp>
 
 namespace fcl
 {

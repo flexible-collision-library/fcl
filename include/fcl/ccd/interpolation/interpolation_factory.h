@@ -44,7 +44,7 @@
 #include <map>
 
 #include <memory>
-#include <boost/function.hpp>
+#include <functional>
 
 namespace fcl 
 {
@@ -52,7 +52,7 @@ namespace fcl
 class InterpolationFactory
 {	
 public:
-  typedef boost::function<std::shared_ptr<Interpolation>(FCL_REAL, FCL_REAL)> CreateFunction;
+  typedef std::function<std::shared_ptr<Interpolation>(FCL_REAL, FCL_REAL)> CreateFunction;
 
 public:
   void registerClass(const InterpolationType type, const CreateFunction create_function);

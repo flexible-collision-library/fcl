@@ -37,7 +37,7 @@
 /** \author Ioan Sucan */
 
 #include "fcl/profile.h"
-
+#include <cmath>
 
 fcl::tools::Profiler& fcl::tools::Profiler::Instance(void)
 {
@@ -222,7 +222,7 @@ void fcl::tools::Profiler::printThreadInfo(std::ostream &out, const PerThread &d
   {
     const AvgInfo &a = data.avg.find(avg[i].name)->second;
     out << avg[i].name << ": " << avg[i].value << " (stddev = " <<
-      sqrt(fabs(a.totalSqr - (double)a.parts * avg[i].value * avg[i].value) / ((double)a.parts - 1.)) << ")" << std::endl;
+      std::sqrt(std::abs(a.totalSqr - (double)a.parts * avg[i].value * avg[i].value) / ((double)a.parts - 1.)) << ")" << std::endl;
   }
 
   std::vector<dataDoubleVal> time;

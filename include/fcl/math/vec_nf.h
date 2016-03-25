@@ -5,7 +5,6 @@
 #include <iostream>
 #include <limits>
 #include <vector>
-#include <boost/array.hpp>
 #include <cstdarg>
 #include "fcl/data_types.h"
 

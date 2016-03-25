@@ -37,6 +37,7 @@
 
 #include "fcl/math/constants.h"
 #include "fcl/math/transform.h"
+#include <cassert>
 
 namespace fcl
 {
@@ -410,7 +411,7 @@ Vec3f Quaternion3f::getRow(std::size_t i) const
 
 const Matrix3f& Transform3f::getRotationInternal() const
 {
-  boost::mutex::scoped_lock slock(const_cast<boost::mutex&>(lock_));
+  std::unique_lock<std::mutex> slock(const_cast<std::mutex&>(lock_));
   if(!matrix_set)
   {
     q.toRotation(R);
