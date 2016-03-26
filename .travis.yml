@@ -25,7 +25,6 @@ matrix:
 addons:
   apt:
     packages:
-      - libflann-dev
       - libboost-all-dev
 
 install:

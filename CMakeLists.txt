@@ -82,16 +82,6 @@ else()
   message(STATUS "FCL does not use Octomap")
 endif()
 
-# Find FLANN (optional)
-find_package(flann QUIET)
-if (FLANN_FOUND)
-  set(FCL_HAVE_FLANN 1)
-  include_directories(${FLANN_INCLUDE_DIRS})
-  message(STATUS "FCL uses Flann")
-else()
-  message(STATUS "FCL does not use Flann")
-endif()
-
 
 # find_package(tinyxml QUIET)
 # if (TINYXML_FOUND)
