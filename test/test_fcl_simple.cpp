@@ -9,7 +9,6 @@
 #include <sstream>
 #include "fcl/math/vec_nf.h"
 #include "fcl/math/sampling.h"
-#include "fcl/knn/nearest_neighbors_GNAT.h"
 
 using namespace fcl;
 
@@ -32,29 +31,6 @@ double distance_Vecnf(const Vecnf<N>& a, const Vecnf<N>& b)
   return d;
 }
 
-BOOST_AUTO_TEST_CASE(knn_test)
-{
-  NearestNeighborsGNAT<Vecnf<6> > knn;
-  knn.setDistanceFunction(distance_Vecnf<6>);
-
-  SamplerSE3Euler sampler(Vec3f(-1, -1, -1), Vec3f(1, 1, 1));
-  std::vector<Vecnf<6> > data;
-  for(std::size_t i = 0; i < 1000; ++i)
-    data.push_back(sampler.sample());
-
-  knn.add(data);
-
-  int K = 10;
-  
-  for(std::size_t i = 0; i < data.size(); ++i)
-  {
-    std::vector<Vecnf<6> > nbh;
-    knn.nearestK(data[i], K, nbh);
-    for(std::size_t j = 0; j < nbh.size(); ++j)
-      std::cout << distance_Vecnf<6>(nbh[j], data[i]) << " ";
-    std::cout << std::endl;
-  }
-}
 
 BOOST_AUTO_TEST_CASE(Vec_nf_test)
 {
