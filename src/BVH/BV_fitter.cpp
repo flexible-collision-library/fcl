@@ -46,7 +46,7 @@ namespace fcl
 static const double kIOS_RATIO = 1.5;
 static const double invSinA = 2;
 static const double invCosA = 2.0 / sqrt(3.0);
-static const double sinA = 0.5;
+// static const double sinA = 0.5;
 static const double cosA = sqrt(3.0) / 2.0;
 
 static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::U eigenS[3], Vec3f axis[3])

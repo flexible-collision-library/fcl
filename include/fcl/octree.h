@@ -40,8 +40,8 @@
 #define FCL_OCTREE_H
 
 
-#include <boost/shared_ptr.hpp>
-#include <boost/array.hpp>
+#include <memory>
+#include <array>
 
 #include <octomap/octomap.h>
 #include "fcl/BV/AABB.h"
@@ -54,7 +54,7 @@ namespace fcl
 class OcTree : public CollisionGeometry
 {
 private:
-  boost::shared_ptr<const octomap::OcTree> tree;
+  std::shared_ptr<const octomap::OcTree> tree;
 
   FCL_REAL default_occupancy;
 
@@ -70,7 +70,7 @@ public:
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(FCL_REAL resolution) : tree(boost::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))                               
+  OcTree(FCL_REAL resolution) : tree(std::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))                               
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -80,7 +80,7 @@ public:
   }
 
   /// @brief construct octree from octomap
-  OcTree(const boost::shared_ptr<const octomap::OcTree>& tree_) : tree(tree_)
+  OcTree(const std::shared_ptr<const octomap::OcTree>& tree_) : tree(tree_)
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -134,9 +134,9 @@ public:
 
   /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
   /// only keep the occupied boxes (i.e., the boxes whose occupied probability is higher enough).
-  inline std::vector<boost::array<FCL_REAL, 6> > toBoxes() const
+  inline std::vector<std::array<FCL_REAL, 6> > toBoxes() const
   {
-    std::vector<boost::array<FCL_REAL, 6> > boxes;
+    std::vector<std::array<FCL_REAL, 6> > boxes;
     boxes.reserve(tree->size() / 2);
     for(octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end();
         it != end;
@@ -152,7 +152,7 @@ public:
         FCL_REAL c = (*it).getOccupancy();
         FCL_REAL t = tree->getOccupancyThres();
 
-        boost::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
+        std::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
         boxes.push_back(box);
       }
     }

@@ -1,4 +1,8 @@
-## FCL -- The Flexible Collision Library [![Build Status](https://travis-ci.org/flexible-collision-library/fcl.svg)](https://travis-ci.org/flexible-collision-library/fcl) [![Coverage Status](https://coveralls.io/repos/github/flexible-collision-library/fcl/badge.svg?branch=master)](https://coveralls.io/github/flexible-collision-library/fcl?branch=master)
+## FCL -- The Flexible Collision Library 
+
+Linux / OS X [![Build Status](https://travis-ci.org/flexible-collision-library/fcl.svg)](https://travis-ci.org/flexible-collision-library/fcl)
+Windows [![Build status](https://ci.appveyor.com/api/projects/status/rrmxadnj1empitqq?svg=true)](https://ci.appveyor.com/project/mamoll/fcl)
+Coverage [![Coverage Status](https://coveralls.io/repos/github/flexible-collision-library/fcl/badge.svg?branch=master)](https://coveralls.io/github/flexible-collision-library/fcl?branch=master)
 
 FCL is a library for performing three types of proximity queries on a pair of geometric models composed of triangles. 
  - Collision detection: detecting whether the two models overlap, and optionally, all of the triangles that overlap.
@@ -29,7 +33,7 @@ FCL has the following features
 
 Before compiling FCL, please make sure boost and libccd (for collision checking between convex objects and is available here https://github.com/danfis/libccd) are installed. For libccd, make sure to compile from github version instead of the zip file from the webpage, because one bug fixing is not included in the zipped version.
 
-Some optional libraries need to be installed for some optional capability of FCL. For octree collision, please install the octomap library from http://octomap.github.com. For global penetration depth, please install FLANN from https://github.com/mariusmuja/flann. For global penetration depth test, please install tinyxml.
+Some optional libraries need to be installed for some optional capability of FCL. For octree collision, please install the octomap library from http://octomap.github.com.
 
 CMakeLists.txt is used to generate makefiles in Linux or Visual studio projects in windows. In command line, run
 ``` cmake

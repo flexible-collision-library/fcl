@@ -41,7 +41,6 @@
 
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/BVH/BVH_model.h"
-#include <boost/math/constants/constants.hpp>
 
 namespace fcl
 {
@@ -97,7 +96,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
 
   double r = shape.radius;
   double phi, phid;
-  const double pi = boost::math::constants::pi<double>();
+  const double pi = constants::pi;
   phid = pi * 2 / seg;
   phi = 0;
 
@@ -179,7 +178,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transfo
   const FCL_REAL& c = shape.radii[2];
 
   FCL_REAL phi, phid;
-  const FCL_REAL pi = boost::math::constants::pi<FCL_REAL>();
+  const FCL_REAL pi = constants::pi;
   phid = pi * 2 / seg;
   phi = 0;
 
@@ -267,7 +266,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
   double r = shape.radius;
   double h = shape.lz;
   double phi, phid;
-  const double pi = boost::math::constants::pi<double>();
+  const double pi = constants::pi;
   phid = pi * 2 / tot;
   phi = 0;
 
@@ -338,7 +337,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
   double r = shape.radius;
   double h = shape.lz;
 
-  const double pi = boost::math::constants::pi<double>();
+  const double pi = constants::pi;
   unsigned int tot = tot_for_unit_cylinder * r;
   double phid = pi * 2 / tot;
 
@@ -360,7 +359,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
   double h = shape.lz;
 
   double phi, phid;
-  const double pi = boost::math::constants::pi<double>();
+  const double pi = constants::pi;
   phid = pi * 2 / tot;
   phi = 0;
 
@@ -430,7 +429,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
   double r = shape.radius;
   double h = shape.lz;
 
-  const double pi = boost::math::constants::pi<double>();
+  const double pi = constants::pi;
   unsigned int tot = tot_for_unit_cone * r;
   double phid = pi * 2 / tot;
 

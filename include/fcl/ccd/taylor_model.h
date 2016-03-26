@@ -39,7 +39,7 @@
 #define FCL_CCD_TAYLOR_MODEL_H
 
 #include "fcl/ccd/interval.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace fcl
 {
@@ -77,7 +77,7 @@ struct TimeInterval
 class TaylorModel
 {
   /// @brief time interval
-  boost::shared_ptr<TimeInterval> time_interval_;
+  std::shared_ptr<TimeInterval> time_interval_;
 
   /// @brief Coefficients of the cubic polynomial approximation
   FCL_REAL coeffs_[4];
@@ -92,12 +92,12 @@ public:
     time_interval_->setValue(l, r);
   }
   
-  void setTimeInterval(const boost::shared_ptr<TimeInterval>& time_interval)
+  void setTimeInterval(const std::shared_ptr<TimeInterval>& time_interval)
   {
     time_interval_ = time_interval;
   }
 
-  const boost::shared_ptr<TimeInterval>& getTimeInterval() const
+  const std::shared_ptr<TimeInterval>& getTimeInterval() const
   {
     return time_interval_;
   }
@@ -109,10 +109,10 @@ public:
   
 
   TaylorModel();
-  TaylorModel(const boost::shared_ptr<TimeInterval>& time_interval);
-  TaylorModel(FCL_REAL coeff, const boost::shared_ptr<TimeInterval>& time_interval);
-  TaylorModel(FCL_REAL coeffs[3], const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval);
-  TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r, const boost::shared_ptr<TimeInterval>& time_interval);
+  TaylorModel(const std::shared_ptr<TimeInterval>& time_interval);
+  TaylorModel(FCL_REAL coeff, const std::shared_ptr<TimeInterval>& time_interval);
+  TaylorModel(FCL_REAL coeffs[3], const Interval& r, const std::shared_ptr<TimeInterval>& time_interval);
+  TaylorModel(FCL_REAL c0, FCL_REAL c1, FCL_REAL c2, FCL_REAL c3, const Interval& r, const std::shared_ptr<TimeInterval>& time_interval);
 
   TaylorModel operator + (const TaylorModel& other) const;
   TaylorModel& operator += (const TaylorModel& other);

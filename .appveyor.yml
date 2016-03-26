@@ -1,0 +1,47 @@
+# AppVeyor file
+# http://www.appveyor.com/docs/appveyor-yml
+
+version: "{build}"
+os: Visual Studio 2015
+
+clone_folder: C:\projects\fcl
+shallow_clone: true
+
+# branches:
+#   only:
+#     - master
+platform: x64
+
+environment:
+  CTEST_OUTPUT_ON_FAILURE: 1
+  BOOST_ROOT: C:\Libraries\boost_1_59_0
+  BOOST_LIBRARYDIR: C:\Libraries\boost_1_59_0\lib64-msvc-14.0
+
+cache:
+  - C:\Program Files\libccd
+
+configuration:
+  - Debug
+  - Release
+
+before_build:
+  - cmd: if not exist C:\"Program Files"\libccd\lib\ccd.lib (
+            curl -L -o libccd-2.0.tar.gz https://github.com/danfis/libccd/archive/v2.0.tar.gz &&
+            cmake -E tar zxf libccd-2.0.tar.gz &&
+            cd libccd-2.0 &&
+            cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%Configuration% . &&
+            cmake --build . --target install --config %Configuration% &&
+            cd ..
+         ) else (echo Using cached libccd)
+  - cmd: set
+  - cmd: mkdir build
+  - cmd: cd build
+  - cmd: cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%Configuration% -DBOOST_ROOT="%BOOST_ROOT%" -DBOOST_LIBRARYDIR="%BOOST_LIBRARYDIR%" -DCCD_INCLUDE_DIRS="C:\Program Files\libccd\include" -DCCD_LIBRARY="C:\Program Files\libccd\lib\ccd.lib" ..
+
+build:
+  project: C:\projects\fcl\build\fcl.sln
+  parallel: true
+
+# tests seem to hang
+# test_script:
+#  - cmd: ctest -C %Configuration%

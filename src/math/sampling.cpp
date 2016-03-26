@@ -1,34 +1,32 @@
 #include "fcl/math/sampling.h"
-#include <boost/random/lagged_fibonacci.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/math/constants/constants.hpp>
+#include <mutex>
+#include <chrono>
 
 namespace fcl
 {
 
 /// The seed the user asked for (cannot be 0)
-static boost::uint32_t userSetSeed = 0;
+static std::uint_fast32_t userSetSeed = 0;
 	
 /// Flag indicating whether the first seed has already been generated or not
 static bool firstSeedGenerated = false;
 	
 /// The value of the first seed
-static boost::uint32_t firstSeedValue = 0;
+static std::uint_fast32_t firstSeedValue = 0;
 	
 /// Compute the first seed to be used; this function should be called only once
-static boost::uint32_t firstSeed()
+static std::uint_fast32_t firstSeed()
 {
-  static boost::mutex fsLock;
-  boost::mutex::scoped_lock slock(fsLock);
+  static std::mutex fsLock;
+  std::unique_lock<std::mutex> slock(fsLock);
 		
   if(firstSeedGenerated)
     return firstSeedValue;
 			
   if(userSetSeed != 0)
     firstSeedValue = userSetSeed;
-  else firstSeedValue = (boost::uint32_t)(boost::posix_time::microsec_clock::universal_time() - boost::posix_time::ptime(boost::date_time::min_date_time)).total_microseconds();
+  else firstSeedValue = (std::uint_fast32_t)std::chrono::duration_cast<std::chrono::microseconds>(
+      std::chrono::system_clock::now() - std::chrono::system_clock::time_point()).count();
   firstSeedGenerated = true;
 		
   return firstSeedValue;
@@ -37,22 +35,21 @@ static boost::uint32_t firstSeed()
 /// We use a different random number generator for the seeds of the
 /// Other random generators. The root seed is from the number of
 /// nano-seconds in the current time.
-static boost::uint32_t nextSeed()
+static std::uint_fast32_t nextSeed()
 {
-  static boost::mutex rngMutex;
-  boost::mutex::scoped_lock slock(rngMutex);
-  static boost::lagged_fibonacci607 sGen(firstSeed());
-  static boost::uniform_int<> sDist(1, 1000000000);
-  static boost::variate_generator<boost::lagged_fibonacci607&, boost::uniform_int<> > s(sGen, sDist);
-  return s();
+  static std::mutex rngMutex;
+  std::unique_lock<std::mutex> slock(rngMutex);
+  static std::ranlux24_base sGen;
+  static std::uniform_int_distribution<> sDist(1, 1000000000);
+  return sDist(sGen);
 }
 	
-boost::uint32_t RNG::getSeed()
+std::uint_fast32_t RNG::getSeed()
 {
   return firstSeed();
 }
 	
-void RNG::setSeed(boost::uint32_t seed)
+void RNG::setSeed(std::uint_fast32_t seed)
 {
   if(firstSeedGenerated)
   {
@@ -69,9 +66,7 @@ void RNG::setSeed(boost::uint32_t seed)
 	
 RNG::RNG() : generator_(nextSeed()),
                  uniDist_(0, 1),
-                 normalDist_(0, 1),
-                 uni_(generator_, uniDist_),
-                 normal_(generator_, normalDist_)
+                 normalDist_(0, 1)
 {
 }
 	
@@ -97,9 +92,9 @@ int RNG::halfNormalInt(int r_min, int r_max, double focus)
 //       pg. 124-132
 void RNG::quaternion(double value[4])
 {
-  double x0 = uni_();
+  double x0 = uniDist_(generator_);
   double r1 = sqrt(1.0 - x0), r2 = sqrt(x0);
-  double t1 = 2.0 * boost::math::constants::pi<double>() * uni_(), t2 = 2.0 * boost::math::constants::pi<double>() * uni_();
+  double t1 = 2.0 * constants::pi * uniDist_(generator_), t2 = 2.0 * constants::pi * uniDist_(generator_);
   double c1 = cos(t1), s1 = sin(t1);
   double c2 = cos(t2), s2 = sin(t2);
   value[0] = s1 * r1;
@@ -111,9 +106,9 @@ void RNG::quaternion(double value[4])
 // From Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning, by James Kuffner, ICRA 2004
 void RNG::eulerRPY(double value[3])
 {
-  value[0] = boost::math::constants::pi<double>() * (2.0 * uni_() - 1.0);
-  value[1] = acos(1.0 - 2.0 * uni_()) - boost::math::constants::pi<double>() / 2.0;
-  value[2] = boost::math::constants::pi<double>() * (2.0 * uni_() - 1.0);
+  value[0] = constants::pi * (2.0 * uniDist_(generator_) - 1.0);
+  value[1] = acos(1.0 - 2.0 * uniDist_(generator_)) - constants::pi / 2.0;
+  value[2] = constants::pi * (2.0 * uniDist_(generator_) - 1.0);
 }
 	
 void RNG::disk(double r_min, double r_max, double& x, double& y)
@@ -121,7 +116,7 @@ void RNG::disk(double r_min, double r_max, double& x, double& y)
   double a = uniform01();
   double b = uniform01();
   double r = std::sqrt(a * r_max * r_max + (1 - a) * r_min * r_min);
-  double theta = 2 * boost::math::constants::pi<double>() * b;
+  double theta = 2 * constants::pi * b;
   x = r * std::cos(theta);
   y = r * std::sin(theta);
 }
@@ -133,7 +128,7 @@ void RNG::ball(double r_min, double r_max, double& x, double& y, double& z)
   double c = uniform01();
   double r = std::pow(a * r_max * r_max * r_max + (1 - a) * r_min * r_min * r_min, 1 / 3.0);
   double theta = std::acos(1 - 2 * b);
-  double phi = 2 * boost::math::constants::pi<double>() * c;
+  double phi = 2 * constants::pi * c;
 		
   double costheta = std::cos(theta);
   double sintheta = std::sin(theta);

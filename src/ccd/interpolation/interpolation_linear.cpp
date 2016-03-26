@@ -69,9 +69,9 @@ InterpolationType InterpolationLinear::getType() const
   return interpolation_linear_type;
 }
 
-boost::shared_ptr<Interpolation> InterpolationLinear::create(FCL_REAL start_value, FCL_REAL end_value)
+std::shared_ptr<Interpolation> InterpolationLinear::create(FCL_REAL start_value, FCL_REAL end_value)
 {
-  return boost::shared_ptr<Interpolation>(new InterpolationLinear(start_value, end_value) );
+  return std::shared_ptr<Interpolation>(new InterpolationLinear(start_value, end_value) );
 }
 
 void InterpolationLinear::registerToFactory()

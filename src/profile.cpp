@@ -37,7 +37,7 @@
 /** \author Ioan Sucan */
 
 #include "fcl/profile.h"
-
+#include <cmath>
 
 fcl::tools::Profiler& fcl::tools::Profiler::Instance(void)
 {
@@ -86,14 +86,14 @@ void fcl::tools::Profiler::clear(void)
 void fcl::tools::Profiler::event(const std::string &name, const unsigned int times)
 {
   lock_.lock();
-  data_[boost::this_thread::get_id()].events[name] += times;
+  data_[std::this_thread::get_id()].events[name] += times;
   lock_.unlock();
 }
 
 void fcl::tools::Profiler::average(const std::string &name, const double value)
 {
   lock_.lock();
-  AvgInfo &a = data_[boost::this_thread::get_id()].avg[name];
+  AvgInfo &a = data_[std::this_thread::get_id()].avg[name];
   a.total += value;
   a.totalSqr += value*value;
   a.parts++;
@@ -103,14 +103,14 @@ void fcl::tools::Profiler::average(const std::string &name, const double value)
 void fcl::tools::Profiler::begin(const std::string &name)
 {
   lock_.lock();
-  data_[boost::this_thread::get_id()].time[name].set();
+  data_[std::this_thread::get_id()].time[name].set();
   lock_.unlock();
 }
 
 void fcl::tools::Profiler::end(const std::string &name)
 {
   lock_.lock();
-  data_[boost::this_thread::get_id()].time[name].update();
+  data_[std::this_thread::get_id()].time[name].update();
   lock_.unlock();
 }
 
@@ -126,7 +126,7 @@ void fcl::tools::Profiler::status(std::ostream &out, bool merge)
   if (merge)
   {
     PerThread combined;
-    for (std::map<boost::thread::id, PerThread>::const_iterator it = data_.begin() ; it != data_.end() ; ++it)
+    for (std::map<std::thread::id, PerThread>::const_iterator it = data_.begin() ; it != data_.end() ; ++it)
     {
       for (std::map<std::string, unsigned long int>::const_iterator iev = it->second.events.begin() ; iev != it->second.events.end(); ++iev)
         combined.events[iev->first] += iev->second;
@@ -150,7 +150,7 @@ void fcl::tools::Profiler::status(std::ostream &out, bool merge)
     printThreadInfo(out, combined);
   }
   else
-    for (std::map<boost::thread::id, PerThread>::const_iterator it = data_.begin() ; it != data_.end() ; ++it)
+    for (std::map<std::thread::id, PerThread>::const_iterator it = data_.begin() ; it != data_.end() ; ++it)
     {
       out << "Thread " << it->first << ":" << std::endl;
       printThreadInfo(out, it->second);
@@ -222,7 +222,7 @@ void fcl::tools::Profiler::printThreadInfo(std::ostream &out, const PerThread &d
   {
     const AvgInfo &a = data.avg.find(avg[i].name)->second;
     out << avg[i].name << ": " << avg[i].value << " (stddev = " <<
-      sqrt(fabs(a.totalSqr - (double)a.parts * avg[i].value * avg[i].value) / ((double)a.parts - 1.)) << ")" << std::endl;
+      std::sqrt(std::abs(a.totalSqr - (double)a.parts * avg[i].value * avg[i].value) / ((double)a.parts - 1.)) << ")" << std::endl;
   }
 
   std::vector<dataDoubleVal> time;

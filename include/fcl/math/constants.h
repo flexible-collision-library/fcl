@@ -1,8 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
- *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2016, Rice University
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -15,7 +14,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Open Source Robotics Foundation nor the names of its
+ *   * Neither the name of Rice University nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -33,45 +32,23 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Dalibor Matura, Jia Pan */
+/** \author Mark Moll */
 
-#ifndef FCL_CCD_INTERPOLATION_INTERPOLATION_LINEAR_H
-#define FCL_CCD_INTERPOLATION_INTERPOLATION_LINEAR_H
+#ifndef FCL_MATH_CONSTANTS_
+#define FCL_MATH_CONSTANTS_
 
 #include "fcl/data_types.h"
-#include "fcl/ccd/interpolation/interpolation.h"
 
-#include <memory>
-
-namespace fcl 
+namespace fcl
 {
+    namespace constants
+    {
+        /// The mathematical constant pi
+        constexpr FCL_REAL pi  = FCL_REAL(3.141592653589793238462643383279502884197169399375105820974944592L);
 
-class InterpolationFactory;
-
-class InterpolationLinear : public Interpolation
-{
-public:
-  InterpolationLinear();
-
-  InterpolationLinear(FCL_REAL start_value, FCL_REAL end_value);
-
-  virtual FCL_REAL getValue(FCL_REAL time) const;
-
-  virtual FCL_REAL getValueLowerBound() const;
-  virtual FCL_REAL getValueUpperBound() const;
-
-  virtual InterpolationType getType() const;
-
-  virtual FCL_REAL getMovementLengthBound(FCL_REAL time) const;
-
-  virtual FCL_REAL getVelocityBound(FCL_REAL time) const;
-
-public:
-  static std::shared_ptr<Interpolation> create(FCL_REAL start_value, FCL_REAL end_value);
-
-  static void registerToFactory();
-};
-
+        /// The golden ratio
+        constexpr FCL_REAL phi = FCL_REAL(1.618033988749894848204586834365638117720309179805762862135448623L);
+    }
 }
 
 #endif

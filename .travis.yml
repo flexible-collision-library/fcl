@@ -1,3 +1,8 @@
+sudo: required
+dist: trusty
+cache:
+  apt: true
+
 language: cpp
 
 os:
@@ -20,6 +25,11 @@ matrix:
   exclude:
     - os: osx
       compiler: gcc
+
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
 
 install:
   # Install dependencies for FCL

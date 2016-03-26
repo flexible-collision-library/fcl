@@ -109,8 +109,9 @@ public:
   /// @brief the number of objects managed by the manager
   inline size_t size() const { return endpoints[0].size() / 2; }
 
-protected:
 
+
+protected:
 
   /// @brief SAP end point
   struct EndPoint
@@ -123,6 +124,11 @@ protected:
 
     /// @brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi
     char minmax;
+
+    bool operator<(const EndPoint &p) const
+    {
+        return value < p.value;
+    }
   };
 
   /// @brief Extention interval tree's interval to SAP interval, adding more information

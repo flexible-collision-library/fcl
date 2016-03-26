@@ -35,9 +35,9 @@
 
 /** \author Jia Pan */
 
-
+#include "fcl/math/constants.h"
 #include "fcl/math/transform.h"
-#include <boost/math/constants/constants.hpp>
+#include <cassert>
 
 namespace fcl
 {
@@ -351,17 +351,17 @@ void Quaternion3f::toEuler(FCL_REAL& a, FCL_REAL& b, FCL_REAL& c) const
   b = asin(-R(2, 0));
   c = atan2(R(2, 1), R(2, 2));
 
-  if(b == boost::math::constants::pi<double>() * 0.5)
+  if(b == constants::pi * 0.5)
   {
     if(a > 0)
-      a -= boost::math::constants::pi<double>();
+      a -= constants::pi;
     else 
-      a += boost::math::constants::pi<double>();
+      a += constants::pi;
 
     if(c > 0)
-      c -= boost::math::constants::pi<double>();
+      c -= constants::pi;
     else
-      c += boost::math::constants::pi<double>();
+      c += constants::pi;
   }
 }
 
@@ -411,7 +411,7 @@ Vec3f Quaternion3f::getRow(std::size_t i) const
 
 const Matrix3f& Transform3f::getRotationInternal() const
 {
-  boost::mutex::scoped_lock slock(const_cast<boost::mutex&>(lock_));
+  std::unique_lock<std::mutex> slock(const_cast<std::mutex&>(lock_));
   if(!matrix_set)
   {
     q.toRotation(R);

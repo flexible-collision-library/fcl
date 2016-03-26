@@ -3,15 +3,14 @@
 #include <fcl/narrowphase/narrowphase.h>
 #include <iostream>
 #include <fcl/collision.h>
-#include <boost/foreach.hpp>
 
 using namespace std;
 using namespace fcl;
 
 int main(int argc, char** argv) 
 {
-  boost::shared_ptr<Box> box0(new Box(1,1,1));
-  boost::shared_ptr<Box> box1(new Box(1,1,1));
+  std::shared_ptr<Box> box0(new Box(1,1,1));
+  std::shared_ptr<Box> box1(new Box(1,1,1));
 //  GJKSolver_indep solver;
   GJKSolver_libccd solver;
   Vec3f contact_points;
@@ -48,7 +47,7 @@ int main(int argc, char** argv)
   result.getContacts(contacts);
 
   cout << contacts.size() << " contacts found" << endl;
-  BOOST_FOREACH(Contact& contact, contacts) {
+  for(const Contact &contact : contacts) {
     cout << "position: " << contact.pos << endl;
   }
 }

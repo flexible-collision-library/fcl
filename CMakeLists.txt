@@ -90,16 +90,6 @@ else()
   message(STATUS "FCL does not use Octomap")
 endif()
 
-# Find FLANN (optional)
-find_package(flann QUIET)
-if (FLANN_FOUND)
-  set(FCL_HAVE_FLANN 1)
-  include_directories(${FLANN_INCLUDE_DIRS})
-  message(STATUS "FCL uses Flann")
-else()
-  message(STATUS "FCL does not use Flann")
-endif()
-
 
 # find_package(tinyxml QUIET)
 # if (TINYXML_FOUND)
@@ -112,7 +102,7 @@ endif()
 # endif()
 
 
-find_package(Boost COMPONENTS thread date_time filesystem system unit_test_framework REQUIRED)
+find_package(Boost COMPONENTS date_time filesystem system unit_test_framework REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 if(MSVC)
@@ -137,10 +127,10 @@ if(NOT CCD_FOUND)
     # of ccd
     find_path(CCD_INCLUDE_DIRS ccd.h
         PATH_SUFFIXES ccd)
-    find_library(CCD_LIBRARY_DIRS
+    find_library(CCD_LIBRARY
         ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
-    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY_DIRS)
-        set(CCD_LIBRARIES "ccd")
+    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY)
+        set(CCD_LIBRARIES "${CCD_LIBRARY}")
     else()
         message(FATAL_ERROR "Libccd is required by FCL")
     endif()
@@ -153,6 +143,9 @@ add_subdirectory(src)
 
 set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
 set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
+if(NOT MSVC)
+    set(PKG_CFLAGS "-std=c++11")
+endif()
 configure_file("${pkg_conf_file_in}" "${pkg_conf_file_out}" @ONLY)
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

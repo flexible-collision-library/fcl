@@ -38,11 +38,7 @@
 #include "fcl/articulated_model/model_config.h"
 #include "fcl/articulated_model/joint.h"
 #include <algorithm>
-
-// Define for boost version < 1.47
-#ifndef BOOST_ASSERT_MSG
-#define BOOST_ASSERT_MSG(expr, msg) ((void)0)
-#endif
+#include <cassert>
 
 namespace fcl
 {
@@ -53,9 +49,9 @@ ModelConfig::ModelConfig(const ModelConfig& model_cfg) :
   joint_cfgs_map_(model_cfg.joint_cfgs_map_)
 {}
 
-ModelConfig::ModelConfig(std::map<std::string, boost::shared_ptr<Joint> > joints_map)
+ModelConfig::ModelConfig(std::map<std::string, std::shared_ptr<Joint> > joints_map)
 {
-  std::map<std::string, boost::shared_ptr<Joint> >::iterator it;
+  std::map<std::string, std::shared_ptr<Joint> >::iterator it;
   for(it = joints_map.begin(); it != joints_map.end(); ++it)
     joint_cfgs_map_[it->first] = JointConfig(it->second);
 }
@@ -63,7 +59,7 @@ ModelConfig::ModelConfig(std::map<std::string, boost::shared_ptr<Joint> > joints
 JointConfig ModelConfig::getJointConfigByJointName(const std::string& joint_name) const
 {
   std::map<std::string, JointConfig>::const_iterator it = joint_cfgs_map_.find(joint_name);
-  BOOST_ASSERT_MSG((it != joint_cfgs_map_.end()), "Joint name not valid");
+  assert(it != joint_cfgs_map_.end());
 
   return it->second;
 }
@@ -71,17 +67,17 @@ JointConfig ModelConfig::getJointConfigByJointName(const std::string& joint_name
 JointConfig& ModelConfig::getJointConfigByJointName(const std::string& joint_name)
 {
   std::map<std::string, JointConfig>::iterator it = joint_cfgs_map_.find(joint_name);
-  BOOST_ASSERT_MSG((it != joint_cfgs_map_.end()), "Joint name not valid");
+  assert(it != joint_cfgs_map_.end());
 
   return it->second;
 }
 
-JointConfig ModelConfig::getJointConfigByJoint(boost::shared_ptr<Joint> joint) const
+JointConfig ModelConfig::getJointConfigByJoint(std::shared_ptr<Joint> joint) const
 {
   return getJointConfigByJointName(joint->getName());
 }
 
-JointConfig& ModelConfig::getJointConfigByJoint(boost::shared_ptr<Joint> joint)
+JointConfig& ModelConfig::getJointConfigByJoint(std::shared_ptr<Joint> joint)
 {
   return getJointConfigByJointName(joint->getName());
 }

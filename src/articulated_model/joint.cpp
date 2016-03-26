@@ -42,7 +42,7 @@
 namespace fcl
 {
 
-Joint::Joint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+Joint::Joint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
              const Transform3f& transform_to_parent,
              const std::string& name) :
   link_parent_(link_parent), link_child_(link_child),
@@ -65,32 +65,32 @@ void Joint::setName(const std::string& name)
   name_ = name;
 }
 
-boost::shared_ptr<JointConfig> Joint::getJointConfig() const
+std::shared_ptr<JointConfig> Joint::getJointConfig() const
 {
   return joint_cfg_;
 }
 
-void Joint::setJointConfig(const boost::shared_ptr<JointConfig>& joint_cfg)
+void Joint::setJointConfig(const std::shared_ptr<JointConfig>& joint_cfg)
 {
   joint_cfg_ = joint_cfg;
 }
 
-boost::shared_ptr<Link> Joint::getParentLink() const
+std::shared_ptr<Link> Joint::getParentLink() const
 {
   return link_parent_.lock();
 }
 
-boost::shared_ptr<Link> Joint::getChildLink() const
+std::shared_ptr<Link> Joint::getChildLink() const
 {
   return link_child_.lock();
 }
 
-void Joint::setParentLink(const boost::shared_ptr<Link>& link)
+void Joint::setParentLink(const std::shared_ptr<Link>& link)
 {
   link_parent_ = link;
 }
 
-void Joint::setChildLink(const boost::shared_ptr<Link>& link)
+void Joint::setChildLink(const std::shared_ptr<Link>& link)
 {
   link_child_ = link;
 }
@@ -111,7 +111,7 @@ void Joint::setTransformToParent(const Transform3f& t)
 }
 
 
-PrismaticJoint::PrismaticJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+PrismaticJoint::PrismaticJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
                                const Transform3f& transform_to_parent,
                                const std::string& name,
                                const Vec3f& axis) :
@@ -139,7 +139,7 @@ Transform3f PrismaticJoint::getLocalTransform() const
 }
 
 
-RevoluteJoint::RevoluteJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+RevoluteJoint::RevoluteJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
                              const Transform3f& transform_to_parent,
                              const std::string& name,
                              const Vec3f& axis) :
@@ -167,7 +167,7 @@ Transform3f RevoluteJoint::getLocalTransform() const
 }
 
 
-BallEulerJoint::BallEulerJoint(const boost::shared_ptr<Link>& link_parent, const boost::shared_ptr<Link>& link_child,
+BallEulerJoint::BallEulerJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
                                const Transform3f& transform_to_parent,
                                const std::string& name) :
   Joint(link_parent, link_child, transform_to_parent, name)

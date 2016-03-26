@@ -39,8 +39,7 @@
 #define FCL_ARTICULATED_MODEL_JOINT_CONFIG_H
 
 #include "fcl/data_types.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <memory>
 #include <vector>
 
 namespace fcl
@@ -55,7 +54,7 @@ public:
 
   JointConfig(const JointConfig& joint_cfg);
 
-  JointConfig(const boost::shared_ptr<Joint>& joint,
+  JointConfig(const std::shared_ptr<Joint>& joint,
               FCL_REAL default_value = 0,
               FCL_REAL default_value_min = 0,
               FCL_REAL default_value_max = 0);
@@ -84,10 +83,10 @@ public:
   
   FCL_REAL& getLimitMax(std::size_t i);
   
-  boost::shared_ptr<Joint> getJoint() const;
+  std::shared_ptr<Joint> getJoint() const;
 
 private:
-  boost::weak_ptr<Joint> joint_;
+  std::weak_ptr<Joint> joint_;
   
   std::vector<FCL_REAL> values_;
   std::vector<FCL_REAL> limits_min_;

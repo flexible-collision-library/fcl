@@ -37,13 +37,7 @@
 
 #include "fcl/ccd/interpolation/interpolation_factory.h"
 #include "fcl/ccd/interpolation/interpolation_linear.h"
-
-#include <boost/assert.hpp>
-
-// Define for boost version < 1.47
-#ifndef BOOST_ASSERT_MSG
-#define BOOST_ASSERT_MSG(expr, msg) ((void)0)
-#endif
+#include <cassert>
 
 namespace fcl 
 {
@@ -65,12 +59,12 @@ void InterpolationFactory::registerClass(const InterpolationType type, const Cre
   this->creation_map_[type] = create_function;
 }
 
-boost::shared_ptr<Interpolation> 
+std::shared_ptr<Interpolation> 
 InterpolationFactory::create(const InterpolationType type, const FCL_REAL start_value, const FCL_REAL end_value)
 {
   std::map<InterpolationType, CreateFunction>::const_iterator it = creation_map_.find(type);
 
-  BOOST_ASSERT_MSG((it != creation_map_.end()), "CreateFunction wasn't found.");
+  assert(it != creation_map_.end());
 
   return (it->second)(start_value, end_value);  
 }

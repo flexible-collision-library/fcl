@@ -51,7 +51,7 @@ JointConfig::JointConfig(const JointConfig& joint_cfg) :
 {
 }
 
-JointConfig::JointConfig(const boost::shared_ptr<Joint>& joint,
+JointConfig::JointConfig(const std::shared_ptr<Joint>& joint,
                          FCL_REAL default_value,
                          FCL_REAL default_value_min,
                          FCL_REAL default_value_max) :
@@ -99,7 +99,7 @@ FCL_REAL& JointConfig::getLimitMax(std::size_t i)
 
 
 
-boost::shared_ptr<Joint> JointConfig::getJoint() const
+std::shared_ptr<Joint> JointConfig::getJoint() const
 {
   return joint_.lock();
 }

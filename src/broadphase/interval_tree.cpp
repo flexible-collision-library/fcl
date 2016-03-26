@@ -38,6 +38,7 @@
 #include "fcl/broadphase/interval_tree.h"
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 
 
 namespace fcl
