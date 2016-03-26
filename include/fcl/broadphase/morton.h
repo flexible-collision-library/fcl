@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2016, Toyota Research Institute
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -38,9 +39,10 @@
 #ifndef FCL_MORTON_H
 #define FCL_MORTON_H
 
-#include <boost/dynamic_bitset.hpp>
 #include "fcl/data_types.h"
 #include "fcl/BV/AABB.h"
+
+#include <bitset>
 
 namespace fcl
 {
@@ -93,6 +95,9 @@ static inline FCL_UINT64 morton_code60(FCL_UINT32 x, FCL_UINT32 y, FCL_UINT32 z)
 
 
 /// @brief Functor to compute the morton code for a given AABB
+/// This is specialized for 32- and 64-bit unsigned integers giving
+/// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
+/// N is the length of the code and must be a multiple of 3.
 template<typename T>
 struct morton_functor {};
 
@@ -119,7 +124,7 @@ struct morton_functor<FCL_UINT32>
   const Vec3f base;
   const Vec3f inv;
 
-  size_t bits() const { return 30; }
+  static constexpr size_t bits() { return 30; }
 };
 
 
@@ -145,50 +150,52 @@ struct morton_functor<FCL_UINT64>
   const Vec3f base;
   const Vec3f inv;
 
-  size_t bits() const { return 60; }
+  static constexpr size_t bits() { return 60; }
 };
 
-/// @brief Functor to compute n bit morton code for a given AABB
-template<>
-struct morton_functor<boost::dynamic_bitset<> >
+
+/// @brief Functor to compute N bit morton code for a given AABB
+/// N must be a multiple of 3.
+template<int N>
+struct morton_functor<std::bitset<N>> 
 {
-  morton_functor(const AABB& bbox, size_t bit_num_) : base(bbox.min_),
-                                                      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
-                                                          1.0 / (bbox.max_[1] - bbox.min_[1]),
-                                                          1.0 / (bbox.max_[2] - bbox.min_[2])),
-                                                      bit_num(bit_num_)
+  static_assert(N%3==0, "Number of bits must be a multiple of 3");
+
+  morton_functor(const AABB& bbox) : base(bbox.min_),
+                                     inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
+                                         1.0 / (bbox.max_[1] - bbox.min_[1]),
+                                         1.0 / (bbox.max_[2] - bbox.min_[2]))
   {}
 
-  boost::dynamic_bitset<> operator() (const Vec3f& point) const
+  std::bitset<N> operator() (const Vec3f& point) const
   {
     FCL_REAL x = (point[0] - base[0]) * inv[0];
     FCL_REAL y = (point[1] - base[1]) * inv[1];
     FCL_REAL z = (point[2] - base[2]) * inv[2];
-    int start_bit = bit_num * 3 - 1;
-    boost::dynamic_bitset<> bits(bit_num * 3);
+    int start_bit = bits() - 1;
+    std::bitset<N> bset;
 
     x *= 2;
     y *= 2;
     z *= 2;
 
-    for(size_t i = 0; i < bit_num; ++i)
+    for(size_t i = 0; i < bits()/3; ++i)
     {
-      bits[start_bit--] = ((z < 1) ? 0 : 1);
-      bits[start_bit--] = ((y < 1) ? 0 : 1);
-      bits[start_bit--] = ((x < 1) ? 0 : 1);
+      bset[start_bit--] = ((z < 1) ? 0 : 1);
+      bset[start_bit--] = ((y < 1) ? 0 : 1);
+      bset[start_bit--] = ((x < 1) ? 0 : 1);
       x = ((x >= 1) ? 2*(x-1) : 2*x);
       y = ((y >= 1) ? 2*(y-1) : 2*y);
       z = ((z >= 1) ? 2*(z-1) : 2*z);
     }
 
-    return bits;
+    return bset;
   }
 
   const Vec3f base;
   const Vec3f inv;
-  const size_t bit_num;
 
-  size_t bits() const { return bit_num * 3; }
+  static constexpr size_t bits() { return N; }
 };
 
 }

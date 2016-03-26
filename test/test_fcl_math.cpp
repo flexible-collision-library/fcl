@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2015, Open Source Robotics Foundation
+ *  Copyright (c) 2016, Toyota Research Institute
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -629,15 +630,13 @@ BOOST_AUTO_TEST_CASE(vec_test_sse_vec64_consistent)
 BOOST_AUTO_TEST_CASE(morton)
 {
   AABB bbox(Vec3f(0, 0, 0), Vec3f(1000, 1000, 1000));
-  morton_functor<boost::dynamic_bitset<> > F1(bbox, 10);
-  morton_functor<boost::dynamic_bitset<> > F2(bbox, 20);
-  morton_functor<FCL_UINT64> F3(bbox);
-  morton_functor<FCL_UINT32> F4(bbox);
+  morton_functor<std::bitset<30>> F1(bbox);
+  morton_functor<std::bitset<60>> F2(bbox);
+  morton_functor<FCL_UINT64> F3(bbox); // 60 bits
+  morton_functor<FCL_UINT32> F4(bbox); // 30 bits
 
   Vec3f p(254, 873, 674);
-  std::cout << std::hex << F1(p).to_ulong() << std::endl;
-  std::cout << std::hex << F2(p).to_ulong() << std::endl;
-  std::cout << std::hex << F3(p) << std::endl;
-  std::cout << std::hex << F4(p) << std::endl;
-  
+
+  BOOST_CHECK(F1(p).to_ulong() == F4(p));
+  BOOST_CHECK(F2(p).to_ullong() == F3(p));
 }
