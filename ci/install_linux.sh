@@ -12,6 +12,3 @@ cd build
 cmake ..
 make
 sudo make install
-
-# Code-coverage
-sudo apt-get -qq --yes --force-yes install lcov curl
