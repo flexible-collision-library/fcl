@@ -37,6 +37,7 @@
 
 #include "fcl/broadphase/broadphase_bruteforce.h"
 #include <limits>
+#include <iterator>
 
 namespace fcl
 {

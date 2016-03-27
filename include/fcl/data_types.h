@@ -45,10 +45,10 @@ namespace fcl
 {
 
 typedef double FCL_REAL;
-typedef std::uint_fast64_t FCL_INT64;
-typedef std::int_fast64_t FCL_UINT64;
-typedef std::uint_fast32_t FCL_UINT32;
-typedef std::int_fast32_t FCL_INT32;
+typedef std::int64_t  FCL_INT64;
+typedef std::uint64_t FCL_UINT64;
+typedef std::int32_t  FCL_INT32;
+typedef std::uint32_t FCL_UINT32;
 
 /// @brief Triangle with 3 indices for points
 class Triangle
