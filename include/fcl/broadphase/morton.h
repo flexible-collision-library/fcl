@@ -156,7 +156,7 @@ struct morton_functor<FCL_UINT64>
 
 /// @brief Functor to compute N bit morton code for a given AABB
 /// N must be a multiple of 3.
-template<int N>
+template<size_t N>
 struct morton_functor<std::bitset<N>> 
 {
   static_assert(N%3==0, "Number of bits must be a multiple of 3");
