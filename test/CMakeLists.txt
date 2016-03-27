@@ -1,7 +1,16 @@
+include_directories(${Boost_INCLUDE_DIR})
+
+if(MSVC)
+    add_definitions(-DBOOST_ALL_NO_LIB)
+endif()
+add_definitions(-DBOOST_TEST_DYN_LINK)
+
+
 macro(add_fcl_test test_name)
   add_executable(${ARGV})
   target_link_libraries(${test_name}
     fcl
+    ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${Boost_DATE_TIME_LIBRARY}

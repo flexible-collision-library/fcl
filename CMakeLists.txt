@@ -94,14 +94,6 @@ endif()
 # endif()
 
 
-find_package(Boost COMPONENTS date_time filesystem system unit_test_framework REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-
-if(MSVC)
-    add_definitions(-DBOOST_ALL_NO_LIB)
-endif()
-add_definitions(-DBOOST_TEST_DYN_LINK)
-
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
@@ -155,5 +147,9 @@ configure_file(
 add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/cmake_uninstall.cmake")
 
-enable_testing()
-add_subdirectory(test)
+find_package(Boost COMPONENTS date_time filesystem system unit_test_framework)
+option(FCL_BUILD_TESTS "Build FCL tests" ${Boost_FOUND})
+if(FCL_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+endif()
