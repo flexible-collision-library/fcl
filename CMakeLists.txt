@@ -56,6 +56,14 @@ if(FCL_USE_SSE)
   # TODO: do something similar for other compilers
 endif()
 
+# Coveralls support
+option(FCL_COVERALLS "Turn on coveralls support" OFF)
+option(FCL_COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
+if(FCL_COVERALLS)
+  include(Coveralls)
+  coveralls_turn_on_coverage()
+endif()
+
 # Find Octomap (optional)
 find_package(PkgConfig QUIET)
 set(FCL_HAVE_OCTOMAP 0)

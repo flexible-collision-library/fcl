@@ -12,3 +12,8 @@ install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Setup the coveralls target and tell it to gather coverage data for all the lib sources.
+if(FCL_COVERALLS)
+  coveralls_setup("${FCL_HEADERS};${FCL_SOURCE_CODE};" ${FCL_COVERALLS_UPLOAD})
+endif()

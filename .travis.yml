@@ -14,10 +14,14 @@ compiler:
   - clang
 
 env:
-  - BUILD_TYPE=Debug
-  - BUILD_TYPE=Release
+  - BUILD_TYPE=Debug   COVERALLS=OFF
+  - BUILD_TYPE=Release COVERALLS=OFF
 
 matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      env: BUILD_TYPE=Debug COVERALLS=ON COVERALLS_REPO_TOKEN=PheK7dcpQFPXAUG0wTMVTnSVF349jEJGc
   exclude:
     - os: osx
       compiler: gcc
@@ -38,10 +42,11 @@ script:
   - cd build 
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS ..
 
   # Build
   - make -j4
+  - if [ $COVERALLS = ON ]; then make coveralls; fi
 
   # Run unit tests
   - make test
