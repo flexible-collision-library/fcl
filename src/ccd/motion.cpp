@@ -54,12 +54,12 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const
 
   FCL_REAL tmp;
   // max_i |c_i * n|
-  FCL_REAL cn_max = std::fabs(c1.dot(n));
-  tmp = std::fabs(c2.dot(n));
+  FCL_REAL cn_max = std::abs(c1.dot(n));
+  tmp = std::abs(c2.dot(n));
   if(tmp > cn_max) cn_max = tmp;
-  tmp = std::fabs(c3.dot(n));
+  tmp = std::abs(c3.dot(n));
   if(tmp > cn_max) cn_max = tmp;
-  tmp = std::fabs(c4.dot(n));
+  tmp = std::abs(c4.dot(n));
   if(tmp > cn_max) cn_max = tmp;
 
   // max_i ||c_i||
@@ -99,10 +99,10 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const SplineMotion& motion) const
   FCL_REAL T_bound = motion.computeTBound(n);
   FCL_REAL tf_t = motion.getCurrentTime();
 
-  FCL_REAL R_bound = std::fabs(a.dot(n)) + a.length() + (a.cross(n)).length();
-  FCL_REAL R_bound_tmp = std::fabs(b.dot(n)) + b.length() + (b.cross(n)).length();
+  FCL_REAL R_bound = std::abs(a.dot(n)) + a.length() + (a.cross(n)).length();
+  FCL_REAL R_bound_tmp = std::abs(b.dot(n)) + b.length() + (b.cross(n)).length();
   if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
-  R_bound_tmp = std::fabs(c.dot(n)) + c.length() + (c.cross(n)).length();
+  R_bound_tmp = std::abs(c.dot(n)) + c.length() + (c.cross(n)).length();
   if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
 
   FCL_REAL dWdW_max = motion.computeDWMax();

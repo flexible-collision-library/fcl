@@ -95,7 +95,7 @@ namespace details
 	// If segments not parallel, compute closest point on L1 to L2 and
 	// clamp to segment S1. Else pick arbitrary s (here 0)
 	if (denom != 0.0f) {
-	  std::cerr << "demoninator equals zero, using 0 as reference" << std::endl;
+	  std::cerr << "denominator equals zero, using 0 as reference" << std::endl;
 	  s = clamp((b*f - c*e) / denom, 0.0f, 1.0f);
 	} else s = 0.0f;
 	// Compute point on L2 closest to S1(s) using
