@@ -177,7 +177,7 @@ void printComparisonError(const std::string& comparison_type,
             << "tf2.translation: " << tf2.getTranslation() << std::endl
             << "expected_depth: " << expected_depth << std::endl
             << "actual_depth  : " << actual_depth << std::endl
-            << "difference: " << std::fabs(actual_depth - expected_depth) << std::endl
+            << "difference: " << std::abs(actual_depth - expected_depth) << std::endl
             << "tolerance: " << tol << std::endl;
 }
 
@@ -201,7 +201,7 @@ bool checkContactPoints(const S1& s1, const Transform3f& tf1,
 
   if (check_depth)
   {
-    bool depth_equal = std::fabs(actual.penetration_depth - expected.penetration_depth) < tol;
+    bool depth_equal = std::abs(actual.penetration_depth - expected.penetration_depth) < tol;
     if (!depth_equal)
       return false;
   }
