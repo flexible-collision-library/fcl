@@ -56,6 +56,20 @@ if(FCL_USE_SSE)
   # TODO: do something similar for other compilers
 endif()
 
+# Eigen
+find_package(Eigen3 3)
+option(FCL_USE_EIGEN "Whether FCL should use Eigen" ${EIGEN3_FOUND})
+if(FCL_USE_EIGEN)
+  if(NOT EIGEN3_FOUND)
+    message(FATAL_ERROR "Could not find Eigen")
+  endif(NOT EIGEN3_FOUND)
+  include_directories(${EIGEN3_INCLUDE_DIR})
+  set(FCL_HAVE_EIGEN TRUE)
+  message(STATUS "FCL uses Eigen ${EIGEN3_VERSION}")
+else(FCL_USE_EIGEN)
+  message(STATUS "FCL does not use Eigen")
+endif(FCL_USE_EIGEN)
+
 # Coveralls support
 option(FCL_COVERALLS "Turn on coveralls support" OFF)
 option(FCL_COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
