@@ -8,7 +8,7 @@ struct deduce_fcl_type<Derived, OtherDerived, false> {
 };
 template<typename Derived, typename OtherDerived>
 struct deduce_fcl_type<Derived, OtherDerived, true> {
-  typedef CwiseBinaryOp<scalar_multiple_op<typename Derived::Scalar>, const Derived, const OtherDerived> Type;
+  typedef CwiseBinaryOp<scalar_product_op<typename Derived::Scalar>, const Derived, const OtherDerived> Type;
 };
 
 }
