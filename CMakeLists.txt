@@ -117,8 +117,7 @@ endif()
 if(NOT CCD_FOUND)
     # if pkfconfig is not installed, then fall back on more fragile detection
     # of ccd
-    find_path(CCD_INCLUDE_DIRS ccd.h
-        PATH_SUFFIXES ccd)
+    find_path(CCD_INCLUDE_DIRS ccd/ccd.h)
     find_library(CCD_LIBRARY
         ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
     if(CCD_INCLUDE_DIRS AND CCD_LIBRARY)
