@@ -2110,7 +2110,7 @@ bool ellipsoidPlaneIntersect(const Ellipsoid& s1, const Transform3f& tf1,
     if (contacts)
     {
       // Transform the results to the world coordinates.
-      const Vec3f normal (((signed_dist > 0) ? -1 : 1) * tf1.getRotation() * new_s2.n); // pointing from the ellipsoid's center to the plane
+      const Vec3f normal (((signed_dist > 0) ? -1 : 1) * (tf1.getRotation() * new_s2.n)); // pointing from the ellipsoid's center to the plane
       const Vec3f support_vector = (1.0/center_to_contact_plane) * Vec3f(radii2[0]*new_s2.n[0], radii2[1]*new_s2.n[1], radii2[2]*new_s2.n[2]);
       const Vec3f point_in_plane_coords = support_vector * (depth / new_s2.n.dot(support_vector) - 1.0);
       const Vec3f point = (signed_dist > 0) ? tf1.transform(point_in_plane_coords) : tf1.transform(-point_in_plane_coords); // a middle point of the intersecting volume
