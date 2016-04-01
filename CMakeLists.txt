@@ -115,7 +115,7 @@ if(PKG_CONFIG_FOUND)
 endif()
 
 if(NOT CCD_FOUND)
-    # if pkfconfig is not installed, then fall back on more fragile detection
+    # if pkgconfig is not installed, then fall back on more fragile detection
     # of ccd
     find_path(CCD_INCLUDE_DIRS ccd.h
         PATH_SUFFIXES ccd)
