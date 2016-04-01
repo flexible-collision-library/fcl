@@ -283,7 +283,7 @@ public:
 
     const Matrix3f& R = tf1.getRotation();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
-    bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
+    if (left_hand) bv2.axis[0] = -R.getColumn(id[0]); else bv2.axis[0] = R.getColumn(id[0]);
     bv2.axis[1] = R.getColumn(id[1]);
     bv2.axis[2] = R.getColumn(id[2]);    
   }

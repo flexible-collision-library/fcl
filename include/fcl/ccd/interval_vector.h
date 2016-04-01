@@ -156,6 +156,10 @@ struct IVector3
 
   bool overlap(const IVector3& v) const;
   bool contain(const IVector3& v) const;
+
+#ifdef FCL_CCD_INTERVALVECTOR_PLUGIN
+# include FCL_CCD_INTERVALVECTOR_PLUGIN
+#endif
 };
 
 IVector3 bound(const IVector3& i, const Vec3f& v);

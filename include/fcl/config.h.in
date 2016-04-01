@@ -42,6 +42,7 @@
 #define FCL_PATCH_VERSION @FCL_PATCH_VERSION@
 
 #cmakedefine01 FCL_HAVE_SSE
+#cmakedefine01 FCL_HAVE_EIGEN
 #cmakedefine01 FCL_HAVE_OCTOMAP
 #cmakedefine01 FCL_HAVE_TINYXML
 

@@ -41,6 +41,10 @@
 #include "fcl/ccd/interval_vector.h"
 #include "fcl/ccd/taylor_model.h"
 
+#if FCL_HAVE_EIGEN
+# include "fcl/eigen/taylor_operator.h"
+#endif
+
 namespace fcl
 {
 

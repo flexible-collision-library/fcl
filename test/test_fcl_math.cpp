@@ -38,9 +38,17 @@
 #define BOOST_TEST_MODULE "FCL_MATH"
 #include <boost/test/unit_test.hpp>
 
+#if FCL_HAVE_EIGEN
+  #include "fcl/eigen/fcl_matrix.h"
+#endif
+
 #if FCL_HAVE_SSE
   #include "fcl/simd/math_simd_details.h"
 #endif
+#include "fcl/math/math_details.h"
+#include "fcl/math/vec_3fx.h"
+#include "fcl/math/matrix_3fx.h"
+
 #include "fcl/math/vec_3f.h"
 #include "fcl/math/matrix_3f.h"
 #include "fcl/broadphase/morton.h"
@@ -163,6 +171,126 @@ BOOST_AUTO_TEST_CASE(vec_test_basic_vec64)
   BOOST_CHECK((v1.cross(v2)).equal(Vec3f64(-2.0, 4.0, -2.0)));
   BOOST_CHECK(v1.dot(v2) == 26);
 }
+
+#if FCL_HAVE_EIGEN
+
+BOOST_AUTO_TEST_CASE(vec_test_eigen_vec32)
+{
+  typedef Eigen::FclMatrix<float, 1> Vec3f32;
+  Vec3f32 v1(1.0f, 2.0f, 3.0f);
+  BOOST_CHECK(v1[0] == 1.0f);
+  BOOST_CHECK(v1[1] == 2.0f);
+  BOOST_CHECK(v1[2] == 3.0f);
+
+  Vec3f32 v2 = v1;
+  Vec3f32 v3(3.3f, 4.3f, 5.3f);
+  v1 += v3;
+  BOOST_CHECK(v1.equal(v2 + v3));
+  v1 -= v3;
+  BOOST_CHECK(v1.equal(v2));
+  v1 -= v3;
+  BOOST_CHECK(v1.equal(v2 - v3));
+  v1 += v3;
+
+  v1 *= v3;
+  BOOST_CHECK(v1.equal(v2 * v3));
+  v1 /= v3;
+  BOOST_CHECK(v1.equal(v2));
+  v1 /= v3;
+  BOOST_CHECK(v1.equal(v2 / v3));
+  v1 *= v3;
+
+  v1 *= 2.0f;
+  BOOST_CHECK(v1.equal(v2 * 2.0f));
+  v1 /= 2.0f;
+  BOOST_CHECK(v1.equal(v2));
+  v1 /= 2.0f;
+  BOOST_CHECK(v1.equal(v2 / 2.0f));
+  v1 *= 2.0f;
+
+  v1 += 2.0f;
+  BOOST_CHECK(v1.equal(v2 + 2.0f));
+  v1 -= 2.0f;
+  BOOST_CHECK(v1.equal(v2));
+  v1 -= 2.0f;
+  BOOST_CHECK(v1.equal(v2 - 2.0f));
+  v1 += 2.0f;
+
+  BOOST_CHECK((-Vec3f32(1.0f, 2.0f, 3.0f)).equal(Vec3f32(-1.0f, -2.0f, -3.0f)));
+
+  v1 = Vec3f32(1.0f, 2.0f, 3.0f);
+  v2 = Vec3f32(3.0f, 4.0f, 5.0f);
+  BOOST_CHECK((v1.cross(v2)).equal(Vec3f32(-2.0f, 4.0f, -2.0f)));
+  BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
+
+  v1 = Vec3f32(3.0f, 4.0f, 5.0f);
+  BOOST_CHECK(std::abs(v1.sqrLength() - 50.0) < 1e-5);
+  BOOST_CHECK(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+}
+
+BOOST_AUTO_TEST_CASE(vec_test_eigen_vec64)
+{
+  typedef Eigen::FclMatrix<double, 1> Vec3f64;
+  Vec3f64 v1(1.0, 2.0, 3.0);
+  BOOST_CHECK(v1[0] == 1.0);
+  BOOST_CHECK(v1[1] == 2.0);
+  BOOST_CHECK(v1[2] == 3.0);
+
+  Vec3f64 v2 = v1;
+  Vec3f64 v3(3.3, 4.3, 5.3);
+  v1 += v3;
+  BOOST_CHECK(v1.equal(v2 + v3));
+  v1 -= v3;
+  BOOST_CHECK(v1.equal(v2));
+  v1 -= v3;
+  BOOST_CHECK(v1.equal(v2 - v3));
+  v1 += v3;
+
+  v1 *= v3;
+  BOOST_CHECK(v1.equal(v2 * v3));
+  v1 /= v3;
+  BOOST_CHECK(v1.equal(v2));
+  v1 /= v3;
+  BOOST_CHECK(v1.equal(v2 / v3));
+  v1 *= v3;
+
+  v1 *= 2.0;
+  BOOST_CHECK(v1.equal(v2 * 2.0));
+  v1 /= 2.0;
+  BOOST_CHECK(v1.equal(v2));
+  v1 /= 2.0;
+  BOOST_CHECK(v1.equal(v2 / 2.0));
+  v1 *= 2.0;
+
+  v1 += 2.0;
+  BOOST_CHECK(v1.equal(v2 + 2.0));
+  v1 -= 2.0;
+  BOOST_CHECK(v1.equal(v2));
+  v1 -= 2.0;
+  BOOST_CHECK(v1.equal(v2 - 2.0));
+  v1 += 2.0;
+
+  BOOST_CHECK((-Vec3f64(1.0, 2.0, 3.0)).equal(Vec3f64(-1.0, -2.0, -3.0)));
+
+  v1 = Vec3f64(1.0, 2.0, 3.0);
+  v2 = Vec3f64(3.0, 4.0, 5.0);
+  BOOST_CHECK((v1.cross(v2)).equal(Vec3f64(-2.0, 4.0, -2.0)));
+  BOOST_CHECK(std::abs(v1.dot(v2) - 26) < 1e-5);
+
+  v1 = Vec3f64(3.0, 4.0, 5.0);
+  BOOST_CHECK(std::abs(v1.sqrLength() - 50.0) < 1e-5);
+  BOOST_CHECK(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
+  BOOST_CHECK(normalize(v1).equal(v1 / v1.length()));
+
+
+  v1 = Vec3f64(1.0, 2.0, 3.0);
+  v2 = Vec3f64(3.0, 4.0, 5.0);
+  BOOST_CHECK((v1.cross(v2)).equal(Vec3f64(-2.0, 4.0, -2.0)));
+  BOOST_CHECK(v1.dot(v2) == 26);
+}
+
+#endif
 
 #if FCL_HAVE_SSE
 

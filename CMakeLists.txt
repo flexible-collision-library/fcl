@@ -56,6 +56,23 @@ if(FCL_USE_SSE)
   # TODO: do something similar for other compilers
 endif()
 
+# Eigen
+find_package(PkgConfig QUIET)
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(EIGEN3 QUIET eigen3)
+endif(PKG_CONFIG_FOUND)
+option(FCL_USE_EIGEN "Whether FCL should use Eigen" ${EIGEN3_FOUND})
+if(FCL_USE_EIGEN)
+  if(NOT EIGEN3_FOUND)
+    message(FATAL_ERROR "Could not find Eigen")
+  endif(NOT EIGEN3_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EIGEN3_CFLAGS}")
+  set(FCL_HAVE_EIGEN TRUE)
+  message(STATUS "FCL uses Eigen ${EIGEN3_VERSION}")
+else(FCL_USE_EIGEN)
+  message(STATUS "FCL does not use Eigen")
+endif(FCL_USE_EIGEN)
+
 # Coveralls support
 option(FCL_COVERALLS "Turn on coveralls support" OFF)
 option(FCL_COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
@@ -65,7 +82,6 @@ if(FCL_COVERALLS)
 endif()
 
 # Find Octomap (optional)
-find_package(PkgConfig QUIET)
 set(FCL_HAVE_OCTOMAP 0)
 if(PKG_CONFIG_FOUND)
     pkg_check_modules(OCTOMAP QUIET octomap)

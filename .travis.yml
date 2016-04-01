@@ -14,14 +14,15 @@ compiler:
   - clang
 
 env:
-  - BUILD_TYPE=Debug   COVERALLS=OFF
-  - BUILD_TYPE=Release COVERALLS=OFF
+  - BUILD_TYPE=Debug   COVERALLS=OFF FCL_USE_EIGEN=OFF
+  - BUILD_TYPE=Release COVERALLS=OFF FCL_USE_EIGEN=OFF
+  - BUILD_TYPE=Release COVERALLS=OFF FCL_USE_EIGEN=ON
 
 matrix:
   include:
     - os: linux
       compiler: gcc
-      env: BUILD_TYPE=Debug COVERALLS=ON COVERALLS_REPO_TOKEN=PheK7dcpQFPXAUG0wTMVTnSVF349jEJGc
+      env: BUILD_TYPE=Debug COVERALLS=ON FCL_USE_EIGEN=ON COVERALLS_REPO_TOKEN=PheK7dcpQFPXAUG0wTMVTnSVF349jEJGc
   exclude:
     - os: osx
       compiler: gcc
@@ -30,6 +31,7 @@ addons:
   apt:
     packages:
       - libboost-all-dev
+      - libeigen3-dev
 
 install:
   # Install dependencies for FCL
@@ -42,7 +44,7 @@ script:
   - cd build 
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS -DFCL_USE_EIGEN=${FCL_USE_EIGEN} ..
 
   # Build
   - make -j4
