@@ -1,0 +1,1096 @@
+--- Start test broadphase ---
+Running 16 test cases...
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 1000 queries
+register time
+0.01    0.008   0.333   0.029   0.111   0.122   0.106   0.072   0.07    
+setup time
+0       0.032   0.005   0.291   0       0       0       0       0       
+update time
+0       0.023   0.309   0.253   0.067   0.016   0.013   0.013   0.013   
+self collision time
+0.273   0.009   0.003   0.048   0.158   0.018   0.019   0.018   0.019   
+collision time
+168.389 1.96    14.15   2.697   8.51    0.972   0.975   0.903   0.905   
+overall time
+168.672 2.032   14.8    3.318   8.846   1.128   1.113   1.006   1.007   
+
+1 1 1 1 1 1 1 1 1 
+collision timing summary
+1000 objs, 1000 queries
+register time
+0.051   0.03    5.434   0.224   1.082   1.367   1.134   0.724   0.736   
+setup time
+0       0.453   0.053   4.139   0       0.001   0       0       0       
+update time
+0       0.375   39.434  3.871   0.963   0.147   0.141   0.205   0.202   
+self collision time
+18.095  0.017   0.069   0.076   1.464   0.016   0.014   0.002   0.002   
+collision time
+1649.7  16.792  175.909 9.333   78.017  2.715   2.781   2.541   2.747   
+overall time
+1667.85 17.667  220.899 17.643  81.526  4.246   4.07    3.472   3.687   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 1000 queries
+register time
+0.006   0.005   0.335   0.013   0.11    0.096   0.083   0.05    0.054   
+setup time
+0       0.031   0.003   0.245   0       0       0       0       0       
+update time
+0       0.023   0.303   0.244   0.075   0.011   0.011   0.011   0.013   
+self collision time
+0.255   0.008   0.003   0.044   0.121   0.019   0.02    0.015   0.016   
+collision time
+169.07  2.256   13.809  2.596   7.662   0.954   0.891   0.833   0.938   
+overall time
+169.331 2.323   14.453  3.142   7.968   1.08    1.005   0.909   1.021   
+
+10 10 10 10 10 10 10 10 10 
+collision timing summary
+1000 objs, 1000 queries
+register time
+0.049   0.024   5.291   0.134   1.052   1.193   0.994   0.591   0.615   
+setup time
+0       0.462   0.035   4.038   0       0       0       0       0       
+update time
+0       0.372   38.953  3.982   0.995   0.126   0.114   0.201   0.182   
+self collision time
+22.526  0.218   0.057   0.636   3.997   0.208   0.234   0.308   0.339   
+collision time
+1728.47 17.083  174.255 9.539   76.957  2.959   2.876   2.873   2.928   
+overall time
+1751.04 18.159  218.591 18.329  83.001  4.486   4.218   3.973   4.064   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 1000 queries
+register time
+0.008   0.007   0.434   0.018   0.128   0.107   0.087   0.066   0.059   
+setup time
+0       0.032   0.004   0.291   0.001   0       0       0       0       
+update time
+0       0.025   0.364   0.287   0.077   0.014   0.011   0.014   0.014   
+self collision time
+0.285   0.008   0.003   0.043   0.153   0.018   0.019   0.018   0.017   
+collision time
+172.024 2.114   17.181  2.807   8.176   0.982   0.972   0.94    0.906   
+overall time
+172.317 2.186   17.986  3.446   8.535   1.121   1.089   1.038   0.996   
+
+11 11 11 11 11 11 11 11 11 
+collision timing summary
+1000 objs, 1000 queries
+register time
+0.054   0.021   5.271   0.136   1.026   1.218   1.028   0.62    0.624   
+setup time
+0       0.463   0.04    3.709   0       0.001   0       0       0       
+update time
+0.001   0.375   38.995  4.157   0.943   0.132   0.123   0.193   0.174   
+self collision time
+30.08   0.437   0.071   1.378   6.862   0.457   0.511   0.475   0.528   
+collision time
+1733.1  17.649  171.523 10.987  77.732  3.007   2.987   2.958   2.944   
+overall time
+1763.23 18.945  215.9   20.367  86.563  4.815   4.649   4.246   4.27    
+
+distance timing summary
+100 objs, 100 queries
+register time
+0.006   0.005   0.449   0.016   0.758   0.117   0.086   0.074   0.059   
+setup time
+0.001   0.032   0.004   0.308   0       0       0.001   0       0       
+distance time
+2.544   3.436   3.159   2.666   2.554   1.2     1.129   1.168   1.135   
+overall time
+2.551   3.473   3.612   2.99    3.312   1.317   1.216   1.242   1.194   
+
+distance timing summary
+1000 objs, 100 queries
+register time
+0.072   0.027   25.166  0.16    4.799   1.305   1.142   0.734   0.748   
+setup time
+0       0.467   0.132   3.993   0       0       0       0       0       
+distance time
+10.547  13.071  19.648  13.57   10.936  3.66    3.402   3.44    3.302   
+overall time
+10.619  13.565  44.946  17.723  15.735  4.965   4.544   4.174   4.05    
+
+distance timing summary
+100 objs, 100 queries
+register time
+0.007   0.006   0.383   0.018   0.138   0.121   0.088   0.076   0.06    
+setup time
+0       0.033   0.003   0.317   0       0       0       0       0       
+distance time
+1.111   0.996   1.577   1.582   1.146   0.232   0.21    0.196   0.199   
+overall time
+1.118   1.035   1.963   1.917   1.284   0.353   0.298   0.272   0.259   
+
+distance timing summary
+1000 objs, 100 queries
+register time
+0.079   0.024   5.888   0.144   1.342   1.311   1.057   0.593   0.63    
+setup time
+0       0.466   0.058   3.657   0       0       0       0       0       
+distance time
+7.22    4.722   13.622  4.378   4.525   0.358   0.325   0.315   0.303   
+overall time
+7.299   5.212   19.568  8.179   5.867   1.669   1.382   0.908   0.933   
+
+self distance timing summary
+85 objs
+register time
+0.003   0.004   0.096   0.006   0.056   0.026   0.021   0.02    0.018   
+setup time
+0       0.006   0.001   0.081   0       0       0       0       0       
+self distance time
+0.026   0.071   0.064   0.508   0.828   0.024   0.021   0.028   0.027   
+overall time
+0.029   0.081   0.161   0.595   0.884   0.05    0.042   0.048   0.045   
+
+self distance timing summary
+182 objs
+register time
+0.004   0.004   0.29    0.01    0.104   0.057   0.043   0.044   0.039   
+setup time
+0       0.014   0.002   0.213   0       0       0       0       0       
+self distance time
+0.103   0.074   0.226   1.624   1.796   0.039   0.045   0.049   0.048   
+overall time
+0.107   0.092   0.518   1.847   1.9     0.096   0.088   0.093   0.087   
+
+self distance timing summary
+1228 objs
+register time
+0.031   0.012   12.319  0.06    0.551   0.434   0.316   0.295   0.259   
+setup time
+0       0.1     0.015   2.342   0       0       0       0       0       
+self distance time
+5.03    2.355   12.158  41.337  13.665  0.279   0.241   0.33    0.328   
+overall time
+5.061   2.467   24.492  43.739  14.216  0.713   0.557   0.625   0.587   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 0 queries
+register time
+0       0       0       0       0       0       0       0       0       
+setup time
+0       0       0       0.001   0       0.001   0       0       0       
+self collision time
+0       0       0       0       0       0.001   0       0       0       
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0       0       0       0.001   0       0.002   0       0       0       
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 1000 queries
+register time
+0.001   0       0       0       0       0       0       0       0       
+setup time
+0.001   0       0       0.001   0       0       0       0       0       
+self collision time
+0       0       0       0       0.001   0       0       0       0       
+collision time
+0.061   0.087   0.08    0.095   0.048   0.061   0.069   0.07    0.053   
+overall time
+0.063   0.087   0.08    0.096   0.049   0.061   0.069   0.07    0.053   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 0 queries
+register time
+0.007   0.005   0.361   0.014   0.118   0.104   0.083   0.061   0.055   
+setup time
+0       0.033   0.004   0.282   0       0       0       0       0       
+self collision time
+0.309   0.008   0.003   0.044   0.076   0.012   0.011   0.01    0.009   
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0.316   0.046   0.368   0.34    0.194   0.116   0.094   0.071   0.064   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 0 queries
+register time
+0       0       0       0       0       0       0       0       0       
+setup time
+0       0       0       0.001   0       0       0       0       0       
+self collision time
+0       0       0       0       0       0       0       0       0       
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0       0       0       0.001   0       0       0       0       0       
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 1000 queries
+register time
+0.001   0       0       0.001   0       0       0       0       0       
+setup time
+0.001   0       0       0.003   0       0       0       0       0       
+self collision time
+0       0       0       0       0       0       0.001   0       0       
+collision time
+0.076   0.092   0.065   0.088   0.043   0.042   0.065   0.081   0.051   
+overall time
+0.078   0.092   0.065   0.092   0.043   0.042   0.066   0.081   0.051   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 0 queries
+register time
+0.007   0.008   0.419   0.019   0.134   0.122   0.096   0.079   0.068   
+setup time
+0       0.033   0.003   0.317   0.001   0       0       0       0.001   
+self collision time
+0.294   0.009   0.003   0.043   0.087   0.011   0.01    0.009   0.009   
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0.301   0.05    0.425   0.379   0.222   0.133   0.106   0.088   0.078   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 0 queries
+register time
+0       0.001   0       0       0       0       0       0       0       
+setup time
+0       0.001   0       0.001   0       0       0       0       0       
+self collision time
+0       0       0       0.001   0       0       0       0       0       
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0       0.002   0       0.002   0       0       0       0       0       
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 1000 queries
+register time
+0       0       0       0       0       0       0       0       0       
+setup time
+0       0       0       0       0       0       0       0       0       
+self collision time
+0       0.001   0       0       0       0       0       0       0       
+collision time
+0.063   0.08    0.086   0.076   0.059   0.054   0.063   0.089   0.051   
+overall time
+0.063   0.081   0.086   0.076   0.059   0.054   0.063   0.089   0.051   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 0 queries
+register time
+0.006   0.006   0.375   0.014   0.137   0.119   0.083   0.077   0.057   
+setup time
+0       0.032   0.004   0.316   0       0       0       0       0       
+self collision time
+0.306   0.008   0.003   0.042   0.085   0.012   0.012   0.01    0.009   
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0.312   0.046   0.382   0.372   0.222   0.131   0.095   0.087   0.066   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 0 queries
+register time
+0       0       0       0       0       0       0.001   0       0       
+setup time
+0       0       0       0.001   0       0       0       0       0       
+self collision time
+0.001   0       0       0       0       0       0       0       0       
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0.001   0       0       0.001   0       0       0.001   0       0       
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+0 objs, 1000 queries
+register time
+0       0       0.001   0       0       0       0       0       0       
+setup time
+0       0       0.001   0.002   0       0       0       0       0       
+self collision time
+0       0       0.001   0       0       0.001   0       0       0       
+collision time
+0.06    0.081   0.088   0.084   0.052   0.05    0.071   0.08    0.045   
+overall time
+0.06    0.081   0.091   0.086   0.052   0.051   0.071   0.08    0.045   
+
+77 77 77 77 77 77 77 77 77 
+collision timing summary
+100 objs, 0 queries
+register time
+0.007   0.008   0.438   0.017   0.135   0.123   0.088   0.079   0.071   
+setup time
+0       0.032   0.004   0.317   0       0       0       0       0       
+self collision time
+0.495   0.163   0.152   0.196   0.226   0.16    0.158   0.153   0.152   
+collision time
+0       0       0       0       0       0       0       0       0       
+overall time
+0.502   0.203   0.594   0.53    0.361   0.283   0.246   0.232   0.223   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+10 objs, 100 queries
+register time
+0.001   0.003   0.045   0.003   0.025   0.019   0.009   0.008   0.007   
+setup time
+0       0.002   0.001   0.026   0       0       0       0       0       
+self collision time
+0.003   0.001   0       0.003   0.006   0.001   0.001   0.001   0.001   
+collision time
+1.759   0.059   0.115   0.144   0.087   0.035   0.039   0.028   0.024   
+overall time
+1.763   0.065   0.161   0.176   0.118   0.055   0.049   0.037   0.032   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 100 queries
+register time
+0.007   0.006   0.368   0.017   0.141   0.118   0.083   0.078   0.09    
+setup time
+0       0.042   0.004   0.31    0       0       0       0       0       
+self collision time
+0.311   0.008   0.003   0.043   0.074   0.012   0.01    0.01    0.009   
+collision time
+17.979  0.247   1.771   0.335   0.861   0.096   0.074   0.088   0.084   
+overall time
+18.297  0.303   2.146   0.705   1.076   0.226   0.167   0.176   0.183   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+10 objs, 100 queries
+register time
+0.001   0.002   0.027   0.004   0.015   0.011   0.008   0.009   0.007   
+setup time
+0       0.003   0       0.03    0       0       0       0       0       
+self collision time
+0.003   0       0       0.003   0.009   0.001   0.002   0.001   0       
+collision time
+1.846   0.044   0.116   0.154   0.088   0.04    0.035   0.039   0.036   
+overall time
+1.85    0.049   0.143   0.191   0.112   0.052   0.045   0.049   0.043   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 100 queries
+register time
+0.007   0.006   0.409   0.016   0.142   0.122   0.084   0.079   0.06    
+setup time
+0       0.034   0.004   0.319   0       0       0       0       0       
+self collision time
+0.319   0.008   0.004   0.043   0.07    0.011   0.011   0.01    0.009   
+collision time
+18.11   0.235   1.834   0.346   0.872   0.085   0.087   0.088   0.079   
+overall time
+18.436  0.283   2.251   0.724   1.084   0.218   0.182   0.177   0.148   
+
+1 1 1 1 1 1 1 1 1 
+collision timing summary
+100 objs, 1000 queries
+register time
+0.007   0.005   0.371   0.014   0.125   0.111   0.082   0.071   0.06    
+setup time
+0       0.033   0.003   0.297   0       0       0       0       0       
+self collision time
+0.288   0.009   0.005   0.044   0.07    0.011   0.011   0.011   0.009   
+collision time
+176.585 2.291   17.277  2.88    8.575   0.816   0.884   0.764   0.75    
+overall time
+176.88  2.338   17.656  3.235   8.77    0.938   0.977   0.846   0.819   
+
+10 10 10 10 10 10 10 10 10 
+collision timing summary
+1000 objs, 1000 queries
+register time
+0.062   0.022   5.733   0.138   1.131   1.29    1.05    0.612   0.643   
+setup time
+0       0.482   0.068   3.687   0.001   0       0       0       0       
+self collision time
+26.367  0.188   0.056   0.589   1.073   0.046   0.044   0.038   0.037   
+collision time
+1802.52 19.222  226.595 10.055  78.045  1.774   1.862   1.562   1.662   
+overall time
+1828.95 19.914  232.452 14.469  80.25   3.11    2.956   2.212   2.342   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 1000 queries
+register time
+0.01    0.006   0.388   0.017   0.134   0.122   0.088   0.075   0.058   
+setup time
+0       0.033   0.004   0.318   0       0.001   0       0       0       
+update time
+0       0.024   0.336   0.275   0.078   0.014   0.011   0.015   0.014   
+self collision time
+0.296   0.009   0.005   0.046   0.117   0.018   0.018   0.017   0.016   
+collision time
+176.247 2.319   16.962  2.819   8.367   0.965   0.983   0.859   0.912   
+overall time
+176.553 2.391   17.695  3.475   8.696   1.12    1.1     0.966   1       
+
+20 20 20 20 20 20 20 20 20 
+collision timing summary
+1000 objs, 1000 queries
+register time
+0.061   0.022   5.673   0.142   1.128   1.216   1.026   0.613   0.636   
+setup time
+0       0.489   0.057   3.816   0       0       0       0       0       
+update time
+0       0.392   42.751  4.007   1.073   0.139   0.136   0.189   0.194   
+self collision time
+34.575  0.442   0.102   1.445   6.933   0.451   0.5     0.449   0.496   
+collision time
+1801.93 19.449  223.749 11.05   78.281  2.935   3.039   2.858   2.802   
+overall time
+1836.57 20.794  272.332 20.46   87.415  4.741   4.701   4.109   4.128   
+
+10 10 10 10 10 10 10 10 10 
+collision timing summary
+10 objs, 100 queries
+register time
+0.001   0.002   0.029   0.005   0.121   0.013   0.011   0.01    0.008   
+setup time
+0       0.003   0       0.029   0       0       0       0       0       
+update time
+0       0.001   0.009   0.022   0.072   0.004   0.004   0.003   0.003   
+self collision time
+0.046   0.026   0.017   0.033   0.036   0.02    0.016   0.014   0.014   
+collision time
+2.21    0.931   0.981   0.972   1.071   0.737   0.669   0.66    0.622   
+overall time
+2.257   0.963   1.036   1.061   1.3     0.774   0.7     0.687   0.647   
+
+10 10 10 10 10 10 10 10 10 
+collision timing summary
+100 objs, 100 queries
+register time
+0.008   0.008   0.485   0.018   0.835   0.127   0.093   0.082   0.069   
+setup time
+0       0.033   0.004   0.327   0.001   0       0       0       0       
+update time
+0.001   0.024   1.014   0.28    0.59    0.014   0.011   0.015   0.014   
+self collision time
+0.047   0.019   0.063   0.024   0.032   0.03    0.019   0.019   0.013   
+collision time
+16.229  6.012   7.544   5.709   7.007   4.783   4.206   4.403   4.027   
+overall time
+16.285  6.096   9.11    6.358   8.465   4.954   4.329   4.519   4.123   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+10 objs, 100 queries
+register time
+0.001   0.003   0.028   0.006   0.021   0.015   0.011   0.011   0.009   
+setup time
+0       0.003   0       0.033   0       0       0       0       0       
+update time
+0       0.001   0.009   0.023   0.008   0.005   0.004   0.002   0.002   
+self collision time
+0.004   0       0.001   0.004   0.012   0.001   0.001   0.001   0.002   
+collision time
+1.071   0.055   0.105   0.149   0.125   0.026   0.042   0.03    0.036   
+overall time
+1.076   0.062   0.143   0.215   0.166   0.047   0.058   0.044   0.049   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 100 queries
+register time
+0.007   0.008   0.42    0.017   0.132   0.125   0.09    0.079   0.073   
+setup time
+0       0.033   0.004   0.315   0       0       0       0       0       
+update time
+0       0.025   0.357   0.28    0.077   0.014   0.012   0.015   0.014   
+self collision time
+0.323   0.009   0.004   0.043   0.121   0.02    0.02    0.018   0.017   
+collision time
+13.467  0.304   2.172   0.38    1.109   0.129   0.138   0.115   0.116   
+overall time
+13.797  0.379   2.957   1.035   1.439   0.288   0.26    0.227   0.22    
+
+distance timing summary
+10 objs, 10 queries
+register time
+0.001   0.003   0.03    0.004   0.138   0.014   0.011   0.01    0.007   
+setup time
+0       0.002   0.001   0.032   0       0       0       0       0       
+distance time
+1.212   2.929   2.127   2.506   1.353   0.94    0.896   0.858   0.83    
+overall time
+1.213   2.934   2.158   2.542   1.491   0.954   0.907   0.868   0.837   
+
+distance timing summary
+100 objs, 10 queries
+register time
+0.007   0.008   0.473   0.017   0.842   0.128   0.095   0.08    0.059   
+setup time
+0       0.032   0.005   0.323   0       0       0       0       0       
+distance time
+1.809   6.969   4.298   3.524   1.769   1.287   1.237   1.554   1.502   
+overall time
+1.816   7.009   4.776   3.864   2.611   1.415   1.332   1.634   1.561   
+
+distance timing summary
+10 objs, 10 queries
+register time
+0.001   0.002   0.031   0.005   0.016   0.012   0.01    0.008   0.007   
+setup time
+0       0.002   0.001   0.028   0       0       0       0       0       
+distance time
+1.288   4.406   1.876   1.552   1.495   0.714   0.67    0.562   0.549   
+overall time
+1.289   4.41    1.908   1.585   1.511   0.726   0.68    0.57    0.556   
+
+distance timing summary
+100 objs, 10 queries
+register time
+0.009   0.008   0.399   0.017   0.134   0.125   0.088   0.079   0.064   
+setup time
+0       0.032   0.004   0.317   0       0       0.001   0       0       
+distance time
+1.489   3.655   3.599   3.31    0.988   0.471   0.424   0.363   0.347   
+overall time
+1.498   3.695   4.002   3.644   1.122   0.596   0.513   0.442   0.411   
+
+self distance timing summary
+85 objs
+register time
+0.002   0.003   0.103   0.007   0.059   0.026   0.022   0.02    0.019   
+setup time
+0       0.007   0       0.082   0       0       0       0       0       
+self distance time
+0.265   1.495   0.263   0.736   1.015   0.386   0.356   0.202   0.187   
+overall time
+0.267   1.505   0.366   0.825   1.074   0.412   0.378   0.222   0.206   
+
+self distance timing summary
+182 objs
+register time
+0.005   0.004   0.328   0.011   0.1     0.062   0.044   0.051   0.041   
+setup time
+0       0.013   0.002   0.22    0       0       0       0       0       
+self distance time
+0.274   0.143   0.396   1.815   1.879   0.693   0.656   0.17    0.16    
+overall time
+0.279   0.16    0.726   2.046   1.979   0.755   0.7     0.221   0.201   
+
+self distance timing summary
+1228 objs
+register time
+0.032   0.016   14.078  0.069   0.609   0.478   0.336   0.362   0.277   
+setup time
+0.001   0.105   0.015   2.464   0       0       0       0       0       
+self distance time
+10.189  9.812   17.81   48.03   17.826  8.73    8.514   3.989   3.827   
+overall time
+10.222  9.933   31.903  50.563  18.435  9.208   8.85    4.351   4.104   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+10 objs, 100 queries
+register time
+0.002   0.003   0.032   0.005   0.018   0.014   0.012   0.01    0.008   
+setup time
+0       0.003   0       0.032   0       0       0       0       0       
+self collision time
+0.004   0       0.001   0.003   0.007   0.001   0.002   0       0       
+collision time
+1.131   0.076   0.098   0.159   0.081   0.041   0.045   0.032   0.03    
+overall time
+1.137   0.082   0.131   0.199   0.106   0.056   0.059   0.042   0.038   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 100 queries
+register time
+0.008   0.008   0.42    0.021   0.137   0.126   0.098   0.08    0.069   
+setup time
+0.001   0.034   0.005   0.317   0       0.001   0       0       0       
+self collision time
+0.389   0.066   0.059   0.099   0.129   0.065   0.062   0.061   0.058   
+collision time
+13.657  0.23    2.272   0.367   1.048   0.091   0.087   0.086   0.071   
+overall time
+14.055  0.338   2.756   0.804   1.314   0.283   0.247   0.227   0.198   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+10 objs, 100 queries
+register time
+0.001   0.003   0.032   0.005   0.019   0.013   0.011   0.01    0.008   
+setup time
+0       0.002   0       0.031   0       0       0       0       0       
+self collision time
+0.003   0.001   0       0.004   0.008   0.001   0.001   0.001   0.001   
+collision time
+1.091   0.063   0.097   0.149   0.084   0.039   0.036   0.037   0.038   
+overall time
+1.095   0.069   0.129   0.189   0.111   0.053   0.048   0.048   0.047   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 100 queries
+register time
+0.008   0.009   0.427   0.018   0.134   0.122   0.088   0.08    0.066   
+setup time
+0       0.032   0.004   0.321   0       0.001   0       0       0       
+self collision time
+0.304   0.009   0.004   0.042   0.076   0.011   0.011   0.009   0.009   
+collision time
+13.634  0.258   2.283   0.391   1.089   0.113   0.103   0.087   0.102   
+overall time
+13.946  0.308   2.718   0.772   1.299   0.247   0.202   0.176   0.177   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+10 objs, 100 queries
+register time
+0.001   0.003   0.031   0.005   0.018   0.014   0.011   0.01    0.008   
+setup time
+0       0.003   0.001   0.032   0       0       0       0       0       
+self collision time
+0.003   0       0       0.004   0.007   0.001   0.002   0.001   0.001   
+collision time
+1.102   0.062   0.126   0.148   0.075   0.044   0.032   0.025   0.035   
+overall time
+1.106   0.068   0.158   0.189   0.1     0.059   0.045   0.036   0.044   
+
+0 0 0 0 0 0 0 0 0 
+collision timing summary
+100 objs, 100 queries
+register time
+0.007   0.009   0.412   0.017   0.137   0.124   0.097   0.082   0.077   
+setup time
+0       0.033   0.004   0.316   0       0       0       0       0       
+self collision time
+0.307   0.008   0.004   0.044   0.08    0.011   0.011   0.01    0.008   
+collision time
+13.755  0.393   2.371   0.495   1.172   0.198   0.218   0.184   0.195   
+overall time
+14.069  0.443   2.791   0.872   1.389   0.333   0.326   0.276   0.28    
+
+--- End test broadphase ---
+--- Start test distance ---
+Running 1 test case...
+distance timing: 0.441044 sec
+collision timing: 0.274121 sec
+--- End test distance ---
+--- Start test octomap ---
+Running 12 test cases...
+boxes size: 6909
+0 0 0
+10 10 0
+(-184.216 -182.273 2.97985) (-124.216 -122.273 62.9799) 0.5
+(-84.509 -200.168 -190.286) (-24.509 -140.168 -130.286) 0.5
+(4.80448 102.465 3.83407) (64.8045 162.465 63.8341) 0.5
+(10.1969 118.01 -197.494) (70.1969 178.01 -137.494) 0.5
+(112.73 -193.805 -75.3323) (172.73 -133.805 -15.3323) 0.5
+(122.882 23.5888 129.773) (182.882 83.5888 189.773) 0.5
+(136.74 128.703 130.359) (196.74 188.703 190.359) 0.5
+(-59.3782 128.644 10.1622) (0 188.644 70.1622) 0.5
+(-102.4 127.769 125.373) (-44.8042 187.769 185.373) 0.5
+(148.656 121.07 116.272) (204.8 181.07 176.272) 0.5
+
+(-184.216 -182.273 2.97985) (-124.216 -122.273 62.9799) 0.5
+(-84.509 -200.168 -190.286) (-24.509 -140.168 -130.286) 0.5
+(4.80448 102.465 3.83407) (64.8045 162.465 63.8341) 0.5
+(10.1969 118.01 -197.494) (70.1969 178.01 -137.494) 0.5
+(112.73 -193.805 -75.3323) (172.73 -133.805 -15.3323) 0.5
+(122.882 23.5888 129.773) (182.882 83.5888 189.773) 0.5
+(136.74 128.703 130.359) (196.74 188.703 190.359) 0.5
+(-59.3782 128.644 10.1622) (0 188.644 70.1622) 0.5
+(-102.4 127.769 125.373) (-44.8042 187.769 185.373) 0.5
+(148.656 121.07 116.272) (204.8 181.07 176.272) 0.5
+
+
+collision cost
+1) octomap overall time: 2.098
+1') octomap overall time (as geometry): 2.421
+2) boxes overall time: 4.736
+  a) to boxes: 1.84
+  b) structure init: 2.895
+  c) collision: 0.001
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+10 10 0
+(-200.787 143.006 -71.3054) (-140.787 203.006 -11.3054) 0.5
+(-199.403 -190.802 -204.766) (-139.403 -130.802 -144.766) 0.5
+(-197.003 21.7515 18.9614) (-137.003 81.7515 78.9614) 0.5
+(-191.181 124.178 -199.827) (-131.181 184.178 -139.827) 0.5
+(-189.041 -183.329 -181.066) (-129.041 -123.329 -121.066) 0.5
+(-185.999 -192.612 -101.525) (-125.999 -132.612 -41.5252) 0.5
+(-185.203 142.437 116.002) (-125.203 202.437 176.002) 0.5
+(-178.239 -194.885 -163.451) (-118.239 -134.885 -103.451) 0.5
+(-177.677 -198.429 116.18) (-117.677 -138.429 176.18) 0.5
+(-175.853 -84.8659 -163.111) (-115.853 -24.8659 -103.111) 0.5
+
+(-200.787 143.006 -71.3054) (-140.787 203.006 -11.3054) 0.5
+(-199.403 -190.802 -204.766) (-139.403 -130.802 -144.766) 0.5
+(-197.003 21.7515 18.9614) (-137.003 81.7515 78.9614) 0.5
+(-191.181 124.178 -199.827) (-131.181 184.178 -139.827) 0.5
+(-189.041 -183.329 -181.066) (-129.041 -123.329 -121.066) 0.5
+(-185.999 -192.612 -101.525) (-125.999 -132.612 -41.5252) 0.5
+(-185.203 142.437 116.002) (-125.203 202.437 176.002) 0.5
+(-178.239 -194.885 -163.451) (-118.239 -134.885 -103.451) 0.5
+(-177.677 -198.429 116.18) (-117.677 -138.429 176.18) 0.5
+(-175.853 -84.8659 -163.111) (-115.853 -24.8659 -103.111) 0.5
+
+
+collision cost
+1) octomap overall time: 42.291
+1') octomap overall time (as geometry): 26.373
+2) boxes overall time: 13.457
+  a) to boxes: 1.954
+  b) structure init: 2.921
+  c) collision: 8.582
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+10 10 0
+(0 0 112.821) (94.578 77.3614 204.743) 0.5
+(-203.683 115.993 -188.263) (-106.148 194.482 -102.4) 0.5
+(116.782 106.463 102.4) (204.8 204.8 175.539) 0.5
+(-102.4 102.4 -204.8) (-35.6275 204.104 -119.345) 0.5
+(-179.553 130.106 0) (-102.4 204.8 99.7002) 0.5
+(131.779 -196.115 102.4) (204.8 -102.4 185.846) 0.5
+(24.0005 -184.327 -94.2986) (102.4 -102.4 -5.72217) 0.5
+(-73.0042 -204.8 -102.4) (0 -110.513 -21.2241) 0.5
+(-102.4 -197.512 -87.0933) (-27.0576 -113.198 0) 0.5
+(-174.074 102.4 102.4) (-102.4 199.995 180.897) 0.5
+
+(0 0 112.821) (94.578 77.3614 204.743) 0.5
+(-203.683 115.993 -188.263) (-106.148 194.482 -102.4) 0.5
+(116.782 106.463 102.4) (204.8 204.8 175.539) 0.5
+(-102.4 102.4 -204.8) (-35.6275 204.104 -119.345) 0.5
+(-179.553 130.106 0) (-102.4 204.8 99.7002) 0.5
+(131.779 -196.115 102.4) (204.8 -102.4 185.846) 0.5
+(24.0005 -184.327 -94.2986) (102.4 -102.4 -5.72217) 0.5
+(-73.0042 -204.8 -102.4) (0 -110.513 -21.2241) 0.5
+(-102.4 -197.512 -87.0933) (-27.0576 -113.198 0) 0.5
+(-174.074 102.4 102.4) (-102.4 199.995 180.897) 0.5
+
+
+collision cost
+1) octomap overall time: 46.627
+1') octomap overall time (as geometry): 3.573
+2) boxes overall time: 5.064
+  a) to boxes: 2.04
+  b) structure init: 3.022
+  c) collision: 0.002
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+1 1 1
+10 10 1
+(0 109.394 -100.747) (88.57 204.8 0) 0.5
+(3.55163 -102.4 -199.414) (99.4432 -19.2224 -102.4) 0.5
+(8.58211 -193.626 -100.133) (99.9388 -102.4 -8.72615) 0.5
+(-204.8 -194.124 -192.266) (-114.534 -102.4 -102.4) 0.5
+(-102.4 -204.8 -203.149) (-17.7157 -117.745 -107.019) 0.5
+(-181.679 -204.8 -201.796) (-102.4 -110.411 -107.556) 0.5
+(-201.924 -95.521 119.635) (-104.313 -6.37272 199.169) 0.5
+(107.723 11.5458 -204.715) (199.411 102.4 -122.034) 0.5
+(-204.8 -102.4 -98.9212) (-115.04 -25.1362 0) 0.5
+(102.4 -188.174 -204.8) (197.334 -104.699 -118.26) 0.5
+
+(0 109.394 -100.747) (88.57 204.8 0) 0.5
+(3.55163 -102.4 -199.414) (99.4432 -19.2224 -102.4) 0.5
+(8.58211 -193.626 -100.133) (99.9388 -102.4 -8.72615) 0.5
+(-204.8 -194.124 -192.266) (-114.534 -102.4 -102.4) 0.5
+(-102.4 -204.8 -203.149) (-17.7157 -117.745 -107.019) 0.5
+(-181.679 -204.8 -201.796) (-102.4 -110.411 -107.556) 0.5
+(-201.924 -95.521 119.635) (-104.313 -6.37272 199.169) 0.5
+(107.723 11.5458 -204.715) (199.411 102.4 -122.034) 0.5
+(-204.8 -102.4 -98.9212) (-115.04 -25.1362 0) 0.5
+(102.4 -188.174 -204.8) (197.334 -104.699 -118.26) 0.5
+
+(0 0 0) (0.4 0.4 0.4) 0.971
+
+collision cost
+1) octomap overall time: 340.771
+1') octomap overall time (as geometry): 49.745
+2) boxes overall time: 86.348
+  a) to boxes: 1.73
+  b) structure init: 2.978
+  c) collision: 81.64
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+non exhaustive collision
+1) octomap overall time: 1.429
+1') octomap overall time (as geometry): 0.68
+2) boxes overall time: 4.564
+  a) to boxes: 1.595
+  b) structure init: 2.968
+  c) collision: 0.001
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+10 10 10
+non exhaustive collision
+1) octomap overall time: 3.623
+1') octomap overall time (as geometry): 4.708
+2) boxes overall time: 5.803
+  a) to boxes: 1.736
+  b) structure init: 2.887
+  c) collision: 1.18
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+exhaustive collision
+1) octomap overall time: 1.721
+1') octomap overall time (as geometry): 0.692
+2) boxes overall time: 4.584
+  a) to boxes: 1.684
+  b) structure init: 2.898
+  c) collision: 0.002
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+31767 31767 31767
+exhaustive collision
+1) octomap overall time: 55.385
+1') octomap overall time (as geometry): 24.192
+2) boxes overall time: 22.652
+  a) to boxes: 1.856
+  b) structure init: 2.884
+  c) collision: 17.912
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+non exhaustive collision
+1) octomap overall time: 3.975
+1') octomap overall time (as geometry): 0.083
+2) boxes overall time: 104.161
+  a) to boxes: 100.712
+  b) structure init: 3.448
+  c) collision: 0.001
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+non exhaustive collision
+1) octomap overall time: 82.941
+1') octomap overall time (as geometry): 1.015
+2) boxes overall time: 113.637
+  a) to boxes: 100.295
+  b) structure init: 3.375
+  c) collision: 9.967
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+exhaustive collision
+1) octomap overall time: 24.082
+1') octomap overall time (as geometry): 0.14
+2) boxes overall time: 110.457
+  a) to boxes: 101.006
+  b) structure init: 3.362
+  c) collision: 6.089
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+exhaustive collision
+1) octomap overall time: 41.445
+1') octomap overall time (as geometry): 0.848
+2) boxes overall time: 104.503
+  a) to boxes: 101.123
+  b) structure init: 3.378
+  c) collision: 0.002
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+non exhaustive collision
+1) octomap overall time: 3.969
+1') octomap overall time (as geometry): 0.089
+2) boxes overall time: 4.702
+  a) to boxes: 1.819
+  b) structure init: 2.882
+  c) collision: 0.001
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+non exhaustive collision
+1) octomap overall time: 42.643
+1') octomap overall time (as geometry): 0.851
+2) boxes overall time: 4.923
+  a) to boxes: 2.039
+  b) structure init: 2.882
+  c) collision: 0.002
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+exhaustive collision
+1) octomap overall time: 24.974
+1') octomap overall time (as geometry): 0.155
+2) boxes overall time: 17.988
+  a) to boxes: 1.791
+  b) structure init: 2.901
+  c) collision: 13.296
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0 0
+exhaustive collision
+1) octomap overall time: 64.557
+1') octomap overall time (as geometry): 0.951
+2) boxes overall time: 17.564
+  a) to boxes: 2.031
+  b) structure init: 2.878
+  c) collision: 12.655
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+18.2128 18.2128 18.2128
+1) octomap overall time: 20.525
+1') octomap overall time (as geometry): 78.723
+2) boxes overall time: 45.461
+  a) to boxes: 1.775
+  b) structure init: 2.881
+  c) distance: 40.805
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+-1 -1 -1
+1) octomap overall time: 33.21
+1') octomap overall time (as geometry): 390.816
+2) boxes overall time: 111.842
+  a) to boxes: 1.842
+  b) structure init: 2.871
+  c) distance: 107.129
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+8.63343 8.63343 8.63343
+1) octomap overall time: 35.415
+1') octomap overall time (as geometry): 422.587
+2) boxes overall time: 124.552
+  a) to boxes: 100.623
+  b) structure init: 3.36
+  c) distance: 20.569
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+13.0946 13.0946 13.0946
+1) octomap overall time: 55.366
+1') octomap overall time (as geometry): 697.586
+2) boxes overall time: 255.133
+  a) to boxes: 100.603
+  b) structure init: 3.348
+  c) distance: 151.182
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+39.908 39.908 39.908
+1) octomap overall time: 33.163
+1') octomap overall time (as geometry): 332.658
+2) boxes overall time: 104.431
+  a) to boxes: 1.82
+  b) structure init: 3.04
+  c) distance: 99.571
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+26.1254 26.1254 26.1254
+1) octomap overall time: 75.313
+1') octomap overall time (as geometry): 1681.38
+2) boxes overall time: 117.567
+  a) to boxes: 1.793
+  b) structure init: 2.882
+  c) distance: 112.892
+Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+0 0
+boxes size: 6909
+4.49985 4.49983
+boxes size: 6909
+4.49961 4.49946
+boxes size: 6909
+4.49992 4.49992
+boxes size: 6909
+4.49998 4.49998
+boxes size: 6909
+4.49964 4.49964
+boxes size: 6909
+4.49988 4.49988
+boxes size: 6909
+4.49983 4.49983
+boxes size: 6909
+4.49981 4.49981
+boxes size: 6909
+4.49973 4.49973
+boxes size: 6909
+4.49981 4.49981
+boxes size: 6909
+4.49995 4.49995
+boxes size: 6909
+4.49965 4.49965
+--- End test octomap ---
+--- Start test geometric_shapes ---
+Running 51 test cases...
+2.127 2.586
+
+===== [ geometric shape collision test failure report ] ======
+
+Solver type: libccd
+
+[ Shape 1 ]
+Shape type     : GEOM_CYLINDER
+tf1.quaternion : (0.463453 -0.0874014 0.222393 0.853296)
+tf1.translation: (5.63617 2.42626 0.189108)
+
+[ Shape 2 ]
+Shape type     : GEOM_CYLINDER
+tf2.quaternion : (0.463453 -0.0874014 0.222393 0.853296)
+tf2.translation: (0.140247 9.87156 -3.32832)
+
+[ Expected Contacts: 1 ]
+(0) pos: (0 0 0), normal: (-0.555144 0.75205 -0.355296), depth: 0 ---- not found!
+
+[ Actual Contacts: 1 ]
+(0) pos: (2.88821 6.14891 -1.56961), normal: (-0.555133 0.752058 -0.355297), depth: 0.100001 ---- not found!
+
+/local/jmirabel/devel/fcl/src/fcl/test/test_fcl_geometric_shapes.cpp(433): error in "shapeIntersection_cylindercylinder": check inspectContactPoints(s1, tf1, s2, tf2, solver_type, expected_contacts, actual_contacts, check_position, check_depth, check_normal, check_opposite_normal, tol) failed
+
+===== [ geometric shape collision test failure report ] ======
+
+Solver type: libccd
+
+[ Shape 1 ]
+Shape type     : GEOM_CYLINDER
+tf1.quaternion : (0.463453 -0.0874014 0.222393 0.853296)
+tf1.translation: (5.63617 2.42626 0.189108)
+
+[ Shape 2 ]
+Shape type     : GEOM_CYLINDER
+tf2.quaternion : (0.463453 -0.0874014 0.222393 0.853296)
+tf2.translation: (0.140247 9.87156 -3.32832)
+
+[ Expected Contacts: 1 ]
+(0) pos: (0 0 0), normal: (-0.555144 0.75205 -0.355296), depth: 0 ---- not found!
+
+[ Actual Contacts: 1 ]
+(0) pos: (2.88821 6.14891 -1.56961), normal: (-0.555133 0.752058 -0.355297), depth: 0.100001 ---- not found!
+
+/local/jmirabel/devel/fcl/src/fcl/test/test_fcl_geometric_shapes.cpp(457): error in "shapeIntersection_cylindercylinder": check inspectContactPoints(s1, tf1, s2, tf2, solver_type, expected_contacts, actual_contacts, check_position, check_depth, check_normal, check_opposite_normal, tol) failed
+--- End test geometric_shapes ---
