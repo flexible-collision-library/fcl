@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 2.8.12)
 
 # Use MACOSX_RPATH by default on OS X. This was added in CMake 2.8.12 and
 # became default in CMake 3.0. Explicitly setting this policy is necessary to
