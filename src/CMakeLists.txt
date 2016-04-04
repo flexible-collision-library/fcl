@@ -27,8 +27,12 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-install(EXPORT ${PROJECT_NAME}Config
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+if(WIN32 AND NOT CYGWIN)
+  install(EXPORT ${PROJECT_NAME}Config DESTINATION CMake)
+else()
+  install(EXPORT ${PROJECT_NAME}Config
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+endif()
 
 # Setup the coveralls target and tell it to gather coverage data for all the lib sources.
 if(FCL_COVERALLS)
