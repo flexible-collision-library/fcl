@@ -55,7 +55,8 @@ public:
                     const Transform3f& tf2) : MotionBase(),
                                               rot(tf1.getQuatRotation()),
                                               trans_start(tf1.getTranslation()),
-                                              trans_range(tf2.getTranslation() - tf1.getTranslation())
+                                              trans_range(tf2.getTranslation() - tf1.getTranslation()),
+                                              tf(tf1)
   {
   }
 
@@ -64,6 +65,7 @@ public:
     rot.fromRotation(R);
     trans_start = T1;
     trans_range = T2 - T1;
+    tf = Transform3f(rot, trans_start);
   }
 
   bool integrate(FCL_REAL dt) const
