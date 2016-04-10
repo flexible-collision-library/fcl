@@ -69,7 +69,9 @@ FCL_REAL continuousCollideNaive(const CollisionGeometry* o1, const MotionBase* m
     }
   }
 
-  return 1.0;
+  result.is_collide = false;
+  result.time_of_contact = FCL_REAL(1);
+  return result.time_of_contact;
 }
 
 namespace details
