@@ -41,6 +41,7 @@
 #include "fcl/config.h"
 #include "fcl/octree.h"
 #include "fcl/traversal/traversal_node_octree.h"
+#include "fcl/collision.h"
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
 #include "fcl/math/transform.h"
@@ -89,6 +90,10 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
 /// @brief Octomap distance with an environment with 3 * env_size objects
 void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap);
 
+/// @brief Octomap collision with an environment mesh with 3 * env_size objects, asserting that correct triangle ids
+/// are returned when performing collision tests
+void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts);
+
 
 template<typename BV>
 void octomap_collision_test_BVH(std::size_t n, bool exhaustive);
@@ -131,6 +136,12 @@ BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh)
   octomap_collision_test(200, 1000, true, 1, true, true);
 #endif
 }
+
+BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh_triangle_id)
+{
+  octomap_collision_test_mesh_triangle_id(1, 30, 100000);
+}
+
 
 BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh_octomap_box)
 {
@@ -540,6 +551,30 @@ void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaust
   std::cout << "Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside" << std::endl;
 }
 
+void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts)
+{
+  std::vector<CollisionObject*> env;
+  generateEnvironmentsMesh(env, env_scale, env_size);
+
+  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  CollisionObject tree_obj((std::shared_ptr<CollisionGeometry>(tree)));
+
+  std::vector<CollisionObject*> boxes;
+  generateBoxesFromOctomap(boxes, *tree);
+  for(std::vector<CollisionObject*>::const_iterator cit = env.begin();
+      cit != env.end(); ++cit)
+  {
+    fcl::CollisionRequest req(num_max_contacts, true);
+    fcl::CollisionResult cResult;
+    fcl::collide(&tree_obj, *cit, req, cResult);
+    for(std::size_t index=0; index<cResult.numContacts(); ++index)
+    {
+      const Contact& contact = cResult.getContact(index);
+      const fcl::BVHModel<fcl::OBBRSS>* surface = static_cast<const fcl::BVHModel<fcl::OBBRSS>*> (contact.o2);
+      BOOST_CHECK(surface->num_tris > contact.b2);
+    }
+  }
+}
 
 void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap)
 {
