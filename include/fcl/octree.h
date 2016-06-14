@@ -63,10 +63,6 @@ private:
 
 public:
 
-  /// @brief OcTreeNode must implement the following interfaces:
-  ///    1) childExists(i)
-  ///    2) getChild(i)
-  ///    3) hasChildren()
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
@@ -191,6 +187,30 @@ public:
     free_threshold = d;
   }
 
+  /// @return ptr to child number childIdx of node
+  inline OcTreeNode* getNodeChild(OcTreeNode* node, unsigned int childIdx) const
+  { 
+    return tree->getNodeChild(node, childIdx);
+  }  
+
+  /// @return const ptr to child number childIdx of node
+  inline const OcTreeNode* getNodeChild(const OcTreeNode* node, unsigned int childIdx) const
+  { 
+    return tree->getNodeChild(node, childIdx);
+  }  
+      
+  /// @brief return true if the child at childIdx exists
+  inline bool nodeChildExists(const OcTreeNode* node, unsigned int childIdx) const 
+  { 
+    return tree->nodeChildExists(node, childIdx);
+  }
+
+  /// @brief return true if node has at least one child
+  inline bool nodeHasChildren(const OcTreeNode* node) const
+  {
+	return tree->nodeHasChildren(node);
+  }
+    
   /// @brief return object type, it is an octree
   OBJECT_TYPE getObjectType() const { return OT_OCTREE; }
 

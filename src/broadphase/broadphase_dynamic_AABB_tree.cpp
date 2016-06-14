@@ -89,7 +89,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
     
     return false;
   }
-  else if(root1->isLeaf() && !root2->hasChildren())
+  else if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
     CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
 
@@ -122,7 +122,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 
   if(tree2->isNodeFree(root2) || !obb1.overlap(obb2)) return false;
 
-  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  if(!tree2->nodeHasChildren(root2) || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
     if(collisionRecurse_(root1->children[0], tree2, root2, root2_bv, tf2, cdata, callback))
       return true;
@@ -133,9 +133,9 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
   {
     for(unsigned int i = 0; i < 8; ++i)
     {
-      if(root2->childExists(i))
+      if(tree2->nodeChildExists(root2, i))
       {
-        const OcTree::OcTreeNode* child = root2->getChild(i);
+        const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
@@ -188,7 +188,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 
     return false;
   }
-  else if(root1->isLeaf() && !root2->hasChildren())
+  else if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
     CollisionObject* obj1 = static_cast<CollisionObject*>(root1->data);
   
@@ -215,7 +215,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
   const AABB& root2_bv_t = translate(root2_bv, tf2);
   if(tree2->isNodeFree(root2) || !root1->bv.overlap(root2_bv_t)) return false;
 
-  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  if(!tree2->nodeHasChildren(root2) || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
     if(collisionRecurse_(root1->children[0], tree2, root2, root2_bv, tf2, cdata, callback))
       return true;
@@ -226,9 +226,9 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
   {
     for(unsigned int i = 0; i < 8; ++i)
     {
-      if(root2->childExists(i))
+      if(tree2->nodeChildExists(root2, i))
       {
-        const OcTree::OcTreeNode* child = root2->getChild(i);
+        const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
@@ -250,7 +250,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 
 bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Transform3f& tf2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist)
 {
-  if(root1->isLeaf() && !root2->hasChildren())
+  if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
     if(tree2->isNodeOccupied(root2))
     {
@@ -265,7 +265,7 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
   
   if(!tree2->isNodeOccupied(root2)) return false;
 
-  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  if(!tree2->nodeHasChildren(root2) || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
     AABB aabb2;
     convertBV(root2_bv, tf2, aabb2);
@@ -306,9 +306,9 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
   {
     for(unsigned int i = 0; i < 8; ++i)
     {
-      if(root2->childExists(i))
+      if(tree2->nodeChildExists(root2, i))
       {
-        const OcTree::OcTreeNode* child = root2->getChild(i);
+        const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
@@ -339,7 +339,7 @@ bool collisionRecurse(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
 
 bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& root2_bv, const Vec3f& tf2, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist)
 {
-  if(root1->isLeaf() && !root2->hasChildren())
+  if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
     if(tree2->isNodeOccupied(root2))
     {
@@ -354,7 +354,7 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
   
   if(!tree2->isNodeOccupied(root2)) return false;
 
-  if(!root2->hasChildren() || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
+  if(!tree2->nodeHasChildren(root2) || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
     const AABB& aabb2 = translate(root2_bv, tf2);
     FCL_REAL d1 = aabb2.distance(root1->children[0]->bv);
@@ -393,9 +393,9 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, c
   {
     for(unsigned int i = 0; i < 8; ++i)
     {
-      if(root2->childExists(i))
+      if(tree2->nodeChildExists(root2, i))
       {
-        const OcTree::OcTreeNode* child = root2->getChild(i);
+        const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
         AABB child_bv;
         computeChildBV(root2_bv, i, child_bv);
         const AABB& aabb2 = translate(child_bv, tf2);

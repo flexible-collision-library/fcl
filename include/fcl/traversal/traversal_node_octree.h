@@ -239,7 +239,7 @@ private:
                                   const S& s, const AABB& aabb2,
                                   const Transform3f& tf1, const Transform3f& tf2) const
   {
-    if(!root1->hasChildren())
+    if(!tree1->nodeHasChildren(root1))
     {
       if(tree1->isNodeOccupied(root1))
       {
@@ -263,9 +263,9 @@ private:
     
     for(unsigned int i = 0; i < 8; ++i)
     {
-      if(root1->childExists(i))
+      if(tree1->nodeChildExists(root1, i))
       {
-        const OcTree::OcTreeNode* child = root1->getChild(i);
+        const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
         AABB child_bv;
         computeChildBV(bv1, i, child_bv);
         
@@ -311,7 +311,7 @@ private:
 
       return false;
     }
-    else if(!root1->hasChildren())
+    else if(!tree1->nodeHasChildren(root1))
     {
       if(tree1->isNodeOccupied(root1) && s.isOccupied()) // occupied area
       {
@@ -414,9 +414,9 @@ private:
 
     for(unsigned int i = 0; i < 8; ++i)
     {
-      if(root1->childExists(i))
+      if(tree1->nodeChildExists(root1, i))
       {
-        const OcTree::OcTreeNode* child = root1->getChild(i);
+        const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
         AABB child_bv;
         computeChildBV(bv1, i, child_bv);
         
@@ -441,7 +441,7 @@ private:
                                  const BVHModel<BV>* tree2, int root2,
                                  const Transform3f& tf1, const Transform3f& tf2) const
   {
-    if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
+    if(!tree1->nodeHasChildren(root1) && tree2->getBV(root2).isLeaf())
     {
       if(tree1->isNodeOccupied(root1))
       {
@@ -469,13 +469,13 @@ private:
 
     if(!tree1->isNodeOccupied(root1)) return false;
 
-    if(tree2->getBV(root2).isLeaf() || (root1->hasChildren() && (bv1.size() > tree2->getBV(root2).bv.size())))
+    if(tree2->getBV(root2).isLeaf() || (tree1->nodeHasChildren(root1) && (bv1.size() > tree2->getBV(root2).bv.size())))
     {
       for(unsigned int i = 0; i < 8; ++i)
       {
-        if(root1->childExists(i))
+        if(tree1->nodeChildExists(root1, i))
         {
-          const OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
@@ -571,7 +571,7 @@ private:
         return false;
       }
     }
-    else if(!root1->hasChildren() && tree2->getBV(root2).isLeaf())
+    else if(!tree1->nodeHasChildren(root1) && tree2->getBV(root2).isLeaf())
     {
       if(tree1->isNodeOccupied(root1) && tree2->isOccupied())
       {
@@ -676,13 +676,13 @@ private:
       if(!obb1.overlap(obb2)) return false;      
     }
    
-    if(tree2->getBV(root2).isLeaf() || (root1->hasChildren() && (bv1.size() > tree2->getBV(root2).bv.size())))
+    if(tree2->getBV(root2).isLeaf() || (tree1->nodeHasChildren(root1) && (bv1.size() > tree2->getBV(root2).bv.size())))
     {
       for(unsigned int i = 0; i < 8; ++i)
       {
-        if(root1->childExists(i))
+        if(tree1->nodeChildExists(root1, i))
         {
-          const OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
           
@@ -716,7 +716,7 @@ private:
                              const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
                              const Transform3f& tf1, const Transform3f& tf2) const
   {
-    if(!root1->hasChildren() && !root2->hasChildren())
+    if(!tree1->nodeHasChildren(root1) && !tree2->nodeHasChildren(root2))
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2))
       {
@@ -739,13 +739,13 @@ private:
 
     if(!tree1->isNodeOccupied(root1) || !tree2->isNodeOccupied(root2)) return false;
 
-    if(!root2->hasChildren() || (root1->hasChildren() && (bv1.size() > bv2.size())))
+    if(!tree2->nodeHasChildren(root2) || (tree1->nodeHasChildren(root1) && (bv1.size() > bv2.size())))
     {
       for(unsigned int i = 0; i < 8; ++i)
       {
-        if(root1->childExists(i))
+        if(tree1->nodeChildExists(root1, i))
         {
-          const OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
 
@@ -768,9 +768,9 @@ private:
     {
       for(unsigned int i = 0; i < 8; ++i)
       {
-        if(root2->childExists(i))
+        if(tree2->nodeChildExists(root2, i))
         {
-          const OcTree::OcTreeNode* child = root2->getChild(i);
+          const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
           AABB child_bv;
           computeChildBV(bv2, i, child_bv);
 
@@ -822,13 +822,13 @@ private:
     }
     else if(!root1 && root2)
     {
-      if(root2->hasChildren())
+      if(tree2->nodeHasChildren(root2))
       {
         for(unsigned int i = 0; i < 8; ++i)
         {
-          if(root2->childExists(i))
+          if(tree2->nodeChildExists(root2, i))
           {
-            const OcTree::OcTreeNode* child = root2->getChild(i);
+            const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
             AABB child_bv;
             computeChildBV(bv2, i, child_bv);
             if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, child, child_bv, tf1, tf2))
@@ -853,13 +853,13 @@ private:
     }
     else if(root1 && !root2)
     {
-      if(root1->hasChildren())
+      if(tree1->nodeHasChildren(root1))
       {
         for(unsigned int i = 0; i < 8; ++i)
         {
-          if(root1->childExists(i))
+          if(tree1->nodeChildExists(root1, i))
           {
-            const OcTree::OcTreeNode* child = root1->getChild(i);
+            const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
             AABB child_bv;
             computeChildBV(bv1, i,  child_bv);
             if(OcTreeIntersectRecurse(tree1, child, child_bv, tree2, NULL, bv2, tf1, tf2))
@@ -882,7 +882,7 @@ private:
       
       return false;
     }
-    else if(!root1->hasChildren() && !root2->hasChildren())
+    else if(!tree1->nodeHasChildren(root1) && !tree2->nodeHasChildren(root2))
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2)) // occupied area
       {
@@ -990,13 +990,13 @@ private:
       if(!obb1.overlap(obb2)) return false;
     }
 
-    if(!root2->hasChildren() || (root1->hasChildren() && (bv1.size() > bv2.size())))
+    if(!tree2->nodeHasChildren(root2) || (tree1->nodeHasChildren(root1) && (bv1.size() > bv2.size())))
     {
       for(unsigned int i = 0; i < 8; ++i)
       {
-        if(root1->childExists(i))
+        if(tree1->nodeChildExists(root1, i))
         {
-          const OcTree::OcTreeNode* child = root1->getChild(i);
+          const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
           AABB child_bv;
           computeChildBV(bv1, i, child_bv);
         
@@ -1021,9 +1021,9 @@ private:
     {
       for(unsigned int i = 0; i < 8; ++i)
       {
-        if(root2->childExists(i))
+        if(tree2->nodeChildExists(root2, i))
         {
-          const OcTree::OcTreeNode* child = root2->getChild(i);
+          const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
           AABB child_bv;
           computeChildBV(bv2, i, child_bv);
           
