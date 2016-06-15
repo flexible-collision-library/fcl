@@ -6,7 +6,7 @@ sudo apt-get -qq --yes --force-yes install libccd-dev
 # Octomap
 git clone https://github.com/OctoMap/octomap
 cd octomap
-git checkout tags/v1.6.8
+git checkout tags/v1.8.0
 mkdir build
 cd build
 cmake ..
