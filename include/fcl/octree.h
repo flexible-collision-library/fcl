@@ -94,7 +94,7 @@ public:
   }
 
   /// @brief get the bounding volume for the root
-  inline AABB getRootBV() const
+  AABB getRootBV() const
   {
     FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
@@ -103,34 +103,34 @@ public:
   }
 
   /// @brief get the root node of the octree
-  inline OcTreeNode* getRoot() const
+  OcTreeNode* getRoot() const
   {
     return tree->getRoot();
   }
 
   /// @brief whether one node is completely occupied
-  inline bool isNodeOccupied(const OcTreeNode* node) const
+  bool isNodeOccupied(const OcTreeNode* node) const
   {
     // return tree->isNodeOccupied(node);
     return node->getOccupancy() >= occupancy_threshold;
   }  
 
   /// @brief whether one node is completely free
-  inline bool isNodeFree(const OcTreeNode* node) const
+  bool isNodeFree(const OcTreeNode* node) const
   {
     // return false; // default no definitely free node
     return node->getOccupancy() <= free_threshold;
   }
 
   /// @brief whether one node is uncertain
-  inline bool isNodeUncertain(const OcTreeNode* node) const
+  bool isNodeUncertain(const OcTreeNode* node) const
   {
     return (!isNodeOccupied(node)) && (!isNodeFree(node));
   }
 
   /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
   /// only keep the occupied boxes (i.e., the boxes whose occupied probability is higher enough).
-  inline std::vector<std::array<FCL_REAL, 6> > toBoxes() const
+  std::vector<std::array<FCL_REAL, 6> > toBoxes() const
   {
     std::vector<std::array<FCL_REAL, 6> > boxes;
     boxes.reserve(tree->size() / 2);
@@ -188,29 +188,29 @@ public:
   }
 
   /// @return ptr to child number childIdx of node
-  inline OcTreeNode* getNodeChild(OcTreeNode* node, unsigned int childIdx) const
+  OcTreeNode* getNodeChild(OcTreeNode* node, unsigned int childIdx)
   { 
     return tree->getNodeChild(node, childIdx);
   }  
 
   /// @return const ptr to child number childIdx of node
-  inline const OcTreeNode* getNodeChild(const OcTreeNode* node, unsigned int childIdx) const
+  const OcTreeNode* getNodeChild(const OcTreeNode* node, unsigned int childIdx) const
   { 
     return tree->getNodeChild(node, childIdx);
   }  
       
   /// @brief return true if the child at childIdx exists
-  inline bool nodeChildExists(const OcTreeNode* node, unsigned int childIdx) const 
+  bool nodeChildExists(const OcTreeNode* node, unsigned int childIdx) const
   { 
     return tree->nodeChildExists(node, childIdx);
   }
 
   /// @brief return true if node has at least one child
-  inline bool nodeHasChildren(const OcTreeNode* node) const
+  bool nodeHasChildren(const OcTreeNode* node) const
   {
-	return tree->nodeHasChildren(node);
+    return tree->nodeHasChildren(node);
   }
-    
+
   /// @brief return object type, it is an octree
   OBJECT_TYPE getObjectType() const { return OT_OCTREE; }
 
