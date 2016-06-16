@@ -190,25 +190,41 @@ public:
   /// @return ptr to child number childIdx of node
   OcTreeNode* getNodeChild(OcTreeNode* node, unsigned int childIdx)
   { 
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
     return tree->getNodeChild(node, childIdx);
+#else
+    return node->getChild(childIdx);
+#endif
   }  
 
   /// @return const ptr to child number childIdx of node
   const OcTreeNode* getNodeChild(const OcTreeNode* node, unsigned int childIdx) const
   { 
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
     return tree->getNodeChild(node, childIdx);
+#else
+    return node->getChild(childIdx);
+#endif
   }  
       
   /// @brief return true if the child at childIdx exists
   bool nodeChildExists(const OcTreeNode* node, unsigned int childIdx) const
   { 
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
     return tree->nodeChildExists(node, childIdx);
+#else
+    return node->childExists(childIdx);
+#endif
   }
 
   /// @brief return true if node has at least one child
   bool nodeHasChildren(const OcTreeNode* node) const
   {
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
     return tree->nodeHasChildren(node);
+#else
+    return node->hasChildren();
+#endif
   }
 
   /// @brief return object type, it is an octree
