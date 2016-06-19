@@ -63,10 +63,6 @@ private:
 
 public:
 
-  /// @brief OcTreeNode must implement the following interfaces:
-  ///    1) childExists(i)
-  ///    2) getChild(i)
-  ///    3) hasChildren()
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
@@ -98,7 +94,7 @@ public:
   }
 
   /// @brief get the bounding volume for the root
-  inline AABB getRootBV() const
+  AABB getRootBV() const
   {
     FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
@@ -107,34 +103,34 @@ public:
   }
 
   /// @brief get the root node of the octree
-  inline OcTreeNode* getRoot() const
+  OcTreeNode* getRoot() const
   {
     return tree->getRoot();
   }
 
   /// @brief whether one node is completely occupied
-  inline bool isNodeOccupied(const OcTreeNode* node) const
+  bool isNodeOccupied(const OcTreeNode* node) const
   {
     // return tree->isNodeOccupied(node);
     return node->getOccupancy() >= occupancy_threshold;
   }  
 
   /// @brief whether one node is completely free
-  inline bool isNodeFree(const OcTreeNode* node) const
+  bool isNodeFree(const OcTreeNode* node) const
   {
     // return false; // default no definitely free node
     return node->getOccupancy() <= free_threshold;
   }
 
   /// @brief whether one node is uncertain
-  inline bool isNodeUncertain(const OcTreeNode* node) const
+  bool isNodeUncertain(const OcTreeNode* node) const
   {
     return (!isNodeOccupied(node)) && (!isNodeFree(node));
   }
 
   /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
   /// only keep the occupied boxes (i.e., the boxes whose occupied probability is higher enough).
-  inline std::vector<std::array<FCL_REAL, 6> > toBoxes() const
+  std::vector<std::array<FCL_REAL, 6> > toBoxes() const
   {
     std::vector<std::array<FCL_REAL, 6> > boxes;
     boxes.reserve(tree->size() / 2);
@@ -189,6 +185,46 @@ public:
   void setFreeThres(FCL_REAL d)
   {
     free_threshold = d;
+  }
+
+  /// @return ptr to child number childIdx of node
+  OcTreeNode* getNodeChild(OcTreeNode* node, unsigned int childIdx)
+  { 
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
+    return tree->getNodeChild(node, childIdx);
+#else
+    return node->getChild(childIdx);
+#endif
+  }  
+
+  /// @return const ptr to child number childIdx of node
+  const OcTreeNode* getNodeChild(const OcTreeNode* node, unsigned int childIdx) const
+  { 
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
+    return tree->getNodeChild(node, childIdx);
+#else
+    return node->getChild(childIdx);
+#endif
+  }  
+      
+  /// @brief return true if the child at childIdx exists
+  bool nodeChildExists(const OcTreeNode* node, unsigned int childIdx) const
+  { 
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
+    return tree->nodeChildExists(node, childIdx);
+#else
+    return node->childExists(childIdx);
+#endif
+  }
+
+  /// @brief return true if node has at least one child
+  bool nodeHasChildren(const OcTreeNode* node) const
+  {
+#if OCTOMAP_VERSION_AT_LEAST(1,8,0)
+    return tree->nodeHasChildren(node);
+#else
+    return node->hasChildren();
+#endif
   }
 
   /// @brief return object type, it is an octree
