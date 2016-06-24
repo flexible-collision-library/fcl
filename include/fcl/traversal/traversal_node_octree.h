@@ -38,6 +38,11 @@
 #ifndef FCL_TRAVERSAL_NODE_OCTREE_H
 #define FCL_TRAVERSAL_NODE_OCTREE_H
 
+#include "fcl/config.h"
+#if not(FCL_HAVE_OCTOMAP)
+#error "This header requires fcl to be compiled with octomap support"
+#endif
+
 #include "fcl/collision_data.h"
 #include "fcl/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/narrowphase.h"
