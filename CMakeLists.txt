@@ -66,32 +66,38 @@ endif()
 
 # Find Octomap (optional)
 find_package(PkgConfig QUIET)
+
+option(FCL_WITH_OCTOMAP "octomap library support" ON)
 set(FCL_HAVE_OCTOMAP 0)
-if(PKG_CONFIG_FOUND)
-    pkg_check_modules(OCTOMAP QUIET octomap)
-endif()
-if(NOT OCTOMAP_FOUND)
-    # if pkfconfig is not installed, then fall back on more fragile detection
-    # of octomap
-    find_path(OCTOMAP_INCLUDE_DIRS octomap.h
-        PATH_SUFFIXES octomap)
-    find_library(OCTOMAP_LIBRARY_DIRS
-        ${CMAKE_SHARED_LIBRARY_PREFIX}octomap${CMAKE_SHARED_LIBRARY_SUFFIX})
-    if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
-        set(OCTOMAP_LIBRARIES "octomap;octomath")
-    endif()
-endif()
-if (OCTOMAP_FOUND OR (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS))
-  string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
-  list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
-  list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
-  list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
-  include_directories(${OCTOMAP_INCLUDE_DIRS})
-  link_directories(${OCTOMAP_LIBRARY_DIRS})
-  set(FCL_HAVE_OCTOMAP 1)
-  message(STATUS "FCL uses Octomap")
+if(FCL_WITH_OCTOMAP)
+  if(PKG_CONFIG_FOUND)
+      pkg_check_modules(OCTOMAP QUIET octomap)
+  endif()
+  if(NOT OCTOMAP_FOUND)
+      # if pkgconfig is not installed, then fall back on more fragile detection
+      # of octomap
+      find_path(OCTOMAP_INCLUDE_DIRS octomap.h
+          PATH_SUFFIXES octomap)
+      find_library(OCTOMAP_LIBRARY_DIRS
+          ${CMAKE_SHARED_LIBRARY_PREFIX}octomap${CMAKE_SHARED_LIBRARY_SUFFIX})
+      if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
+          set(OCTOMAP_LIBRARIES "octomap;octomath")
+      endif()
+  endif()
+  if (OCTOMAP_FOUND OR (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS))
+    string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
+    list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
+    list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
+    list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
+    include_directories(${OCTOMAP_INCLUDE_DIRS})
+    link_directories(${OCTOMAP_LIBRARY_DIRS})
+    set(FCL_HAVE_OCTOMAP 1)
+    message(STATUS "FCL uses Octomap")
+  else()
+    message(STATUS "FCL does not use Octomap")
+  endif()
 else()
-  message(STATUS "FCL does not use Octomap")
+  message(STATUS "FCL does not use Octomap (as requested)")
 endif()
 
 
