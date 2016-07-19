@@ -1,3 +1,57 @@
+#===============================================================================
+# Google Test settings
+#===============================================================================
+
+include_directories (
+  ${CMAKE_CURRENT_SOURCE_DIR}/gtest/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/gtest
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+link_directories(${PROJECT_BINARY_DIR}/test)
+
+# Build gtest
+add_library(gtest STATIC gtest/src/gtest-all.cc)
+add_library(gtest_main STATIC gtest/src/gtest_main.cc)
+target_link_libraries(gtest_main gtest)
+if(NOT WIN32)
+  target_link_libraries(gtest pthread)
+endif()
+
+execute_process(COMMAND cmake -E remove_directory ${CMAKE_BINARY_DIR}/test_results)
+execute_process(COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/test_results)
+include_directories(${GTEST_INCLUDE_DIRS})
+
+add_library(test_fcl_utility test_fcl_utility.cpp)
+
+# unit test to fix geometry problems
+set(tests
+    test_fcl_distance.cpp
+)
+
+macro(add_fcl_gtest test_file_name) # TODO: This should be renamed to add_fcl_test once we completely drop the dependency on Boost Test
+  # Get the name (i.e. bla.cpp => bla)
+  get_filename_component(test_name ${ARGV} NAME_WE)
+  add_executable(${test_name} ${ARGV})
+  target_link_libraries(${test_name}
+      fcl
+      test_fcl_utility
+      gtest
+      ${Boost_FILESYSTEM_LIBRARY} # Boost libraries should be removed
+      ${Boost_SYSTEM_LIBRARY}
+  )
+  add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
+endmacro(add_fcl_gtest)
+
+# Build all the tests
+foreach(test ${tests})
+  add_fcl_gtest(${test})
+endforeach(test)
+
+#===============================================================================
+# Boost.Test settings
+#===============================================================================
+
 include_directories(${Boost_INCLUDE_DIR})
 
 if(MSVC)
@@ -32,7 +86,7 @@ include_directories(.)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 add_fcl_test(test_fcl_collision test_fcl_collision.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_distance test_fcl_distance.cpp test_fcl_utility.cpp)
+#add_fcl_test(test_fcl_distance test_fcl_distance.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_geometric_shapes test_fcl_geometric_shapes.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_broadphase test_fcl_broadphase.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_shape_mesh_consistency test_fcl_shape_mesh_consistency.cpp test_fcl_utility.cpp)
