@@ -24,7 +24,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 
 add_library(test_fcl_utility test_fcl_utility.cpp)
 
-# unit test to fix geometry problems
+# test file list
 set(tests
     test_fcl_distance.cpp
 )
