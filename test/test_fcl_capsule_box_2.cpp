@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014-2015, CNRS-LAAS and AIST
+ *  Copyright (c) 2014-2016, CNRS-LAAS and AIST
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
