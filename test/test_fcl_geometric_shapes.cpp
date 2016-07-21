@@ -2751,4 +2751,176 @@ BOOST_AUTO_TEST_CASE(conecone)
 
 
 
+template<typename S1, typename S2>
+void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distance)
+{
+  Transform3f tf1(Vec3f(-0.5 * distance, 0.0, 0.0));
+  Transform3f tf2(Vec3f(+0.5 * distance, 0.0, 0.0));
 
+  Vec3f contactA;
+  Vec3f contactB;
+  FCL_REAL depthA;
+  FCL_REAL depthB;
+  Vec3f normalA;
+  Vec3f normalB;
+
+  bool resA;
+  bool resB;
+
+  const double tol = 1e-6;
+
+  resA = solver1.shapeIntersect(s1, tf1, s2, tf2, &contactA, &depthA, &normalA);
+  resB = solver1.shapeIntersect(s2, tf2, s1, tf1, &contactB, &depthB, &normalB);
+
+  BOOST_CHECK(resA);
+  BOOST_CHECK(resB);
+  BOOST_CHECK(contactA.equal(contactB, tol));  // contact point should be same
+  BOOST_CHECK(normalA.equal(-normalB, tol));  // normal should be opposite
+  BOOST_CHECK_CLOSE(depthA, depthB, tol);  // penetration depth should be same
+
+  resA = solver2.shapeIntersect(s1, tf1, s2, tf2, &contactA, &depthA, &normalA);
+  resB = solver2.shapeIntersect(s2, tf2, s1, tf1, &contactB, &depthB, &normalB);
+
+  BOOST_CHECK(resA);
+  BOOST_CHECK(resB);
+  BOOST_CHECK(contactA.equal(contactB, tol));
+  BOOST_CHECK(normalA.equal(-normalB, tol));
+  BOOST_CHECK_CLOSE(depthA, depthB, tol);
+}
+
+BOOST_AUTO_TEST_CASE(reversibleShapeIntersection_allshapes)
+{
+  // This test check whether a shape intersection algorithm is called for the
+  // reverse case as well. For example, if FCL has sphere-capsule intersection
+  // algorithm, then this algorithm should be called for capsule-sphere case.
+
+  // Prepare all kinds of primitive shapes (7) -- box, sphere, capsule, cone, cylinder, plane, halfspace
+  Box box(10, 10, 10);
+  Sphere sphere(5);
+  Capsule capsule(5, 10);
+  Cone cone(5, 10);
+  Cylinder cylinder(5, 10);
+  Plane plane(Vec3f(), 0.0);
+  Halfspace halfspace(Vec3f(), 0.0);
+
+  // Use sufficiently short distance so that all the primitive shapes can intersect
+  FCL_REAL distance = 5.0;
+
+  // If new shape intersection algorithm is added for two distinct primitive
+  // shapes, uncomment associated lines. For example, box-sphere intersection
+  // algorithm is added, then uncomment box-sphere.
+
+//  testReversibleShapeIntersection(box, sphere, distance);
+//  testReversibleShapeIntersection(box, capsule, distance);
+//  testReversibleShapeIntersection(box, cone, distance);
+//  testReversibleShapeIntersection(box, cylinder, distance);
+  testReversibleShapeIntersection(box, plane, distance);
+  testReversibleShapeIntersection(box, halfspace, distance);
+
+  testReversibleShapeIntersection(sphere, capsule, distance);
+//  testReversibleShapeIntersection(sphere, cone, distance);
+//  testReversibleShapeIntersection(sphere, cylinder, distance);
+  testReversibleShapeIntersection(sphere, plane, distance);
+  testReversibleShapeIntersection(sphere, halfspace, distance);
+
+//  testReversibleShapeIntersection(capsule, cone, distance);
+//  testReversibleShapeIntersection(capsule, cylinder, distance);
+  testReversibleShapeIntersection(capsule, plane, distance);
+  testReversibleShapeIntersection(capsule, halfspace, distance);
+
+//  testReversibleShapeIntersection(cone, cylinder, distance);
+  testReversibleShapeIntersection(cone, plane, distance);
+  testReversibleShapeIntersection(cone, halfspace, distance);
+
+  testReversibleShapeIntersection(cylinder, plane, distance);
+  testReversibleShapeIntersection(cylinder, halfspace, distance);
+
+  testReversibleShapeIntersection(plane, halfspace, distance);
+}
+
+template<typename S1, typename S2>
+void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
+{
+  Transform3f tf1(Vec3f(-0.5 * distance, 0.0, 0.0));
+  Transform3f tf2(Vec3f(+0.5 * distance, 0.0, 0.0));
+
+  FCL_REAL distA;
+  FCL_REAL distB;
+  Vec3f p1A;
+  Vec3f p1B;
+  Vec3f p2A;
+  Vec3f p2B;
+
+  bool resA;
+  bool resB;
+
+  const double tol = 1e-6;
+
+  resA = solver1.shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
+  resB = solver1.shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
+
+  BOOST_CHECK(resA);
+  BOOST_CHECK(resB);
+  BOOST_CHECK_CLOSE(distA, distB, tol);  // distances should be same
+  BOOST_CHECK(p1A.equal(p2B, tol));  // closest points should in reverse order
+  BOOST_CHECK(p2A.equal(p1B, tol));
+
+  resA = solver2.shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
+  resB = solver2.shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
+
+  BOOST_CHECK(resA);
+  BOOST_CHECK(resB);
+  BOOST_CHECK_CLOSE(distA, distB, tol);
+  BOOST_CHECK(p1A.equal(p2B, tol));
+  BOOST_CHECK(p2A.equal(p1B, tol));
+}
+
+BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
+{
+  // This test check whether a shape distance algorithm is called for the
+  // reverse case as well. For example, if FCL has sphere-capsule distance
+  // algorithm, then this algorithm should be called for capsule-sphere case.
+
+  // Prepare all kinds of primitive shapes (7) -- box, sphere, capsule, cone, cylinder, plane, halfspace
+  Box box(10, 10, 10);
+  Sphere sphere(5);
+  Capsule capsule(5, 10);
+  Cone cone(5, 10);
+  Cylinder cylinder(5, 10);
+  Plane plane(Vec3f(), 0.0);
+  Halfspace halfspace(Vec3f(), 0.0);
+
+  // Use sufficiently long distance so that all the primitive shapes CANNOT intersect
+  FCL_REAL distance = 15.0;
+
+  // If new shape distance algorithm is added for two distinct primitive
+  // shapes, uncomment associated lines. For example, box-sphere intersection
+  // algorithm is added, then uncomment box-sphere.
+
+//  testReversibleShapeDistance(box, sphere, distance);
+//  testReversibleShapeDistance(box, capsule, distance);
+//  testReversibleShapeDistance(box, cone, distance);
+//  testReversibleShapeDistance(box, cylinder, distance);
+//  testReversibleShapeDistance(box, plane, distance);
+//  testReversibleShapeDistance(box, halfspace, distance);
+
+  testReversibleShapeDistance(sphere, capsule, distance);
+//  testReversibleShapeDistance(sphere, cone, distance);
+//  testReversibleShapeDistance(sphere, cylinder, distance);
+//  testReversibleShapeDistance(sphere, plane, distance);
+//  testReversibleShapeDistance(sphere, halfspace, distance);
+
+//  testReversibleShapeDistance(capsule, cone, distance);
+//  testReversibleShapeDistance(capsule, cylinder, distance);
+//  testReversibleShapeDistance(capsule, plane, distance);
+//  testReversibleShapeDistance(capsule, halfspace, distance);
+
+//  testReversibleShapeDistance(cone, cylinder, distance);
+//  testReversibleShapeDistance(cone, plane, distance);
+//  testReversibleShapeDistance(cone, halfspace, distance);
+
+//  testReversibleShapeDistance(cylinder, plane, distance);
+//  testReversibleShapeDistance(cylinder, halfspace, distance);
+
+//  testReversibleShapeDistance(plane, halfspace, distance);
+}
