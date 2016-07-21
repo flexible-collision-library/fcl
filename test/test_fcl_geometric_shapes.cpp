@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(gjkcache)
 
   TranslationMotion motion(Transform3f(Vec3f(-20.0, -20.0, -20.0)), Transform3f(Vec3f(20.0, 20.0, 20.0)));
 
-  int N = 1000;  
+  int N = 1000;
   FCL_REAL dt = 1.0 / (N - 1);
 
   /// test exploiting spatial coherence
@@ -659,7 +659,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
 {
   Box s(5, 10, 20);
   Halfspace hs(Vec3f(1, 0, 0), 0);
-  
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
@@ -730,7 +730,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
 {
   Box s(5, 10, 20);
   Plane hs(Vec3f(1, 0, 0), 0);
-  
+
   Transform3f transform;
   generateRandomTransform(extents, transform);
 
@@ -827,7 +827,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
   BOOST_CHECK(std::abs(depth - 7.5) < 0.001);
   BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
   BOOST_CHECK(contact.equal(transform.transform(Vec3f(-1.25, 0, 0))));
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
@@ -1013,7 +1013,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
   BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
   BOOST_CHECK(contact.equal(transform.transform(Vec3f(2.5, 0, 0))));
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
@@ -1157,7 +1157,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
   FCL_REAL depth;
   Vec3f normal;
   bool res;
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 5) < 0.001);
@@ -1181,7 +1181,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
   BOOST_CHECK(std::abs(depth - 7.5) < 0.001);
   BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
   BOOST_CHECK(contact.equal(transform.transform(Vec3f(-1.25, 0, 0))));
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
@@ -1367,7 +1367,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
   BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
   BOOST_CHECK(contact.equal(transform.transform(Vec3f(2.5, 0, 0))));
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
@@ -1512,7 +1512,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
   FCL_REAL depth;
   Vec3f normal;
   bool res;
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 5) < 0.001);
@@ -1536,7 +1536,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
   BOOST_CHECK(std::abs(depth - 7.5) < 0.001);
   BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(-1, 0, 0))));
   BOOST_CHECK(contact.equal(transform.transform(Vec3f(-1.25, 0, -5))));
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
@@ -1722,7 +1722,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
   BOOST_CHECK(normal.equal(transform.getQuatRotation().transform(Vec3f(1, 0, 0))));
   BOOST_CHECK(contact.equal(transform.transform(Vec3f(2.5, 0, -2.5))));
-  
+
   res = solver1.shapeIntersect(s, Transform3f(), hs, Transform3f(Vec3f(-2.5, 0, 0)), &contact, &depth, &normal);
   BOOST_CHECK(res);
   BOOST_CHECK(std::abs(depth - 2.5) < 0.001);
@@ -1857,7 +1857,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
 
 
 BOOST_AUTO_TEST_CASE(shapeDistance_spheresphere)
-{  
+{
   Sphere s1(20);
   Sphere s2(10);
 
@@ -1919,7 +1919,7 @@ BOOST_AUTO_TEST_CASE(shapeDistance_spheresphere)
 }
 
 BOOST_AUTO_TEST_CASE(shapeDistance_boxbox)
-{                      
+{
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
   Vec3f closest_p1, closest_p2;
@@ -2006,7 +2006,7 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxsphere)
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 0.1) < 0.001);
   BOOST_CHECK(res);
-  
+
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(22.6, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 0.1) < 0.05);
   BOOST_CHECK(res);
@@ -2014,7 +2014,7 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxsphere)
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
   BOOST_CHECK(res);
-  
+
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
   BOOST_CHECK(res);
@@ -2145,13 +2145,13 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheresphere)
 
   Vec3f contact;
   FCL_REAL penetration_depth;
-  Vec3f normal;  
+  Vec3f normal;
   bool res;
 
   request.gjk_solver_type = GST_INDEP; // use indep GJK solver
 
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), NULL, NULL, NULL);
-  BOOST_CHECK_FALSE(res); 
+  BOOST_CHECK_FALSE(res);
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &contact, &penetration_depth, &normal);
   BOOST_CHECK_FALSE(res);
   result.clear();
@@ -2267,7 +2267,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
 
   Vec3f contact;
   FCL_REAL penetration_depth;
-  Vec3f normal;  
+  Vec3f normal;
   bool res;
 
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
@@ -2296,7 +2296,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   BOOST_CHECK(res);
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(q), &contact, &penetration_depth, &normal);
   BOOST_CHECK(res);
-  
+
   res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(q), NULL, NULL, NULL);
   BOOST_CHECK(res);
   res = solver2.shapeIntersect(s1, transform, s2, transform * Transform3f(q), &contact, &penetration_depth, &normal);
@@ -2313,7 +2313,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherebox)
 
   Vec3f contact;
   FCL_REAL penetration_depth;
-  Vec3f normal;  
+  Vec3f normal;
   bool res;
 
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
@@ -2357,7 +2357,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
 
   Vec3f contact;
   FCL_REAL penetration_depth;
-  Vec3f normal;  
+  Vec3f normal;
   bool res;
 
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
@@ -2401,7 +2401,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecone)
 
   Vec3f contact;
   FCL_REAL penetration_depth;
-  Vec3f normal;  
+  Vec3f normal;
   bool res;
 
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
@@ -2455,7 +2455,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecylinder)
 
   Vec3f contact;
   FCL_REAL penetration_depth;
-  Vec3f normal;  
+  Vec3f normal;
   bool res;
 
   res = solver2.shapeIntersect(s1, Transform3f(), s2, Transform3f(), NULL, NULL, NULL);
@@ -2543,7 +2543,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
 
 
 BOOST_AUTO_TEST_CASE(spheresphere)
-{  
+{
   Sphere s1(20);
   Sphere s2(10);
 
@@ -2552,7 +2552,7 @@ BOOST_AUTO_TEST_CASE(spheresphere)
 
   bool res;
   FCL_REAL dist = -1;
-  
+
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 10) < 0.001);
   BOOST_CHECK(res);
@@ -2604,7 +2604,7 @@ BOOST_AUTO_TEST_CASE(spheresphere)
 }
 
 BOOST_AUTO_TEST_CASE(boxbox)
-{                      
+{
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
@@ -2661,7 +2661,7 @@ BOOST_AUTO_TEST_CASE(boxsphere)
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 0.1) < 0.01);
   BOOST_CHECK(res);
-  
+
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(22.6, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 0.1) < 0.01);
   BOOST_CHECK(res);
@@ -2669,7 +2669,7 @@ BOOST_AUTO_TEST_CASE(boxsphere)
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
   BOOST_CHECK(res);
-  
+
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
   BOOST_CHECK(fabs(dist - 17.5) < 0.001);
   BOOST_CHECK(res);
