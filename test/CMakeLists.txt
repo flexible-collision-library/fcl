@@ -26,6 +26,8 @@ add_library(test_fcl_utility test_fcl_utility.cpp)
 
 # test file list
 set(tests
+    test_fcl_broadphase.cpp
+    test_fcl_bvh_models.cpp
     test_fcl_distance.cpp
     test_fcl_sphere_capsule.cpp
 )
@@ -89,7 +91,7 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 add_fcl_test(test_fcl_collision test_fcl_collision.cpp test_fcl_utility.cpp)
 #add_fcl_test(test_fcl_distance test_fcl_distance.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_geometric_shapes test_fcl_geometric_shapes.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_broadphase test_fcl_broadphase.cpp test_fcl_utility.cpp)
+#add_fcl_test(test_fcl_broadphase test_fcl_broadphase.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_shape_mesh_consistency test_fcl_shape_mesh_consistency.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_frontlist test_fcl_frontlist.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_math test_fcl_math.cpp test_fcl_utility.cpp)
@@ -100,7 +102,7 @@ add_fcl_test(test_fcl_simple test_fcl_simple.cpp)
 add_fcl_test(test_fcl_capsule_box_1 test_fcl_capsule_box_1.cpp)
 add_fcl_test(test_fcl_capsule_box_2 test_fcl_capsule_box_2.cpp)
 #add_fcl_test(test_fcl_global_penetration test_fcl_global_penetration.cpp libsvm/svm.cpp test_fcl_utility.cpp)
-add_fcl_test(test_fcl_bvh_models test_fcl_bvh_models.cpp test_fcl_utility.cpp)
+#add_fcl_test(test_fcl_bvh_models test_fcl_bvh_models.cpp test_fcl_utility.cpp)
 
 if (FCL_HAVE_OCTOMAP)
   add_fcl_test(test_fcl_octomap test_fcl_octomap.cpp test_fcl_utility.cpp)

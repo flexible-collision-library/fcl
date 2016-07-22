@@ -34,9 +34,7 @@
 
 /** \author Jeongseok Lee */
 
-
-#define BOOST_TEST_MODULE "FCL_BVH_MODELS"
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include "fcl/config.h"
 #include "fcl/BVH/BVH_model.h"
@@ -80,22 +78,22 @@ void testBVHModelPointCloud()
   int result;
 
   result = model->beginModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+  EXPECT_EQ(result, BVH_OK);
 
   for (std::size_t i = 0; i < points.size(); ++i)
   {
     result = model->addVertex(points[i]);
-    BOOST_CHECK_EQUAL(result, BVH_OK);
+    EXPECT_EQ(result, BVH_OK);
   }
 
   result = model->endModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+  EXPECT_EQ(result, BVH_OK);
 
   model->computeLocalAABB();
 
-  BOOST_CHECK_EQUAL(model->num_vertices, 8);
-  BOOST_CHECK_EQUAL(model->num_tris, 0);
-  BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
+  EXPECT_EQ(model->num_vertices, 8);
+  EXPECT_EQ(model->num_tris, 0);
+  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
 }
 
 template<typename BV>
@@ -134,22 +132,22 @@ void testBVHModelTriangles()
   int result;
 
   result = model->beginModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+  EXPECT_EQ(result, BVH_OK);
 
   for (std::size_t i = 0; i < tri_indices.size(); ++i)
   {
     result = model->addTriangle(points[tri_indices[i][0]], points[tri_indices[i][1]], points[tri_indices[i][2]]);
-    BOOST_CHECK_EQUAL(result, BVH_OK);
+    EXPECT_EQ(result, BVH_OK);
   }
 
   result = model->endModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+  EXPECT_EQ(result, BVH_OK);
 
   model->computeLocalAABB();
 
-  BOOST_CHECK_EQUAL(model->num_vertices, 12 * 3);
-  BOOST_CHECK_EQUAL(model->num_tris, 12);
-  BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
+  EXPECT_EQ(model->num_vertices, 12 * 3);
+  EXPECT_EQ(model->num_tris, 12);
+  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
 }
 
 template<typename BV>
@@ -188,19 +186,19 @@ void testBVHModelSubModel()
   int result;
 
   result = model->beginModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+  EXPECT_EQ(result, BVH_OK);
 
   result = model->addSubModel(points, tri_indices);
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+  EXPECT_EQ(result, BVH_OK);
 
   result = model->endModel();
-  BOOST_CHECK_EQUAL(result, BVH_OK);
+  EXPECT_EQ(result, BVH_OK);
 
   model->computeLocalAABB();
 
-  BOOST_CHECK_EQUAL(model->num_vertices, 8);
-  BOOST_CHECK_EQUAL(model->num_tris, 12);
-  BOOST_CHECK_EQUAL(model->build_state, BVH_BUILD_STATE_PROCESSED);
+  EXPECT_EQ(model->num_vertices, 8);
+  EXPECT_EQ(model->num_tris, 12);
+  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
 }
 
 template<typename BV>
@@ -211,7 +209,7 @@ void testBVHModel()
   testBVHModelSubModel<BV>();
 }
 
-BOOST_AUTO_TEST_CASE(building_bvh_models)
+TEST(FCL_BVH_MODELS, building_bvh_models)
 {
   testBVHModel<AABB>();
   testBVHModel<OBB>();
@@ -221,4 +219,11 @@ BOOST_AUTO_TEST_CASE(building_bvh_models)
   testBVHModel<KDOP<16> >();
   testBVHModel<KDOP<18> >();
   testBVHModel<KDOP<24> >();
+}
+
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
