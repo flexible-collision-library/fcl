@@ -92,6 +92,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
+include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
 
 if(PKG_CONFIG_FOUND)
   pkg_check_modules(CCD ccd)
