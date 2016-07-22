@@ -35,8 +35,7 @@
 
 /** \author Jia Pan */
 
-#define BOOST_TEST_MODULE "FCL_DISTANCE"
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
@@ -81,8 +80,7 @@ inline bool nearlyEqual(const Vec3f& a, const Vec3f& b)
   return true;
 }
 
-
-BOOST_AUTO_TEST_CASE(mesh_distance)
+TEST(FCL_DISTANCE, mesh_distance)
 {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
@@ -112,181 +110,181 @@ BOOST_AUTO_TEST_CASE(mesh_distance)
 
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test_Oriented<kIOS, MeshDistanceTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test_Oriented<kIOS, MeshDistanceTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<kIOS, MeshDistanceTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<kIOS, MeshDistanceTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<kIOS, MeshDistanceTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<kIOS, MeshDistanceTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<OBBRSS, MeshDistanceTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test_Oriented<OBBRSS, MeshDistanceTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<OBBRSS, MeshDistanceTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<OBBRSS, MeshDistanceTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<OBBRSS, MeshDistanceTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test_Oriented<OBBRSS, MeshDistanceTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
     
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
 
 
     distance_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
 
     distance_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
     
     distance_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
     distance_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
-    BOOST_CHECK(fabs(res.distance - res_now.distance) < DELTA);
-    BOOST_CHECK(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA);
+    EXPECT_TRUE(fabs(res.distance) < DELTA || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
   }
 
@@ -426,4 +424,9 @@ bool collide_Test_OBB(const Transform3f& tf,
     return false;
 }
 
-
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
