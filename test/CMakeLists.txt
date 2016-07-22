@@ -27,6 +27,7 @@ add_library(test_fcl_utility test_fcl_utility.cpp)
 # test file list
 set(tests
     test_fcl_distance.cpp
+    test_fcl_sphere_capsule.cpp
 )
 
 macro(add_fcl_gtest test_file_name) # TODO: This should be renamed to add_fcl_test once we completely drop the dependency on Boost Test
@@ -93,7 +94,7 @@ add_fcl_test(test_fcl_shape_mesh_consistency test_fcl_shape_mesh_consistency.cpp
 add_fcl_test(test_fcl_frontlist test_fcl_frontlist.cpp test_fcl_utility.cpp)
 add_fcl_test(test_fcl_math test_fcl_math.cpp test_fcl_utility.cpp)
 
-add_fcl_test(test_fcl_sphere_capsule test_fcl_sphere_capsule.cpp)
+#add_fcl_test(test_fcl_sphere_capsule test_fcl_sphere_capsule.cpp)
 add_fcl_test(test_fcl_capsule_capsule test_fcl_capsule_capsule.cpp)
 add_fcl_test(test_fcl_simple test_fcl_simple.cpp)
 add_fcl_test(test_fcl_capsule_box_1 test_fcl_capsule_box_1.cpp)
