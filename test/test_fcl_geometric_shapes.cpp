@@ -53,7 +53,7 @@ GJKSolver_indep solver2;
 
 #define EXPECT_TRUE_FALSE(p) EXPECT_TRUE(!(p))
 
-TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
 {
   const double tol = 1e-12;
   const double radius = 5.0;
@@ -65,7 +65,7 @@ TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
   EXPECT_NEAR(volume, s.computeVolume(), tol);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -480,7 +480,7 @@ void testShapeIntersection(
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -644,7 +644,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
   }
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -720,7 +720,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   }
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -767,7 +767,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
 {
   Sphere s1(20);
   Capsule s2(5, 10);
@@ -825,7 +825,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -871,7 +871,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -929,7 +929,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -995,7 +995,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -1064,7 +1064,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
 {
   Sphere s(10);
   Vec3f t[3];
@@ -1103,7 +1103,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
   EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
 {
   Halfspace hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -1144,7 +1144,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
   EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
 {
   Plane hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -1185,7 +1185,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
   EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
 {
   Sphere s(10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -1271,7 +1271,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
 {
   Sphere s(10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -1349,7 +1349,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 {
   Box s(5, 10, 20);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -1440,7 +1440,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
 {
   Box s(5, 10, 20);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -1523,7 +1523,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
 {
   Ellipsoid s(5, 10, 20);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -1763,7 +1763,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 {
   Ellipsoid s(5, 10, 20);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -1979,7 +1979,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 {
   Capsule s(5, 10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -2219,7 +2219,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 {
   Capsule s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -2435,7 +2435,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
 {
   Cylinder s(5, 10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -2675,7 +2675,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 {
   Cylinder s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -2892,7 +2892,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 }
 
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 {
   Cone s(5, 10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -3132,7 +3132,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 {
   Cone s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -3372,7 +3372,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -3434,7 +3434,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -3500,7 +3500,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -3536,7 +3536,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -3572,7 +3572,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -3608,7 +3608,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -3644,7 +3644,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -3730,7 +3730,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -3832,7 +3832,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -3900,7 +3900,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -3949,7 +3949,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
   // built-in GJK solver returns incorrect normal.
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
 {
   Sphere s1(20);
   Capsule s2(5, 10);
@@ -3997,7 +3997,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -4046,7 +4046,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -4106,7 +4106,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
   // built-in GJK solver returns incorrect normal.
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -4174,7 +4174,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -4245,7 +4245,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
 {
   Sphere s(10);
   Vec3f t[3];
@@ -4285,7 +4285,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
   EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
 {
   Halfspace hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -4326,7 +4326,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
   EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 {
   Plane hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -4391,7 +4391,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -4452,7 +4452,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -4488,7 +4488,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -4524,7 +4524,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -4560,7 +4560,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -4596,7 +4596,7 @@ TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -4697,7 +4697,7 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
                                    true, true, true, false, tol));
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
 {
   // This test check whether a shape intersection algorithm is called for the
   // reverse case as well. For example, if FCL has sphere-capsule intersection
@@ -4793,7 +4793,7 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
   EXPECT_TRUE(p2A.equal(p1B, tol));
 }
 
-TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeDistance_allshapes)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeDistance_allshapes)
 {
   // This test check whether a shape distance algorithm is called for the
   // reverse case as well. For example, if FCL has sphere-capsule distance

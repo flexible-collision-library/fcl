@@ -44,7 +44,7 @@
 
 using namespace fcl;
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
 {
 	GJKSolver_libccd solver;
 
@@ -58,7 +58,7 @@ TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negative)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negative)
 {
 	GJKSolver_libccd solver;
 
@@ -72,7 +72,7 @@ TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negative)
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
 {
 	GJKSolver_libccd solver;
 
@@ -86,7 +86,7 @@ TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_rotated)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_rotated)
 {
 	GJKSolver_libccd solver;
 
@@ -102,7 +102,7 @@ TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_rotated
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
 {
   GJKSolver_libccd solver;
 
@@ -127,7 +127,7 @@ TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
   EXPECT_TRUE (Vec3f (0., 0., 0.).equal(contact_point));
 }
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotated)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotated)
 {
 	GJKSolver_libccd solver;
 
@@ -154,7 +154,7 @@ TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotated)
   EXPECT_TRUE (Vec3f (0., 0., 50.).equal(contact_point, solver.collision_tolerance));
 }
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 {
 	GJKSolver_libccd solver;
 
@@ -171,7 +171,7 @@ TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 
 }
 
-TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_separated)
+GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_separated)
 {
 	GJKSolver_libccd solver;
 

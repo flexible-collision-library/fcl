@@ -76,7 +76,7 @@ bool enable_contact = true;
 std::vector<Contact> global_pairs;
 std::vector<Contact> global_pairs_now;
 
-TEST(FCL_COLLISION, OBB_Box_test)
+GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 {
   FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::vector<Transform3f> rotate_transform;
@@ -120,7 +120,7 @@ TEST(FCL_COLLISION, OBB_Box_test)
   }
 }
 
-TEST(FCL_COLLISION, OBB_shape_test)
+GTEST_TEST(FCL_COLLISION, OBB_shape_test)
 {
   FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::vector<Transform3f> rotate_transform;
@@ -195,7 +195,7 @@ TEST(FCL_COLLISION, OBB_shape_test)
   }
 }
 
-TEST(FCL_COLLISION, OBB_AABB_test)
+GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
 {
   FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
@@ -236,7 +236,7 @@ TEST(FCL_COLLISION, OBB_AABB_test)
   std::cout << std::endl;
 }
 
-TEST(FCL_COLLISION, mesh_mesh)
+GTEST_TEST(FCL_COLLISION, mesh_mesh)
 {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
