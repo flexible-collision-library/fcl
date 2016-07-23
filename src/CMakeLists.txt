@@ -11,8 +11,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC ${OCTOMAP_LIBRARIES}
-  PRIVATE ${CCD_LIBRARIES}
-  PRIVATE ${Boost_LIBRARIES})
+  PRIVATE ${CCD_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

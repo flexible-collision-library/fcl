@@ -46,7 +46,6 @@
 #include "fcl/narrowphase/narrowphase.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
-#include <boost/filesystem.hpp>
 
 using namespace fcl;
 
@@ -241,10 +240,9 @@ TEST(FCL_COLLISION, mesh_mesh)
 {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
-  boost::filesystem::path path(TEST_RESOURCES_DIR);
   
-  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
-  loadOBJFile((path / "rob.obj").string().c_str(), p2, t2);
+  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
+  loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};

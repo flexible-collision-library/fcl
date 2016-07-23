@@ -46,7 +46,6 @@
 #include "fcl/math/transform.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
-#include <boost/filesystem.hpp>
 
 using namespace fcl;
 
@@ -215,8 +214,8 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive)
 {
   std::vector<Vec3f> p1;
   std::vector<Triangle> t1;
-  boost::filesystem::path path(TEST_RESOURCES_DIR);
-  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+
+  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
 
   BVHModel<BV>* m1 = new BVHModel<BV>();
   std::shared_ptr<CollisionGeometry> m1_ptr(m1);
@@ -281,8 +280,8 @@ void octomap_distance_test_BVH(std::size_t n)
 {
   std::vector<Vec3f> p1;
   std::vector<Triangle> t1;
-  boost::filesystem::path path(TEST_RESOURCES_DIR);
-  loadOBJFile((path / "env.obj").string().c_str(), p1, t1);
+
+  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
 
   BVHModel<BV>* m1 = new BVHModel<BV>();
   std::shared_ptr<CollisionGeometry> m1_ptr(m1);
