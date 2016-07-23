@@ -66,7 +66,7 @@ double distance_Vecnf(const Vecnf<N>& a, const Vecnf<N>& b)
 }
 
 
-TEST(FCL_SIMPLE, Vec_nf_test)
+GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
 {
   Vecnf<4> a;
   Vecnf<4> b;
@@ -113,7 +113,7 @@ TEST(FCL_SIMPLE, Vec_nf_test)
 }
 
 
-TEST(FCL_SIMPLE, projection_test_line)
+GTEST_TEST(FCL_SIMPLE, projection_test_line)
 {
   Vec3f v1(0, 0, 0);
   Vec3f v2(2, 0, 0);
@@ -141,7 +141,7 @@ TEST(FCL_SIMPLE, projection_test_line)
 
 }
 
-TEST(FCL_SIMPLE, projection_test_triangle)
+GTEST_TEST(FCL_SIMPLE, projection_test_triangle)
 {
   Vec3f v1(0, 0, 1);
   Vec3f v2(0, 1, 0);
@@ -204,7 +204,7 @@ TEST(FCL_SIMPLE, projection_test_triangle)
   EXPECT_TRUE(approx(res.parameterization[2], 0));
 }
 
-TEST(FCL_SIMPLE, projection_test_tetrahedron)
+GTEST_TEST(FCL_SIMPLE, projection_test_tetrahedron)
 {
   Vec3f v1(0, 0, 1);
   Vec3f v2(0, 1, 0);

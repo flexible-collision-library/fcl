@@ -43,7 +43,7 @@
 #include <fcl/collision_object.h>
 #include <fcl/shape/geometric_shapes.h>
 
-TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
 {
   typedef std::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
   // Capsule of radius 2 and of height 4
