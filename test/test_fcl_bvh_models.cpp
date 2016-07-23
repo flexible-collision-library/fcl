@@ -209,7 +209,7 @@ void testBVHModel()
   testBVHModelSubModel<BV>();
 }
 
-TEST(FCL_BVH_MODELS, building_bvh_models)
+GTEST_TEST(FCL_BVH_MODELS, building_bvh_models)
 {
   testBVHModel<AABB>();
   testBVHModel<OBB>();

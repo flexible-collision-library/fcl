@@ -45,7 +45,7 @@
 #include <cmath>
 using namespace fcl;
 
-TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
+GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
 {
 
   GJKSolver_indep solver;
@@ -71,7 +71,7 @@ TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
 }
 
 
-TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
+GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
 {
 
   GJKSolver_indep solver;
@@ -97,7 +97,7 @@ TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
 
 }
 
-TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
+GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
 {
 
   GJKSolver_indep solver;
@@ -123,7 +123,7 @@ TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
 }
 
 
-TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
+GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
 {
   const FCL_REAL Pi = constants::pi;
 

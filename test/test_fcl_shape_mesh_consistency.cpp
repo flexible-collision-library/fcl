@@ -50,7 +50,7 @@ using namespace fcl;
 
 FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
 {
   Sphere s1(20);
   Sphere s2(20);
@@ -141,7 +141,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_libccd)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -231,7 +231,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_libccd)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -322,7 +322,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_libccd)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -413,7 +413,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_libccd)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -504,7 +504,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
 }
 
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
 {
   Sphere s1(20);
   Sphere s2(20);
@@ -597,7 +597,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_GJK)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -690,7 +690,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_GJK)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -782,7 +782,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -883,7 +883,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK)
   }
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -977,7 +977,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
 
 
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -1194,7 +1194,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_libccd)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -1413,7 +1413,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_libccd
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -1533,7 +1533,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -1653,7 +1653,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_libccd)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -1740,7 +1740,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_libccd)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -1894,7 +1894,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
 
 
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -2113,7 +2113,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_GJK)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -2332,7 +2332,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_GJK)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -2454,7 +2454,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
   EXPECT_TRUE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -2576,7 +2576,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJK)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -2665,7 +2665,7 @@ TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJK)
   EXPECT_TRUE_FALSE(res);
 }
 
-TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_GJK)
+GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_GJK)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);

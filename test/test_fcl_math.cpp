@@ -46,7 +46,7 @@
 
 using namespace fcl;
 
-TEST(FCL_MATH, vec_test_basic_vec32)
+GTEST_TEST(FCL_MATH, vec_test_basic_vec32)
 {
   typedef Vec3fX<details::Vec3Data<float> > Vec3f32;
   Vec3f32 v1(1.0f, 2.0f, 3.0f);
@@ -101,7 +101,7 @@ TEST(FCL_MATH, vec_test_basic_vec32)
   EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
 }
 
-TEST(FCL_MATH, vec_test_basic_vec64)
+GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
 {
   typedef Vec3fX<details::Vec3Data<double> > Vec3f64;
   Vec3f64 v1(1.0, 2.0, 3.0);
@@ -164,7 +164,7 @@ TEST(FCL_MATH, vec_test_basic_vec64)
 
 #if FCL_HAVE_SSE
 
-TEST(FCL_MATH, vec_test_sse_vec32)
+GTEST_TEST(FCL_MATH, vec_test_sse_vec32)
 {
   typedef Vec3fX<details::sse_meta_f4> Vec3f32;
   Vec3f32 v1(1.0f, 2.0f, 3.0f);
@@ -219,7 +219,7 @@ TEST(FCL_MATH, vec_test_sse_vec32)
   EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
 }
 
-TEST(FCL_MATH, vec_test_sse_vec64)
+GTEST_TEST(FCL_MATH, vec_test_sse_vec64)
 {
   typedef Vec3fX<details::sse_meta_d4> Vec3f64;
   Vec3f64 v1(1.0, 2.0, 3.0);
@@ -280,7 +280,7 @@ TEST(FCL_MATH, vec_test_sse_vec64)
   EXPECT_TRUE(v1.dot(v2) == 26);
 }
 
-TEST(FCL_MATH, sse_mat32_consistent)
+GTEST_TEST(FCL_MATH, sse_mat32_consistent)
 {
   typedef Vec3fX<details::Vec3Data<float> > Vec3f32;
   typedef Vec3fX<details::sse_meta_f4> Vec3f32SSE;
@@ -327,7 +327,7 @@ TEST(FCL_MATH, sse_mat32_consistent)
       EXPECT_TRUE((m3(i, j) - m4(i, j) < 1e-1));
 }
 
-TEST(FCL_MATH, vec_test_sse_vec32_consistent)
+GTEST_TEST(FCL_MATH, vec_test_sse_vec32_consistent)
 {
   typedef Vec3fX<details::Vec3Data<float> > Vec3f32;
   typedef Vec3fX<details::sse_meta_f4> Vec3f32SSE;
@@ -475,7 +475,7 @@ TEST(FCL_MATH, vec_test_sse_vec32_consistent)
   EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
 }
 
-TEST(FCL_MATH, vec_test_sse_vec64_consistent)
+GTEST_TEST(FCL_MATH, vec_test_sse_vec64_consistent)
 {
   typedef Vec3fX<details::Vec3Data<double> > Vec3f64;
   typedef Vec3fX<details::sse_meta_d4> Vec3f64SSE;
@@ -625,7 +625,7 @@ TEST(FCL_MATH, vec_test_sse_vec64_consistent)
 
 #endif
 
-TEST(FCL_MATH, morton)
+GTEST_TEST(FCL_MATH, morton)
 {
   AABB bbox(Vec3f(0, 0, 0), Vec3f(1000, 1000, 1000));
   morton_functor<std::bitset<30>> F1(bbox);

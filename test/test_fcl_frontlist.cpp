@@ -67,7 +67,7 @@ bool collide_Test(const Transform3f& tf,
                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
 
 // TODO: randomly still have some runtime error
-TEST(FCL_FRONT_LIST, front_list)
+GTEST_TEST(FCL_FRONT_LIST, front_list)
 {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;

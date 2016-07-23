@@ -79,7 +79,7 @@ inline bool nearlyEqual(const Vec3f& a, const Vec3f& b)
   return true;
 }
 
-TEST(FCL_DISTANCE, mesh_distance)
+GTEST_TEST(FCL_DISTANCE, mesh_distance)
 {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
