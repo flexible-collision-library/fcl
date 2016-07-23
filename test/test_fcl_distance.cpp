@@ -41,7 +41,6 @@
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
 #include "test_fcl_utility.h"
-#include <boost/timer.hpp>
 #include "fcl_resources/config.h"
 #include <boost/filesystem.hpp>
 
@@ -100,13 +99,17 @@ TEST(FCL_DISTANCE, mesh_distance)
   DistanceRes res, res_now;
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    boost::timer timer_col;
+    Timer timer_col;
+    timer_col.start();
     collide_Test_OBB(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    col_time += timer_col.elapsed();
+    timer_col.stop();
+    col_time += timer_col.getElapsedTimeInSec();
 
-    boost::timer timer_dist;
+    Timer timer_dist;
+    timer_dist.start();
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res, verbose);
-    dis_time += timer_dist.elapsed();
+    timer_dist.stop();
+    dis_time += timer_dist.getElapsedTimeInSec();
 
     distance_Test_Oriented<RSS, MeshDistanceTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 

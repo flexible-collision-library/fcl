@@ -164,7 +164,7 @@ configure_file(
 add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/cmake_uninstall.cmake")
 
-find_package(Boost COMPONENTS filesystem system)
+find_package(Boost COMPONENTS filesystem)
 option(FCL_BUILD_TESTS "Build FCL tests" ${Boost_FOUND})
 if(FCL_BUILD_TESTS)
     enable_testing()
