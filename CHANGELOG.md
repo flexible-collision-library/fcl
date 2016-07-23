@@ -1,6 +1,10 @@
 ## FCL 0
 
-### FCL 0.5.0 (2016-XX-XX)
+### FCL 0.6.0 (2016-XX-XX)
+
+* Removed Boost Test and replaced with Google Test: [#146](https://github.com/flexible-collision-library/fcl/pull/146), [#140](https://github.com/flexible-collision-library/fcl/pull/140)
+
+### FCL 0.5.0 (2016-07-19)
 
 * Added safe-guards to allow octree headers only if octomap enabled: [#136](https://github.com/flexible-collision-library/fcl/pull/136)
 * Added CMake option to disable octomap in build: [#135](https://github.com/flexible-collision-library/fcl/pull/135)

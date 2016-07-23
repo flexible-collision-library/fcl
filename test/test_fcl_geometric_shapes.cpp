@@ -35,9 +35,7 @@
 
 /** \author Jia Pan */
 
-
-#define BOOST_TEST_MODULE "FCL_GEOMETRIC_SHAPES"
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include "fcl/narrowphase/narrowphase.h"
 #include "fcl/collision.h"
@@ -53,9 +51,9 @@ FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 GJKSolver_libccd solver1;
 GJKSolver_indep solver2;
 
-#define BOOST_CHECK_FALSE(p) BOOST_CHECK(!(p))
+#define EXPECT_TRUE_FALSE(p) EXPECT_TRUE(!(p))
 
-BOOST_AUTO_TEST_CASE(sphere_shape)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
 {
   const double tol = 1e-12;
   const double radius = 5.0;
@@ -64,10 +62,10 @@ BOOST_AUTO_TEST_CASE(sphere_shape)
   Sphere s(radius);
 
   const double volume = 4.0 / 3.0 * pi * radius * radius * radius;
-  BOOST_CHECK_CLOSE(volume, s.computeVolume(), tol);
+  EXPECT_NEAR(volume, s.computeVolume(), tol);
 }
 
-BOOST_AUTO_TEST_CASE(gjkcache)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -123,7 +121,7 @@ BOOST_AUTO_TEST_CASE(gjkcache)
 
   for(std::size_t i = 0; i < result1.size(); ++i)
   {
-    BOOST_CHECK(result1[i] == result2[i]);
+    EXPECT_TRUE(result1[i] == result2[i]);
   }
 }
 
@@ -234,7 +232,7 @@ bool inspectContactPoints(const S1& s1, const Transform3f& tf1,
 {
   // Check number of contact points
   bool sameNumContacts = (actual_contacts.size() == expected_contacts.size());
-  BOOST_CHECK(sameNumContacts);
+  EXPECT_TRUE(sameNumContacts);
   if (!sameNumContacts)
   {
     std::cout << "\n"
@@ -406,7 +404,7 @@ void testShapeIntersection(
     std::cerr << "Invalid GJK solver. Test aborted." << std::endl;
     return;
   }
-  BOOST_CHECK_EQUAL(res, expected_res);
+  EXPECT_EQ(res, expected_res);
 
   // Check contact information as well
   if (solver_type == GST_LIBCCD)
@@ -422,10 +420,10 @@ void testShapeIntersection(
     std::cerr << "Invalid GJK solver. Test aborted." << std::endl;
     return;
   }
-  BOOST_CHECK_EQUAL(res, expected_res);
+  EXPECT_EQ(res, expected_res);
   if (expected_res)
   {
-    BOOST_CHECK(inspectContactPoints(s1, tf1, s2, tf2, solver_type,
+    EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, solver_type,
                                      expected_contacts, actual_contacts,
                                      check_position,
                                      check_depth,
@@ -439,17 +437,17 @@ void testShapeIntersection(
   request.enable_contact = false;
   result.clear();
   res = (collide(&s1, tf1, &s2, tf2, request, result) > 0);
-  BOOST_CHECK_EQUAL(res, expected_res);
+  EXPECT_EQ(res, expected_res);
 
   // Check contact information as well
   request.enable_contact = true;
   result.clear();
   res = (collide(&s1, tf1, &s2, tf2, request, result) > 0);
-  BOOST_CHECK_EQUAL(res, expected_res);
+  EXPECT_EQ(res, expected_res);
   if (expected_res)
   {
     getContactPointsFromResult(actual_contacts, result);
-    BOOST_CHECK(inspectContactPoints(s1, tf1, s2, tf2, solver_type,
+    EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, solver_type,
                                      expected_contacts, actual_contacts,
                                      check_position,
                                      check_depth,
@@ -482,7 +480,7 @@ void testShapeIntersection(
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -624,7 +622,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
 
   // Make sure the two boxes are colliding
   bool res = solver1.shapeIntersect(s1, tf1, s2, tf2, &contacts);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   // Compute global vertices
   for (int i = 0; i < 8; ++i)
@@ -641,12 +639,12 @@ void testBoxBoxContactPoints(const Matrix3f& R)
   // We just check the deepest one as workaround.
   for (size_t i = 0; i < numContacts; ++i)
   {
-    BOOST_CHECK(vertices[i].equal(contacts[i].pos));
-    BOOST_CHECK(Vec3f(0, 0, 1).equal(contacts[i].normal));
+    EXPECT_TRUE(vertices[i].equal(contacts[i].pos));
+    EXPECT_TRUE(Vec3f(0, 0, 1).equal(contacts[i].normal));
   }
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -722,7 +720,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_boxbox)
   }
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -769,7 +767,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherebox)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
 {
   Sphere s1(20);
   Capsule s2(5, 10);
@@ -827,7 +825,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spherecapsule)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -873,7 +871,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercylinder)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -931,7 +929,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_conecone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -997,7 +995,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_cylindercone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -1066,7 +1064,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_ellipsoidellipsoid)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
 {
   Sphere s(10);
   Vec3f t[3];
@@ -1081,31 +1079,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_spheretriangle)
   bool res;
 
   res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
 
   t[0].setValue(30, 0, 0);
   t[1].setValue(9.9, -20, 0);
   t[2].setValue(9.9, 20, 0);
   res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(Vec3f(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
 {
   Halfspace hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -1122,31 +1120,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacetriangle)
   bool res;
 
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
 
   t[0].setValue(20, 0, 0);
   t[1].setValue(0, -20, 0);
   t[2].setValue(0, 20, 0);
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(Vec3f(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
 {
   Plane hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -1163,31 +1161,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planetriangle)
   bool res;
 
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
 
   t[0].setValue(20, 0, 0);
   t[1].setValue(-0.1, -20, 0);
   t[2].setValue(-0.1, 20, 0);
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(Vec3f(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
 {
   Sphere s(10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -1273,7 +1271,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
 {
   Sphere s(10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -1351,7 +1349,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 {
   Box s(5, 10, 20);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -1442,7 +1440,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
 {
   Box s(5, 10, 20);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -1525,7 +1523,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspaceellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
 {
   Ellipsoid s(5, 10, 20);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -1765,7 +1763,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planeellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 {
   Ellipsoid s(5, 10, 20);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -1981,7 +1979,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 {
   Capsule s(5, 10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -2221,7 +2219,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 {
   Capsule s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -2437,7 +2435,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
 {
   Cylinder s(5, 10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -2677,7 +2675,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 {
   Cylinder s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -2894,7 +2892,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecylinder)
 }
 
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 {
   Cone s(5, 10);
   Halfspace hs(Vec3f(1, 0, 0), 0);
@@ -3134,7 +3132,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 {
   Cone s(5, 10);
   Plane hs(Vec3f(1, 0, 0), 0);
@@ -3374,7 +3372,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersection_planecone)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-BOOST_AUTO_TEST_CASE(shapeDistance_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -3386,57 +3384,57 @@ BOOST_AUTO_TEST_CASE(shapeDistance_spheresphere)
   FCL_REAL dist = -1;
   Vec3f closest_p1, closest_p2;
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(0, 40, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
   // this is one problem: the precise is low sometimes
-  BOOST_CHECK(fabs(dist - 10) < 0.1);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.1);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.06);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.06);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.1);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.1);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.1);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.1);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistance_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -3449,60 +3447,60 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxbox)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 10.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.2, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 10.2) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10.2) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 10.1, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 0.1 * 1.414) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1 * 1.414) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(20.1, 0, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 10.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(0, 20.1, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 10.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s2, Transform3f(), s2, Transform3f(Vec3f(10.1, 10.1, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 0.1 * 1.414) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1 * 1.414) < 0.001);
+  EXPECT_TRUE(res);
 
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(15.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(20, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 5) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(20, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 5) < 0.001);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistance_boxsphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -3514,31 +3512,31 @@ BOOST_AUTO_TEST_CASE(shapeDistance_boxsphere)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(22.6, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.05);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.05);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 17.5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 17.5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -3550,31 +3548,31 @@ BOOST_AUTO_TEST_CASE(shapeDistance_cylindercylinder)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.001);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistance_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -3586,31 +3584,31 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecone)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 40)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 1);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 1);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 40)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 1);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 1);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -3622,31 +3620,31 @@ BOOST_AUTO_TEST_CASE(shapeDistance_conecylinder)
   FCL_REAL dist;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.01);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.02);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.02);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.01);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.01);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.1);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.1);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistance_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -3659,53 +3657,53 @@ BOOST_AUTO_TEST_CASE(shapeDistance_ellipsoidellipsoid)
   Vec3f closest_p1, closest_p2;
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist, &closest_p1, &closest_p2);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver1.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 }
 
 // Shape intersection test coverage (built-in GJK)
@@ -3732,7 +3730,7 @@ BOOST_AUTO_TEST_CASE(shapeDistance_ellipsoidellipsoid)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -3834,7 +3832,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -3902,7 +3900,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_boxbox)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherebox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -3951,7 +3949,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherebox)
   // built-in GJK solver returns incorrect normal.
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherecapsule)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
 {
   Sphere s1(20);
   Capsule s2(5, 10);
@@ -3999,7 +3997,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spherecapsule)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -4048,7 +4046,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercylinder)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -4108,7 +4106,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_conecone)
   // built-in GJK solver returns incorrect normal.
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
 {
   Cylinder s1(5, 10);
   Cone s2(5, 10);
@@ -4176,7 +4174,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_cylindercone)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -4247,7 +4245,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_ellipsoidellipsoid)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
 {
   Sphere s(10);
   Vec3f t[3];
@@ -4264,30 +4262,30 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_spheretriangle)
   bool res;
 
   res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   t[0].setValue(30, 0, 0);
   t[1].setValue(9.9, -20, 0);
   t[2].setValue(9.9, 20, 0);
   res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeTriangleIntersect(s, Transform3f(), t[0], t[1], t[2], NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(Vec3f(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
 {
   Halfspace hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -4304,31 +4302,31 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_halfspacetriangle)
   bool res;
 
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
 
   t[0].setValue(20, 0, 0);
   t[1].setValue(-0.1, -20, 0);
   t[2].setValue(-0.1, 20, 0);
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(Vec3f(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
-BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 {
   Plane hs(Vec3f(1, 0, 0), 0);
   Vec3f t[3];
@@ -4345,28 +4343,28 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
   bool res;
 
   res = solver1.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
 
   t[0].setValue(20, 0, 0);
   t[1].setValue(-0.1, -20, 0);
   t[2].setValue(-0.1, 20, 0);
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeTriangleIntersect(hs, Transform3f(), t[0], t[1], t[2], Transform3f(), NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(Vec3f(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
-  BOOST_CHECK(res);
-  BOOST_CHECK(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(res);
+  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
 }
 
 // Shape distance test coverage (built-in GJK)
@@ -4393,7 +4391,7 @@ BOOST_AUTO_TEST_CASE(shapeIntersectionGJK_planetriangle)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-BOOST_AUTO_TEST_CASE(shapeDistanceGJK_spheresphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
 {
   Sphere s1(20);
   Sphere s2(10);
@@ -4405,56 +4403,56 @@ BOOST_AUTO_TEST_CASE(shapeDistanceGJK_spheresphere)
   FCL_REAL dist = -1;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxbox)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
@@ -4466,31 +4464,31 @@ BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxbox)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(15.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(15.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(20, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 5) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(20, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 5) < 0.001);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxsphere)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
 {
   Sphere s1(20);
   Box s2(5, 5, 5);
@@ -4502,31 +4500,31 @@ BOOST_AUTO_TEST_CASE(shapeDistanceGJK_boxsphere)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(22.6, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.01);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(22.6, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.01);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 17.5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 17.5) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistanceGJK_cylindercylinder)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
 {
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
@@ -4538,31 +4536,31 @@ BOOST_AUTO_TEST_CASE(shapeDistanceGJK_cylindercylinder)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.001);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistanceGJK_conecone)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
 {
   Cone s1(5, 10);
   Cone s2(5, 10);
@@ -4574,31 +4572,31 @@ BOOST_AUTO_TEST_CASE(shapeDistanceGJK_conecone)
   FCL_REAL dist;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(10.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(0, 0, 40)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(0, 0, 40)), &dist);
-  BOOST_CHECK(fabs(dist - 30) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 30) < 0.001);
+  EXPECT_TRUE(res);
 }
 
-BOOST_AUTO_TEST_CASE(shapeDistanceGJK_ellipsoidellipsoid)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
 {
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
@@ -4610,52 +4608,52 @@ BOOST_AUTO_TEST_CASE(shapeDistanceGJK_ellipsoidellipsoid)
   FCL_REAL dist = -1;
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(), s2, Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(40, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(30.1, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, Transform3f(Vec3f(29.9, 0, 0)), s2, Transform3f(), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(40, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(30.1, 0, 0)), &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Vec3f(29.9, 0, 0)), &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(40, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 10) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 10) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(30.1, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(fabs(dist - 0.1) < 0.001);
-  BOOST_CHECK(res);
+  EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
+  EXPECT_TRUE(res);
 
   res = solver2.shapeDistance(s1, transform * Transform3f(Vec3f(29.9, 0, 0)), s2, transform, &dist);
-  BOOST_CHECK(dist < 0);
-  BOOST_CHECK_FALSE(res);
+  EXPECT_TRUE(dist < 0);
+  EXPECT_TRUE_FALSE(res);
 }
 
 template<typename S1, typename S2>
@@ -4679,9 +4677,9 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
   for (size_t i = 0; i < contactsB.size(); ++i)
     contactsB[i].normal = -contactsB[i].normal;
 
-  BOOST_CHECK(resA);
-  BOOST_CHECK(resB);
-  BOOST_CHECK(inspectContactPoints(s1, tf1, s2, tf2, GST_LIBCCD,
+  EXPECT_TRUE(resA);
+  EXPECT_TRUE(resB);
+  EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, GST_LIBCCD,
                                    contactsA, contactsB,
                                    true, true, true, false, tol));
 
@@ -4692,14 +4690,14 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
   for (size_t i = 0; i < contactsB.size(); ++i)
     contactsB[i].normal = -contactsB[i].normal;
 
-  BOOST_CHECK(resA);
-  BOOST_CHECK(resB);
-  BOOST_CHECK(inspectContactPoints(s1, tf1, s2, tf2, GST_INDEP,
+  EXPECT_TRUE(resA);
+  EXPECT_TRUE(resB);
+  EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, GST_INDEP,
                                    contactsA, contactsB,
                                    true, true, true, false, tol));
 }
 
-BOOST_AUTO_TEST_CASE(reversibleShapeIntersection_allshapes)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
 {
   // This test check whether a shape intersection algorithm is called for the
   // reverse case as well. For example, if FCL has sphere-capsule intersection
@@ -4779,23 +4777,23 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
   resA = solver1.shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
   resB = solver1.shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
 
-  BOOST_CHECK(resA);
-  BOOST_CHECK(resB);
-  BOOST_CHECK_CLOSE(distA, distB, tol);  // distances should be same
-  BOOST_CHECK(p1A.equal(p2B, tol));  // closest points should in reverse order
-  BOOST_CHECK(p2A.equal(p1B, tol));
+  EXPECT_TRUE(resA);
+  EXPECT_TRUE(resB);
+  EXPECT_NEAR(distA, distB, tol);  // distances should be same
+  EXPECT_TRUE(p1A.equal(p2B, tol));  // closest points should in reverse order
+  EXPECT_TRUE(p2A.equal(p1B, tol));
 
   resA = solver2.shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
   resB = solver2.shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
 
-  BOOST_CHECK(resA);
-  BOOST_CHECK(resB);
-  BOOST_CHECK_CLOSE(distA, distB, tol);
-  BOOST_CHECK(p1A.equal(p2B, tol));
-  BOOST_CHECK(p2A.equal(p1B, tol));
+  EXPECT_TRUE(resA);
+  EXPECT_TRUE(resB);
+  EXPECT_NEAR(distA, distB, tol);
+  EXPECT_TRUE(p1A.equal(p2B, tol));
+  EXPECT_TRUE(p2A.equal(p1B, tol));
 }
 
-BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeDistance_allshapes)
 {
   // This test check whether a shape distance algorithm is called for the
   // reverse case as well. For example, if FCL has sphere-capsule distance
@@ -4854,3 +4852,9 @@ BOOST_AUTO_TEST_CASE(reversibleShapeDistance_allshapes)
 //  testReversibleShapeDistance(plane, halfspace, distance);
 }
 
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

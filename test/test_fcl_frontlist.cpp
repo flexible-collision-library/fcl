@@ -35,9 +35,7 @@
 
 /** \author Jia Pan */
 
-
-#define BOOST_TEST_MODULE "FCL_FRONT_LIST"
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
@@ -69,7 +67,7 @@ bool collide_Test(const Transform3f& tf,
                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
 
 // TODO: randomly still have some runtime error
-BOOST_AUTO_TEST_CASE(front_list)
+GTEST_TEST(FCL_FRONT_LIST, front_list)
 {
   std::vector<Vec3f> p1, p2;
   std::vector<Triangle> t1, t2;
@@ -92,26 +90,26 @@ BOOST_AUTO_TEST_CASE(front_list)
   {
     res = collide_Test<AABB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     res2 = collide_front_list_Test<AABB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<AABB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test<AABB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<AABB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test<AABB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     res2 = collide_front_list_Test<OBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test<OBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test<OBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
@@ -119,78 +117,78 @@ BOOST_AUTO_TEST_CASE(front_list)
     // Disabled broken test lines. Please see #25.
     // res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     // res2 = collide_front_list_Test<RSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    // BOOST_CHECK(res == res2);
+    // EXPECT_TRUE(res == res2);
     res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test<RSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test<RSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<KDOP<16> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     res2 = collide_front_list_Test<KDOP<16> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<KDOP<16> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test<KDOP<16> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<KDOP<16> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test<KDOP<16> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<KDOP<18> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     res2 = collide_front_list_Test<KDOP<18> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<KDOP<18> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test<KDOP<18> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<KDOP<18> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test<KDOP<18> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<KDOP<24> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     res2 = collide_front_list_Test<KDOP<24> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<KDOP<24> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test<KDOP<24> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<KDOP<24> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test<KDOP<24> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     res2 = collide_front_list_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<RSS>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     res2 = collide_front_list_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     res2 = collide_front_list_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
     res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     res2 = collide_front_list_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    BOOST_CHECK(res == res2);
+    EXPECT_TRUE(res == res2);
   }
 
 }
@@ -356,3 +354,9 @@ bool collide_Test(const Transform3f& tf,
     return false;
 }
 
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

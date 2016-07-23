@@ -34,10 +34,7 @@
 
 /** \author Florent Lamiraux */
 
-
-#define BOOST_TEST_MODULE "FCL_GEOMETRIC_SHAPES"
-#define CHECK_CLOSE_TO_0(x, eps) BOOST_CHECK_CLOSE ((x + 1.0), (1.0), (eps))
-#include <boost/test/unit_test.hpp>
+#include <gtest/gtest.h>
 
 #include <cmath>
 #include <fcl/distance.h>
@@ -46,7 +43,7 @@
 #include <fcl/collision_object.h>
 #include <fcl/shape/geometric_shapes.h>
 
-BOOST_AUTO_TEST_CASE(distance_capsule_box)
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
 {
   typedef std::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
   // Capsule of radius 2 and of height 4
@@ -71,13 +68,20 @@ BOOST_AUTO_TEST_CASE(distance_capsule_box)
   fcl::Vec3f o1 = distanceResult.nearest_points [0];
   fcl::Vec3f o2 = distanceResult.nearest_points [1];
 
-  BOOST_CHECK_CLOSE (distanceResult.min_distance, 5.5, 1e-4);
+  EXPECT_NEAR (distanceResult.min_distance, 5.5, 1e-4);
   // Disabled broken test lines. Please see #25.
-  // CHECK_CLOSE_TO_0 (o1 [0], 1e-4);
-  // CHECK_CLOSE_TO_0 (o1 [1], 1e-4);
-  BOOST_CHECK_CLOSE (o1 [2],  4.0, 1e-4);
-  BOOST_CHECK_CLOSE (o2 [0], -0.5, 1e-4);
+  // EXPECT_NEAR (o1 [0],  0.0, 1e-4);
+  // EXPECT_NEAR (o1 [1],  0.0, 1e-4);
+  EXPECT_NEAR (o1 [2],  4.0, 1e-4);
+  EXPECT_NEAR (o2 [0], -0.5, 1e-4);
   // Disabled broken test lines. Please see #25.
-  // BOOST_CHECK_CLOSE (o2 [1], 0.8, 1e-4);
-  // BOOST_CHECK_CLOSE (o2 [2], 1.5, 1e-4);
+  // EXPECT_NEAR (o2 [1], 0.8, 1e-4);
+  // EXPECT_NEAR (o2 [2], 1.5, 1e-4);
+}
+
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
