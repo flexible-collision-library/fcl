@@ -45,7 +45,7 @@ if (FCL_HAVE_OCTOMAP)
   list(APPEND tests test_fcl_octomap.cpp)
 endif()
 
-macro(add_fcl_gtest test_file_name) # TODO: This should be renamed to add_fcl_test once we completely drop the dependency on Boost Test
+macro(add_fcl_test test_file_name)
   # Get the name (i.e. bla.cpp => bla)
   get_filename_component(test_name ${ARGV} NAME_WE)
   add_executable(${test_name} ${ARGV})
@@ -57,7 +57,7 @@ macro(add_fcl_gtest test_file_name) # TODO: This should be renamed to add_fcl_te
       ${Boost_SYSTEM_LIBRARY}
   )
   add_test(${test_name} ${EXECUTABLE_OUTPUT_PATH}/${test_name})
-endmacro(add_fcl_gtest)
+endmacro(add_fcl_test)
 
 # configure location of resources
 file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/fcl_resources" TEST_RESOURCES_SRC_DIR)
@@ -71,8 +71,14 @@ configure_file("${TEST_RESOURCES_SRC_DIR}/config.h.in" "${TEST_RESOURCES_BIN_DIR
 
 include_directories(.)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(${Boost_INCLUDE_DIR})
+
+if(MSVC)
+    add_definitions(-DBOOST_ALL_NO_LIB)
+endif()
+add_definitions(-DBOOST_TEST_DYN_LINK)
 
 # Build all the tests
 foreach(test ${tests})
-  add_fcl_gtest(${test})
+  add_fcl_test(${test})
 endforeach(test)
