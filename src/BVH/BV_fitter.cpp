@@ -49,20 +49,39 @@ static const double invCosA = 2.0 / sqrt(3.0);
 // static const double sinA = 0.5;
 static const double cosA = sqrt(3.0) / 2.0;
 
-static inline void axisFromEigen(Vec3f eigenV[3], Matrix3f::U eigenS[3], Vec3f axis[3])
+static inline void axisFromEigen(const Matrix3f& eigenV, const Vec3f& eigenS, Matrix3f& axis)
 {
   int min, mid, max;
-  if(eigenS[0] > eigenS[1]) { max = 0; min = 1; }
-  else { min = 0; max = 1; }
-  if(eigenS[2] < eigenS[min]) { mid = min; min = 2; }
-  else if(eigenS[2] > eigenS[max]) { mid = max; max = 2; }
-  else { mid = 2; }
 
-  axis[0].setValue(eigenV[0][max], eigenV[1][max], eigenV[2][max]);
-  axis[1].setValue(eigenV[0][mid], eigenV[1][mid], eigenV[2][mid]);
-  axis[2].setValue(eigenV[1][max]*eigenV[2][mid] - eigenV[1][mid]*eigenV[2][max],
-                   eigenV[0][mid]*eigenV[2][max] - eigenV[0][max]*eigenV[2][mid],
-                   eigenV[0][max]*eigenV[1][mid] - eigenV[0][mid]*eigenV[1][max]);
+  if(eigenS[0] > eigenS[1])
+  {
+    max = 0;
+    min = 1;
+  }
+  else
+  {
+    min = 0;
+    max = 1;
+  }
+
+  if(eigenS[2] < eigenS[min])
+  {
+    mid = min;
+    min = 2;
+  }
+  else if(eigenS[2] > eigenS[max])
+  {
+    mid = max;
+    max = 2;
+  }
+  else
+  {
+    mid = 2;
+  }
+
+  axis.col(0) = eigenV.col(max);
+  axis.col(1) = eigenV.col(mid);
+  axis.col(2) = axis.col(0).cross(axis.col(1));
 }
 
 namespace OBB_fit_functions
@@ -71,10 +90,8 @@ namespace OBB_fit_functions
 void fit1(Vec3f* ps, OBB& bv)
 {
   bv.To = ps[0];
-  bv.axis[0].setValue(1, 0, 0);
-  bv.axis[1].setValue(0, 1, 0);
-  bv.axis[2].setValue(0, 0, 1);
-  bv.extent.setValue(0);
+  bv.axis.setIdentity();
+  bv.extent.setConstant(0);
 }
 
 void fit2(Vec3f* ps, OBB& bv)
@@ -82,16 +99,14 @@ void fit2(Vec3f* ps, OBB& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
-  bv.axis[0] = p1p2;
-  generateCoordinateSystem(bv.axis[0], bv.axis[1], bv.axis[2]);
+  bv.axis.col(0) = p1p2;
+  generateCoordinateSystem(bv.axis.col(0), bv.axis.col(1), bv.axis.col(2));
 
-  bv.extent.setValue(len_p1p2 * 0.5, 0, 0);
-  bv.To.setValue(0.5 * (p1[0] + p2[0]),
-                 0.5 * (p1[1] + p2[1]),
-                 0.5 * (p1[2] + p2[2]));
+  bv.extent << len_p1p2 * 0.5, 0, 0;
+  bv.To = 0.5 * (p1 + p2);
 }
 
 void fit3(Vec3f* ps, OBB& bv)
@@ -104,23 +119,19 @@ void fit3(Vec3f* ps, OBB& bv)
   e[1] = p2 - p3;
   e[2] = p3 - p1;
   FCL_REAL len[3];
-  len[0] = e[0].sqrLength();
-  len[1] = e[1].sqrLength();
-  len[2] = e[2].sqrLength();
+  len[0] = e[0].squaredNorm();
+  len[1] = e[1].squaredNorm();
+  len[2] = e[2].squaredNorm();
 
   int imax = 0;
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  Vec3f& u = bv.axis[0];
-  Vec3f& v = bv.axis[1];
-  Vec3f& w = bv.axis[2];
-
-  w = e[0].cross(e[1]);
-  w.normalize();
-  u = e[imax];
-  u.normalize();
-  v = w.cross(u);
+  bv.axis.col(2) = e[0].cross(e[1]);
+  bv.axis.col(2).normalize();
+  bv.axis.col(0) = e[imax];
+  bv.axis.col(0).normalize();
+  bv.axis.col(1) = bv.axis.col(2).cross(bv.axis.col(0));
 
   getExtentAndCenter(ps, NULL, NULL, NULL, 3, bv.axis, bv.To, bv.extent);
 }
@@ -169,7 +180,7 @@ void fit2(Vec3f* ps, RSS& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
   bv.axis[0] = p1p2;
@@ -191,9 +202,9 @@ void fit3(Vec3f* ps, RSS& bv)
   e[1] = p2 - p3;
   e[2] = p3 - p1;
   FCL_REAL len[3];
-  len[0] = e[0].sqrLength();
-  len[1] = e[1].sqrLength();
-  len[2] = e[2].sqrLength();
+  len[0] = e[0].squaredNorm();
+  len[1] = e[1].squaredNorm();
+  len[2] = e[2].squaredNorm();
 
   int imax = 0;
   if(len[1] > len[0]) imax = 1;
@@ -259,7 +270,7 @@ void fit2(Vec3f* ps, kIOS& bv)
   const Vec3f& p1 = ps[0];
   const Vec3f& p2 = ps[1];
   Vec3f p1p2 = p1 - p2;
-  FCL_REAL len_p1p2 = p1p2.length();
+  FCL_REAL len_p1p2 = p1p2.norm();
   p1p2.normalize();
  
   Vec3f* axis = bv.obb.axis;
@@ -300,9 +311,9 @@ void fit3(Vec3f* ps, kIOS& bv)
   e[1] = p2 - p3;
   e[2] = p3 - p1;
   FCL_REAL len[3];
-  len[0] = e[0].sqrLength();
-  len[1] = e[1].sqrLength();
-  len[2] = e[2].sqrLength();
+  len[0] = e[0].squaredNorm();
+  len[1] = e[1].squaredNorm();
+  len[2] = e[2].squaredNorm();
     
   int imax = 0;
   if(len[1] > len[0]) imax = 1;

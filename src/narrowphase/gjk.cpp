@@ -215,7 +215,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplices[0].rank = 0;
   ray = guess;
 
-  appendVertex(simplices[0], (ray.sqrLength() > 0) ? -ray : Vec3f(1, 0, 0));
+  appendVertex(simplices[0], (ray.squaredNorm() > 0) ? -ray : Vec3f(1, 0, 0));
   simplices[0].p[0] = 1;
   ray = simplices[0].c[0]->w;
   lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
@@ -227,7 +227,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     Simplex& next_simplex = simplices[next];
 
     // check A: when origin is near the existing simplex, stop
-    FCL_REAL rl = ray.length();
+    FCL_REAL rl = ray.norm();
     if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
       status = Inside;
@@ -241,7 +241,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     bool found = false;
     for(size_t i = 0; i < 4; ++i)
     {
-      if((w - lastw[i]).sqrLength() < tolerance)
+      if((w - lastw[i]).squaredNorm() < tolerance)
       {
         found = true; break;
       }
@@ -308,7 +308,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplex = &simplices[current];
   switch(status)
   {
-  case Valid: distance = ray.length(); break;
+  case Valid: distance = ray.norm(); break;
   case Inside: distance = 0; break;
   default: break;
   }
@@ -366,7 +366,7 @@ bool GJK::encloseOrigin()
         Vec3f axis;
         axis[i] = 1;
         Vec3f p = d.cross(axis);
-        if(p.sqrLength() > 0)
+        if(p.squaredNorm() > 0)
         {
           appendVertex(*simplex, p);
           if(encloseOrigin()) return true;
@@ -381,7 +381,7 @@ bool GJK::encloseOrigin()
   case 3:
     {
       Vec3f n = (simplex->c[1]->w - simplex->c[0]->w).cross(simplex->c[2]->w - simplex->c[0]->w);
-      if(n.sqrLength() > 0)
+      if(n.squaredNorm() > 0)
       {
         appendVertex(*simplex, n);
         if(encloseOrigin()) return true;
@@ -430,13 +430,13 @@ bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist)
     FCL_REAL b_dot_ba = b->w.dot(ba);
 
     if(a_dot_ba > 0) 
-      dist = a->w.length();
+      dist = a->w.norm();
     else if(b_dot_ba < 0)
-      dist = b->w.length();
+      dist = b->w.norm();
     else
     {
       FCL_REAL a_dot_b = a->w.dot(b->w);
-      dist = std::sqrt(std::max(a->w.sqrLength() * b->w.sqrLength() - a_dot_b * a_dot_b, (FCL_REAL)0));
+      dist = std::sqrt(std::max(a->w.squaredNorm() * b->w.squaredNorm() - a_dot_b * a_dot_b, (FCL_REAL)0));
     }
 
     return true;
@@ -457,7 +457,7 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
     face->c[1] = b;
     face->c[2] = c;
     face->n = (b->w - a->w).cross(c->w - a->w);
-    FCL_REAL l = face->n.length();
+    FCL_REAL l = face->n.norm();
       
     if(l > tolerance)
     {
@@ -600,9 +600,9 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
       result.c[0] = outer.c[0];
       result.c[1] = outer.c[1];
       result.c[2] = outer.c[2];
-      result.p[0] = ((outer.c[1]->w - projection).cross(outer.c[2]->w - projection)).length();
-      result.p[1] = ((outer.c[2]->w - projection).cross(outer.c[0]->w - projection)).length();
-      result.p[2] = ((outer.c[0]->w - projection).cross(outer.c[1]->w - projection)).length();
+      result.p[0] = ((outer.c[1]->w - projection).cross(outer.c[2]->w - projection)).norm();
+      result.p[1] = ((outer.c[2]->w - projection).cross(outer.c[0]->w - projection)).norm();
+      result.p[2] = ((outer.c[0]->w - projection).cross(outer.c[1]->w - projection)).norm();
 
       FCL_REAL sum = result.p[0] + result.p[1] + result.p[2];
       result.p[0] /= sum;
@@ -614,7 +614,7 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
 
   status = FallBack;
   normal = -guess;
-  FCL_REAL nl = normal.length();
+  FCL_REAL nl = normal.norm();
   if(nl > 0) normal /= nl;
   else normal = Vec3f(1, 0, 0);
   depth = 0;

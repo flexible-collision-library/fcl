@@ -75,8 +75,8 @@ public:
   static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2)
   {
     const Vec3f& center = bv1.center();
-    FCL_REAL r = (bv1.max_ - bv1.min_).length() * 0.5;
-    Vec3f center2 = tf1.transform(center);
+    FCL_REAL r = (bv1.max_ - bv1.min_).norm() * 0.5;
+    Vec3f center2 = tf1 * center;
     Vec3f delta(r, r, r);
     bv2.min_ = center2 - delta;
     bv2.max_ = center2 + delta;
@@ -90,7 +90,7 @@ public:
   static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
   {    
     /*
-    bv2.To = tf1.transform(bv1.center());
+    bv2.To = tf1 * bv1.center());
 
     /// Sort the AABB edges so that AABB extents are ordered.
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
@@ -118,19 +118,16 @@ public:
 
     Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
     bv2.extent = Vec3f(extent[id[0]], extent[id[1]], extent[id[2]]);
-    const Matrix3f& R = tf1.getRotation();
+    const Matrix3f& R = tf1.linear();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
-    bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
-    bv2.axis[1] = R.getColumn(id[1]);
-    bv2.axis[2] = R.getColumn(id[2]);
+    bv2.axis[0] = left_hand ? -R.col(id[0]) : R.col(id[0]);
+    bv2.axis[1] = R.col(id[1]);
+    bv2.axis[2] = R.col(id[2]);
     */
 
-    bv2.To = tf1.transform(bv1.center());
+    bv2.To = tf1 * bv1.center();
     bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
-    const Matrix3f& R = tf1.getRotation();
-    bv2.axis[0] = R.getColumn(0);
-    bv2.axis[1] = R.getColumn(1);
-    bv2.axis[2] = R.getColumn(2);    
+    bv2.axis = tf1.linear();
   }
 };
 
@@ -141,10 +138,8 @@ public:
   static void convert(const OBB& bv1, const Transform3f& tf1, OBB& bv2)
   {
     bv2.extent = bv1.extent;
-    bv2.To = tf1.transform(bv1.To);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+    bv2.To = tf1 * bv1.To;
+    bv2.axis = tf1.linear() * bv1.axis;
   }
 };
 
@@ -165,10 +160,8 @@ public:
   static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
   {
     bv2.extent = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
-    bv2.To = tf1.transform(bv1.Tr);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);    
+    bv2.To = tf1 * bv1.Tr;
+    bv2.axis = tf1.linear() * bv1.axis;
   }
 };
 
@@ -180,9 +173,9 @@ public:
   static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2)
   {
     const Vec3f& center = bv1.center();
-    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).length() * 0.5;
+    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
     Vec3f delta(r, r, r);
-    Vec3f center2 = tf1.transform(center);
+    Vec3f center2 = tf1 * center;
     bv2.min_ = center2 - delta;
     bv2.max_ = center2 + delta;
   }
@@ -206,10 +199,8 @@ class Converter<OBB, RSS>
 public:
   static void convert(const OBB& bv1, const Transform3f& tf1, RSS& bv2)
   {
-    bv2.Tr = tf1.transform(bv1.To);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+    bv2.Tr = tf1 * bv1.To;
+    bv2.axis = tf1.linear() * bv1.axis;
  
     bv2.r = bv1.extent[2];
     bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
@@ -223,10 +214,8 @@ class Converter<RSS, RSS>
 public:
   static void convert(const RSS& bv1, const Transform3f& tf1, RSS& bv2)
   {
-    bv2.Tr = tf1.transform(bv1.Tr);
-    bv2.axis[0] = tf1.getQuatRotation().transform(bv1.axis[0]);
-    bv2.axis[1] = tf1.getQuatRotation().transform(bv1.axis[1]);
-    bv2.axis[2] = tf1.getQuatRotation().transform(bv1.axis[2]);
+    bv2.Tr = tf1 * bv1.Tr;
+    bv2.axis = tf1.linear() * bv1.axis;
 
     bv2.r = bv1.r;
     bv2.l[0] = bv1.l[0];
@@ -250,7 +239,7 @@ class Converter<AABB, RSS>
 public:
   static void convert(const AABB& bv1, const Transform3f& tf1, RSS& bv2)
   {
-    bv2.Tr = tf1.transform(bv1.center());
+    bv2.Tr = tf1 * bv1.center();
 
     /// Sort the AABB edges so that AABB extents are ordered.
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
@@ -281,11 +270,14 @@ public:
     bv2.l[0] = (extent[id[0]] - bv2.r) * 2;
     bv2.l[1] = (extent[id[1]] - bv2.r) * 2;
 
-    const Matrix3f& R = tf1.getRotation();
+    const Matrix3f& R = tf1.linear();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
-    bv2.axis[0] = left_hand ? -R.getColumn(id[0]) : R.getColumn(id[0]);
-    bv2.axis[1] = R.getColumn(id[1]);
-    bv2.axis[2] = R.getColumn(id[2]);    
+    if (left_hand)
+      bv2.axis.col(0) = -R.col(id[0]);
+    else
+      bv2.axis.col(0) = R.col(id[0]);
+    bv2.axis.col(1) = R.col(id[1]);
+    bv2.axis.col(2) = R.col(id[2]);
   }
 };
 

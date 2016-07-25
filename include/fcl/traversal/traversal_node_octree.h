@@ -557,7 +557,7 @@ private:
             AABB overlap_part;
             AABB aabb1;
             computeBV<AABB, Box>(box, box_tf, aabb1);
-            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
+            AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
             cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->cost_density), crequest->num_max_cost_sources);
           }
@@ -624,7 +624,7 @@ private:
             AABB overlap_part;
             AABB aabb1;
             computeBV<AABB, Box>(box, box_tf, aabb1);
-            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
+            AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }
@@ -656,7 +656,7 @@ private:
             AABB overlap_part;
             AABB aabb1;
             computeBV<AABB, Box>(box, box_tf, aabb1);
-            AABB aabb2(tf2.transform(p1), tf2.transform(p2), tf2.transform(p3));
+            AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }

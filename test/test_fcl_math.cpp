@@ -96,9 +96,9 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec32)
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50.0) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
+  EXPECT_TRUE(normalize(v1).equal(v1 / v1.norm()));
 }
 
 GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
@@ -151,9 +151,9 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50.0) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
+  EXPECT_TRUE(normalize(v1).equal(v1 / v1.norm()));
 
 
   v1 = Vec3f64(1.0, 2.0, 3.0);
@@ -214,9 +214,9 @@ GTEST_TEST(FCL_MATH, vec_test_sse_vec32)
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - 50) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - sqrt(50)) < 1e-5);
+  EXPECT_TRUE(normalize(v1).equal(v1 / v1.norm()));
 }
 
 GTEST_TEST(FCL_MATH, vec_test_sse_vec64)
@@ -269,9 +269,9 @@ GTEST_TEST(FCL_MATH, vec_test_sse_vec64)
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - 50) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - sqrt(50)) < 1e-5);
+  EXPECT_TRUE(normalize(v1).equal(v1 / v1.norm()));
 
 
   v1 = Vec3f64(1.0, 2.0, 3.0);
@@ -453,8 +453,8 @@ GTEST_TEST(FCL_MATH, vec_test_sse_vec32_consistent)
   EXPECT_TRUE((v1 + delta1).equal(v1));
   EXPECT_TRUE((v3 + delta2).equal(v3));
 
-  EXPECT_TRUE(std::abs(v1.length() - v3.length()) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - v3.norm()) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
   v12 = v1; v12.negate();
   v34 = v3; v34.negate();
@@ -601,8 +601,8 @@ GTEST_TEST(FCL_MATH, vec_test_sse_vec64_consistent)
   EXPECT_TRUE((v1 + delta1).equal(v1));
   EXPECT_TRUE((v3 + delta2).equal(v3));
 
-  EXPECT_TRUE(std::abs(v1.length() - v3.length()) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - v3.norm()) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - v3.squaredNorm()) < 1e-5);
  
   v12 = v1; v12.negate();
   v34 = v3; v34.negate();

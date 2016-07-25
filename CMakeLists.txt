@@ -64,9 +64,22 @@ if(FCL_COVERALLS)
   coveralls_turn_on_coverage()
 endif()
 
-# Find Octomap (optional)
 find_package(PkgConfig QUIET)
 
+# Eigen
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(EIGEN3 QUIET eigen3)
+endif(PKG_CONFIG_FOUND)
+if(NOT EIGEN3_FOUND)
+  message(FATAL_ERROR "Could not find Eigen")
+endif(NOT EIGEN3_FOUND)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EIGEN3_CFLAGS}")
+set(FCL_HAVE_EIGEN TRUE)
+message(STATUS "FCL uses Eigen ${EIGEN3_VERSION}")
+include_directories(${EIGEN3_INCLUDE_DIRS})
+# TODO(JS): Switch to use FindEigen.cmake
+
+# Find Octomap (optional)
 option(FCL_WITH_OCTOMAP "octomap library support" ON)
 set(FCL_HAVE_OCTOMAP 0)
 if(FCL_WITH_OCTOMAP)

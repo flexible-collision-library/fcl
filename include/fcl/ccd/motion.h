@@ -53,25 +53,31 @@ public:
   /// @brief Construct motion from intial and goal transform
   TranslationMotion(const Transform3f& tf1,
                     const Transform3f& tf2) : MotionBase(),
-                                              rot(tf1.getQuatRotation()),
-                                              trans_start(tf1.getTranslation()),
-                                              trans_range(tf2.getTranslation() - tf1.getTranslation()),
+                                              rot(tf1.linear()),
+                                              trans_start(tf1.translation()),
+                                              trans_range(tf2.translation() - tf1.translation()),
                                               tf(tf1)
   {
   }
 
-  TranslationMotion(const Matrix3f& R, const Vec3f& T1, const Vec3f& T2) : MotionBase()
+  TranslationMotion(const Matrix3f& R, const Vec3f& T1, const Vec3f& T2) : MotionBase(),
+                                                                           tf(Transform3f::Identity())
   {
-    rot.fromRotation(R);
+    rot = R;
     trans_start = T1;
     trans_range = T2 - T1;
-    tf = Transform3f(rot, trans_start);
+    tf.linear() = R;
+    tf.translation() = trans_start;
   }
 
   bool integrate(FCL_REAL dt) const
   {
-    if(dt > 1) dt = 1;
-    tf = Transform3f(rot, trans_start + trans_range * dt);
+    if(dt > 1)
+      dt = 1;
+
+    tf.linear() = rot.toRotationMatrix(); // TODO(JS): necessary?
+    tf.translation() = trans_start + trans_range * dt;
+
     return true;
   }
 
@@ -168,11 +174,11 @@ public:
     }
 
     // set tm
-    Matrix3f I(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    Matrix3f I = Matrix3f::Identity();
     // R(t) = R(t0) + R'(t0) (t-t0) + 1/2 R''(t0)(t-t0)^2 + 1 / 6 R'''(t0) (t-t0)^3 + 1 / 24 R''''(l)(t-t0)^4; t0 = 0.5
     /// 1. compute M(1/2)
     Vec3f Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
-    FCL_REAL Rt0_len = Rt0.length();
+    FCL_REAL Rt0_len = Rt0.norm();
     FCL_REAL inv_Rt0_len = 1.0 / Rt0_len;
     FCL_REAL inv_Rt0_len_3 = inv_Rt0_len * inv_Rt0_len * inv_Rt0_len;
     FCL_REAL inv_Rt0_len_5 = inv_Rt0_len_3 * inv_Rt0_len * inv_Rt0_len;
@@ -185,6 +191,7 @@ public:
     hat(hatWt0, Wt0);
     Matrix3f hatWt0_sqr = hatWt0 * hatWt0;
     Matrix3f Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
+    // TODO(JS): this could be improved by using exp(Wt0)
 
     /// 2. compute M'(1/2)
     Vec3f dRt0 = (-Rd[0] - Rd[1] * 5 + Rd[2] * 5 + Rd[3]) * (1 / 8.0);
@@ -198,7 +205,7 @@ public:
     /// 3.1. compute M''(1/2)
     Vec3f ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
     FCL_REAL Rt0_dot_ddRt0 = Rt0.dot(ddRt0);
-    FCL_REAL dRt0_dot_dRt0 = dRt0.sqrLength();
+    FCL_REAL dRt0_dot_dRt0 = dRt0.squaredNorm();
     FCL_REAL ddtheta0 = (Rt0_dot_ddRt0 + dRt0_dot_dRt0) * inv_Rt0_len - Rt0_dot_dRt0 * Rt0_dot_dRt0 * inv_Rt0_len_3;
     Vec3f ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
     Matrix3f hatddWt0;
@@ -267,10 +274,9 @@ class ScrewMotion : public MotionBase
 {
 public:
   /// @brief Default transformations are all identities
-  ScrewMotion() : MotionBase()
+  ScrewMotion() : MotionBase(), axis(Vec3f::UnitX())
   {
     // Default angular velocity is zero
-    axis.setValue(1, 0, 0);
     angular_vel = 0;
 
     // Default reference point is local zero point
@@ -282,10 +288,17 @@ public:
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation
   ScrewMotion(const Matrix3f& R1, const Vec3f& T1,
               const Matrix3f& R2, const Vec3f& T2) : MotionBase(),
-                                                     tf1(R1, T1),
-                                                     tf2(R2, T2),
-                                                     tf(tf1)
+                                                     tf1(Transform3f::Identity()),
+                                                     tf2(Transform3f::Identity())
   {
+    tf1.linear() = R1;
+    tf1.translation() = T1;
+
+    tf2.linear() = R2;
+    tf2.translation() = T2;
+
+    tf = tf1;
+
     computeScrewParameter();
   }
 
@@ -304,10 +317,10 @@ public:
   {
     if(dt > 1) dt = 1;
     
-    tf.setQuatRotation(absoluteRotation(dt));
+    tf.linear() = absoluteRotation(dt).toRotationMatrix();
     
     Quaternion3f delta_rot = deltaRotation(dt);
-    tf.setTranslation(p + axis * (dt * linear_vel) + delta_rot.transform(tf1.getTranslation() - p));
+    tf.translation() = p + axis * (dt * linear_vel) + delta_rot * (tf1.translation() - p);
 
     return true;
   }
@@ -342,7 +355,9 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_axis * sin_model - hat_axis * hat_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    TMatrix3 delta_R = hat_axis * sin_model
+        - (hat_axis * hat_axis).eval() * (cos_model - 1)
+        + Matrix3f::Identity();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel * axis[0]);
@@ -350,15 +365,17 @@ public:
     generateTaylorModelForLinearFunc(c, 0, linear_vel * axis[2]);
     TVector3 delta_T = p - delta_R * p + TVector3(a, b, c);
 
-    tm = delta_R * tf1.getRotation();
-    tv = delta_R * tf1.getTranslation() + delta_T;
+    tm = delta_R * tf1.linear().eval();
+    tv = delta_R * tf1.translation().eval() + delta_T;
   }
 
 protected:
   void computeScrewParameter()
   {
-    Quaternion3f deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
-    deltaq.toAxisAngle(axis, angular_vel);
+    Quaternion3f deltaq(tf2.linear() * tf1.linear().transpose());
+    Eigen::AngleAxisd aa(deltaq);
+    axis = aa.axis();
+    angular_vel = aa.angle();
     if(angular_vel < 0)
     {
       angular_vel = -angular_vel;
@@ -368,29 +385,28 @@ protected:
     if(angular_vel < 1e-10)
     {
       angular_vel = 0;
-      axis = tf2.getTranslation() - tf1.getTranslation();
-      linear_vel = axis.length();
-      p = tf1.getTranslation();
+      axis = tf2.translation() - tf1.translation();
+      linear_vel = axis.norm();
+      p = tf1.translation();
     }
     else
     {
-      Vec3f o = tf2.getTranslation() - tf1.getTranslation();
-      p = (tf1.getTranslation() + tf2.getTranslation() + axis.cross(o) * (1.0 / tan(angular_vel / 2.0))) * 0.5;
+      Vec3f o = tf2.translation() - tf1.translation();
+      p = (tf1.translation() + tf2.translation() + axis.cross(o) * (1.0 / tan(angular_vel / 2.0))) * 0.5;
       linear_vel = o.dot(axis);
     }
   }
 
   Quaternion3f deltaRotation(FCL_REAL dt) const
   {
-    Quaternion3f res;
-    res.fromAxisAngle(axis, (FCL_REAL)(dt * angular_vel));
-    return res;
+    return Quaternion3f(Eigen::AngleAxisd((FCL_REAL)(dt * angular_vel), axis));
   }
 
   Quaternion3f absoluteRotation(FCL_REAL dt) const
   {
     Quaternion3f delta_t = deltaRotation(dt);
-    return delta_t * tf1.getQuatRotation();
+
+    return delta_t * Quaternion3f(tf1.linear());
   }
 
   /// @brief The transformation at time 0
@@ -496,7 +512,9 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_angular_axis * sin_model - hat_angular_axis * hat_angular_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    TMatrix3 delta_R = hat_angular_axis * sin_model
+        - (hat_angular_axis * hat_angular_axis).eval() * (cos_model - 1)
+        + Matrix3f::Identity();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel[0]);
@@ -504,8 +522,10 @@ public:
     generateTaylorModelForLinearFunc(c, 0, linear_vel[2]);
     TVector3 delta_T(a, b, c);
     
-    tm = delta_R * tf1.getRotation();
-    tv = tf1.transform(reference_p) + delta_T - delta_R * tf1.getQuatRotation().transform(reference_p);
+    tm = delta_R * tf1.linear().eval();
+    tv = tf1 * reference_p
+        + delta_T
+        - delta_R * (tf1.linear() * reference_p).eval();
   }
 
 protected:

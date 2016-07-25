@@ -141,9 +141,9 @@ void printComparisonError(const std::string& comparison_type,
             << getNodeTypeName(s2.getNodeType()) << " with '"
             << getGJKSolverName(solver_type) << "' solver." << std::endl
             << "tf1.quaternion: " << tf1.getQuatRotation() << std::endl
-            << "tf1.translation: " << tf1.getTranslation() << std::endl
+            << "tf1.translation: " << tf1.translation() << std::endl
             << "tf2.quaternion: " << tf2.getQuatRotation() << std::endl
-            << "tf2.translation: " << tf2.getTranslation() << std::endl
+            << "tf2.translation: " << tf2.translation() << std::endl
             << "expected_" << comparison_type << ": " << expected_contact_or_normal
             << "actual_" << comparison_type << "  : " << actual_contact_or_normal << std::endl;
 
@@ -170,9 +170,9 @@ void printComparisonError(const std::string& comparison_type,
             << getNodeTypeName(s2.getNodeType()) << " with '"
             << getGJKSolverName(solver_type) << "' solver." << std::endl
             << "tf1.quaternion: " << tf1.getQuatRotation() << std::endl
-            << "tf1.translation: " << tf1.getTranslation() << std::endl
+            << "tf1.translation: " << tf1.translation() << std::endl
             << "tf2.quaternion: " << tf2.getQuatRotation() << std::endl
-            << "tf2.translation: " << tf2.getTranslation() << std::endl
+            << "tf2.translation: " << tf2.translation() << std::endl
             << "expected_depth: " << expected_depth << std::endl
             << "actual_depth  : " << actual_depth << std::endl
             << "difference: " << std::abs(actual_depth - expected_depth) << std::endl
@@ -243,12 +243,12 @@ bool inspectContactPoints(const S1& s1, const Transform3f& tf1,
               << "[ Shape 1 ]\n"
               << "Shape type     : " << getNodeTypeName(s1.getNodeType()) << "\n"
               << "tf1.quaternion : " << tf1.getQuatRotation() << "\n"
-              << "tf1.translation: " << tf1.getTranslation() << "\n"
+              << "tf1.translation: " << tf1.translation() << "\n"
               << "\n"
               << "[ Shape 2 ]\n"
               << "Shape type     : " << getNodeTypeName(s2.getNodeType()) << "\n"
               << "tf2.quaternion : " << tf2.getQuatRotation() << "\n"
-              << "tf2.translation: " << tf2.getTranslation() << "\n"
+              << "tf2.translation: " << tf2.translation() << "\n"
               << "\n"
               << "The numbers of expected contacts '"
               << expected_contacts.size()
@@ -308,12 +308,12 @@ bool inspectContactPoints(const S1& s1, const Transform3f& tf1,
               << "[ Shape 1 ]\n"
               << "Shape type     : " << getNodeTypeName(s1.getNodeType()) << "\n"
               << "tf1.quaternion : " << tf1.getQuatRotation() << "\n"
-              << "tf1.translation: " << tf1.getTranslation() << "\n"
+              << "tf1.translation: " << tf1.translation() << "\n"
               << "\n"
               << "[ Shape 2 ]\n"
               << "Shape type     : " << getNodeTypeName(s2.getNodeType()) << "\n"
               << "tf2.quaternion : " << tf2.getQuatRotation() << "\n"
-              << "tf2.translation: " << tf2.getTranslation() << "\n"
+              << "tf2.translation: " << tf2.translation() << "\n"
               << "\n"
               << "[ Expected Contacts: " << numContacts << " ]\n";
     for (size_t i = 0; i < numContacts; ++i)
@@ -528,7 +528,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(29.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   contacts[0].pos = transform.transform(Vec3f(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0));
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
@@ -560,7 +560,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-29.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   contacts[0].pos = transform.transform(Vec3f(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0));
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
@@ -674,10 +674,10 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
@@ -705,10 +705,10 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   tf1 = transform;
   tf2 = transform * Transform3f(q);
   contacts.resize(4);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   FCL_UINT32 numTests = 1e+2;
@@ -716,7 +716,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   {
     Transform3f tf;
     generateRandomTransform(extents, tf);
-    testBoxBoxContactPoints(tf.getRotation());
+    testBoxBoxContactPoints(tf.linear());
   }
 }
 
@@ -763,7 +763,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(22.4, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
 }
 
@@ -801,7 +801,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(24.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
@@ -813,7 +813,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(25, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = Transform3f();
@@ -859,7 +859,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
   tf1 = Transform3f();
@@ -905,7 +905,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
   tf1 = Transform3f();
@@ -925,7 +925,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 }
 
@@ -963,7 +963,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 0.46);
 
   tf1 = Transform3f();
@@ -983,7 +983,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
   tf1 = Transform3f();
@@ -1100,7 +1100,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.equal(transform.linear() * Vec3f(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
@@ -1141,7 +1141,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.equal(transform.linear() * Vec3f(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
@@ -1182,7 +1182,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.equal(transform.linear() * Vec3f(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
@@ -1297,7 +1297,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -1313,7 +1313,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(5, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -1329,7 +1329,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-5, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -1466,7 +1466,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -1482,7 +1482,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(1.25, 0, 0));
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -1498,7 +1498,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-1.25, 0, 0));
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2005,7 +2005,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-2.5, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2021,7 +2021,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-1.25, 0, 0));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2037,7 +2037,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-3.75, 0, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2053,7 +2053,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0.05, 0, 0));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2082,7 +2082,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -2.5, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2098,7 +2098,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -1.25, 0));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2114,7 +2114,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -3.75, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2130,7 +2130,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0.05, 0));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2159,7 +2159,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -5));
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2175,7 +2175,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -3.75));
   contacts[0].penetration_depth = 12.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2191,7 +2191,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -6.25));
   contacts[0].penetration_depth  = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2207,7 +2207,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0.05));
   contacts[0].penetration_depth = 20.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2245,7 +2245,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -2261,7 +2261,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(2.5, 0, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2277,7 +2277,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-2.5, 0, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2314,7 +2314,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
+  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -2330,7 +2330,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 2.5, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2346,7 +2346,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -2.5, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2383,7 +2383,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -2399,7 +2399,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 2.5));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2415,7 +2415,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -2.5));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2461,7 +2461,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-2.5, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2477,7 +2477,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-1.25, 0, 0));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2493,7 +2493,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-3.75, 0, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2509,7 +2509,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0.05, 0, 0));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2538,7 +2538,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -2.5, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2554,7 +2554,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -1.25, 0));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2570,7 +2570,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -3.75, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2586,7 +2586,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0.05, 0));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2615,7 +2615,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -2.5));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2631,7 +2631,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -1.25));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2647,7 +2647,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -3.75));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2663,7 +2663,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0.05));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2701,7 +2701,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -2717,7 +2717,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(2.5, 0, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2733,7 +2733,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-2.5, 0, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2770,7 +2770,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -2786,7 +2786,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 2.5, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2802,7 +2802,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -2.5, 0));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2839,7 +2839,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -2855,7 +2855,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2871,7 +2871,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2918,7 +2918,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-2.5, 0, -5));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2934,7 +2934,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-1.25, 0, -5));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2950,7 +2950,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-3.75, 0, -5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2966,7 +2966,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0.05, 0, -5));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -2995,7 +2995,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -2.5, -5));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3011,7 +3011,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -1.25, -5));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3027,7 +3027,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -3.75, -5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3043,7 +3043,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0.05, -5));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3072,7 +3072,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -2.5));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3088,7 +3088,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -1.25));
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3104,7 +3104,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -3.75));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3120,7 +3120,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0.05));
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3158,7 +3158,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -3174,7 +3174,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(2.5, 0, -2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3190,7 +3190,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(-2.5, 0, -2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3227,7 +3227,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -3243,7 +3243,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 2.5, -2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3259,7 +3259,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, -2.5, -2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3296,7 +3296,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 0));
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
   tf1 = Transform3f();
@@ -3312,7 +3312,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, 2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3328,7 +3328,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   contacts.resize(1);
   contacts[0].pos = transform.transform(Vec3f(0, 0, -2.5));
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.getRotation() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = Transform3f();
@@ -3778,7 +3778,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(29.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   contacts[0].pos = transform.transform(Vec3f(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0));
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
@@ -3810,7 +3810,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(-29.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
   contacts[0].pos = transform.transform(Vec3f(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0));
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
@@ -3862,10 +3862,10 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = Transform3f();
@@ -3893,10 +3893,10 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
   tf1 = transform;
   tf2 = transform * Transform3f(q);
   contacts.resize(4);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.getRotation() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 }
 
@@ -3944,7 +3944,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(22.4, 0, 0));
   contacts.resize(1);
-  // contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 }
@@ -3983,7 +3983,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(24.9, 0, 0));
   contacts.resize(1);
-  contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = Transform3f();
@@ -4031,7 +4031,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   contacts.resize(1);
-  // contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
@@ -4080,7 +4080,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(9.9, 0, 0));
   contacts.resize(1);
-  // contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
@@ -4101,7 +4101,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   contacts.resize(1);
-  // contacts[0].normal = transform.getRotation() * Vec3f(0, 0, 1);
+  // contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 }
@@ -4159,7 +4159,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
   tf1 = transform;
   tf2 = transform * Transform3f(Vec3f(0, 0, 9.9));
   contacts.resize(1);
-  // contacts[0].normal = transform.getRotation() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
@@ -4282,7 +4282,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.equal(transform.linear() * Vec3f(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
@@ -4323,7 +4323,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.equal(transform.linear() * Vec3f(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
@@ -4364,7 +4364,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.equal(transform.getRotation() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.equal(transform.linear() * Vec3f(1, 0, 0), 1e-9));
 }
 
 // Shape distance test coverage (built-in GJK)

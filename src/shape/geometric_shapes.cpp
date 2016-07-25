@@ -100,7 +100,7 @@ void Convex::fillEdges()
 
 void Halfspace::unitNormalTest()
 {
-  FCL_REAL l = n.length();
+  FCL_REAL l = n.norm();
   if(l > 0)
   {
     FCL_REAL inv_l = 1.0 / l;
@@ -116,7 +116,7 @@ void Halfspace::unitNormalTest()
 
 void Plane::unitNormalTest()
 {
-  FCL_REAL l = n.length();
+  FCL_REAL l = n.norm();
   if(l > 0)
   {
     FCL_REAL inv_l = 1.0 / l;
@@ -135,7 +135,7 @@ void Box::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Sphere::computeLocalAABB()
@@ -149,56 +149,56 @@ void Ellipsoid::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Capsule::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Cone::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Cylinder::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Convex::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Halfspace::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void Plane::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 void TriangleP::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3f(), aabb_local);
   aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).length();
+  aabb_radius = (aabb_local.min_ - aabb_center).norm();
 }
 
 

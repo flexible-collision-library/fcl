@@ -353,7 +353,7 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, void* cdata, Distance
         }
         else // need more loop
         {
-          if(dummy_vector.equal(obj->getAABB().max_))
+          if(dummy_vector.isApprox(obj->getAABB().max_, std::numeric_limits<Vec3f::Scalar>::epsilon() * 100))
             dummy_vector = dummy_vector + delta;
           else
             dummy_vector = dummy_vector * 2 - obj->getAABB().max_;

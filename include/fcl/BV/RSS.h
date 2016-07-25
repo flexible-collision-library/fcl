@@ -52,7 +52,7 @@ class RSS
 public:
   /// @brief Orientation of RSS. axis[i] is the ith column of the orientation matrix for the RSS; it is also the i-th principle direction of the RSS.
   /// We assume that axis[0] corresponds to the axis with the longest length, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Vec3f axis[3];
+  Matrix3f axis;
 
   /// @brief Origin of the rectangle in RSS
   Vec3f Tr;

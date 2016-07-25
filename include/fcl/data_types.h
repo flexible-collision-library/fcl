@@ -49,6 +49,7 @@ typedef std::int64_t  FCL_INT64;
 typedef std::uint64_t FCL_UINT64;
 typedef std::int32_t  FCL_INT32;
 typedef std::uint32_t FCL_UINT32;
+// TODO: remove 'FCL_' prefix
 
 /// @brief Triangle with 3 indices for points
 class Triangle

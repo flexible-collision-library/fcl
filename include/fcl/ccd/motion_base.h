@@ -137,37 +137,37 @@ public:
   {
     Transform3f tf;
     getCurrentTransform(tf);
-    R = tf.getRotation();
-    T = tf.getTranslation();
+    R = tf.linear();
+    T = tf.translation();
   }
 
   void getCurrentTransform(Quaternion3f& Q, Vec3f& T) const
   {
     Transform3f tf;
     getCurrentTransform(tf);
-    Q = tf.getQuatRotation();
-    T = tf.getTranslation();
+    Q = tf.linear();
+    T = tf.translation();
   }
 
   void getCurrentRotation(Matrix3f& R) const
   {
     Transform3f tf;
     getCurrentTransform(tf);
-    R = tf.getRotation();
+    R = tf.linear();
   }
 
   void getCurrentRotation(Quaternion3f& Q) const
   {
     Transform3f tf;
     getCurrentTransform(tf);
-    Q = tf.getQuatRotation();
+    Q = tf.linear();
   }
 
   void getCurrentTranslation(Vec3f& T) const
   {
     Transform3f tf;
     getCurrentTransform(tf);
-    T = tf.getTranslation();
+    T = tf.translation();
   }
 
   virtual void getCurrentTransform(Transform3f& tf) const = 0;

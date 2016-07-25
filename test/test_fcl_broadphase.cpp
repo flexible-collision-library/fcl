@@ -1053,7 +1053,7 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
     q.toRotation(dR);
     Vec3f dT(rand_trans_x, rand_trans_y, rand_trans_z);
     
-    Matrix3f R = env[i]->getRotation();
+    Matrix3f R = env[i]->linear();
     Vec3f T = env[i]->getTranslation();
     env[i]->setTransform(dR * R, dR * T + dT);
     env[i]->computeAABB();

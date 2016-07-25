@@ -303,7 +303,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
+      /* bool res = */ AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
     }
   }
@@ -314,7 +314,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
       AABB overlap_part;
       AABB shape_aabb;
       computeBV<AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(shape_aabb, overlap_part);
+      /* bool res = */ AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
@@ -337,7 +337,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -359,7 +359,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -381,7 +381,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -403,7 +403,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -517,7 +517,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -541,7 +541,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -566,7 +566,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -591,7 +591,7 @@ public:
   bool BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return !overlap(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+    return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -840,7 +840,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -872,7 +872,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -905,7 +905,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model2_bv, this->model1->getBV(b1).bv);
+    return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -992,7 +992,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+    return distance(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -1024,7 +1024,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+    return distance(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -1056,7 +1056,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    return distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model1_bv, this->model2->getBV(b2).bv);
+    return distance(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const
@@ -1126,7 +1126,7 @@ public:
       last_tri_id = primitive_id;
     }
 
-    Vec3f n = this->tf2.transform(P2) - P1; n.normalize();
+    Vec3f n = this->tf2 * p2 - P1; n.normalize();
     // here n should be in global frame
     TriangleMotionBoundVisitor mb_visitor1(p1, p2, p3, n);
     TBVMotionBoundVisitor<BV> mb_visitor2(this->model2_bv, -n);
@@ -1260,7 +1260,7 @@ public:
       last_tri_id = primitive_id;
     }
 
-    Vec3f n = P2 - this->tf1.transform(P1); n.normalize();
+    Vec3f n = P2 - this->tf1 * p1; n.normalize();
     // here n should be in global frame
     TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
     TriangleMotionBoundVisitor mb_visitor2(p1, p2, p3, -n);
@@ -1454,7 +1454,7 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     Vec3f P1, P2;
-    FCL_REAL d = distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model1->getBV(b1).bv, this->model2_bv, &P1, &P2);
+    FCL_REAL d = distance(this->tf1.linear(), this->tf1.translation(), this->model1->getBV(b1).bv, this->model2_bv, &P1, &P2);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
@@ -1500,7 +1500,7 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     Vec3f P1, P2;
-    FCL_REAL d = distance(this->tf1.getRotation(), this->tf1.getTranslation(), this->model1->getBV(b1).bv, this->model2_bv, &P1, &P2);
+    FCL_REAL d = distance(this->tf1.linear(), this->tf1.translation(), this->model1->getBV(b1).bv, this->model2_bv, &P1, &P2);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
@@ -1547,7 +1547,7 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     Vec3f P1, P2;
-    FCL_REAL d = distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
+    FCL_REAL d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 
@@ -1593,7 +1593,7 @@ public:
   {
     if(this->enable_statistics) this->num_bv_tests++;
     Vec3f P1, P2;
-    FCL_REAL d = distance(this->tf2.getRotation(), this->tf2.getTranslation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
+    FCL_REAL d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
 

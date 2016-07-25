@@ -161,8 +161,8 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
     // compute the transformation from 1 to 2
     Transform3f tf;
     relativeTransform(tf1, tf2, tf);
-    node.R = tf.getRotation();
-    node.T = tf.getTranslation();
+    node.R = tf.linear();
+    node.T = tf.translation();
     
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<FCL_REAL>::max();

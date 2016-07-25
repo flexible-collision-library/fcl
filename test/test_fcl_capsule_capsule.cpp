@@ -62,7 +62,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   EXPECT_TRUE(std::abs(dist - 10.1) < 0.001);
@@ -88,7 +88,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   FCL_REAL expected = std::sqrt(FCL_REAL(800)) - 10;
@@ -114,7 +114,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   EXPECT_TRUE(std::abs(dist - 0.1) < 0.001);
@@ -145,8 +145,8 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
-  std::cerr << "applied transformation of two caps: " << transform.getRotation() << " & " << transform2.getRotation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.linear() << " & " << transform2.linear() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   EXPECT_TRUE(std::abs(dist - 5.1) < 0.001);

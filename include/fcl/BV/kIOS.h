@@ -58,7 +58,7 @@ class kIOS
   static kIOS_Sphere encloseSphere(const kIOS_Sphere& s0, const kIOS_Sphere& s1)
   {
     Vec3f d = s1.o - s0.o;
-    FCL_REAL dist2 = d.sqrLength();
+    FCL_REAL dist2 = d.squaredNorm();
     FCL_REAL diff_r = s1.r - s0.r;
       
     /** The sphere with the larger radius encloses the other */

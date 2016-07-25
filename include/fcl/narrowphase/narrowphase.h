@@ -147,8 +147,11 @@ struct GJKSolver_libccd
                                      max_distance_iterations, distance_tolerance,
                                      dist, p1, p2);
 
-    if(p1) *p1 = inverse(tf1).transform(*p1);
-    if(p2) *p2 = inverse(tf2).transform(*p2);
+    if (p1)
+      *p1 = tf1.inverse() * *p1;
+
+    if (p2)
+      *p2 = tf2.inverse() * *p2;
 
     details::GJKInitializer<S1>::deleteGJKObject(o1);
     details::GJKInitializer<S2>::deleteGJKObject(o2);
@@ -170,7 +173,7 @@ struct GJKSolver_libccd
                                     o2, details::triGetSupportFunction(),
                                     max_distance_iterations, distance_tolerance,
                                     dist, p1, p2);
-    if(p1) *p1 = inverse(tf).transform(*p1);
+    if(p1) *p1 = tf.inverse() * *p1;
   
     details::GJKInitializer<S>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
@@ -191,8 +194,8 @@ struct GJKSolver_libccd
                                     o2, details::triGetSupportFunction(),
                                     max_distance_iterations, distance_tolerance,
                                     dist, p1, p2);
-    if(p1) *p1 = inverse(tf1).transform(*p1);
-    if(p2) *p2 = inverse(tf2).transform(*p2);
+    if(p1) *p1 = tf1.inverse() * *p1;
+    if(p2) *p2 = tf2.inverse() * *p2;
   
     details::GJKInitializer<S>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
@@ -517,8 +520,8 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
-    shape.toshape0 = tf1.inverseTimes(tf2);
+    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse() * tf2;
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -540,7 +543,7 @@ struct GJKSolver_indep
           if(contacts)
           {
             Vec3f normal = epa.normal;
-            Vec3f point = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+            Vec3f point = tf1 * (w0 - epa.normal*(epa.depth *0.5));
             FCL_REAL depth = -epa.depth;
             contacts->push_back(ContactPoint(normal, point, depth));
           }
@@ -570,8 +573,8 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf.getRotation();
-    shape.toshape0 = inverse(tf);
+    shape.toshape1 = tf.linear();
+    shape.toshape0 = tf.inverse();
   
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -592,7 +595,7 @@ struct GJKSolver_indep
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
           if(normal) *normal = -epa.normal;
-          if(contact_points) *contact_points = tf.transform(w0 - epa.normal*(epa.depth *0.5));
+          if(contact_points) *contact_points = tf * (w0 - epa.normal*(epa.depth *0.5));
           return true;
         }
         else return false;
@@ -619,8 +622,8 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
-    shape.toshape0 = tf1.inverseTimes(tf2);
+    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse() * tf2;
   
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -641,7 +644,7 @@ struct GJKSolver_indep
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
           if(normal) *normal = -epa.normal;
-          if(contact_points) *contact_points = tf1.transform(w0 - epa.normal*(epa.depth *0.5));
+          if(contact_points) *contact_points = tf1 * (w0 - epa.normal*(epa.depth *0.5));
           return true;
         }
         else return false;
@@ -666,8 +669,8 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
-    shape.toshape0 = tf1.inverseTimes(tf2);
+    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse() * tf2;
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -683,10 +686,10 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       
       if(p1) *p1 = w0;
-      if(p2) *p2 = shape.toshape0.transform(w1);
+      if(p2) *p2 = shape.toshape0 * w1;
       
       return true;
     }
@@ -710,8 +713,8 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf.getRotation();
-    shape.toshape0 = inverse(tf);
+    shape.toshape1 = tf.linear();
+    shape.toshape0 = tf.inverse();
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -727,9 +730,9 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = w0;
-      if(p2) *p2 = shape.toshape0.transform(w1);
+      if(p2) *p2 = shape.toshape0 * w1;
       return true;
     }
     else
@@ -752,8 +755,8 @@ struct GJKSolver_indep
     details::MinkowskiDiff shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.getRotation().transposeTimes(tf1.getRotation());
-    shape.toshape0 = tf1.inverseTimes(tf2);
+    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape0 = tf1.inverse() * tf2;
 
     details::GJK gjk(gjk_max_iterations, gjk_tolerance);
     details::GJK::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -769,9 +772,9 @@ struct GJKSolver_indep
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
-      if(distance) *distance = (w0 - w1).length();
+      if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = w0;
-      if(p2) *p2 = shape.toshape0.transform(w1);
+      if(p2) *p2 = shape.toshape0 * w1;
       return true;
     }
     else

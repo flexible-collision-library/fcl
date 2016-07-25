@@ -263,7 +263,7 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf)
   ///   and d' = d + n' * T
 
   Vec3f n = tf.getQuatRotation().transform(a.n);
-  FCL_REAL d = a.d + n.dot(tf.getTranslation());
+  FCL_REAL d = a.d + n.dot(tf.translation());
 
   return Halfspace(n, d);
 }
@@ -278,7 +278,7 @@ Plane transform(const Plane& a, const Transform3f& tf)
   ///   and d' = d + n' * T
 
   Vec3f n = tf.getQuatRotation().transform(a.n);
-  FCL_REAL d = a.d + n.dot(tf.getTranslation());
+  FCL_REAL d = a.d + n.dot(tf.translation());
 
   return Plane(n, d);
 }
@@ -288,8 +288,8 @@ Plane transform(const Plane& a, const Transform3f& tf)
 template<>
 void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   FCL_REAL x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
   FCL_REAL y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
@@ -303,7 +303,7 @@ void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
 template<>
 void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
 {
-  const Vec3f& T = tf.getTranslation();
+  const Vec3f& T = tf.translation();
 
   Vec3f v_delta(s.radius);
   bv.max_ = T + v_delta;
@@ -313,8 +313,8 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
 template<>
 void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   FCL_REAL x_range = (fabs(R(0, 0) * s.radii[0]) + fabs(R(0, 1) * s.radii[1]) + fabs(R(0, 2) * s.radii[2]));
   FCL_REAL y_range = (fabs(R(1, 0) * s.radii[0]) + fabs(R(1, 1) * s.radii[1]) + fabs(R(1, 2) * s.radii[2]));
@@ -328,8 +328,8 @@ void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, AABB&
 template<>
 void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   FCL_REAL x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
   FCL_REAL y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
@@ -343,8 +343,8 @@ void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
 template<>
 void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
   FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
@@ -358,8 +358,8 @@ void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv)
 template<>
 void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
   FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
@@ -373,8 +373,8 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& b
 template<>
 void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   AABB bv_;
   for(int i = 0; i < s.num_points; ++i)
@@ -461,8 +461,8 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
 template<>
 void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   bv.To = T;
   bv.axis[0] = R.getColumn(0);
@@ -474,7 +474,7 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
 {
-  const Vec3f& T = tf.getTranslation();
+  const Vec3f& T = tf.translation();
 
   bv.To = T;
   bv.axis[0].setValue(1, 0, 0);
@@ -486,8 +486,8 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   bv.To = T;
   bv.axis[0] = R.getColumn(0);
@@ -499,8 +499,8 @@ void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, OBB& b
 template<>
 void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   bv.To = T;
   bv.axis[0] = R.getColumn(0);
@@ -512,8 +512,8 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   bv.To = T;
   bv.axis[0] = R.getColumn(0);
@@ -525,8 +525,8 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   bv.To = T;
   bv.axis[0] = R.getColumn(0);
@@ -538,8 +538,8 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.getRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Matrix3f& R = tf.linear();
+  const Vec3f& T = tf.translation();
 
   fit(s.points, s.num_points, bv);
 

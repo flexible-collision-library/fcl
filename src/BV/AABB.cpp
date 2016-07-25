@@ -43,8 +43,8 @@
 namespace fcl
 {
 
-AABB::AABB() : min_(std::numeric_limits<FCL_REAL>::max()),
-               max_(-std::numeric_limits<FCL_REAL>::max())
+AABB::AABB() : min_(Vec3f::Constant(std::numeric_limits<FCL_REAL>::max())),
+               max_(Vec3f::Constant(-std::numeric_limits<FCL_REAL>::max()))
 {
 }
 

@@ -323,13 +323,13 @@ bool initialize(MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>& node,
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
-  if(!tf1.isIdentity())
+  if(!tf1.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = tf1.transform(p);
+      Vec3f new_v = tf1 * p;
       vertices_transformed[i] = new_v;
     }
 
@@ -373,13 +373,13 @@ bool initialize(ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
-  if(!tf2.isIdentity())
+  if(!tf2.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = tf2.transform(p);
+      Vec3f new_v = tf2 * p;
       vertices_transformed[i] = new_v;
     }
 
@@ -595,13 +595,13 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
-  if(!tf1.isIdentity())
+  if(!tf1.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = tf1.transform(p);
+      Vec3f new_v = tf1 * p;
       vertices_transformed1[i] = new_v;
     }
 
@@ -612,13 +612,13 @@ bool initialize(MeshCollisionTraversalNode<BV>& node,
     tf1.setIdentity();
   }
 
-  if(!tf2.isIdentity())
+  if(!tf2.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = tf2.transform(p);
+      Vec3f new_v = tf2 * p;
       vertices_transformed2[i] = new_v;
     }
 
@@ -707,13 +707,13 @@ bool initialize(MeshDistanceTraversalNode<BV>& node,
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
-  if(!tf1.isIdentity())
+  if(!tf1.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = tf1.transform(p);
+      Vec3f new_v = tf1 * p;
       vertices_transformed1[i] = new_v;
     }
 
@@ -724,13 +724,13 @@ bool initialize(MeshDistanceTraversalNode<BV>& node,
     tf1.setIdentity();
   }
 
-  if(!tf2.isIdentity())
+  if(!tf2.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed2(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = tf2.transform(p);
+      Vec3f new_v = tf2 * p;
       vertices_transformed2[i] = new_v;
     }
 
@@ -793,13 +793,13 @@ bool initialize(MeshShapeDistanceTraversalNode<BV, S, NarrowPhaseSolver>& node,
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
-  if(!tf1.isIdentity())
+  if(!tf1.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
       Vec3f& p = model1.vertices[i];
-      Vec3f new_v = tf1.transform(p);
+      Vec3f new_v = tf1 * p;
       vertices_transformed1[i] = new_v;
     }
 
@@ -840,13 +840,13 @@ bool initialize(ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>& node,
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
   
-  if(!tf2.isIdentity())
+  if(!tf2.matrix().isIdentity())
   {
     std::vector<Vec3f> vertices_transformed(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
       Vec3f& p = model2.vertices[i];
-      Vec3f new_v = tf2.transform(p);
+      Vec3f new_v = tf2 * p;
       vertices_transformed[i] = new_v;
     }
 
@@ -971,8 +971,8 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S, NarrowPhas
 
   node.vertices = model2.vertices;
   node.tri_indices = model2.tri_indices;
-  node.R = tf2.getRotation();
-  node.T = tf2.getTranslation();
+  node.R = tf2.linear();
+  node.T = tf2.translation();
 
   return true;  
 }
@@ -1055,7 +1055,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = tf1.transform(p);
+    Vec3f new_v = tf1 * p;
     vertices_transformed1[i] = new_v;
   }
 
@@ -1064,7 +1064,7 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = tf2.transform(p);
+    Vec3f new_v = tf2 * p;
     vertices_transformed2[i] = new_v;
   }
 
@@ -1132,7 +1132,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNode<BV, S, NarrowPhase
   for(int i = 0; i < model1.num_vertices; ++i)
   {
     Vec3f& p = model1.vertices[i];
-    Vec3f new_v = tf1.transform(p);
+    Vec3f new_v = tf1 * p;
     vertices_transformed[i] = new_v;
   }
 
@@ -1212,7 +1212,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhase
   for(int i = 0; i < model2.num_vertices; ++i)
   {
     Vec3f& p = model2.vertices[i];
-    Vec3f new_v = tf2.transform(p);
+    Vec3f new_v = tf2 * p;
     vertices_transformed[i] = new_v;
   }
 

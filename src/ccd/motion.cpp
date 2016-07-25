@@ -63,22 +63,22 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const
   if(tmp > cn_max) cn_max = tmp;
 
   // max_i ||c_i||
-  FCL_REAL cmax = c1.sqrLength();
-  tmp = c2.sqrLength();
+  FCL_REAL cmax = c1.squaredNorm();
+  tmp = c2.squaredNorm();
   if(tmp > cmax) cmax = tmp;
-  tmp = c3.sqrLength();
+  tmp = c3.squaredNorm();
   if(tmp > cmax) cmax = tmp;
-  tmp = c4.sqrLength();
+  tmp = c4.squaredNorm();
   if(tmp > cmax) cmax = tmp;
   cmax = sqrt(cmax);
 
   // max_i ||c_i x n||
-  FCL_REAL cxn_max = (c1.cross(n)).sqrLength();
-  tmp = (c2.cross(n)).sqrLength();
+  FCL_REAL cxn_max = (c1.cross(n)).squaredNorm();
+  tmp = (c2.cross(n)).squaredNorm();
   if(tmp > cxn_max) cxn_max = tmp;
-  tmp = (c3.cross(n)).sqrLength();
+  tmp = (c3.cross(n)).squaredNorm();
   if(tmp > cxn_max) cxn_max = tmp;
-  tmp = (c4.cross(n)).sqrLength();
+  tmp = (c4.cross(n)).squaredNorm();
   if(tmp > cxn_max) cxn_max = tmp;
   cxn_max = sqrt(cxn_max);
 
@@ -99,10 +99,10 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const SplineMotion& motion) const
   FCL_REAL T_bound = motion.computeTBound(n);
   FCL_REAL tf_t = motion.getCurrentTime();
 
-  FCL_REAL R_bound = std::abs(a.dot(n)) + a.length() + (a.cross(n)).length();
-  FCL_REAL R_bound_tmp = std::abs(b.dot(n)) + b.length() + (b.cross(n)).length();
+  FCL_REAL R_bound = std::abs(a.dot(n)) + a.norm() + (a.cross(n)).norm();
+  FCL_REAL R_bound_tmp = std::abs(b.dot(n)) + b.norm() + (b.cross(n)).norm();
   if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
-  R_bound_tmp = std::abs(c.dot(n)) + c.length() + (c.cross(n)).length();
+  R_bound_tmp = std::abs(c.dot(n)) + c.norm() + (c.cross(n)).norm();
   if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
 
   FCL_REAL dWdW_max = motion.computeDWMax();
@@ -156,7 +156,7 @@ bool SplineMotion::integrate(double dt) const
 
   Vec3f cur_T = Td[0] * getWeight0(dt) + Td[1] * getWeight1(dt) + Td[2] * getWeight2(dt) + Td[3] * getWeight3(dt);
   Vec3f cur_w = Rd[0] * getWeight0(dt) + Rd[1] * getWeight1(dt) + Rd[2] * getWeight2(dt) + Rd[3] * getWeight3(dt);
-  FCL_REAL cur_angle = cur_w.length();
+  FCL_REAL cur_angle = cur_w.norm();
   cur_w.normalize();
 
   Quaternion3f cur_q;
@@ -325,20 +325,20 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& p = motion.getAxisOrigin();
     
-  FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr)).cross(axis)).sqrLength();
+  FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr)).cross(axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0])).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1])).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = sqrt(c_proj_max);
 
   FCL_REAL v_dot_n = axis.dot(n) * linear_vel;
-  FCL_REAL w_cross_n = (axis.cross(n)).length() * angular_vel;
-  FCL_REAL origin_proj = ((tf.getTranslation() - p).cross(axis)).length();
+  FCL_REAL w_cross_n = (axis.cross(n)).norm() * angular_vel;
+  FCL_REAL origin_proj = ((tf.translation() - p).cross(axis)).norm();
 
   FCL_REAL mu = v_dot_n + w_cross_n * (c_proj_max + bv.r + origin_proj);
 
@@ -355,17 +355,17 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const ScrewMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& p = motion.getAxisOrigin();
   
-  FCL_REAL proj_max = ((tf.getQuatRotation().transform(a) + tf.getTranslation() - p).cross(axis)).sqrLength();
+  FCL_REAL proj_max = ((tf.getQuatRotation().transform(a) + tf.translation() - p).cross(axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(b) + tf.getTranslation() - p).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(b) + tf.translation() - p).cross(axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(c) + tf.getTranslation() - p).cross(axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(c) + tf.translation() - p).cross(axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
 
   proj_max = std::sqrt(proj_max);
 
   FCL_REAL v_dot_n = axis.dot(n) * linear_vel;
-  FCL_REAL w_cross_n = (axis.cross(n)).length() * angular_vel;
+  FCL_REAL w_cross_n = (axis.cross(n)).norm() * angular_vel;
   FCL_REAL mu = v_dot_n + w_cross_n * proj_max;
 
   return mu;
@@ -390,19 +390,19 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& linear_vel = motion.getLinearVelocity();
   
-  FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr - reference_p)).cross(angular_axis)).sqrLength();
+  FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr - reference_p)).cross(angular_axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = std::sqrt(c_proj_max);
 
   FCL_REAL v_dot_n = linear_vel.dot(n);
-  FCL_REAL w_cross_n = (angular_axis.cross(n)).length() * angular_vel;
+  FCL_REAL w_cross_n = (angular_axis.cross(n)).norm() * angular_vel;
   FCL_REAL mu = v_dot_n + w_cross_n * (bv.r + c_proj_max);
 
   return mu;  
@@ -422,17 +422,17 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const InterpMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& linear_vel = motion.getLinearVelocity();
 
-  FCL_REAL proj_max = ((tf.getQuatRotation().transform(a - reference_p)).cross(angular_axis)).sqrLength();
+  FCL_REAL proj_max = ((tf.getQuatRotation().transform(a - reference_p)).cross(angular_axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(b - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(b - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(c - reference_p)).cross(angular_axis)).sqrLength();
+  tmp = ((tf.getQuatRotation().transform(c - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
 
   proj_max = std::sqrt(proj_max);
 
   FCL_REAL v_dot_n = linear_vel.dot(n);
-  FCL_REAL w_cross_n = (angular_axis.cross(n)).length() * angular_vel;
+  FCL_REAL w_cross_n = (angular_axis.cross(n)).norm() * angular_vel;
   FCL_REAL mu = v_dot_n + w_cross_n * proj_max;
 
   return mu;  

@@ -287,12 +287,11 @@ public:
     rng.quaternion(s);
 
     Quaternion3f quat(s[0], s[1], s[2], s[3]);
-    FCL_REAL a, b, c;
-    quat.toEuler(a, b, c);
+    Vec3f angles = quat.toRotationMatrix().eulerAngles(2, 1, 0);
 
-    q[3] = a;
-    q[4] = b;
-    q[5] = c;
+    q[3] = angles[0];
+    q[4] = angles[1];
+    q[5] = angles[2];
 
     return q;
   }
@@ -403,11 +402,10 @@ public:
     rng.quaternion(s);
 
     Quaternion3f quat(s[0], s[1], s[2], s[3]);
-    FCL_REAL a, b, c;
-    quat.toEuler(a, b, c);
-    q[3] = a;
-    q[4] = b;
-    q[5] = c;
+    Vec3f angles = quat.toRotationMatrix().eulerAngles(2, 1, 0);
+    q[3] = angles[0];
+    q[4] = angles[1];
+    q[5] = angles[2];
     
     return q;
   }

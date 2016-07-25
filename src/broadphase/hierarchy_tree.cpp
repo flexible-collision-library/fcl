@@ -73,7 +73,7 @@ bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Ve
 {
   AABB bv(bv_);
   if(leaf->bv.contain(bv)) return false;
-  Vec3f marginv(margin);
+  Vec3f marginv = Vec3f::Constant(margin);
   bv.min_ -= marginv;
   bv.max_ += marginv;
   if(vel[0] > 0) bv.max_[0] += vel[0];

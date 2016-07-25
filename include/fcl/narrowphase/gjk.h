@@ -73,7 +73,7 @@ struct MinkowskiDiff
   /// @brief support function for shape1
   inline Vec3f support1(const Vec3f& d) const
   {
-    return toshape0.transform(getSupport(shapes[1], toshape1 * d));
+    return toshape0 * getSupport(shapes[1], toshape1 * d);
   }
 
   /// @brief support function for the pair of shapes

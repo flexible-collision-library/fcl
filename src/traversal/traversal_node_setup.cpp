@@ -70,7 +70,7 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
 
   node.cost_density = model1.cost_density * model2.cost_density;
 
-  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.linear(), tf1.translation(), tf2.linear(), tf2.translation(), node.R, node.T);
 
   return true;
 }
@@ -143,7 +143,7 @@ static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
   node.tri_indices1 = model1.tri_indices;
   node.tri_indices2 = model2.tri_indices;
 
-  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.linear(), tf1.translation(), tf2.linear(), tf2.translation(), node.R, node.T);
 
   return true;
 }
@@ -203,7 +203,7 @@ static inline bool setupMeshConservativeAdvancementOrientedDistanceNode(Oriented
 
   node.w = w;
 
-  relativeTransform(tf1.getRotation(), tf1.getTranslation(), tf2.getRotation(), tf2.getTranslation(), node.R, node.T);
+  relativeTransform(tf1.linear(), tf1.translation(), tf2.linear(), tf2.translation(), node.R, node.T);
 
   return true;
 }

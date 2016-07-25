@@ -512,7 +512,7 @@ ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd
 static void shapeToGJK(const ShapeBase& s, const Transform3f& tf, ccd_obj_t* o)
 {
   const Quaternion3f& q = tf.getQuatRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Vec3f& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
@@ -1074,7 +1074,7 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, cons
   ccdVec3Set(&o->p[2], P3[0], P3[1], P3[2]);
   ccdVec3Set(&o->c, center[0], center[1], center[2]);
   const Quaternion3f& q = tf.getQuatRotation();
-  const Vec3f& T = tf.getTranslation();
+  const Vec3f& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
   ccdQuatInvert2(&o->rot_inv, &o->rot);

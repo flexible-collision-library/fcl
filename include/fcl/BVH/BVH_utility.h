@@ -62,8 +62,8 @@ void BVHExpand(BVHModel<BV>& model, const Variance3f* ucs, FCL_REAL r)
 
       for(int k = 0; k < 3; ++k)
       {
-        bv += (v + uc.axis[k] * (r * uc.sigma[k]));
-        bv += (v - uc.axis[k] * (r * uc.sigma[k]));
+        bv += (v + uc.axis.col(k) * (r * uc.sigma[k]));
+        bv += (v - uc.axis.col(k) * (r * uc.sigma[k]));
       }
     }
 
@@ -81,10 +81,10 @@ void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r);
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M);
 
 /// @brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin, given the BV axises.
-void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& origin, FCL_REAL l[2], FCL_REAL& r);
+void getRadiusAndOriginAndRectangleSize(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3f& axis, Vec3f& origin, FCL_REAL l[2], FCL_REAL& r);
 
 /// @brief Compute the bounding volume extent and center for a set or subset of points, given the BV axises.
-void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Vec3f axis[3], Vec3f& center, Vec3f& extent);
+void getExtentAndCenter(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3f& axis, Vec3f& center, Vec3f& extent);
 
 /// @brief Compute the center and radius for a triangle's circumcircle
 void circumCircleComputation(const Vec3f& a, const Vec3f& b, const Vec3f& c, Vec3f& center, FCL_REAL& radius);

@@ -133,9 +133,14 @@ std::size_t PrismaticJoint::getNumDofs() const
 
 Transform3f PrismaticJoint::getLocalTransform() const
 {
-  const Quaternion3f& quat = transform_to_parent_.getQuatRotation();
-  const Vec3f& transl = transform_to_parent_.getTranslation();
-  return Transform3f(quat, quat.transform(axis_ * (*joint_cfg_)[0]) + transl);
+  const Quaternion3f quat(transform_to_parent_.linear());
+  const Vec3f& transl = transform_to_parent_.translation();
+
+  Transform3f tf = Transform3f::Identity();
+  tf.linear() = quat.toRotationMatrix();
+  tf.translation() = quat * (axis_ * (*joint_cfg_)[0]) + transl;
+
+  return tf;
 }
 
 
@@ -161,9 +166,11 @@ std::size_t RevoluteJoint::getNumDofs() const
 
 Transform3f RevoluteJoint::getLocalTransform() const
 {
-  Quaternion3f quat;
-  quat.fromAxisAngle(axis_, (*joint_cfg_)[0]);
-  return Transform3f(transform_to_parent_.getQuatRotation() * quat, transform_to_parent_.getTranslation());
+  Transform3f tf = Transform3f::Identity();
+  tf.linear() = transform_to_parent_.linear() * Eigen::AngleAxisd((*joint_cfg_)[0], axis_);
+  tf.translation() = transform_to_parent_.translation();
+
+  return tf;
 }
 
 
@@ -180,9 +187,15 @@ std::size_t BallEulerJoint::getNumDofs() const
 
 Transform3f BallEulerJoint::getLocalTransform() const
 {
-  Matrix3f rot;
-  rot.setEulerYPR((*joint_cfg_)[0], (*joint_cfg_)[1], (*joint_cfg_)[2]);
-  return transform_to_parent_ * Transform3f(rot);
+  Matrix3f rot(
+      Eigen::AngleAxisd((*joint_cfg_)[0], Eigen::Vector3d::UnitZ())
+        * Eigen::AngleAxisd((*joint_cfg_)[1], Eigen::Vector3d::UnitY())
+        * Eigen::AngleAxisd((*joint_cfg_)[2], Eigen::Vector3d::UnitX()));
+
+  Transform3f tf = Transform3f::Identity();
+  tf.linear() = rot;
+
+  return transform_to_parent_ * tf;
 }
 
 

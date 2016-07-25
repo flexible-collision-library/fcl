@@ -216,10 +216,10 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
     aabb.min_ = aabb1.min_ * 0.5;
     aabb.max_ = aabb1.max_ * 0.5;    
 
-    AABB aabb2 = translate(aabb, transforms[i].getTranslation());
+    AABB aabb2 = translate(aabb, transforms[i].translation());
     
     OBB obb2;
-    convertBV(aabb, Transform3f(transforms[i].getTranslation()), obb2);
+    convertBV(aabb, Transform3f(transforms[i].translation()), obb2);
 
     bool overlap_aabb = aabb1.overlap(aabb2);
     bool overlap_obb = obb1.overlap(obb2);

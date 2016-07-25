@@ -51,7 +51,7 @@ bool kIOS::overlap(const kIOS& other) const
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
     {
-      FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).sqrLength();
+      FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).squaredNorm();
       FCL_REAL sum_r = spheres[i].r + other.spheres[j].r;
       if(o_dist > sum_r * sum_r)
         return false;
@@ -69,7 +69,7 @@ bool kIOS::contain(const Vec3f& p) const
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
     FCL_REAL r = spheres[i].r;
-    if((spheres[i].o - p).sqrLength() > r * r)
+    if((spheres[i].o - p).squaredNorm() > r * r)
       return false;
   }
 
@@ -81,7 +81,7 @@ kIOS& kIOS::operator += (const Vec3f& p)
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
     FCL_REAL r = spheres[i].r;
-    FCL_REAL new_r_sqr = (p - spheres[i].o).sqrLength();
+    FCL_REAL new_r_sqr = (p - spheres[i].o).squaredNorm();
     if(new_r_sqr > r * r)
     {
       spheres[i].r = sqrt(new_r_sqr);
@@ -141,7 +141,7 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
     {
-      FCL_REAL d = (spheres[i].o - other.spheres[j].o).length() - (spheres[i].r + other.spheres[j].r);
+      FCL_REAL d = (spheres[i].o - other.spheres[j].o).norm() - (spheres[i].r + other.spheres[j].r);
       if(d_max < d)
       {
         d_max = d;
@@ -158,7 +158,7 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
     if(id_a != -1 && id_b != -1)
     {
       Vec3f v = spheres[id_a].o - spheres[id_b].o;
-      FCL_REAL len_v = v.length();
+      FCL_REAL len_v = v.norm();
       *P = spheres[id_a].o - v * (spheres[id_a].r / len_v);
       *Q = spheres[id_b].o + v * (spheres[id_b].r / len_v);
     }
@@ -178,9 +178,7 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2
 
   
   b2_temp.obb.To = R0 * b2_temp.obb.To + T0;
-  b2_temp.obb.axis[0] = R0 * b2_temp.obb.axis[0];
-  b2_temp.obb.axis[1] = R0 * b2_temp.obb.axis[1];
-  b2_temp.obb.axis[2] = R0 * b2_temp.obb.axis[2];
+  b2_temp.obb.axis = R0 * b2_temp.obb.axis;
 
   return b1.overlap(b2_temp);
 }

@@ -94,7 +94,7 @@ public:
   {
     aabb_local = getRootBV();
     aabb_center = aabb_local.center();
-    aabb_radius = (aabb_local.min_ - aabb_center).length();
+    aabb_radius = (aabb_local.min_ - aabb_center).norm();
   }
 
   /// @brief get the bounding volume for the root

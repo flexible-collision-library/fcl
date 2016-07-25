@@ -164,16 +164,20 @@ protected:
       else return aabb->cached.min_;
     }
 
-    inline Vec3f::U getVal(size_t i) const
+    inline Vec3f::Scalar getVal(size_t i) const
     {
-      if(minmax) return aabb->cached.max_[i];
-      else return aabb->cached.min_[i];
+      if(minmax)
+        return aabb->cached.max_[i];
+      else
+        return aabb->cached.min_[i];
     }
 
-    inline Vec3f::U& getVal(size_t i)
+    inline Vec3f::Scalar& getVal(size_t i)
     {
-      if(minmax) return aabb->cached.max_[i];
-      else return aabb->cached.min_[i];
+      if(minmax)
+        return aabb->cached.max_[i];
+      else
+        return aabb->cached.min_[i];
     }
 
   };

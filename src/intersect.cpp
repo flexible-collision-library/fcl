@@ -713,9 +713,9 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
                                    FCL_REAL* penetration_depth,
                                    Vec3f* normal)
 {
-  Vec3f Q1_ = tf.transform(Q1);
-  Vec3f Q2_ = tf.transform(Q2);
-  Vec3f Q3_ = tf.transform(Q3);
+  Vec3f Q1_ = tf * Q1;
+  Vec3f Q2_ = tf * Q2;
+  Vec3f Q3_ = tf * Q3;
 
   return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
 }
@@ -1035,7 +1035,7 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
           clipSegmentByPlane(polygon_points[i - 1], polygon_points[vi], n, t, &tmp);
           if(num_clipped_points_ > 0)
           {
-            if((tmp - clipped_points[num_clipped_points_ - 1]).sqrLength() > EPSILON)
+            if((tmp - clipped_points[num_clipped_points_ - 1]).squaredNorm() > EPSILON)
             {
               clipped_points[num_clipped_points_] = tmp;
               num_clipped_points_++;
@@ -1065,7 +1065,7 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
           clipSegmentByPlane(polygon_points[i - 1], polygon_points[vi], n, t, &tmp);
           if(num_clipped_points_ > 0)
           {
-            if((tmp - clipped_points[num_clipped_points_ - 1]).sqrLength() > EPSILON)
+            if((tmp - clipped_points[num_clipped_points_ - 1]).squaredNorm() > EPSILON)
             {
               clipped_points[num_clipped_points_] = tmp;
               num_clipped_points_++;
@@ -1085,7 +1085,7 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
 
   if(num_clipped_points_ > 2)
   {
-    if((clipped_points[0] - clipped_points[num_clipped_points_ - 1]).sqrLength() < EPSILON)
+    if((clipped_points[0] - clipped_points[num_clipped_points_ - 1]).squaredNorm() < EPSILON)
     {
       num_clipped_points_--;
     }
@@ -1111,7 +1111,7 @@ bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f
 {
   Vec3f n_ = (v2 - v1).cross(v3 - v1);
   bool can_normalize = false;
-  n_.normalize(&can_normalize);
+  normalize(n_, &can_normalize);
   if(can_normalize)
   {
     *n = n_;
@@ -1126,7 +1126,7 @@ bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn
 {
   Vec3f n_ = (v2 - v1).cross(tn);
   bool can_normalize = false;
-  n_.normalize(&can_normalize);
+  normalize(n_, &can_normalize);
   if(can_normalize)
   {
     *n = n_;
@@ -1314,7 +1314,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   FCL_REAL mindd;
   int shown_disjoint = 0;
 
-  mindd = (S[0] - T[0]).sqrLength() + 1; // Set first minimum safely high
+  mindd = (S[0] - T[0]).squaredNorm() + 1; // Set first minimum safely high
 
   for(int i = 0; i < 3; ++i)
   {
@@ -1431,7 +1431,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
             // the T triangle; the other point is on the face of S
             P = T[point] + Sn * (Tp[point] / Snl);
             Q = T[point];
-            return (P - Q).length();
+            return (P - Q).norm();
           }
         }
       }
@@ -1487,7 +1487,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
           {
             P = S[point];
             Q = S[point] + Tn * (Sp[point] / Tnl);
-            return (P - Q).length();
+            return (P - Q).norm();
           }
         }
       }
@@ -1539,9 +1539,9 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
                                        Vec3f& P, Vec3f& Q)
 {
   Vec3f T_transformed[3];
-  T_transformed[0] = tf.transform(T[0]);
-  T_transformed[1] = tf.transform(T[1]);
-  T_transformed[2] = tf.transform(T[2]);
+  T_transformed[0] = tf * T[0];
+  T_transformed[1] = tf * T[1];
+  T_transformed[2] = tf * T[2];
 
   return triDistance(S, T_transformed, P, Q);
 }
@@ -1563,9 +1563,9 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const V
                                        const Transform3f& tf,
                                        Vec3f& P, Vec3f& Q)
 {
-  Vec3f T1_transformed = tf.transform(T1);
-  Vec3f T2_transformed = tf.transform(T2);
-  Vec3f T3_transformed = tf.transform(T3);
+  Vec3f T1_transformed = tf * T1;
+  Vec3f T2_transformed = tf * T2;
+  Vec3f T3_transformed = tf * T3;
   return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
 
@@ -1578,16 +1578,16 @@ Project::ProjectResult Project::projectLine(const Vec3f& a, const Vec3f& b, cons
   ProjectResult res;
 
   const Vec3f d = b - a;
-  const FCL_REAL l = d.sqrLength();
+  const FCL_REAL l = d.squaredNorm();
 
   if(l > 0)
   {
     const FCL_REAL t = (p - a).dot(d);
     res.parameterization[1] = (t >= l) ? 1 : ((t <= 0) ? 0 : (t / l));
     res.parameterization[0] = 1 - res.parameterization[1];
-    if(t >= l) { res.sqr_distance = (p - b).sqrLength(); res.encode = 2; /* 0x10 */ }
-    else if(t <= 0) { res.sqr_distance = (p - a).sqrLength(); res.encode = 1; /* 0x01 */ }
-    else { res.sqr_distance = (a + d * res.parameterization[1] - p).sqrLength(); res.encode = 3; /* 0x00 */ }
+    if(t >= l) { res.sqr_distance = (p - b).squaredNorm(); res.encode = 2; /* 0x10 */ }
+    else if(t <= 0) { res.sqr_distance = (p - a).squaredNorm(); res.encode = 1; /* 0x01 */ }
+    else { res.sqr_distance = (a + d * res.parameterization[1] - p).squaredNorm(); res.encode = 3; /* 0x00 */ }
   }
 
   return res;
@@ -1601,7 +1601,7 @@ Project::ProjectResult Project::projectTriangle(const Vec3f& a, const Vec3f& b, 
   const Vec3f* vt[] = {&a, &b, &c};
   const Vec3f dl[] = {a - b, b - c, c - a};
   const Vec3f& n = dl[0].cross(dl[1]);
-  const FCL_REAL l = n.sqrLength();
+  const FCL_REAL l = n.squaredNorm();
 	
   if(l > 0)
   {
@@ -1629,10 +1629,10 @@ Project::ProjectResult Project::projectTriangle(const Vec3f& a, const Vec3f& b, 
       FCL_REAL d = (a - p).dot(n);
       FCL_REAL s = sqrt(l);
       Vec3f p_to_project = n * (d / l);
-      mindist = p_to_project.sqrLength();
+      mindist = p_to_project.squaredNorm();
       res.encode = 7; // m = 0x111
-      res.parameterization[0] = dl[1].cross(b - p -p_to_project).length() / s;
-      res.parameterization[1] = dl[2].cross(c - p -p_to_project).length() / s;
+      res.parameterization[0] = dl[1].cross(b - p -p_to_project).norm() / s;
+      res.parameterization[1] = dl[2].cross(c - p -p_to_project).norm() / s;
       res.parameterization[2] = 1 - res.parameterization[0] - res.parameterization[1];
     }
 
@@ -1700,16 +1700,16 @@ Project::ProjectResult Project::projectLineOrigin(const Vec3f& a, const Vec3f& b
   ProjectResult res;
 
   const Vec3f d = b - a;
-  const FCL_REAL l = d.sqrLength();
+  const FCL_REAL l = d.squaredNorm();
 
   if(l > 0)
   {
     const FCL_REAL t = - a.dot(d);
     res.parameterization[1] = (t >= l) ? 1 : ((t <= 0) ? 0 : (t / l));
     res.parameterization[0] = 1 - res.parameterization[1];
-    if(t >= l) { res.sqr_distance = b.sqrLength(); res.encode = 2; /* 0x10 */ }
-    else if(t <= 0) { res.sqr_distance = a.sqrLength(); res.encode = 1; /* 0x01 */ }
-    else { res.sqr_distance = (a + d * res.parameterization[1]).sqrLength(); res.encode = 3; /* 0x00 */ }
+    if(t >= l) { res.sqr_distance = b.squaredNorm(); res.encode = 2; /* 0x10 */ }
+    else if(t <= 0) { res.sqr_distance = a.squaredNorm(); res.encode = 1; /* 0x01 */ }
+    else { res.sqr_distance = (a + d * res.parameterization[1]).squaredNorm(); res.encode = 3; /* 0x00 */ }
   }
 
   return res;
@@ -1723,7 +1723,7 @@ Project::ProjectResult Project::projectTriangleOrigin(const Vec3f& a, const Vec3
   const Vec3f* vt[] = {&a, &b, &c};
   const Vec3f dl[] = {a - b, b - c, c - a};
   const Vec3f& n = dl[0].cross(dl[1]);
-  const FCL_REAL l = n.sqrLength();
+  const FCL_REAL l = n.squaredNorm();
 	
   if(l > 0)
   {
@@ -1751,10 +1751,10 @@ Project::ProjectResult Project::projectTriangleOrigin(const Vec3f& a, const Vec3
       FCL_REAL d = a.dot(n);
       FCL_REAL s = sqrt(l);
       Vec3f o_to_project = n * (d / l);
-      mindist = o_to_project.sqrLength();
+      mindist = o_to_project.squaredNorm();
       res.encode = 7; // m = 0x111
-      res.parameterization[0] = dl[1].cross(b - o_to_project).length() / s;
-      res.parameterization[1] = dl[2].cross(c - o_to_project).length() / s;
+      res.parameterization[0] = dl[1].cross(b - o_to_project).norm() / s;
+      res.parameterization[1] = dl[2].cross(c - o_to_project).norm() / s;
       res.parameterization[2] = 1 - res.parameterization[0] - res.parameterization[1];
     }
 

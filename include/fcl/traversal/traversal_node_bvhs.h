@@ -841,15 +841,15 @@ namespace details
 {
 
 template<typename BV>
-const Vec3f& getBVAxis(const BV& bv, int i)
+const Vec3f getBVAxis(const BV& bv, int i)
 {
-  return bv.axis[i];
+  return bv.axis.col(i);
 }
 
 template<>
-inline const Vec3f& getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
+inline const Vec3f getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
 {
-  return bv.obb.axis[i];
+  return bv.obb.axis.col(i);
 }
 
 

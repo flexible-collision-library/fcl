@@ -50,172 +50,198 @@
 #include <iostream>
 #include <limits>
 
+#include <Eigen/Dense>
 
 namespace fcl
 {
 
-/// @brief Vector3 class wrapper. The core data is in the template parameter class.
 template <typename T>
-class Vec3fX
+using Vec3fX = Eigen::Matrix<T, 3, 1>;
+
+using Vec3f = Vec3fX<FCL_REAL>;
+
+inline void normalize(Vec3f& v, bool* signal)
 {
-public:
-  typedef typename T::meta_type U;
+  Vec3f::Scalar sqr_length = v.squaredNorm();
 
-  /// @brief interval vector3 data
-  T data;
-
-  Vec3fX() {}
-  Vec3fX(const Vec3fX& other) : data(other.data) {}
-
-  /// @brief create Vector (x, y, z)
-  Vec3fX(U x, U y, U z) : data(x, y, z) {}
-
-  /// @brief create vector (x, x, x)
-  Vec3fX(U x) : data(x) {}
-
-  /// @brief create vector using the internal data type
-  Vec3fX(const T& data_) : data(data_) {}
-
-  inline U operator [] (size_t i) const { return data[i]; }
-  inline U& operator [] (size_t i) { return data[i]; }
-
-  inline Vec3fX operator + (const Vec3fX& other) const { return Vec3fX(data + other.data); }
-  inline Vec3fX operator - (const Vec3fX& other) const { return Vec3fX(data - other.data); }
-  inline Vec3fX operator * (const Vec3fX& other) const { return Vec3fX(data * other.data); }
-  inline Vec3fX operator / (const Vec3fX& other) const { return Vec3fX(data / other.data); }
-  inline Vec3fX& operator += (const Vec3fX& other) { data += other.data; return *this; }
-  inline Vec3fX& operator -= (const Vec3fX& other) { data -= other.data; return *this; }
-  inline Vec3fX& operator *= (const Vec3fX& other) { data *= other.data; return *this; }
-  inline Vec3fX& operator /= (const Vec3fX& other) { data /= other.data; return *this; }
-  inline Vec3fX operator + (U t) const { return Vec3fX(data + t); }
-  inline Vec3fX operator - (U t) const { return Vec3fX(data - t); }
-  inline Vec3fX operator * (U t) const { return Vec3fX(data * t); }
-  inline Vec3fX operator / (U t) const { return Vec3fX(data / t); }
-  inline Vec3fX& operator += (U t) { data += t; return *this; }
-  inline Vec3fX& operator -= (U t) { data -= t; return *this; }
-  inline Vec3fX& operator *= (U t) { data *= t; return *this; }
-  inline Vec3fX& operator /= (U t) { data /= t; return *this; }
-  inline Vec3fX operator - () const { return Vec3fX(-data); }
-  inline Vec3fX cross(const Vec3fX& other) const { return Vec3fX(details::cross_prod(data, other.data)); }
-  inline U dot(const Vec3fX& other) const { return details::dot_prod3(data, other.data); }
-  inline Vec3fX& normalize()
+  if (sqr_length > 0)
   {
-    U sqr_length = details::dot_prod3(data, data);
-    if(sqr_length > 0)
-      *this /= (U)sqrt(sqr_length);
-    return *this;
+    v /= std::sqrt(sqr_length);
+    *signal = true;
   }
-
-  inline Vec3fX& normalize(bool* signal)
-  {
-    U sqr_length = details::dot_prod3(data, data);
-    if(sqr_length > 0)
-    {
-      *this /= (U)sqrt(sqr_length);
-      *signal = true;
-    }
-    else
-      *signal = false;
-    return *this;
-  }
-
-  inline Vec3fX& abs() 
-  {
-    data = abs(data);
-    return *this;
-  }
-
-  inline U length() const { return sqrt(details::dot_prod3(data, data)); }
-  inline U norm() const { return sqrt(details::dot_prod3(data, data)); }
-  inline U sqrLength() const { return details::dot_prod3(data, data); }
-  inline U squaredNorm() const { return details::dot_prod3(data, data); }
-  inline void setValue(U x, U y, U z) { data.setValue(x, y, z); }
-  inline void setValue(U x) { data.setValue(x); }
-  inline void setZero () {data.setValue (0); }
-  inline bool equal(const Vec3fX& other, U epsilon = std::numeric_limits<U>::epsilon() * 100) const { return details::equal(data, other.data, epsilon); }
-  inline Vec3fX<T>& negate() { data.negate(); return *this; }
-
-  bool operator == (const Vec3fX& other) const
-  {
-    return equal(other, 0);
-  }
-
-  bool operator != (const Vec3fX& other) const
-  {
-    return !(*this == other);
-  }
-
-
-  inline Vec3fX<T>& ubound(const Vec3fX<T>& u)
-  {
-    data.ubound(u.data);
-    return *this;
-  }
-
-  inline Vec3fX<T>& lbound(const Vec3fX<T>& l)
-  {
-    data.lbound(l.data);
-    return *this;
-  }
-
-  bool isZero() const
-  {
-    return (data[0] == 0) && (data[1] == 0) && (data[2] == 0);
-  }
-
-};
-
-template<typename T>
-static inline Vec3fX<T> normalize(const Vec3fX<T>& v)
-{
-  typename T::meta_type sqr_length = details::dot_prod3(v.data, v.data);
-  if(sqr_length > 0)
-    return v / (typename T::meta_type)sqrt(sqr_length);
   else
-    return v;
+  {
+    *signal = false;
+  }
 }
 
-template <typename T>
-static inline typename T::meta_type triple(const Vec3fX<T>& x, const Vec3fX<T>& y, const Vec3fX<T>& z)
+inline Vec3f::Scalar triple(const Vec3f& x, const Vec3f& y, const Vec3f& z)
 {
   return x.dot(y.cross(z));
 }
 
-template <typename T>
-std::ostream& operator << (std::ostream& out, const Vec3fX<T>& x)
-{
-  out << x[0] << " " << x[1] << " " << x[2];
-  return out;
-}
+///// @brief Vector3 class wrapper. The core data is in the template parameter class.
+//template <typename T>
+//class Vec3fX
+//{
+//public:
+//  typedef typename T::meta_type U;
 
-template <typename T>
-static inline Vec3fX<T> min(const Vec3fX<T>& x, const Vec3fX<T>& y)
-{
-  return Vec3fX<T>(details::min(x.data, y.data));
-}
+//  /// @brief interval vector3 data
+//  T data;
 
-template <typename T>
-static inline Vec3fX<T> max(const Vec3fX<T>& x, const Vec3fX<T>& y)
-{
-  return Vec3fX<T>(details::max(x.data, y.data));
-}
+//  Vec3fX() {}
+//  Vec3fX(const Vec3fX& other) : data(other.data) {}
 
-template <typename T>
-static inline Vec3fX<T> abs(const Vec3fX<T>& x)
-{
-  return Vec3fX<T>(details::abs(x.data));
-}
+//  /// @brief create Vector (x, y, z)
+//  Vec3fX(U x, U y, U z) : data(x, y, z) {}
+
+//  /// @brief create vector (x, x, x)
+//  Vec3fX(U x) : data(x) {}
+
+//  /// @brief create vector using the internal data type
+//  Vec3fX(const T& data_) : data(data_) {}
+
+//  inline U operator [] (size_t i) const { return data[i]; }
+//  inline U& operator [] (size_t i) { return data[i]; }
+
+//  inline Vec3fX operator + (const Vec3fX& other) const { return Vec3fX(data + other.data); }
+//  inline Vec3fX operator - (const Vec3fX& other) const { return Vec3fX(data - other.data); }
+//  inline Vec3fX operator * (const Vec3fX& other) const { return Vec3fX(data * other.data); }
+//  inline Vec3fX operator / (const Vec3fX& other) const { return Vec3fX(data / other.data); }
+//  inline Vec3fX& operator += (const Vec3fX& other) { data += other.data; return *this; }
+//  inline Vec3fX& operator -= (const Vec3fX& other) { data -= other.data; return *this; }
+//  inline Vec3fX& operator *= (const Vec3fX& other) { data *= other.data; return *this; }
+//  inline Vec3fX& operator /= (const Vec3fX& other) { data /= other.data; return *this; }
+//  inline Vec3fX operator + (U t) const { return Vec3fX(data + t); }
+//  inline Vec3fX operator - (U t) const { return Vec3fX(data - t); }
+//  inline Vec3fX operator * (U t) const { return Vec3fX(data * t); }
+//  inline Vec3fX operator / (U t) const { return Vec3fX(data / t); }
+//  inline Vec3fX& operator += (U t) { data += t; return *this; }
+//  inline Vec3fX& operator -= (U t) { data -= t; return *this; }
+//  inline Vec3fX& operator *= (U t) { data *= t; return *this; }
+//  inline Vec3fX& operator /= (U t) { data /= t; return *this; }
+//  inline Vec3fX operator - () const { return Vec3fX(-data); }
+//  inline Vec3fX cross(const Vec3fX& other) const { return Vec3fX(details::cross_prod(data, other.data)); }
+//  inline U dot(const Vec3fX& other) const { return details::dot_prod3(data, other.data); }
+//  inline Vec3fX& normalize()
+//  {
+//    U sqr_length = details::dot_prod3(data, data);
+//    if(sqr_length > 0)
+//      *this /= (U)sqrt(sqr_length);
+//    return *this;
+//  }
+
+//  inline Vec3fX& normalize(bool* signal)
+//  {
+//    U sqr_length = details::dot_prod3(data, data);
+//    if(sqr_length > 0)
+//    {
+//      *this /= (U)sqrt(sqr_length);
+//      *signal = true;
+//    }
+//    else
+//      *signal = false;
+//    return *this;
+//  }
+
+//  inline Vec3fX& abs()
+//  {
+//    data = abs(data);
+//    return *this;
+//  }
+
+//  inline U length() const { return sqrt(details::dot_prod3(data, data)); }
+//  inline U norm() const { return sqrt(details::dot_prod3(data, data)); }
+//  inline U squaredNorm() const { return details::dot_prod3(data, data); }
+//  inline U squaredNorm() const { return details::dot_prod3(data, data); }
+//  inline void setValue(U x, U y, U z) { data.setValue(x, y, z); }
+//  inline void setValue(U x) { data.setValue(x); }
+//  inline void setZero () {data.setValue (0); }
+//  inline bool equal(const Vec3fX& other, U epsilon = std::numeric_limits<U>::epsilon() * 100) const { return details::equal(data, other.data, epsilon); }
+//  inline Vec3fX<T>& negate() { data.negate(); return *this; }
+
+//  bool operator == (const Vec3fX& other) const
+//  {
+//    return equal(other, 0);
+//  }
+
+//  bool operator != (const Vec3fX& other) const
+//  {
+//    return !(*this == other);
+//  }
+
+
+//  inline Vec3fX<T>& ubound(const Vec3fX<T>& u)
+//  {
+//    data.ubound(u.data);
+//    return *this;
+//  }
+
+//  inline Vec3fX<T>& lbound(const Vec3fX<T>& l)
+//  {
+//    data.lbound(l.data);
+//    return *this;
+//  }
+
+//  bool isZero() const
+//  {
+//    return (data[0] == 0) && (data[1] == 0) && (data[2] == 0);
+//  }
+
+//};
+
+//template<typename T>
+//static inline Vec3fX<T> normalize(const Vec3fX<T>& v)
+//{
+//  typename T::meta_type sqr_length = details::dot_prod3(v.data, v.data);
+//  if(sqr_length > 0)
+//    return v / (typename T::meta_type)sqrt(sqr_length);
+//  else
+//    return v;
+//}
+
+//template <typename T>
+//static inline typename T::meta_type triple(const Vec3fX<T>& x, const Vec3fX<T>& y, const Vec3fX<T>& z)
+//{
+//  return x.dot(y.cross(z));
+//}
+
+//template <typename T>
+//std::ostream& operator << (std::ostream& out, const Vec3fX<T>& x)
+//{
+//  out << x[0] << " " << x[1] << " " << x[2];
+//  return out;
+//}
+
+//template <typename T>
+//static inline Vec3fX<T> min(const Vec3fX<T>& x, const Vec3fX<T>& y)
+//{
+//  return Vec3fX<T>(details::min(x.data, y.data));
+//}
+
+//template <typename T>
+//static inline Vec3fX<T> max(const Vec3fX<T>& x, const Vec3fX<T>& y)
+//{
+//  return Vec3fX<T>(details::max(x.data, y.data));
+//}
+
+//template <typename T>
+//static inline Vec3fX<T> abs(const Vec3fX<T>& x)
+//{
+//  return Vec3fX<T>(details::abs(x.data));
+//}
 
 template <typename T>
 void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
 {
-  typedef typename T::meta_type U;
-  U inv_length;
+  T inv_length;
+
   if(std::abs(w[0]) >= std::abs(w[1]))
   {
-    inv_length = (U)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
+    inv_length = (T)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
     u[0] = -w[2] * inv_length;
-    u[1] = (U)0;
+    u[1] = (T)0;
     u[2] = w[0] * inv_length;
     v[0] = w[1] * u[2];
     v[1] = w[2] * u[0] - w[0] * u[2];
@@ -223,8 +249,8 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
   }
   else
   {
-    inv_length = (U)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
-    u[0] = (U)0;
+    inv_length = (T)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
+    u[0] = (T)0;
     u[1] = w[2] * inv_length;
     u[2] = -w[1] * inv_length;
     v[0] = w[1] * u[2] - w[2] * u[1];
@@ -233,27 +259,25 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
   }
 }
 
-#if FCL_HAVE_SSE
-  typedef Vec3fX<details::sse_meta_f4> Vec3f;
-#else
-  typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;
-#endif
+//#if FCL_HAVE_SSE
+//  typedef Vec3fX<details::sse_meta_f4> Vec3f;
+//#else
+//  typedef Vec3fX<details::Vec3Data<FCL_REAL> > Vec3f;
+//#endif
 
-static inline std::ostream& operator << (std::ostream& o, const Vec3f& v)
-{
-  o << "(" << v[0] << " " << v[1] << " " << v[2] << ")";
-  return o;
-}
+//static inline std::ostream& operator << (std::ostream& o, const Vec3f& v)
+//{
+//  o << "(" << v[0] << " " << v[1] << " " << v[2] << ")";
+//  return o;
+//}
 
- template <typename T>
-   inline Vec3fX <T> operator * (const typename Vec3fX <T>::U& t,
-				 const Vec3fX <T>& v)
-   {
-     return Vec3fX <T> (v.data * t);
-   }
+// template <typename T>
+//   inline Vec3fX <T> operator * (const typename Vec3fX <T>::U& t,
+//				 const Vec3fX <T>& v)
+//   {
+//     return Vec3fX <T> (v.data * t);
+//   }
 
-
-}
-
+} // namespace fcl
 
 #endif
