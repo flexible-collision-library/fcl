@@ -215,7 +215,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplices[0].rank = 0;
   ray = guess;
 
-  appendVertex(simplices[0], (ray.squaredNorm() > 0) ? -ray : Vec3f(1, 0, 0));
+  appendVertex(simplices[0], (ray.squaredNorm() > 0) ? (-ray).eval() : Vec3f::UnitX());
   simplices[0].p[0] = 1;
   ray = simplices[0].c[0]->w;
   lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
@@ -317,13 +317,13 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
 
 void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
 {
-  sv.d = normalize(d);
+  sv.d = d.normalized();
   sv.w = shape.support(sv.d);
 }
 
 void GJK::getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const
 {
-  sv.d = normalize(d);
+  sv.d = d.normalized();
   sv.w = shape.support(sv.d, v);
 }
 

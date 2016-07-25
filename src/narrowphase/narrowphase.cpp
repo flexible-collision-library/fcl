@@ -198,12 +198,9 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
                             const Capsule& s2, const Transform3f& tf2,
                             std::vector<ContactPoint>* contacts)
 {
-  Transform3f tf2_inv(tf2);
-  tf2_inv.inverse();
-
   const Vec3f pos1(0., 0., 0.5 * s2.lz);
   const Vec3f pos2(0., 0., -0.5 * s2.lz);
-  const Vec3f s_c = tf2_inv.transform(tf1.transform(Vec3f()));
+  const Vec3f s_c = tf2.inverse() * tf1.translation();
 
   Vec3f segment_point;
 
@@ -215,12 +212,12 @@ bool sphereCapsuleIntersect(const Sphere& s1, const Transform3f& tf1,
   if (distance > 0)
     return false;
 
-  const Vec3f local_normal = diff.normalize() * - FCL_REAL(1);
+  const Vec3f local_normal = -diff.normalized();
 
   if (contacts)
   {
-    const Vec3f normal = tf2.getQuatRotation().transform(local_normal);
-    const Vec3f point = tf2.transform(segment_point + local_normal * distance);
+    const Vec3f normal = tf2.linear() * local_normal;
+    const Vec3f point = tf2 * (segment_point + local_normal * distance);
     const FCL_REAL penetration_depth = -distance;
 
     contacts->push_back(ContactPoint(normal, point, penetration_depth));
@@ -233,12 +230,9 @@ bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
                            const Capsule& s2, const Transform3f& tf2,
                            FCL_REAL* dist, Vec3f* p1, Vec3f* p2)
 {
-  Transform3f tf2_inv(tf2);
-  tf2_inv.inverse();
-
   Vec3f pos1(0., 0., 0.5 * s2.lz);
   Vec3f pos2(0., 0., -0.5 * s2.lz);
-  Vec3f s_c = tf2_inv.transform(tf1.transform(Vec3f()));
+  Vec3f s_c = tf2.inverse() * tf1.translation();
 
   Vec3f segment_point;
 
@@ -256,7 +250,7 @@ bool sphereCapsuleDistance(const Sphere& s1, const Transform3f& tf1,
   if(p1)
   {
     *p1 = s_c - diff * s1.radius;
-    *p1 = inverse(tf1).transform(tf2.transform(*p1));
+    *p1 = tf1.inverse() * tf2 * (*p1);
   }
 
   if(p2) *p2 = segment_point + diff * s1.radius;
@@ -268,7 +262,7 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
                            const Sphere& s2, const Transform3f& tf2,
                            std::vector<ContactPoint>* contacts)
 {
-  Vec3f diff = tf2.transform(Vec3f()) - tf1.transform(Vec3f());
+  Vec3f diff = tf2.translation() - tf1.translation();
   FCL_REAL len = diff.norm();
   if(len > s1.radius + s2.radius)
     return false;
@@ -277,8 +271,8 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
   {
     // If the centers of two sphere are at the same position, the normal is (0, 0, 0).
     // Otherwise, normal is pointing from center of object 1 to center of object 2
-    const Vec3f normal = len > 0 ? diff / len : diff;
-    const Vec3f point = tf1.transform(Vec3f()) + diff * s1.radius / (s1.radius + s2.radius);
+    const Vec3f normal = len > 0 ? (diff / len).eval() : diff;
+    const Vec3f point = tf1.translation() + diff * s1.radius / (s1.radius + s2.radius);
     const FCL_REAL penetration_depth = s1.radius + s2.radius - len;
     contacts->push_back(ContactPoint(normal, point, penetration_depth));
   }

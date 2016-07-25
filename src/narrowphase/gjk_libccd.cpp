@@ -511,10 +511,10 @@ ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd
 /** Basic shape to ccd shape */
 static void shapeToGJK(const ShapeBase& s, const Transform3f& tf, ccd_obj_t* o)
 {
-  const Quaternion3f& q = tf.getQuatRotation();
+  const Quaternion3f q(tf.linear());
   const Vec3f& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
-  ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
+  ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
 }
 
@@ -817,9 +817,9 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
   res = ccdMPRPenetration(obj1, obj2, &ccd, &depth, &dir, &pos);
   if(res == 0)
   {
-    contact_points->setValue(ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos));
+    *contact_points << ccdVec3X(&pos), ccdVec3Y(&pos), ccdVec3Z(&pos);
     *penetration_depth = depth;
-    normal->setValue(ccdVec3X(&dir), ccdVec3Y(&dir), ccdVec3Z(&dir));
+    *normal << ccdVec3X(&dir), ccdVec3Y(&dir), ccdVec3Z(&dir);
 
     return true;
   }
@@ -845,8 +845,8 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
 
   ccd_vec3_t p1_, p2_;
   dist = libccd_extension::ccdGJKDist2(obj1, obj2, &ccd, &p1_, &p2_);
-  if(p1) p1->setValue(ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_));
-  if(p2) p2->setValue(ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_));
+  if(p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
+  if(p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
   if(res) *res = dist;
   if(dist < 0) return false;
   else return true;
@@ -1073,10 +1073,10 @@ void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, cons
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
   ccdVec3Set(&o->p[2], P3[0], P3[1], P3[2]);
   ccdVec3Set(&o->c, center[0], center[1], center[2]);
-  const Quaternion3f& q = tf.getQuatRotation();
+  const Quaternion3f q(tf.linear());
   const Vec3f& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
-  ccdQuatSet(&o->rot, q.getX(), q.getY(), q.getZ(), q.getW());
+  ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
 
   return o;

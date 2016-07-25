@@ -109,7 +109,7 @@ void Halfspace::unitNormalTest()
   }
   else
   {
-    n.setValue(1, 0, 0);
+    n << 1, 0, 0;
     d = 0;
   }  
 }
@@ -125,7 +125,7 @@ void Plane::unitNormalTest()
   }
   else
   {
-    n.setValue(1, 0, 0);
+    n << 1, 0, 0;
     d = 0;
   }
 }
