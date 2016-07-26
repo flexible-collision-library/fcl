@@ -137,13 +137,10 @@ namespace details
 
     // line segment composes two points. First point is given by the origin, second point is computed by the origin transformed along z.
     // extension along z-axis means transformation with identity matrix and translation vector z pos
-    Transform3f transformQ1(Vec3f(0,0,s1.lz));
-    transformQ1 = tf1 * transformQ1;
+    Transform3f transformQ1 = tf1 * Eigen::Translation3d(Vec3f(0,0,s1.lz));
     Vec3f q1 = transformQ1.translation();
 
-
-    Transform3f transformQ2(Vec3f(0,0,s2.lz));
-    transformQ2 = tf2 * transformQ2;
+    Transform3f transformQ2 = tf2 * Eigen::Translation3d(Vec3f(0,0,s2.lz));
     Vec3f q2 = transformQ2.translation();
 
     // s and t correspont to the length of the line segment
@@ -2063,7 +2060,7 @@ bool spherePlaneIntersect(const Sphere& s1, const Transform3f& tf1,
   {
     if (contacts)
     {
-      const Vec3f normal = (signed_dist > 0) ? -new_s2.n : new_s2.n;
+      const Vec3f normal = (signed_dist > 0) ? (-new_s2.n).eval() : new_s2.n;
       const Vec3f point = center - new_s2.n * signed_dist;
       const FCL_REAL penetration_depth = depth;
 
@@ -2187,7 +2184,7 @@ bool boxPlaneIntersect(const Box& s1, const Transform3f& tf1,
   // compute the contact point by project the deepest point onto the plane
   if (contacts)
   {
-    const Vec3f normal = (signed_dist > 0) ? -new_s2.n : new_s2.n;
+    const Vec3f normal = (signed_dist > 0) ? (-new_s2.n).eval() : new_s2.n;
     const Vec3f point = p - new_s2.n * new_s2.signedDistance(p);
     const FCL_REAL penetration_depth = depth;
 
@@ -2258,7 +2255,7 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
       {
         if (contacts)
         {
-          const Vec3f normal = (d1 < 0) ? -new_s2.n : new_s2.n;
+          const Vec3f normal = (d1 < 0) ? (-new_s2.n).eval() : new_s2.n;
           const Vec3f point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
           const FCL_REAL penetration_depth = abs_d1 + s1.radius;
 
@@ -2269,7 +2266,7 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
       {
         if (contacts)
         {
-          const Vec3f normal = (d2 < 0) ? -new_s2.n : new_s2.n;
+          const Vec3f normal = (d2 < 0) ? (-new_s2.n).eval() : new_s2.n;
           const Vec3f point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
           const FCL_REAL penetration_depth = abs_d2 + s1.radius;
 
@@ -2287,7 +2284,7 @@ bool capsulePlaneIntersect(const Capsule& s1, const Transform3f& tf1,
     {
       if (contacts)
       {
-        const Vec3f normal = (d1 < 0) ? new_s2.n : -new_s2.n;
+        const Vec3f normal = (d1 < 0) ? new_s2.n : (-new_s2.n).eval();
         const FCL_REAL penetration_depth = s1.radius - std::min(abs_d1, abs_d2);
         Vec3f point;
         if(abs_d1 <= s1.radius && abs_d2 <= s1.radius)
@@ -2367,7 +2364,7 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
       {
         if (contacts)
         {
-          const Vec3f normal = (d < 0) ? new_s2.n : -new_s2.n;
+          const Vec3f normal = (d < 0) ? new_s2.n : (-new_s2.n).eval();
           const Vec3f point = T - new_s2.n * d;
           const FCL_REAL penetration_depth = depth;
 
@@ -2415,7 +2412,7 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
         {
           if (contacts)
           {
-            const Vec3f normal = (d2 < 0) ? -new_s2.n : new_s2.n;
+            const Vec3f normal = (d2 < 0) ? (-new_s2.n).eval() : new_s2.n;
             const Vec3f point = c2 - new_s2.n * d2;
             const FCL_REAL penetration_depth = abs_d2;
 
@@ -2426,7 +2423,7 @@ bool cylinderPlaneIntersect(const Cylinder& s1, const Transform3f& tf1,
         {
           if (contacts)
           {
-            const Vec3f normal = (d1 < 0) ? -new_s2.n : new_s2.n;
+            const Vec3f normal = (d1 < 0) ? (-new_s2.n).eval() : new_s2.n;
             const Vec3f point = c1 - new_s2.n * d1;
             const FCL_REAL penetration_depth = abs_d1;
 
@@ -2464,7 +2461,7 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
     {
       if (contacts)
       {
-        const Vec3f normal = (d < 0) ? new_s2.n : -new_s2.n;
+        const Vec3f normal = (d < 0) ? new_s2.n : (-new_s2.n).eval();
         const Vec3f point = T - dir_z * (0.5 * s1.lz) + dir_z * (0.5 * depth / s1.radius * s1.lz) - new_s2.n * d;
         const FCL_REAL penetration_depth = depth;
 
@@ -2521,7 +2518,7 @@ bool conePlaneIntersect(const Cone& s1, const Transform3f& tf1,
 
       if (contacts)
       {
-        const Vec3f normal = (d_positive > d_negative) ? -new_s2.n : new_s2.n;
+        const Vec3f normal = (d_positive > d_negative) ? (-new_s2.n).eval() : new_s2.n;
         const FCL_REAL penetration_depth = std::min(d_positive, d_negative);
 
         Vec3f point;
@@ -2644,11 +2641,11 @@ bool planeTriangleIntersect(const Plane& s1, const Transform3f& tf1,
     }
 
     if(penetration_depth) *penetration_depth = std::min(d_positive, d_negative);
-    if(normal) *normal = (d_positive > d_negative) ? new_s1.n : -new_s1.n;
+    if(normal) *normal = (d_positive > d_negative) ? new_s1.n : (-new_s1.n).eval();
     if(contact_points)
     {
-      Vec3f p[2];
-      Vec3f q;
+      Vec3f p[2] = {Vec3f::Zero(), Vec3f::Zero()};
+      Vec3f q = Vec3f::Zero();
       
       FCL_REAL p_d[2];
       FCL_REAL q_d(0);

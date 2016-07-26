@@ -372,10 +372,11 @@ public:
 protected:
   void computeScrewParameter()
   {
-    Quaternion3f deltaq(tf2.linear() * tf1.linear().transpose());
-    Eigen::AngleAxisd aa(deltaq);
+    const Eigen::AngleAxisd aa(tf2.linear() * tf1.linear().transpose());
+
     axis = aa.axis();
     angular_vel = aa.angle();
+
     if(angular_vel < 0)
     {
       angular_vel = -angular_vel;

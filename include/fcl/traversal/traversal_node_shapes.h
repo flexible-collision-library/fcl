@@ -200,7 +200,8 @@ public:
     Vec3f closest_p1, closest_p2;
     this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
 
-    Vec3f n = this->tf2.transform(closest_p2) - this->tf1.transform(closest_p1); n.normalize();
+    Vec3f n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
+    n.normalize();
     TBVMotionBoundVisitor<RSS> mb_visitor1(model1_bv, n);
     TBVMotionBoundVisitor<RSS> mb_visitor2(model2_bv, -n);
     FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);

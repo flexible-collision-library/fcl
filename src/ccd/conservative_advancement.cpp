@@ -159,8 +159,7 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
     node.motion2->getCurrentTransform(tf2);
 
     // compute the transformation from 1 to 2
-    Transform3f tf;
-    relativeTransform(tf1, tf2, tf);
+    Transform3f tf = tf1.inverse() * tf2;
     node.R = tf.linear();
     node.T = tf.translation();
     

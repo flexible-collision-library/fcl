@@ -353,11 +353,11 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const ScrewMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& p = motion.getAxisOrigin();
   
-  FCL_REAL proj_max = ((tf.getQuatRotation().transform(a) + tf.translation() - p).cross(axis)).squaredNorm();
+  FCL_REAL proj_max = ((tf.linear() * a + tf.translation() - p).cross(axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(b) + tf.translation() - p).cross(axis)).squaredNorm();
+  tmp = ((tf.linear() * b + tf.translation() - p).cross(axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(c) + tf.translation() - p).cross(axis)).squaredNorm();
+  tmp = ((tf.linear() * c + tf.translation() - p).cross(axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
 
   proj_max = std::sqrt(proj_max);
@@ -388,13 +388,13 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& linear_vel = motion.getLinearVelocity();
   
-  FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr - reference_p)).cross(angular_axis)).squaredNorm();
+  FCL_REAL c_proj_max = ((tf.linear() * (bv.Tr - reference_p)).cross(angular_axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.linear() * (bv.Tr + bv.axis.col(0) * bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.linear() * (bv.Tr + bv.axis.col(1) * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.linear() * (bv.Tr + bv.axis.col(0) * bv.l[0] + bv.axis.col(1) * bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = std::sqrt(c_proj_max);
@@ -420,11 +420,11 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const InterpMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& linear_vel = motion.getLinearVelocity();
 
-  FCL_REAL proj_max = ((tf.getQuatRotation().transform(a - reference_p)).cross(angular_axis)).squaredNorm();
+  FCL_REAL proj_max = ((tf.linear() * (a - reference_p)).cross(angular_axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(b - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.linear() * (b - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(c - reference_p)).cross(angular_axis)).squaredNorm();
+  tmp = ((tf.linear() * (c - reference_p)).cross(angular_axis)).squaredNorm();
   if(tmp > proj_max) proj_max = tmp;
 
   proj_max = std::sqrt(proj_max);
@@ -436,10 +436,9 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const InterpMotion& motion) const
   return mu;  
 }
 
-InterpMotion::InterpMotion() : MotionBase()
+InterpMotion::InterpMotion() : MotionBase(), angular_axis(Vec3f::UnitX())
 {
   // Default angular velocity is zero
-  angular_axis.setValue(1, 0, 0);
   angular_vel = 0;
 
   // Default reference point is local zero point
@@ -449,10 +448,17 @@ InterpMotion::InterpMotion() : MotionBase()
 
 InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
                            const Matrix3f& R2, const Vec3f& T2) : MotionBase(),
-                                                                  tf1(R1, T1),
-                                                                  tf2(R2, T2),
-                                                                  tf(tf1)
+                                                                  tf1(Transform3f::Identity()),
+                                                                  tf2(Transform3f::Identity())
 {
+  tf1.linear() = R1;
+  tf1.translation() = T1;
+
+  tf2.linear() = R2;
+  tf2.translation() = T2;
+
+  tf = tf1;
+
   // Compute the velocities for the motion
   computeVelocity();
 }
@@ -470,11 +476,18 @@ InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_) : M
 InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
                            const Matrix3f& R2, const Vec3f& T2,
                            const Vec3f& O) : MotionBase(),
-                                             tf1(R1, T1),
-                                             tf2(R2, T2),
-                                             tf(tf1),
+                                             tf1(Transform3f::Identity()),
+                                             tf2(Transform3f::Identity()),
                                              reference_p(O)
 {
+  tf1.linear() = R1;
+  tf1.translation() = T1;
+
+  tf2.linear() = R2;
+  tf2.translation() = T2;
+
+  tf = tf1;
+
   // Compute the velocities for the motion
   computeVelocity();
 }
@@ -491,8 +504,8 @@ bool InterpMotion::integrate(double dt) const
 {
   if(dt > 1) dt = 1;
 
-  tf.setQuatRotation(absoluteRotation(dt));
-  tf.setTranslation(linear_vel * dt + tf1.transform(reference_p) - tf.getQuatRotation().transform(reference_p));
+  tf.linear() = absoluteRotation(dt).toRotationMatrix();
+  tf.translation() = linear_vel * dt + tf1 * reference_p - tf.linear() * reference_p;
 
   return true;
 }
@@ -500,9 +513,12 @@ bool InterpMotion::integrate(double dt) const
 
 void InterpMotion::computeVelocity()
 {
-  linear_vel = tf2.transform(reference_p) - tf1.transform(reference_p);
-  Quaternion3f deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
-  deltaq.toAxisAngle(angular_axis, angular_vel);
+  linear_vel = tf2 * reference_p - tf1 * reference_p;
+
+  const Eigen::AngleAxisd aa(tf2.linear() * tf1.linear().transpose());
+  angular_axis = aa.axis();
+  angular_vel = aa.angle();
+
   if(angular_vel < 0)
   {
     angular_vel = -angular_vel;
@@ -513,15 +529,13 @@ void InterpMotion::computeVelocity()
 
 Quaternion3f InterpMotion::deltaRotation(FCL_REAL dt) const
 {
-  Quaternion3f res;
-  res.fromAxisAngle(angular_axis, (FCL_REAL)(dt * angular_vel));
-  return res;
+  return Quaternion3f(Eigen::AngleAxisd((FCL_REAL)(dt * angular_vel), angular_axis));
 }
 
 Quaternion3f InterpMotion::absoluteRotation(FCL_REAL dt) const
 {
   Quaternion3f delta_t = deltaRotation(dt);
-  return delta_t * tf1.getQuatRotation();
+  return delta_t * Quaternion3f(tf1.linear());
 }
 
 

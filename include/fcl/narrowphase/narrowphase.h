@@ -678,7 +678,8 @@ struct GJKSolver_indep
 
     if(gjk_status == details::GJK::Valid)
     {
-      Vec3f w0, w1;
+      Vec3f w0 = Vec3f::Zero();
+      Vec3f w1 = Vec3f::Zero();
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         FCL_REAL p = gjk.getSimplex()->p[i];
@@ -722,7 +723,8 @@ struct GJKSolver_indep
     
     if(gjk_status == details::GJK::Valid)
     {
-      Vec3f w0, w1;
+      Vec3f w0 = Vec3f::Zero();
+      Vec3f w1 = Vec3f::Zero();
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         FCL_REAL p = gjk.getSimplex()->p[i];
@@ -764,7 +766,8 @@ struct GJKSolver_indep
 
     if(gjk_status == details::GJK::Valid)
     {
-      Vec3f w0, w1;
+      Vec3f w0 = Vec3f::Zero();
+      Vec3f w1 = Vec3f::Zero();
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         FCL_REAL p = gjk.getSimplex()->p[i];
