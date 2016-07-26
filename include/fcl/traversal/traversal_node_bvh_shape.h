@@ -1150,7 +1150,7 @@ public:
     {
       const ConservativeAdvancementStackData& data = stack.back();
 
-      Vec3f n = this->tf2.transform(data.P2) - data.P1; n.normalize();
+      Vec3f n = this->tf2 * data.P2 - data.P1; n.normalize();
       int c1 = data.c1;
 
       TBVMotionBoundVisitor<BV> mb_visitor1(this->model1->getBV(c1).bv, n);
@@ -1284,7 +1284,7 @@ public:
     {
       const ConservativeAdvancementStackData& data = stack.back();
 
-      Vec3f n = data.P2 - this->tf1.transform(data.P1); n.normalize();
+      Vec3f n = data.P2 - this->tf1 * data.P1; n.normalize();
       int c2 = data.c2;
 
       TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);

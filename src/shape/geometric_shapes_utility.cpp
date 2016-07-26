@@ -1022,19 +1022,22 @@ void constructBox(const RSS& bv, Box& box, Transform3f& tf)
 void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = Transform3f(bv.center());
+  tf.linear().setIdentity();
+  tf.translation() = bv.center();
 }
 
 void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = Transform3f(bv.center());
+  tf.linear().setIdentity();
+  tf.translation() = bv.center();
 }
 
 void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = Transform3f(bv.center());
+  tf.linear().setIdentity();
+  tf.translation() = bv.center();
 }
 
 
@@ -1042,7 +1045,7 @@ void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf)
 void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.max_ - bv.min_);
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
 void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
@@ -1079,19 +1082,19 @@ void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f
 void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
 void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
 void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Transform3f(bv.center());
+  tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
 

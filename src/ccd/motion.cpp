@@ -48,9 +48,9 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const
   FCL_REAL tf_t = motion.getCurrentTime();
 
   Vec3f c1 = bv.Tr;
-  Vec3f c2 = bv.Tr + bv.axis[0] * bv.l[0];
-  Vec3f c3 = bv.Tr + bv.axis[1] * bv.l[1];
-  Vec3f c4 = bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1];
+  Vec3f c2 = bv.Tr + bv.axis.col(0) * bv.l[0];
+  Vec3f c3 = bv.Tr + bv.axis.col(1) * bv.l[1];
+  Vec3f c4 = bv.Tr + bv.axis.col(0) * bv.l[0] + bv.axis.col(1) * bv.l[1];
 
   FCL_REAL tmp;
   // max_i |c_i * n|
@@ -159,10 +159,8 @@ bool SplineMotion::integrate(double dt) const
   FCL_REAL cur_angle = cur_w.norm();
   cur_w.normalize();
 
-  Quaternion3f cur_q;
-  cur_q.fromAxisAngle(cur_w, cur_angle);
-
-  tf.setTransform(cur_q, cur_T);
+  tf.linear() = Eigen::AngleAxisd(cur_angle, cur_w).toRotationMatrix();
+  tf.translation() = cur_T;
 
   tf_t = dt;
 
@@ -325,13 +323,13 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const
   FCL_REAL angular_vel = motion.getAngularVelocity();
   const Vec3f& p = motion.getAxisOrigin();
     
-  FCL_REAL c_proj_max = ((tf.getQuatRotation().transform(bv.Tr)).cross(axis)).squaredNorm();
+  FCL_REAL c_proj_max = ((tf.linear() * bv.Tr).cross(axis)).squaredNorm();
   FCL_REAL tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0])).cross(axis)).squaredNorm();
+  tmp = ((tf.linear() * (bv.Tr + bv.axis.col(0) * bv.l[0])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[1] * bv.l[1])).cross(axis)).squaredNorm();
+  tmp = ((tf.linear() * (bv.Tr + bv.axis.col(1) * bv.l[1])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
-  tmp = ((tf.getQuatRotation().transform(bv.Tr + bv.axis[0] * bv.l[0] + bv.axis[1] * bv.l[1])).cross(axis)).squaredNorm();
+  tmp = ((tf.linear() * (bv.Tr + bv.axis.col(0) * bv.l[0] + bv.axis.col(1) * bv.l[1])).cross(axis)).squaredNorm();
   if(tmp > c_proj_max) c_proj_max = tmp;
 
   c_proj_max = sqrt(c_proj_max);
