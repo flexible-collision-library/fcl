@@ -1070,15 +1070,7 @@ RSS RSS::operator + (const RSS& other) const
   Vec3f s(0, 0, 0);
 
   getCovariance(v, NULL, NULL, NULL, 16, M);
-//  eigen(M, s, E);
-  Eigen::SelfAdjointEigenSolver<Matrix3f> eigensolver(M);
-  if (eigensolver.info() != Eigen::Success)
-  {
-    std::cerr << "[RSS::operator] Failed to compute eigendecomposition.\n";
-    return bv;
-  }
-  s = eigensolver.eigenvalues();
-  E = eigensolver.eigenvectors();
+  eigen(M, s, E);
 
   int min, mid, max;
   if(s[0] > s[1]) { max = 0; min = 1; }

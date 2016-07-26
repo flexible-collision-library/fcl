@@ -84,15 +84,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
     vertex_proj[i] = vertex[i] - b.axis.col(0) * vertex[i].dot(b.axis.col(0));
 
   getCovariance(vertex_proj, NULL, NULL, NULL, 16, M);
-
-  Eigen::SelfAdjointEigenSolver<Matrix3f> eigensolver(M);
-  if (eigensolver.info() != Eigen::Success)
-  {
-    std::cerr << "[merge_largedist] Failed to compute eigendecomposition.\n";
-    return b;
-  }
-  s = eigensolver.eigenvalues();
-  E = eigensolver.eigenvectors();
+  eigen(M, s, E);
 
   int min, mid, max;
   if (s[0] > s[1])

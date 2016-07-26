@@ -186,8 +186,7 @@ public:
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative()
   {
-    Vec3f I[3] = {Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1)};
-    makeParentRelativeRecurse(0, I, Vec3f());
+    makeParentRelativeRecurse(0, Matrix3f::Identity(), Vec3f());
   }
 
   Vec3f computeCOM() const

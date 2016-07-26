@@ -108,7 +108,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
         
         for(unsigned int i = 0; i < n_contacts; ++i)
         {
-          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1.transform(contacts[i]), tf1.getQuatRotation().transform(normal), penetration));
+          result.addContact(Contact(model1, model2, primitive_id1, primitive_id2, tf1 * contacts[i], tf1.linear() * normal, penetration));
         }
       }
     }
@@ -116,7 +116,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(is_intersect && request.enable_cost)
     {
       AABB overlap_part;
-      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
+      AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
@@ -125,7 +125,7 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
     {
       AABB overlap_part;
-      AABB(tf1.transform(p1), tf1.transform(p2), tf1.transform(p3)).overlap(AABB(tf2.transform(q1), tf2.transform(q2), tf2.transform(q3)), overlap_part);
+      AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);          
     }    
   }
@@ -337,8 +337,8 @@ static inline void distancePostprocessOrientedNode(const BVHModel<BV>* model1, c
   /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
   if(request.enable_nearest_points && (result.o1 == model1) && (result.o2 == model2))
   {
-    result.nearest_points[0] = tf1.transform(result.nearest_points[0]);
-    result.nearest_points[1] = tf1.transform(result.nearest_points[1]);
+    result.nearest_points[0] = tf1 * result.nearest_points[0];
+    result.nearest_points[1] = tf1 * result.nearest_points[1];
   }
 }
 
@@ -477,7 +477,7 @@ bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
       getBVAxis(model1->getBV(c1).bv, 2) * n[2];
     Quaternion3f R0;
     motion1->getCurrentRotation(R0);
-    n_transformed = R0.transform(n_transformed);
+    n_transformed = R0 * n_transformed;
     n_transformed.normalize();
 
     TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, -n_transformed);
@@ -568,7 +568,7 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(int b1, int b2,
   /// turn n into the global frame, pointing from object 1 to object 2
   Quaternion3f R0;
   motion1->getCurrentRotation(R0);
-  Vec3f n_transformed = R0.transform(n);
+  Vec3f n_transformed = R0 * n;
   n_transformed.normalize(); // normalized here
 
   TriangleMotionBoundVisitor mb_visitor1(t11, t12, t13, n_transformed), mb_visitor2(t21, t22, t23, -n_transformed);

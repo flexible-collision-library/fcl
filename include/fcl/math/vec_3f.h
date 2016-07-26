@@ -242,20 +242,20 @@ void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
     inv_length = (T)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
     u[0] = -w[2] * inv_length;
     u[1] = (T)0;
-    u[2] = w[0] * inv_length;
-    v[0] = w[1] * u[2];
-    v[1] = w[2] * u[0] - w[0] * u[2];
+    u[2] =  w[0] * inv_length;
+    v[0] =  w[1] * u[2];
+    v[1] =  w[2] * u[0] - w[0] * u[2];
     v[2] = -w[1] * u[0];
   }
   else
   {
     inv_length = (T)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
     u[0] = (T)0;
-    u[1] = w[2] * inv_length;
+    u[1] =  w[2] * inv_length;
     u[2] = -w[1] * inv_length;
-    v[0] = w[1] * u[2] - w[2] * u[1];
+    v[0] =  w[1] * u[2] - w[2] * u[1];
     v[1] = -w[0] * u[2];
-    v[2] = w[0] * u[1];
+    v[2] =  w[0] * u[1];
   }
 }
 

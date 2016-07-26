@@ -52,9 +52,9 @@ IMatrix3::IMatrix3(FCL_REAL v)
 
 IMatrix3::IMatrix3(const Matrix3f& m)
 {
-  v_[0] = m.getRow(0);
-  v_[1] = m.getRow(1);
-  v_[2] = m.getRow(2);
+  v_[0] = m.row(0);
+  v_[1] = m.row(1);
+  v_[2] = m.row(2);
 }
 
 IMatrix3::IMatrix3(FCL_REAL m[3][3][2])

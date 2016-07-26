@@ -54,6 +54,65 @@ void hat(Matrix3fX<T>& mat, const Vec3fX<T>& vec)
   mat << 0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0;
 }
 
+/// @brief compute the eigen vector and eigen vector of a matrix. dout is the
+/// eigen values, vout is the eigen vectors
+template<typename T>
+void eigen(const Matrix3fX<T>& m, Vec3fX<T> dout, Matrix3fX<T> vout)
+{
+  Eigen::SelfAdjointEigenSolver<Matrix3f> eigensolver(m);
+  if (eigensolver.info() != Eigen::Success)
+  {
+    std::cerr << "[eigen] Failed to compute eigendecomposition.\n";
+    return;
+  }
+  dout = eigensolver.eigenvalues();
+  vout = eigensolver.eigenvectors();
+}
+
+template <typename T>
+void generateCoordinateSystem(Matrix3fX<T>& axis)
+{
+  // Assum axis.col(0) is closest to z-axis
+  assert(axis.col(0).maxCoeff() == 2);
+
+  if(std::abs(axis(0, 0)) >= std::abs(axis(1, 0)))
+  {
+    // let axis.col(0) = (x, y, z)
+    // axis.col(1) = (-z, 0, x) / length((-z, 0, x)) // so that axis.col(0) and
+    //                                               // axis.col(1) are
+    //                                               // othorgonal
+    // axis.col(2) = axis.col(0).cross(axis.col(1))
+
+    T inv_length = 1.0 / sqrt(std::pow(axis(0, 0), 2) + std::pow(axis(2, 0), 2));
+
+    axis(0, 1) = -axis(2, 0) * inv_length;
+    axis(1, 1) = 0;
+    axis(2, 1) =  axis(0, 0) * inv_length;
+
+    axis(0, 2) =  axis(1, 0) * axis(2, 1);
+    axis(1, 2) =  axis(2, 0) * axis(0, 1) - axis(0, 0) * axis(2, 1);
+    axis(2, 2) = -axis(1, 0) * axis(0, 1);
+  }
+  else
+  {
+    // let axis.col(0) = (x, y, z)
+    // axis.col(1) = (0, z, -y) / length((0, z, -y)) // so that axis.col(0) and
+    //                                               // axis.col(1) are
+    //                                               // othorgonal
+    // axis.col(2) = axis.col(0).cross(axis.col(1))
+
+    T inv_length = 1.0 / sqrt(std::pow(axis(1, 0), 2) + std::pow(axis(2, 0), 2));
+
+    axis(0, 1) = 0;
+    axis(1, 1) =  axis(2, 0) * inv_length;
+    axis(2, 1) = -axis(1, 0) * inv_length;
+
+    axis(0, 2) =  axis(1, 0) * axis(2, 1) - axis(2, 0) * axis(1, 1);
+    axis(1, 2) = -axis(0, 0) * axis(2, 1);
+    axis(2, 2) =  axis(0, 0) * axis(1, 1);
+  }
+}
+
 ///// @brief Matrix2 class wrapper. the core data is in the template parameter class
 //template<typename T>
 //class Matrix3fX
@@ -346,14 +405,14 @@ void hat(Matrix3fX<T>& mat, const Vec3fX<T>& vec)
 //  mat.setValue(0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0);
 //}
 
-//template<typename T>
-//void relativeTransform(const Matrix3fX<T>& R1, const Vec3fX<typename T::vector_type>& t1,
-//                       const Matrix3fX<T>& R2, const Vec3fX<typename T::vector_type>& t2,
-//                       Matrix3fX<T>& R, Vec3fX<typename T::vector_type>& t)
-//{
-//  R = R1.transposeTimes(R2);
-//  t = R1.transposeTimes(t2 - t1);
-//}
+template<typename T>
+void relativeTransform(const Matrix3fX<T>& R1, const Vec3fX<T>& t1,
+                       const Matrix3fX<T>& R2, const Vec3fX<T>& t2,
+                       Matrix3fX<T>& R, Vec3fX<T>& t)
+{
+  R = R1.transpose() * R2;
+  t = R1.transpose() * (t2 - t1);
+}
 
 ///// @brief compute the eigen vector and eigen vector of a matrix. dout is the eigen values, vout is the eigen vectors
 //template<typename T>
@@ -508,16 +567,7 @@ public:
   /// @brief init the Variance
   void init() 
   {
-    Eigen::SelfAdjointEigenSolver<Matrix3f> eigensolver(Sigma);
-
-    if (eigensolver.info() != Eigen::Success)
-    {
-      std::cerr << "[Variance3f::init] Failed to compute eigendecomposition.\n";
-      return;
-    }
-
-    sigma = eigensolver.eigenvalues();
-    axis = eigensolver.eigenvectors();
+    eigen(Sigma, sigma, axis);
   }
 
   /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized as a square variation matrix

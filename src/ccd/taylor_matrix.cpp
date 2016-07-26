@@ -66,9 +66,9 @@ TMatrix3::TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3)
 
 TMatrix3::TMatrix3(const Matrix3f& m, const std::shared_ptr<TimeInterval>& time_interval)
 {
-  v_[0] = TVector3(m.getRow(0), time_interval);
-  v_[1] = TVector3(m.getRow(1), time_interval);
-  v_[2] = TVector3(m.getRow(2), time_interval);
+  v_[0] = TVector3(m.row(0), time_interval);
+  v_[1] = TVector3(m.row(1), time_interval);
+  v_[2] = TVector3(m.row(2), time_interval);
 }
 
 void TMatrix3::setIdentity()
@@ -109,9 +109,9 @@ TaylorModel& TMatrix3::operator () (size_t i, size_t j)
 
 TMatrix3 TMatrix3::operator * (const Matrix3f& m) const
 {
-  const Vec3f& mc0 = m.getColumn(0);
-  const Vec3f& mc1 = m.getColumn(1);
-  const Vec3f& mc2 = m.getColumn(2);
+  const Vec3f& mc0 = m.col(0);
+  const Vec3f& mc1 = m.col(1);
+  const Vec3f& mc2 = m.col(2);
 
   return TMatrix3(TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
                   TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
@@ -153,9 +153,9 @@ TMatrix3 TMatrix3::operator * (FCL_REAL d) const
 
 TMatrix3& TMatrix3::operator *= (const Matrix3f& m)
 {
-  const Vec3f& mc0 = m.getColumn(0);
-  const Vec3f& mc1 = m.getColumn(1);
-  const Vec3f& mc2 = m.getColumn(2);
+  const Vec3f& mc0 = m.col(0);
+  const Vec3f& mc1 = m.col(1);
+  const Vec3f& mc2 = m.col(2);
   
   v_[0] = TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
   v_[1] = TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
@@ -168,10 +168,11 @@ TMatrix3& TMatrix3::operator *= (const TMatrix3& m)
   const TVector3& mc0 = m.getColumn(0);
   const TVector3& mc1 = m.getColumn(1);
   const TVector3& mc2 = m.getColumn(2);
-  
+
   v_[0] = TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
   v_[1] = TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
   v_[2] = TVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+
   return *this;
 }
 
