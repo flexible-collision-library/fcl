@@ -63,6 +63,9 @@ public:
   /// @brief Radius of sphere summed with rectangle to form RSS
   FCL_REAL r;
 
+  /// Constructor
+  RSS();
+
   /// @brief Check collision between two RSS
   bool overlap(const RSS& other) const;
 

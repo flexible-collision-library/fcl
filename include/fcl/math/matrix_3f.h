@@ -57,9 +57,10 @@ void hat(Matrix3fX<T>& mat, const Vec3fX<T>& vec)
 /// @brief compute the eigen vector and eigen vector of a matrix. dout is the
 /// eigen values, vout is the eigen vectors
 template<typename T>
-void eigen(const Matrix3fX<T>& m, Vec3fX<T> dout, Matrix3fX<T> vout)
+void eigen(const Matrix3fX<T>& m, Vec3fX<T>& dout, Matrix3fX<T>& vout)
 {
-  Eigen::SelfAdjointEigenSolver<Matrix3f> eigensolver(m);
+  // We assume that m is symmetric matrix.
+  Eigen::SelfAdjointEigenSolver<Matrix3fX<T>> eigensolver(m);
   if (eigensolver.info() != Eigen::Success)
   {
     std::cerr << "[eigen] Failed to compute eigendecomposition.\n";

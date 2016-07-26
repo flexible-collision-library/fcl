@@ -344,9 +344,8 @@ static inline void distancePostprocessOrientedNode(const BVHModel<BV>* model1, c
 
 }
 
-MeshDistanceTraversalNodeRSS::MeshDistanceTraversalNodeRSS() : MeshDistanceTraversalNode<RSS>()
+MeshDistanceTraversalNodeRSS::MeshDistanceTraversalNodeRSS() : MeshDistanceTraversalNode<RSS>(), R(Matrix3f::Identity()), T(Vec3f::Zero())
 {
-  R.setIdentity();
 }
 
 void MeshDistanceTraversalNodeRSS::preprocess()

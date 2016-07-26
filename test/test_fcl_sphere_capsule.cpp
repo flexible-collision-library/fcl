@@ -50,10 +50,10 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
 
 	Sphere sphere1 (50);
 	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., -50));
+  sphere1_transform.translation() = (Vec3f (0., 0., -50));
 
 	Capsule capsule (50, 200.);
-	Transform3f capsule_transform (Vec3f (0., 0., 200));
+  Transform3f capsule_transform(Eigen::Translation3d(Vec3f(0., 0., 200)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
@@ -64,10 +64,10 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negativ
 
 	Sphere sphere1 (50);
 	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., 50));
+  sphere1_transform.translation() = (Vec3f (0., 0., 50));
 
 	Capsule capsule (50, 200.);
-	Transform3f capsule_transform (Vec3f (0., 0., -200));
+  Transform3f capsule_transform(Eigen::Translation3d(Vec3f(0., 0., -200)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
@@ -78,10 +78,10 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
 
 	Sphere sphere1 (50);
 	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., -50));
+  sphere1_transform.translation() = (Vec3f (0., 0., -50));
 
 	Capsule capsule (50, 200.);
-	Transform3f capsule_transform (Vec3f (150., 0., 0.));
+  Transform3f capsule_transform(Eigen::Translation3d(Vec3f(150., 0., 0.)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
@@ -92,12 +92,17 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_r
 
 	Sphere sphere1 (50);
 	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., -50));
+  sphere1_transform.translation() = (Vec3f (0., 0., -50));
 
 	Capsule capsule (50, 200.);
-	Matrix3f rotation;
-	rotation.setEulerZYX (constants::pi * 0.5, 0., 0.);
-	Transform3f capsule_transform (rotation, Vec3f (150., 0., 0.));
+  Matrix3f rotation(
+        Eigen::AngleAxisd(constants::pi * 0.5, Vec3f::UnitX())
+      * Eigen::AngleAxisd(0.0, Vec3f::UnitY())
+      * Eigen::AngleAxisd(0.0, Vec3f::UnitZ()));
+
+  Transform3f capsule_transform = Transform3f::Identity();
+  capsule_transform.linear() = rotation;
+  capsule_transform.translation() = Vec3f(150., 0., 0.);
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
 }
@@ -107,11 +112,10 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
   GJKSolver_libccd solver;
 
   Sphere sphere1 (50);
-  Transform3f sphere1_transform;
-  sphere1_transform.setTranslation (Vec3f (0., 0., -50));
+  Transform3f sphere1_transform(Eigen::Translation3d(Vec3f(0., 0., -50)));
 
   Capsule capsule (50, 200.);
-  Transform3f capsule_transform (Vec3f (0., 0., 125));
+  Transform3f capsule_transform(Eigen::Translation3d(Vec3f(0., 0., 125)));
 
   std::vector<ContactPoint> contacts;
 
@@ -123,8 +127,8 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
 
   EXPECT_TRUE (is_intersecting);
   EXPECT_TRUE (penetration == 25.);
-  EXPECT_TRUE (Vec3f (0., 0., 1.).equal(normal));
-  EXPECT_TRUE (Vec3f (0., 0., 0.).equal(contact_point));
+  EXPECT_TRUE (Vec3f (0., 0., 1.).isApprox(normal));
+  EXPECT_TRUE (Vec3f (0., 0., 0.).isApprox(contact_point));
 }
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotated)
@@ -132,13 +136,16 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
 	GJKSolver_libccd solver;
 
 	Sphere sphere1 (50);
-	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., 0));
+  Transform3f sphere1_transform = Transform3f::Identity();
 
 	Capsule capsule (50, 200.);
-	Matrix3f rotation;
-	rotation.setEulerZYX (constants::pi * 0.5, 0., 0.);
-	Transform3f capsule_transform (rotation, Vec3f (0., 50., 75));
+  Matrix3f rotation(
+        Eigen::AngleAxisd(constants::pi * 0.5, Vec3f::UnitX())
+      * Eigen::AngleAxisd(0.0, Vec3f::UnitY())
+      * Eigen::AngleAxisd(0.0, Vec3f::UnitZ()));
+  Transform3f capsule_transform = Transform3f::Identity();
+  capsule_transform.linear() = rotation;
+  capsule_transform.translation() = Vec3f (0., 50., 75);
 
   std::vector<ContactPoint> contacts;
 
@@ -150,8 +157,8 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
 
   EXPECT_TRUE (is_intersecting);
   EXPECT_NEAR (25, penetration, solver.collision_tolerance);
-  EXPECT_TRUE (Vec3f (0., 0., 1.).equal(normal));
-  EXPECT_TRUE (Vec3f (0., 0., 50.).equal(contact_point, solver.collision_tolerance));
+  EXPECT_TRUE (Vec3f (0., 0., 1.).isApprox(normal));
+  EXPECT_TRUE (Vec3f (0., 0., 50.).isApprox(contact_point, solver.collision_tolerance));
 }
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
@@ -159,11 +166,10 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 	GJKSolver_libccd solver;
 
 	Sphere sphere1 (50);
-	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., -50));
+  Transform3f sphere1_transform(Eigen::Translation3d(Vec3f(0., 0., -50)));
 
 	Capsule capsule (50, 200.);
-	Transform3f capsule_transform (Vec3f (0., 0., 100));
+  Transform3f capsule_transform(Eigen::Translation3d(Vec3f(0., 0., 100)));
 
 	FCL_REAL distance;
 
@@ -176,11 +182,10 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_separated)
 	GJKSolver_libccd solver;
 
 	Sphere sphere1 (50);
-	Transform3f sphere1_transform;
-	sphere1_transform.setTranslation (Vec3f (0., 0., -50));
+  Transform3f sphere1_transform(Eigen::Translation3d(Vec3f(0., 0., -50)));
 
 	Capsule capsule (50, 200.);
-	Transform3f capsule_transform (Vec3f (0., 0., 175));
+  Transform3f capsule_transform(Eigen::Translation3d(Vec3f(0., 0., 175)));
 
 	FCL_REAL distance = 0.;
 	Vec3f p1;

@@ -188,9 +188,9 @@ std::size_t BallEulerJoint::getNumDofs() const
 Transform3f BallEulerJoint::getLocalTransform() const
 {
   Matrix3f rot(
-      Eigen::AngleAxisd((*joint_cfg_)[0], Eigen::Vector3d::UnitZ())
+      Eigen::AngleAxisd((*joint_cfg_)[0], Eigen::Vector3d::UnitX())
         * Eigen::AngleAxisd((*joint_cfg_)[1], Eigen::Vector3d::UnitY())
-        * Eigen::AngleAxisd((*joint_cfg_)[2], Eigen::Vector3d::UnitX()));
+        * Eigen::AngleAxisd((*joint_cfg_)[2], Eigen::Vector3d::UnitZ()));
 
   Transform3f tf = Transform3f::Identity();
   tf.linear() = rot;

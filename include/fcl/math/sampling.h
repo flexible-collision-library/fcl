@@ -287,7 +287,7 @@ public:
     rng.quaternion(s);
 
     Quaternion3f quat(s[0], s[1], s[2], s[3]);
-    Vec3f angles = quat.toRotationMatrix().eulerAngles(2, 1, 0);
+    Vec3f angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
 
     q[3] = angles[0];
     q[4] = angles[1];
@@ -402,7 +402,7 @@ public:
     rng.quaternion(s);
 
     Quaternion3f quat(s[0], s[1], s[2], s[3]);
-    Vec3f angles = quat.toRotationMatrix().eulerAngles(2, 1, 0);
+    Vec3f angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
     q[3] = angles[0];
     q[4] = angles[1];
     q[5] = angles[2];

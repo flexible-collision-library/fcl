@@ -156,7 +156,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       const Convex* convex = static_cast<const Convex*>(shape);
       FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
       Vec3f* curp = convex->points;
-      Vec3f bestv;
+      Vec3f bestv = Vec3f::Zero();
       for(int i = 0; i < convex->num_points; ++i, curp+=1)
       {
         FCL_REAL dot = dir.dot(*curp);
@@ -175,12 +175,12 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
     ; // nothing
   }
 
-  return Vec3f(0, 0, 0);
+  return Vec3f::Zero();
 }
 
 void GJK::initialize()
 {
-  ray = Vec3f();
+  ray = Vec3f::Zero();
   nfree = 0;
   status = Failed;
   current = 0;

@@ -1365,7 +1365,8 @@ void meshShapeConservativeAdvancementOrientedNodeLeafTesting(int b1, int /* b2 *
   const Vec3f& t3 = vertices[tri_id[2]];
     
   FCL_REAL distance;
-  Vec3f P1, P2;
+  Vec3f P1 = Vec3f::Zero();
+  Vec3f P2 = Vec3f::Zero();
   nsolver->shapeTriangleDistance(model2, tf2, t1, t2, t3, tf1, &distance, &P2, &P1);
 
   if(distance < min_distance)

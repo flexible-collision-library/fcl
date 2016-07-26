@@ -106,8 +106,8 @@ void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r = 1.0)
 
 void getCovariance(Vec3f* ps, Vec3f* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3f& M)
 {
-  Vec3f S1;
-  Vec3f S2[3];
+  Vec3f S1 = Vec3f::Zero();
+  Vec3f S2[3] = {Vec3f::Zero(), Vec3f::Zero(), Vec3f::Zero()};
 
   if(ts)
   {

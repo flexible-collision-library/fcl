@@ -54,14 +54,14 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& 
   double c = shape.side[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0].setValue(0.5 * a, -0.5 * b, 0.5 * c);
-  points[1].setValue(0.5 * a, 0.5 * b, 0.5 * c);
-  points[2].setValue(-0.5 * a, 0.5 * b, 0.5 * c);
-  points[3].setValue(-0.5 * a, -0.5 * b, 0.5 * c);
-  points[4].setValue(0.5 * a, -0.5 * b, -0.5 * c);
-  points[5].setValue(0.5 * a, 0.5 * b, -0.5 * c);
-  points[6].setValue(-0.5 * a, 0.5 * b, -0.5 * c);
-  points[7].setValue(-0.5 * a, -0.5 * b, -0.5 * c);
+  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
+  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
+  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
+  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
+  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
+  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
+  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
+  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
 
   tri_indices[0].set(0, 4, 1);
   tri_indices[1].set(1, 4, 5);
@@ -78,7 +78,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& 
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    points[i] = pose.transform(points[i]);
+    points[i] = pose * points[i];
   }
 
   model.beginModel();
@@ -143,7 +143,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    points[i] = pose.transform(points[i]);
+    points[i] = pose * points[i];
   }
 
   model.beginModel();
@@ -225,7 +225,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transfo
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    points[i] = pose.transform(points[i]);
+    points[i] = pose * points[i];
   }
 
   model.beginModel();
@@ -319,7 +319,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    points[i] = pose.transform(points[i]);
+    points[i] = pose * points[i];
   }
 
   model.beginModel();
@@ -411,7 +411,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
 
   for(unsigned int i = 0; i < points.size(); ++i)
   {
-    points[i] = pose.transform(points[i]);
+    points[i] = pose * points[i];
   }
 
   model.beginModel();

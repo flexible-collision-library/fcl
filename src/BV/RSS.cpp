@@ -829,6 +829,12 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
 
 
+RSS::RSS()
+  : axis(Matrix3f::Identity()), Tr(Vec3f::Zero())
+{
+  // Do nothing
+}
+
 bool RSS::overlap(const RSS& other) const
 {
   /// compute what transform [R,T] that takes us from cs1 to cs2.
