@@ -55,8 +55,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   fcl::DistanceRequest distanceRequest (true);
   fcl::DistanceResult distanceResult;
   
-  fcl::Transform3f tf1 (fcl::Vec3f (3., 0, 0));
-  fcl::Transform3f tf2;
+  fcl::Transform3f tf1(Eigen::Translation3d(fcl::Vec3f (3., 0, 0)));
+  fcl::Transform3f tf2 = fcl::Transform3f::Identity();
   fcl::CollisionObject capsule (capsuleGeometry, tf1);
   fcl::CollisionObject box (boxGeometry, tf2);
 
@@ -73,7 +73,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   EXPECT_NEAR (o1 [1],  0.0, 1e-4);
 
   // Move capsule above box
-  tf1 = fcl::Transform3f (fcl::Vec3f (0., 0., 8.));
+  tf1 = Eigen::Translation3d(fcl::Vec3f (0., 0., 8.));
   capsule.setTransform (tf1);
 
   // test distance
@@ -93,8 +93,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   EXPECT_NEAR (o2 [2],  2.0, 1e-4);
 
   // Rotate capsule around y axis by pi/2 and move it behind box
-  tf1.setTranslation (fcl::Vec3f (-10., 0., 0.));
-  tf1.setQuatRotation (fcl::Quaternion3f (sqrt(2)/2, 0, sqrt(2)/2, 0));
+  tf1.translation() = fcl::Vec3f(-10., 0., 0.);
+  tf1.linear() = fcl::Quaternion3f(sqrt(2)/2, 0, sqrt(2)/2, 0).toRotationMatrix();
   capsule.setTransform (tf1);
 
   // test distance
