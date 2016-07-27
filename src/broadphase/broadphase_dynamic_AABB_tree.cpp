@@ -63,7 +63,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
       if(!obj1->isFree())
       {
         OBB obb1, obb2;
-        convertBV(root1->bv, Transform3f(), obb1);
+        convertBV(root1->bv, Transform3f::Identity(), obb1);
         convertBV(root2_bv, tf2, obb2);
       
         if(obb1.overlap(obb2))
@@ -96,7 +96,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
     if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {
       OBB obb1, obb2;
-      convertBV(root1->bv, Transform3f(), obb1);
+      convertBV(root1->bv, Transform3f::Identity(), obb1);
       convertBV(root2_bv, tf2, obb2);
       
       if(obb1.overlap(obb2))
@@ -117,7 +117,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
   }
 
   OBB obb1, obb2;
-  convertBV(root1->bv, Transform3f(), obb1);
+  convertBV(root1->bv, Transform3f::Identity(), obb1);
   convertBV(root2_bv, tf2, obb2);
 
   if(tree2->isNodeFree(root2) || !obb1.overlap(obb2)) return false;

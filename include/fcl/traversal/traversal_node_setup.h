@@ -1114,8 +1114,8 @@ bool initialize(ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSol
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  computeBV<RSS, S1>(shape1, Transform3f(), node.model1_bv);
-  computeBV<RSS, S2>(shape2, Transform3f(), node.model2_bv);
+  computeBV<RSS, S1>(shape1, Transform3f::Identity(), node.model1_bv);
+  computeBV<RSS, S2>(shape2, Transform3f::Identity(), node.model2_bv);
   
   return true;
 }
@@ -1152,7 +1152,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNode<BV, S, NarrowPhase
   node.nsolver = nsolver;
   node.w = w;
 
-  computeBV<BV, S>(model2, Transform3f(), node.model2_bv);
+  computeBV<BV, S>(model2, Transform3f::Identity(), node.model2_bv);
 
   return true;
 }
@@ -1173,7 +1173,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseS
 
   node.w = w;
 
-  computeBV<RSS, S>(model2, Transform3f(), node.model2_bv);
+  computeBV<RSS, S>(model2, Transform3f::Identity(), node.model2_bv);
 
   return true;
 }
@@ -1194,7 +1194,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPha
 
   node.w = w;
 
-  computeBV<OBBRSS, S>(model2, Transform3f(), node.model2_bv);
+  computeBV<OBBRSS, S>(model2, Transform3f::Identity(), node.model2_bv);
 
   return true;
 }
@@ -1232,7 +1232,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhase
   node.nsolver = nsolver;
   node.w = w;
 
-  computeBV<BV, S>(model1, Transform3f(), node.model1_bv);
+  computeBV<BV, S>(model1, Transform3f::Identity(), node.model1_bv);
 
   return true;
 }
@@ -1253,7 +1253,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseS
 
   node.w = w;
 
-  computeBV<RSS, S>(model1, Transform3f(), node.model1_bv);
+  computeBV<RSS, S>(model1, Transform3f::Identity(), node.model1_bv);
 
   return true;
 }
@@ -1274,7 +1274,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPha
 
   node.w = w;
 
-  computeBV<OBBRSS, S>(model1, Transform3f(), node.model1_bv);
+  computeBV<OBBRSS, S>(model1, Transform3f::Identity(), node.model1_bv);
 
   return true;
 }

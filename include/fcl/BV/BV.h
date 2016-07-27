@@ -188,7 +188,7 @@ public:
   static void convert(const BV1& bv1, const Transform3f& tf1, OBB& bv2)
   {
     AABB bv;
-    Converter<BV1, AABB>::convert(bv1, Transform3f(), bv);
+    Converter<BV1, AABB>::convert(bv1, Transform3f::Identity(), bv);
     Converter<AABB, OBB>::convert(bv, tf1, bv2);
   }
 };

@@ -175,7 +175,7 @@ public:
     cresult = &result_;
 
     AABB bv2;
-    computeBV<AABB>(s, Transform3f(), bv2);
+    computeBV<AABB>(s, Transform3f::Identity(), bv2);
     OBB obb2;
     convertBV(bv2, tf2, obb2);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
@@ -195,7 +195,7 @@ public:
     cresult = &result_;
 
     AABB bv1;
-    computeBV<AABB>(s, Transform3f(), bv1);
+    computeBV<AABB>(s, Transform3f::Identity(), bv1);
     OBB obb1;
     convertBV(bv1, tf1, obb1);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),

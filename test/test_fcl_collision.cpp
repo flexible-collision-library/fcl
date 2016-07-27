@@ -208,7 +208,7 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
   aabb1.max_ = Vec3f(600, 600, 600);
   
   OBB obb1;
-  convertBV(aabb1, Transform3f(), obb1);
+  convertBV(aabb1, Transform3f::Identity(), obb1);
   
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
@@ -219,16 +219,16 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
     AABB aabb2 = translate(aabb, transforms[i].translation());
     
     OBB obb2;
-    convertBV(aabb, Transform3f(transforms[i].translation()), obb2);
+    convertBV(aabb, Transform3f(Eigen::Translation3d(transforms[i].translation())), obb2);
 
     bool overlap_aabb = aabb1.overlap(aabb2);
     bool overlap_obb = obb1.overlap(obb2);
     if(overlap_aabb != overlap_obb)
     {
-      std::cout << aabb1.min_ << " " << aabb1.max_ << std::endl;
-      std::cout << aabb2.min_ << " " << aabb2.max_ << std::endl;
-      std::cout << obb1.To << " " << obb1.extent << " " << obb1.axis[0] << " " << obb1.axis[1] << " " << obb1.axis[2] << std::endl;
-      std::cout << obb2.To << " " << obb2.extent << " " << obb2.axis[0] << " " << obb2.axis[1] << " " << obb2.axis[2] << std::endl;
+      std::cout << aabb1.min_.transpose() << " " << aabb1.max_.transpose() << std::endl;
+      std::cout << aabb2.min_.transpose() << " " << aabb2.max_.transpose() << std::endl;
+      std::cout << obb1.To.transpose() << " " << obb1.extent.transpose() << " " << obb1.axis.col(0).transpose() << " " << obb1.axis.col(1).transpose() << " " << obb1.axis.col(2).transpose() << std::endl;
+      std::cout << obb2.To.transpose() << " " << obb2.extent.transpose() << " " << obb2.axis.col(0).transpose() << " " << obb2.axis.col(1).transpose() << " " << obb2.axis.col(2).transpose() << std::endl;
     }
 
     EXPECT_TRUE(overlap_aabb == overlap_obb);
@@ -822,7 +822,7 @@ bool collide_Test2(const Transform3f& tf,
   std::vector<Vec3f> vertices1_new(vertices1.size());
   for(unsigned int i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = tf.transform(vertices1[i]);
+    vertices1_new[i] = tf * vertices1[i];
   }
 
 
@@ -834,7 +834,8 @@ bool collide_Test2(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1, pose2;
+  Transform3f pose1 = Transform3f::Identity();
+  Transform3f pose2 = Transform3f::Identity();
 
   CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
@@ -893,7 +894,8 @@ bool collide_Test(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3f pose1(tf);
+  Transform3f pose2 = Transform3f::Identity();
 
   CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
@@ -951,7 +953,8 @@ bool collide_Test_Oriented(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3f pose1(tf);
+  Transform3f pose2 = Transform3f::Identity();
 
   CollisionResult local_result;
   TraversalNode node;
@@ -1008,7 +1011,8 @@ bool test_collide_func(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3f pose1(tf);
+  Transform3f pose2 = Transform3f::Identity();
 
   std::vector<Contact> contacts;
 
