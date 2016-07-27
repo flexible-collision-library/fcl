@@ -566,7 +566,7 @@ void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS&
 {
   bv.num_spheres = 1;
   computeBV<OBB, Halfspace>(s, tf, bv.obb);
-  bv.spheres[0].o = Vec3f();
+  bv.spheres[0].o.setZero();
   bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
 }
 
@@ -806,7 +806,7 @@ void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv)
 {
   bv.num_spheres = 1;
   computeBV<OBB, Plane>(s, tf, bv.obb);
-  bv.spheres[0].o = Vec3f();
+  bv.spheres[0].o.setZero();
   bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
 }
 

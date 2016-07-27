@@ -180,7 +180,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
 
 void GJK::initialize()
 {
-  ray = Vec3f::Zero();
+  ray.setZero();
   nfree = 0;
   status = Failed;
   current = 0;
@@ -280,7 +280,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if(project_res.sqr_distance >= 0)
     {
       next_simplex.rank = 0;
-      ray = Vec3f();
+      ray.setZero();
       current = next;
       for(size_t i = 0; i < curr_simplex.rank; ++i)
       {

@@ -535,7 +535,7 @@ struct GJKSolver_indep
         details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
         if(epa_status != details::EPA::Failed)
         {
-          Vec3f w0;
+          Vec3f w0 = Vec3f::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
@@ -588,7 +588,7 @@ struct GJKSolver_indep
         details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
         if(epa_status != details::EPA::Failed)
         {
-          Vec3f w0;
+          Vec3f w0 = Vec3f::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
@@ -637,7 +637,7 @@ struct GJKSolver_indep
         details::EPA::Status epa_status = epa.evaluate(gjk, -guess);
         if(epa_status != details::EPA::Failed)
         {
-          Vec3f w0;
+          Vec3f w0 = Vec3f::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];

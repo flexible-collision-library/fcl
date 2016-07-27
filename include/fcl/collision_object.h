@@ -119,10 +119,10 @@ public:
   FCL_REAL threshold_free;
 
   /// @brief compute center of mass
-  virtual Vec3f computeCOM() const { return Vec3f(); }
+  virtual Vec3f computeCOM() const { return Vec3f::Zero(); }
 
   /// @brief compute the inertia matrix, related to the origin
-  virtual Matrix3f computeMomentofInertia() const { return Matrix3f(); }
+  virtual Matrix3f computeMomentofInertia() const { return Matrix3f::Zero(); }
 
   /// @brief compute the volume
   virtual FCL_REAL computeVolume() const { return 0; }
