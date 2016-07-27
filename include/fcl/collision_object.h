@@ -155,7 +155,7 @@ class CollisionObject
 {
 public:
  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_) :
-    cgeom(cgeom_), cgeom_const(cgeom_)
+    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3f::Identity())
   {
     if (cgeom)
     {

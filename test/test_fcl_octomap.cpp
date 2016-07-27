@@ -409,7 +409,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
     cdata.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {
-      std::cout << cost_sources[i].aabb_min << " " << cost_sources[i].aabb_max << " " << cost_sources[i].cost_density << std::endl;
+      std::cout << cost_sources[i].aabb_min.transpose() << " " << cost_sources[i].aabb_max.transpose() << " " << cost_sources[i].cost_density << std::endl;
     }
 
     std::cout << std::endl;
@@ -417,7 +417,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
     cdata3.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {
-      std::cout << cost_sources[i].aabb_min << " " << cost_sources[i].aabb_max << " " << cost_sources[i].cost_density << std::endl;
+      std::cout << cost_sources[i].aabb_min.transpose() << " " << cost_sources[i].aabb_max.transpose() << " " << cost_sources[i].cost_density << std::endl;
     }
 
     std::cout << std::endl;
@@ -425,7 +425,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
     cdata2.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {
-      std::cout << cost_sources[i].aabb_min << " " << cost_sources[i].aabb_max << " " << cost_sources[i].cost_density << std::endl;
+      std::cout << cost_sources[i].aabb_min.transpose() << " " << cost_sources[i].aabb_max.transpose() << " " << cost_sources[i].cost_density << std::endl;
     }
 
     std::cout << std::endl;
@@ -678,7 +678,7 @@ void generateBoxesFromOctomap(std::vector<CollisionObject*>& boxes, OcTree& tree
     Box* box = new Box(size, size, size);
     box->cost_density = cost;
     box->threshold_occupied = threshold;
-    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(box), Transform3f(Vec3f(x, y, z)));
+    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(box), Transform3f(Eigen::Translation3d(Vec3f(x, y, z))));
     boxes.push_back(obj);
   }
 
@@ -730,10 +730,10 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& boxes, OcTree& 
 
     Box box(size, size, size);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f());
+    generateBVHModel(*model, box, Transform3f::Identity());
     model->cost_density = cost;
     model->threshold_occupied = threshold;
-    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(model), Transform3f(Vec3f(x, y, z)));
+    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(model), Transform3f(Eigen::Translation3d(Vec3f(x, y, z))));
     boxes.push_back(obj);    
   }
 
@@ -750,7 +750,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f());
+    generateBVHModel(*model, box, Transform3f::Identity());
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
@@ -759,7 +759,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, sphere, Transform3f(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3f::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
@@ -768,7 +768,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, cylinder, Transform3f(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3f::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 }
