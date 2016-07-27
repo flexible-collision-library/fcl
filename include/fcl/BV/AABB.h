@@ -82,13 +82,11 @@ public:
   /// @brief Check whether two AABB are overlap
   inline bool overlap(const AABB& other) const
   {
-    if(min_[0] > other.max_[0]) return false;
-    if(min_[1] > other.max_[1]) return false;
-    if(min_[2] > other.max_[2]) return false;
+    if ((min_.array() > other.max_.array()).any())
+      return false;
 
-    if(max_[0] < other.min_[0]) return false;
-    if(max_[1] < other.min_[1]) return false;
-    if(max_[2] < other.min_[2]) return false;
+    if ((max_.array() < other.min_.array()).any())
+      return false;
 
     return true;
   }    
@@ -96,7 +94,13 @@ public:
   /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const
   {
-    return (other.min_[0] >= min_[0]) && (other.max_[0] <= max_[0]) && (other.min_[1] >= min_[1]) && (other.max_[1] <= max_[1]) && (other.min_[2] >= min_[2]) && (other.max_[2] <= max_[2]);
+    if ((min_.array() > other.min_.array()).any())
+      return false;
+
+    if ((max_.array() < other.max_.array()).any())
+      return false;
+
+    return true;
   }
 
 
@@ -118,8 +122,8 @@ public:
       return false;
     }
     
-    overlap_part.min_ = min_.cwiseMin(other.min_);
-    overlap_part.max_ = max_.cwiseMax(other.max_);
+    overlap_part.min_ = min_.cwiseMax(other.min_);
+    overlap_part.max_ = max_.cwiseMin(other.max_);
     return true;
   }
 
@@ -127,9 +131,11 @@ public:
   /// @brief Check whether the AABB contains a point
   inline bool contain(const Vec3f& p) const
   {
-    if(p[0] < min_[0] || p[0] > max_[0]) return false;
-    if(p[1] < min_[1] || p[1] > max_[1]) return false;
-    if(p[2] < min_[2] || p[2] > max_[2]) return false;
+    if ((min_.array() > p.array()).any())
+      return false;
+
+    if ((max_.array() < p.array()).any())
+      return false;
 
     return true;
   }

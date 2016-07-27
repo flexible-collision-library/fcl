@@ -461,20 +461,15 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
 template<>
 void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
-
-  bv.To = T;
-  bv.axis = R;
+  bv.To = tf.translation();
+  bv.axis = tf.linear();
   bv.extent = s.side * (FCL_REAL)0.5;
 }
 
 template<>
 void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
 {
-  const Vec3f& T = tf.translation();
-
-  bv.To = T;
+  bv.To = tf.translation();
   bv.axis.setIdentity();
   bv.extent.setConstant(s.radius);
 }
@@ -482,58 +477,42 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
 template<>
 void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
-
-  bv.To = T;
-  bv.axis = R;
+  bv.To = tf.translation();
+  bv.axis = tf.linear();
   bv.extent = s.radii;
 }
 
 template<>
 void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
-
-  bv.To = T;
-  bv.axis = R;
+  bv.To = tf.translation();
+  bv.axis = tf.linear();
   bv.extent << s.radius, s.radius, s.lz / 2 + s.radius;
 }
 
 template<>
 void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
-
-  bv.To = T;
-  bv.axis = R;
+  bv.To = tf.translation();
+  bv.axis = tf.linear();
   bv.extent << s.radius, s.radius, s.lz / 2;
 }
 
 template<>
 void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
-
-  bv.To = T;
-  bv.axis = R;
+  bv.To = tf.translation();
+  bv.axis = tf.linear();
   bv.extent << s.radius, s.radius, s.lz / 2;
 }
 
 template<>
 void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
-
   fit(s.points, s.num_points, bv);
 
-  bv.axis = R;
-
-  bv.To = R * bv.To + T;
+  bv.axis = tf.linear();
+  bv.To = tf * bv.To;
 }
 
 template<>

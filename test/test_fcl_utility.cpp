@@ -260,6 +260,7 @@ void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3f>& tra
       Matrix3f R;
       eulerToMatrix(a, b, c, R);
       Vec3f T(x, y, z);
+      transforms[i].setIdentity();
       transforms[i].linear() = R;
       transforms[i].translation() = T;
     }
