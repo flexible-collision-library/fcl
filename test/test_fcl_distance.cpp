@@ -318,7 +318,7 @@ void distance_Test_Oriented(const Transform3f& tf,
 
   DistanceResult local_result;
   TraversalNode node;
-  if(!initialize(node, (const BVHModel<BV>&)m1, tf, (const BVHModel<BV>&)m2, Transform3f(), DistanceRequest(true), local_result))
+  if(!initialize(node, (const BVHModel<BV>&)m1, tf, (const BVHModel<BV>&)m2, Transform3f::Identity(), DistanceRequest(true), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -366,7 +366,8 @@ void distance_Test(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3f pose1(tf);
+  Transform3f pose2 = Transform3f::Identity();
 
   DistanceResult local_result;
   MeshDistanceTraversalNode<BV> node;
@@ -412,7 +413,7 @@ bool collide_Test_OBB(const Transform3f& tf,
 
   CollisionResult local_result;	
   MeshCollisionTraversalNodeOBB node;
-  if(!initialize(node, (const BVHModel<OBB>&)m1, tf, (const BVHModel<OBB>&)m2, Transform3f(),
+  if(!initialize(node, (const BVHModel<OBB>&)m1, tf, (const BVHModel<OBB>&)m2, Transform3f::Identity(),
                  CollisionRequest(), local_result))
     std::cout << "initialize error" << std::endl;
 
