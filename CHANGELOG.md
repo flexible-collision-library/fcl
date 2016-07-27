@@ -2,6 +2,7 @@
 
 ### FCL 0.6.0 (2016-XX-XX)
 
+* Added missing copyright headers:  [#149](https://github.com/flexible-collision-library/fcl/pull/149)
 * Removed dependency on boost: [#148](https://github.com/flexible-collision-library/fcl/pull/148), [#147](https://github.com/flexible-collision-library/fcl/pull/147), [#146](https://github.com/flexible-collision-library/fcl/pull/146), [#140](https://github.com/flexible-collision-library/fcl/pull/140)
 
 ### FCL 0.5.0 (2016-07-19)
