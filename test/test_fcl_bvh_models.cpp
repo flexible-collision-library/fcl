@@ -66,14 +66,14 @@ void testBVHModelPointCloud()
   double b = box.side[1];
   double c = box.side[2];
   std::vector<Vec3f> points(8);
-  points[0].setValue(0.5 * a, -0.5 * b, 0.5 * c);
-  points[1].setValue(0.5 * a, 0.5 * b, 0.5 * c);
-  points[2].setValue(-0.5 * a, 0.5 * b, 0.5 * c);
-  points[3].setValue(-0.5 * a, -0.5 * b, 0.5 * c);
-  points[4].setValue(0.5 * a, -0.5 * b, -0.5 * c);
-  points[5].setValue(0.5 * a, 0.5 * b, -0.5 * c);
-  points[6].setValue(-0.5 * a, 0.5 * b, -0.5 * c);
-  points[7].setValue(-0.5 * a, -0.5 * b, -0.5 * c);
+  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
+  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
+  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
+  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
+  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
+  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
+  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
+  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
 
   int result;
 
@@ -107,14 +107,14 @@ void testBVHModelTriangles()
   double c = box.side[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0].setValue(0.5 * a, -0.5 * b, 0.5 * c);
-  points[1].setValue(0.5 * a, 0.5 * b, 0.5 * c);
-  points[2].setValue(-0.5 * a, 0.5 * b, 0.5 * c);
-  points[3].setValue(-0.5 * a, -0.5 * b, 0.5 * c);
-  points[4].setValue(0.5 * a, -0.5 * b, -0.5 * c);
-  points[5].setValue(0.5 * a, 0.5 * b, -0.5 * c);
-  points[6].setValue(-0.5 * a, 0.5 * b, -0.5 * c);
-  points[7].setValue(-0.5 * a, -0.5 * b, -0.5 * c);
+  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
+  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
+  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
+  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
+  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
+  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
+  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
+  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
 
   tri_indices[0].set(0, 4, 1);
   tri_indices[1].set(1, 4, 5);
@@ -161,14 +161,14 @@ void testBVHModelSubModel()
   double c = box.side[2];
   std::vector<Vec3f> points(8);
   std::vector<Triangle> tri_indices(12);
-  points[0].setValue(0.5 * a, -0.5 * b, 0.5 * c);
-  points[1].setValue(0.5 * a, 0.5 * b, 0.5 * c);
-  points[2].setValue(-0.5 * a, 0.5 * b, 0.5 * c);
-  points[3].setValue(-0.5 * a, -0.5 * b, 0.5 * c);
-  points[4].setValue(0.5 * a, -0.5 * b, -0.5 * c);
-  points[5].setValue(0.5 * a, 0.5 * b, -0.5 * c);
-  points[6].setValue(-0.5 * a, 0.5 * b, -0.5 * c);
-  points[7].setValue(-0.5 * a, -0.5 * b, -0.5 * c);
+  points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
+  points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
+  points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
+  points[3] << -0.5 * a, -0.5 * b, 0.5 * c;
+  points[4] << 0.5 * a, -0.5 * b, -0.5 * c;
+  points[5] << 0.5 * a, 0.5 * b, -0.5 * c;
+  points[6] << -0.5 * a, 0.5 * b, -0.5 * c;
+  points[7] << -0.5 * a, -0.5 * b, -0.5 * c;
 
   tri_indices[0].set(0, 4, 1);
   tri_indices[1].set(1, 4, 5);
