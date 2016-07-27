@@ -43,6 +43,11 @@
 namespace fcl
 {
 
+unsigned int GJKSolver_libccd::max_collision_iterations = 500;
+unsigned int GJKSolver_libccd::max_distance_iterations = 1000;
+FCL_REAL GJKSolver_libccd::collision_tolerance = 1e-6;
+FCL_REAL GJKSolver_libccd::distance_tolerance = 1e-6;
+
 namespace details
 {
 
@@ -277,9 +282,9 @@ bool sphereSphereIntersect(const Sphere& s1, const Transform3f& tf1,
   {
     // If the centers of two sphere are at the same position, the normal is (0, 0, 0).
     // Otherwise, normal is pointing from center of object 1 to center of object 2
-    const Vec3f normal = len > 0 ? diff / len : diff;
-    const Vec3f point = tf1.transform(Vec3f()) + diff * s1.radius / (s1.radius + s2.radius);
+    const Vec3f normal = len > 0 ? diff / len : Vec3f();
     const FCL_REAL penetration_depth = s1.radius + s2.radius - len;
+    const Vec3f point = tf1.transform(Vec3f()) + normal * (s1.radius - 0.5 * penetration_depth);
     contacts->push_back(ContactPoint(normal, point, penetration_depth));
   }
 
