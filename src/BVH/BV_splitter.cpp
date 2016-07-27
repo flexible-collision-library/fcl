@@ -258,25 +258,25 @@ void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* prim
 template<>
 bool BVSplitter<OBB>::apply(const Vec3f& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 template<>
 bool BVSplitter<RSS>::apply(const Vec3f& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 template<>
 bool BVSplitter<kIOS>::apply(const Vec3f& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 template<>
 bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 

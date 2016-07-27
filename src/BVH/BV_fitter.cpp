@@ -79,8 +79,8 @@ static inline void axisFromEigen(const Matrix3f& eigenV, const Vec3f& eigenS, Ma
     mid = 2;
   }
 
-  axis.col(0) = eigenV.col(max);
-  axis.col(1) = eigenV.col(mid);
+  axis.col(0) = eigenV.row(max);
+  axis.col(1) = eigenV.row(mid);
   axis.col(2) = axis.col(0).cross(axis.col(1));
 }
 

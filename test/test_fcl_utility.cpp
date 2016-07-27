@@ -286,6 +286,7 @@ void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_
       Matrix3f R;
       eulerToMatrix(a, b, c, R);
       Vec3f T(x, y, z);
+      transforms[i].setIdentity();
       transforms[i].linear() = R;
       transforms[i].translation() = T;
     }
@@ -302,6 +303,7 @@ void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_
       Matrix3f R;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R);
       Vec3f T(x + deltax, y + deltay, z + deltaz);
+      transforms2[i].setIdentity();
       transforms2[i].linear() = R;
       transforms2[i].translation() = T;
     }

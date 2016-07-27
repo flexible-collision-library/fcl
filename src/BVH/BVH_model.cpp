@@ -708,10 +708,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
         const Vec3f& p1 = vertices[t[0]];
         const Vec3f& p2 = vertices[t[1]];
         const Vec3f& p3 = vertices[t[2]];
-        FCL_REAL x = (p1[0] + p2[0] + p3[0]) / 3.0;
-        FCL_REAL y = (p1[1] + p2[1] + p3[1]) / 3.0;
-        FCL_REAL z = (p1[2] + p2[2] + p3[2]) / 3.0;
-        p << x, y, z;
+        p = (p1 + p2 + p3) / 3.0;
       }
       else
       {
@@ -732,9 +729,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
       }
       else
       {
-        unsigned int temp = cur_primitive_indices[i];
-        cur_primitive_indices[i] = cur_primitive_indices[c1];
-        cur_primitive_indices[c1] = temp;
+        std::swap(cur_primitive_indices[i], cur_primitive_indices[c1]);
         c1++;
       }
     }

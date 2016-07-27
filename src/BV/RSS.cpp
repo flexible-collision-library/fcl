@@ -857,7 +857,7 @@ bool RSS::overlap(const RSS& other) const
 bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
 {
   Matrix3f R0b2 = R0 * b2.axis;
-  Matrix3f R = R0b2.transpose() * b1.axis;
+  Matrix3f R = b1.axis.transpose() * R0b2;
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
   Vec3f T = Ttemp.transpose() * b1.axis;
@@ -1113,7 +1113,7 @@ FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
 FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
 {
   Matrix3f R0b2 = R0 * b2.axis;
-  Matrix3f R = R0b2.transpose() * b1.axis;
+  Matrix3f R = b1.axis.transpose() * R0b2;
 
   Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
   Vec3f T = Ttemp.transpose() * b1.axis;

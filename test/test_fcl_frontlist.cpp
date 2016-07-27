@@ -210,7 +210,7 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   std::vector<Vec3f> vertices1_new(vertices1.size());
   for(std::size_t i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = tf1.transform(vertices1[i]);
+    vertices1_new[i] = tf1 * vertices1[i];
   }
 
   m1.beginModel();
@@ -221,9 +221,10 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1, pose2;
+  Transform3f pose1 = Transform3f::Identity();
+  Transform3f pose2 = Transform3f::Identity();
 
-  CollisionResult local_result;	
+  CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
@@ -240,7 +241,7 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   // update the mesh
   for(std::size_t i = 0; i < vertices1.size(); ++i)
   {
-    vertices1_new[i] = tf2.transform(vertices1[i]);
+    vertices1_new[i] = tf2 * vertices1[i];
   }
 
   m1.beginReplaceModel();
@@ -284,9 +285,10 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf1), pose2;
+  Transform3f pose1(tf1);
+  Transform3f pose2 = Transform3f::Identity();
 
-  CollisionResult local_result;	
+  CollisionResult local_result;
   TraversalNode node;
 
   if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2,
@@ -333,9 +335,10 @@ bool collide_Test(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3f pose1(tf);
+  Transform3f pose2 = Transform3f::Identity();
 
-  CollisionResult local_result;	
+  CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
