@@ -9,6 +9,8 @@ endif()
 
 project(fcl CXX C)
 
+option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+
 # set the default build type
 if (NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE Release)
