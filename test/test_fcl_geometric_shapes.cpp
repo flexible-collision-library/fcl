@@ -180,9 +180,9 @@ void printComparisonError(const std::string& comparison_type,
 }
 
 template <typename S1, typename S2>
-bool checkContactPoints(const S1& s1, const Transform3f& tf1,
-                        const S2& s2, const Transform3f& tf2,
-                        GJKSolverType solver_type,
+bool checkContactPoints(const S1& /*s1*/, const Transform3f& /*tf1*/,
+                        const S2& /*s2*/, const Transform3f& /*tf2*/,
+                        GJKSolverType /*solver_type*/,
                         const ContactPoint& expected, const ContactPoint& actual,
                         bool check_position = false,
                         bool check_depth = false,

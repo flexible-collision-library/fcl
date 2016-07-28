@@ -312,8 +312,8 @@ void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_
 }
 
 void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
-                                 const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2)
+                                 const std::vector<Vec3f>& /*vertices1*/, const std::vector<Triangle>& /*triangles1*/,
+                                 const std::vector<Vec3f>& /*vertices2*/, const std::vector<Triangle>& /*triangles2*/)
 {
   transforms.resize(n);
   transforms2.resize(n);
@@ -405,7 +405,7 @@ bool defaultContinuousCollisionFunction(ContinuousCollisionObject* o1, Continuou
   return cdata->done;
 }
 
-bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_, FCL_REAL& dist)
+bool defaultContinuousDistanceFunction(ContinuousCollisionObject* /*o1*/, ContinuousCollisionObject* /*o2*/, void* /*cdata_*/, FCL_REAL& /*dist*/)
 {
   return true;
 }

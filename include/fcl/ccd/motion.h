@@ -96,8 +96,9 @@ public:
     tf_ = tf;
   }
 
-  void getTaylorModel(TMatrix3& tm, TVector3& tv) const
+  void getTaylorModel(TMatrix3& /*tm*/, TVector3& /*tv*/) const
   {
+    // TODO(JS): Not implemented?
   }
 
   Vec3f getVelocity() const
@@ -121,14 +122,14 @@ public:
                const Vec3f& Rd0, const Vec3f& Rd1, const Vec3f& Rd2, const Vec3f& Rd3);
 
   // @brief Construct motion from initial and goal transform
-  SplineMotion(const Matrix3f& R1, const Vec3f& T1,
-               const Matrix3f& R2, const Vec3f& T2) : MotionBase()
+  SplineMotion(const Matrix3f& /*R1*/, const Vec3f& /*T1*/,
+               const Matrix3f& /*R2*/, const Vec3f& /*T2*/) : MotionBase()
   {
     // TODO
   }
 
-  SplineMotion(const Transform3f& tf1,
-               const Transform3f& tf2) : MotionBase()
+  SplineMotion(const Transform3f& /*tf1*/,
+               const Transform3f& /*tf2*/) : MotionBase()
   {
     // TODO
   }

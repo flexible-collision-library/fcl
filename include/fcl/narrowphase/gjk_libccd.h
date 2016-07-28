@@ -72,7 +72,7 @@ public:
   static void* createGJKObject(const T& /* s */, const Transform3f& /*tf*/) { return NULL; }
 
   /// @brief Delete GJK object
-  static void deleteGJKObject(void* o) {}
+  static void deleteGJKObject(void* /*o*/) {}
 };
 
 /// @brief initialize GJK Cylinder

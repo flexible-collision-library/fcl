@@ -369,7 +369,7 @@ OBB OBB::operator + (const OBB& other) const
 }
 
 
-FCL_REAL OBB::distance(const OBB& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL OBB::distance(const OBB& /*other*/, Vec3f* /*P*/, Vec3f* /*Q*/) const
 {
   std::cerr << "OBB distance not implemented!" << std::endl;
   return 0.0;

@@ -213,12 +213,12 @@ struct GJKSolver_libccd
   }
 
 
-  void enableCachedGuess(bool if_enable) const
+  void enableCachedGuess(bool /*if_enable*/) const
   {
     // TODO: need change libccd to exploit spatial coherence
   }
 
-  void setCachedGuess(const Vec3f& guess) const
+  void setCachedGuess(const Vec3f& /*guess*/) const
   {
     // TODO: need change libccd to exploit spatial coherence
   }

@@ -2883,36 +2883,39 @@ bool GJKSolver_libccd::shapeIntersect<Halfspace, Cone>(const Halfspace& s1, cons
 template<>
 bool GJKSolver_libccd::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
                                                             const Halfspace& s2, const Transform3f& tf2,
-                                                            std::vector<ContactPoint>* contacts) const
+                                                            std::vector<ContactPoint>* /*contacts*/) const
 {
   Halfspace s;
   Vec3f p, d;
   FCL_REAL depth;
   int ret;
+  // TODO(JS): Contact information should be added to contacts
   return details::halfspaceIntersect(s1, tf1, s2, tf2, p, d, s, depth, ret);
 }
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
                                                         const Halfspace& s2, const Transform3f& tf2,
-                                                        std::vector<ContactPoint>* contacts) const
+                                                        std::vector<ContactPoint>* /*contacts*/) const
 {
   Plane pl;
   Vec3f p, d;
   FCL_REAL depth;
   int ret;
+  // TODO(JS): Contact information should be added to contacts
   return details::planeHalfspaceIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
 }
 
 template<>
 bool GJKSolver_libccd::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
                                                         const Plane& s2, const Transform3f& tf2,
-                                                        std::vector<ContactPoint>* contacts) const
+                                                        std::vector<ContactPoint>* /*contacts*/) const
 {
   Plane pl;
   Vec3f p, d;
   FCL_REAL depth;
   int ret;
+  // TODO(JS): Contact information should be added to contacts
   return details::halfspacePlaneIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
 }
 
@@ -3307,36 +3310,39 @@ bool GJKSolver_indep::shapeIntersect<Halfspace, Cone>(const Halfspace& s1, const
 template<>
 bool GJKSolver_indep::shapeIntersect<Halfspace, Halfspace>(const Halfspace& s1, const Transform3f& tf1,
                                                            const Halfspace& s2, const Transform3f& tf2,
-                                                           std::vector<ContactPoint>* contacts) const
+                                                           std::vector<ContactPoint>* /*contacts*/) const
 {
   Halfspace s;
   Vec3f p, d;
   FCL_REAL depth;
   int ret;
+  // TODO(JS): Contact information should be added to contacts
   return details::halfspaceIntersect(s1, tf1, s2, tf2, p, d, s, depth, ret);
 }
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Plane, Halfspace>(const Plane& s1, const Transform3f& tf1,
                                                        const Halfspace& s2, const Transform3f& tf2,
-                                                       std::vector<ContactPoint>* contacts) const
+                                                       std::vector<ContactPoint>* /*contacts*/) const
 {
   Plane pl;
   Vec3f p, d;
   FCL_REAL depth;
   int ret;
+  // TODO(JS): Contact information should be added to contacts
   return details::planeHalfspaceIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
 }
 
 template<>
 bool GJKSolver_indep::shapeIntersect<Halfspace, Plane>(const Halfspace& s1, const Transform3f& tf1,
                                                        const Plane& s2, const Transform3f& tf2,
-                                                       std::vector<ContactPoint>* contacts) const
+                                                       std::vector<ContactPoint>* /*contacts*/) const
 {
   Plane pl;
   Vec3f p, d;
   FCL_REAL depth;
   int ret;
+  // TODO(JS): Contact information should be added to contacts
   return details::halfspacePlaneIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
 }
 

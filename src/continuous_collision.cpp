@@ -79,7 +79,7 @@ namespace details
 template<typename BV>
 FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1_, const TranslationMotion* motion1,
                                         const CollisionGeometry* o2_, const TranslationMotion* motion2,
-                                        const ContinuousCollisionRequest& request,
+                                        const ContinuousCollisionRequest& /*request*/,
                                         ContinuousCollisionResult& result)
 {
   const BVHModel<BV>* o1__ = static_cast<const BVHModel<BV>*>(o1_);

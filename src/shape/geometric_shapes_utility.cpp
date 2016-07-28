@@ -516,7 +516,7 @@ void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Halfspace>(const Halfspace& /*s*/, const Transform3f& /*tf*/, OBB& bv)
 {
   /// Half space can only have very rough OBB
   bv.axis.setIdentity();
@@ -525,7 +525,7 @@ void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3f& tf, OBB& b
 }
 
 template<>
-void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3f& tf, RSS& bv)
+void computeBV<RSS, Halfspace>(const Halfspace& /*s*/, const Transform3f& /*tf*/, RSS& bv)
 {
   /// Half space can only have very rough RSS
   bv.axis.setIdentity();
@@ -1027,7 +1027,7 @@ void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-void constructBox(const OBB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const OBB& bv, const Transform3f& /*tf_bv*/, Box& box, Transform3f& tf)
 {
   box = Box(bv.extent * 2);
   tf.linear() = bv.axis;

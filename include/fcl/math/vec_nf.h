@@ -127,7 +127,7 @@ public:
   {
     Vec_n<T, N> result;
     for(std::size_t i = 0; i < N; ++i)
-      result[i] = data[i] / 5;
+      result[i] = data[i] / t;
     return result;
   }
 

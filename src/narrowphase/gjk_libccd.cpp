@@ -509,7 +509,7 @@ ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd
 
 
 /** Basic shape to ccd shape */
-static void shapeToGJK(const ShapeBase& s, const Transform3f& tf, ccd_obj_t* o)
+static void shapeToGJK(const ShapeBase& /*s*/, const Transform3f& tf, ccd_obj_t* o)
 {
   const Quaternion3f q(tf.linear());
   const Vec3f& T = tf.translation();

@@ -95,7 +95,7 @@ void computeSplitValue_bvcenter(const BV& bv, FCL_REAL& split_value)
 }
 
 template<typename BV>
-void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
+void computeSplitValue_mean(const BV& /*bv*/, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
 {
   FCL_REAL sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
@@ -129,7 +129,7 @@ void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, 
 }
 
 template<typename BV>
-void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
+void computeSplitValue_median(const BV& /*bv*/, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
 {
   std::vector<FCL_REAL> proj(num_primitives);
 
@@ -171,7 +171,7 @@ void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles
 }
 
 template<>
-void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* /*primitive_indices*/, int /*num_primitives*/)
 {
   computeSplitVector<OBB>(bv, split_vector);
   computeSplitValue_bvcenter<OBB>(bv, split_value);
@@ -192,7 +192,7 @@ void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_
 }
 
 template<>
-void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* /*primitive_indices*/, int /*num_primitives*/)
 {
   computeSplitVector<RSS>(bv, split_vector);
   computeSplitValue_bvcenter<RSS>(bv, split_value);
@@ -213,7 +213,7 @@ void BVSplitter<RSS>::computeRule_median(const RSS& bv, unsigned int* primitive_
 }
 
 template<>
-void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* /*primitive_indices*/, int /*num_primitives*/)
 {
   computeSplitVector<kIOS>(bv, split_vector);
   computeSplitValue_bvcenter<kIOS>(bv, split_value);
@@ -234,7 +234,7 @@ void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitiv
 }
 
 template<>
-void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* /*primitive_indices*/, int /*num_primitives*/)
 {
   computeSplitVector<OBBRSS>(bv, split_vector);
   computeSplitValue_bvcenter<OBBRSS>(bv, split_value);

@@ -83,7 +83,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) num_bv_tests++;
     return !model1->getBV(b1).bv.overlap(model2_bv);
@@ -168,7 +168,7 @@ public:
   }
 
   /// @brief Intersection testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     const BVNode<BV>& node = this->model1->getBV(b1);
@@ -248,7 +248,7 @@ public:
 namespace details
 {
 template<typename BV, typename S, typename NarrowPhaseSolver>
-static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
+static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int /*b2*/,
                                                              const BVHModel<BV>* model1, const S& model2,
                                                              Vec3f* vertices, Triangle* tri_indices,
                                                              const Transform3f& tf1,
@@ -334,7 +334,7 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -356,7 +356,7 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -378,7 +378,7 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -400,7 +400,7 @@ public:
   {
   }
 
-  bool BVTesting(int b1, int b2) const
+  bool BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -638,7 +638,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     return model1->getBV(b1).bv.distance(model2_bv);
   }
@@ -686,7 +686,7 @@ public:
   }
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int /*b1*/, int b2) const
   {
     return model1_bv.distance(model2->getBV(b2).bv);
   }
@@ -718,7 +718,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -837,7 +837,7 @@ public:
   {
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -869,7 +869,7 @@ public:
   {    
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -902,7 +902,7 @@ public:
     
   }
 
-  FCL_REAL BVTesting(int b1, int b2) const
+  FCL_REAL BVTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
     return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -933,7 +933,7 @@ public:
   }
 
   /// @brief Distance testing between leaves (one shape and one triangle)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
     
@@ -1098,7 +1098,7 @@ public:
   }
 
   /// @brief Conservative advancement testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int b1, int /*b2*/) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -1232,7 +1232,7 @@ public:
   }
 
   /// @brief Conservative advancement testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int b2) const
+  void leafTesting(int /*b1*/, int b2) const
   {
     if(this->enable_statistics) this->num_leaf_tests++;
 
@@ -1402,7 +1402,7 @@ template<typename BV, typename S>
 bool meshShapeConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
                                                          FCL_REAL min_distance,
                                                          FCL_REAL abs_err, FCL_REAL rel_err, FCL_REAL w,
-                                                         const BVHModel<BV>* model1, const S& model2,
+                                                         const BVHModel<BV>* model1, const S& /*model2*/,
                                                          const BV& model2_bv,
                                                          const MotionBase* motion1, const MotionBase* motion2,
                                                          std::vector<ConservativeAdvancementStackData>& stack,

@@ -1,6 +1,6 @@
 # GCC
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-std=c++11 -W -Wall -g -Wextra -Wno-missing-field-initializers -Wno-unused-parameter)
+    add_definitions(-std=c++11 -W -Wall -g -Wextra -Wno-missing-field-initializers)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
     endif(FCL_TREAT_WARNINGS_AS_ERRORS)
@@ -8,7 +8,7 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 # Clang
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-std=c++11 -W -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-delete-non-virtual-dtor -Wno-overloaded-virtual -Wno-unknown-pragmas -Wno-deprecated-register)
+    add_definitions(-std=c++11 -W -Wall -Wextra -Wno-missing-field-initializers -Wno-delete-non-virtual-dtor -Wno-overloaded-virtual -Wno-unknown-pragmas -Wno-deprecated-register)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
     endif(FCL_TREAT_WARNINGS_AS_ERRORS)

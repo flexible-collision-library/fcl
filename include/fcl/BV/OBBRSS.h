@@ -64,7 +64,7 @@ public:
   }
 
   /// @brief Check collision between two OBBRSS and return the overlap part.
-  bool overlap(const OBBRSS& other, OBBRSS& overlap_part) const
+  bool overlap(const OBBRSS& other, OBBRSS& /*overlap_part*/) const
   {
     return overlap(other);
   }

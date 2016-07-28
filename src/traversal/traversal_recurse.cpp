@@ -167,9 +167,9 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
   }
 }
 
-void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list)
+void collisionRecurse(MeshCollisionTraversalNodeRSS* /*node*/, int /*b1*/, int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/, BVHFrontList* /*front_list*/)
 {
-
+  // TODO(JS): Not implemented?
 }
 
 /** Recurse function for self collision

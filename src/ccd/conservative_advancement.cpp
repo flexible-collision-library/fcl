@@ -638,7 +638,7 @@ bool conservativeAdvancement(const BVHModel<OBBRSS>& o1,
 
 
 template<typename BV, typename NarrowPhaseSolver>
-FCL_REAL BVHConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL BVHConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* /*nsolver*/, const ContinuousCollisionRequest& /*request*/, ContinuousCollisionResult& result)
 {
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
   const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>*>(o2);
@@ -655,7 +655,7 @@ FCL_REAL BVHConservativeAdvancement(const CollisionGeometry* o1, const MotionBas
 }
 
 template<typename S1, typename S2, typename NarrowPhaseSolver>
-FCL_REAL ShapeConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL ShapeConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& /*request*/, ContinuousCollisionResult& result)
 {
   const S1* obj1 = static_cast<const S1*>(o1);
   const S2* obj2 = static_cast<const S2*>(o2);
@@ -672,7 +672,7 @@ FCL_REAL ShapeConservativeAdvancement(const CollisionGeometry* o1, const MotionB
 }
 
 template<typename S, typename BV, typename NarrowPhaseSolver>
-FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& /*request*/, ContinuousCollisionResult& result)
 {
   const S* obj1 = static_cast<const S*>(o1);
   const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>*>(o2);
@@ -690,7 +690,7 @@ FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometry* o1, const Moti
 }
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
-FCL_REAL BVHShapeConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL BVHShapeConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1, const CollisionGeometry* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& /*request*/, ContinuousCollisionResult& result)
 {
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
   const S* obj2 = static_cast<const S*>(o2);

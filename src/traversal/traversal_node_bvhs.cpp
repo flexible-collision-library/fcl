@@ -208,7 +208,7 @@ bool MeshCollisionTraversalNodeOBB::BVTesting(int b1, int b2, const Matrix3f& Rc
   return obbDisjoint(Rc, Tc, model1->getBV(b1).bv.extent, model2->getBV(b2).bv.extent);
 }
 
-void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const
+void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3f& /*Rc*/, const Vec3f& /*Tc*/) const
 {
   details::meshCollisionOrientedNodeLeafTesting(b1, b2, model1, model2, vertices1, vertices2, 
                                                 tri_indices1, tri_indices2, 

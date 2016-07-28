@@ -220,7 +220,7 @@ KDOP<N> KDOP<N>::operator + (const KDOP<N>& other) const
 
 
 template<size_t N>
-FCL_REAL KDOP<N>::distance(const KDOP<N>& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL KDOP<N>::distance(const KDOP<N>& /*other*/, Vec3f* /*P*/, Vec3f* /*Q*/) const
 {
   std::cerr << "KDOP distance not implemented!" << std::endl;
   return 0.0;
