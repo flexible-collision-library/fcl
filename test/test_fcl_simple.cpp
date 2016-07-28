@@ -69,9 +69,9 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
 {
   Vecnf<4> a;
   Vecnf<4> b;
-  for(std::size_t i = 0; i < a.dim(); ++i)
+  for(auto i = 0; i < a.size(); ++i)
     a[i] = i;
-  for(std::size_t i = 0; i < b.dim(); ++i)
+  for(auto i = 0; i < b.size(); ++i)
     b[i] = 1;
 
   std::cout << a << std::endl;
@@ -93,7 +93,7 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
   for(int i = 0; i < 4; ++i)
     upper[i] = 1;
 
-  Vecnf<4> aa(std::vector<FCL_REAL>({1,2}));
+  Vecnf<4> aa = Vecnf<4>(1, 2, 1, 2);
   std::cout << aa << std::endl;
 
   SamplerR<4> sampler(lower, upper);

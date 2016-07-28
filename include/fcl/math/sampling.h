@@ -141,6 +141,7 @@ public:
 private:
   Vecnf<N> lower_bound;
   Vecnf<N> upper_bound;
+
 };
 
 
@@ -155,8 +156,8 @@ public:
   {}
 
   SamplerSE2(FCL_REAL x_min, FCL_REAL x_max,
-             FCL_REAL y_min, FCL_REAL y_max) : lower_bound(std::vector<FCL_REAL>({x_min, y_min})),
-                                               upper_bound(std::vector<FCL_REAL>({x_max, y_max}))
+             FCL_REAL y_min, FCL_REAL y_max) : lower_bound(Vecnf<2>(x_min, y_min)),
+                                               upper_bound(Vecnf<2>(x_max, y_max))
                                                
   {}
 
@@ -242,11 +243,6 @@ public:
                                                   upper_bound(upper_bound_)
   {}
 
-  SamplerSE3Euler(const Vec3f& lower_bound_,
-                  const Vec3f& upper_bound_) : lower_bound(std::vector<FCL_REAL>({lower_bound_[0], lower_bound_[1], lower_bound_[2]})),
-                                               upper_bound(std::vector<FCL_REAL>({upper_bound_[0], upper_bound_[1], upper_bound_[2]}))
-  {}
-
   void setBound(const Vecnf<3>& lower_bound_,
                 const Vecnf<3>& upper_bound_)
 
@@ -255,25 +251,11 @@ public:
     upper_bound = upper_bound_;
   }
 
-  void setBound(const Vec3f& lower_bound_,
-                const Vec3f& upper_bound_)
-  {
-    lower_bound = Vecnf<3>(std::vector<FCL_REAL>({lower_bound_[0], lower_bound_[1], lower_bound_[2]}));
-    upper_bound = Vecnf<3>(std::vector<FCL_REAL>({upper_bound_[0], upper_bound_[1], upper_bound_[2]}));
-  }
-
   void getBound(Vecnf<3>& lower_bound_,
                 Vecnf<3>& upper_bound_) const
   {
     lower_bound_ = lower_bound;
     upper_bound_ = upper_bound;
-  }
-
-  void getBound(Vec3f& lower_bound_,
-                Vec3f& upper_bound_) const
-  {
-    lower_bound_ = Vec3f(lower_bound[0], lower_bound[1], lower_bound[2]);
-    upper_bound_ = Vec3f(upper_bound[0], upper_bound[1], upper_bound[2]);
   }
 
   Vecnf<6> sample() const
@@ -312,12 +294,6 @@ public:
                                                  upper_bound(upper_bound_)
   {}
 
-  SamplerSE3Quat(const Vec3f& lower_bound_,
-                 const Vec3f& upper_bound_) : lower_bound(std::vector<FCL_REAL>({lower_bound_[0], lower_bound_[1], lower_bound_[2]})),
-                                              upper_bound(std::vector<FCL_REAL>({upper_bound_[0], upper_bound_[1], upper_bound_[2]}))
-  {}
-
-
   void setBound(const Vecnf<3>& lower_bound_,
                 const Vecnf<3>& upper_bound_)
 
@@ -326,26 +302,11 @@ public:
     upper_bound = upper_bound_;
   }
 
-  void setBound(const Vec3f& lower_bound_,
-                const Vec3f& upper_bound_)
-  {
-    lower_bound = Vecnf<3>(std::vector<FCL_REAL>({lower_bound_[0], lower_bound_[1], lower_bound_[2]}));
-    upper_bound = Vecnf<3>(std::vector<FCL_REAL>({upper_bound_[0], upper_bound_[1], upper_bound_[2]}));
-  }
-
-
   void getBound(Vecnf<3>& lower_bound_,
                 Vecnf<3>& upper_bound_) const
   {
     lower_bound_ = lower_bound;
     upper_bound_ = upper_bound;
-  }
-
-  void getBound(Vec3f& lower_bound_,
-                Vec3f& upper_bound_) const
-  {
-    lower_bound_ = Vec3f(lower_bound[0], lower_bound[1], lower_bound[2]);
-    upper_bound_ = Vec3f(upper_bound[0], upper_bound[1], upper_bound[2]);
   }
 
   Vecnf<7> sample() const
