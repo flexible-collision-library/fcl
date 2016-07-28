@@ -1,6 +1,10 @@
 #ifndef FCL_LEARNING_CLASSIFIER_H
 #define FCL_LEARNING_CLASSIFIER_H
 
+#include <vector>
+
+#include "fcl/data_types.h"
+
 namespace fcl
 {
 template<std::size_t N>

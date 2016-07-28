@@ -38,7 +38,6 @@
 
 #include <cmath>
 #include <fcl/distance.h>
-#include <fcl/math/transform.h>
 #include <fcl/collision.h>
 #include <fcl/collision_object.h>
 #include <fcl/shape/geometric_shapes.h>
