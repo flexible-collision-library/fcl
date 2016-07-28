@@ -472,7 +472,7 @@ bool meshConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
     // n is in local frame of c1, so we need to turn n into the global frame
     Vector3d n_transformed =
       getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
-      getBVAxis(model1->getBV(c1).bv, 1) * n[2] +
+      getBVAxis(model1->getBV(c1).bv, 1) * n[2] +  // TODO(JS): not n[1]?
       getBVAxis(model1->getBV(c1).bv, 2) * n[2];
     Quaternion3d R0;
     motion1->getCurrentRotation(R0);
