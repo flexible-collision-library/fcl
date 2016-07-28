@@ -50,7 +50,7 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 {
   static CollisionFunctionMatrix<GJKSolver> table;
   return table;
-};
+}
 
 template<typename NarrowPhaseSolver>
 std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
