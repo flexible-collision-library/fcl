@@ -169,13 +169,54 @@ void generateCoordinateSystem(Matrix3<T>& axis)
   }
 }
 
-template<typename T>
-void relativeTransform(const Matrix3<T>& R1, const Vector3<T>& t1,
-                       const Matrix3<T>& R2, const Vector3<T>& t2,
-                       Matrix3<T>& R, Vector3<T>& t)
+template <typename Derived1, typename Derived2, typename Derived3, typename Derived4>
+void relativeTransform(
+    const Eigen::MatrixBase<Derived1>& R1, const Eigen::MatrixBase<Derived2>& t1,
+    const Eigen::MatrixBase<Derived1>& R2, const Eigen::MatrixBase<Derived2>& t2,
+    Eigen::MatrixBase<Derived3>& R, Eigen::MatrixBase<Derived4>& t)
 {
+  EIGEN_STATIC_ASSERT(
+        Derived1::RowsAtCompileTime == 3
+        && Derived1::ColsAtCompileTime == 3,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+  EIGEN_STATIC_ASSERT(
+        Derived2::RowsAtCompileTime == 3
+        && Derived2::ColsAtCompileTime == 1,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+  EIGEN_STATIC_ASSERT(
+        Derived3::RowsAtCompileTime == 3
+        && Derived3::ColsAtCompileTime == 3,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+  EIGEN_STATIC_ASSERT(
+        Derived4::RowsAtCompileTime == 3
+        && Derived4::ColsAtCompileTime == 1,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
   R = R1.transpose() * R2;
   t = R1.transpose() * (t2 - t1);
+}
+
+template <typename Scalar, typename Derived1, typename Derived2>
+void relativeTransform(
+    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T1,
+    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
+    Eigen::MatrixBase<Derived1>& R, Eigen::MatrixBase<Derived2>& t)
+{
+  EIGEN_STATIC_ASSERT(
+        Derived1::RowsAtCompileTime == 3
+        && Derived1::ColsAtCompileTime == 3,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+  EIGEN_STATIC_ASSERT(
+        Derived2::RowsAtCompileTime == 3
+        && Derived2::ColsAtCompileTime == 1,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+  relativeTransform(
+        T1.linear(), T1.translation(), T2.linear(), T2.translation(), R, t);
 }
 
 } // namespace fcl
