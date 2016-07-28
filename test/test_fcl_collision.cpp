@@ -246,7 +246,11 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
 
   std::vector<Transform3f> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+#ifdef FCL_BUILD_TYPE_DEBUG
+  std::size_t n = 1;
+#else
   std::size_t n = 10;
+#endif
   bool verbose = false;
 
   generateRandomTransforms(extents, transforms, n);

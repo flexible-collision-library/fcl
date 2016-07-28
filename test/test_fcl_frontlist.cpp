@@ -78,7 +78,11 @@ GTEST_TEST(FCL_FRONT_LIST, front_list)
   std::vector<Transform3f> transforms2; // t1
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   FCL_REAL delta_trans[] = {1, 1, 1};
+#ifdef FCL_BUILD_TYPE_DEBUG
+  std::size_t n = 1;
+#else
   std::size_t n = 10;
+#endif
   bool verbose = false;
 
   generateRandomTransforms(extents, delta_trans, 0.005 * 2 * 3.1415, transforms, transforms2, n);

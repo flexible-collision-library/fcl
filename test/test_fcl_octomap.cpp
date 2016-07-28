@@ -102,31 +102,46 @@ void octomap_distance_test_BVH(std::size_t n);
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_cost)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_cost_test(200, 10, 10, false, false);
+  octomap_cost_test(200, 100, 10, false, false);
+#else
   octomap_cost_test(200, 100, 10, false, false);
   octomap_cost_test(200, 1000, 10, false, false);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_cost_mesh)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_cost_test(200, 2, 5, true, false);
+  octomap_cost_test(200, 10, 5, true, false);
+#else
   octomap_cost_test(200, 100, 10, true, false);
   octomap_cost_test(200, 1000, 10, true, false);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test(200, 10, false, 10, false, false);
+  octomap_collision_test(200, 100, false, 10, false, false);
+  octomap_collision_test(200, 10, true, 1, false, false);
+  octomap_collision_test(200, 100, true, 1, false, false);
+#else
   octomap_collision_test(200, 100, false, 10, false, false);
   octomap_collision_test(200, 1000, false, 10, false, false);
   octomap_collision_test(200, 100, true, 1, false, false);
   octomap_collision_test(200, 1000, true, 1, false, false);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test(200, 10, false, 10, true, true);
-  octomap_collision_test(200, 100, false, 10, true, true);
-  octomap_collision_test(200, 10, true, 1, true, true);
-  octomap_collision_test(200, 100, true, 1, true, true);
+  octomap_collision_test(200, 2, false, 1, true, true);
+  octomap_collision_test(200, 2, true, 1, true, true);
 #else
   octomap_collision_test(200, 100, false, 10, true, true);
   octomap_collision_test(200, 1000, false, 10, true, true);
@@ -137,17 +152,21 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh)
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_triangle_id)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test_mesh_triangle_id(1, 15, 10000);
+#else
   octomap_collision_test_mesh_triangle_id(1, 30, 100000);
+#endif
 }
 
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_octomap_box)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test(200, 10, false, 10, true, false);
-  octomap_collision_test(200, 100, false, 10, true, false);
-  octomap_collision_test(200, 10, true, 1, true, false);
-  octomap_collision_test(200, 100, true, 1, true, false);
+  octomap_collision_test(200, 2, false, 4, true, false);
+  octomap_collision_test(200, 4, false, 4, true, false);
+  octomap_collision_test(200, 2, true, 1, true, false);
+  octomap_collision_test(200, 4, true, 1, true, false);
 #else
   octomap_collision_test(200, 100, false, 10, true, false);
   octomap_collision_test(200, 1000, false, 10, true, false);
@@ -158,15 +177,19 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_octomap_box)
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test(200, 2, false, false);
+  octomap_distance_test(200, 10, false, false);
+#else
   octomap_distance_test(200, 100, false, false);
   octomap_distance_test(200, 1000, false, false);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test(200, 5, true, true);
-  octomap_distance_test(200, 50, true, true);
+  octomap_distance_test(200, 2, true, true);
 #else
   octomap_distance_test(200, 100, true, true);
   octomap_distance_test(200, 1000, true, true);
@@ -176,8 +199,7 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh)
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh_octomap_box)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test(200, 10, true, false);
-  octomap_distance_test(200, 100, true, false);
+  octomap_distance_test(200, 2, true, false);
 #else
   octomap_distance_test(200, 100, true, false);
   octomap_distance_test(200, 1000, true, false);
@@ -186,18 +208,31 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh_octomap_box)
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_collision_obb)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test_BVH<OBB>(2, false);
+  octomap_collision_test_BVH<OBB>(2, true);
+#else
   octomap_collision_test_BVH<OBB>(5, false);
   octomap_collision_test_BVH<OBB>(5, true);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_rss_d_distance_rss)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test_BVH<RSS>(2);
+#else
   octomap_distance_test_BVH<RSS>(5);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_d_distance_obb)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test_BVH<OBBRSS>(2);
+#else
   octomap_distance_test_BVH<OBBRSS>(5);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_kios_d_distance_kios)

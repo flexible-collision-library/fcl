@@ -112,44 +112,89 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 /// check the update, only return collision or not
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_update_collision_binary)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_update_collision_test(2000, 10, 100, 1, false);
+  broad_phase_update_collision_test(2000, 100, 100, 1, false);
+#else
   broad_phase_update_collision_test(2000, 100, 1000, 1, false);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, false);
+#endif
 }
 
 /// check the update, return 10 contacts
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_update_collision)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_update_collision_test(2000, 10, 100, 10, false);
+  broad_phase_update_collision_test(2000, 100, 100, 10, false);
+#else
   broad_phase_update_collision_test(2000, 100, 1000, 10, false);
   broad_phase_update_collision_test(2000, 1000, 1000, 10, false);
+#endif
 }
 
 /// check the update, exhaustive
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_update_collision_exhaustive)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_update_collision_test(2000, 10, 100, 1, true);
+  broad_phase_update_collision_test(2000, 100, 100, 1, true);
+#else
   broad_phase_update_collision_test(2000, 100, 1000, 1, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, true);
+#endif
 }
 
 /// check broad phase distance
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_distance)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_distance_test(200, 10, 10);
+  broad_phase_distance_test(200, 100, 10);
+  broad_phase_distance_test(2000, 10, 10);
+  broad_phase_distance_test(2000, 100, 10);
+#else
   broad_phase_distance_test(200, 100, 100);
   broad_phase_distance_test(200, 1000, 100);
   broad_phase_distance_test(2000, 100, 100);
   broad_phase_distance_test(2000, 1000, 100);
+#endif
 }
 
 /// check broad phase self distance
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_self_distance)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_self_distance_test(200, 256);
+  broad_phase_self_distance_test(200, 500);
+  broad_phase_self_distance_test(200, 2500);
+#else
   broad_phase_self_distance_test(200, 512);
   broad_phase_self_distance_test(200, 1000);
   broad_phase_self_distance_test(200, 5000);
+#endif
 }
 
 /// check broad phase collision for empty collision object set and queries
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision_empty)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_collision_test(2000, 0, 0, 10, false, false);
+  broad_phase_collision_test(2000, 0, 5, 10, false, false);
+  broad_phase_collision_test(2000, 2, 0, 10, false, false);
+
+  broad_phase_collision_test(2000, 0, 0, 10, false, true);
+  broad_phase_collision_test(2000, 0, 5, 10, false, true);
+  broad_phase_collision_test(2000, 2, 0, 10, false, true);
+
+  broad_phase_collision_test(2000, 0, 0, 10, true, false);
+  broad_phase_collision_test(2000, 0, 5, 10, true, false);
+  broad_phase_collision_test(2000, 2, 0, 10, true, false);
+
+  broad_phase_collision_test(2000, 0, 0, 10, true, true);
+  broad_phase_collision_test(2000, 0, 5, 10, true, true);
+  broad_phase_collision_test(2000, 2, 0, 10, true, true);
+#else
   broad_phase_collision_test(2000, 0, 0, 10, false, false);
   broad_phase_collision_test(2000, 0, 1000, 10, false, false);
   broad_phase_collision_test(2000, 100, 0, 10, false, false);
@@ -165,6 +210,7 @@ GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision_empty)
   broad_phase_collision_test(2000, 0, 0, 10, true, true);
   broad_phase_collision_test(2000, 0, 1000, 10, true, true);
   broad_phase_collision_test(2000, 100, 0, 10, true, true);
+#endif
 }
 
 /// check broad phase collision and self collision, only return collision or not
@@ -186,23 +232,33 @@ GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision_binary)
 /// check broad phase collision and self collision, return 10 contacts
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_collision_test(2000, 10, 100, 10, false);
+  broad_phase_collision_test(2000, 100, 100, 10, false);
+#else
   broad_phase_collision_test(2000, 100, 1000, 10, false);
   broad_phase_collision_test(2000, 1000, 1000, 10, false);
+#endif
 }
 
 /// check broad phase update, in mesh, only return collision or not
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh_binary)
 {
-  broad_phase_update_collision_test(2000, 100, 1000, false, true);
-  broad_phase_update_collision_test(2000, 1000, 1000, false, true);
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_update_collision_test(2000, 2, 4, 1, false, true);
+  broad_phase_update_collision_test(2000, 4, 4, 1, false, true);
+#else
+  broad_phase_update_collision_test(2000, 100, 1000, 1, false, true);
+  broad_phase_update_collision_test(2000, 1000, 1000, 1, false, true);
+#endif
 }
 
 /// check broad phase update, in mesh, return 10 contacts
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test(200, 10, 100, 10, false, true);
-  broad_phase_update_collision_test(200, 100, 100, 10, false, true);
+  broad_phase_update_collision_test(200, 2, 4, 10, false, true);
+  broad_phase_update_collision_test(200, 4, 4, 10, false, true);
 #else
   broad_phase_update_collision_test(2000, 100, 1000, 10, false, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 10, false, true);
@@ -213,8 +269,8 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh)
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh_exhaustive)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test(2000, 10, 100, 1, true, true);
-  broad_phase_update_collision_test(2000, 100, 100, 1, true, true);
+  broad_phase_update_collision_test(2000, 2, 4, 1, true, true);
+  broad_phase_update_collision_test(2000, 4, 4, 1, true, true);
 #else
   broad_phase_update_collision_test(2000, 100, 1000, 1, true, true);
   broad_phase_update_collision_test(2000, 1000, 1000, 1, true, true);
@@ -225,10 +281,10 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh_e
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_distance_mesh)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  broad_phase_distance_test(200, 10, 10, true);
-  broad_phase_distance_test(200, 100, 10, true);
-  broad_phase_distance_test(2000, 10, 10, true);
-  broad_phase_distance_test(2000, 100, 10, true);
+  broad_phase_distance_test(200, 2, 2, true);
+  broad_phase_distance_test(200, 4, 2, true);
+  broad_phase_distance_test(2000, 2, 2, true);
+  broad_phase_distance_test(2000, 4, 2, true);
 #else
   broad_phase_distance_test(200, 100, 100, true);
   broad_phase_distance_test(200, 1000, 100, true);
@@ -240,17 +296,23 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_distance_mesh)
 /// check broad phase self distance
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_self_distance_mesh)
 {
+#ifdef FCL_BUILD_TYPE_DEBUG
+  broad_phase_self_distance_test(200, 128, true);
+  broad_phase_self_distance_test(200, 250, true);
+  broad_phase_self_distance_test(200, 1250, true);
+#else
   broad_phase_self_distance_test(200, 512, true);
   broad_phase_self_distance_test(200, 1000, true);
   broad_phase_self_distance_test(200, 5000, true);
+#endif
 }
 
 /// check broad phase collision and self collision, return only collision or not, in mesh
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_binary)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test(2000, 10, 100, 1, false, true);
-  broad_phase_collision_test(2000, 100, 100, 1, false, true);
+  broad_phase_collision_test(2000, 2, 5, 1, false, true);
+  broad_phase_collision_test(2000, 5, 5, 1, false, true);
 #else
   broad_phase_collision_test(2000, 100, 1000, 1, false, true);
   broad_phase_collision_test(2000, 1000, 1000, 1, false, true);
@@ -261,8 +323,8 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_binary)
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test(2000, 10, 100, 10, false, true);
-  broad_phase_collision_test(2000, 100, 100, 10, false, true);
+  broad_phase_collision_test(2000, 2, 5, 10, false, true);
+  broad_phase_collision_test(2000, 5, 5, 10, false, true);
 #else
   broad_phase_collision_test(2000, 100, 1000, 10, false, true);
   broad_phase_collision_test(2000, 1000, 1000, 10, false, true);
@@ -273,8 +335,8 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh)
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_exhaustive)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test(2000, 10, 100, 1, true, true);
-  broad_phase_collision_test(2000, 100, 100, 1, true, true);
+  broad_phase_collision_test(2000, 2, 5, 1, true, true);
+  broad_phase_collision_test(2000, 5, 5, 1, true, true);
 #else
   broad_phase_collision_test(2000, 100, 1000, 1, true, true);
   broad_phase_collision_test(2000, 1000, 1000, 1, true, true);
