@@ -41,7 +41,6 @@
 
 #include <fcl/deprecated.h>
 #include "fcl/BV/AABB.h"
-#include "fcl/math/transform.h"
 #include "fcl/ccd/motion_base.h"
 #include <memory>
 
@@ -98,7 +97,7 @@ public:
   inline bool isUncertain() const { return !isOccupied() && !isFree(); }
 
   /// @brief AABB center in local coordinate
-  Vec3f aabb_center;
+  Vector3d aabb_center;
 
   /// @brief AABB radius
   FCL_REAL aabb_radius;
@@ -119,22 +118,22 @@ public:
   FCL_REAL threshold_free;
 
   /// @brief compute center of mass
-  virtual Vec3f computeCOM() const { return Vec3f::Zero(); }
+  virtual Vector3d computeCOM() const { return Vector3d::Zero(); }
 
   /// @brief compute the inertia matrix, related to the origin
-  virtual Matrix3f computeMomentofInertia() const { return Matrix3f::Zero(); }
+  virtual Matrix3d computeMomentofInertia() const { return Matrix3d::Zero(); }
 
   /// @brief compute the volume
   virtual FCL_REAL computeVolume() const { return 0; }
 
   /// @brief compute the inertia matrix, related to the com
-  virtual Matrix3f computeMomentofInertiaRelatedToCOM() const
+  virtual Matrix3d computeMomentofInertiaRelatedToCOM() const
   {
-    Matrix3f C = computeMomentofInertia();
-    Vec3f com = computeCOM();
+    Matrix3d C = computeMomentofInertia();
+    Vector3d com = computeCOM();
     FCL_REAL V = computeVolume();
 
-    Matrix3f m;
+    Matrix3d m;
     m << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
          C(0, 1) + V * com[0] * com[1],
          C(0, 2) + V * com[0] * com[2],
@@ -155,7 +154,7 @@ class CollisionObject
 {
 public:
  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_) :
-    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3f::Identity())
+    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
     if (cgeom)
     {
@@ -164,15 +163,15 @@ public:
     }
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) :
+  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Transform3d& tf) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
-      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3f::Identity())
+  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3d& R, const Vector3d& T):
+      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
     t.linear() = R;
     t.translation() = T;
@@ -211,8 +210,8 @@ public:
     }
     else
     {
-      Vec3f center = t * cgeom->aabb_center;
-      Vec3f delta = Vec3f::Constant(cgeom->aabb_radius);
+      Vector3d center = t * cgeom->aabb_center;
+      Vector3d delta = Vector3d::Constant(cgeom->aabb_radius);
       aabb.min_ = center - delta;
       aabb.max_ = center + delta;
     }
@@ -231,63 +230,63 @@ public:
   }
 
   /// @brief get translation of the object
-  inline const Vec3f getTranslation() const
+  inline const Vector3d getTranslation() const
   {
     return t.translation();
   }
 
   /// @brief get matrix rotation of the object
-  inline const Matrix3f getRotation() const
+  inline const Matrix3d getRotation() const
   {
     return t.linear();
   }
 
   /// @brief get quaternion rotation of the object
-  inline const Quaternion3f getQuatRotation() const
+  inline const Quaternion3d getQuatRotation() const
   {
-    return Quaternion3f(t.linear());
+    return Quaternion3d(t.linear());
   }
 
   /// @brief get object's transform
-  inline const Transform3f& getTransform() const
+  inline const Transform3d& getTransform() const
   {
     return t;
   }
 
   /// @brief set object's rotation matrix
-  void setRotation(const Matrix3f& R)
+  void setRotation(const Matrix3d& R)
   {
     t.linear() = R;
   }
 
   /// @brief set object's translation
-  void setTranslation(const Vec3f& T)
+  void setTranslation(const Vector3d& T)
   {
     t.translation() = T;
   }
 
   /// @brief set object's quatenrion rotation
-  void setQuatRotation(const Quaternion3f& q)
+  void setQuatRotation(const Quaternion3d& q)
   {
     t.linear() = q.toRotationMatrix();
   }
 
   /// @brief set object's transform
-  void setTransform(const Matrix3f& R, const Vec3f& T)
+  void setTransform(const Matrix3d& R, const Vector3d& T)
   {
     setRotation(R);
     setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Quaternion3f& q, const Vec3f& T)
+  void setTransform(const Quaternion3d& q, const Vector3d& T)
   {
     setQuatRotation(q);
     setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Transform3f& tf)
+  void setTransform(const Transform3d& tf)
   {
     t = tf;
   }
@@ -352,7 +351,7 @@ protected:
   std::shared_ptr<CollisionGeometry> cgeom;
   std::shared_ptr<const CollisionGeometry> cgeom_const;
 
-  Transform3f t;
+  Transform3d t;
 
   /// @brief AABB in global coordinate
   mutable AABB aabb;
@@ -404,7 +403,7 @@ public:
     TVector3 T;
     motion->getTaylorModel(R, T);
 
-    Vec3f p = cgeom->aabb_local.min_;
+    Vector3d p = cgeom->aabb_local.min_;
     box = (R * p + T).getTightBound();
 
     p[2] = cgeom->aabb_local.max_[2];

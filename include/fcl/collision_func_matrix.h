@@ -55,7 +55,7 @@ struct CollisionFunctionMatrix
   /// 2. the solver for narrow phase collision, this is for the collision between geometric shapes;
   /// 3. the request setting for collision (e.g., whether need to return normal information, whether need to compute cost);
   /// 4. the structure to return collision result
-  typedef std::size_t (*CollisionFunc)(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const NarrowPhaseSolver* nsolver, const CollisionRequest& request, CollisionResult& result);
+  typedef std::size_t (*CollisionFunc)(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, const NarrowPhaseSolver* nsolver, const CollisionRequest& request, CollisionResult& result);
 
   /// @brief each item in the collision matrix is a function to handle collision between objects of type1 and type2
   CollisionFunc collision_matrix[NODE_COUNT][NODE_COUNT];

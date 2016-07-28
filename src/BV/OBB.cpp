@@ -37,7 +37,6 @@
 
 #include "fcl/BV/OBB.h"
 #include "fcl/BVH/BVH_utility.h"
-#include "fcl/math/transform.h"
 
 #include <iostream>
 #include <limits>
@@ -46,14 +45,14 @@ namespace fcl
 {
 
 /// @brief Compute the 8 vertices of a OBB
-inline void computeVertices(const OBB& b, Vec3f vertices[8])
+inline void computeVertices(const OBB& b, Vector3d vertices[8])
 {
-  const Vec3f& extent = b.extent;
-  const Vec3f& To = b.To;
+  const Vector3d& extent = b.extent;
+  const Vector3d& To = b.To;
 
-  Vec3f extAxis0 = b.axis.col(0) * extent[0];
-  Vec3f extAxis1 = b.axis.col(1) * extent[1];
-  Vec3f extAxis2 = b.axis.col(2) * extent[2];
+  Vector3d extAxis0 = b.axis.col(0) * extent[0];
+  Vector3d extAxis1 = b.axis.col(1) * extent[1];
+  Vector3d extAxis2 = b.axis.col(2) * extent[2];
 
   vertices[0] = To - extAxis0 - extAxis1 - extAxis2;
   vertices[1] = To + extAxis0 - extAxis1 - extAxis2;
@@ -69,17 +68,17 @@ inline void computeVertices(const OBB& b, Vec3f vertices[8])
 inline OBB merge_largedist(const OBB& b1, const OBB& b2)
 {
   OBB b;
-  Vec3f vertex[16];
+  Vector3d vertex[16];
   computeVertices(b1, vertex);
   computeVertices(b2, vertex + 8);
-  Matrix3f M;
-  Matrix3f E;
-  Vec3f s(0, 0, 0);
+  Matrix3d M;
+  Matrix3d E;
+  Vector3d s(0, 0, 0);
 
   b.axis.col(0) = b1.To - b2.To;
   b.axis.col(0).normalize();
 
-  Vec3f vertex_proj[16];
+  Vector3d vertex_proj[16];
   for(int i = 0; i < 16; ++i)
     vertex_proj[i] = vertex[i] - b.axis.col(0) * vertex[i].dot(b.axis.col(0));
 
@@ -117,7 +116,7 @@ inline OBB merge_largedist(const OBB& b1, const OBB& b2)
   b.axis.col(2) << E.col(0)[mid], E.col(1)[mid], E.col(2)[mid];
 
   // set obb centers and extensions
-  Vec3f center, extent;
+  Vector3d center, extent;
   getExtentAndCenter(vertex, NULL, NULL, NULL, 16, b.axis, center, extent);
 
   b.To = center;
@@ -132,20 +131,20 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2)
 {
   OBB b;
   b.To = (b1.To + b2.To) * 0.5;
-  Quaternion3f q0(b1.axis);
-  Quaternion3f q1(b2.axis);
+  Quaternion3d q0(b1.axis);
+  Quaternion3d q1(b2.axis);
   if(q0.dot(q1) < 0)
     q1.coeffs() = -q1.coeffs();
 
-  Quaternion3f q(q0.coeffs() + q1.coeffs());
+  Quaternion3d q(q0.coeffs() + q1.coeffs());
   q.normalize();
   b.axis = q.toRotationMatrix();
 
 
-  Vec3f vertex[8], diff;
+  Vector3d vertex[8], diff;
   FCL_REAL real_max = std::numeric_limits<FCL_REAL>::max();
-  Vec3f pmin(real_max, real_max, real_max);
-  Vec3f pmax(-real_max, -real_max, -real_max);
+  Vector3d pmin(real_max, real_max, real_max);
+  Vector3d pmax(-real_max, -real_max, -real_max);
 
   computeVertices(b1, vertex);
   for(int i = 0; i < 8; ++i)
@@ -184,12 +183,12 @@ inline OBB merge_smalldist(const OBB& b1, const OBB& b2)
   return b;
 }
 
-bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b)
+bool obbDisjoint(const Matrix3d& B, const Vector3d& T, const Vector3d& a, const Vector3d& b)
 {
   register FCL_REAL t, s;
   const FCL_REAL reps = 1e-6;
 
-  Matrix3f Bf = B.cwiseAbs();
+  Matrix3d Bf = B.cwiseAbs();
   Bf.array() += reps;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
@@ -316,17 +315,17 @@ bool OBB::overlap(const OBB& other) const
   /// compute what transform [R,T] that takes us from cs1 to cs2.
   /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
   /// First compute the rotation part, then translation part
-  Vec3f t = other.To - To; // T2 - T1
-  Vec3f T = t.transpose()*axis; // R1'(T2-T1)
-  Matrix3f R = axis.transpose() * other.axis;
+  Vector3d t = other.To - To; // T2 - T1
+  Vector3d T = t.transpose()*axis; // R1'(T2-T1)
+  Matrix3d R = axis.transpose() * other.axis;
 
   return !obbDisjoint(R, T, extent, other.extent);
 }
 
 
-bool OBB::contain(const Vec3f& p) const
+bool OBB::contain(const Vector3d& p) const
 {
-  Vec3f local_p = p - To;
+  Vector3d local_p = p - To;
   FCL_REAL proj = local_p.dot(axis.col(0));
   if((proj > extent[0]) || (proj < -extent[0]))
     return false;
@@ -342,7 +341,7 @@ bool OBB::contain(const Vec3f& p) const
   return true;
 }
 
-OBB& OBB::operator += (const Vec3f& p)
+OBB& OBB::operator += (const Vector3d& p)
 {
   OBB bvp;
   bvp.To = p;
@@ -355,7 +354,7 @@ OBB& OBB::operator += (const Vec3f& p)
 
 OBB OBB::operator + (const OBB& other) const
 {
-  Vec3f center_diff = To - other.To;
+  Vector3d center_diff = To - other.To;
   FCL_REAL max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
   FCL_REAL max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
   if(center_diff.norm() > 2 * (max_extent + max_extent2))
@@ -369,25 +368,25 @@ OBB OBB::operator + (const OBB& other) const
 }
 
 
-FCL_REAL OBB::distance(const OBB& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL OBB::distance(const OBB& other, Vector3d* P, Vector3d* Q) const
 {
   std::cerr << "OBB distance not implemented!" << std::endl;
   return 0.0;
 }
 
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2)
+bool overlap(const Matrix3d& R0, const Vector3d& T0, const OBB& b1, const OBB& b2)
 {
-  Matrix3f R0b2 = R0 * b2.axis;
-  Matrix3f R = b1.axis.transpose() * R0b2;
+  Matrix3d R0b2 = R0 * b2.axis;
+  Matrix3d R = b1.axis.transpose() * R0b2;
 
-  Vec3f Ttemp = R0 * b2.To + T0 - b1.To;
-  Vec3f T = Ttemp.transpose() * b1.axis;
+  Vector3d Ttemp = R0 * b2.To + T0 - b1.To;
+  Vector3d T = Ttemp.transpose() * b1.axis;
 
   return !obbDisjoint(R, T, b1.extent, b2.extent);
 }
 
-OBB translate(const OBB& bv, const Vec3f& t)
+OBB translate(const OBB& bv, const Vector3d& t)
 {
   OBB res(bv);
   res.To += t;

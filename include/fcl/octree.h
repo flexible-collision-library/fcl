@@ -103,7 +103,7 @@ public:
     FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
     // std::cout << "octree size " << delta << std::endl;
-    return AABB(Vec3f(-delta, -delta, -delta), Vec3f(delta, delta, delta));
+    return AABB(Vector3d(-delta, -delta, -delta), Vector3d(delta, delta, delta));
   }
 
   /// @brief get the root node of the octree

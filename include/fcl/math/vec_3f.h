@@ -38,70 +38,10 @@
 #ifndef FCL_VEC_3F_H
 #define FCL_VEC_3F_H
 
-#include "fcl/config.h"
+#warning "This header has been deprecated in FCL 0.6. "\
+  "Please include fcl/data_types.h and fcl/math/geometry.h instead."
+
 #include "fcl/data_types.h"
-
-#include <cmath>
-#include <iostream>
-#include <limits>
-
-#include <Eigen/Dense>
-
-namespace fcl
-{
-
-template <typename T>
-using Vec3fX = Eigen::Matrix<T, 3, 1>;
-
-using Vec3f = Vec3fX<FCL_REAL>;
-
-inline void normalize(Vec3f& v, bool* signal)
-{
-  Vec3f::Scalar sqr_length = v.squaredNorm();
-
-  if (sqr_length > 0)
-  {
-    v /= std::sqrt(sqr_length);
-    *signal = true;
-  }
-  else
-  {
-    *signal = false;
-  }
-}
-
-inline Vec3f::Scalar triple(const Vec3f& x, const Vec3f& y, const Vec3f& z)
-{
-  return x.dot(y.cross(z));
-}
-
-template <typename T>
-void generateCoordinateSystem(const Vec3fX<T>& w, Vec3fX<T>& u, Vec3fX<T>& v)
-{
-  T inv_length;
-
-  if(std::abs(w[0]) >= std::abs(w[1]))
-  {
-    inv_length = (T)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
-    u[0] = -w[2] * inv_length;
-    u[1] = (T)0;
-    u[2] =  w[0] * inv_length;
-    v[0] =  w[1] * u[2];
-    v[1] =  w[2] * u[0] - w[0] * u[2];
-    v[2] = -w[1] * u[0];
-  }
-  else
-  {
-    inv_length = (T)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
-    u[0] = (T)0;
-    u[1] =  w[2] * inv_length;
-    u[2] = -w[1] * inv_length;
-    v[0] =  w[1] * u[2] - w[2] * u[1];
-    v[1] = -w[0] * u[2];
-    v[2] =  w[0] * u[1];
-  }
-}
-
-} // namespace fcl
+#include "fcl/math/geometry.h"
 
 #endif

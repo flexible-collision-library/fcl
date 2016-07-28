@@ -39,8 +39,6 @@
 #ifndef FCL_CCD_MOTION_BASE_H
 #define FCL_CCD_MOTION_BASE_H
 
-
-#include "fcl/math/transform.h"
 #include "fcl/ccd/taylor_matrix.h"
 #include "fcl/ccd/taylor_vector.h"
 #include "fcl/BV/RSS.h"
@@ -70,7 +68,7 @@ template<typename BV>
 class TBVMotionBoundVisitor : public BVMotionBoundVisitor
 {
 public:
-  TBVMotionBoundVisitor(const BV& bv_, const Vec3f& n_) : bv(bv_), n(n_) {}
+  TBVMotionBoundVisitor(const BV& bv_, const Vector3d& n_) : bv(bv_), n(n_) {}
 
   virtual FCL_REAL visit(const MotionBase& motion) const { return 0; }
   virtual FCL_REAL visit(const SplineMotion& motion) const { return 0; }
@@ -80,7 +78,7 @@ public:
 
 protected:
   BV bv;
-  Vec3f n;
+  Vector3d n;
 };
 
 template<>
@@ -99,7 +97,7 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const TranslationMotion& motion) cons
 class TriangleMotionBoundVisitor
 {
 public:
-  TriangleMotionBoundVisitor(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_, const Vec3f& n_) :
+  TriangleMotionBoundVisitor(const Vector3d& a_, const Vector3d& b_, const Vector3d& c_, const Vector3d& n_) :
     a(a_), b(b_), c(c_), n(n_) {}
 
   virtual FCL_REAL visit(const MotionBase& motion) const { return 0; }
@@ -109,7 +107,7 @@ public:
   virtual FCL_REAL visit(const TranslationMotion& motion) const;
 
 protected:
-  Vec3f a, b, c, n;
+  Vector3d a, b, c, n;
 };
 
 
@@ -133,44 +131,44 @@ public:
   virtual FCL_REAL computeMotionBound(const TriangleMotionBoundVisitor& mb_visitor) const = 0;
 
   /** \brief Get the rotation and translation in current step */
-  void getCurrentTransform(Matrix3f& R, Vec3f& T) const
+  void getCurrentTransform(Matrix3d& R, Vector3d& T) const
   {
-    Transform3f tf;
+    Transform3d tf;
     getCurrentTransform(tf);
     R = tf.linear();
     T = tf.translation();
   }
 
-  void getCurrentTransform(Quaternion3f& Q, Vec3f& T) const
+  void getCurrentTransform(Quaternion3d& Q, Vector3d& T) const
   {
-    Transform3f tf;
+    Transform3d tf;
     getCurrentTransform(tf);
     Q = tf.linear();
     T = tf.translation();
   }
 
-  void getCurrentRotation(Matrix3f& R) const
+  void getCurrentRotation(Matrix3d& R) const
   {
-    Transform3f tf;
+    Transform3d tf;
     getCurrentTransform(tf);
     R = tf.linear();
   }
 
-  void getCurrentRotation(Quaternion3f& Q) const
+  void getCurrentRotation(Quaternion3d& Q) const
   {
-    Transform3f tf;
+    Transform3d tf;
     getCurrentTransform(tf);
     Q = tf.linear();
   }
 
-  void getCurrentTranslation(Vec3f& T) const
+  void getCurrentTranslation(Vector3d& T) const
   {
-    Transform3f tf;
+    Transform3d tf;
     getCurrentTransform(tf);
     T = tf.translation();
   }
 
-  virtual void getCurrentTransform(Transform3f& tf) const = 0;
+  virtual void getCurrentTransform(Transform3d& tf) const = 0;
 
   virtual void getTaylorModel(TMatrix3& tm, TVector3& tv) const = 0;
 

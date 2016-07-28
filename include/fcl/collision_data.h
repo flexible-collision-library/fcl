@@ -42,8 +42,6 @@
 #include "fcl/collision_object.h"
 #include "fcl/learning/classifier.h"
 
-
-#include "fcl/math/vec_3f.h"
 #include <vector>
 #include <set>
 #include <limits>
@@ -59,19 +57,19 @@ enum GJKSolverType {GST_LIBCCD, GST_INDEP};
 struct ContactPoint
 {
   /// @brief Contact normal, pointing from o1 to o2
-  Vec3f normal;
+  Vector3d normal;
 
   /// @brief Contact position, in world space
-  Vec3f pos;
+  Vector3d pos;
 
   /// @brief Penetration depth
   FCL_REAL penetration_depth;
 
   /// @brief Constructor
-  ContactPoint() : normal(Vec3f::Zero()), pos(Vec3f::Zero()), penetration_depth(0.0) {}
+  ContactPoint() : normal(Vector3d::Zero()), pos(Vector3d::Zero()), penetration_depth(0.0) {}
 
   /// @brief Constructor
-  ContactPoint(const Vec3f& n_, const Vec3f& p_, FCL_REAL d_) : normal(n_),
+  ContactPoint(const Vector3d& n_, const Vector3d& p_, FCL_REAL d_) : normal(n_),
                                                                 pos(p_),
                                                                 penetration_depth(d_)
   {}
@@ -103,10 +101,10 @@ struct Contact
   int b2;
  
   /// @brief contact normal, pointing from o1 to o2
-  Vec3f normal;
+  Vector3d normal;
 
   /// @brief contact position, in world space
-  Vec3f pos;
+  Vector3d pos;
 
   /// @brief penetration depth
   FCL_REAL penetration_depth;
@@ -128,7 +126,7 @@ struct Contact
   {}
 
   Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_,
-          const Vec3f& pos_, const Vec3f& normal_, FCL_REAL depth_) : o1(o1_),
+          const Vector3d& pos_, const Vector3d& normal_, FCL_REAL depth_) : o1(o1_),
                                                                       o2(o2_),
                                                                       b1(b1_),
                                                                       b2(b2_),
@@ -149,17 +147,17 @@ struct Contact
 struct CostSource
 {
   /// @brief aabb lower bound
-  Vec3f aabb_min;
+  Vector3d aabb_min;
 
   /// @brief aabb upper bound
-  Vec3f aabb_max;
+  Vector3d aabb_max;
 
   /// @brief cost density in the AABB region
   FCL_REAL cost_density;
 
   FCL_REAL total_cost;
 
-  CostSource(const Vec3f& aabb_min_, const Vec3f& aabb_max_, FCL_REAL cost_density_) : aabb_min(aabb_min_),
+  CostSource(const Vector3d& aabb_min_, const Vector3d& aabb_max_, FCL_REAL cost_density_) : aabb_min(aabb_min_),
                                                                                        aabb_max(aabb_max_),
                                                                                        cost_density(cost_density_)
   {
@@ -222,7 +220,7 @@ struct CollisionRequest
   bool enable_cached_gjk_guess;
   
   /// @brief the gjk intial guess set by user
-  Vec3f cached_gjk_guess;
+  Vector3d cached_gjk_guess;
 
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
@@ -237,7 +235,7 @@ struct CollisionRequest
                                                                   gjk_solver_type(gjk_solver_type_)
   {
     enable_cached_gjk_guess = false;
-    cached_gjk_guess = Vec3f(1, 0, 0);
+    cached_gjk_guess = Vector3d(1, 0, 0);
   }
 
   bool isSatisfied(const CollisionResult& result) const;
@@ -254,7 +252,7 @@ private:
   std::set<CostSource> cost_sources;
 
 public:
-  Vec3f cached_gjk_guess;
+  Vector3d cached_gjk_guess;
 
 public:
   CollisionResult()
@@ -367,7 +365,7 @@ public:
   FCL_REAL min_distance;
 
   /// @brief nearest points
-  Vec3f nearest_points[2];
+  Vector3d nearest_points[2];
 
   /// @brief collision object 1
   const CollisionGeometry* o1;
@@ -413,7 +411,7 @@ public:
   }
 
   /// @brief add distance information into the result
-  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_, const Vec3f& p1, const Vec3f& p2)
+  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_, const Vector3d& p1, const Vector3d& p2)
   {
     if(min_distance > distance)
     {
@@ -497,7 +495,7 @@ struct ContinuousCollisionResult
   /// @brief time of contact in [0, 1]
   FCL_REAL time_of_contact;
 
-  Transform3f contact_tf1, contact_tf2;
+  Transform3d contact_tf1, contact_tf2;
   
   ContinuousCollisionResult() : is_collide(false), time_of_contact(1.0)
   {
@@ -518,7 +516,7 @@ struct PenetrationDepthRequest
   /// @brief gjk solver type
   GJKSolverType gjk_solver_type;
 
-  std::vector<Transform3f> contact_vectors;
+  std::vector<Transform3d> contact_vectors;
 
   PenetrationDepthRequest(void* classifier_,
                           PenetrationDepthType pd_type_ = PDT_TRANSLATIONAL,
@@ -535,7 +533,7 @@ struct PenetrationDepthResult
   FCL_REAL pd_value;
 
   /// @brief the transform where the collision is resolved
-  Transform3f resolved_tf; 
+  Transform3d resolved_tf; 
 };
 
 

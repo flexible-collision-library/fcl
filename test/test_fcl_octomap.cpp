@@ -247,7 +247,7 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_kios_d_distance_kios)
 template<typename BV>
 void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolution)
 {
-  std::vector<Vec3f> p1;
+  std::vector<Vector3d> p1;
   std::vector<Triangle> t1;
 
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
@@ -262,14 +262,14 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
   OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry> tree_ptr(tree);
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   FCL_REAL extents[] = {-10, -10, 10, 10, 10, 10};
 
   generateRandomTransforms(extents, transforms, n);
   
   for(std::size_t i = 0; i < n; ++i)
   {
-    Transform3f tf(transforms[i]);
+    Transform3d tf(transforms[i]);
 
     CollisionObject obj1(m1_ptr, tf);
     CollisionObject obj2(tree_ptr, tf);
@@ -313,7 +313,7 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
 template<typename BV>
 void octomap_distance_test_BVH(std::size_t n, double resolution)
 {
-  std::vector<Vec3f> p1;
+  std::vector<Vector3d> p1;
   std::vector<Triangle> t1;
 
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
@@ -328,14 +328,14 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
   OcTree* tree = new OcTree(std::shared_ptr<octomap::OcTree>(generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry> tree_ptr(tree);
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   FCL_REAL extents[] = {-10, -10, 10, 10, 10, 10};
 
   generateRandomTransforms(extents, transforms, n);
   
   for(std::size_t i = 0; i < n; ++i)
   {
-    Transform3f tf(transforms[i]);
+    Transform3d tf(transforms[i]);
 
     CollisionObject obj1(m1_ptr, tf);
     CollisionObject obj2(tree_ptr, tf);
@@ -713,7 +713,7 @@ void generateBoxesFromOctomap(std::vector<CollisionObject*>& boxes, OcTree& tree
     Box* box = new Box(size, size, size);
     box->cost_density = cost;
     box->threshold_occupied = threshold;
-    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(box), Transform3f(Eigen::Translation3d(Vec3f(x, y, z))));
+    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(box), Transform3d(Eigen::Translation3d(Vector3d(x, y, z))));
     boxes.push_back(obj);
   }
 
@@ -724,7 +724,7 @@ void generateBoxesFromOctomap(std::vector<CollisionObject*>& boxes, OcTree& tree
 void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
 {
   FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
@@ -765,10 +765,10 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& boxes, OcTree& 
 
     Box box(size, size, size);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f::Identity());
+    generateBVHModel(*model, box, Transform3d::Identity());
     model->cost_density = cost;
     model->threshold_occupied = threshold;
-    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(model), Transform3f(Eigen::Translation3d(Vec3f(x, y, z))));
+    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(model), Transform3d(Eigen::Translation3d(Vector3d(x, y, z))));
     boxes.push_back(obj);    
   }
 
@@ -778,14 +778,14 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& boxes, OcTree& 
 void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
 {
   FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   Box box(5, 10, 20);
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f::Identity());
+    generateBVHModel(*model, box, Transform3d::Identity());
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
@@ -794,7 +794,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, sphere, Transform3f::Identity(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
@@ -803,7 +803,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, cylinder, Transform3f::Identity(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 }

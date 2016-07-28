@@ -52,11 +52,11 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform = Transform3f::Identity();
-  Transform3f transform2 = Transform3f::Identity();
-  transform2.translation() = Vec3f(20.1, 0,0);
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(20.1, 0,0);
 
   bool res;
   FCL_REAL dist;
@@ -78,11 +78,11 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform = Transform3f::Identity();
-  Transform3f transform2 = Transform3f::Identity();
-  transform2.translation() = Vec3f(20, 20,0);
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(20, 20,0);
 
   bool res;
   FCL_REAL dist;
@@ -104,11 +104,11 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform = Transform3f::Identity();
-  Transform3f transform2 = Transform3f::Identity();
-  transform2.translation() = Vec3f(0,0,20.1);
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(0,0,20.1);
 
   bool res;
   FCL_REAL dist;
@@ -131,15 +131,15 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform = Transform3f::Identity();
-  Transform3f transform2 = Transform3f::Identity();
-  transform2.translation() = Vec3f(0,0,25.1);
-  Matrix3f rot2(
-        Eigen::AngleAxisd(0, Vec3f::UnitX())
-        * Eigen::AngleAxisd(Pi/2, Vec3f::UnitY())
-        * Eigen::AngleAxisd(0, Vec3f::UnitZ()));
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(0,0,25.1);
+  Matrix3d rot2(
+        Eigen::AngleAxisd(0, Vector3d::UnitX())
+        * Eigen::AngleAxisd(Pi/2, Vector3d::UnitY())
+        * Eigen::AngleAxisd(0, Vector3d::UnitZ()));
   transform2.linear() = rot2;
 
   bool res;

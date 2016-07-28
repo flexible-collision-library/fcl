@@ -45,7 +45,6 @@
 #include "fcl/BV/RSS.h"
 #include "fcl/BV/OBBRSS.h"
 #include "fcl/BV/kIOS.h"
-#include "fcl/math/transform.h"
 
 /** \brief Main namespace */
 namespace fcl
@@ -60,7 +59,7 @@ template<typename BV1, typename BV2>
 class Converter
 {
 private:
-  static void convert(const BV1& bv1, const Transform3f& tf1, BV2& bv2)
+  static void convert(const BV1& bv1, const Transform3d& tf1, BV2& bv2)
   {
     // should only use the specialized version, so it is private.
   }
@@ -72,12 +71,12 @@ template<>
 class Converter<AABB, AABB>
 {
 public:
-  static void convert(const AABB& bv1, const Transform3f& tf1, AABB& bv2)
+  static void convert(const AABB& bv1, const Transform3d& tf1, AABB& bv2)
   {
-    const Vec3f& center = bv1.center();
+    const Vector3d& center = bv1.center();
     FCL_REAL r = (bv1.max_ - bv1.min_).norm() * 0.5;
-    Vec3f center2 = tf1 * center;
-    Vec3f delta(r, r, r);
+    Vector3d center2 = tf1 * center;
+    Vector3d delta(r, r, r);
     bv2.min_ = center2 - delta;
     bv2.max_ = center2 + delta;
   }
@@ -87,7 +86,7 @@ template<>
 class Converter<AABB, OBB>
 {
 public:
-  static void convert(const AABB& bv1, const Transform3f& tf1, OBB& bv2)
+  static void convert(const AABB& bv1, const Transform3d& tf1, OBB& bv2)
   {    
     /*
     bv2.To = tf1 * bv1.center());
@@ -116,9 +115,9 @@ public:
       }
     }
 
-    Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
-    bv2.extent = Vec3f(extent[id[0]], extent[id[1]], extent[id[2]]);
-    const Matrix3f& R = tf1.linear();
+    Vector3d extent = (bv1.max_ - bv1.min_) * 0.5;
+    bv2.extent = Vector3d(extent[id[0]], extent[id[1]], extent[id[2]]);
+    const Matrix3d& R = tf1.linear();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
     bv2.axis[0] = left_hand ? -R.col(id[0]) : R.col(id[0]);
     bv2.axis[1] = R.col(id[1]);
@@ -135,7 +134,7 @@ template<>
 class Converter<OBB, OBB>
 {
 public:
-  static void convert(const OBB& bv1, const Transform3f& tf1, OBB& bv2)
+  static void convert(const OBB& bv1, const Transform3d& tf1, OBB& bv2)
   {
     bv2.extent = bv1.extent;
     bv2.To = tf1 * bv1.To;
@@ -147,7 +146,7 @@ template<>
 class Converter<OBBRSS, OBB>
 {
 public:
-  static void convert(const OBBRSS& bv1, const Transform3f& tf1, OBB& bv2)
+  static void convert(const OBBRSS& bv1, const Transform3d& tf1, OBB& bv2)
   {
     Converter<OBB, OBB>::convert(bv1.obb, tf1, bv2);
   }
@@ -157,9 +156,9 @@ template<>
 class Converter<RSS, OBB>
 {
 public:
-  static void convert(const RSS& bv1, const Transform3f& tf1, OBB& bv2)
+  static void convert(const RSS& bv1, const Transform3d& tf1, OBB& bv2)
   {
-    bv2.extent = Vec3f(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
+    bv2.extent = Vector3d(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
     bv2.To = tf1 * bv1.Tr;
     bv2.axis = tf1.linear() * bv1.axis;
   }
@@ -170,12 +169,12 @@ template<typename BV1>
 class Converter<BV1, AABB>
 {
 public:
-  static void convert(const BV1& bv1, const Transform3f& tf1, AABB& bv2)
+  static void convert(const BV1& bv1, const Transform3d& tf1, AABB& bv2)
   {
-    const Vec3f& center = bv1.center();
-    FCL_REAL r = Vec3f(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
-    Vec3f delta(r, r, r);
-    Vec3f center2 = tf1 * center;
+    const Vector3d& center = bv1.center();
+    FCL_REAL r = Vector3d(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
+    Vector3d delta(r, r, r);
+    Vector3d center2 = tf1 * center;
     bv2.min_ = center2 - delta;
     bv2.max_ = center2 + delta;
   }
@@ -185,10 +184,10 @@ template<typename BV1>
 class Converter<BV1, OBB>
 {
 public:
-  static void convert(const BV1& bv1, const Transform3f& tf1, OBB& bv2)
+  static void convert(const BV1& bv1, const Transform3d& tf1, OBB& bv2)
   {
     AABB bv;
-    Converter<BV1, AABB>::convert(bv1, Transform3f::Identity(), bv);
+    Converter<BV1, AABB>::convert(bv1, Transform3d::Identity(), bv);
     Converter<AABB, OBB>::convert(bv, tf1, bv2);
   }
 };
@@ -197,7 +196,7 @@ template<>
 class Converter<OBB, RSS>
 {
 public:
-  static void convert(const OBB& bv1, const Transform3f& tf1, RSS& bv2)
+  static void convert(const OBB& bv1, const Transform3d& tf1, RSS& bv2)
   {
     bv2.Tr = tf1 * bv1.To;
     bv2.axis = tf1.linear() * bv1.axis;
@@ -212,7 +211,7 @@ template<>
 class Converter<RSS, RSS>
 {
 public:
-  static void convert(const RSS& bv1, const Transform3f& tf1, RSS& bv2)
+  static void convert(const RSS& bv1, const Transform3d& tf1, RSS& bv2)
   {
     bv2.Tr = tf1 * bv1.Tr;
     bv2.axis = tf1.linear() * bv1.axis;
@@ -227,7 +226,7 @@ template<>
 class Converter<OBBRSS, RSS>
 {
 public:
-  static void convert(const OBBRSS& bv1, const Transform3f& tf1, RSS& bv2)
+  static void convert(const OBBRSS& bv1, const Transform3d& tf1, RSS& bv2)
   {
     Converter<RSS, RSS>::convert(bv1.rss, tf1, bv2);
   }
@@ -237,7 +236,7 @@ template<>
 class Converter<AABB, RSS>
 {
 public:
-  static void convert(const AABB& bv1, const Transform3f& tf1, RSS& bv2)
+  static void convert(const AABB& bv1, const Transform3d& tf1, RSS& bv2)
   {
     bv2.Tr = tf1 * bv1.center();
 
@@ -265,12 +264,12 @@ public:
       }
     }
 
-    Vec3f extent = (bv1.max_ - bv1.min_) * 0.5;
+    Vector3d extent = (bv1.max_ - bv1.min_) * 0.5;
     bv2.r = extent[id[2]];
     bv2.l[0] = (extent[id[0]] - bv2.r) * 2;
     bv2.l[1] = (extent[id[1]] - bv2.r) * 2;
 
-    const Matrix3f& R = tf1.linear();
+    const Matrix3d& R = tf1.linear();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
     if (left_hand)
       bv2.axis.col(0) = -R.col(id[0]);
@@ -288,7 +287,7 @@ public:
 
 /// @brief Convert a bounding volume of type BV1 in configuration tf1 to bounding volume of type BV2 in identity configuration.
 template<typename BV1, typename BV2>
-static inline void convertBV(const BV1& bv1, const Transform3f& tf1, BV2& bv2) 
+static inline void convertBV(const BV1& bv1, const Transform3d& tf1, BV2& bv2) 
 {
   details::Converter<BV1, BV2>::convert(bv1, tf1, bv2);
 }

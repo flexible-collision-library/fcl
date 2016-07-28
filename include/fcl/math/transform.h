@@ -39,16 +39,10 @@
 #ifndef FCL_TRANSFORM_H
 #define FCL_TRANSFORM_H
 
-#include "fcl/math/matrix_3f.h"
-#include <mutex>
+#warning "This header has been deprecated in FCL 0.6. "\
+  "Please include fcl/data_types.h and fcl/math/geometry.h instead."
 
-namespace fcl
-{
-
-using Quaternion3f = Eigen::Quaternion<FCL_REAL>;
-
-using Transform3f = Eigen::Transform<FCL_REAL, 3, Eigen::Isometry>;
-
-}
+#include "fcl/data_types.h"
+#include "fcl/math/geometry.h"
 
 #endif

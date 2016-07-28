@@ -114,7 +114,7 @@ bool inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_
 
 
 /// @brief Distance between two oriented rectangles; P and Q (optional return values) are the closest points in the rectangles, both are in the local frame of the first rectangle.
-FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vec3f* P = NULL, Vec3f* Q = NULL)
+FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vector3d* P = NULL, Vector3d* Q = NULL)
 {
   FCL_REAL A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
 
@@ -135,9 +135,9 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
   bA0_dot_B1 = b[1] * A0_dot_B1;
   bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vec3f Tba = Rab.transpose() * Tab;
+  Vector3d Tba = Rab.transpose() * Tab;
 
-  Vec3f S;
+  Vector3d S;
   FCL_REAL t, u;
 
   // determine if any edge pair contains the closest points
@@ -799,8 +799,8 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
   if(sep2 >= sep1 && sep2 >= 0)
   {
-    Vec3f Q_(Tab[0], Tab[1], Tab[2]);
-    Vec3f P_;
+    Vector3d Q_(Tab[0], Tab[1], Tab[2]);
+    Vector3d P_;
     if(Tba[2] < 0)
     {
       P_[0] = Rab(0, 2) * sep2 + Tab[0];
@@ -830,7 +830,7 @@ FCL_REAL rectDistance(const Matrix3f& Rab, Vec3f const& Tab, const FCL_REAL a[2]
 
 
 RSS::RSS()
-  : axis(Matrix3f::Identity()), Tr(Vec3f::Zero())
+  : axis(Matrix3d::Identity()), Tr(Vector3d::Zero())
 {
   // Do nothing
 }
@@ -842,34 +842,34 @@ bool RSS::overlap(const RSS& other) const
   /// First compute the rotation part, then translation part
 
   /// First compute T2 - T1
-  Vec3f t = other.Tr - Tr; 
+  Vector3d t = other.Tr - Tr; 
 
   /// Then compute R1'(T2 - T1)
-  Vec3f T = t.transpose() * axis;
+  Vector3d T = t.transpose() * axis;
 
   /// Now compute R1'R2
-  Matrix3f R = axis.transpose() * other.axis;
+  Matrix3d R = axis.transpose() * other.axis;
 
   FCL_REAL dist = rectDistance(R, T, l, other.l);
   return (dist <= (r + other.r));
 }
 
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2)
+bool overlap(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2)
 {
-  Matrix3f R0b2 = R0 * b2.axis;
-  Matrix3f R = b1.axis.transpose() * R0b2;
+  Matrix3d R0b2 = R0 * b2.axis;
+  Matrix3d R = b1.axis.transpose() * R0b2;
 
-  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vec3f T = Ttemp.transpose() * b1.axis;
+  Vector3d Ttemp = R0 * b2.Tr + T0 - b1.Tr;
+  Vector3d T = Ttemp.transpose() * b1.axis;
 
   FCL_REAL dist = rectDistance(R, T, b1.l, b2.l);
   return (dist <= (b1.r + b2.r));
 }
 
-bool RSS::contain(const Vec3f& p) const
+bool RSS::contain(const Vector3d& p) const
 {
-  Vec3f local_p = p - Tr;
-  Vec3f proj = local_p.transpose() * axis;
+  Vector3d local_p = p - Tr;
+  Vector3d proj = local_p.transpose() * axis;
   FCL_REAL abs_proj2 = fabs(proj[2]);
 
   /// projection is within the rectangle
@@ -880,28 +880,28 @@ bool RSS::contain(const Vec3f& p) const
   else if((proj[0] < l[0]) && (proj[0] > 0) && ((proj[1] < 0) || (proj[1] > l[1])))
   {
     FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vec3f v(proj[0], y, 0);
+    Vector3d v(proj[0], y, 0);
     return ((proj - v).squaredNorm() < r * r);
   }
   else if((proj[1] < l[1]) && (proj[1] > 0) && ((proj[0] < 0) || (proj[0] > l[0])))
   {
     FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
-    Vec3f v(x, proj[1], 0);
+    Vector3d v(x, proj[1], 0);
     return ((proj - v).squaredNorm() < r * r);
   }
   else
   {
     FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
     FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vec3f v(x, y, 0);
+    Vector3d v(x, y, 0);
     return ((proj - v).squaredNorm() < r * r);
   }
 }
 
-RSS& RSS::operator += (const Vec3f& p)
+RSS& RSS::operator += (const Vector3d& p)
 {
-  Vec3f local_p = p - Tr;
-  Vec3f proj = local_p.transpose() * axis;
+  Vector3d local_p = p - Tr;
+  Vector3d proj = local_p.transpose() * axis;
   FCL_REAL abs_proj2 = fabs(proj[2]);
 
   // projection is within the rectangle
@@ -922,7 +922,7 @@ RSS& RSS::operator += (const Vec3f& p)
   else if((proj[0] < l[0]) && (proj[0] > 0) && ((proj[1] < 0) || (proj[1] > l[1])))
   {
     FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vec3f v(proj[0], y, 0);
+    Vector3d v(proj[0], y, 0);
     FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
@@ -952,7 +952,7 @@ RSS& RSS::operator += (const Vec3f& p)
   else if((proj[1] < l[1]) && (proj[1] > 0) && ((proj[0] < 0) || (proj[0] > l[0])))
   {
     FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
-    Vec3f v(x, proj[1], 0);
+    Vector3d v(x, proj[1], 0);
     FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
@@ -983,7 +983,7 @@ RSS& RSS::operator += (const Vec3f& p)
   {
     FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
     FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vec3f v(x, y, 0);
+    Vector3d v(x, y, 0);
     FCL_REAL new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
@@ -1034,16 +1034,16 @@ RSS RSS::operator + (const RSS& other) const
 {
   RSS bv;
 
-  Vec3f v[16];
+  Vector3d v[16];
 
-  Vec3f d0_pos = other.axis.col(0) * (other.l[0] + other.r);
-  Vec3f d1_pos = other.axis.col(1) * (other.l[1] + other.r);
+  Vector3d d0_pos = other.axis.col(0) * (other.l[0] + other.r);
+  Vector3d d1_pos = other.axis.col(1) * (other.l[1] + other.r);
 
-  Vec3f d0_neg = other.axis.col(0) * (-other.r);
-  Vec3f d1_neg = other.axis.col(1) * (-other.r);
+  Vector3d d0_neg = other.axis.col(0) * (-other.r);
+  Vector3d d1_neg = other.axis.col(1) * (-other.r);
 
-  Vec3f d2_pos = other.axis.col(2) * other.r;
-  Vec3f d2_neg = other.axis.col(2) * (-other.r);
+  Vector3d d2_pos = other.axis.col(2) * other.r;
+  Vector3d d2_neg = other.axis.col(2) * (-other.r);
 
   v[0] = other.Tr + d0_pos + d1_pos + d2_pos;
   v[1] = other.Tr + d0_pos + d1_pos + d2_neg;
@@ -1071,9 +1071,9 @@ RSS RSS::operator + (const RSS& other) const
   v[15] = Tr + d0_neg + d1_neg + d2_neg;
 
 
-  Matrix3f M; // row first matrix
-  Matrix3f E; // row first eigen-vectors
-  Vec3f s(0, 0, 0);
+  Matrix3d M; // row first matrix
+  Matrix3d E; // row first eigen-vectors
+  Vector3d s(0, 0, 0);
 
   getCovariance(v, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
@@ -1096,34 +1096,34 @@ RSS RSS::operator + (const RSS& other) const
   return bv;
 }
 
-FCL_REAL RSS::distance(const RSS& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL RSS::distance(const RSS& other, Vector3d* P, Vector3d* Q) const
 {
   // compute what transform [R,T] that takes us from cs1 to cs2.
   // [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
   // First compute the rotation part, then translation part
-  Vec3f t = other.Tr - Tr; // T2 - T1
-  Vec3f T = t.transpose() * axis; // R1'(T2-T1)
-  Matrix3f R = axis.transpose() * other.axis;
+  Vector3d t = other.Tr - Tr; // T2 - T1
+  Vector3d T = t.transpose() * axis; // R1'(T2-T1)
+  Matrix3d R = axis.transpose() * other.axis;
 
   FCL_REAL dist = rectDistance(R, T, l, other.l, P, Q);
   dist -= (r + other.r);
   return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
 }
 
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P, Vec3f* Q)
+FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2, Vector3d* P, Vector3d* Q)
 {
-  Matrix3f R0b2 = R0 * b2.axis;
-  Matrix3f R = b1.axis.transpose() * R0b2;
+  Matrix3d R0b2 = R0 * b2.axis;
+  Matrix3d R = b1.axis.transpose() * R0b2;
 
-  Vec3f Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vec3f T = Ttemp.transpose() * b1.axis;
+  Vector3d Ttemp = R0 * b2.Tr + T0 - b1.Tr;
+  Vector3d T = Ttemp.transpose() * b1.axis;
 
   FCL_REAL dist = rectDistance(R, T, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);
   return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
 }
 
-RSS translate(const RSS& bv, const Vec3f& t)
+RSS translate(const RSS& bv, const Vector3d& t)
 {
   RSS res(bv);
   res.Tr += t;

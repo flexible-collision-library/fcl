@@ -50,14 +50,14 @@ class kIOS
   /// @brief One sphere in kIOS
   struct kIOS_Sphere
   {
-    Vec3f o;
+    Vector3d o;
     FCL_REAL r;
   };
 
   /// @brief generate one sphere enclosing two spheres
   static kIOS_Sphere encloseSphere(const kIOS_Sphere& s0, const kIOS_Sphere& s1)
   {
-    Vec3f d = s1.o - s0.o;
+    Vector3d d = s1.o - s0.o;
     FCL_REAL dist2 = d.squaredNorm();
     FCL_REAL diff_r = s1.r - s0.r;
       
@@ -102,10 +102,10 @@ public:
   }
 
   /// @brief Check whether the kIOS contains a point
-  inline bool contain(const Vec3f& p) const;
+  inline bool contain(const Vector3d& p) const;
 
   /// @brief A simple way to merge the kIOS and a point
-  kIOS& operator += (const Vec3f& p);
+  kIOS& operator += (const Vector3d& p);
 
   /// @brief Merge the kIOS and another kIOS
   kIOS& operator += (const kIOS& other)
@@ -118,7 +118,7 @@ public:
   kIOS operator + (const kIOS& other) const;
 
   /// @brief Center of the kIOS
-  const Vec3f& center() const
+  const Vector3d& center() const
   {
     return spheres[0].o;
   }
@@ -139,20 +139,20 @@ public:
   FCL_REAL size() const;
 
   /// @brief The distance between two kIOS
-  FCL_REAL distance(const kIOS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  FCL_REAL distance(const kIOS& other, Vector3d* P = NULL, Vector3d* Q = NULL) const;
 };
 
 
 /// @brief Translate the kIOS BV
-kIOS translate(const kIOS& bv, const Vec3f& t);
+kIOS translate(const kIOS& bv, const Vector3d& t);
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0) and b2 is in identity.
 /// @todo Not efficient
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2);
+bool overlap(const Matrix3d& R0, const Vector3d& T0, const kIOS& b1, const kIOS& b2);
 
 /// @brief Approximate distance between two kIOS bounding volumes
 /// @todo P and Q is not returned, need implementation
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const kIOS& b1, const kIOS& b2, Vector3d* P = NULL, Vector3d* Q = NULL);
 
 }
 

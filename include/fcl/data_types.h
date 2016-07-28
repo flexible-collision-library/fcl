@@ -40,45 +40,63 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <Eigen/Dense>
+#include "fcl/deprecated.h"
 
 namespace fcl
 {
 
-typedef double FCL_REAL;
-typedef std::int64_t  FCL_INT64;
-typedef std::uint64_t FCL_UINT64;
-typedef std::int32_t  FCL_INT32;
-typedef std::uint32_t FCL_UINT32;
-// TODO: remove 'FCL_' prefix
+typedef /*FCL_DEPRECATED*/ double FCL_REAL;
+typedef /*FCL_DEPRECATED*/ std::int64_t  FCL_INT64;
+typedef /*FCL_DEPRECATED*/ std::uint64_t FCL_UINT64;
+typedef /*FCL_DEPRECATED*/ std::int32_t  FCL_INT32;
+typedef /*FCL_DEPRECATED*/ std::uint32_t FCL_UINT32;
+// TODO(JS): deprecate these types
 
-/// @brief Triangle with 3 indices for points
-class Triangle
-{
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
+using real = double;
+using int64 = std::int64_t;
+using uint64 = std::uint64_t;
+using int32 = std::int32_t;
+using uint32 = std::uint32_t;
 
-public:
-  /// @brief Default constructor
-  Triangle() {}
+template <typename Scalar>
+using Vector3 = Eigen::Matrix<Scalar, 3, 1>;
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
-  {
-    set(p1, p2, p3);
-  }
+template <typename Scalar, int N>
+using VectorN = Eigen::Matrix<Scalar, N, 1>;
 
-  /// @brief Set the vertex indices of the triangle
-  inline void set(std::size_t p1, std::size_t p2, std::size_t p3)
-  {
-    vids[0] = p1; vids[1] = p2; vids[2] = p3;
-  }
+template <typename Scalar>
+using VectorX = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
 
-  /// @access the triangle index
-  inline std::size_t operator[](int i) const { return vids[i]; }
+template <typename Scalar>
+using Matrix3 = Eigen::Matrix<Scalar, 3, 3>;
 
-  inline std::size_t& operator[](int i) { return vids[i]; }
-};
+template <typename Scalar>
+using Quaternion3 = Eigen::Quaternion<Scalar>;
 
-}
+template <typename Scalar>
+using Isometry3 = Eigen::Transform<Scalar, 3, Eigen::Isometry>;
+
+// float types
+using Vector3f = Vector3<float>;
+template <int N>
+using VectorNf = VectorN<float, N>;
+using VectorXf = VectorX<float>;
+using Matrix3f = Matrix3<float>;
+using Quaternion3f = Quaternion3<float>;
+using Isometry3f = Isometry3<float>;
+using Transform3f = Isometry3f;
+
+// double types
+using Vector3d = Vector3<double>;
+template <int N>
+using VectorNd = VectorN<double, N>;
+using VectorXd = VectorX<double>;
+using Matrix3d = Matrix3<double>;
+using Quaternion3d = Quaternion3<double>;
+using Isometry3d = Isometry3<double>;
+using Transform3d = Isometry3d;
+
+} // namespace fcl
 
 #endif

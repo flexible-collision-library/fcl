@@ -4,8 +4,6 @@
 #include <random>
 #include <cassert>
 #include "fcl/math/constants.h"
-#include "fcl/math/vec_nf.h"
-#include "fcl/math/transform.h"
 
 namespace fcl
 {
@@ -106,29 +104,29 @@ class SamplerR : public SamplerBase
 public:
   SamplerR() {}
 
-  SamplerR(const Vecnf<N>& lower_bound_,
-           const Vecnf<N>& upper_bound_) : lower_bound(lower_bound_),
+  SamplerR(const VectorNd<N>& lower_bound_,
+           const VectorNd<N>& upper_bound_) : lower_bound(lower_bound_),
                                            upper_bound(upper_bound_)
   {
   }
 
-  void setBound(const Vecnf<N>& lower_bound_,
-                const Vecnf<N>& upper_bound_)
+  void setBound(const VectorNd<N>& lower_bound_,
+                const VectorNd<N>& upper_bound_)
   {
     lower_bound = lower_bound_;
     upper_bound = upper_bound_;
   }
 
-  void getBound(Vecnf<N>& lower_bound_,
-                Vecnf<N>& upper_bound_) const
+  void getBound(VectorNd<N>& lower_bound_,
+                VectorNd<N>& upper_bound_) const
   {
     lower_bound_ = lower_bound;
     upper_bound_ = upper_bound;
   }
 
-  Vecnf<N> sample() const
+  VectorNd<N> sample() const
   {
-    Vecnf<N> q;
+    VectorNd<N> q;
 
     for(std::size_t i = 0; i < N; ++i)
     {
@@ -139,8 +137,8 @@ public:
   }
 
 private:
-  Vecnf<N> lower_bound;
-  Vecnf<N> upper_bound;
+  VectorNd<N> lower_bound;
+  VectorNd<N> upper_bound;
 
 };
 
@@ -150,36 +148,36 @@ class SamplerSE2 : public SamplerBase
 public:
   SamplerSE2() {}
 
-  SamplerSE2(const Vecnf<2>& lower_bound_,
-             const Vecnf<2>& upper_bound_) : lower_bound(lower_bound_),
+  SamplerSE2(const VectorNd<2>& lower_bound_,
+             const VectorNd<2>& upper_bound_) : lower_bound(lower_bound_),
                                              upper_bound(upper_bound_)
   {}
 
   SamplerSE2(FCL_REAL x_min, FCL_REAL x_max,
-             FCL_REAL y_min, FCL_REAL y_max) : lower_bound(Vecnf<2>(x_min, y_min)),
-                                               upper_bound(Vecnf<2>(x_max, y_max))
+             FCL_REAL y_min, FCL_REAL y_max) : lower_bound(VectorNd<2>(x_min, y_min)),
+                                               upper_bound(VectorNd<2>(x_max, y_max))
                                                
   {}
 
 
-  void setBound(const Vecnf<2>& lower_bound_,
-                const Vecnf<2>& upper_bound_)
+  void setBound(const VectorNd<2>& lower_bound_,
+                const VectorNd<2>& upper_bound_)
   {
     lower_bound = lower_bound_;
     upper_bound = upper_bound_;
   }
 
-  void getBound(Vecnf<2>& lower_bound_,
-                Vecnf<2>& upper_bound_) const
+  void getBound(VectorNd<2>& lower_bound_,
+                VectorNd<2>& upper_bound_) const
   {
     lower_bound_ = lower_bound;
     upper_bound_ = upper_bound;
   }
 
 
-  Vecnf<3> sample() const
+  VectorNd<3> sample() const
   {
-    Vecnf<3> q;
+    VectorNd<3> q;
     q[0] = rng.uniformReal(lower_bound[0], lower_bound[1]);
     q[1] = rng.uniformReal(lower_bound[1], lower_bound[2]);
     q[2] = rng.uniformReal(-constants::pi, constants::pi);
@@ -188,8 +186,8 @@ public:
   }
 
 protected:
-  Vecnf<2> lower_bound;
-  Vecnf<2> upper_bound;
+  VectorNd<2> lower_bound;
+  VectorNd<2> upper_bound;
 };
 
 
@@ -215,9 +213,9 @@ public:
     r_max = r2;
   }
 
-  Vecnf<3> sample() const
+  VectorNd<3> sample() const
   {
-    Vecnf<3> q;
+    VectorNd<3> q;
     FCL_REAL x, y;
     rng.disk(r_min, r_max, x, y);
     q[0] = x + c[0] - cref[0];
@@ -238,29 +236,29 @@ class SamplerSE3Euler : public SamplerBase
 public:
   SamplerSE3Euler() {}
 
-  SamplerSE3Euler(const Vecnf<3>& lower_bound_,
-                  const Vecnf<3>& upper_bound_) : lower_bound(lower_bound_),
+  SamplerSE3Euler(const VectorNd<3>& lower_bound_,
+                  const VectorNd<3>& upper_bound_) : lower_bound(lower_bound_),
                                                   upper_bound(upper_bound_)
   {}
 
-  void setBound(const Vecnf<3>& lower_bound_,
-                const Vecnf<3>& upper_bound_)
+  void setBound(const VectorNd<3>& lower_bound_,
+                const VectorNd<3>& upper_bound_)
 
   {
     lower_bound = lower_bound_;
     upper_bound = upper_bound_;
   }
 
-  void getBound(Vecnf<3>& lower_bound_,
-                Vecnf<3>& upper_bound_) const
+  void getBound(VectorNd<3>& lower_bound_,
+                VectorNd<3>& upper_bound_) const
   {
     lower_bound_ = lower_bound;
     upper_bound_ = upper_bound;
   }
 
-  Vecnf<6> sample() const
+  VectorNd<6> sample() const
   {
-    Vecnf<6> q;
+    VectorNd<6> q;
     q[0] = rng.uniformReal(lower_bound[0], upper_bound[0]);
     q[1] = rng.uniformReal(lower_bound[1], upper_bound[1]);
     q[2] = rng.uniformReal(lower_bound[2], upper_bound[2]);
@@ -268,8 +266,8 @@ public:
     FCL_REAL s[4];
     rng.quaternion(s);
 
-    Quaternion3f quat(s[0], s[1], s[2], s[3]);
-    Vec3f angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+    Quaternion3d quat(s[0], s[1], s[2], s[3]);
+    Vector3d angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
 
     q[3] = angles[0];
     q[4] = angles[1];
@@ -279,8 +277,8 @@ public:
   }
 
 protected:
-  Vecnf<3> lower_bound;
-  Vecnf<3> upper_bound;
+  VectorNd<3> lower_bound;
+  VectorNd<3> upper_bound;
   
 };
 
@@ -289,29 +287,29 @@ class SamplerSE3Quat : public SamplerBase
 public:
   SamplerSE3Quat() {}
 
-  SamplerSE3Quat(const Vecnf<3>& lower_bound_,
-                 const Vecnf<3>& upper_bound_) : lower_bound(lower_bound_),
+  SamplerSE3Quat(const VectorNd<3>& lower_bound_,
+                 const VectorNd<3>& upper_bound_) : lower_bound(lower_bound_),
                                                  upper_bound(upper_bound_)
   {}
 
-  void setBound(const Vecnf<3>& lower_bound_,
-                const Vecnf<3>& upper_bound_)
+  void setBound(const VectorNd<3>& lower_bound_,
+                const VectorNd<3>& upper_bound_)
 
   {
     lower_bound = lower_bound_;
     upper_bound = upper_bound_;
   }
 
-  void getBound(Vecnf<3>& lower_bound_,
-                Vecnf<3>& upper_bound_) const
+  void getBound(VectorNd<3>& lower_bound_,
+                VectorNd<3>& upper_bound_) const
   {
     lower_bound_ = lower_bound;
     upper_bound_ = upper_bound;
   }
 
-  Vecnf<7> sample() const
+  VectorNd<7> sample() const
   {
-    Vecnf<7> q;
+    VectorNd<7> q;
     q[0] = rng.uniformReal(lower_bound[0], upper_bound[0]);
     q[1] = rng.uniformReal(lower_bound[1], upper_bound[1]);
     q[2] = rng.uniformReal(lower_bound[2], upper_bound[2]);
@@ -327,8 +325,8 @@ public:
   }
 
 protected:
-  Vecnf<3> lower_bound;
-  Vecnf<3> upper_bound;
+  VectorNd<3> lower_bound;
+  VectorNd<3> upper_bound;
 };
 
 class SamplerSE3Euler_ball : public SamplerBase
@@ -350,9 +348,9 @@ public:
     r_ = r;
   }
 
-  Vecnf<6> sample() const
+  VectorNd<6> sample() const
   {
-    Vecnf<6> q;
+    VectorNd<6> q;
     FCL_REAL x, y, z;
     rng.ball(0, r, x, y, z);
     q[0] = x;
@@ -362,8 +360,8 @@ public:
     FCL_REAL s[4];
     rng.quaternion(s);
 
-    Quaternion3f quat(s[0], s[1], s[2], s[3]);
-    Vec3f angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+    Quaternion3d quat(s[0], s[1], s[2], s[3]);
+    Vector3d angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
     q[3] = angles[0];
     q[4] = angles[1];
     q[5] = angles[2];
@@ -395,9 +393,9 @@ public:
     r_ = r;
   }
 
-  Vecnf<7> sample() const
+  VectorNd<7> sample() const
   {
-    Vecnf<7> q;
+    VectorNd<7> q;
     FCL_REAL x, y, z;
     rng.ball(0, r, x, y, z);
     q[0] = x;

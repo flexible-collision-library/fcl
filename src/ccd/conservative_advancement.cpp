@@ -59,7 +59,7 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -134,7 +134,7 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
                                          CollisionResult& result,
                                          FCL_REAL& toc)
 {
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -159,7 +159,7 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
     node.motion2->getCurrentTransform(tf2);
 
     // compute the transformation from 1 to 2
-    Transform3f tf = tf1.inverse() * tf2;
+    Transform3d tf = tf1.inverse() * tf2;
     node.R = tf.linear();
     node.T = tf.translation();
     
@@ -226,7 +226,7 @@ bool conservativeAdvancement(const S1& o1,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -292,7 +292,7 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -362,7 +362,7 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
                                               CollisionResult& result,
                                               FCL_REAL& toc)
 {
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -456,7 +456,7 @@ bool conservativeAdvancement(const S& o1,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -526,7 +526,7 @@ bool conservativeAdvancementShapeMeshOriented(const S& o1,
                                               CollisionResult& result,
                                               FCL_REAL& toc)
 {
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 

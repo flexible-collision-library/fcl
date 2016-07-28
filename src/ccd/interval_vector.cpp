@@ -59,7 +59,7 @@ IVector3::IVector3(Interval v[3]) { setValue(v); }
 
 IVector3::IVector3(const Interval& v1, const Interval& v2, const Interval& v3) { setValue(v1, v2, v3); }
 
-IVector3::IVector3(const Vec3f& v) { setValue(v); }
+IVector3::IVector3(const Vector3d& v) { setValue(v); }
 
 void IVector3::setZero() { setValue((FCL_REAL)0.0); }
 
@@ -101,12 +101,12 @@ IVector3 IVector3::cross(const IVector3& other) const
                   i_[0] * other.i_[1] - i_[1] * other.i_[0]);
 }
 
-Interval IVector3::dot(const Vec3f& other) const
+Interval IVector3::dot(const Vector3d& other) const
 {
   return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
 }
 
-IVector3 IVector3::cross(const Vec3f& other) const
+IVector3 IVector3::cross(const Vector3d& other) const
 {
   return IVector3(i_[1] * other[2] - i_[2] * other[1], 
                   i_[2] * other[0] - i_[0] * other[2],
@@ -125,9 +125,9 @@ void IVector3::print() const
   std::cout << "[" << i_[2][0] << "," << i_[2][1] << "]" << std::endl;
 }
 
-Vec3f IVector3::center() const
+Vector3d IVector3::center() const
 {
-  return Vec3f(i_[0].center(), i_[1].center(), i_[2].center());
+  return Vector3d(i_[0].center(), i_[1].center(), i_[2].center());
 }
 
 void IVector3::bound(const IVector3& v)
@@ -141,7 +141,7 @@ void IVector3::bound(const IVector3& v)
   if(v[2][1] > i_[2][1]) i_[2][1] = v[2][1];
 }
 
-void IVector3::bound(const Vec3f& v)
+void IVector3::bound(const Vector3d& v)
 {
   if(v[0] < i_[0][0]) i_[0][0] = v[0];
   if(v[1] < i_[1][0]) i_[1][0] = v[1];
@@ -167,7 +167,7 @@ IVector3 bound(const IVector3& i, const IVector3& v)
   return res;
 }
 
-IVector3 bound(const IVector3& i, const Vec3f& v)
+IVector3 bound(const IVector3& i, const Vector3d& v)
 {
   IVector3 res(i);
   if(v[0] < res.i_[0][0]) res.i_[0][0] = v[0];

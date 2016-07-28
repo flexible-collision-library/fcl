@@ -40,7 +40,6 @@
 #define FCL_GJK_LIBCCD_H
 
 #include "fcl/shape/geometric_shapes.h"
-#include "fcl/math/transform.h"
 
 #include <ccd/ccd.h>
 #include <ccd/quat.h>
@@ -69,7 +68,7 @@ public:
   /// @brief Get GJK object from a shape
   /// Notice that only local transformation is applied.
   /// Gloal transformation are considered later
-  static void* createGJKObject(const T& /* s */, const Transform3f& /*tf*/) { return NULL; }
+  static void* createGJKObject(const T& /* s */, const Transform3d& /*tf*/) { return NULL; }
 
   /// @brief Delete GJK object
   static void deleteGJKObject(void* o) {}
@@ -82,7 +81,7 @@ class GJKInitializer<Cylinder>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cylinder& s, const Transform3f& tf);
+  static void* createGJKObject(const Cylinder& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -93,7 +92,7 @@ class GJKInitializer<Sphere>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Sphere& s, const Transform3f& tf);
+  static void* createGJKObject(const Sphere& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -104,7 +103,7 @@ class GJKInitializer<Ellipsoid>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Ellipsoid& s, const Transform3f& tf);
+  static void* createGJKObject(const Ellipsoid& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -115,7 +114,7 @@ class GJKInitializer<Box>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Box& s, const Transform3f& tf);
+  static void* createGJKObject(const Box& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -126,7 +125,7 @@ class GJKInitializer<Capsule>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Capsule& s, const Transform3f& tf);
+  static void* createGJKObject(const Capsule& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -137,7 +136,7 @@ class GJKInitializer<Cone>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cone& s, const Transform3f& tf);
+  static void* createGJKObject(const Cone& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -148,7 +147,7 @@ class GJKInitializer<Convex>
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Convex& s, const Transform3f& tf);
+  static void* createGJKObject(const Convex& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -157,9 +156,9 @@ GJKSupportFunction triGetSupportFunction();
 
 GJKCenterFunction triGetCenterFunction();
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3);
+void* triCreateGJKObject(const Vector3d& P1, const Vector3d& P2, const Vector3d& P3);
 
-void* triCreateGJKObject(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, const Transform3f& tf);
+void* triCreateGJKObject(const Vector3d& P1, const Vector3d& P2, const Vector3d& P3, const Transform3d& tf);
 
 void triDeleteGJKObject(void* o);
 
@@ -167,12 +166,12 @@ void triDeleteGJKObject(void* o);
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
                 unsigned int max_iterations, FCL_REAL tolerance,
-                Vec3f* contact_points, FCL_REAL* penetration_depth, Vec3f* normal);
+                Vector3d* contact_points, FCL_REAL* penetration_depth, Vector3d* normal);
 
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, FCL_REAL tolerance,
-                 FCL_REAL* dist, Vec3f* p1, Vec3f* p2);
+                 FCL_REAL* dist, Vector3d* p1, Vector3d* p2);
 
 
 } // details

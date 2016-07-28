@@ -47,10 +47,10 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const
   FCL_REAL T_bound = motion.computeTBound(n);
   FCL_REAL tf_t = motion.getCurrentTime();
 
-  Vec3f c1 = bv.Tr;
-  Vec3f c2 = bv.Tr + bv.axis.col(0) * bv.l[0];
-  Vec3f c3 = bv.Tr + bv.axis.col(1) * bv.l[1];
-  Vec3f c4 = bv.Tr + bv.axis.col(0) * bv.l[0] + bv.axis.col(1) * bv.l[1];
+  Vector3d c1 = bv.Tr;
+  Vector3d c2 = bv.Tr + bv.axis.col(0) * bv.l[0];
+  Vector3d c3 = bv.Tr + bv.axis.col(1) * bv.l[1];
+  Vector3d c4 = bv.Tr + bv.axis.col(0) * bv.l[0] + bv.axis.col(1) * bv.l[1];
 
   FCL_REAL tmp;
   // max_i |c_i * n|
@@ -115,8 +115,8 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const SplineMotion& motion) const
   return R_bound + T_bound;
 }
 
-SplineMotion::SplineMotion(const Vec3f& Td0, const Vec3f& Td1, const Vec3f& Td2, const Vec3f& Td3,
-                           const Vec3f& Rd0, const Vec3f& Rd1, const Vec3f& Rd2, const Vec3f& Rd3) : MotionBase()
+SplineMotion::SplineMotion(const Vector3d& Td0, const Vector3d& Td1, const Vector3d& Td2, const Vector3d& Td3,
+                           const Vector3d& Rd0, const Vector3d& Rd1, const Vector3d& Rd2, const Vector3d& Rd3) : MotionBase()
 {
   Td[0] = Td0;
   Td[1] = Td1;
@@ -154,8 +154,8 @@ bool SplineMotion::integrate(double dt) const
 {
   if(dt > 1) dt = 1;
 
-  Vec3f cur_T = Td[0] * getWeight0(dt) + Td[1] * getWeight1(dt) + Td[2] * getWeight2(dt) + Td[3] * getWeight3(dt);
-  Vec3f cur_w = Rd[0] * getWeight0(dt) + Rd[1] * getWeight1(dt) + Rd[2] * getWeight2(dt) + Rd[3] * getWeight3(dt);
+  Vector3d cur_T = Td[0] * getWeight0(dt) + Td[1] * getWeight1(dt) + Td[2] * getWeight2(dt) + Td[3] * getWeight3(dt);
+  Vector3d cur_w = Rd[0] * getWeight0(dt) + Rd[1] * getWeight1(dt) + Rd[2] * getWeight2(dt) + Rd[3] * getWeight3(dt);
   FCL_REAL cur_angle = cur_w.norm();
   cur_w.normalize();
 
@@ -168,7 +168,7 @@ bool SplineMotion::integrate(double dt) const
 }
 
 
-FCL_REAL SplineMotion::computeTBound(const Vec3f& n) const
+FCL_REAL SplineMotion::computeTBound(const Vector3d& n) const
 {
   FCL_REAL Ta = TA.dot(n);
   FCL_REAL Tb = TB.dot(n);
@@ -315,13 +315,13 @@ FCL_REAL SplineMotion::getWeight3(FCL_REAL t) const
 template<>
 FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const
 {
-  Transform3f tf;
+  Transform3d tf;
   motion.getCurrentTransform(tf);
 
-  const Vec3f& axis = motion.getAxis();
+  const Vector3d& axis = motion.getAxis();
   FCL_REAL linear_vel = motion.getLinearVelocity();
   FCL_REAL angular_vel = motion.getAngularVelocity();
-  const Vec3f& p = motion.getAxisOrigin();
+  const Vector3d& p = motion.getAxisOrigin();
     
   FCL_REAL c_proj_max = ((tf.linear() * bv.Tr).cross(axis)).squaredNorm();
   FCL_REAL tmp;
@@ -345,13 +345,13 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const
 
 FCL_REAL TriangleMotionBoundVisitor::visit(const ScrewMotion& motion) const
 {
-  Transform3f tf;
+  Transform3d tf;
   motion.getCurrentTransform(tf);
 
-  const Vec3f& axis = motion.getAxis();
+  const Vector3d& axis = motion.getAxis();
   FCL_REAL linear_vel = motion.getLinearVelocity();
   FCL_REAL angular_vel = motion.getAngularVelocity();
-  const Vec3f& p = motion.getAxisOrigin();
+  const Vector3d& p = motion.getAxisOrigin();
   
   FCL_REAL proj_max = ((tf.linear() * a + tf.translation() - p).cross(axis)).squaredNorm();
   FCL_REAL tmp;
@@ -380,13 +380,13 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const ScrewMotion& motion) const
 template<>
 FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const
 {
-  Transform3f tf;
+  Transform3d tf;
   motion.getCurrentTransform(tf);
 
-  const Vec3f& reference_p = motion.getReferencePoint();
-  const Vec3f& angular_axis = motion.getAngularAxis();
+  const Vector3d& reference_p = motion.getReferencePoint();
+  const Vector3d& angular_axis = motion.getAngularAxis();
   FCL_REAL angular_vel = motion.getAngularVelocity();
-  const Vec3f& linear_vel = motion.getLinearVelocity();
+  const Vector3d& linear_vel = motion.getLinearVelocity();
   
   FCL_REAL c_proj_max = ((tf.linear() * (bv.Tr - reference_p)).cross(angular_axis)).squaredNorm();
   FCL_REAL tmp;
@@ -412,13 +412,13 @@ FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const
 /// Notice that the triangle is in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
 FCL_REAL TriangleMotionBoundVisitor::visit(const InterpMotion& motion) const
 {
-  Transform3f tf;
+  Transform3d tf;
   motion.getCurrentTransform(tf);
 
-  const Vec3f& reference_p = motion.getReferencePoint();
-  const Vec3f& angular_axis = motion.getAngularAxis();
+  const Vector3d& reference_p = motion.getReferencePoint();
+  const Vector3d& angular_axis = motion.getAngularAxis();
   FCL_REAL angular_vel = motion.getAngularVelocity();
-  const Vec3f& linear_vel = motion.getLinearVelocity();
+  const Vector3d& linear_vel = motion.getLinearVelocity();
 
   FCL_REAL proj_max = ((tf.linear() * (a - reference_p)).cross(angular_axis)).squaredNorm();
   FCL_REAL tmp;
@@ -436,7 +436,7 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const InterpMotion& motion) const
   return mu;  
 }
 
-InterpMotion::InterpMotion() : MotionBase(), angular_axis(Vec3f::UnitX())
+InterpMotion::InterpMotion() : MotionBase(), angular_axis(Vector3d::UnitX())
 {
   // Default angular velocity is zero
   angular_vel = 0;
@@ -446,10 +446,10 @@ InterpMotion::InterpMotion() : MotionBase(), angular_axis(Vec3f::UnitX())
   // Default linear velocity is zero
 }
 
-InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
-                           const Matrix3f& R2, const Vec3f& T2) : MotionBase(),
-                                                                  tf1(Transform3f::Identity()),
-                                                                  tf2(Transform3f::Identity())
+InterpMotion::InterpMotion(const Matrix3d& R1, const Vector3d& T1,
+                           const Matrix3d& R2, const Vector3d& T2) : MotionBase(),
+                                                                  tf1(Transform3d::Identity()),
+                                                                  tf2(Transform3d::Identity())
 {
   tf1.linear() = R1;
   tf1.translation() = T1;
@@ -464,7 +464,7 @@ InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
 }
 
 
-InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_) : MotionBase(),
+InterpMotion::InterpMotion(const Transform3d& tf1_, const Transform3d& tf2_) : MotionBase(),
                                                                                tf1(tf1_),
                                                                                tf2(tf2_),
                                                                                tf(tf1)
@@ -473,11 +473,11 @@ InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_) : M
   computeVelocity();
 }
 
-InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
-                           const Matrix3f& R2, const Vec3f& T2,
-                           const Vec3f& O) : MotionBase(),
-                                             tf1(Transform3f::Identity()),
-                                             tf2(Transform3f::Identity()),
+InterpMotion::InterpMotion(const Matrix3d& R1, const Vector3d& T1,
+                           const Matrix3d& R2, const Vector3d& T2,
+                           const Vector3d& O) : MotionBase(),
+                                             tf1(Transform3d::Identity()),
+                                             tf2(Transform3d::Identity()),
                                              reference_p(O)
 {
   tf1.linear() = R1;
@@ -492,7 +492,7 @@ InterpMotion::InterpMotion(const Matrix3f& R1, const Vec3f& T1,
   computeVelocity();
 }
 
-InterpMotion::InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_, const Vec3f& O) : MotionBase(),
+InterpMotion::InterpMotion(const Transform3d& tf1_, const Transform3d& tf2_, const Vector3d& O) : MotionBase(),
                                                                                                tf1(tf1_),
                                                                                                tf2(tf2_),
                                                                                                tf(tf1),
@@ -527,15 +527,15 @@ void InterpMotion::computeVelocity()
 }
 
 
-Quaternion3f InterpMotion::deltaRotation(FCL_REAL dt) const
+Quaternion3d InterpMotion::deltaRotation(FCL_REAL dt) const
 {
-  return Quaternion3f(Eigen::AngleAxisd((FCL_REAL)(dt * angular_vel), angular_axis));
+  return Quaternion3d(Eigen::AngleAxisd((FCL_REAL)(dt * angular_vel), angular_axis));
 }
 
-Quaternion3f InterpMotion::absoluteRotation(FCL_REAL dt) const
+Quaternion3d InterpMotion::absoluteRotation(FCL_REAL dt) const
 {
-  Quaternion3f delta_t = deltaRotation(dt);
-  return delta_t * Quaternion3f(tf1.linear());
+  Quaternion3d delta_t = deltaRotation(dt);
+  return delta_t * Quaternion3d(tf1.linear());
 }
 
 

@@ -278,10 +278,10 @@ void SSaPCollisionManager::distance(CollisionObject* obj, void* cdata, DistanceC
 bool SSaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
   static const unsigned int CUTOFF = 100;
-  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  Vec3f dummy_vector = obj->getAABB().max_;
+  Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vector3d dummy_vector = obj->getAABB().max_;
   if(min_dist < std::numeric_limits<FCL_REAL>::max())
-    dummy_vector += Vec3f(min_dist, min_dist, min_dist);
+    dummy_vector += Vector3d(min_dist, min_dist, min_dist);
 
   std::vector<CollisionObject*>::const_iterator pos_start1 = objs_x.begin();
   std::vector<CollisionObject*>::const_iterator pos_start2 = objs_y.begin();
@@ -348,12 +348,12 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, void* cdata, Distance
         // to check the possible missed ones to the right of the objs array
         if(min_dist < old_min_distance) 
         {
-          dummy_vector = obj->getAABB().max_ + Vec3f(min_dist, min_dist, min_dist);
+          dummy_vector = obj->getAABB().max_ + Vector3d(min_dist, min_dist, min_dist);
           status = 0;
         }
         else // need more loop
         {
-          if(dummy_vector.isApprox(obj->getAABB().max_, std::numeric_limits<Vec3f::Scalar>::epsilon() * 100))
+          if(dummy_vector.isApprox(obj->getAABB().max_, std::numeric_limits<Vector3d::Scalar>::epsilon() * 100))
             dummy_vector = dummy_vector + delta;
           else
             dummy_vector = dummy_vector * 2 - obj->getAABB().max_;

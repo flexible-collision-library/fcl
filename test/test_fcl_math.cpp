@@ -36,8 +36,6 @@
 
 #include <gtest/gtest.h>
 
-#include "fcl/math/vec_3f.h"
-#include "fcl/math/matrix_3f.h"
 #include "fcl/broadphase/morton.h"
 #include "fcl/config.h"
 
@@ -45,7 +43,7 @@ using namespace fcl;
 
 GTEST_TEST(FCL_MATH, vec_test_basic_vec32)
 {
-  using Vec3f32 = Vec3fX<float>;
+  using Vec3f32 = Vector3<float>;
 
   Vec3f32 v1(1.0f, 2.0f, 3.0f);
   EXPECT_TRUE(v1[0] == 1.0f);
@@ -101,7 +99,7 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec32)
 
 GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
 {
-  using Vec3f64 = Vec3fX<double>;
+  using Vec3f64 = Vector3<double>;
 
   Vec3f64 v1(1.0, 2.0, 3.0);
   EXPECT_TRUE(v1[0] == 1.0);
@@ -162,13 +160,13 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
 
 GTEST_TEST(FCL_MATH, morton)
 {
-  AABB bbox(Vec3f(0, 0, 0), Vec3f(1000, 1000, 1000));
+  AABB bbox(Vector3d(0, 0, 0), Vector3d(1000, 1000, 1000));
   morton_functor<std::bitset<30>> F1(bbox);
   morton_functor<std::bitset<60>> F2(bbox);
   morton_functor<FCL_UINT64> F3(bbox); // 60 bits
   morton_functor<FCL_UINT32> F4(bbox); // 30 bits
 
-  Vec3f p(254, 873, 674);
+  Vector3d p(254, 873, 674);
 
   EXPECT_TRUE(F1(p).to_ulong() == F4(p));
   EXPECT_TRUE(F2(p).to_ullong() == F3(p));

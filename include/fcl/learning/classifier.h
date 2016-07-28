@@ -1,18 +1,16 @@
 #ifndef FCL_LEARNING_CLASSIFIER_H
 #define FCL_LEARNING_CLASSIFIER_H
 
-#include "fcl/math/vec_nf.h"
-
 namespace fcl
 {
 template<std::size_t N>
 struct Item
 {
-  Vecnf<N> q;
+  VectorNd<N> q;
   bool label;
   FCL_REAL w;
 
-  Item(const Vecnf<N>& q_, bool label_, FCL_REAL w_ = 1) : q(q_),
+  Item(const VectorNd<N>& q_, bool label_, FCL_REAL w_ = 1) : q(q_),
                                                            label(label_),
                                                            w(w_)
   {}
@@ -23,7 +21,7 @@ struct Item
 template<std::size_t N>
 struct Scaler
 {
-  Vecnf<N> v_min, v_max;
+  VectorNd<N> v_min, v_max;
   Scaler()
   {
     // default no scale
@@ -34,21 +32,21 @@ struct Scaler
     }
   }
 
-  Scaler(const Vecnf<N>& v_min_, const Vecnf<N>& v_max_) : v_min(v_min_),
+  Scaler(const VectorNd<N>& v_min_, const VectorNd<N>& v_max_) : v_min(v_min_),
                                                            v_max(v_max_)
   {}
 
-  Vecnf<N> scale(const Vecnf<N>& v) const
+  VectorNd<N> scale(const VectorNd<N>& v) const
   {
-    Vecnf<N> res;
+    VectorNd<N> res;
     for(std::size_t i = 0; i < N; ++i)
       res[i] = (v[i] - v_min[i]) / (v_max[i] - v_min[i]);
     return res;
   }
 
-  Vecnf<N> unscale(const Vecnf<N>& v) const
+  VectorNd<N> unscale(const VectorNd<N>& v) const
   {
-    Vecnf<N> res;
+    VectorNd<N> res;
     for(std::size_t i = 0; i < N; ++i)
       res[i] = v[i] * (v_max[i] - v_min[i]) + v_min[i];
     return res;
@@ -74,8 +72,8 @@ public:
 
   ~SVMClassifier() {}
   
-  virtual PredictResult predict(const Vecnf<N>& q) const = 0;
-  virtual std::vector<PredictResult> predict(const std::vector<Vecnf<N> >& qs) const = 0;
+  virtual PredictResult predict(const VectorNd<N>& q) const = 0;
+  virtual std::vector<PredictResult> predict(const std::vector<VectorNd<N> >& qs) const = 0;
 
   virtual std::vector<Item<N> > getSupportVectors() const = 0;
   virtual void setScaler(const Scaler<N>& scaler) = 0;
@@ -101,7 +99,7 @@ public:
 template<std::size_t N>
 Scaler<N> computeScaler(const std::vector<Item<N> >& data)
 {
-  Vecnf<N> lower_bound, upper_bound;
+  VectorNd<N> lower_bound, upper_bound;
   for(std::size_t j = 0; j < N; ++j)
   {
     lower_bound[j] = std::numeric_limits<FCL_REAL>::max();
@@ -121,9 +119,9 @@ Scaler<N> computeScaler(const std::vector<Item<N> >& data)
 }
 
 template<std::size_t N>
-Scaler<N> computeScaler(const std::vector<Vecnf<N> >& data)
+Scaler<N> computeScaler(const std::vector<VectorNd<N> >& data)
 {
-  Vecnf<N> lower_bound, upper_bound;
+  VectorNd<N> lower_bound, upper_bound;
   for(std::size_t j = 0; j < N; ++j)
   {
     lower_bound[j] = std::numeric_limits<FCL_REAL>::max();

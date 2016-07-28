@@ -47,12 +47,12 @@ namespace fcl
 
 /// @brief Generate BVH model from box
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& pose)
+void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3d& pose)
 {
   double a = shape.side[0];
   double b = shape.side[1];
   double c = shape.side[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vector3d> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
@@ -89,9 +89,9 @@ void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3f& 
 
 /// @brief Generate BVH model from sphere, given the number of segments along longitude and number of rings along latitude.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3f& pose, unsigned int seg, unsigned int ring)
+void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3d& pose, unsigned int seg, unsigned int ring)
 {
-  std::vector<Vec3f> points;
+  std::vector<Vector3d> points;
   std::vector<Triangle> tri_indices;
 
   double r = shape.radius;
@@ -109,11 +109,11 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
     double theta_ = theta + thetad * (i + 1);
     for(unsigned int j = 0; j < seg; ++j)
     {
-      points.push_back(Vec3f(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_)));
+      points.push_back(Vector3d(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_)));
     }
   }
-  points.push_back(Vec3f(0, 0, r));
-  points.push_back(Vec3f(0, 0, -r));
+  points.push_back(Vector3d(0, 0, r));
+  points.push_back(Vector3d(0, 0, -r));
 
   for(unsigned int i = 0; i < ring - 1; ++i)
   {
@@ -156,7 +156,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
 /// The difference between generateBVHModel is that it gives the number of triangles faces N for a sphere with unit radius. For sphere of radius r,
 /// then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3f& pose, unsigned int n_faces_for_unit_sphere)
+void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3d& pose, unsigned int n_faces_for_unit_sphere)
 {
   double r = shape.radius;
   double n_low_bound = sqrtf(n_faces_for_unit_sphere / 2.0) * r * r;
@@ -168,9 +168,9 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere& shape, const Transform3
 
 /// @brief Generate BVH model from ellipsoid, given the number of segments along longitude and number of rings along latitude.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3f& pose, unsigned int seg, unsigned int ring)
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3d& pose, unsigned int seg, unsigned int ring)
 {
-  std::vector<Vec3f> points;
+  std::vector<Vector3d> points;
   std::vector<Triangle> tri_indices;
 
   const FCL_REAL& a = shape.radii[0];
@@ -191,11 +191,11 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transfo
     double theta_ = theta + thetad * (i + 1);
     for(unsigned int j = 0; j < seg; ++j)
     {
-      points.push_back(Vec3f(a * sin(theta_) * cos(phi + j * phid), b * sin(theta_) * sin(phi + j * phid), c * cos(theta_)));
+      points.push_back(Vector3d(a * sin(theta_) * cos(phi + j * phid), b * sin(theta_) * sin(phi + j * phid), c * cos(theta_)));
     }
   }
-  points.push_back(Vec3f(0, 0, c));
-  points.push_back(Vec3f(0, 0, -c));
+  points.push_back(Vector3d(0, 0, c));
+  points.push_back(Vector3d(0, 0, -c));
 
   for(unsigned int i = 0; i < ring - 1; ++i)
   {
@@ -239,7 +239,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transfo
 /// then the number of triangles is ((a^p * b^p + b^p * c^p + c^p * a^p)/3)^(1/p) * N, where p is 1.6075, so that the area represented by a single triangle is approximately the same.
 /// Reference: https://en.wikipedia.org/wiki/Ellipsoid#Approximate_formula
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3f& pose, unsigned int n_faces_for_unit_ellipsoid)
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transform3d& pose, unsigned int n_faces_for_unit_ellipsoid)
 {
   const FCL_REAL p = 1.6075;
 
@@ -258,9 +258,9 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid& shape, const Transfo
 
 /// @brief Generate BVH model from cylinder, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transform3f& pose, unsigned int tot, unsigned int h_num)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transform3d& pose, unsigned int tot, unsigned int h_num)
 {
-  std::vector<Vec3f> points;
+  std::vector<Vector3d> points;
   std::vector<Triangle> tri_indices;
 
   double r = shape.radius;
@@ -273,21 +273,21 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
   double hd = h / h_num;
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2));
+    points.push_back(Vector3d(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2));
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
     for(unsigned int j = 0; j < tot; ++j)
     {
-      points.push_back(Vec3f(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd));
+      points.push_back(Vector3d(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd));
     }
   }
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+    points.push_back(Vector3d(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
 
-  points.push_back(Vec3f(0, 0, h / 2));
-  points.push_back(Vec3f(0, 0, -h / 2));
+  points.push_back(Vector3d(0, 0, h / 2));
+  points.push_back(Vector3d(0, 0, -h / 2));
 
   for(unsigned int i = 0; i < tot; ++i)
   {
@@ -332,7 +332,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cylinder with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transform3f& pose, unsigned int tot_for_unit_cylinder)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transform3d& pose, unsigned int tot_for_unit_cylinder)
 {
   double r = shape.radius;
   double h = shape.lz;
@@ -350,9 +350,9 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
 
 /// @brief Generate BVH model from cone, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f& pose, unsigned int tot, unsigned int h_num)
+void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3d& pose, unsigned int tot, unsigned int h_num)
 {
-  std::vector<Vec3f> points;
+  std::vector<Vector3d> points;
   std::vector<Triangle> tri_indices;
 
   double r = shape.radius;
@@ -371,15 +371,15 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
     double rh = r * (0.5 - h_i / h);
     for(unsigned int j = 0; j < tot; ++j)
     {
-      points.push_back(Vec3f(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
+      points.push_back(Vector3d(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
     }
   }
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vec3f(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+    points.push_back(Vector3d(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
 
-  points.push_back(Vec3f(0, 0, h / 2));
-  points.push_back(Vec3f(0, 0, -h / 2));
+  points.push_back(Vector3d(0, 0, h / 2));
+  points.push_back(Vector3d(0, 0, -h / 2));
 
   for(unsigned int i = 0; i < tot; ++i)
   {
@@ -424,7 +424,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f&
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cone with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3f& pose, unsigned int tot_for_unit_cone)
+void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3d& pose, unsigned int tot_for_unit_cone)
 {
   double r = shape.radius;
   double h = shape.lz;

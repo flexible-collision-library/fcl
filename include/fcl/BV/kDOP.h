@@ -38,12 +38,12 @@
 #ifndef FCL_KDOP_H
 #define FCL_KDOP_H
 
+#include <cstddef>
 
-#include "fcl/math/vec_3f.h"
+#include "fcl/data_types.h"
 
 namespace fcl
 {
-
 
 /// @brief KDOP class describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
 ///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
@@ -79,7 +79,7 @@ namespace fcl
 /// (-1, -1, 1) and (1, 1, -1) --> indices 9 and 21
 /// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
 /// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
-template<size_t N>
+template <std::size_t N>
 class KDOP
 {
 public:
@@ -88,19 +88,19 @@ public:
   KDOP();
 
   /// @brief Creating kDOP containing only one point
-  KDOP(const Vec3f& v);
+  KDOP(const Vector3d& v);
 
   /// @brief Creating kDOP containing two points
-  KDOP(const Vec3f& a, const Vec3f& b);
+  KDOP(const Vector3d& a, const Vector3d& b);
   
   /// @brief Check whether two KDOPs are overlapped
   bool overlap(const KDOP<N>& other) const;
 
   //// @brief Check whether one point is inside the KDOP
-  bool inside(const Vec3f& p) const;
+  bool inside(const Vector3d& p) const;
 
   /// @brief Merge the point and the KDOP
-  KDOP<N>& operator += (const Vec3f& p);
+  KDOP<N>& operator += (const Vector3d& p);
 
   /// @brief Merge two KDOPs
   KDOP<N>& operator += (const KDOP<N>& other);
@@ -139,13 +139,13 @@ public:
   }
 
   /// @brief The (AABB) center
-  inline Vec3f center() const
+  inline Vector3d center() const
   {
-    return Vec3f(dist_[0] + dist_[N / 2], dist_[1] + dist_[N / 2 + 1], dist_[2] + dist_[N / 2 + 2]) * 0.5;
+    return Vector3d(dist_[0] + dist_[N / 2], dist_[1] + dist_[N / 2 + 1], dist_[2] + dist_[N / 2 + 2]) * 0.5;
   }
 
   /// @brief The distance between two KDOP<N>. Not implemented.
-  FCL_REAL distance(const KDOP<N>& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  FCL_REAL distance(const KDOP<N>& other, Vector3d* P = NULL, Vector3d* Q = NULL) const;
 
 private:
   /// @brief Origin's distances to N KDOP planes
@@ -168,7 +168,7 @@ public:
 
 /// @brief translate the KDOP BV
 template<size_t N>
-KDOP<N> translate(const KDOP<N>& bv, const Vec3f& t);
+KDOP<N> translate(const KDOP<N>& bv, const Vector3d& t);
 
 }
 

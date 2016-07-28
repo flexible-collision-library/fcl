@@ -36,9 +36,12 @@
 /** \author Jia Pan */
 
 #include "fcl/intersect.h"
+
 #include <iostream>
 #include <limits>
 #include <vector>
+
+#include "fcl/math/geometry.h"
 
 namespace fcl
 {
@@ -184,9 +187,9 @@ bool Intersect::isZero(FCL_REAL v)
 }
 
 /// @brief data: only used for EE, return the intersect point
-bool Intersect::solveCubicWithIntervalNewton(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                             const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                             FCL_REAL& l, FCL_REAL& r, bool bVF, FCL_REAL coeffs[], Vec3f* data)
+bool Intersect::solveCubicWithIntervalNewton(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& d0,
+                                             const Vector3d& va, const Vector3d& vb, const Vector3d& vc, const Vector3d& vd,
+                                             FCL_REAL& l, FCL_REAL& r, bool bVF, FCL_REAL coeffs[], Vector3d* data)
 {
   FCL_REAL v2[2]= {l*l,r*r};
   FCL_REAL v[2]= {l,r};
@@ -264,15 +267,15 @@ bool Intersect::solveCubicWithIntervalNewton(const Vec3f& a0, const Vec3f& b0, c
 
 
 
-bool Intersect::insideTriangle(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f&p)
+bool Intersect::insideTriangle(const Vector3d& a, const Vector3d& b, const Vector3d& c, const Vector3d&p)
 {
-  Vec3f ab = b - a;
-  Vec3f ac = c - a;
-  Vec3f n = ab.cross(ac);
+  Vector3d ab = b - a;
+  Vector3d ac = c - a;
+  Vector3d n = ab.cross(ac);
 
-  Vec3f pa = a - p;
-  Vec3f pb = b - p;
-  Vec3f pc = c - p;
+  Vector3d pa = a - p;
+  Vector3d pb = b - p;
+  Vector3d pc = c - p;
 
   if((pb.cross(pc)).dot(n) < -EPSILON) return false;
   if((pc.cross(pa)).dot(n) < -EPSILON) return false;
@@ -281,7 +284,7 @@ bool Intersect::insideTriangle(const Vec3f& a, const Vec3f& b, const Vec3f& c, c
   return true;
 }
 
-bool Intersect::insideLineSegment(const Vec3f& a, const Vec3f& b, const Vec3f& p)
+bool Intersect::insideLineSegment(const Vector3d& a, const Vector3d& b, const Vector3d& p)
 {
   return (p - a).dot(p - b) <= 0;
 }
@@ -291,15 +294,15 @@ bool Intersect::insideLineSegment(const Vec3f& a, const Vec3f& b, const Vec3f& p
 ///    pa = p1 + mua (p2 - p1)
 ///    pb = p3 + mub (p4 - p3)
 /// Return FALSE if no solution exists.
-bool Intersect::linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3, const Vec3f& p4,
-                                  Vec3f* pa, Vec3f* pb, FCL_REAL* mua, FCL_REAL* mub)
+bool Intersect::linelineIntersect(const Vector3d& p1, const Vector3d& p2, const Vector3d& p3, const Vector3d& p4,
+                                  Vector3d* pa, Vector3d* pb, FCL_REAL* mua, FCL_REAL* mub)
 {
-  Vec3f p31 = p1 - p3;
-  Vec3f p34 = p4 - p3;
+  Vector3d p31 = p1 - p3;
+  Vector3d p34 = p4 - p3;
   if(fabs(p34[0]) < EPSILON && fabs(p34[1]) < EPSILON && fabs(p34[2]) < EPSILON)
     return false;
 
-  Vec3f p12 = p2 - p1;
+  Vector3d p12 = p2 - p1;
   if(fabs(p12[0]) < EPSILON && fabs(p12[1]) < EPSILON && fabs(p12[2]) < EPSILON)
     return false;
 
@@ -327,22 +330,22 @@ bool Intersect::linelineIntersect(const Vec3f& p1, const Vec3f& p2, const Vec3f&
   return true;
 }
 
-bool Intersect::checkRootValidity_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
+bool Intersect::checkRootValidity_VF(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& p0,
+                                     const Vector3d& va, const Vector3d& vb, const Vector3d& vc, const Vector3d& vp,
                                      FCL_REAL t)
 {
   return insideTriangle(a0 + va * t, b0 + vb * t, c0 + vc * t, p0 + vp * t);
 }
 
-bool Intersect::checkRootValidity_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
-                                     FCL_REAL t, Vec3f* q_i)
+bool Intersect::checkRootValidity_EE(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& d0,
+                                     const Vector3d& va, const Vector3d& vb, const Vector3d& vc, const Vector3d& vd,
+                                     FCL_REAL t, Vector3d* q_i)
 {
-  Vec3f a = a0 + va * t;
-  Vec3f b = b0 + vb * t;
-  Vec3f c = c0 + vc * t;
-  Vec3f d = d0 + vd * t;
-  Vec3f p1, p2;
+  Vector3d a = a0 + va * t;
+  Vector3d b = b0 + vb * t;
+  Vector3d c = c0 + vc * t;
+  Vector3d d = d0 + vd * t;
+  Vector3d p1, p2;
   FCL_REAL t_ab, t_cd;
   if(linelineIntersect(a, b, c, d, &p1, &p2, &t_ab, &t_cd))
   {
@@ -353,16 +356,16 @@ bool Intersect::checkRootValidity_EE(const Vec3f& a0, const Vec3f& b0, const Vec
   return false;
 }
 
-bool Intersect::checkRootValidity_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
+bool Intersect::checkRootValidity_VE(const Vector3d& a0, const Vector3d& b0, const Vector3d& p0,
+                                     const Vector3d& va, const Vector3d& vb, const Vector3d& vp,
                                      FCL_REAL t)
 {
   return insideLineSegment(a0 + va * t, b0 + vb * t, p0 + vp * t);
 }
 
 bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
-                            const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                            const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
+                            const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& d0,
+                            const Vector3d& va, const Vector3d& vb, const Vector3d& vc, const Vector3d& vd,
                             bool bVF,
                             FCL_REAL* ret)
 {
@@ -397,8 +400,8 @@ bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
 }
 
 bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
-                            const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                            const Vec3f& va, const Vec3f& vb, const Vec3f& vp)
+                            const Vector3d& a0, const Vector3d& b0, const Vector3d& p0,
+                            const Vector3d& va, const Vector3d& vb, const Vector3d& vp)
 {
   if(isZero(a))
   {
@@ -425,21 +428,21 @@ bool Intersect::solveSquare(FCL_REAL a, FCL_REAL b, FCL_REAL c,
 
 /// @brief Compute the cubic coefficients for VF case
 /// See Paper "Interactive Continuous Collision Detection between Deformable Models using Connectivity-Based Culling", Equation 1.
-void Intersect::computeCubicCoeff_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vp,
+void Intersect::computeCubicCoeff_VF(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& p0,
+                                     const Vector3d& va, const Vector3d& vb, const Vector3d& vc, const Vector3d& vp,
                                      FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
 {
-  Vec3f vavb = vb - va;
-  Vec3f vavc = vc - va;
-  Vec3f vavp = vp - va;
-  Vec3f a0b0 = b0 - a0;
-  Vec3f a0c0 = c0 - a0;
-  Vec3f a0p0 = p0 - a0;
+  Vector3d vavb = vb - va;
+  Vector3d vavc = vc - va;
+  Vector3d vavp = vp - va;
+  Vector3d a0b0 = b0 - a0;
+  Vector3d a0c0 = c0 - a0;
+  Vector3d a0p0 = p0 - a0;
 
-  Vec3f vavb_cross_vavc = vavb.cross(vavc);
-  Vec3f vavb_cross_a0c0 = vavb.cross(a0c0);
-  Vec3f a0b0_cross_vavc = a0b0.cross(vavc);
-  Vec3f a0b0_cross_a0c0 = a0b0.cross(a0c0);
+  Vector3d vavb_cross_vavc = vavb.cross(vavc);
+  Vector3d vavb_cross_a0c0 = vavb.cross(a0c0);
+  Vector3d a0b0_cross_vavc = a0b0.cross(vavc);
+  Vector3d a0b0_cross_a0c0 = a0b0.cross(a0c0);
 
   *a = vavp.dot(vavb_cross_vavc);
   *b = a0p0.dot(vavb_cross_vavc) + vavp.dot(vavb_cross_a0c0 + a0b0_cross_vavc);
@@ -447,20 +450,20 @@ void Intersect::computeCubicCoeff_VF(const Vec3f& a0, const Vec3f& b0, const Vec
   *d = a0p0.dot(a0b0_cross_a0c0);
 }
 
-void Intersect::computeCubicCoeff_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vc, const Vec3f& vd,
+void Intersect::computeCubicCoeff_EE(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& d0,
+                                     const Vector3d& va, const Vector3d& vb, const Vector3d& vc, const Vector3d& vd,
                                      FCL_REAL* a, FCL_REAL* b, FCL_REAL* c, FCL_REAL* d)
 {
-  Vec3f vavb = vb - va;
-  Vec3f vcvd = vd - vc;
-  Vec3f vavc = vc - va;
-  Vec3f c0d0 = d0 - c0;
-  Vec3f a0b0 = b0 - a0;
-  Vec3f a0c0 = c0 - a0;
-  Vec3f vavb_cross_vcvd = vavb.cross(vcvd);
-  Vec3f vavb_cross_c0d0 = vavb.cross(c0d0);
-  Vec3f a0b0_cross_vcvd = a0b0.cross(vcvd);
-  Vec3f a0b0_cross_c0d0 = a0b0.cross(c0d0);
+  Vector3d vavb = vb - va;
+  Vector3d vcvd = vd - vc;
+  Vector3d vavc = vc - va;
+  Vector3d c0d0 = d0 - c0;
+  Vector3d a0b0 = b0 - a0;
+  Vector3d a0c0 = c0 - a0;
+  Vector3d vavb_cross_vcvd = vavb.cross(vcvd);
+  Vector3d vavb_cross_c0d0 = vavb.cross(c0d0);
+  Vector3d a0b0_cross_vcvd = a0b0.cross(vcvd);
+  Vector3d a0b0_cross_c0d0 = a0b0.cross(c0d0);
 
   *a = vavc.dot(vavb_cross_vcvd);
   *b = a0c0.dot(vavb_cross_vcvd) + vavc.dot(vavb_cross_c0d0 + a0b0_cross_vcvd);
@@ -468,18 +471,18 @@ void Intersect::computeCubicCoeff_EE(const Vec3f& a0, const Vec3f& b0, const Vec
   *d = a0c0.dot(a0b0_cross_c0d0);
 }
 
-void Intersect::computeCubicCoeff_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                                     const Vec3f& va, const Vec3f& vb, const Vec3f& vp,
-                                     const Vec3f& L,
+void Intersect::computeCubicCoeff_VE(const Vector3d& a0, const Vector3d& b0, const Vector3d& p0,
+                                     const Vector3d& va, const Vector3d& vb, const Vector3d& vp,
+                                     const Vector3d& L,
                                      FCL_REAL* a, FCL_REAL* b, FCL_REAL* c)
 {
-  Vec3f vbva = va - vb;
-  Vec3f vbvp = vp - vb;
-  Vec3f b0a0 = a0 - b0;
-  Vec3f b0p0 = p0 - b0;
+  Vector3d vbva = va - vb;
+  Vector3d vbvp = vp - vb;
+  Vector3d b0a0 = a0 - b0;
+  Vector3d b0p0 = p0 - b0;
 
-  Vec3f L_cross_vbvp = L.cross(vbvp);
-  Vec3f L_cross_b0p0 = L.cross(b0p0);
+  Vector3d L_cross_vbvp = L.cross(vbvp);
+  Vector3d L_cross_b0p0 = L.cross(b0p0);
 
   *a = L_cross_vbvp.dot(vbva);
   *b = L_cross_vbvp.dot(b0a0) + L_cross_b0p0.dot(vbva);
@@ -487,13 +490,13 @@ void Intersect::computeCubicCoeff_VE(const Vec3f& a0, const Vec3f& b0, const Vec
 }
 
 
-bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                             const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                             FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+bool Intersect::intersect_VF(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& p0,
+                             const Vector3d& a1, const Vector3d& b1, const Vector3d& c1, const Vector3d& p1,
+                             FCL_REAL* collision_time, Vector3d* p_i, bool useNewton)
 {
   *collision_time = 2.0;
 
-  Vec3f vp, va, vb, vc;
+  Vector3d vp, va, vb, vc;
   vp = p1 - p0;
   va = a1 - a0;
   vb = b1 - b0;
@@ -551,13 +554,13 @@ bool Intersect::intersect_VF(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
   return true;
 }
 
-bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                             const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                             FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+bool Intersect::intersect_EE(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& d0,
+                             const Vector3d& a1, const Vector3d& b1, const Vector3d& c1, const Vector3d& d1,
+                             FCL_REAL* collision_time, Vector3d* p_i, bool useNewton)
 {
   *collision_time = 2.0;
 
-  Vec3f va, vb, vc, vd;
+  Vector3d va, vb, vc, vd;
   va = a1 - a0;
   vb = b1 - b0;
   vc = c1 - c0;
@@ -616,11 +619,11 @@ bool Intersect::intersect_EE(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, 
 }
 
 
-bool Intersect::intersect_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
-                             const Vec3f& a1, const Vec3f& b1, const Vec3f& p1,
-                             const Vec3f& L)
+bool Intersect::intersect_VE(const Vector3d& a0, const Vector3d& b0, const Vector3d& p0,
+                             const Vector3d& a1, const Vector3d& b1, const Vector3d& p1,
+                             const Vector3d& L)
 {
-  Vec3f va, vb, vp;
+  Vector3d va, vb, vp;
   va = a1 - a0;
   vb = b1 - b0;
   vp = p1 - p0;
@@ -637,19 +640,19 @@ bool Intersect::intersect_VE(const Vec3f& a0, const Vec3f& b0, const Vec3f& p0,
 
 
 /// @brief Prefilter for intersection, works for both VF and EE
-bool Intersect::intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                      const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1)
+bool Intersect::intersectPreFiltering(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& d0,
+                                      const Vector3d& a1, const Vector3d& b1, const Vector3d& c1, const Vector3d& d1)
 {
-  Vec3f n0 = (b0 - a0).cross(c0 - a0);
-  Vec3f n1 = (b1 - a1).cross(c1 - a1);
-  Vec3f a0a1 = a1 - a0;
-  Vec3f b0b1 = b1 - b0;
-  Vec3f c0c1 = c1 - c0;
-  Vec3f delta = (b0b1 - a0a1).cross(c0c1 - a0a1);
-  Vec3f nx = (n0 + n1 - delta) * 0.5;
+  Vector3d n0 = (b0 - a0).cross(c0 - a0);
+  Vector3d n1 = (b1 - a1).cross(c1 - a1);
+  Vector3d a0a1 = a1 - a0;
+  Vector3d b0b1 = b1 - b0;
+  Vector3d c0c1 = c1 - c0;
+  Vector3d delta = (b0b1 - a0a1).cross(c0c1 - a0a1);
+  Vector3d nx = (n0 + n1 - delta) * 0.5;
 
-  Vec3f a0d0 = d0 - a0;
-  Vec3f a1d1 = d1 - a1;
+  Vector3d a0d0 = d0 - a0;
+  Vector3d a1d1 = d1 - a1;
 
   FCL_REAL A = n0.dot(a0d0);
   FCL_REAL B = n1.dot(a1d1);
@@ -666,9 +669,9 @@ bool Intersect::intersectPreFiltering(const Vec3f& a0, const Vec3f& b0, const Ve
   return true;
 }
 
-bool Intersect::intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& p0,
-                                      const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& p1,
-                                      FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+bool Intersect::intersect_VF_filtered(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& p0,
+                                      const Vector3d& a1, const Vector3d& b1, const Vector3d& c1, const Vector3d& p1,
+                                      FCL_REAL* collision_time, Vector3d* p_i, bool useNewton)
 {
   if(intersectPreFiltering(a0, b0, c0, p0, a1, b1, c1, p1))
   {
@@ -678,9 +681,9 @@ bool Intersect::intersect_VF_filtered(const Vec3f& a0, const Vec3f& b0, const Ve
     return false;
 }
 
-bool Intersect::intersect_EE_filtered(const Vec3f& a0, const Vec3f& b0, const Vec3f& c0, const Vec3f& d0,
-                                      const Vec3f& a1, const Vec3f& b1, const Vec3f& c1, const Vec3f& d1,
-                                      FCL_REAL* collision_time, Vec3f* p_i, bool useNewton)
+bool Intersect::intersect_EE_filtered(const Vector3d& a0, const Vector3d& b0, const Vector3d& c0, const Vector3d& d0,
+                                      const Vector3d& a1, const Vector3d& b1, const Vector3d& c1, const Vector3d& d1,
+                                      FCL_REAL* collision_time, Vector3d* p_i, bool useNewton)
 {
   if(intersectPreFiltering(a0, b0, c0, d0, a1, b1, c1, d1))
   {
@@ -690,53 +693,53 @@ bool Intersect::intersect_EE_filtered(const Vec3f& a0, const Vec3f& b0, const Ve
     return false;
 }
 
-bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                                   const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                   const Matrix3f& R, const Vec3f& T,
-                                   Vec3f* contact_points,
+bool Intersect::intersect_Triangle(const Vector3d& P1, const Vector3d& P2, const Vector3d& P3,
+                                   const Vector3d& Q1, const Vector3d& Q2, const Vector3d& Q3,
+                                   const Matrix3d& R, const Vector3d& T,
+                                   Vector3d* contact_points,
                                    unsigned int* num_contact_points,
                                    FCL_REAL* penetration_depth,
-                                   Vec3f* normal)
+                                   Vector3d* normal)
 {
-  Vec3f Q1_ = R * Q1 + T;
-  Vec3f Q2_ = R * Q2 + T;
-  Vec3f Q3_ = R * Q3 + T;
+  Vector3d Q1_ = R * Q1 + T;
+  Vector3d Q2_ = R * Q2 + T;
+  Vector3d Q3_ = R * Q3 + T;
 
   return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
 }
 
-bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                                   const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                   const Transform3f& tf,
-                                   Vec3f* contact_points,
+bool Intersect::intersect_Triangle(const Vector3d& P1, const Vector3d& P2, const Vector3d& P3,
+                                   const Vector3d& Q1, const Vector3d& Q2, const Vector3d& Q3,
+                                   const Transform3d& tf,
+                                   Vector3d* contact_points,
                                    unsigned int* num_contact_points,
                                    FCL_REAL* penetration_depth,
-                                   Vec3f* normal)
+                                   Vector3d* normal)
 {
-  Vec3f Q1_ = tf * Q1;
-  Vec3f Q2_ = tf * Q2;
-  Vec3f Q3_ = tf * Q3;
+  Vector3d Q1_ = tf * Q1;
+  Vector3d Q2_ = tf * Q2;
+  Vector3d Q3_ = tf * Q3;
 
   return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
 }
 
 
 #if ODE_STYLE
-bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                                   const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                   Vec3f* contact_points,
+bool Intersect::intersect_Triangle(const Vector3d& P1, const Vector3d& P2, const Vector3d& P3,
+                                   const Vector3d& Q1, const Vector3d& Q2, const Vector3d& Q3,
+                                   Vector3d* contact_points,
                                    unsigned int* num_contact_points,
                                    FCL_REAL* penetration_depth,
-                                   Vec3f* normal)
+                                   Vector3d* normal)
 {
 
 
-  Vec3f n1;
+  Vector3d n1;
   FCL_REAL t1;
   bool b1 = buildTrianglePlane(P1, P2, P3, &n1, &t1);
   if(!b1) return false;
 
-  Vec3f n2;
+  Vector3d n2;
   FCL_REAL t2;
   bool b2 = buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
   if(!b2) return false;
@@ -747,14 +750,14 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
   if(sameSideOfPlane(Q1, Q2, Q3, n1, t1))
     return false;
 
-  Vec3f clipped_points1[MAX_TRIANGLE_CLIPS];
+  Vector3d clipped_points1[MAX_TRIANGLE_CLIPS];
   unsigned int num_clipped_points1 = 0;
-  Vec3f clipped_points2[MAX_TRIANGLE_CLIPS];
+  Vector3d clipped_points2[MAX_TRIANGLE_CLIPS];
   unsigned int num_clipped_points2 = 0;
 
-  Vec3f deepest_points1[MAX_TRIANGLE_CLIPS];
+  Vector3d deepest_points1[MAX_TRIANGLE_CLIPS];
   unsigned int num_deepest_points1 = 0;
-  Vec3f deepest_points2[MAX_TRIANGLE_CLIPS];
+  Vector3d deepest_points2[MAX_TRIANGLE_CLIPS];
   unsigned int num_deepest_points2 = 0;
   FCL_REAL penetration_depth1 = -1, penetration_depth2 = -1;
 
@@ -806,92 +809,92 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
   return true;
 }
 #else
-bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f& P3,
-                                   const Vec3f& Q1, const Vec3f& Q2, const Vec3f& Q3,
-                                   Vec3f* contact_points,
+bool Intersect::intersect_Triangle(const Vector3d& P1, const Vector3d& P2, const Vector3d& P3,
+                                   const Vector3d& Q1, const Vector3d& Q2, const Vector3d& Q3,
+                                   Vector3d* contact_points,
                                    unsigned int* num_contact_points,
                                    FCL_REAL* penetration_depth,
-                                   Vec3f* normal)
+                                   Vector3d* normal)
 {
-  Vec3f p1 = P1 - P1;
-  Vec3f p2 = P2 - P1;
-  Vec3f p3 = P3 - P1;
-  Vec3f q1 = Q1 - P1;
-  Vec3f q2 = Q2 - P1;
-  Vec3f q3 = Q3 - P1;
+  Vector3d p1 = P1 - P1;
+  Vector3d p2 = P2 - P1;
+  Vector3d p3 = P3 - P1;
+  Vector3d q1 = Q1 - P1;
+  Vector3d q2 = Q2 - P1;
+  Vector3d q3 = Q3 - P1;
 
-  Vec3f e1 = p2 - p1;
-  Vec3f e2 = p3 - p2;
-  Vec3f n1 = e1.cross(e2);
+  Vector3d e1 = p2 - p1;
+  Vector3d e2 = p3 - p2;
+  Vector3d n1 = e1.cross(e2);
   if (!project6(n1, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f f1 = q2 - q1;
-  Vec3f f2 = q3 - q2;
-  Vec3f m1 = f1.cross(f2);
+  Vector3d f1 = q2 - q1;
+  Vector3d f2 = q3 - q2;
+  Vector3d m1 = f1.cross(f2);
   if (!project6(m1, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f ef11 = e1.cross(f1);
+  Vector3d ef11 = e1.cross(f1);
   if (!project6(ef11, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f ef12 = e1.cross(f2);
+  Vector3d ef12 = e1.cross(f2);
   if (!project6(ef12, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f f3 = q1 - q3;
-  Vec3f ef13 = e1.cross(f3);
+  Vector3d f3 = q1 - q3;
+  Vector3d ef13 = e1.cross(f3);
   if (!project6(ef13, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f ef21 = e2.cross(f1);
+  Vector3d ef21 = e2.cross(f1);
   if (!project6(ef21, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f ef22 = e2.cross(f2);
+  Vector3d ef22 = e2.cross(f2);
   if (!project6(ef22, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f ef23 = e2.cross(f3);
+  Vector3d ef23 = e2.cross(f3);
   if (!project6(ef23, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f e3 = p1 - p3;
-  Vec3f ef31 = e3.cross(f1);
+  Vector3d e3 = p1 - p3;
+  Vector3d ef31 = e3.cross(f1);
   if (!project6(ef31, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f ef32 = e3.cross(f2);
+  Vector3d ef32 = e3.cross(f2);
   if (!project6(ef32, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f ef33 = e3.cross(f3);
+  Vector3d ef33 = e3.cross(f3);
   if (!project6(ef33, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f g1 = e1.cross(n1);
+  Vector3d g1 = e1.cross(n1);
   if (!project6(g1, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f g2 = e2.cross(n1);
+  Vector3d g2 = e2.cross(n1);
   if (!project6(g2, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f g3 = e3.cross(n1);
+  Vector3d g3 = e3.cross(n1);
   if (!project6(g3, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f h1 = f1.cross(m1);
+  Vector3d h1 = f1.cross(m1);
   if (!project6(h1, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f h2 = f2.cross(m1);
+  Vector3d h2 = f2.cross(m1);
   if (!project6(h2, p1, p2, p3, q1, q2, q3)) return false;
 
-  Vec3f h3 = f3.cross(m1);
+  Vector3d h3 = f3.cross(m1);
   if (!project6(h3, p1, p2, p3, q1, q2, q3)) return false;
 
   if(contact_points && num_contact_points && penetration_depth && normal)
   {
-    Vec3f n1, n2;
+    Vector3d n1, n2;
     FCL_REAL t1, t2;
     buildTrianglePlane(P1, P2, P3, &n1, &t1);
     buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
 
-    Vec3f deepest_points1[3];
+    Vector3d deepest_points1[3];
     unsigned int num_deepest_points1 = 0;
-    Vec3f deepest_points2[3];
+    Vector3d deepest_points2[3];
     unsigned int num_deepest_points2 = 0;
     FCL_REAL penetration_depth1, penetration_depth2;
 
-    Vec3f P[3] = {P1, P2, P3};
-    Vec3f Q[3] = {Q1, Q2, Q3};
+    Vector3d P[3] = {P1, P2, P3};
+    Vector3d Q[3] = {Q1, Q2, Q3};
 
     computeDeepestPoints(Q, 3, n1, t1, &penetration_depth2, deepest_points2, &num_deepest_points2);
     computeDeepestPoints(P, 3, n2, t2, &penetration_depth1, deepest_points1, &num_deepest_points1);
@@ -926,7 +929,7 @@ bool Intersect::intersect_Triangle(const Vec3f& P1, const Vec3f& P2, const Vec3f
 #endif
 
 
-void Intersect::computeDeepestPoints(Vec3f* clipped_points, unsigned int num_clipped_points, const Vec3f& n, FCL_REAL t, FCL_REAL* penetration_depth, Vec3f* deepest_points, unsigned int* num_deepest_points)
+void Intersect::computeDeepestPoints(Vector3d* clipped_points, unsigned int num_clipped_points, const Vector3d& n, FCL_REAL t, FCL_REAL* penetration_depth, Vector3d* deepest_points, unsigned int* num_deepest_points)
 {
   *num_deepest_points = 0;
   FCL_REAL max_depth = -std::numeric_limits<FCL_REAL>::max();
@@ -964,20 +967,20 @@ void Intersect::computeDeepestPoints(Vec3f* clipped_points, unsigned int num_cli
   *num_deepest_points = num_deepest_points_;
 }
 
-void Intersect::clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3,
-                                                    const Vec3f& t1, const Vec3f& t2, const Vec3f& t3,
-                                                    const Vec3f& tn, FCL_REAL to,
-                                                    Vec3f clipped_points[], unsigned int* num_clipped_points,
+void Intersect::clipTriangleByTriangleAndEdgePlanes(const Vector3d& v1, const Vector3d& v2, const Vector3d& v3,
+                                                    const Vector3d& t1, const Vector3d& t2, const Vector3d& t3,
+                                                    const Vector3d& tn, FCL_REAL to,
+                                                    Vector3d clipped_points[], unsigned int* num_clipped_points,
                                                     bool clip_triangle)
 {
   *num_clipped_points = 0;
-  Vec3f temp_clip[MAX_TRIANGLE_CLIPS];
-  Vec3f temp_clip2[MAX_TRIANGLE_CLIPS];
+  Vector3d temp_clip[MAX_TRIANGLE_CLIPS];
+  Vector3d temp_clip2[MAX_TRIANGLE_CLIPS];
   unsigned int num_temp_clip = 0;
   unsigned int num_temp_clip2 = 0;
-  Vec3f v[3] = {v1, v2, v3};
+  Vector3d v[3] = {v1, v2, v3};
 
-  Vec3f plane_n;
+  Vector3d plane_n;
   FCL_REAL plane_dist;
 
   if(buildEdgePlane(t1, t2, tn, &plane_n, &plane_dist))
@@ -1012,7 +1015,7 @@ void Intersect::clipTriangleByTriangleAndEdgePlanes(const Vec3f& v1, const Vec3f
   }
 }
 
-void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polygon_points, const Vec3f& n, FCL_REAL t, Vec3f clipped_points[], unsigned int* num_clipped_points)
+void Intersect::clipPolygonByPlane(Vector3d* polygon_points, unsigned int num_polygon_points, const Vector3d& n, FCL_REAL t, Vector3d clipped_points[], unsigned int* num_clipped_points)
 {
   *num_clipped_points = 0;
 
@@ -1031,7 +1034,7 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
       {
         if(num_clipped_points_ < MAX_TRIANGLE_CLIPS)
         {
-          Vec3f tmp;
+          Vector3d tmp;
           clipSegmentByPlane(polygon_points[i - 1], polygon_points[vi], n, t, &tmp);
           if(num_clipped_points_ > 0)
           {
@@ -1061,7 +1064,7 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
       {
         if(num_clipped_points_ < MAX_TRIANGLE_CLIPS)
         {
-          Vec3f tmp;
+          Vector3d tmp;
           clipSegmentByPlane(polygon_points[i - 1], polygon_points[vi], n, t, &tmp);
           if(num_clipped_points_ > 0)
           {
@@ -1094,22 +1097,22 @@ void Intersect::clipPolygonByPlane(Vec3f* polygon_points, unsigned int num_polyg
   *num_clipped_points = num_clipped_points_;
 }
 
-void Intersect::clipSegmentByPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& n, FCL_REAL t, Vec3f* clipped_point)
+void Intersect::clipSegmentByPlane(const Vector3d& v1, const Vector3d& v2, const Vector3d& n, FCL_REAL t, Vector3d* clipped_point)
 {
   FCL_REAL dist1 = distanceToPlane(n, t, v1);
-  Vec3f tmp = v2 - v1;
+  Vector3d tmp = v2 - v1;
   FCL_REAL dist2 = tmp.dot(n);
   *clipped_point = tmp * (-dist1 / dist2) + v1;
 }
 
-FCL_REAL Intersect::distanceToPlane(const Vec3f& n, FCL_REAL t, const Vec3f& v)
+FCL_REAL Intersect::distanceToPlane(const Vector3d& n, FCL_REAL t, const Vector3d& v)
 {
   return n.dot(v) - t;
 }
 
-bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, Vec3f* n, FCL_REAL* t)
+bool Intersect::buildTrianglePlane(const Vector3d& v1, const Vector3d& v2, const Vector3d& v3, Vector3d* n, FCL_REAL* t)
 {
-  Vec3f n_ = (v2 - v1).cross(v3 - v1);
+  Vector3d n_ = (v2 - v1).cross(v3 - v1);
   bool can_normalize = false;
   normalize(n_, &can_normalize);
   if(can_normalize)
@@ -1122,9 +1125,9 @@ bool Intersect::buildTrianglePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f
   return false;
 }
 
-bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn, Vec3f* n, FCL_REAL* t)
+bool Intersect::buildEdgePlane(const Vector3d& v1, const Vector3d& v2, const Vector3d& tn, Vector3d* n, FCL_REAL* t)
 {
-  Vec3f n_ = (v2 - v1).cross(tn);
+  Vector3d n_ = (v2 - v1).cross(tn);
   bool can_normalize = false;
   normalize(n_, &can_normalize);
   if(can_normalize)
@@ -1137,7 +1140,7 @@ bool Intersect::buildEdgePlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& tn
   return false;
 }
 
-bool Intersect::sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& n, FCL_REAL t)
+bool Intersect::sameSideOfPlane(const Vector3d& v1, const Vector3d& v2, const Vector3d& v3, const Vector3d& n, FCL_REAL t)
 {
   FCL_REAL dist1 = distanceToPlane(n, t, v1);
   FCL_REAL dist2 = dist1 * distanceToPlane(n, t, v2);
@@ -1147,9 +1150,9 @@ bool Intersect::sameSideOfPlane(const Vec3f& v1, const Vec3f& v2, const Vec3f& v
   return false;
 }
 
-int Intersect::project6(const Vec3f& ax,
-                        const Vec3f& p1, const Vec3f& p2, const Vec3f& p3,
-                        const Vec3f& q1, const Vec3f& q2, const Vec3f& q3)
+int Intersect::project6(const Vector3d& ax,
+                        const Vector3d& p1, const Vector3d& p2, const Vector3d& p3,
+                        const Vector3d& q1, const Vector3d& q2, const Vector3d& q3)
 {
   FCL_REAL P1 = ax.dot(p1);
   FCL_REAL P2 = ax.dot(p2);
@@ -1171,12 +1174,12 @@ int Intersect::project6(const Vec3f& ax,
 
 
 
-void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q, const Vec3f& B,
-                                 Vec3f& VEC, Vec3f& X, Vec3f& Y)
+void TriangleDistance::segPoints(const Vector3d& P, const Vector3d& A, const Vector3d& Q, const Vector3d& B,
+                                 Vector3d& VEC, Vector3d& X, Vector3d& Y)
 {
-  Vec3f T;
+  Vector3d T;
   FCL_REAL A_dot_A, B_dot_B, A_dot_B, A_dot_T, B_dot_T;
-  Vec3f TMP;
+  Vector3d TMP;
 
   T = Q - P;
   A_dot_A = A.dot(A);
@@ -1286,13 +1289,13 @@ void TriangleDistance::segPoints(const Vec3f& P, const Vec3f& A, const Vec3f& Q,
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::triDistance(const Vector3d S[3], const Vector3d T[3], Vector3d& P, Vector3d& Q)
 {
   // Compute vectors along the 6 sides
 
-  Vec3f Sv[3];
-  Vec3f Tv[3];
-  Vec3f VEC;
+  Vector3d Sv[3];
+  Vector3d Tv[3];
+  Vector3d VEC;
 
   Sv[0] = S[1] - S[0];
   Sv[1] = S[2] - S[1];
@@ -1310,10 +1313,10 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   // Even if these tests fail, it may be helpful to know the closest
   // points found, and whether the triangles were shown disjoint
 
-  Vec3f V;
-  Vec3f Z;
-  Vec3f minP = Vec3f::Zero();
-  Vec3f minQ = Vec3f::Zero();
+  Vector3d V;
+  Vector3d Z;
+  Vector3d minP = Vector3d::Zero();
+  Vector3d minQ = Vector3d::Zero();
   FCL_REAL mindd;
   int shown_disjoint = 0;
 
@@ -1371,7 +1374,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
 
   // First check for case 1
 
-  Vec3f Sn;
+  Vector3d Sn;
   FCL_REAL Snl;
 
   Sn = Sv[0].cross(Sv[1]); // Compute normal to S triangle
@@ -1383,7 +1386,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   {
     // Get projection lengths of T points
 
-    Vec3f Tp;
+    Vector3d Tp;
 
     V = S[0] - T[0];
     Tp[0] = V.dot(Sn);
@@ -1441,7 +1444,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
     }
   }
 
-  Vec3f Tn;
+  Vector3d Tn;
   FCL_REAL Tnl;
 
   Tn = Tv[0].cross(Tv[1]);
@@ -1449,7 +1452,7 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
 
   if(Tnl > 1e-15)
   {
-    Vec3f Sp;
+    Vector3d Sp;
 
     V = T[0] - S[0];
     Sp[0] = V.dot(Tn);
@@ -1512,23 +1515,23 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                                       const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::triDistance(const Vector3d& S1, const Vector3d& S2, const Vector3d& S3,
+                                       const Vector3d& T1, const Vector3d& T2, const Vector3d& T3,
+                                       Vector3d& P, Vector3d& Q)
 {
-  Vec3f S[3];
-  Vec3f T[3];
+  Vector3d S[3];
+  Vector3d T[3];
   S[0] = S1; S[1] = S2; S[2] = S3;
   T[0] = T1; T[1] = T2; T[2] = T3;
 
   return triDistance(S, T, P, Q);
 }
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
-                                       const Matrix3f& R, const Vec3f& Tl,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::triDistance(const Vector3d S[3], const Vector3d T[3],
+                                       const Matrix3d& R, const Vector3d& Tl,
+                                       Vector3d& P, Vector3d& Q)
 {
-  Vec3f T_transformed[3];
+  Vector3d T_transformed[3];
   T_transformed[0] = R * T[0] + Tl;
   T_transformed[1] = R * T[1] + Tl;
   T_transformed[2] = R * T[2] + Tl;
@@ -1537,11 +1540,11 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
-                                       const Transform3f& tf,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::triDistance(const Vector3d S[3], const Vector3d T[3],
+                                       const Transform3d& tf,
+                                       Vector3d& P, Vector3d& Q)
 {
-  Vec3f T_transformed[3];
+  Vector3d T_transformed[3];
   T_transformed[0] = tf * T[0];
   T_transformed[1] = tf * T[1];
   T_transformed[2] = tf * T[2];
@@ -1550,25 +1553,25 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3],
 }
 
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                                       const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                                       const Matrix3f& R, const Vec3f& Tl,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::triDistance(const Vector3d& S1, const Vector3d& S2, const Vector3d& S3,
+                                       const Vector3d& T1, const Vector3d& T2, const Vector3d& T3,
+                                       const Matrix3d& R, const Vector3d& Tl,
+                                       Vector3d& P, Vector3d& Q)
 {
-  Vec3f T1_transformed = R * T1 + Tl;
-  Vec3f T2_transformed = R * T2 + Tl;
-  Vec3f T3_transformed = R * T3 + Tl;
+  Vector3d T1_transformed = R * T1 + Tl;
+  Vector3d T2_transformed = R * T2 + Tl;
+  Vector3d T3_transformed = R * T3 + Tl;
   return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
 
-FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const Vec3f& S3,
-                                       const Vec3f& T1, const Vec3f& T2, const Vec3f& T3,
-                                       const Transform3f& tf,
-                                       Vec3f& P, Vec3f& Q)
+FCL_REAL TriangleDistance::triDistance(const Vector3d& S1, const Vector3d& S2, const Vector3d& S3,
+                                       const Vector3d& T1, const Vector3d& T2, const Vector3d& T3,
+                                       const Transform3d& tf,
+                                       Vector3d& P, Vector3d& Q)
 {
-  Vec3f T1_transformed = tf * T1;
-  Vec3f T2_transformed = tf * T2;
-  Vec3f T3_transformed = tf * T3;
+  Vector3d T1_transformed = tf * T1;
+  Vector3d T2_transformed = tf * T2;
+  Vector3d T3_transformed = tf * T3;
   return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
 
@@ -1576,11 +1579,11 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f& S1, const Vec3f& S2, const V
 
 
 
-Project::ProjectResult Project::projectLine(const Vec3f& a, const Vec3f& b, const Vec3f& p)
+Project::ProjectResult Project::projectLine(const Vector3d& a, const Vector3d& b, const Vector3d& p)
 {
   ProjectResult res;
 
-  const Vec3f d = b - a;
+  const Vector3d d = b - a;
   const FCL_REAL l = d.squaredNorm();
 
   if(l > 0)
@@ -1596,14 +1599,14 @@ Project::ProjectResult Project::projectLine(const Vec3f& a, const Vec3f& b, cons
   return res;
 }
 
-Project::ProjectResult Project::projectTriangle(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& p)
+Project::ProjectResult Project::projectTriangle(const Vector3d& a, const Vector3d& b, const Vector3d& c, const Vector3d& p)
 {
   ProjectResult res;
 	
   static const size_t nexti[3] = {1, 2, 0};
-  const Vec3f* vt[] = {&a, &b, &c};
-  const Vec3f dl[] = {a - b, b - c, c - a};
-  const Vec3f& n = dl[0].cross(dl[1]);
+  const Vector3d* vt[] = {&a, &b, &c};
+  const Vector3d dl[] = {a - b, b - c, c - a};
+  const Vector3d& n = dl[0].cross(dl[1]);
   const FCL_REAL l = n.squaredNorm();
 	
   if(l > 0)
@@ -1631,7 +1634,7 @@ Project::ProjectResult Project::projectTriangle(const Vec3f& a, const Vec3f& b, 
     {
       FCL_REAL d = (a - p).dot(n);
       FCL_REAL s = sqrt(l);
-      Vec3f p_to_project = n * (d / l);
+      Vector3d p_to_project = n * (d / l);
       mindist = p_to_project.squaredNorm();
       res.encode = 7; // m = 0x111
       res.parameterization[0] = dl[1].cross(b - p -p_to_project).norm() / s;
@@ -1646,13 +1649,13 @@ Project::ProjectResult Project::projectTriangle(const Vec3f& a, const Vec3f& b, 
 
 }
 
-Project::ProjectResult Project::projectTetrahedra(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, const Vec3f& p)
+Project::ProjectResult Project::projectTetrahedra(const Vector3d& a, const Vector3d& b, const Vector3d& c, const Vector3d& d, const Vector3d& p)
 {
   ProjectResult res;
 
   static const size_t nexti[] = {1, 2, 0};
-  const Vec3f* vt[] = {&a, &b, &c, &d};
-  const Vec3f dl[3] = {a-d, b-d, c-d};
+  const Vector3d* vt[] = {&a, &b, &c, &d};
+  const Vector3d dl[3] = {a-d, b-d, c-d};
   FCL_REAL vl = triple(dl[0], dl[1], dl[2]); 
   bool ng = (vl * (a-p).dot((b-c).cross(a-b))) <= 0;
   if(ng && std::abs(vl) > 0) // abs(vl) == 0, the tetrahedron is degenerated; if ng is false, then the last vertex in the tetrahedron does not grow toward the origin (in fact origin is on the other side of the abc face)
@@ -1698,11 +1701,11 @@ Project::ProjectResult Project::projectTetrahedra(const Vec3f& a, const Vec3f& b
   return res;
 }
 
-Project::ProjectResult Project::projectLineOrigin(const Vec3f& a, const Vec3f& b)
+Project::ProjectResult Project::projectLineOrigin(const Vector3d& a, const Vector3d& b)
 {
   ProjectResult res;
 
-  const Vec3f d = b - a;
+  const Vector3d d = b - a;
   const FCL_REAL l = d.squaredNorm();
 
   if(l > 0)
@@ -1718,14 +1721,14 @@ Project::ProjectResult Project::projectLineOrigin(const Vec3f& a, const Vec3f& b
   return res;
 }
 
-Project::ProjectResult Project::projectTriangleOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c)
+Project::ProjectResult Project::projectTriangleOrigin(const Vector3d& a, const Vector3d& b, const Vector3d& c)
 {
   ProjectResult res;
 	
   static const size_t nexti[3] = {1, 2, 0};
-  const Vec3f* vt[] = {&a, &b, &c};
-  const Vec3f dl[] = {a - b, b - c, c - a};
-  const Vec3f& n = dl[0].cross(dl[1]);
+  const Vector3d* vt[] = {&a, &b, &c};
+  const Vector3d dl[] = {a - b, b - c, c - a};
+  const Vector3d& n = dl[0].cross(dl[1]);
   const FCL_REAL l = n.squaredNorm();
 	
   if(l > 0)
@@ -1753,7 +1756,7 @@ Project::ProjectResult Project::projectTriangleOrigin(const Vec3f& a, const Vec3
     {
       FCL_REAL d = a.dot(n);
       FCL_REAL s = sqrt(l);
-      Vec3f o_to_project = n * (d / l);
+      Vector3d o_to_project = n * (d / l);
       mindist = o_to_project.squaredNorm();
       res.encode = 7; // m = 0x111
       res.parameterization[0] = dl[1].cross(b - o_to_project).norm() / s;
@@ -1768,13 +1771,13 @@ Project::ProjectResult Project::projectTriangleOrigin(const Vec3f& a, const Vec3
 
 }
 
-Project::ProjectResult Project::projectTetrahedraOrigin(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d)
+Project::ProjectResult Project::projectTetrahedraOrigin(const Vector3d& a, const Vector3d& b, const Vector3d& c, const Vector3d& d)
 {
   ProjectResult res;
 
   static const size_t nexti[] = {1, 2, 0};
-  const Vec3f* vt[] = {&a, &b, &c, &d};
-  const Vec3f dl[3] = {a-d, b-d, c-d};
+  const Vector3d* vt[] = {&a, &b, &c, &d};
+  const Vector3d dl[3] = {a-d, b-d, c-d};
   FCL_REAL vl = triple(dl[0], dl[1], dl[2]); 
   bool ng = (vl * a.dot((b-c).cross(a-b))) <= 0;
   if(ng && std::abs(vl) > 0) // abs(vl) == 0, the tetrahedron is degenerated; if ng is false, then the last vertex in the tetrahedron does not grow toward the origin (in fact origin is on the other side of the abc face)

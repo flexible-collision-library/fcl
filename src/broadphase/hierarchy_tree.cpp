@@ -46,9 +46,9 @@ size_t select(const NodeBase<AABB>& node, const NodeBase<AABB>& node1, const Nod
   const AABB& bv = node.bv;
   const AABB& bv1 = node1.bv;
   const AABB& bv2 = node2.bv;
-  Vec3f v = bv.min_ + bv.max_;
-  Vec3f v1 = v - (bv1.min_ + bv1.max_);
-  Vec3f v2 = v - (bv2.min_ + bv2.max_);
+  Vector3d v = bv.min_ + bv.max_;
+  Vector3d v1 = v - (bv1.min_ + bv1.max_);
+  Vector3d v2 = v - (bv2.min_ + bv2.max_);
   FCL_REAL d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
   FCL_REAL d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
   return (d1 < d2) ? 0 : 1;
@@ -60,20 +60,20 @@ size_t select(const AABB& query, const NodeBase<AABB>& node1, const NodeBase<AAB
   const AABB& bv = query;
   const AABB& bv1 = node1.bv;
   const AABB& bv2 = node2.bv;
-  Vec3f v = bv.min_ + bv.max_;
-  Vec3f v1 = v - (bv1.min_ + bv1.max_);
-  Vec3f v2 = v - (bv2.min_ + bv2.max_);
+  Vector3d v = bv.min_ + bv.max_;
+  Vector3d v1 = v - (bv1.min_ + bv1.max_);
+  Vector3d v2 = v - (bv2.min_ + bv2.max_);
   FCL_REAL d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
   FCL_REAL d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
   return (d1 < d2) ? 0 : 1;
 }
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vec3f& vel, FCL_REAL margin)
+bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel, FCL_REAL margin)
 {
   AABB bv(bv_);
   if(leaf->bv.contain(bv)) return false;
-  Vec3f marginv = Vec3f::Constant(margin);
+  Vector3d marginv = Vector3d::Constant(margin);
   bv.min_ -= marginv;
   bv.max_ += marginv;
   if(vel[0] > 0) bv.max_[0] += vel[0];
@@ -87,7 +87,7 @@ bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Ve
 }
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vec3f& vel)
+bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel)
 {
   AABB bv(bv_);
   if(leaf->bv.contain(bv)) return false;
@@ -109,9 +109,9 @@ size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABB>* nodes)
   const AABB& bv = nodes[query].bv;
   const AABB& bv1 = nodes[node1].bv;
   const AABB& bv2 = nodes[node2].bv;
-  Vec3f v = bv.min_ + bv.max_;
-  Vec3f v1 = v - (bv1.min_ + bv1.max_);
-  Vec3f v2 = v - (bv2.min_ + bv2.max_);
+  Vector3d v = bv.min_ + bv.max_;
+  Vector3d v1 = v - (bv1.min_ + bv1.max_);
+  Vector3d v2 = v - (bv2.min_ + bv2.max_);
   FCL_REAL d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
   FCL_REAL d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
   return (d1 < d2) ? 0 : 1;
@@ -123,9 +123,9 @@ size_t select(const AABB& query, size_t node1, size_t node2, NodeBase<AABB>* nod
   const AABB& bv = query;
   const AABB& bv1 = nodes[node1].bv;
   const AABB& bv2 = nodes[node2].bv;
-  Vec3f v = bv.min_ + bv.max_;
-  Vec3f v1 = v - (bv1.min_ + bv1.max_);
-  Vec3f v2 = v - (bv2.min_ + bv2.max_);
+  Vector3d v = bv.min_ + bv.max_;
+  Vector3d v1 = v - (bv1.min_ + bv1.max_);
+  Vector3d v2 = v - (bv2.min_ + bv2.max_);
   FCL_REAL d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
   FCL_REAL d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
   return (d1 < d2) ? 0 : 1;

@@ -50,27 +50,27 @@ FCL_REAL DELTA = 0.001;
 
 
 template<typename BV>
-void distance_Test(const Transform3f& tf,
-                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+void distance_Test(const Transform3d& tf,
+                   const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                   const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                    int qsize,
                    DistanceRes& distance_result,
                    bool verbose = true);
 
-bool collide_Test_OBB(const Transform3f& tf,
-                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
+bool collide_Test_OBB(const Transform3d& tf,
+                      const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                      const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
 
 
 template<typename BV, typename TraversalNode>
-void distance_Test_Oriented(const Transform3f& tf,
-                            const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                            const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+void distance_Test_Oriented(const Transform3d& tf,
+                            const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                            const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                             int qsize,
                             DistanceRes& distance_result,
                             bool verbose = true);
 
-inline bool nearlyEqual(const Vec3f& a, const Vec3f& b)
+inline bool nearlyEqual(const Vector3d& a, const Vector3d& b)
 {
   if(fabs(a[0] - b[0]) > DELTA) return false;
   if(fabs(a[1] - b[1]) > DELTA) return false;
@@ -80,13 +80,13 @@ inline bool nearlyEqual(const Vec3f& a, const Vec3f& b)
 
 GTEST_TEST(FCL_DISTANCE, mesh_distance)
 {
-  std::vector<Vec3f> p1, p2;
+  std::vector<Vector3d> p1, p2;
   std::vector<Triangle> t1, t2;
 
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
   loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
-  std::vector<Transform3f> transforms; // t0
+  std::vector<Transform3d> transforms; // t0
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifdef FCL_BUILD_TYPE_DEBUG
   std::size_t n = 1;
@@ -299,9 +299,9 @@ GTEST_TEST(FCL_DISTANCE, mesh_distance)
 }
 
 template<typename BV, typename TraversalNode>
-void distance_Test_Oriented(const Transform3f& tf,
-                            const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                            const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+void distance_Test_Oriented(const Transform3d& tf,
+                            const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                            const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                             int qsize,
                             DistanceRes& distance_result,
                             bool verbose)
@@ -322,7 +322,7 @@ void distance_Test_Oriented(const Transform3f& tf,
 
   DistanceResult local_result;
   TraversalNode node;
-  if(!initialize(node, (const BVHModel<BV>&)m1, tf, (const BVHModel<BV>&)m2, Transform3f::Identity(), DistanceRequest(true), local_result))
+  if(!initialize(node, (const BVHModel<BV>&)m1, tf, (const BVHModel<BV>&)m2, Transform3d::Identity(), DistanceRequest(true), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -330,8 +330,8 @@ void distance_Test_Oriented(const Transform3f& tf,
   distance(&node, NULL, qsize);
 
   // points are in local coordinate, to global coordinate
-  Vec3f p1 = local_result.nearest_points[0];
-  Vec3f p2 = local_result.nearest_points[1];
+  Vector3d p1 = local_result.nearest_points[0];
+  Vector3d p2 = local_result.nearest_points[1];
 
 
   distance_result.distance = local_result.min_distance;
@@ -349,9 +349,9 @@ void distance_Test_Oriented(const Transform3f& tf,
 }
 
 template<typename BV>
-void distance_Test(const Transform3f& tf,
-                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+void distance_Test(const Transform3d& tf,
+                   const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                   const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                    int qsize,
                    DistanceRes& distance_result,
                    bool verbose)
@@ -370,8 +370,8 @@ void distance_Test(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf);
-  Transform3f pose2 = Transform3f::Identity();
+  Transform3d pose1(tf);
+  Transform3d pose2 = Transform3d::Identity();
 
   DistanceResult local_result;
   MeshDistanceTraversalNode<BV> node;
@@ -398,9 +398,9 @@ void distance_Test(const Transform3f& tf,
 }
 
 
-bool collide_Test_OBB(const Transform3f& tf,
-                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+bool collide_Test_OBB(const Transform3d& tf,
+                      const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                      const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
 {
   BVHModel<OBB> m1;
   BVHModel<OBB> m2;
@@ -417,7 +417,7 @@ bool collide_Test_OBB(const Transform3f& tf,
 
   CollisionResult local_result;	
   MeshCollisionTraversalNodeOBB node;
-  if(!initialize(node, (const BVHModel<OBB>&)m1, tf, (const BVHModel<OBB>&)m2, Transform3f::Identity(),
+  if(!initialize(node, (const BVHModel<OBB>&)m1, tf, (const BVHModel<OBB>&)m2, Transform3d::Identity(),
                  CollisionRequest(), local_result))
     std::cout << "initialize error" << std::endl;
 
