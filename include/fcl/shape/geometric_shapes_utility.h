@@ -40,21 +40,47 @@
 #define FCL_GEOMETRIC_SHAPES_UTILITY_H
 
 #include <vector>
-#include "fcl/shape/geometric_shapes.h"
+
 #include "fcl/BV/BV.h"
 
 namespace fcl
 {
 
+template <typename Scalar>
+class Box;
+using Boxd = Box<double>;
+
+class Sphere;
+
+class Ellipsoid;
+
+template <typename Scalar>
+class Capsule;
+using Capsuled = Capsule<double>;
+
+template <typename Scalar>
+class Cone;
+using Coned = Cone<double>;
+
+class Cylinder;
+
+class Convex;
+
+class TriangleP;
+
+class Halfspace;
+
+class Plane;
+
 /// @cond IGNORE
 namespace details
 {
 /// @brief get the vertices of some convex shape which can bound the given shape in a specific configuration
-std::vector<Vector3d> getBoundVertices(const Box& box, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const Boxd& box, const Transform3d& tf);
 std::vector<Vector3d> getBoundVertices(const Sphere& sphere, const Transform3d& tf);
 std::vector<Vector3d> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3d& tf);
-std::vector<Vector3d> getBoundVertices(const Capsule& capsule, const Transform3d& tf);
-std::vector<Vector3d> getBoundVertices(const Cone& cone, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const Capsuled& capsule, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const Coned& cone, const Transform3d& tf);
 std::vector<Vector3d> getBoundVertices(const Cylinder& cylinder, const Transform3d& tf);
 std::vector<Vector3d> getBoundVertices(const Convex& convex, const Transform3d& tf);
 std::vector<Vector3d> getBoundVertices(const TriangleP& triangle, const Transform3d& tf);
@@ -71,7 +97,7 @@ void computeBV(const S& s, const Transform3d& tf, BV& bv)
 }
 
 template<>
-void computeBV<AABB, Box>(const Box& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Boxd>(const Boxd& s, const Transform3d& tf, AABB& bv);
 
 template<>
 void computeBV<AABB, Sphere>(const Sphere& s, const Transform3d& tf, AABB& bv);
@@ -80,10 +106,10 @@ template<>
 void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Capsule>(const Capsule& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Capsuled>(const Capsuled& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Cone>(const Cone& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Coned>(const Coned& s, const Transform3d& tf, AABB& bv);
 
 template<>
 void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3d& tf, AABB& bv);
@@ -103,7 +129,7 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3d& tf, AABB& bv);
 
 
 template<>
-void computeBV<OBB, Box>(const Box& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Boxd>(const Boxd& s, const Transform3d& tf, OBB& bv);
 
 template<>
 void computeBV<OBB, Sphere>(const Sphere& s, const Transform3d& tf, OBB& bv);
@@ -112,10 +138,10 @@ template<>
 void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Capsule>(const Capsule& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Capsuled>(const Capsuled& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Cone>(const Cone& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Coned>(const Coned& s, const Transform3d& tf, OBB& bv);
 
 template<>
 void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3d& tf, OBB& bv);
@@ -167,37 +193,37 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3d& tf, KDOP<24>&
 
 
 /// @brief construct a box shape (with a configuration) from a given bounding volume
-void constructBox(const AABB& bv, Box& box, Transform3d& tf);
+void constructBox(const AABB& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const OBB& bv, Box& box, Transform3d& tf);
+void constructBox(const OBB& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const OBBRSS& bv, Box& box, Transform3d& tf);
+void constructBox(const OBBRSS& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const kIOS& bv, Box& box, Transform3d& tf);
+void constructBox(const kIOS& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const RSS& bv, Box& box, Transform3d& tf);
+void constructBox(const RSS& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<16>& bv, Box& box, Transform3d& tf);
+void constructBox(const KDOP<16>& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<18>& bv, Box& box, Transform3d& tf);
+void constructBox(const KDOP<18>& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<24>& bv, Box& box, Transform3d& tf);
+void constructBox(const KDOP<24>& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const AABB& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const AABB& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const OBB& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const OBB& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const kIOS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const kIOS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const RSS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const RSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<16>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const KDOP<16>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf);
+void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
 Halfspace transform(const Halfspace& a, const Transform3d& tf);
 

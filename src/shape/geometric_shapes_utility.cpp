@@ -36,6 +36,7 @@
 /** \author Jia Pan */
 
 #include "fcl/math/geometry.h"
+#include "fcl/shape/geometric_shapes.h"
 #include "fcl/shape/geometric_shapes_utility.h"
 #include "fcl/BVH/BV_fitter.h"
 
@@ -45,7 +46,7 @@ namespace fcl
 namespace details
 {
 
-std::vector<Vector3d> getBoundVertices(const Box& box, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const Boxd& box, const Transform3d& tf)
 {
   std::vector<Vector3d> result(8);
   FCL_REAL a = box.side[0] / 2;
@@ -126,7 +127,7 @@ std::vector<Vector3d> getBoundVertices(const Ellipsoid& ellipsoid, const Transfo
   return result;
 }
 
-std::vector<Vector3d> getBoundVertices(const Capsule& capsule, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const Capsuled& capsule, const Transform3d& tf)
 {
   std::vector<Vector3d> result(36);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
@@ -184,7 +185,7 @@ std::vector<Vector3d> getBoundVertices(const Capsule& capsule, const Transform3d
 }
 
 
-std::vector<Vector3d> getBoundVertices(const Cone& cone, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const Coned& cone, const Transform3d& tf)
 {
   std::vector<Vector3d> result(7);
   
@@ -286,7 +287,7 @@ Plane transform(const Plane& a, const Transform3d& tf)
 
 
 template<>
-void computeBV<AABB, Box>(const Box& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Boxd>(const Boxd& s, const Transform3d& tf, AABB& bv)
 {
   const Matrix3d& R = tf.linear();
   const Vector3d& T = tf.translation();
@@ -326,7 +327,7 @@ void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, AABB&
 }
 
 template<>
-void computeBV<AABB, Capsule>(const Capsule& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Capsuled>(const Capsuled& s, const Transform3d& tf, AABB& bv)
 {
   const Matrix3d& R = tf.linear();
   const Vector3d& T = tf.translation();
@@ -341,7 +342,7 @@ void computeBV<AABB, Capsule>(const Capsule& s, const Transform3d& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, Cone>(const Cone& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Coned>(const Coned& s, const Transform3d& tf, AABB& bv)
 {
   const Matrix3d& R = tf.linear();
   const Vector3d& T = tf.translation();
@@ -459,7 +460,7 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3d& tf, AABB& bv)
 
 
 template<>
-void computeBV<OBB, Box>(const Box& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Boxd>(const Boxd& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -483,7 +484,7 @@ void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, OBB& b
 }
 
 template<>
-void computeBV<OBB, Capsule>(const Capsule& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Capsuled>(const Capsuled& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -491,7 +492,7 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3d& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Cone>(const Cone& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Coned>(const Coned& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -963,116 +964,116 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3d& tf, KDOP<24>&
 }
 
 
-void constructBox(const AABB& bv, Box& box, Transform3d& tf)
+void constructBox(const AABB& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.max_ - bv.min_);
+  box = Boxd(bv.max_ - bv.min_);
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-void constructBox(const OBB& bv, Box& box, Transform3d& tf)
+void constructBox(const OBB& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.extent * 2);
+  box = Boxd(bv.extent * 2);
   tf.linear() = bv.axis;
   tf.translation() = bv.To;
 }
 
-void constructBox(const OBBRSS& bv, Box& box, Transform3d& tf)
+void constructBox(const OBBRSS& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.obb.extent * 2);
+  box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
 }
 
-void constructBox(const kIOS& bv, Box& box, Transform3d& tf)
+void constructBox(const kIOS& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.obb.extent * 2);
+  box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
 }
 
-void constructBox(const RSS& bv, Box& box, Transform3d& tf)
+void constructBox(const RSS& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear() = bv.axis;
   tf.translation() = bv.Tr;
 }
 
-void constructBox(const KDOP<16>& bv, Box& box, Transform3d& tf)
+void constructBox(const KDOP<16>& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-void constructBox(const KDOP<18>& bv, Box& box, Transform3d& tf)
+void constructBox(const KDOP<18>& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-void constructBox(const KDOP<24>& bv, Box& box, Transform3d& tf)
+void constructBox(const KDOP<24>& bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
 
 
-void constructBox(const AABB& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const AABB& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.max_ - bv.min_);
+  box = Boxd(bv.max_ - bv.min_);
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-void constructBox(const OBB& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const OBB& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.extent * 2);
+  box = Boxd(bv.extent * 2);
   tf.linear() = bv.axis;
   tf.translation() = bv.To;
 }
 
-void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.obb.extent * 2);
+  box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
   tf = tf_bv * tf;
 }
 
-void constructBox(const kIOS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const kIOS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.obb.extent * 2);
+  box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
   tf = tf_bv * tf;
 }
 
-void constructBox(const RSS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const RSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear() = bv.axis;
   tf.translation() = bv.Tr;
   tf = tf_bv * tf;
 }
 
-void constructBox(const KDOP<16>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const KDOP<16>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
+void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
-  box = Box(bv.width(), bv.height(), bv.depth());
+  box = Boxd(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 

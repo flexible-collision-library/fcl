@@ -50,8 +50,8 @@ namespace fcl
 FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
                   const DistanceRequest& request, DistanceResult& result);
 
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3d& tf1,
-                  const CollisionGeometry* o2, const Transform3d& tf2,
+FCL_REAL distance(const CollisionGeometryd* o1, const Transform3d& tf1,
+                  const CollisionGeometryd* o2, const Transform3d& tf2,
                   const DistanceRequest& request, DistanceResult& result);
 
 }

@@ -44,11 +44,11 @@
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
 {
-  typedef std::shared_ptr <fcl::CollisionGeometry> CollisionGeometryPtr_t;
-  // Capsule of radius 2 and of height 4
-  CollisionGeometryPtr_t capsuleGeometry (new fcl::Capsule (2., 4.));
-  // Box of size 1 by 2 by 4
-  CollisionGeometryPtr_t boxGeometry (new fcl::Box (1., 2., 4.));
+  typedef std::shared_ptr <fcl::CollisionGeometryd> CollisionGeometrydPtr_t;
+  // Capsuled of radius 2 and of height 4
+  CollisionGeometrydPtr_t capsuleGeometry (new fcl::Capsuled (2., 4.));
+  // Boxd of size 1 by 2 by 4
+  CollisionGeometrydPtr_t boxGeometry (new fcl::Boxd (1., 2., 4.));
 
   // Enable computation of nearest points
   fcl::DistanceRequest distanceRequest (true);

@@ -35,24 +35,51 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
+#ifndef FCL_SHAPE_CYLINDER_H
+#define FCL_SHAPE_CYLINDER_H
 
 #include "fcl/shape/shape_base.h"
 
-#include "fcl/shape/box.h"
-#include "fcl/shape/capsule.h"
-#include "fcl/shape/cone.h"
-#include "fcl/shape/convex.h"
-#include "fcl/shape/cylinder.h"
-#include "fcl/shape/ellipsoid.h"
-#include "fcl/shape/halfspace.h"
-#include "fcl/shape/plane.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/shape/triangle_p.h"
+namespace fcl
+{
+
+/// @brief Center at zero cylinder 
+class Cylinder : public ShapeBased
+{
+public:
+  Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBased(), radius(radius_), lz(lz_)
+  {
+  }
+
+  
+  /// @brief Radius of the cylinder 
+  FCL_REAL radius;
+
+  /// @brief Length along z axis 
+  FCL_REAL lz;
+
+  /// @brief Compute AABB 
+  void computeLocalAABB();
+
+  /// @brief Get node type: a cylinder 
+  NODE_TYPE getNodeType() const { return GEOM_CYLINDER; }
+
+  FCL_REAL computeVolume() const
+  {
+    return constants::pi * radius * radius * lz;
+  }
+
+  Matrix3d computeMomentofInertia() const
+  {
+    FCL_REAL V = computeVolume();
+    FCL_REAL ix = V * (3 * radius * radius + lz * lz) / 12;
+    FCL_REAL iz = V * radius * radius / 2;
+
+    return Vector3d(ix, ix, iz).asDiagonal();
+  }
+};
+
+}
 
 #endif

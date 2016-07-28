@@ -54,8 +54,8 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                     const CollisionRequest& request,
                     CollisionResult& result);
 
-std::size_t collide(const CollisionGeometry* o1, const Transform3d& tf1,
-                    const CollisionGeometry* o2, const Transform3d& tf2,
+std::size_t collide(const CollisionGeometryd* o1, const Transform3d& tf1,
+                    const CollisionGeometryd* o2, const Transform3d& tf2,
                     const CollisionRequest& request,
                     CollisionResult& result);
 }

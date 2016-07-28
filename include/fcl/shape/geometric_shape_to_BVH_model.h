@@ -47,7 +47,7 @@ namespace fcl
 
 /// @brief Generate BVH model from box
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box& shape, const Transform3d& pose)
+void generateBVHModel(BVHModel<BV>& model, const Boxd& shape, const Transform3d& pose)
 {
   double a = shape.side[0];
   double b = shape.side[1];
@@ -350,7 +350,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder& shape, const Transfor
 
 /// @brief Generate BVH model from cone, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3d& pose, unsigned int tot, unsigned int h_num)
+void generateBVHModel(BVHModel<BV>& model, const Coned& shape, const Transform3d& pose, unsigned int tot, unsigned int h_num)
 {
   std::vector<Vector3d> points;
   std::vector<Triangle> tri_indices;
@@ -424,7 +424,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3d&
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cone with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone& shape, const Transform3d& pose, unsigned int tot_for_unit_cone)
+void generateBVHModel(BVHModel<BV>& model, const Coned& shape, const Transform3d& pose, unsigned int tot_for_unit_cone)
 {
   double r = shape.radius;
   double h = shape.lz;

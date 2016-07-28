@@ -35,24 +35,63 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
+#ifndef FCL_SHAPE_PLANE_H
+#define FCL_SHAPE_PLANE_H
 
 #include "fcl/shape/shape_base.h"
 
-#include "fcl/shape/box.h"
-#include "fcl/shape/capsule.h"
-#include "fcl/shape/cone.h"
-#include "fcl/shape/convex.h"
-#include "fcl/shape/cylinder.h"
-#include "fcl/shape/ellipsoid.h"
-#include "fcl/shape/halfspace.h"
-#include "fcl/shape/plane.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/shape/triangle_p.h"
+namespace fcl
+{
+
+/// @brief Infinite plane 
+class Plane : public ShapeBased
+{
+public:
+  /// @brief Construct a plane with normal direction and offset 
+  Plane(const Vector3d& n_, FCL_REAL d_) : ShapeBased(), n(n_), d(d_)
+  { 
+    unitNormalTest(); 
+  }
+  
+  /// @brief Construct a plane with normal direction and offset 
+  Plane(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : ShapeBased(), n(a, b, c), d(d_)
+  {
+    unitNormalTest();
+  }
+
+  Plane() : ShapeBased(), n(1, 0, 0), d(0)
+  {}
+
+  FCL_REAL signedDistance(const Vector3d& p) const
+  {
+    return n.dot(p) - d;
+  }
+
+  FCL_REAL distance(const Vector3d& p) const
+  {
+    return std::abs(n.dot(p) - d);
+  }
+
+  /// @brief Compute AABB 
+  void computeLocalAABB();
+
+  /// @brief Get node type: a plane 
+  NODE_TYPE getNodeType() const { return GEOM_PLANE; }
+
+  /// @brief Plane normal 
+  Vector3d n;
+
+  /// @brief Plane offset 
+  FCL_REAL d;
+
+protected:
+  
+  /// @brief Turn non-unit normal into unit 
+  void unitNormalTest();
+};
+
+
+}
 
 #endif

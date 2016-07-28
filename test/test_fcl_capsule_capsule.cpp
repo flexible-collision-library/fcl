@@ -49,8 +49,8 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
 {
 
   GJKSolver_indep solver;
-  Capsule s1(5, 10);
-  Capsule s2(5, 10);
+  Capsuled s1(5, 10);
+  Capsuled s2(5, 10);
 
   Vector3d closest_p1, closest_p2;
 
@@ -61,7 +61,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
   bool res;
   FCL_REAL dist;
 
-  res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.shapeDistance<Capsuled, Capsuled>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
@@ -75,8 +75,8 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
 {
 
   GJKSolver_indep solver;
-  Capsule s1(5, 10);
-  Capsule s2(5, 10);
+  Capsuled s1(5, 10);
+  Capsuled s2(5, 10);
 
   Vector3d closest_p1, closest_p2;
 
@@ -87,7 +87,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
   bool res;
   FCL_REAL dist;
 
-  res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.shapeDistance<Capsuled, Capsuled>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
@@ -101,8 +101,8 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
 {
 
   GJKSolver_indep solver;
-  Capsule s1(5, 10);
-  Capsule s2(5, 10);
+  Capsuled s1(5, 10);
+  Capsuled s2(5, 10);
 
   Vector3d closest_p1, closest_p2;
 
@@ -113,7 +113,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
   bool res;
   FCL_REAL dist;
 
-  res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.shapeDistance<Capsuled, Capsuled>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
@@ -128,8 +128,8 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
   const FCL_REAL Pi = constants::pi;
 
   GJKSolver_indep solver;
-  Capsule s1(5, 10);
-  Capsule s2(5, 10);
+  Capsuled s1(5, 10);
+  Capsuled s2(5, 10);
 
   Vector3d closest_p1, closest_p2;
 
@@ -145,7 +145,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
   bool res;
   FCL_REAL dist;
 
-  res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.shapeDistance<Capsuled, Capsuled>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "applied transformation of two caps: " << transform.linear() << " & " << transform2.linear() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;

@@ -40,9 +40,11 @@
 #ifndef FCL_BROAD_PHASE_H
 #define FCL_BROAD_PHASE_H
 
-#include "fcl/collision_object.h"
 #include <set>
 #include <vector>
+
+#include "fcl/collision_object.h"
+#include "fcl/continuous_collision_object.h"
 
 namespace fcl
 {

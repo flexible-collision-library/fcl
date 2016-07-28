@@ -77,8 +77,8 @@ MotionBasePtr getMotionBase(const Transform3d& tf_beg, const Transform3d& tf_end
 }
 
 
-FCL_REAL continuousCollideNaive(const CollisionGeometry* o1, const MotionBase* motion1,
-                                const CollisionGeometry* o2, const MotionBase* motion2,
+FCL_REAL continuousCollideNaive(const CollisionGeometryd* o1, const MotionBase* motion1,
+                                const CollisionGeometryd* o2, const MotionBase* motion2,
                                 const ContinuousCollisionRequest& request,
                                 ContinuousCollisionResult& result)
 {
@@ -114,8 +114,8 @@ FCL_REAL continuousCollideNaive(const CollisionGeometry* o1, const MotionBase* m
 namespace details
 {
 template<typename BV>
-FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1_, const TranslationMotion* motion1,
-                                        const CollisionGeometry* o2_, const TranslationMotion* motion2,
+FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1_, const TranslationMotion* motion1,
+                                        const CollisionGeometryd* o2_, const TranslationMotion* motion2,
                                         const ContinuousCollisionRequest& request,
                                         ContinuousCollisionResult& result)
 {
@@ -172,8 +172,8 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1_, const Tran
 
 }
 
-FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1, const TranslationMotion* motion1,
-                                        const CollisionGeometry* o2, const TranslationMotion* motion2,
+FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1, const TranslationMotion* motion1,
+                                        const CollisionGeometryd* o2, const TranslationMotion* motion2,
                                         const ContinuousCollisionRequest& request,
                                         ContinuousCollisionResult& result)
 {
@@ -224,8 +224,8 @@ namespace details
 {
 
 template<typename NarrowPhaseSolver>
-FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1,
-                                                  const CollisionGeometry* o2, const MotionBase* motion2,
+FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1,
+                                                  const CollisionGeometryd* o2, const MotionBase* motion2,
                                                   const NarrowPhaseSolver* nsolver_,
                                                   const ContinuousCollisionRequest& request,
                                                   ContinuousCollisionResult& result)
@@ -271,8 +271,8 @@ FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometry* o1, c
 }
 
 
-FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometry* o1, const MotionBase* motion1,
-                                                  const CollisionGeometry* o2, const MotionBase* motion2,
+FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1,
+                                                  const CollisionGeometryd* o2, const MotionBase* motion2,
                                                   const ContinuousCollisionRequest& request,
                                                   ContinuousCollisionResult& result)
 {
@@ -294,8 +294,8 @@ FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometry* o1, c
 }
 
   
-FCL_REAL continuousCollide(const CollisionGeometry* o1, const MotionBase* motion1,
-                           const CollisionGeometry* o2, const MotionBase* motion2,
+FCL_REAL continuousCollide(const CollisionGeometryd* o1, const MotionBase* motion1,
+                           const CollisionGeometryd* o2, const MotionBase* motion2,
                            const ContinuousCollisionRequest& request,
                            ContinuousCollisionResult& result)
 {
@@ -338,8 +338,8 @@ FCL_REAL continuousCollide(const CollisionGeometry* o1, const MotionBase* motion
   return -1;
 }
 
-FCL_REAL continuousCollide(const CollisionGeometry* o1, const Transform3d& tf1_beg, const Transform3d& tf1_end,
-                           const CollisionGeometry* o2, const Transform3d& tf2_beg, const Transform3d& tf2_end,
+FCL_REAL continuousCollide(const CollisionGeometryd* o1, const Transform3d& tf1_beg, const Transform3d& tf1_end,
+                           const CollisionGeometryd* o2, const Transform3d& tf2_beg, const Transform3d& tf2_end,
                            const ContinuousCollisionRequest& request,
                            ContinuousCollisionResult& result)
 {

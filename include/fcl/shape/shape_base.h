@@ -35,24 +35,49 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
+#ifndef FCL_SHAPE_SHAPE_BASE_H
+#define FCL_SHAPE_SHAPE_BASE_H
 
-#include "fcl/shape/shape_base.h"
+#include "fcl/collision_object.h"
 
-#include "fcl/shape/box.h"
-#include "fcl/shape/capsule.h"
-#include "fcl/shape/cone.h"
-#include "fcl/shape/convex.h"
-#include "fcl/shape/cylinder.h"
-#include "fcl/shape/ellipsoid.h"
-#include "fcl/shape/halfspace.h"
-#include "fcl/shape/plane.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/shape/triangle_p.h"
+namespace fcl
+{
+
+/// @brief Base class for all basic geometric shapes
+template <typename Scalar>
+class ShapeBase : public CollisionGeometry<Scalar>
+{
+public:
+  ShapeBase();
+
+  /// @brief Get object type: a geometric shape
+  OBJECT_TYPE getObjectType() const;
+};
+
+using ShapeBasef = ShapeBase<float>;
+using ShapeBased = ShapeBase<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+ShapeBase<Scalar>::ShapeBase()
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+OBJECT_TYPE ShapeBase<Scalar>::getObjectType() const
+{
+  return OT_GEOM;
+}
+
+}
 
 #endif

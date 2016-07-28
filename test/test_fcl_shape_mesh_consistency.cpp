@@ -233,8 +233,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_l
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
 
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
@@ -415,8 +415,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_lib
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
@@ -692,8 +692,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_G
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
 
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
@@ -885,8 +885,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
@@ -1419,8 +1419,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
@@ -1542,7 +1542,7 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
 {
   Sphere s1(20);
-  Box s2(5, 5, 5);
+  Boxd s2(5, 5, 5);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
@@ -1752,8 +1752,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_li
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
@@ -2350,8 +2350,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
@@ -2475,7 +2475,7 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
 {
   Sphere s1(20);
-  Box s2(5, 5, 5);
+  Boxd s2(5, 5, 5);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
@@ -2689,8 +2689,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJ
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_GJK)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;

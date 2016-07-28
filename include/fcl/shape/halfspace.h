@@ -35,24 +35,65 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
+#ifndef FCL_SHAPE_HALFSPACE_H
+#define FCL_SHAPE_HALFSPACE_H
 
 #include "fcl/shape/shape_base.h"
 
-#include "fcl/shape/box.h"
-#include "fcl/shape/capsule.h"
-#include "fcl/shape/cone.h"
-#include "fcl/shape/convex.h"
-#include "fcl/shape/cylinder.h"
-#include "fcl/shape/ellipsoid.h"
-#include "fcl/shape/halfspace.h"
-#include "fcl/shape/plane.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/shape/triangle_p.h"
+namespace fcl
+{
+
+/// @brief Half Space: this is equivalent to the Plane in ODE. The separation plane is defined as n * x = d;
+/// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
+/// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
+class Halfspace : public ShapeBased
+{
+public:
+  /// @brief Construct a half space with normal direction and offset
+  Halfspace(const Vector3d& n_, FCL_REAL d_) : ShapeBased(), n(n_), d(d_)
+  {
+    unitNormalTest();
+  }
+
+  /// @brief Construct a plane with normal direction and offset
+  Halfspace(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : ShapeBase(), n(a, b, c), d(d_)
+  {
+    unitNormalTest();
+  }
+
+  Halfspace() : ShapeBase(), n(1, 0, 0), d(0)
+  {
+  }
+
+  FCL_REAL signedDistance(const Vector3d& p) const
+  {
+    return n.dot(p) - d;
+  }
+
+  FCL_REAL distance(const Vector3d& p) const
+  {
+    return std::abs(n.dot(p) - d);
+  }
+
+  /// @brief Compute AABB
+  void computeLocalAABB();
+
+  /// @brief Get node type: a half space
+  NODE_TYPE getNodeType() const { return GEOM_HALFSPACE; }
+  
+  /// @brief Plane normal
+  Vector3d n;
+  
+  /// @brief Plane offset
+  FCL_REAL d;
+
+protected:
+
+  /// @brief Turn non-unit normal into unit
+  void unitNormalTest();
+};
+
+}
 
 #endif

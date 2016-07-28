@@ -248,7 +248,7 @@ private:
     {
       if(tree1->isNodeOccupied(root1))
       {
-        Box box;
+        Boxd box;
         Transform3d box_tf;
         constructBox(bv1, tf1, box, box_tf);
  
@@ -299,7 +299,7 @@ private:
       convertBV(bv1, tf1, obb1);
       if(obb1.overlap(obb2))
       {
-        Box box;
+        Boxd box;
         Transform3d box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
@@ -307,7 +307,7 @@ private:
         {
           AABB overlap_part;
           AABB aabb1, aabb2;
-          computeBV<AABB, Box>(box, box_tf, aabb1);
+          computeBV<AABB, Boxd>(box, box_tf, aabb1);
           computeBV<AABB, S>(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
           cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);
@@ -324,7 +324,7 @@ private:
         convertBV(bv1, tf1, obb1);
         if(obb1.overlap(obb2))
         {
-          Box box;
+          Boxd box;
           Transform3d box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
@@ -340,7 +340,7 @@ private:
           }
           else
           {
-            std::vector<ContactPoint> contacts;
+            std::vector<ContactPointd> contacts;
             if(solver->shapeIntersect(box, box_tf, s, tf2, &contacts))
             {
               is_intersect = true;
@@ -352,7 +352,7 @@ private:
                 // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
                 if (free_space < contacts.size())
                 {
-                  std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth, std::placeholders::_2, std::placeholders::_1));
+                  std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<double>, std::placeholders::_2, std::placeholders::_1));
                   num_adding_contacts = free_space;
                 }
                 else
@@ -370,7 +370,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1, aabb2;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
+            computeBV<AABB, Boxd>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
           }
@@ -385,7 +385,7 @@ private:
         convertBV(bv1, tf1, obb1);
         if(obb1.overlap(obb2))
         {
-          Box box;
+          Boxd box;
           Transform3d box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
@@ -393,7 +393,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1, aabb2;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
+            computeBV<AABB, Boxd>(box, box_tf, aabb1);
             computeBV<AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
           }
@@ -450,7 +450,7 @@ private:
     {
       if(tree1->isNodeOccupied(root1))
       {
-        Box box;
+        Boxd box;
         Transform3d box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
@@ -542,7 +542,7 @@ private:
         convertBV(tree2->getBV(root2).bv, tf2, obb2);
         if(obb1.overlap(obb2))
         {
-          Box box;
+          Boxd box;
           Transform3d box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
@@ -556,7 +556,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
+            computeBV<AABB, Boxd>(box, box_tf, aabb1);
             AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
             cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -585,7 +585,7 @@ private:
         convertBV(tree2->getBV(root2).bv, tf2, obb2);
         if(obb1.overlap(obb2))
         {
-          Box box;
+          Boxd box;
           Transform3d box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
@@ -623,7 +623,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
+            computeBV<AABB, Boxd>(box, box_tf, aabb1);
             AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -641,7 +641,7 @@ private:
         convertBV(tree2->getBV(root2).bv, tf2, obb2);
         if(obb1.overlap(obb2))
         {
-          Box box;
+          Boxd box;
           Transform3d box_tf;
           constructBox(bv1, tf1, box, box_tf);
 
@@ -655,7 +655,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1;
-            computeBV<AABB, Box>(box, box_tf, aabb1);
+            computeBV<AABB, Boxd>(box, box_tf, aabb1);
             AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -725,7 +725,7 @@ private:
     {
       if(tree1->isNodeOccupied(root1) && tree2->isNodeOccupied(root2))
       {
-        Box box1, box2;
+        Boxd box1, box2;
         Transform3d box1_tf, box2_tf;
         constructBox(bv1, tf1, box1, box1_tf);
         constructBox(bv2, tf2, box2, box2_tf);
@@ -810,15 +810,15 @@ private:
 
       if(obb1.overlap(obb2))
       {
-        Box box1, box2;
+        Boxd box1, box2;
         Transform3d box1_tf, box2_tf;
         constructBox(bv1, tf1, box1, box1_tf);
         constructBox(bv2, tf2, box2, box2_tf);
         
         AABB overlap_part;
         AABB aabb1, aabb2;
-        computeBV<AABB, Box>(box1, box1_tf, aabb1);
-        computeBV<AABB, Box>(box2, box2_tf, aabb2);
+        computeBV<AABB, Boxd>(box1, box1_tf, aabb1);
+        computeBV<AABB, Boxd>(box2, box2_tf, aabb2);
         aabb1.overlap(aabb2, overlap_part);
         cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->getOccupancyThres()), crequest->num_max_cost_sources);
       }
@@ -907,12 +907,12 @@ private:
         }
         else
         {
-          Box box1, box2;
+          Boxd box1, box2;
           Transform3d box1_tf, box2_tf;
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
-          std::vector<ContactPoint> contacts;
+          std::vector<ContactPointd> contacts;
           if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contacts))
           {
             is_intersect = true;
@@ -924,7 +924,7 @@ private:
               // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
               if (free_space < contacts.size())
               {
-                std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth, std::placeholders::_2, std::placeholders::_1));
+                std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<double>, std::placeholders::_2, std::placeholders::_1));
                 num_adding_contacts = free_space;
               }
               else
@@ -940,15 +940,15 @@ private:
 
         if(is_intersect && crequest->enable_cost)
         {
-          Box box1, box2;
+          Boxd box1, box2;
           Transform3d box1_tf, box2_tf;
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
           AABB overlap_part;
           AABB aabb1, aabb2;
-          computeBV<AABB, Box>(box1, box1_tf, aabb1);
-          computeBV<AABB, Box>(box2, box2_tf, aabb2);
+          computeBV<AABB, Boxd>(box1, box1_tf, aabb1);
+          computeBV<AABB, Boxd>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
 	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
@@ -963,15 +963,15 @@ private:
         
         if(obb1.overlap(obb2))
         {
-          Box box1, box2;
+          Boxd box1, box2;
           Transform3d box1_tf, box2_tf;
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
           AABB overlap_part;
           AABB aabb1, aabb2;
-          computeBV<AABB, Box>(box1, box1_tf, aabb1);
-          computeBV<AABB, Box>(box2, box2_tf, aabb2);
+          computeBV<AABB, Boxd>(box1, box1_tf, aabb1);
+          computeBV<AABB, Boxd>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
 	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }

@@ -131,12 +131,6 @@ void Plane::unitNormalTest()
 }
 
 
-void Box::computeLocalAABB()
-{
-  computeBV<AABB>(*this, Transform3d::Identity(), aabb_local);
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).norm();
-}
 
 void Sphere::computeLocalAABB()
 {
@@ -146,20 +140,6 @@ void Sphere::computeLocalAABB()
 }
 
 void Ellipsoid::computeLocalAABB()
-{
-  computeBV<AABB>(*this, Transform3d::Identity(), aabb_local);
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).norm();
-}
-
-void Capsule::computeLocalAABB()
-{
-  computeBV<AABB>(*this, Transform3d::Identity(), aabb_local);
-  aabb_center = aabb_local.center();
-  aabb_radius = (aabb_local.min_ - aabb_center).norm();
-}
-
-void Cone::computeLocalAABB()
 {
   computeBV<AABB>(*this, Transform3d::Identity(), aabb_local);
   aabb_center = aabb_local.center();

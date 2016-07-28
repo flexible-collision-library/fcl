@@ -35,24 +35,54 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
+#ifndef FCL_SHAPE_ELLIPSOID_H
+#define FCL_SHAPE_ELLIPSOID_H
 
 #include "fcl/shape/shape_base.h"
 
-#include "fcl/shape/box.h"
-#include "fcl/shape/capsule.h"
-#include "fcl/shape/cone.h"
-#include "fcl/shape/convex.h"
-#include "fcl/shape/cylinder.h"
-#include "fcl/shape/ellipsoid.h"
-#include "fcl/shape/halfspace.h"
-#include "fcl/shape/plane.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/shape/triangle_p.h"
+namespace fcl
+{
+
+/// @brief Center at zero point ellipsoid
+class Ellipsoid : public ShapeBased
+{
+public:
+  Ellipsoid(FCL_REAL a, FCL_REAL b, FCL_REAL c) : ShapeBase(), radii(a, b, c)
+  {
+  }
+
+  Ellipsoid(const Vector3d& radii_) : ShapeBase(), radii(radii_)
+  {
+  }
+
+  /// @brief Radii of the ellipsoid
+  Vector3d radii;
+
+  /// @brief Compute AABB
+  void computeLocalAABB();
+
+  /// @brief Get node type: a sphere
+  NODE_TYPE getNodeType() const { return GEOM_ELLIPSOID; }
+
+  Matrix3d computeMomentofInertia() const
+  {
+    const FCL_REAL V = computeVolume();
+
+    const FCL_REAL a2 = radii[0] * radii[0] * V;
+    const FCL_REAL b2 = radii[1] * radii[1] * V;
+    const FCL_REAL c2 = radii[2] * radii[2] * V;
+
+    return Vector3d(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
+  }
+
+  FCL_REAL computeVolume() const
+  {
+    const FCL_REAL pi = constants::pi;
+    return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
+  }
+};
+
+}
 
 #endif

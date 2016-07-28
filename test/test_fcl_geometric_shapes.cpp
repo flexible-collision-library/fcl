@@ -68,7 +68,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
 {
   Cylinder s1(5, 10);
-  Cone s2(5, 10);
+  Coned s2(5, 10);
 
   CollisionRequest request;
   request.enable_cached_gjk_guess = true;
@@ -180,10 +180,10 @@ void printComparisonError(const std::string& comparison_type,
 }
 
 template <typename S1, typename S2>
-bool checkContactPoints(const S1& s1, const Transform3d& tf1,
+bool checkContactPointds(const S1& s1, const Transform3d& tf1,
                         const S2& s2, const Transform3d& tf2,
                         GJKSolverType solver_type,
-                        const ContactPoint& expected, const ContactPoint& actual,
+                        const ContactPointd& expected, const ContactPointd& actual,
                         bool check_position = false,
                         bool check_depth = false,
                         bool check_normal = false,
@@ -219,11 +219,11 @@ bool checkContactPoints(const S1& s1, const Transform3d& tf1,
 }
 
 template <typename S1, typename S2>
-bool inspectContactPoints(const S1& s1, const Transform3d& tf1,
+bool inspectContactPointds(const S1& s1, const Transform3d& tf1,
                           const S2& s2, const Transform3d& tf2,
                           GJKSolverType solver_type,
-                          const std::vector<ContactPoint>& expected_contacts,
-                          const std::vector<ContactPoint>& actual_contacts,
+                          const std::vector<ContactPointd>& expected_contacts,
+                          const std::vector<ContactPointd>& actual_contacts,
                           bool check_position = false,
                           bool check_depth = false,
                           bool check_normal = false,
@@ -268,7 +268,7 @@ bool inspectContactPoints(const S1& s1, const Transform3d& tf1,
   bool foundAll = true;
   for (size_t i = 0; i < numContacts; ++i)
   {
-    const ContactPoint& expected = expected_contacts[i];
+    const ContactPointd& expected = expected_contacts[i];
 
     // Check if expected contact is in the list of actual contacts
     for (size_t j = 0; j < numContacts; ++j)
@@ -276,9 +276,9 @@ bool inspectContactPoints(const S1& s1, const Transform3d& tf1,
       if (index_to_expected_contacts[j] != -1)
         continue;
 
-      const ContactPoint& actual = actual_contacts[j];
+      const ContactPointd& actual = actual_contacts[j];
 
-      bool found = checkContactPoints(
+      bool found = checkContactPointds(
             s1, tf1, s2, tf2, solver_type,
             expected, actual,
             check_position,
@@ -318,7 +318,7 @@ bool inspectContactPoints(const S1& s1, const Transform3d& tf1,
               << "[ Expected Contacts: " << numContacts << " ]\n";
     for (size_t i = 0; i < numContacts; ++i)
     {
-      const ContactPoint& expected = expected_contacts[i];
+      const ContactPointd& expected = expected_contacts[i];
 
       std::cout << "(" << i << ") pos: " << expected.pos << ", "
                 << "normal: " << expected.normal << ", "
@@ -333,7 +333,7 @@ bool inspectContactPoints(const S1& s1, const Transform3d& tf1,
               << "[ Actual Contacts: " << numContacts << " ]\n";
     for (size_t i = 0; i < numContacts; ++i)
     {
-      const ContactPoint& actual = actual_contacts[i];
+      const ContactPointd& actual = actual_contacts[i];
 
       std::cout << "(" << i << ") pos: " << actual.pos << ", "
                 << "normal: " << actual.normal << ", "
@@ -351,7 +351,7 @@ bool inspectContactPoints(const S1& s1, const Transform3d& tf1,
   return foundAll;
 }
 
-void getContactPointsFromResult(std::vector<ContactPoint>& contacts, const CollisionResult& result)
+void getContactPointdsFromResult(std::vector<ContactPointd>& contacts, const CollisionResult& result)
 {
   const size_t numContacts = result.numContacts();
   contacts.resize(numContacts);
@@ -372,7 +372,7 @@ void testShapeIntersection(
     const S2& s2, const Transform3d& tf2,
     GJKSolverType solver_type,
     bool expected_res,
-    const std::vector<ContactPoint>& expected_contacts = std::vector<ContactPoint>(),
+    const std::vector<ContactPointd>& expected_contacts = std::vector<ContactPointd>(),
     bool check_position = true,
     bool check_depth = true,
     bool check_normal = true,
@@ -384,7 +384,7 @@ void testShapeIntersection(
   request.num_max_contacts = std::numeric_limits<size_t>::max();
   CollisionResult result;
 
-  std::vector<ContactPoint> actual_contacts;
+  std::vector<ContactPointd> actual_contacts;
 
   bool res;
 
@@ -423,7 +423,7 @@ void testShapeIntersection(
   EXPECT_EQ(res, expected_res);
   if (expected_res)
   {
-    EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, solver_type,
+    EXPECT_TRUE(inspectContactPointds(s1, tf1, s2, tf2, solver_type,
                                      expected_contacts, actual_contacts,
                                      check_position,
                                      check_depth,
@@ -446,8 +446,8 @@ void testShapeIntersection(
   EXPECT_EQ(res, expected_res);
   if (expected_res)
   {
-    getContactPointsFromResult(actual_contacts, result);
-    EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, solver_type,
+    getContactPointdsFromResult(actual_contacts, result);
+    EXPECT_TRUE(inspectContactPointds(s1, tf1, s2, tf2, solver_type,
                                      expected_contacts, actual_contacts,
                                      check_position,
                                      check_depth,
@@ -491,7 +491,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
@@ -582,20 +582,20 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-bool compareContactPoints1(const Vector3d& c1,const Vector3d& c2)
+bool compareContactPointds1(const Vector3d& c1,const Vector3d& c2)
 {
   return c1[2] < c2[2];
 } // Ascending order
 
-bool compareContactPoints2(const ContactPoint& cp1,const ContactPoint& cp2)
+bool compareContactPointds2(const ContactPointd& cp1,const ContactPointd& cp2)
 {
   return cp1.pos[2] < cp2.pos[2];
 } // Ascending order
 
-void testBoxBoxContactPoints(const Matrix3d& R)
+void testBoxBoxContactPointds(const Matrix3d& R)
 {
-  Box s1(100, 100, 100);
-  Box s2(10, 20, 30);
+  Boxd s1(100, 100, 100);
+  Boxd s2(10, 20, 30);
 
   // Vertices of s2
   std::vector<Vector3d> vertices(8);
@@ -618,7 +618,7 @@ void testBoxBoxContactPoints(const Matrix3d& R)
   Transform3d tf1 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -50)));
   Transform3d tf2 = Transform3d(R);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   // Make sure the two boxes are colliding
   bool res = solver1.shapeIntersect(s1, tf1, s2, tf2, &contacts);
@@ -629,8 +629,8 @@ void testBoxBoxContactPoints(const Matrix3d& R)
     vertices[i] = tf2 * vertices[i];
 
   // Sort the vertices so that the lowest vertex along z-axis comes first
-  std::sort(vertices.begin(), vertices.end(), compareContactPoints1);
-  std::sort(contacts.begin(), contacts.end(), compareContactPoints2);
+  std::sort(vertices.begin(), vertices.end(), compareContactPointds1);
+  std::sort(contacts.begin(), contacts.end(), compareContactPointds2);
 
   // The lowest n vertex along z-axis should be the contact point
   size_t numContacts = contacts.size();
@@ -646,8 +646,8 @@ void testBoxBoxContactPoints(const Matrix3d& R)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -655,7 +655,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   Quaternion3d q(Eigen::AngleAxisd((FCL_REAL)3.140 / 6, Vector3d(0, 0, 1)));
 
@@ -715,14 +715,14 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   {
     Transform3d tf;
     generateRandomTransform(extents, tf);
-    testBoxBoxContactPoints(tf.linear());
+    testBoxBoxContactPointds(tf.linear());
   }
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
 {
   Sphere s1(20);
-  Box s2(5, 5, 5);
+  Boxd s2(5, 5, 5);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -730,7 +730,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -769,7 +769,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
 {
   Sphere s1(20);
-  Capsule s2(5, 10);
+  Capsuled s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -777,7 +777,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -836,7 +836,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -873,8 +873,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -882,7 +882,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -932,7 +932,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
 {
   Cylinder s1(5, 10);
-  Cone s2(5, 10);
+  Coned s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -940,7 +940,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1007,7 +1007,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
   generateRandomTransform(extents, transform);
   Transform3d identity;
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
@@ -1196,7 +1196,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1282,7 +1282,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1351,7 +1351,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 {
-  Box s(5, 10, 20);
+  Boxd s(5, 10, 20);
   Halfspace hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
@@ -1360,7 +1360,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1442,7 +1442,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
 {
-  Box s(5, 10, 20);
+  Boxd s(5, 10, 20);
   Plane hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
@@ -1451,7 +1451,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1534,7 +1534,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1774,7 +1774,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1981,7 +1981,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 {
-  Capsule s(5, 10);
+  Capsuled s(5, 10);
   Halfspace hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
@@ -1990,7 +1990,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2221,7 +2221,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 {
-  Capsule s(5, 10);
+  Capsuled s(5, 10);
   Plane hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
@@ -2230,7 +2230,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2446,7 +2446,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2686,7 +2686,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2894,7 +2894,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 {
-  Cone s(5, 10);
+  Coned s(5, 10);
   Halfspace hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
@@ -2903,7 +2903,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -3134,7 +3134,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 {
-  Cone s(5, 10);
+  Coned s(5, 10);
   Plane hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
@@ -3143,7 +3143,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -3436,8 +3436,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
   Vector3d closest_p1, closest_p2;
 
   Transform3d transform = Transform3d::Identity();
@@ -3503,7 +3503,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
 {
   Sphere s1(20);
-  Box s2(5, 5, 5);
+  Boxd s2(5, 5, 5);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -3574,8 +3574,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -3611,7 +3611,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
 {
   Cylinder s1(5, 10);
-  Cone s2(5, 10);
+  Coned s2(5, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -3741,7 +3741,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
@@ -3834,8 +3834,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -3843,7 +3843,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   Quaternion3d q(Eigen::AngleAxisd((FCL_REAL)3.140 / 6, Vector3d(0, 0, 1)));
 
@@ -3902,7 +3902,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
 {
   Sphere s1(20);
-  Box s2(5, 5, 5);
+  Boxd s2(5, 5, 5);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -3910,7 +3910,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -3951,7 +3951,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
 {
   Sphere s1(20);
-  Capsule s2(5, 10);
+  Capsuled s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -3959,7 +3959,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -4007,7 +4007,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -4047,8 +4047,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -4056,7 +4056,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -4108,7 +4108,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
 {
   Cylinder s1(5, 10);
-  Cone s2(5, 10);
+  Coned s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -4116,7 +4116,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
@@ -4185,7 +4185,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
   generateRandomTransform(extents, transform);
   Transform3d identity;
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
@@ -4453,8 +4453,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
 {
-  Box s1(20, 40, 50);
-  Box s2(10, 10, 10);
+  Boxd s1(20, 40, 50);
+  Boxd s2(10, 10, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -4490,7 +4490,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
 {
   Sphere s1(20);
-  Box s2(5, 5, 5);
+  Boxd s2(5, 5, 5);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -4561,8 +4561,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
 {
-  Cone s1(5, 10);
-  Cone s2(5, 10);
+  Coned s1(5, 10);
+  Coned s2(5, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -4661,8 +4661,8 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
   Transform3d tf1(Eigen::Translation3d(Vector3d(-0.5 * distance, 0.0, 0.0)));
   Transform3d tf2(Eigen::Translation3d(Vector3d(+0.5 * distance, 0.0, 0.0)));
 
-  std::vector<ContactPoint> contactsA;
-  std::vector<ContactPoint> contactsB;
+  std::vector<ContactPointd> contactsA;
+  std::vector<ContactPointd> contactsB;
 
   bool resA;
   bool resB;
@@ -4678,7 +4678,7 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
 
   EXPECT_TRUE(resA);
   EXPECT_TRUE(resB);
-  EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, GST_LIBCCD,
+  EXPECT_TRUE(inspectContactPointds(s1, tf1, s2, tf2, GST_LIBCCD,
                                    contactsA, contactsB,
                                    true, true, true, false, tol));
 
@@ -4691,7 +4691,7 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distan
 
   EXPECT_TRUE(resA);
   EXPECT_TRUE(resB);
-  EXPECT_TRUE(inspectContactPoints(s1, tf1, s2, tf2, GST_INDEP,
+  EXPECT_TRUE(inspectContactPointds(s1, tf1, s2, tf2, GST_INDEP,
                                    contactsA, contactsB,
                                    true, true, true, false, tol));
 }
@@ -4703,11 +4703,11 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
   // algorithm, then this algorithm should be called for capsule-sphere case.
 
   // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
-  Box box(10, 10, 10);
+  Boxd box(10, 10, 10);
   Sphere sphere(5);
   Ellipsoid ellipsoid(5, 5, 5);
-  Capsule capsule(5, 10);
-  Cone cone(5, 10);
+  Capsuled capsule(5, 10);
+  Coned cone(5, 10);
   Cylinder cylinder(5, 10);
   Plane plane(Vector3d::Zero(), 0.0);
   Halfspace halfspace(Vector3d::Zero(), 0.0);
@@ -4799,11 +4799,11 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeDistance_allshapes)
   // algorithm, then this algorithm should be called for capsule-sphere case.
 
   // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
-  Box box(10, 10, 10);
+  Boxd box(10, 10, 10);
   Sphere sphere(5);
   Ellipsoid ellipsoid(5, 5, 5);
-  Capsule capsule(5, 10);
-  Cone cone(5, 10);
+  Capsuled capsule(5, 10);
+  Coned cone(5, 10);
   Cylinder cylinder(5, 10);
   Plane plane(Vector3d::Zero(), 0.0);
   Halfspace halfspace(Vector3d::Zero(), 0.0);

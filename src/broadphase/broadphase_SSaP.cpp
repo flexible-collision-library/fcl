@@ -79,7 +79,7 @@ struct SortByZLow
 class DummyCollisionObject : public CollisionObject
 {
 public:
-  DummyCollisionObject(const AABB& aabb_) : CollisionObject(std::shared_ptr<CollisionGeometry>())
+  DummyCollisionObject(const AABB& aabb_) : CollisionObject(std::shared_ptr<CollisionGeometryd>())
   {
     aabb = aabb_;
   }

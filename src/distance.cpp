@@ -60,8 +60,8 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Na
 }
 
 template<typename NarrowPhaseSolver>
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3d& tf1, 
-                  const CollisionGeometry* o2, const Transform3d& tf2,
+FCL_REAL distance(const CollisionGeometryd* o1, const Transform3d& tf1, 
+                  const CollisionGeometryd* o2, const Transform3d& tf2,
                   const NarrowPhaseSolver* nsolver_,
                   const DistanceRequest& request, DistanceResult& result)
 {
@@ -127,8 +127,8 @@ FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2, const Di
   }
 }
 
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3d& tf1,
-                  const CollisionGeometry* o2, const Transform3d& tf2,
+FCL_REAL distance(const CollisionGeometryd* o1, const Transform3d& tf1,
+                  const CollisionGeometryd* o2, const Transform3d& tf2,
                   const DistanceRequest& request, DistanceResult& result)
 {
   switch(request.gjk_solver_type)

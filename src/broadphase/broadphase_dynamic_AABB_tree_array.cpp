@@ -68,13 +68,13 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
       
         if(obb1.overlap(obb2))
         {
-          Box* box = new Box();
+          Boxd* box = new Boxd();
           Transform3d box_tf;
           constructBox(root2_bv, tf2, *box, box_tf);
         
           box->cost_density = tree2->getDefaultOccupancy();
 
-          CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
+          CollisionObject obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
@@ -100,14 +100,14 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
       
       if(obb1.overlap(obb2))
       {
-        Box* box = new Box();
+        Boxd* box = new Boxd();
         Transform3d box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
         
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
+        CollisionObject obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -169,7 +169,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
         const AABB& root_bv_t = translate(root2_bv, translation2);
         if(root1->bv.overlap(root_bv_t))
         {
-          Box* box = new Box();
+          Boxd* box = new Boxd();
           Transform3d box_tf;
           Transform3d tf2 = Transform3d::Identity();
           tf2.translation() = translation2;
@@ -177,7 +177,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
 
           box->cost_density = tree2->getDefaultOccupancy();
 
-          CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
+          CollisionObject obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
@@ -200,7 +200,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
       const AABB& root_bv_t = translate(root2_bv, translation2);
       if(root1->bv.overlap(root_bv_t))
       {
-        Box* box = new Box();
+        Boxd* box = new Boxd();
         Transform3d box_tf;
         Transform3d tf2 = Transform3d::Identity();
         tf2.translation() = translation2;
@@ -209,7 +209,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* n
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject obj2(std::shared_ptr<CollisionGeometry>(box), box_tf);
+        CollisionObject obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -261,10 +261,10 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* no
   {
     if(tree2->isNodeOccupied(root2))
     {
-      Box* box = new Box();
+      Boxd* box = new Boxd();
       Transform3d box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject obj(std::shared_ptr<CollisionGeometry>(box), box_tf);
+      CollisionObject obj(std::shared_ptr<CollisionGeometryd>(box), box_tf);
       return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;
@@ -343,12 +343,12 @@ bool distanceRecurse_(DynamicAABBTreeCollisionManager_Array::DynamicAABBNode* no
   {
     if(tree2->isNodeOccupied(root2))
     {
-      Box* box = new Box();
+      Boxd* box = new Boxd();
       Transform3d box_tf;
       Transform3d tf2 = Transform3d::Identity();
       tf2.translation() = translation2;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject obj(std::shared_ptr<CollisionGeometry>(box), box_tf);
+      CollisionObject obj(std::shared_ptr<CollisionGeometryd>(box), box_tf);
       return callback(static_cast<CollisionObject*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;

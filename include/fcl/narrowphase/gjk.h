@@ -47,13 +47,13 @@ namespace details
 {
 
 /// @brief the support function for shape
-Vector3d getSupport(const ShapeBase* shape, const Vector3d& dir); 
+Vector3d getSupport(const ShapeBased* shape, const Vector3d& dir);
 
 /// @brief Minkowski difference class of two shapes
 struct MinkowskiDiff
 {
   /// @brief points to two shapes
-  const ShapeBase* shapes[2];
+  const ShapeBased* shapes[2];
 
   /// @brief rotation from shape0 to shape1
   Matrix3d toshape1;

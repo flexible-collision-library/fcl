@@ -35,24 +35,45 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
+#ifndef FCL_SHAPE_SPHERE_H
+#define FCL_SHAPE_SPHERE_H
 
 #include "fcl/shape/shape_base.h"
 
-#include "fcl/shape/box.h"
-#include "fcl/shape/capsule.h"
-#include "fcl/shape/cone.h"
-#include "fcl/shape/convex.h"
-#include "fcl/shape/cylinder.h"
-#include "fcl/shape/ellipsoid.h"
-#include "fcl/shape/halfspace.h"
-#include "fcl/shape/plane.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/shape/triangle_p.h"
+namespace fcl
+{
+
+/// @brief Center at zero point sphere
+class Sphere : public ShapeBased
+{
+public:
+  Sphere(FCL_REAL radius_) : ShapeBased(), radius(radius_)
+  {
+  }
+
+  /// @brief Radius of the sphere
+  FCL_REAL radius;
+
+  /// @brief Compute AABB
+  void computeLocalAABB();
+
+  /// @brief Get node type: a sphere
+  NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
+
+  Matrix3d computeMomentofInertia() const
+  {
+    FCL_REAL I = 0.4 * radius * radius * computeVolume();
+
+    return Vector3d::Constant(I).asDiagonal();
+  }
+
+  FCL_REAL computeVolume() const
+  {
+    return 4.0 * constants::pi * radius * radius * radius / 3.0;
+  }
+};
+
+}
 
 #endif

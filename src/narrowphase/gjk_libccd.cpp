@@ -509,7 +509,7 @@ ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd
 
 
 /** Basic shape to ccd shape */
-static void shapeToGJK(const ShapeBase& s, const Transform3d& tf, ccd_obj_t* o)
+static void shapeToGJK(const ShapeBased& s, const Transform3d& tf, ccd_obj_t* o)
 {
   const Quaternion3d q(tf.linear());
   const Vector3d& T = tf.translation();
@@ -518,7 +518,7 @@ static void shapeToGJK(const ShapeBase& s, const Transform3d& tf, ccd_obj_t* o)
   ccdQuatInvert2(&o->rot_inv, &o->rot);
 }
 
-static void boxToGJK(const Box& s, const Transform3d& tf, ccd_box_t* box)
+static void boxToGJK(const Boxd& s, const Transform3d& tf, ccd_box_t* box)
 {
   shapeToGJK(s, tf, box);
   box->dim[0] = s.side[0] / 2.0;
@@ -526,7 +526,7 @@ static void boxToGJK(const Box& s, const Transform3d& tf, ccd_box_t* box)
   box->dim[2] = s.side[2] / 2.0;
 }
 
-static void capToGJK(const Capsule& s, const Transform3d& tf, ccd_cap_t* cap)
+static void capToGJK(const Capsuled& s, const Transform3d& tf, ccd_cap_t* cap)
 {
   shapeToGJK(s, tf, cap);
   cap->radius = s.radius;
@@ -540,7 +540,7 @@ static void cylToGJK(const Cylinder& s, const Transform3d& tf, ccd_cyl_t* cyl)
   cyl->height = s.lz / 2;
 }
 
-static void coneToGJK(const Cone& s, const Transform3d& tf, ccd_cone_t* cone)
+static void coneToGJK(const Coned& s, const Transform3d& tf, ccd_cone_t* cone)
 {
   shapeToGJK(s, tf, cone);
   cone->radius = s.radius;
@@ -928,19 +928,19 @@ void GJKInitializer<Ellipsoid>::deleteGJKObject(void* o_)
   delete o;
 }
 
-GJKSupportFunction GJKInitializer<Box>::getSupportFunction()
+GJKSupportFunction GJKInitializer<Boxd>::getSupportFunction()
 {
   return &supportBox;
 }
 
 
-GJKCenterFunction GJKInitializer<Box>::getCenterFunction()
+GJKCenterFunction GJKInitializer<Boxd>::getCenterFunction()
 {
   return &centerShape;
 }
 
 
-void* GJKInitializer<Box>::createGJKObject(const Box& s, const Transform3d& tf)
+void* GJKInitializer<Boxd>::createGJKObject(const Boxd& s, const Transform3d& tf)
 {
   ccd_box_t* o = new ccd_box_t;
   boxToGJK(s, tf, o);
@@ -948,26 +948,26 @@ void* GJKInitializer<Box>::createGJKObject(const Box& s, const Transform3d& tf)
 }
 
 
-void GJKInitializer<Box>::deleteGJKObject(void* o_)
+void GJKInitializer<Boxd>::deleteGJKObject(void* o_)
 {
   ccd_box_t* o = static_cast<ccd_box_t*>(o_);
   delete o;
 }
 
 
-GJKSupportFunction GJKInitializer<Capsule>::getSupportFunction()
+GJKSupportFunction GJKInitializer<Capsuled>::getSupportFunction()
 {
   return &supportCap;
 }
 
 
-GJKCenterFunction GJKInitializer<Capsule>::getCenterFunction()
+GJKCenterFunction GJKInitializer<Capsuled>::getCenterFunction()
 {
   return &centerShape;
 }
 
 
-void* GJKInitializer<Capsule>::createGJKObject(const Capsule& s, const Transform3d& tf)
+void* GJKInitializer<Capsuled>::createGJKObject(const Capsuled& s, const Transform3d& tf)
 {
   ccd_cap_t* o = new ccd_cap_t;
   capToGJK(s, tf, o);
@@ -975,26 +975,26 @@ void* GJKInitializer<Capsule>::createGJKObject(const Capsule& s, const Transform
 }
 
 
-void GJKInitializer<Capsule>::deleteGJKObject(void* o_)
+void GJKInitializer<Capsuled>::deleteGJKObject(void* o_)
 {
   ccd_cap_t* o = static_cast<ccd_cap_t*>(o_);
   delete o;
 }
 
 
-GJKSupportFunction GJKInitializer<Cone>::getSupportFunction()
+GJKSupportFunction GJKInitializer<Coned>::getSupportFunction()
 {
   return &supportCone;
 }
 
 
-GJKCenterFunction GJKInitializer<Cone>::getCenterFunction()
+GJKCenterFunction GJKInitializer<Coned>::getCenterFunction()
 {
   return &centerShape;
 }
 
 
-void* GJKInitializer<Cone>::createGJKObject(const Cone& s, const Transform3d& tf)
+void* GJKInitializer<Coned>::createGJKObject(const Coned& s, const Transform3d& tf)
 {
   ccd_cone_t* o = new ccd_cone_t;
   coneToGJK(s, tf, o);
@@ -1002,7 +1002,7 @@ void* GJKInitializer<Cone>::createGJKObject(const Cone& s, const Transform3d& tf
 }
 
 
-void GJKInitializer<Cone>::deleteGJKObject(void* o_)
+void GJKInitializer<Coned>::deleteGJKObject(void* o_)
 {
   ccd_cone_t* o = static_cast<ccd_cone_t*>(o_);
   delete o;

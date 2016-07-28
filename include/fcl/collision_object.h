@@ -36,124 +36,21 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_COLLISION_OBJECT_BASE_H
-#define FCL_COLLISION_OBJECT_BASE_H
+#ifndef FCL_COLLISION_OBJECT_H
+#define FCL_COLLISION_OBJECT_H
 
-#include <fcl/deprecated.h>
-#include "fcl/BV/AABB.h"
-#include "fcl/ccd/motion_base.h"
 #include <memory>
+
+#include "fcl/collision_geometry.h"
 
 namespace fcl
 {
-
-/// @brief object type: BVH (mesh, points), basic geometry, octree
-enum OBJECT_TYPE {OT_UNKNOWN, OT_BVH, OT_GEOM, OT_OCTREE, OT_COUNT};
-
-/// @brief traversal node type: bounding volume (AABB, OBB, RSS, kIOS, OBBRSS, KDOP16, KDOP18, kDOP24), basic shape (box, sphere, ellipsoid, capsule, cone, cylinder, convex, plane, halfspace, triangle), and octree
-enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP16, BV_KDOP18, BV_KDOP24,
-                GEOM_BOX, GEOM_SPHERE, GEOM_ELLIPSOID, GEOM_CAPSULE, GEOM_CONE, GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE, GEOM_HALFSPACE, GEOM_TRIANGLE, GEOM_OCTREE, NODE_COUNT};
-
-/// @brief The geometry for the object for collision or distance computation
-class CollisionGeometry
-{
-public:
-  CollisionGeometry() : cost_density(1),
-                        threshold_occupied(1),
-                        threshold_free(0)
-  {
-  }
-
-  virtual ~CollisionGeometry() {}
-
-  /// @brief get the type of the object
-  virtual OBJECT_TYPE getObjectType() const { return OT_UNKNOWN; }
-
-  /// @brief get the node type
-  virtual NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
-
-  /// @brief compute the AABB for object in local coordinate
-  virtual void computeLocalAABB() = 0;
-
-  /// @brief get user data in geometry
-  void* getUserData() const
-  {
-    return user_data;
-  }
-
-  /// @brief set user data in geometry
-  void setUserData(void *data)
-  {
-    user_data = data;
-  }
-
-  /// @brief whether the object is completely occupied
-  inline bool isOccupied() const { return cost_density >= threshold_occupied; }
-
-  /// @brief whether the object is completely free
-  inline bool isFree() const { return cost_density <= threshold_free; }
-
-  /// @brief whether the object has some uncertainty
-  inline bool isUncertain() const { return !isOccupied() && !isFree(); }
-
-  /// @brief AABB center in local coordinate
-  Vector3d aabb_center;
-
-  /// @brief AABB radius
-  FCL_REAL aabb_radius;
-
-  /// @brief AABB in local coordinate, used for tight AABB when only translation transform
-  AABB aabb_local;
-
-  /// @brief pointer to user defined data specific to this object
-  void *user_data;
-
-  /// @brief collision cost for unit volume
-  FCL_REAL cost_density;
-
-  /// @brief threshold for occupied ( >= is occupied)
-  FCL_REAL threshold_occupied;
-
-  /// @brief threshold for free (<= is free)
-  FCL_REAL threshold_free;
-
-  /// @brief compute center of mass
-  virtual Vector3d computeCOM() const { return Vector3d::Zero(); }
-
-  /// @brief compute the inertia matrix, related to the origin
-  virtual Matrix3d computeMomentofInertia() const { return Matrix3d::Zero(); }
-
-  /// @brief compute the volume
-  virtual FCL_REAL computeVolume() const { return 0; }
-
-  /// @brief compute the inertia matrix, related to the com
-  virtual Matrix3d computeMomentofInertiaRelatedToCOM() const
-  {
-    Matrix3d C = computeMomentofInertia();
-    Vector3d com = computeCOM();
-    FCL_REAL V = computeVolume();
-
-    Matrix3d m;
-    m << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
-         C(0, 1) + V * com[0] * com[1],
-         C(0, 2) + V * com[0] * com[2],
-         C(1, 0) + V * com[1] * com[0],
-         C(1, 1) - V * (com[0] * com[0] + com[2] * com[2]),
-         C(1, 2) + V * com[1] * com[2],
-         C(2, 0) + V * com[2] * com[0],
-         C(2, 1) + V * com[2] * com[1],
-         C(2, 2) - V * (com[0] * com[0] + com[1] * com[1]);
-
-    return m;
-  }
-
-};
 
 /// @brief the object for collision or distance computation, contains the geometry and the transform information
 class CollisionObject
 {
 public:
- CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_) :
+ CollisionObject(const std::shared_ptr<CollisionGeometryd> &cgeom_) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
     if (cgeom)
@@ -163,14 +60,14 @@ public:
     }
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Transform3d& tf) :
+  CollisionObject(const std::shared_ptr<CollisionGeometryd> &cgeom_, const Transform3d& tf) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3d& R, const Vector3d& T):
+  CollisionObject(const std::shared_ptr<CollisionGeometryd> &cgeom_, const Matrix3d& R, const Vector3d& T):
       cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
     t.linear() = R;
@@ -305,13 +202,13 @@ public:
 
   /// @brief get geometry from the object instance
   FCL_DEPRECATED
-  const CollisionGeometry* getCollisionGeometry() const
+  const CollisionGeometryd* getCollisionGeometryd() const
   {
     return cgeom.get();
   }
 
   /// @brief get geometry from the object instance
-  const std::shared_ptr<const CollisionGeometry>& collisionGeometry() const
+  const std::shared_ptr<const CollisionGeometryd>& collisionGeometry() const
   {
     return cgeom_const;
   }
@@ -348,8 +245,8 @@ public:
 
 protected:
 
-  std::shared_ptr<CollisionGeometry> cgeom;
-  std::shared_ptr<const CollisionGeometry> cgeom_const;
+  std::shared_ptr<CollisionGeometryd> cgeom;
+  std::shared_ptr<const CollisionGeometryd> cgeom_const;
 
   Transform3d t;
 
@@ -358,126 +255,6 @@ protected:
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;
-};
-
-
-/// @brief the object for continuous collision or distance computation, contains the geometry and the motion information
-class ContinuousCollisionObject
-{
-public:
-  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry>& cgeom_) :
-    cgeom(cgeom_), cgeom_const(cgeom_)
-  {
-  }
-
-  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry>& cgeom_, const std::shared_ptr<MotionBase>& motion_) :
-    cgeom(cgeom_), cgeom_const(cgeom), motion(motion_)
-  {
-  }
-
-  ~ContinuousCollisionObject() {}
-
-  /// @brief get the type of the object
-  OBJECT_TYPE getObjectType() const
-  {
-    return cgeom->getObjectType();
-  }
-
-  /// @brief get the node type
-  NODE_TYPE getNodeType() const
-  {
-    return cgeom->getNodeType();
-  }
-
-  /// @brief get the AABB in the world space for the motion
-  inline const AABB& getAABB() const
-  {
-    return aabb;
-  }
-
-  /// @brief compute the AABB in the world space for the motion
-  inline void computeAABB()
-  {
-    IVector3 box;
-    TMatrix3 R;
-    TVector3 T;
-    motion->getTaylorModel(R, T);
-
-    Vector3d p = cgeom->aabb_local.min_;
-    box = (R * p + T).getTightBound();
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[1] = cgeom->aabb_local.max_[1];
-    p[2] = cgeom->aabb_local.min_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[0] = cgeom->aabb_local.max_[0];
-    p[1] = cgeom->aabb_local.min_[1];
-    p[2] = cgeom->aabb_local.min_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[1] = cgeom->aabb_local.max_[1];
-    p[2] = cgeom->aabb_local.min_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    p[2] = cgeom->aabb_local.max_[2];
-    box = bound(box, (R * p + T).getTightBound());
-
-    aabb.min_ = box.getLow();
-    aabb.max_ = box.getHigh();
-  }
-
-  /// @brief get user data in object
-  void* getUserData() const
-  {
-    return user_data;
-  }
-
-  /// @brief set user data in object
-  void setUserData(void* data)
-  {
-    user_data = data;
-  }
-
-  /// @brief get motion from the object instance
-  inline MotionBase* getMotion() const
-  {
-    return motion.get();
-  }
-
-  /// @brief get geometry from the object instance
-  FCL_DEPRECATED
-  inline const CollisionGeometry* getCollisionGeometry() const
-  {
-    return cgeom.get();
-  }
-
-  /// @brief get geometry from the object instance
-  inline const std::shared_ptr<const CollisionGeometry>& collisionGeometry() const
-  {
-    return cgeom_const;
-  }
-
-protected:
-
-  std::shared_ptr<CollisionGeometry> cgeom;
-  std::shared_ptr<const CollisionGeometry> cgeom_const;
-
-  std::shared_ptr<MotionBase> motion;
-
-  /// @brief AABB in the global coordinate for the motion
-  mutable AABB aabb;
-
-  /// @brief pointer to user defined data specific to this object
-  void* user_data;
 };
 
 }

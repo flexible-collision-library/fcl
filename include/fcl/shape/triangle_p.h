@@ -35,24 +35,31 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
+#ifndef FCL_SHAPE_TRIANGLE_P_H
+#define FCL_SHAPE_TRIANGLE_P_H
 
 #include "fcl/shape/shape_base.h"
 
-#include "fcl/shape/box.h"
-#include "fcl/shape/capsule.h"
-#include "fcl/shape/cone.h"
-#include "fcl/shape/convex.h"
-#include "fcl/shape/cylinder.h"
-#include "fcl/shape/ellipsoid.h"
-#include "fcl/shape/halfspace.h"
-#include "fcl/shape/plane.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/shape/triangle_p.h"
+namespace fcl
+{
+
+/// @brief Triangle stores the points instead of only indices of points
+class TriangleP : public ShapeBased
+{
+public:
+  TriangleP(const Vector3d& a_, const Vector3d& b_, const Vector3d& c_) : ShapeBase(), a(a_), b(b_), c(c_)
+  {
+  }
+
+  /// @brief virtual function of compute AABB in local coordinate
+  void computeLocalAABB();
+  
+  NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
+
+  Vector3d a, b, c;
+};
+
+}
 
 #endif

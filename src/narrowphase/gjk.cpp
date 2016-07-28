@@ -45,7 +45,7 @@ namespace fcl
 namespace details
 {
 
-Vector3d getSupport(const ShapeBase* shape, const Vector3d& dir)
+Vector3d getSupport(const ShapeBased* shape, const Vector3d& dir)
 {
   switch(shape->getNodeType())
   {
@@ -73,7 +73,7 @@ Vector3d getSupport(const ShapeBase* shape, const Vector3d& dir)
     break;
   case GEOM_BOX:
     {
-      const Box* box = static_cast<const Box*>(shape);
+      const Boxd* box = static_cast<const Boxd*>(shape);
       return Vector3d((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
                    (dir[1]>0)?(box->side[1]/2):(-box->side[1]/2),
                    (dir[2]>0)?(box->side[2]/2):(-box->side[2]/2));
@@ -101,7 +101,7 @@ Vector3d getSupport(const ShapeBase* shape, const Vector3d& dir)
     break;
   case GEOM_CAPSULE:
     {
-      const Capsule* capsule = static_cast<const Capsule*>(shape);
+      const Capsuled* capsule = static_cast<const Capsuled*>(shape);
       FCL_REAL half_h = capsule->lz * 0.5;
       Vector3d pos1(0, 0, half_h);
       Vector3d pos2(0, 0, -half_h);
@@ -115,7 +115,7 @@ Vector3d getSupport(const ShapeBase* shape, const Vector3d& dir)
     break;
   case GEOM_CONE:
     {
-      const Cone* cone = static_cast<const Cone*>(shape);
+      const Coned* cone = static_cast<const Coned*>(shape);
       FCL_REAL zdist = dir[0] * dir[0] + dir[1] * dir[1];
       FCL_REAL len = zdist + dir[2] * dir[2];
       zdist = std::sqrt(zdist);

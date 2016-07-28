@@ -107,36 +107,36 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Box
+/// @brief initialize GJK Boxd
 template<>
-class GJKInitializer<Box>
+class GJKInitializer<Boxd>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Box& s, const Transform3d& tf);
+  static void* createGJKObject(const Boxd& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Capsule
+/// @brief initialize GJK Capsuled
 template<>
-class GJKInitializer<Capsule>
+class GJKInitializer<Capsuled>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Capsule& s, const Transform3d& tf);
+  static void* createGJKObject(const Capsuled& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Cone
+/// @brief initialize GJK Coned
 template<>
-class GJKInitializer<Cone>
+class GJKInitializer<Coned>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cone& s, const Transform3d& tf);
+  static void* createGJKObject(const Coned& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 

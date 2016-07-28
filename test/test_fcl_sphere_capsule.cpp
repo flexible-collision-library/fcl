@@ -52,7 +52,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., -50));
 
-	Capsule capsule (50, 200.);
+	Capsuled capsule (50, 200.);
   Transform3d capsule_transform(Eigen::Translation3d(Vector3d(0., 0., 200)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
@@ -66,7 +66,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negativ
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., 50));
 
-	Capsule capsule (50, 200.);
+	Capsuled capsule (50, 200.);
   Transform3d capsule_transform(Eigen::Translation3d(Vector3d(0., 0., -200)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
@@ -80,7 +80,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., -50));
 
-	Capsule capsule (50, 200.);
+	Capsuled capsule (50, 200.);
   Transform3d capsule_transform(Eigen::Translation3d(Vector3d(150., 0., 0.)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
@@ -94,7 +94,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_r
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., -50));
 
-	Capsule capsule (50, 200.);
+	Capsuled capsule (50, 200.);
   Matrix3d rotation(
         Eigen::AngleAxisd(constants::pi * 0.5, Vector3d::UnitX())
       * Eigen::AngleAxisd(0.0, Vector3d::UnitY())
@@ -114,10 +114,10 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
   Sphere sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
 
-  Capsule capsule (50, 200.);
+  Capsuled capsule (50, 200.);
   Transform3d capsule_transform(Eigen::Translation3d(Vector3d(0., 0., 125)));
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   bool is_intersecting = solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, &contacts);
 
@@ -138,7 +138,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
 	Sphere sphere1 (50);
   Transform3d sphere1_transform = Transform3d::Identity();
 
-	Capsule capsule (50, 200.);
+	Capsuled capsule (50, 200.);
   Matrix3d rotation(
         Eigen::AngleAxisd(constants::pi * 0.5, Vector3d::UnitX())
       * Eigen::AngleAxisd(0.0, Vector3d::UnitY())
@@ -147,7 +147,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
   capsule_transform.linear() = rotation;
   capsule_transform.translation() = Vector3d (0., 50., 75);
 
-  std::vector<ContactPoint> contacts;
+  std::vector<ContactPointd> contacts;
 
   bool is_intersecting = solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, &contacts);
 
@@ -168,7 +168,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 	Sphere sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
 
-	Capsule capsule (50, 200.);
+	Capsuled capsule (50, 200.);
   Transform3d capsule_transform(Eigen::Translation3d(Vector3d(0., 0., 100)));
 
 	FCL_REAL distance;
@@ -184,7 +184,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_separated)
 	Sphere sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
 
-	Capsule capsule (50, 200.);
+	Capsuled capsule (50, 200.);
   Transform3d capsule_transform(Eigen::Translation3d(Vector3d(0., 0., 175)));
 
 	FCL_REAL distance = 0.;

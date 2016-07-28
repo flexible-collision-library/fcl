@@ -54,38 +54,45 @@ namespace fcl
 enum GJKSolverType {GST_LIBCCD, GST_INDEP};
 
 /// @brief Minimal contact information returned by collision
+template <typename Scalar = double>
 struct ContactPoint
 {
   /// @brief Contact normal, pointing from o1 to o2
-  Vector3d normal;
+  Vector3<Scalar> normal;
 
   /// @brief Contact position, in world space
-  Vector3d pos;
+  Vector3<Scalar> pos;
 
   /// @brief Penetration depth
-  FCL_REAL penetration_depth;
+  Scalar penetration_depth;
 
   /// @brief Constructor
-  ContactPoint() : normal(Vector3d::Zero()), pos(Vector3d::Zero()), penetration_depth(0.0) {}
+  ContactPoint() : normal(Vector3<Scalar>::Zero()), pos(Vector3<Scalar>::Zero()), penetration_depth(0.0) {}
 
   /// @brief Constructor
-  ContactPoint(const Vector3d& n_, const Vector3d& p_, FCL_REAL d_) : normal(n_),
-                                                                pos(p_),
-                                                                penetration_depth(d_)
+  ContactPoint(const Vector3<Scalar>& n_, const Vector3<Scalar>& p_, Scalar d_)
+    : normal(n_), pos(p_), penetration_depth(d_)
   {}
 };
 
+using ContactPointf = ContactPoint<float>;
+using ContactPointd = ContactPoint<double>;
+
 /// @brief Return true if _cp1's penentration depth is less than _cp2's.
-bool comparePenDepth(const ContactPoint& _cp1, const ContactPoint& _cp2);
+template <typename Scalar>
+bool comparePenDepth(const ContactPoint<Scalar>& _cp1, const ContactPoint<Scalar>& _cp2)
+{
+  return _cp1.penetration_depth < _cp2.penetration_depth;
+}
 
 /// @brief Contact information returned by collision
 struct Contact
 {
   /// @brief collision object 1
-  const CollisionGeometry* o1;
+  const CollisionGeometryd* o1;
 
   /// @brief collision object 2
-  const CollisionGeometry* o2;
+  const CollisionGeometryd* o2;
 
   /// @brief contact primitive in object 1
   /// if object 1 is mesh or point cloud, it is the triangle or point id
@@ -119,13 +126,13 @@ struct Contact
               b2(NONE)
   {}
 
-  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_) : o1(o1_),
+  Contact(const CollisionGeometryd* o1_, const CollisionGeometryd* o2_, int b1_, int b2_) : o1(o1_),
                                                                                           o2(o2_),
                                                                                           b1(b1_),
                                                                                           b2(b2_)
   {}
 
-  Contact(const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_,
+  Contact(const CollisionGeometryd* o1_, const CollisionGeometryd* o2_, int b1_, int b2_,
           const Vector3d& pos_, const Vector3d& normal_, FCL_REAL depth_) : o1(o1_),
                                                                       o2(o2_),
                                                                       b1(b1_),
@@ -368,10 +375,10 @@ public:
   Vector3d nearest_points[2];
 
   /// @brief collision object 1
-  const CollisionGeometry* o1;
+  const CollisionGeometryd* o1;
 
   /// @brief collision object 2
-  const CollisionGeometry* o2;
+  const CollisionGeometryd* o2;
 
   /// @brief information about the nearest point in object 1
   /// if object 1 is mesh or point cloud, it is the triangle or point id
@@ -398,7 +405,7 @@ public:
 
 
   /// @brief add distance information into the result
-  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_)
+  void update(FCL_REAL distance, const CollisionGeometryd* o1_, const CollisionGeometryd* o2_, int b1_, int b2_)
   {
     if(min_distance > distance)
     {
@@ -411,7 +418,7 @@ public:
   }
 
   /// @brief add distance information into the result
-  void update(FCL_REAL distance, const CollisionGeometry* o1_, const CollisionGeometry* o2_, int b1_, int b2_, const Vector3d& p1, const Vector3d& p2)
+  void update(FCL_REAL distance, const CollisionGeometryd* o1_, const CollisionGeometryd* o2_, int b1_, int b2_, const Vector3d& p1, const Vector3d& p2)
   {
     if(min_distance > distance)
     {

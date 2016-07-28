@@ -60,7 +60,7 @@ void testBVHModelPointCloud()
     return;
   }
 
-  Box box;
+  Boxd box;
   double a = box.side[0];
   double b = box.side[1];
   double c = box.side[2];
@@ -99,7 +99,7 @@ template<typename BV>
 void testBVHModelTriangles()
 {
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box;
+  Boxd box;
 
   double a = box.side[0];
   double b = box.side[1];
@@ -153,7 +153,7 @@ template<typename BV>
 void testBVHModelSubModel()
 {
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box;
+  Boxd box;
 
   double a = box.side[0];
   double b = box.side[1];

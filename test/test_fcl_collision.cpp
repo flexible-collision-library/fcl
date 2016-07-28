@@ -88,7 +88,7 @@ GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
-  Box box1;
+  Boxd box1;
   Transform3d box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
@@ -107,7 +107,7 @@ GTEST_TEST(FCL_COLLISION, OBB_Box_test)
     OBB obb2;
     convertBV(aabb, transforms[i], obb2);
     
-    Box box2;
+    Boxd box2;
     Transform3d box2_tf;
     constructBox(aabb, transforms[i], box2, box2_tf);
 
@@ -132,7 +132,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
-  Box box1;
+  Boxd box1;
   Transform3d box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
@@ -167,7 +167,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
     }
 
     {
-      Capsule capsule(len, 2 * len);
+      Capsuled capsule(len, 2 * len);
       computeBV(capsule, transforms[i], obb2);
       
       bool overlap_obb = obb1.overlap(obb2);
@@ -176,7 +176,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
     }
 
     {
-      Cone cone(len, 2 * len);
+      Coned cone(len, 2 * len);
       computeBV(cone, transforms[i], obb2);
       
       bool overlap_obb = obb1.overlap(obb2);
