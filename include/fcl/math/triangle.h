@@ -35,25 +35,42 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_DISTANCE_H
-#define FCL_DISTANCE_H
+#ifndef FCL_TRIANGLE_H
+#define FCL_TRIANGLE_H
 
-#include "fcl/collision_object.h"
-#include "fcl/collision_data.h"
+#include <cstddef>
 
 namespace fcl
 {
 
-/// @brief Main distance interface: given two collision objects, and the requirements for contacts, including whether return the nearest points, this function performs the distance between them. 
-/// Return value is the minimum distance generated between the two objects.
+/// @brief Triangle with 3 indices for points
+class Triangle
+{
+  /// @brief indices for each vertex of triangle
+  std::size_t vids[3];
 
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
-                  const DistanceRequest& request, DistanceResult& result);
+public:
+  /// @brief Default constructor
+  Triangle() {}
 
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3d& tf1,
-                  const CollisionGeometry* o2, const Transform3d& tf2,
-                  const DistanceRequest& request, DistanceResult& result);
+  /// @brief Create a triangle with given vertex indices
+  Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+  {
+    set(p1, p2, p3);
+  }
 
-}
+  /// @brief Set the vertex indices of the triangle
+  inline void set(std::size_t p1, std::size_t p2, std::size_t p3)
+  {
+    vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  }
+
+  /// @access the triangle index
+  inline std::size_t operator[](int i) const { return vids[i]; }
+
+  inline std::size_t& operator[](int i) { return vids[i]; }
+};
+
+} // namespace fcl
 
 #endif

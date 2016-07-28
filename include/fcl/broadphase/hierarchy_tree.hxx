@@ -35,6 +35,8 @@
 
 /** \author Jia Pan  */
 
+#include <iostream>
+
 namespace fcl
 {
 
@@ -139,7 +141,7 @@ bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv)
 }
 
 template<typename BV>
-bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vec3f& vel, FCL_REAL margin)
+bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3d& vel, FCL_REAL margin)
 {
   if(leaf->bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -147,7 +149,7 @@ bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vec3f& vel, F
 }
 
 template<typename BV>
-bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vec3f& vel)
+bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3d& vel)
 {
   if(leaf->bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -395,7 +397,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
   {
     if(num_leaves > bu_threshold)
     {
-      Vec3f split_p = (*lbeg)->bv.center();
+      Vector3d split_p = (*lbeg)->bv.center();
       BV vol = (*lbeg)->bv;
       NodeVecIterator it;
       for(it = lbeg + 1; it < lend; ++it)
@@ -409,7 +411,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
       for(it = lbeg; it < lend; ++it)
       {
-        Vec3f x = (*it)->bv.center() - split_p;
+        Vector3d x = (*it)->bv.center() - split_p;
         for(size_t j = 0; j < 3; ++j)
           ++splitcount[j][x[j] > 0 ? 1 : 0];
       }
@@ -1193,7 +1195,7 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv)
 }
 
 template<typename BV>
-bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vec3f& vel, FCL_REAL margin)
+bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3d& vel, FCL_REAL margin)
 {
   if(nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -1201,7 +1203,7 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vec3f& vel, FCL_
 }
 
 template<typename BV>
-bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vec3f& vel)
+bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3d& vel)
 {
   if(nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -1478,7 +1480,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
   {
     if(num_leaves > bu_threshold)
     {
-      Vec3f split_p = nodes[*lbeg].bv.center();
+      Vector3d split_p = nodes[*lbeg].bv.center();
       BV vol = nodes[*lbeg].bv;
       for(size_t* i = lbeg + 1; i < lend; ++i)
       {
@@ -1491,7 +1493,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
       for(size_t* i = lbeg; i < lend; ++i)
       {
-        Vec3f x = nodes[*i].bv.center() - split_p;
+        Vector3d x = nodes[*i].bv.center() - split_p;
         for(size_t j = 0; j < 3; ++j)
           ++splitcount[j][x[j] > 0 ? 1 : 0];
       }

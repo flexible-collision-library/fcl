@@ -38,7 +38,6 @@
 
 #include "fcl/config.h"
 #include "fcl/BVH/BVH_model.h"
-#include "fcl/math/transform.h"
 #include "fcl/shape/geometric_shapes.h"
 #include "test_fcl_utility.h"
 #include <iostream>
@@ -65,7 +64,7 @@ void testBVHModelPointCloud()
   double a = box.side[0];
   double b = box.side[1];
   double c = box.side[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vector3d> points(8);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
   points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
@@ -105,7 +104,7 @@ void testBVHModelTriangles()
   double a = box.side[0];
   double b = box.side[1];
   double c = box.side[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vector3d> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
@@ -159,7 +158,7 @@ void testBVHModelSubModel()
   double a = box.side[0];
   double b = box.side[1];
   double c = box.side[2];
-  std::vector<Vec3f> points(8);
+  std::vector<Vector3d> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;

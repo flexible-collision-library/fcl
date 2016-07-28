@@ -35,7 +35,7 @@
 
 /** \author Jia Pan */
 
-
+#include "fcl/math/geometry.h"
 #include "fcl/shape/geometric_shapes_utility.h"
 #include "fcl/BVH/BV_fitter.h"
 
@@ -45,54 +45,54 @@ namespace fcl
 namespace details
 {
 
-std::vector<Vec3f> getBoundVertices(const Box& box, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const Box& box, const Transform3d& tf)
 {
-  std::vector<Vec3f> result(8);
+  std::vector<Vector3d> result(8);
   FCL_REAL a = box.side[0] / 2;
   FCL_REAL b = box.side[1] / 2;
   FCL_REAL c = box.side[2] / 2;
-  result[0] = tf * Vec3f(a, b, c);
-  result[1] = tf * Vec3f(a, b, -c);
-  result[2] = tf * Vec3f(a, -b, c);
-  result[3] = tf * Vec3f(a, -b, -c);
-  result[4] = tf * Vec3f(-a, b, c);
-  result[5] = tf * Vec3f(-a, b, -c);
-  result[6] = tf * Vec3f(-a, -b, c);
-  result[7] = tf * Vec3f(-a, -b, -c);
+  result[0] = tf * Vector3d(a, b, c);
+  result[1] = tf * Vector3d(a, b, -c);
+  result[2] = tf * Vector3d(a, -b, c);
+  result[3] = tf * Vector3d(a, -b, -c);
+  result[4] = tf * Vector3d(-a, b, c);
+  result[5] = tf * Vector3d(-a, b, -c);
+  result[6] = tf * Vector3d(-a, -b, c);
+  result[7] = tf * Vector3d(-a, -b, -c);
   
   return result;
 }
 
 // we use icosahedron to bound the sphere
-std::vector<Vec3f> getBoundVertices(const Sphere& sphere, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const Sphere& sphere, const Transform3d& tf)
 {
-  std::vector<Vec3f> result(12);
+  std::vector<Vector3d> result(12);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
   FCL_REAL edge_size = sphere.radius * 6 / (sqrt(27.0) + sqrt(15.0));
 
   FCL_REAL a = edge_size;
   FCL_REAL b = m * edge_size;
-  result[0] = tf * Vec3f(0, a, b);
-  result[1] = tf * Vec3f(0, -a, b);
-  result[2] = tf * Vec3f(0, a, -b);
-  result[3] = tf * Vec3f(0, -a, -b);
-  result[4] = tf * Vec3f(a, b, 0);
-  result[5] = tf * Vec3f(-a, b, 0);
-  result[6] = tf * Vec3f(a, -b, 0);
-  result[7] = tf * Vec3f(-a, -b, 0);
-  result[8] = tf * Vec3f(b, 0, a);
-  result[9] = tf * Vec3f(b, 0, -a);
-  result[10] = tf * Vec3f(-b, 0, a);
-  result[11] = tf * Vec3f(-b, 0, -a);
+  result[0] = tf * Vector3d(0, a, b);
+  result[1] = tf * Vector3d(0, -a, b);
+  result[2] = tf * Vector3d(0, a, -b);
+  result[3] = tf * Vector3d(0, -a, -b);
+  result[4] = tf * Vector3d(a, b, 0);
+  result[5] = tf * Vector3d(-a, b, 0);
+  result[6] = tf * Vector3d(a, -b, 0);
+  result[7] = tf * Vector3d(-a, -b, 0);
+  result[8] = tf * Vector3d(b, 0, a);
+  result[9] = tf * Vector3d(b, 0, -a);
+  result[10] = tf * Vector3d(-b, 0, a);
+  result[11] = tf * Vector3d(-b, 0, -a);
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3d& tf)
 {
   // we use scaled icosahedron to bound the ellipsoid
 
-  std::vector<Vec3f> result(12);
+  std::vector<Vector3d> result(12);
 
   const FCL_REAL phi = (1.0 + std::sqrt(5.0)) / 2.0;  // golden ratio
 
@@ -110,25 +110,25 @@ std::vector<Vec3f> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3
   const FCL_REAL Ca = C * a;
   const FCL_REAL Cb = C * b;
 
-  result[0] = tf * Vec3f(0, Ba, Cb);
-  result[1] = tf * Vec3f(0, -Ba, Cb);
-  result[2] = tf * Vec3f(0, Ba, -Cb);
-  result[3] = tf * Vec3f(0, -Ba, -Cb);
-  result[4] = tf * Vec3f(Aa, Bb, 0);
-  result[5] = tf * Vec3f(-Aa, Bb, 0);
-  result[6] = tf * Vec3f(Aa, -Bb, 0);
-  result[7] = tf * Vec3f(-Aa, -Bb, 0);
-  result[8] = tf * Vec3f(Ab, 0, Ca);
-  result[9] = tf * Vec3f(Ab, 0, -Ca);
-  result[10] = tf * Vec3f(-Ab, 0, Ca);
-  result[11] = tf * Vec3f(-Ab, 0, -Ca);
+  result[0] = tf * Vector3d(0, Ba, Cb);
+  result[1] = tf * Vector3d(0, -Ba, Cb);
+  result[2] = tf * Vector3d(0, Ba, -Cb);
+  result[3] = tf * Vector3d(0, -Ba, -Cb);
+  result[4] = tf * Vector3d(Aa, Bb, 0);
+  result[5] = tf * Vector3d(-Aa, Bb, 0);
+  result[6] = tf * Vector3d(Aa, -Bb, 0);
+  result[7] = tf * Vector3d(-Aa, -Bb, 0);
+  result[8] = tf * Vector3d(Ab, 0, Ca);
+  result[9] = tf * Vector3d(Ab, 0, -Ca);
+  result[10] = tf * Vector3d(-Ab, 0, Ca);
+  result[11] = tf * Vector3d(-Ab, 0, -Ca);
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const Capsule& capsule, const Transform3d& tf)
 {
-  std::vector<Vec3f> result(36);
+  std::vector<Vector3d> result(36);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
 
   FCL_REAL hl = capsule.lz * 0.5;
@@ -138,102 +138,102 @@ std::vector<Vec3f> getBoundVertices(const Capsule& capsule, const Transform3f& t
   FCL_REAL r2 = capsule.radius * 2 / sqrt(3.0);
 
 
-  result[0] = tf * Vec3f(0, a, b + hl);
-  result[1] = tf * Vec3f(0, -a, b + hl);
-  result[2] = tf * Vec3f(0, a, -b + hl);
-  result[3] = tf * Vec3f(0, -a, -b + hl);
-  result[4] = tf * Vec3f(a, b, hl);
-  result[5] = tf * Vec3f(-a, b, hl);
-  result[6] = tf * Vec3f(a, -b, hl);
-  result[7] = tf * Vec3f(-a, -b, hl);
-  result[8] = tf * Vec3f(b, 0, a + hl);
-  result[9] = tf * Vec3f(b, 0, -a + hl);
-  result[10] = tf * Vec3f(-b, 0, a + hl);
-  result[11] = tf * Vec3f(-b, 0, -a + hl);
+  result[0] = tf * Vector3d(0, a, b + hl);
+  result[1] = tf * Vector3d(0, -a, b + hl);
+  result[2] = tf * Vector3d(0, a, -b + hl);
+  result[3] = tf * Vector3d(0, -a, -b + hl);
+  result[4] = tf * Vector3d(a, b, hl);
+  result[5] = tf * Vector3d(-a, b, hl);
+  result[6] = tf * Vector3d(a, -b, hl);
+  result[7] = tf * Vector3d(-a, -b, hl);
+  result[8] = tf * Vector3d(b, 0, a + hl);
+  result[9] = tf * Vector3d(b, 0, -a + hl);
+  result[10] = tf * Vector3d(-b, 0, a + hl);
+  result[11] = tf * Vector3d(-b, 0, -a + hl);
 
-  result[12] = tf * Vec3f(0, a, b - hl);
-  result[13] = tf * Vec3f(0, -a, b - hl);
-  result[14] = tf * Vec3f(0, a, -b - hl);
-  result[15] = tf * Vec3f(0, -a, -b - hl);
-  result[16] = tf * Vec3f(a, b, -hl);
-  result[17] = tf * Vec3f(-a, b, -hl);
-  result[18] = tf * Vec3f(a, -b, -hl);
-  result[19] = tf * Vec3f(-a, -b, -hl);
-  result[20] = tf * Vec3f(b, 0, a - hl);
-  result[21] = tf * Vec3f(b, 0, -a - hl);
-  result[22] = tf * Vec3f(-b, 0, a - hl);
-  result[23] = tf * Vec3f(-b, 0, -a - hl);
+  result[12] = tf * Vector3d(0, a, b - hl);
+  result[13] = tf * Vector3d(0, -a, b - hl);
+  result[14] = tf * Vector3d(0, a, -b - hl);
+  result[15] = tf * Vector3d(0, -a, -b - hl);
+  result[16] = tf * Vector3d(a, b, -hl);
+  result[17] = tf * Vector3d(-a, b, -hl);
+  result[18] = tf * Vector3d(a, -b, -hl);
+  result[19] = tf * Vector3d(-a, -b, -hl);
+  result[20] = tf * Vector3d(b, 0, a - hl);
+  result[21] = tf * Vector3d(b, 0, -a - hl);
+  result[22] = tf * Vector3d(-b, 0, a - hl);
+  result[23] = tf * Vector3d(-b, 0, -a - hl);
 
   FCL_REAL c = 0.5 * r2;
   FCL_REAL d = capsule.radius;
-  result[24] = tf * Vec3f(r2, 0, hl);
-  result[25] = tf * Vec3f(c, d, hl);
-  result[26] = tf * Vec3f(-c, d, hl);
-  result[27] = tf * Vec3f(-r2, 0, hl);
-  result[28] = tf * Vec3f(-c, -d, hl);
-  result[29] = tf * Vec3f(c, -d, hl);
+  result[24] = tf * Vector3d(r2, 0, hl);
+  result[25] = tf * Vector3d(c, d, hl);
+  result[26] = tf * Vector3d(-c, d, hl);
+  result[27] = tf * Vector3d(-r2, 0, hl);
+  result[28] = tf * Vector3d(-c, -d, hl);
+  result[29] = tf * Vector3d(c, -d, hl);
 
-  result[30] = tf * Vec3f(r2, 0, -hl);
-  result[31] = tf * Vec3f(c, d, -hl);
-  result[32] = tf * Vec3f(-c, d, -hl);
-  result[33] = tf * Vec3f(-r2, 0, -hl);
-  result[34] = tf * Vec3f(-c, -d, -hl);
-  result[35] = tf * Vec3f(c, -d, -hl);
+  result[30] = tf * Vector3d(r2, 0, -hl);
+  result[31] = tf * Vector3d(c, d, -hl);
+  result[32] = tf * Vector3d(-c, d, -hl);
+  result[33] = tf * Vector3d(-r2, 0, -hl);
+  result[34] = tf * Vector3d(-c, -d, -hl);
+  result[35] = tf * Vector3d(c, -d, -hl);
 
   return result;
 }
 
 
-std::vector<Vec3f> getBoundVertices(const Cone& cone, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const Cone& cone, const Transform3d& tf)
 {
-  std::vector<Vec3f> result(7);
+  std::vector<Vector3d> result(7);
   
   FCL_REAL hl = cone.lz * 0.5;
   FCL_REAL r2 = cone.radius * 2 / sqrt(3.0);
   FCL_REAL a = 0.5 * r2;
   FCL_REAL b = cone.radius;
 
-  result[0] = tf * Vec3f(r2, 0, -hl);
-  result[1] = tf * Vec3f(a, b, -hl);
-  result[2] = tf * Vec3f(-a, b, -hl);
-  result[3] = tf * Vec3f(-r2, 0, -hl);
-  result[4] = tf * Vec3f(-a, -b, -hl);
-  result[5] = tf * Vec3f(a, -b, -hl);
+  result[0] = tf * Vector3d(r2, 0, -hl);
+  result[1] = tf * Vector3d(a, b, -hl);
+  result[2] = tf * Vector3d(-a, b, -hl);
+  result[3] = tf * Vector3d(-r2, 0, -hl);
+  result[4] = tf * Vector3d(-a, -b, -hl);
+  result[5] = tf * Vector3d(a, -b, -hl);
 
-  result[6] = tf * Vec3f(0, 0, hl);
+  result[6] = tf * Vector3d(0, 0, hl);
                           
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Cylinder& cylinder, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const Cylinder& cylinder, const Transform3d& tf)
 {
-  std::vector<Vec3f> result(12);
+  std::vector<Vector3d> result(12);
 
   FCL_REAL hl = cylinder.lz * 0.5;
   FCL_REAL r2 = cylinder.radius * 2 / sqrt(3.0);
   FCL_REAL a = 0.5 * r2;
   FCL_REAL b = cylinder.radius;
 
-  result[0] = tf * Vec3f(r2, 0, -hl);
-  result[1] = tf * Vec3f(a, b, -hl);
-  result[2] = tf * Vec3f(-a, b, -hl);
-  result[3] = tf * Vec3f(-r2, 0, -hl);
-  result[4] = tf * Vec3f(-a, -b, -hl);
-  result[5] = tf * Vec3f(a, -b, -hl);
+  result[0] = tf * Vector3d(r2, 0, -hl);
+  result[1] = tf * Vector3d(a, b, -hl);
+  result[2] = tf * Vector3d(-a, b, -hl);
+  result[3] = tf * Vector3d(-r2, 0, -hl);
+  result[4] = tf * Vector3d(-a, -b, -hl);
+  result[5] = tf * Vector3d(a, -b, -hl);
 
-  result[6] = tf * Vec3f(r2, 0, hl);
-  result[7] = tf * Vec3f(a, b, hl);
-  result[8] = tf * Vec3f(-a, b, hl);
-  result[9] = tf * Vec3f(-r2, 0, hl);
-  result[10] = tf * Vec3f(-a, -b, hl);
-  result[11] = tf * Vec3f(a, -b, hl);
+  result[6] = tf * Vector3d(r2, 0, hl);
+  result[7] = tf * Vector3d(a, b, hl);
+  result[8] = tf * Vector3d(-a, b, hl);
+  result[9] = tf * Vector3d(-r2, 0, hl);
+  result[10] = tf * Vector3d(-a, -b, hl);
+  result[11] = tf * Vector3d(a, -b, hl);
 
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const Convex& convex, const Transform3d& tf)
 {
-  std::vector<Vec3f> result(convex.num_points);
+  std::vector<Vector3d> result(convex.num_points);
   for(int i = 0; i < convex.num_points; ++i)
   {
     result[i] = tf * convex.points[i];
@@ -242,9 +242,9 @@ std::vector<Vec3f> getBoundVertices(const Convex& convex, const Transform3f& tf)
   return result;
 }
 
-std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f& tf)
+std::vector<Vector3d> getBoundVertices(const TriangleP& triangle, const Transform3d& tf)
 {
-  std::vector<Vec3f> result(3);
+  std::vector<Vector3d> result(3);
   result[0] = tf * triangle.a;
   result[1] = tf * triangle.b;
   result[2] = tf * triangle.c;
@@ -254,7 +254,7 @@ std::vector<Vec3f> getBoundVertices(const TriangleP& triangle, const Transform3f
 
 } // end detail
 
-Halfspace transform(const Halfspace& a, const Transform3f& tf)
+Halfspace transform(const Halfspace& a, const Transform3d& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -262,14 +262,14 @@ Halfspace transform(const Halfspace& a, const Transform3f& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.linear() * a.n;
+  Vector3d n = tf.linear() * a.n;
   FCL_REAL d = a.d + n.dot(tf.translation());
 
   return Halfspace(n, d);
 }
 
 
-Plane transform(const Plane& a, const Transform3f& tf)
+Plane transform(const Plane& a, const Transform3d& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -277,7 +277,7 @@ Plane transform(const Plane& a, const Transform3f& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vec3f n = tf.linear() * a.n;
+  Vector3d n = tf.linear() * a.n;
   FCL_REAL d = a.d + n.dot(tf.translation());
 
   return Plane(n, d);
@@ -286,100 +286,100 @@ Plane transform(const Plane& a, const Transform3f& tf)
 
 
 template<>
-void computeBV<AABB, Box>(const Box& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Box>(const Box& s, const Transform3d& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
+  const Matrix3d& R = tf.linear();
+  const Vector3d& T = tf.translation();
 
   FCL_REAL x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
   FCL_REAL y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
   FCL_REAL z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
 
-  Vec3f v_delta(x_range, y_range, z_range);
+  Vector3d v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template<>
-void computeBV<AABB, Sphere>(const Sphere& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Sphere>(const Sphere& s, const Transform3d& tf, AABB& bv)
 {
-  const Vec3f& T = tf.translation();
+  const Vector3d& T = tf.translation();
 
-  Vec3f v_delta = Vec3f::Constant(s.radius);
+  Vector3d v_delta = Vector3d::Constant(s.radius);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template<>
-void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
+  const Matrix3d& R = tf.linear();
+  const Vector3d& T = tf.translation();
 
   FCL_REAL x_range = (fabs(R(0, 0) * s.radii[0]) + fabs(R(0, 1) * s.radii[1]) + fabs(R(0, 2) * s.radii[2]));
   FCL_REAL y_range = (fabs(R(1, 0) * s.radii[0]) + fabs(R(1, 1) * s.radii[1]) + fabs(R(1, 2) * s.radii[2]));
   FCL_REAL z_range = (fabs(R(2, 0) * s.radii[0]) + fabs(R(2, 1) * s.radii[1]) + fabs(R(2, 2) * s.radii[2]));
 
-  Vec3f v_delta(x_range, y_range, z_range);
+  Vector3d v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template<>
-void computeBV<AABB, Capsule>(const Capsule& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Capsule>(const Capsule& s, const Transform3d& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
+  const Matrix3d& R = tf.linear();
+  const Vector3d& T = tf.translation();
 
   FCL_REAL x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
   FCL_REAL y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
   FCL_REAL z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
 
-  Vec3f v_delta(x_range, y_range, z_range);
+  Vector3d v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template<>
-void computeBV<AABB, Cone>(const Cone& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Cone>(const Cone& s, const Transform3d& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
+  const Matrix3d& R = tf.linear();
+  const Vector3d& T = tf.translation();
 
   FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
   FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
   FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
-  Vec3f v_delta(x_range, y_range, z_range);
+  Vector3d v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template<>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3d& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
+  const Matrix3d& R = tf.linear();
+  const Vector3d& T = tf.translation();
 
   FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
   FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
   FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
-  Vec3f v_delta(x_range, y_range, z_range);
+  Vector3d v_delta(x_range, y_range, z_range);
   bv.max_ = T + v_delta;
   bv.min_ = T - v_delta;
 }
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Convex>(const Convex& s, const Transform3d& tf, AABB& bv)
 {
-  const Matrix3f& R = tf.linear();
-  const Vec3f& T = tf.translation();
+  const Matrix3d& R = tf.linear();
+  const Vector3d& T = tf.translation();
 
   AABB bv_;
   for(int i = 0; i < s.num_points; ++i)
   {
-    Vec3f new_p = R * s.points[i] + T;
+    Vector3d new_p = R * s.points[i] + T;
     bv_ += new_p;
   }
 
@@ -387,22 +387,22 @@ void computeBV<AABB, Convex>(const Convex& s, const Transform3f& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3d& tf, AABB& bv)
 {
   bv = AABB(tf * s.a, tf * s.b, tf * s.c);
 }
 
 
 template<>
-void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3d& tf, AABB& bv)
 {
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   AABB bv_;
-  bv_.min_ = Vec3f::Constant(-std::numeric_limits<FCL_REAL>::max());
-  bv_.max_ = Vec3f::Constant(std::numeric_limits<FCL_REAL>::max());
+  bv_.min_ = Vector3d::Constant(-std::numeric_limits<FCL_REAL>::max());
+  bv_.max_ = Vector3d::Constant(std::numeric_limits<FCL_REAL>::max());
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     // normal aligned with x axis
@@ -426,15 +426,15 @@ void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3f& tf, AABB&
 }
 
 template<>
-void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
+void computeBV<AABB, Plane>(const Plane& s, const Transform3d& tf, AABB& bv)
 {
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;  
 
   AABB bv_;
-  bv_.min_ = Vec3f::Constant(-std::numeric_limits<FCL_REAL>::max());
-  bv_.max_ = Vec3f::Constant(std::numeric_limits<FCL_REAL>::max());
+  bv_.min_ = Vector3d::Constant(-std::numeric_limits<FCL_REAL>::max());
+  bv_.max_ = Vector3d::Constant(std::numeric_limits<FCL_REAL>::max());
   if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
   {
     // normal aligned with x axis
@@ -459,7 +459,7 @@ void computeBV<AABB, Plane>(const Plane& s, const Transform3f& tf, AABB& bv)
 
 
 template<>
-void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Box>(const Box& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -467,7 +467,7 @@ void computeBV<OBB, Box>(const Box& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Sphere>(const Sphere& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis.setIdentity();
@@ -475,7 +475,7 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -483,7 +483,7 @@ void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3f& tf, OBB& b
 }
 
 template<>
-void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Capsule>(const Capsule& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -491,7 +491,7 @@ void computeBV<OBB, Capsule>(const Capsule& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Cone>(const Cone& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -499,7 +499,7 @@ void computeBV<OBB, Cone>(const Cone& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -507,7 +507,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Convex>(const Convex& s, const Transform3d& tf, OBB& bv)
 {
   fit(s.points, s.num_points, bv);
 
@@ -516,7 +516,7 @@ void computeBV<OBB, Convex>(const Convex& s, const Transform3f& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Halfspace>(const Halfspace& /*s*/, const Transform3f& /*tf*/, OBB& bv)
+void computeBV<OBB, Halfspace>(const Halfspace& /*s*/, const Transform3d& /*tf*/, OBB& bv)
 {
   /// Half space can only have very rough OBB
   bv.axis.setIdentity();
@@ -525,7 +525,7 @@ void computeBV<OBB, Halfspace>(const Halfspace& /*s*/, const Transform3f& /*tf*/
 }
 
 template<>
-void computeBV<RSS, Halfspace>(const Halfspace& /*s*/, const Transform3f& /*tf*/, RSS& bv)
+void computeBV<RSS, Halfspace>(const Halfspace& /*s*/, const Transform3d& /*tf*/, RSS& bv)
 {
   /// Half space can only have very rough RSS
   bv.axis.setIdentity();
@@ -534,14 +534,14 @@ void computeBV<RSS, Halfspace>(const Halfspace& /*s*/, const Transform3f& /*tf*/
 }
 
 template<>
-void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3f& tf, OBBRSS& bv)
+void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3d& tf, OBBRSS& bv)
 {
   computeBV<OBB, Halfspace>(s, tf, bv.obb);
   computeBV<RSS, Halfspace>(s, tf, bv.rss);
 }
 
 template<>
-void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS& bv)
+void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3d& tf, kIOS& bv)
 {
   bv.num_spheres = 1;
   computeBV<OBB, Halfspace>(s, tf, bv.obb);
@@ -550,10 +550,10 @@ void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3f& tf, kIOS&
 }
 
 template<>
-void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<16>& bv)
+void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<16>& bv)
 {
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const std::size_t D = 8;
@@ -605,10 +605,10 @@ void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
 }
 
 template<>
-void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<18>& bv)
+void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<18>& bv)
 {
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const std::size_t D = 9;
@@ -666,10 +666,10 @@ void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
 }
 
 template<>
-void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, KDOP<24>& bv)
+void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<24>& bv)
 {
   Halfspace new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const std::size_t D = 12;
@@ -744,22 +744,22 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3f& tf, K
 
 
 template<>
-void computeBV<OBB, Plane>(const Plane& s, const Transform3f& tf, OBB& bv)
+void computeBV<OBB, Plane>(const Plane& s, const Transform3d& tf, OBB& bv)
 {
-  Vec3f n = tf.linear() * s.n;
+  Vector3d n = tf.linear() * s.n;
   bv.axis.col(0) = n;
   generateCoordinateSystem(bv.axis);
 
   bv.extent << 0, std::numeric_limits<FCL_REAL>::max(), std::numeric_limits<FCL_REAL>::max();
 
-  Vec3f p = s.n * s.d; 
+  Vector3d p = s.n * s.d; 
   bv.To = tf * p; /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
 }
 
 template<>
-void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
+void computeBV<RSS, Plane>(const Plane& s, const Transform3d& tf, RSS& bv)
 {
-  Vec3f n = tf.linear() * s.n;
+  Vector3d n = tf.linear() * s.n;
 
   bv.axis.col(0) = n;
   generateCoordinateSystem(bv.axis);
@@ -769,19 +769,19 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3f& tf, RSS& bv)
 
   bv.r = 0;
   
-  Vec3f p = s.n * s.d;
+  Vector3d p = s.n * s.d;
   bv.Tr = tf * p;
 }
 
 template<>
-void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3f& tf, OBBRSS& bv)
+void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3d& tf, OBBRSS& bv)
 {
   computeBV<OBB, Plane>(s, tf, bv.obb);
   computeBV<RSS, Plane>(s, tf, bv.rss);
 }
 
 template<>
-void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv)
+void computeBV<kIOS, Plane>(const Plane& s, const Transform3d& tf, kIOS& bv)
 {
   bv.num_spheres = 1;
   computeBV<OBB, Plane>(s, tf, bv.obb);
@@ -790,10 +790,10 @@ void computeBV<kIOS, Plane>(const Plane& s, const Transform3f& tf, kIOS& bv)
 }
 
 template<>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>& bv)
+void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3d& tf, KDOP<16>& bv)
 {
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const std::size_t D = 8;
@@ -841,10 +841,10 @@ void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3f& tf, KDOP<16>&
 }
 
 template<>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>& bv)
+void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3d& tf, KDOP<18>& bv)
 {
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const std::size_t D = 9;
@@ -896,10 +896,10 @@ void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3f& tf, KDOP<18>&
 }
 
 template<>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>& bv)
+void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3d& tf, KDOP<24>& bv)
 {
   Plane new_s = transform(s, tf);
-  const Vec3f& n = new_s.n;
+  const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
   const std::size_t D = 12;
@@ -963,56 +963,56 @@ void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3f& tf, KDOP<24>&
 }
 
 
-void constructBox(const AABB& bv, Box& box, Transform3f& tf)
+void constructBox(const AABB& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.max_ - bv.min_);
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-void constructBox(const OBB& bv, Box& box, Transform3f& tf)
+void constructBox(const OBB& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.extent * 2);
   tf.linear() = bv.axis;
   tf.translation() = bv.To;
 }
 
-void constructBox(const OBBRSS& bv, Box& box, Transform3f& tf)
+void constructBox(const OBBRSS& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
 }
 
-void constructBox(const kIOS& bv, Box& box, Transform3f& tf)
+void constructBox(const kIOS& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
 }
 
-void constructBox(const RSS& bv, Box& box, Transform3f& tf)
+void constructBox(const RSS& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf.linear() = bv.axis;
   tf.translation() = bv.Tr;
 }
 
-void constructBox(const KDOP<16>& bv, Box& box, Transform3f& tf)
+void constructBox(const KDOP<16>& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-void constructBox(const KDOP<18>& bv, Box& box, Transform3f& tf)
+void constructBox(const KDOP<18>& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf)
+void constructBox(const KDOP<24>& bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
@@ -1021,20 +1021,20 @@ void constructBox(const KDOP<24>& bv, Box& box, Transform3f& tf)
 
 
 
-void constructBox(const AABB& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const AABB& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.max_ - bv.min_);
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-void constructBox(const OBB& bv, const Transform3f& /*tf_bv*/, Box& box, Transform3f& tf)
+void constructBox(const OBB& bv, const Transform3d& /*tf_bv*/, Box& box, Transform3d& tf)
 {
   box = Box(bv.extent * 2);
   tf.linear() = bv.axis;
   tf.translation() = bv.To;
 }
 
-void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
@@ -1042,7 +1042,7 @@ void constructBox(const OBBRSS& bv, const Transform3f& tf_bv, Box& box, Transfor
   tf = tf_bv * tf;
 }
 
-void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const kIOS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
@@ -1050,7 +1050,7 @@ void constructBox(const kIOS& bv, const Transform3f& tf_bv, Box& box, Transform3
   tf = tf_bv * tf;
 }
 
-void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const RSS& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf.linear() = bv.axis;
@@ -1058,19 +1058,19 @@ void constructBox(const RSS& bv, const Transform3f& tf_bv, Box& box, Transform3f
   tf = tf_bv * tf;
 }
 
-void constructBox(const KDOP<16>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const KDOP<16>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-void constructBox(const KDOP<18>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-void constructBox(const KDOP<24>& bv, const Transform3f& tf_bv, Box& box, Transform3f& tf)
+void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Box& box, Transform3d& tf)
 {
   box = Box(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());

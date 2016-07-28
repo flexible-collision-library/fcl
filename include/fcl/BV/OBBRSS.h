@@ -70,13 +70,13 @@ public:
   }
 
   /// @brief Check whether the OBBRSS contains a point
-  inline bool contain(const Vec3f& p) const
+  inline bool contain(const Vector3d& p) const
   {
     return obb.contain(p);
   }
 
   /// @brief Merge the OBBRSS and a point
-  OBBRSS& operator += (const Vec3f& p) 
+  OBBRSS& operator += (const Vector3d& p) 
   {
     obb += p;
     rss += p;
@@ -130,26 +130,26 @@ public:
   }
 
   /// @brief Center of the OBBRSS
-  inline const Vec3f& center() const
+  inline const Vector3d& center() const
   {
     return obb.center();
   }
 
   /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
-  FCL_REAL distance(const OBBRSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const
+  FCL_REAL distance(const OBBRSS& other, Vector3d* P = NULL, Vector3d* Q = NULL) const
   {
     return rss.distance(other.rss, P, Q);
   }
 };
 
 /// @brief Translate the OBBRSS bv
-OBBRSS translate(const OBBRSS& bv, const Vec3f& t);
+OBBRSS translate(const OBBRSS& bv, const Vector3d& t);
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2);
+bool overlap(const Matrix3d& R0, const Vector3d& T0, const OBBRSS& b1, const OBBRSS& b2);
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0) and b2 is in indentity; P and Q, is not NULL, returns the nearest points
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const OBBRSS& b1, const OBBRSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const OBBRSS& b1, const OBBRSS& b2, Vector3d* P = NULL, Vector3d* Q = NULL);
 
 }
 

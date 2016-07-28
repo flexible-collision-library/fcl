@@ -74,7 +74,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
   request.enable_cached_gjk_guess = true;
   request.gjk_solver_type = GST_INDEP;
 
-  TranslationMotion motion(Transform3f(Eigen::Translation3d(Vec3f(-20.0, -20.0, -20.0))), Transform3f(Eigen::Translation3d(Vec3f(20.0, 20.0, 20.0))));
+  TranslationMotion motion(Transform3d(Eigen::Translation3d(Vector3d(-20.0, -20.0, -20.0))), Transform3d(Eigen::Translation3d(Vector3d(20.0, 20.0, 20.0))));
 
   int N = 1000;
   FCL_REAL dt = 1.0 / (N - 1);
@@ -86,12 +86,12 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
   for(int i = 0; i < N; ++i)
   {
     motion.integrate(dt * i);
-    Transform3f tf;
+    Transform3d tf;
     motion.getCurrentTransform(tf);
 
     CollisionResult result;
 
-    collide(&s1, Transform3f::Identity(), &s2, tf, request, result);
+    collide(&s1, Transform3d::Identity(), &s2, tf, request, result);
     result1[i] = result.isCollision();
     request.cached_gjk_guess = result.cached_gjk_guess; // use cached guess
   }
@@ -106,12 +106,12 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
   for(int i = 0; i < N; ++i)
   {
     motion.integrate(dt * i);
-    Transform3f tf;
+    Transform3d tf;
     motion.getCurrentTransform(tf);
 
     CollisionResult result;
 
-    collide(&s1, Transform3f::Identity(), &s2, tf, request, result);
+    collide(&s1, Transform3d::Identity(), &s2, tf, request, result);
     result2[i] = result.isCollision();
   }
 
@@ -127,11 +127,11 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
 
 template <typename S1, typename S2>
 void printComparisonError(const std::string& comparison_type,
-                          const S1& s1, const Transform3f& tf1,
-                          const S2& s2, const Transform3f& tf2,
+                          const S1& s1, const Transform3d& tf1,
+                          const S2& s2, const Transform3d& tf2,
                           GJKSolverType solver_type,
-                          const Vec3f& expected_contact_or_normal,
-                          const Vec3f& actual_contact_or_normal,
+                          const Vector3d& expected_contact_or_normal,
+                          const Vector3d& actual_contact_or_normal,
                           bool check_opposite_normal,
                           FCL_REAL tol)
 {
@@ -157,8 +157,8 @@ void printComparisonError(const std::string& comparison_type,
 
 template <typename S1, typename S2>
 void printComparisonError(const std::string& comparison_type,
-                          const S1& s1, const Transform3f& tf1,
-                          const S2& s2, const Transform3f& tf2,
+                          const S1& s1, const Transform3d& tf1,
+                          const S2& s2, const Transform3d& tf2,
                           GJKSolverType solver_type,
                           FCL_REAL expected_depth,
                           FCL_REAL actual_depth,
@@ -180,8 +180,8 @@ void printComparisonError(const std::string& comparison_type,
 }
 
 template <typename S1, typename S2>
-bool checkContactPoints(const S1& /*s1*/, const Transform3f& /*tf1*/,
-                        const S2& /*s2*/, const Transform3f& /*tf2*/,
+bool checkContactPoints(const S1& /*s1*/, const Transform3d& /*tf1*/,
+                        const S2& /*s2*/, const Transform3d& /*tf2*/,
                         GJKSolverType /*solver_type*/,
                         const ContactPoint& expected, const ContactPoint& actual,
                         bool check_position = false,
@@ -219,8 +219,8 @@ bool checkContactPoints(const S1& /*s1*/, const Transform3f& /*tf1*/,
 }
 
 template <typename S1, typename S2>
-bool inspectContactPoints(const S1& s1, const Transform3f& tf1,
-                          const S2& s2, const Transform3f& tf2,
+bool inspectContactPoints(const S1& s1, const Transform3d& tf1,
+                          const S2& s2, const Transform3d& tf2,
                           GJKSolverType solver_type,
                           const std::vector<ContactPoint>& expected_contacts,
                           const std::vector<ContactPoint>& actual_contacts,
@@ -368,8 +368,8 @@ void getContactPointsFromResult(std::vector<ContactPoint>& contacts, const Colli
 
 template <typename S1, typename S2>
 void testShapeIntersection(
-    const S1& s1, const Transform3f& tf1,
-    const S2& s2, const Transform3f& tf2,
+    const S1& s1, const Transform3d& tf1,
+    const S2& s2, const Transform3d& tf2,
     GJKSolverType solver_type,
     bool expected_res,
     const std::vector<ContactPoint>& expected_contacts = std::vector<ContactPoint>(),
@@ -485,40 +485,40 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   Sphere s1(20);
   Sphere s2(10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(30, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(30, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(30.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -526,15 +526,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[0].pos = transform * Vec3f(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[0].pos = transform * Vector3d(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
   contacts[0].pos.setZero();
@@ -545,12 +545,12 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   tf2 = transform;
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
-  contacts[0].pos = transform * Vec3f::Zero();
+  contacts[0].pos = transform * Vector3d::Zero();
   contacts[0].penetration_depth = 20.0 + 10.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-29.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -558,31 +558,31 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-29.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
-  contacts[0].pos = transform * Vec3f(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
+  contacts[0].pos = transform * Vector3d(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-30.0, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-30.0, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-30.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
-bool compareContactPoints1(const Vec3f& c1,const Vec3f& c2)
+bool compareContactPoints1(const Vector3d& c1,const Vector3d& c2)
 {
   return c1[2] < c2[2];
 } // Ascending order
@@ -592,13 +592,13 @@ bool compareContactPoints2(const ContactPoint& cp1,const ContactPoint& cp2)
   return cp1.pos[2] < cp2.pos[2];
 } // Ascending order
 
-void testBoxBoxContactPoints(const Matrix3f& R)
+void testBoxBoxContactPoints(const Matrix3d& R)
 {
   Box s1(100, 100, 100);
   Box s2(10, 20, 30);
 
   // Vertices of s2
-  std::vector<Vec3f> vertices(8);
+  std::vector<Vector3d> vertices(8);
   vertices[0] <<  1,  1,  1;
   vertices[1] <<  1,  1, -1;
   vertices[2] <<  1, -1,  1;
@@ -615,8 +615,8 @@ void testBoxBoxContactPoints(const Matrix3f& R)
     vertices[i][2] *= 0.5 * s2.side[2];
   }
 
-  Transform3f tf1 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -50)));
-  Transform3f tf2 = Transform3f(R);
+  Transform3d tf1 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -50)));
+  Transform3d tf2 = Transform3d(R);
 
   std::vector<ContactPoint> contacts;
 
@@ -640,7 +640,7 @@ void testBoxBoxContactPoints(const Matrix3f& R)
   for (size_t i = 0; i < numContacts; ++i)
   {
     EXPECT_TRUE(vertices[i].isApprox(contacts[i].pos));
-    EXPECT_TRUE(Vec3f(0, 0, 1).isApprox(contacts[i].normal));
+    EXPECT_TRUE(Vector3d(0, 0, 1).isApprox(contacts[i].normal));
   }
 }
 
@@ -649,18 +649,18 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  Quaternion3f q(Eigen::AngleAxisd((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1)));
+  Quaternion3d q(Eigen::AngleAxisd((FCL_REAL)3.140 / 6, Vector3d(0, 0, 1)));
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
   contacts[0].normal << 1, 0, 0;
@@ -673,47 +673,47 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(15, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(15, 0, 0)));
   contacts.resize(4);
-  contacts[0].normal = Vec3f(1, 0, 0);
-  contacts[1].normal = Vec3f(1, 0, 0);
-  contacts[2].normal = Vec3f(1, 0, 0);
-  contacts[3].normal = Vec3f(1, 0, 0);
+  contacts[0].normal = Vector3d(1, 0, 0);
+  contacts[1].normal = Vector3d(1, 0, 0);
+  contacts[2].normal = Vector3d(1, 0, 0);
+  contacts[3].normal = Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(15.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(15.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(q);
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(q);
   contacts.resize(4);
-  contacts[0].normal = Vec3f(1, 0, 0);
-  contacts[1].normal = Vec3f(1, 0, 0);
-  contacts[2].normal = Vec3f(1, 0, 0);
-  contacts[3].normal = Vec3f(1, 0, 0);
+  contacts[0].normal = Vector3d(1, 0, 0);
+  contacts[1].normal = Vector3d(1, 0, 0);
+  contacts[2].normal = Vector3d(1, 0, 0);
+  contacts[3].normal = Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(q);
+  tf2 = transform * Transform3d(q);
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   FCL_UINT32 numTests = 1e+2;
   for (FCL_UINT32 i = 0; i < numTests; ++i)
   {
-    Transform3f tf;
+    Transform3d tf;
     generateRandomTransform(extents, tf);
     testBoxBoxContactPoints(tf.linear());
   }
@@ -724,16 +724,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
   Sphere s1(20);
   Box s2(5, 5, 5);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (-1, 0, 0).
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
@@ -745,24 +745,24 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(22.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(22.5, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(22.501, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(22.501, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(22.4, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(22.4, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(22.4, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(22.4, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
 }
 
@@ -771,16 +771,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
   Sphere s1(20);
   Capsule s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -791,37 +791,37 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(24.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(24.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(24.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(24.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(25, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  //tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(25, 0, 0)));
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(25 - 1e-6, 0, 0)));
+  //tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(25 - 1e-6, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(25.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(25.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(25.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(25.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -830,16 +830,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -850,24 +850,24 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -876,16 +876,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
   Cone s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -896,36 +896,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10.001, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10.001, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10.001, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10.001, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 }
 
@@ -934,16 +934,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
   Cylinder s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -954,44 +954,44 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 0.061);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 0.46);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.01)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.01)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.01)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.01)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -1000,43 +1000,43 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
-  Transform3f identity;
+  Transform3d identity;
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(30, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(30, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(29.99, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
@@ -1045,40 +1045,40 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-29.99, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-29.99, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-30, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-30, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
 {
   Sphere s(10);
-  Vec3f t[3];
+  Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  Vec3f normal;
+  Vector3d normal;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(s, Transform3f::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(s, Transform3d::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
@@ -1088,38 +1088,38 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver1.shapeTriangleIntersect(s, Transform3f::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(s, Transform3d::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeTriangleIntersect(s, Transform3f::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver1.shapeTriangleIntersect(s, Transform3d::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3d(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3d(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
 {
-  Halfspace hs(Vec3f(1, 0, 0), 0);
-  Vec3f t[3];
+  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
+  // Vector3d point;
   // FCL_REAL depth;
-  Vec3f normal;
+  Vector3d normal;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
@@ -1129,38 +1129,38 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
   t[0] << 20, 0, 0;
   t[1] << 0, -20, 0;
   t[2] << 0, 20, 0;
-  res = solver1.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, &normal);
+  res = solver1.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3d(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3d(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
 {
-  Plane hs(Vec3f(1, 0, 0), 0);
-  Vec3f t[3];
+  Plane hs(Vector3d(1, 0, 0), 0);
+  Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
+  // Vector3d point;
   // FCL_REAL depth;
-  Vec3f normal;
+  Vector3d normal;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
@@ -1170,36 +1170,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver1.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, &normal);
+  res = solver1.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3d(1, 0, 0), 1e-9));
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3d(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
 {
   Sphere s(10);
-  Halfspace hs(Vec3f(1, 0, 0), 0);
+  Halfspace hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << -5, 0, 0;
   contacts[0].penetration_depth = 10;
@@ -1209,13 +1209,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-5, 0, 0);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 15;
@@ -1223,15 +1223,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, 0);
   contacts[0].penetration_depth = 15;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -7.5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -1239,23 +1239,23 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-7.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-7.5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-10.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-10.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, 0;
   contacts[0].penetration_depth = 20.1;
@@ -1263,29 +1263,29 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0.05, 0, 0);
+  contacts[0].pos = transform * Vector3d(0.05, 0, 0);
   contacts[0].penetration_depth = 20.1;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
 {
   Sphere s(10);
-  Plane hs(Vec3f(1, 0, 0), 0);
+  Plane hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos.setZero();
   contacts[0].penetration_depth = 10;
@@ -1295,13 +1295,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -1309,15 +1309,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(5, 0, 0);
+  contacts[0].pos = transform * Vector3d(5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -1325,45 +1325,45 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-10.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-10.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 {
   Box s(5, 10, 20);
-  Halfspace hs(Vec3f(1, 0, 0), 0);
+  Halfspace hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -1373,13 +1373,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3d(-1.25, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -0.625, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1387,15 +1387,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-0.625, 0, 0);
+  contacts[0].pos = transform * Vector3d(-0.625, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.875, 0, 0;
   contacts[0].penetration_depth = 1.25;
@@ -1403,15 +1403,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.875, 0, 0);
+  contacts[0].pos = transform * Vector3d(-1.875, 0, 0);
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.51, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.51, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.005, 0, 0;
   contacts[0].penetration_depth = 5.01;
@@ -1419,23 +1419,23 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.51, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.51, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0.005, 0, 0);
+  contacts[0].pos = transform * Vector3d(0.005, 0, 0);
   contacts[0].penetration_depth = 5.01;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.51, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.51, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f(transform.linear());
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d(transform.linear());
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
@@ -1443,18 +1443,18 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
 {
   Box s(5, 10, 20);
-  Plane hs(Vec3f(1, 0, 0), 0);
+  Plane hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -1464,13 +1464,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 1.25, 0, 0;
   contacts[0].penetration_depth = 1.25;
@@ -1478,15 +1478,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(1.25, 0, 0);
+  contacts[0].pos = transform * Vector3d(1.25, 0, 0);
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 1.25;
@@ -1494,31 +1494,31 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3d(-1.25, 0, 0);
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.51, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.51, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.51, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.51, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f(transform.linear());
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d(transform.linear());
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
@@ -1526,18 +1526,18 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
 {
   Ellipsoid s(5, 10, 20);
-  Halfspace hs(Vec3f(1, 0, 0), 0);
+  Halfspace hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 5.0;
@@ -1547,13 +1547,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, 0);
   contacts[0].penetration_depth = 5.0;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.875, 0, 0;
   contacts[0].penetration_depth = 6.25;
@@ -1561,15 +1561,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.875, 0, 0);
+  contacts[0].pos = transform * Vector3d(-1.875, 0, 0);
   contacts[0].penetration_depth = 6.25;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.125, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1577,15 +1577,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-3.125, 0, 0);
+  contacts[0].pos = transform * Vector3d(-3.125, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.01, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.005, 0, 0;
   contacts[0].penetration_depth = 10.01;
@@ -1593,28 +1593,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.01, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0.005, 0, 0);
+  contacts[0].pos = transform * Vector3d(0.005, 0, 0);
   contacts[0].penetration_depth = 10.01;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 1, 0), 0);
+  hs = Halfspace(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -5.0, 0;
   contacts[0].penetration_depth = 10.0;
@@ -1624,13 +1624,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -5.0, 0);
+  contacts[0].pos = transform * Vector3d(0, -5.0, 0);
   contacts[0].penetration_depth = 10.0;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 1.25, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -4.375, 0;
   contacts[0].penetration_depth = 11.25;
@@ -1638,15 +1638,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 1.25, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -4.375, 0);
+  contacts[0].pos = transform * Vector3d(0, -4.375, 0);
   contacts[0].penetration_depth = 11.25;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -1.25, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -5.625, 0;
   contacts[0].penetration_depth = 8.75;
@@ -1654,15 +1654,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -1.25, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -5.625, 0);
+  contacts[0].pos = transform * Vector3d(0, -5.625, 0);
   contacts[0].penetration_depth = 8.75;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 10.01, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 10.01, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.005, 0;
   contacts[0].penetration_depth = 20.01;
@@ -1670,28 +1670,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 10.01, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 10.01, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0.005, 0);
+  contacts[0].pos = transform * Vector3d(0, 0.005, 0);
   contacts[0].penetration_depth = 20.01;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -10.01, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -10.01, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 0, 1), 0);
+  hs = Halfspace(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -10.0;
   contacts[0].penetration_depth = 20.0;
@@ -1701,13 +1701,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -10.0);
+  contacts[0].pos = transform * Vector3d(0, 0, -10.0);
   contacts[0].penetration_depth = 20.0;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 1.25)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -9.375;
   contacts[0].penetration_depth = 21.25;
@@ -1715,15 +1715,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 1.25)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -9.375);
+  contacts[0].pos = transform * Vector3d(0, 0, -9.375);
   contacts[0].penetration_depth = 21.25;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -1.25)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -10.625;
   contacts[0].penetration_depth = 18.75;
@@ -1731,15 +1731,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -1.25)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -10.625);
+  contacts[0].pos = transform * Vector3d(0, 0, -10.625);
   contacts[0].penetration_depth = 18.75;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 20.01)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 20.01)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.005;
   contacts[0].penetration_depth = 40.01;
@@ -1747,37 +1747,37 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 20.01)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 20.01)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0.005);
+  contacts[0].pos = transform * Vector3d(0, 0, 0.005);
   contacts[0].penetration_depth = 40.01;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -20.01)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -20.01)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 {
   Ellipsoid s(5, 10, 20);
-  Plane hs(Vec3f(1, 0, 0), 0);
+  Plane hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5.0;
@@ -1787,13 +1787,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5.0;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 1.25, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1801,15 +1801,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(1.25, 0, 0);
+  contacts[0].pos = transform * Vector3d(1.25, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1817,36 +1817,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-1.25, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3d(-1.25, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 1, 0), 0);
+  hs = Plane(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0.0, 0;
   contacts[0].penetration_depth = 10.0;
@@ -1856,13 +1856,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 10.0;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 1.25, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 1.25, 0;
   contacts[0].penetration_depth = 8.75;
@@ -1870,15 +1870,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 1.25, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 1.25, 0);
+  contacts[0].pos = transform * Vector3d(0, 1.25, 0);
   contacts[0].penetration_depth = 8.75;
-  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -1.25, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, 0;
   contacts[0].penetration_depth = 8.75;
@@ -1886,36 +1886,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -1.25, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -1.25, 0);
+  contacts[0].pos = transform * Vector3d(0, -1.25, 0);
   contacts[0].penetration_depth = 8.75;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 10.01, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 10.01, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -10.01, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -10.01, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 0, 1), 0);
+  hs = Plane(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 20.0;
@@ -1925,13 +1925,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 20.0;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 1.25)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 1.25;
   contacts[0].penetration_depth = 18.75;
@@ -1939,15 +1939,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 1.25)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 1.25);
+  contacts[0].pos = transform * Vector3d(0, 0, 1.25);
   contacts[0].penetration_depth = 18.75;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -1.25)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -1.25;
   contacts[0].penetration_depth = 18.75;
@@ -1955,45 +1955,45 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -1.25)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -1.25);
+  contacts[0].pos = transform * Vector3d(0, 0, -1.25);
   contacts[0].penetration_depth = 18.75;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 20.01)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 20.01)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -20.01)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -20.01)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 {
   Capsule s(5, 10);
-  Halfspace hs(Vec3f(1, 0, 0), 0);
+  Halfspace hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2003,13 +2003,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2017,15 +2017,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3d(-1.25, 0, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.75, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2033,15 +2033,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-3.75, 0, 0);
+  contacts[0].pos = transform * Vector3d(-3.75, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2049,28 +2049,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0.05, 0, 0);
+  contacts[0].pos = transform * Vector3d(0.05, 0, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 1, 0), 0);
+  hs = Halfspace(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 5;
@@ -2080,13 +2080,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3d(0, -2.5, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2094,15 +2094,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -1.25, 0);
+  contacts[0].pos = transform * Vector3d(0, -1.25, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -3.75, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2110,15 +2110,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -3.75, 0);
+  contacts[0].pos = transform * Vector3d(0, -3.75, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.05, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2126,28 +2126,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0.05, 0);
+  contacts[0].pos = transform * Vector3d(0, 0.05, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 0, 1), 0);
+  hs = Halfspace(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -5;
   contacts[0].penetration_depth = 10;
@@ -2157,13 +2157,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -5);
+  contacts[0].pos = transform * Vector3d(0, 0, -5);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -3.75;
   contacts[0].penetration_depth = 12.5;
@@ -2171,15 +2171,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -3.75);
+  contacts[0].pos = transform * Vector3d(0, 0, -3.75);
   contacts[0].penetration_depth = 12.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -6.25;
   contacts[0].penetration_depth = 7.5;
@@ -2187,15 +2187,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -6.25);
+  contacts[0].pos = transform * Vector3d(0, 0, -6.25);
   contacts[0].penetration_depth  = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.05;
   contacts[0].penetration_depth = 20.1;
@@ -2203,37 +2203,37 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0.05);
+  contacts[0].pos = transform * Vector3d(0, 0, 0.05);
   contacts[0].penetration_depth = 20.1;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 {
   Capsule s(5, 10);
-  Plane hs(Vec3f(1, 0, 0), 0);
+  Plane hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2243,13 +2243,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2257,15 +2257,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2273,36 +2273,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 1, 0), 0);
+  hs = Plane(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2312,13 +2312,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
+  contacts[0].normal = transform.linear() * Vector3d(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2326,15 +2326,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 2.5, 0);
+  contacts[0].pos = transform * Vector3d(0, 2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2342,36 +2342,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3d(0, -2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 0, 1), 0);
+  hs = Plane(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 10;
@@ -2381,13 +2381,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 2.5;
   contacts[0].penetration_depth = 7.5;
@@ -2395,15 +2395,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, 2.5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 7.5;
@@ -2411,45 +2411,45 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, -2.5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
 {
   Cylinder s(5, 10);
-  Halfspace hs(Vec3f(1, 0, 0), 0);
+  Halfspace hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2459,13 +2459,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2473,15 +2473,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3d(-1.25, 0, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.75, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2489,15 +2489,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-3.75, 0, 0);
+  contacts[0].pos = transform * Vector3d(-3.75, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2505,28 +2505,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0.05, 0, 0);
+  contacts[0].pos = transform * Vector3d(0.05, 0, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 1, 0), 0);
+  hs = Halfspace(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 5;
@@ -2536,13 +2536,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3d(0, -2.5, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2550,15 +2550,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -1.25, 0);
+  contacts[0].pos = transform * Vector3d(0, -1.25, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -3.75, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2566,15 +2566,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -3.75, 0);
+  contacts[0].pos = transform * Vector3d(0, -3.75, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.05, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2582,28 +2582,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0.05, 0);
+  contacts[0].pos = transform * Vector3d(0, 0.05, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 0, 1), 0);
+  hs = Halfspace(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 5;
@@ -2613,13 +2613,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, -2.5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -1.25;
   contacts[0].penetration_depth = 7.5;
@@ -2627,15 +2627,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -1.25);
+  contacts[0].pos = transform * Vector3d(0, 0, -1.25);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -3.75;
   contacts[0].penetration_depth = 2.5;
@@ -2643,15 +2643,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -3.75);
+  contacts[0].pos = transform * Vector3d(0, 0, -3.75);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 5.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 5.1)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.05;
   contacts[0].penetration_depth = 10.1;
@@ -2659,37 +2659,37 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 5.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 5.1)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0.05);
+  contacts[0].pos = transform * Vector3d(0, 0, 0.05);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -5.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -5.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 {
   Cylinder s(5, 10);
-  Plane hs(Vec3f(1, 0, 0), 0);
+  Plane hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2699,13 +2699,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2713,15 +2713,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2729,36 +2729,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 1, 0), 0);
+  hs = Plane(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2768,13 +2768,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2782,15 +2782,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 2.5, 0);
+  contacts[0].pos = transform * Vector3d(0, 2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2798,36 +2798,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3d(0, -2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 0, 1), 0);
+  hs = Plane(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2837,13 +2837,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 2.5;
   contacts[0].penetration_depth = 2.5;
@@ -2851,15 +2851,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, 2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -2867,27 +2867,27 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -2895,18 +2895,18 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 {
   Cone s(5, 10);
-  Halfspace hs(Vec3f(1, 0, 0), 0);
+  Halfspace hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, -5;
   contacts[0].penetration_depth = 5;
@@ -2916,13 +2916,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, -5);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, -5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, -5;
   contacts[0].penetration_depth = 7.5;
@@ -2930,15 +2930,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-1.25, 0, -5);
+  contacts[0].pos = transform * Vector3d(-1.25, 0, -5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.75, 0, -5;
   contacts[0].penetration_depth = 2.5;
@@ -2946,15 +2946,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-3.75, 0, -5);
+  contacts[0].pos = transform * Vector3d(-3.75, 0, -5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, -5;
   contacts[0].penetration_depth = 10.1;
@@ -2962,28 +2962,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0.05, 0, -5);
+  contacts[0].pos = transform * Vector3d(0.05, 0, -5);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 1, 0), 0);
+  hs = Halfspace(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, -5;
   contacts[0].penetration_depth = 5;
@@ -2993,13 +2993,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -2.5, -5);
+  contacts[0].pos = transform * Vector3d(0, -2.5, -5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, -5;
   contacts[0].penetration_depth = 7.5;
@@ -3007,15 +3007,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -1.25, -5);
+  contacts[0].pos = transform * Vector3d(0, -1.25, -5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -3.75, -5;
   contacts[0].penetration_depth = 2.5;
@@ -3023,15 +3023,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -3.75, -5);
+  contacts[0].pos = transform * Vector3d(0, -3.75, -5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.05, -5;
   contacts[0].penetration_depth = 10.1;
@@ -3039,28 +3039,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0.05, -5);
+  contacts[0].pos = transform * Vector3d(0, 0.05, -5);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace(Vec3f(0, 0, 1), 0);
+  hs = Halfspace(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 5;
@@ -3070,13 +3070,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, -2.5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -1.25;
   contacts[0].penetration_depth = 7.5;
@@ -3084,15 +3084,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -1.25);
+  contacts[0].pos = transform * Vector3d(0, 0, -1.25);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -3.75;
   contacts[0].penetration_depth= 2.5;
@@ -3100,15 +3100,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -3.75);
+  contacts[0].pos = transform * Vector3d(0, 0, -3.75);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 5.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 5.1)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.05;
   contacts[0].penetration_depth = 10.1;
@@ -3116,37 +3116,37 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 5.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 5.1)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0.05);
+  contacts[0].pos = transform * Vector3d(0, 0, 0.05);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -5.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -5.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 {
   Cone s(5, 10);
-  Plane hs(Vec3f(1, 0, 0), 0);
+  Plane hs(Vector3d(1, 0, 0), 0);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -3156,13 +3156,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 2.5, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3170,15 +3170,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(2.5, 0, -2.5);
+  contacts[0].pos = transform * Vector3d(2.5, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3186,36 +3186,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-2.5, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(-2.5, 0, -2.5);
+  contacts[0].pos = transform * Vector3d(-2.5, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-5.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 1, 0), 0);
+  hs = Plane(Vector3d(0, 1, 0), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -3225,13 +3225,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 2.5, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3239,15 +3239,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 2.5, -2.5);
+  contacts[0].pos = transform * Vector3d(0, 2.5, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3255,36 +3255,36 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -2.5, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, -2.5, -2.5);
+  contacts[0].pos = transform * Vector3d(0, -2.5, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3d(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, -5.1, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane(Vec3f(0, 0, 1), 0);
+  hs = Plane(Vector3d(0, 0, 1), 0);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -3294,13 +3294,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 0);
+  contacts[0].pos = transform * Vector3d(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3308,15 +3308,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, 2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, 2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3324,27 +3324,27 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -2.5)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vec3f(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3d(0, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vec3f(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3d(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, -10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -3377,59 +3377,59 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
   Sphere s1(20);
   Sphere s2(10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   //generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist = -1;
-  Vec3f closest_p1, closest_p2;
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(0, 40, 0))), &dist, &closest_p1, &closest_p2);
+  Vector3d closest_p1, closest_p2;
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(0, 40, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   // this is one problem: the precise is low sometimes
   EXPECT_TRUE(fabs(dist - 10) < 0.1);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.06);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, transform, &dist);
+  res = solver1.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.1);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, transform, &dist);
+  res = solver1.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.1);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, transform, &dist);
+  res = solver1.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 }
@@ -3438,15 +3438,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
 {
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   //generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -3454,48 +3454,48 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(0, 20.2, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(0, 20.2, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.2) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1 * 1.414) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(0, 20.1, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(0, 20.1, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s2, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2.shapeDistance(s2, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1 * 1.414) < 0.001);
   EXPECT_TRUE(res);
 
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(15.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(15.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(20, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(20, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -3505,13 +3505,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
   Sphere s1(20);
   Box s2(5, 5, 5);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -3519,19 +3519,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(22.6, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(22.6, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.05);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -3541,13 +3541,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -3555,19 +3555,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -3577,13 +3577,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
   Cone s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -3591,19 +3591,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(0, 0, 40))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 1);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 40))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 1);
   EXPECT_TRUE(res);
 }
@@ -3613,13 +3613,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
   Cylinder s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -3627,19 +3627,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.02);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.1);
   EXPECT_TRUE(res);
 }
@@ -3649,59 +3649,59 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist = -1;
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver1.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver1.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver1.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, transform, &dist);
+  res = solver1.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, transform, &dist);
+  res = solver1.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, transform, &dist);
+  res = solver1.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 }
@@ -3735,40 +3735,40 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   Sphere s1(20);
   Sphere s2(10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(30, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(30, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(30.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -3776,15 +3776,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[0].pos = transform * Vec3f(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[0].pos = transform * Vector3d(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
   contacts[0].pos.setZero();
@@ -3795,12 +3795,12 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   tf2 = transform;
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
-  contacts[0].pos = transform * Vec3f::Zero();
+  contacts[0].pos = transform * Vector3d::Zero();
   contacts[0].penetration_depth = 20.0 + 10.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-29.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -3808,27 +3808,27 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-29.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(-1, 0, 0);
-  contacts[0].pos = transform * Vec3f(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(-1, 0, 0);
+  contacts[0].pos = transform * Vector3d(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-30.0, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-30.0, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-30.01, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -3837,18 +3837,18 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  Quaternion3f q(Eigen::AngleAxisd((FCL_REAL)3.140 / 6, Vec3f(0, 0, 1)));
+  Quaternion3d q(Eigen::AngleAxisd((FCL_REAL)3.140 / 6, Vector3d(0, 0, 1)));
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
   contacts[0].normal << 1, 0, 0;
@@ -3861,41 +3861,41 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(15, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(15, 0, 0)));
   contacts.resize(4);
-  contacts[0].normal = Vec3f(1, 0, 0);
-  contacts[1].normal = Vec3f(1, 0, 0);
-  contacts[2].normal = Vec3f(1, 0, 0);
-  contacts[3].normal = Vec3f(1, 0, 0);
+  contacts[0].normal = Vector3d(1, 0, 0);
+  contacts[1].normal = Vector3d(1, 0, 0);
+  contacts[2].normal = Vector3d(1, 0, 0);
+  contacts[3].normal = Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(15.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(15.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(q);
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(q);
   contacts.resize(4);
-  contacts[0].normal = Vec3f(1, 0, 0);
-  contacts[1].normal = Vec3f(1, 0, 0);
-  contacts[2].normal = Vec3f(1, 0, 0);
-  contacts[3].normal = Vec3f(1, 0, 0);
+  contacts[0].normal = Vector3d(1, 0, 0);
+  contacts[1].normal = Vector3d(1, 0, 0);
+  contacts[2].normal = Vector3d(1, 0, 0);
+  contacts[3].normal = Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(q);
+  tf2 = transform * Transform3d(q);
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vec3f(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3d(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 }
 
@@ -3904,16 +3904,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
   Sphere s1(20);
   Box s2(5, 5, 5);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -3924,26 +3924,26 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(22.5, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(22.5, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 1e-7);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(22.51, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(22.51, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(22.4, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(22.4, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 1e-2);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(22.4, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(22.4, 0, 0)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 }
@@ -3953,16 +3953,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
   Sphere s1(20);
   Capsule s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -3973,26 +3973,26 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(24.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(24.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(24.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(24.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(25, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(25, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(25.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(25.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4001,16 +4001,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4021,27 +4021,27 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 3e-1);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4050,16 +4050,16 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
   Cone s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4070,37 +4070,37 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 5.7e-1);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vec3f(0, 0, 1);
+  // contacts[0].normal = transform.linear() * Vector3d(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 }
@@ -4110,15 +4110,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
   Cylinder s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   std::vector<ContactPoint> contacts;
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4129,47 +4129,47 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(9.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(9.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(10, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(10, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(10, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(10, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 9.9)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 9.9)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vec3f(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3d(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 10.1)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 10.1)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4178,44 +4178,44 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
 
-  Transform3f tf1;
-  Transform3f tf2;
+  Transform3d tf1;
+  Transform3d tf2;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
-  Transform3f identity;
+  Transform3d identity;
 
   std::vector<ContactPoint> contacts;
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(30, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(30, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(29.99, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f::Identity();
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d::Identity();
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
@@ -4224,43 +4224,43 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-29.99, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-29.99, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3f::Identity();
-  tf2 = Transform3f(Eigen::Translation3d(Vec3f(-30, 0, 0)));
+  tf1 = Transform3d::Identity();
+  tf2 = Transform3d(Eigen::Translation3d(Vector3d(-30, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3f(Eigen::Translation3d(Vec3f(-30.01, 0, 0)));
+  tf2 = transform * Transform3d(Eigen::Translation3d(Vector3d(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
 {
   Sphere s(10);
-  Vec3f t[3];
+  Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
+  // Vector3d point;
   // FCL_REAL depth;
-  Vec3f normal;
+  Vector3d normal;
   bool res;
 
-  res = solver2.shapeTriangleIntersect(s, Transform3f::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(s, Transform3d::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
@@ -4269,38 +4269,38 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver2.shapeTriangleIntersect(s, Transform3f::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(s, Transform3d::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeTriangleIntersect(s, Transform3f::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver2.shapeTriangleIntersect(s, Transform3d::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3d(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3d(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
 {
-  Halfspace hs(Vec3f(1, 0, 0), 0);
-  Vec3f t[3];
+  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
+  // Vector3d point;
   // FCL_REAL depth;
-  Vec3f normal;
+  Vector3d normal;
   bool res;
 
-  res = solver2.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
@@ -4310,38 +4310,38 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver2.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, &normal);
+  res = solver2.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3d(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3d(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 {
-  Plane hs(Vec3f(1, 0, 0), 0);
-  Vec3f t[3];
+  Plane hs(Vector3d(1, 0, 0), 0);
+  Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
-  // Vec3f point;
+  // Vector3d point;
   // FCL_REAL depth;
-  Vec3f normal;
+  Vector3d normal;
   bool res;
 
-  res = solver1.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver1.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver1.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
@@ -4351,19 +4351,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver2.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, NULL);
+  res = solver2.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeTriangleIntersect(hs, Transform3f::Identity(), t[0], t[1], t[2], Transform3f::Identity(), NULL, NULL, &normal);
+  res = solver2.shapeTriangleIntersect(hs, Transform3d::Identity(), t[0], t[1], t[2], Transform3d::Identity(), NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3d(1, 0, 0), 1e-9));
 
   res =  solver2.shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vec3f(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3d(1, 0, 0), 1e-9));
 }
 
 // Shape distance test coverage (built-in GJK)
@@ -4395,58 +4395,58 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
   Sphere s1(20);
   Sphere s2(10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist = -1;
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, transform, &dist);
+  res = solver2.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, transform, &dist);
+  res = solver2.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, transform, &dist);
+  res = solver2.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 }
@@ -4456,13 +4456,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
   Box s1(20, 40, 50);
   Box s2(10, 10, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -4470,19 +4470,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(15.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(15.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(15.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(15.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(20, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(20, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4492,13 +4492,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
   Sphere s1(20);
   Box s2(5, 5, 5);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -4506,19 +4506,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(22.6, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(22.6, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4528,13 +4528,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
   Cylinder s1(5, 10);
   Cylinder s2(5, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -4542,19 +4542,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4564,13 +4564,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
   Cone s1(5, 10);
   Cone s2(5, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist;
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
@@ -4578,19 +4578,19 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(10.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(0, 0, 40))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(0, 0, 40))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4600,57 +4600,57 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
   Ellipsoid s1(20, 40, 50);
   Ellipsoid s2(10, 10, 10);
 
-  Transform3f transform = Transform3f::Identity();
+  Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
 
   bool res;
   FCL_REAL dist = -1;
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f::Identity(), s2, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, Transform3d::Identity(), s2, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, Transform3f::Identity(), &dist);
+  res = solver2.shapeDistance(s1, Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, Transform3d::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), &dist);
+  res = solver2.shapeDistance(s1, transform, s2, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 
-  res = solver2.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(40, 0, 0))), s2, transform, &dist);
+  res = solver2.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(30.1, 0, 0))), s2, transform, &dist);
+  res = solver2.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2.shapeDistance(s1, transform * Transform3f(Eigen::Translation3d(Vec3f(29.9, 0, 0))), s2, transform, &dist);
+  res = solver2.shapeDistance(s1, transform * Transform3d(Eigen::Translation3d(Vector3d(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_TRUE_FALSE(res);
 }
@@ -4658,8 +4658,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
 template<typename S1, typename S2>
 void testReversibleShapeIntersection(const S1& s1, const S2& s2, FCL_REAL distance)
 {
-  Transform3f tf1(Eigen::Translation3d(Vec3f(-0.5 * distance, 0.0, 0.0)));
-  Transform3f tf2(Eigen::Translation3d(Vec3f(+0.5 * distance, 0.0, 0.0)));
+  Transform3d tf1(Eigen::Translation3d(Vector3d(-0.5 * distance, 0.0, 0.0)));
+  Transform3d tf2(Eigen::Translation3d(Vector3d(+0.5 * distance, 0.0, 0.0)));
 
   std::vector<ContactPoint> contactsA;
   std::vector<ContactPoint> contactsB;
@@ -4709,8 +4709,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
   Capsule capsule(5, 10);
   Cone cone(5, 10);
   Cylinder cylinder(5, 10);
-  Plane plane(Vec3f::Zero(), 0.0);
-  Halfspace halfspace(Vec3f::Zero(), 0.0);
+  Plane plane(Vector3d::Zero(), 0.0);
+  Halfspace halfspace(Vector3d::Zero(), 0.0);
 
   // Use sufficiently short distance so that all the primitive shapes can intersect
   FCL_REAL distance = 5.0;
@@ -4758,15 +4758,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
 template<typename S1, typename S2>
 void testReversibleShapeDistance(const S1& s1, const S2& s2, FCL_REAL distance)
 {
-  Transform3f tf1(Eigen::Translation3d(Vec3f(-0.5 * distance, 0.0, 0.0)));
-  Transform3f tf2(Eigen::Translation3d(Vec3f(+0.5 * distance, 0.0, 0.0)));
+  Transform3d tf1(Eigen::Translation3d(Vector3d(-0.5 * distance, 0.0, 0.0)));
+  Transform3d tf2(Eigen::Translation3d(Vector3d(+0.5 * distance, 0.0, 0.0)));
 
   FCL_REAL distA;
   FCL_REAL distB;
-  Vec3f p1A;
-  Vec3f p1B;
-  Vec3f p2A;
-  Vec3f p2B;
+  Vector3d p1A;
+  Vector3d p1B;
+  Vector3d p2A;
+  Vector3d p2B;
 
   bool resA;
   bool resB;
@@ -4805,8 +4805,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeDistance_allshapes)
   Capsule capsule(5, 10);
   Cone cone(5, 10);
   Cylinder cylinder(5, 10);
-  Plane plane(Vec3f::Zero(), 0.0);
-  Halfspace halfspace(Vec3f::Zero(), 0.0);
+  Plane plane(Vector3d::Zero(), 0.0);
+  Halfspace halfspace(Vector3d::Zero(), 0.0);
 
   // Use sufficiently long distance so that all the primitive shapes CANNOT intersect
   FCL_REAL distance = 15.0;

@@ -1,18 +1,57 @@
+/*
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
+ *  Copyright (c) 2014-2016, Open Source Robotics Foundation
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Open Source Robotics Foundation nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/** \author Jia Pan */
+
 #ifndef FCL_LEARNING_CLASSIFIER_H
 #define FCL_LEARNING_CLASSIFIER_H
 
-#include "fcl/math/vec_nf.h"
+#include <vector>
+
+#include "fcl/data_types.h"
 
 namespace fcl
 {
 template<std::size_t N>
 struct Item
 {
-  Vecnf<N> q;
+  VectorNd<N> q;
   bool label;
   FCL_REAL w;
 
-  Item(const Vecnf<N>& q_, bool label_, FCL_REAL w_ = 1) : q(q_),
+  Item(const VectorNd<N>& q_, bool label_, FCL_REAL w_ = 1) : q(q_),
                                                            label(label_),
                                                            w(w_)
   {}
@@ -23,7 +62,7 @@ struct Item
 template<std::size_t N>
 struct Scaler
 {
-  Vecnf<N> v_min, v_max;
+  VectorNd<N> v_min, v_max;
   Scaler()
   {
     // default no scale
@@ -34,21 +73,21 @@ struct Scaler
     }
   }
 
-  Scaler(const Vecnf<N>& v_min_, const Vecnf<N>& v_max_) : v_min(v_min_),
+  Scaler(const VectorNd<N>& v_min_, const VectorNd<N>& v_max_) : v_min(v_min_),
                                                            v_max(v_max_)
   {}
 
-  Vecnf<N> scale(const Vecnf<N>& v) const
+  VectorNd<N> scale(const VectorNd<N>& v) const
   {
-    Vecnf<N> res;
+    VectorNd<N> res;
     for(std::size_t i = 0; i < N; ++i)
       res[i] = (v[i] - v_min[i]) / (v_max[i] - v_min[i]);
     return res;
   }
 
-  Vecnf<N> unscale(const Vecnf<N>& v) const
+  VectorNd<N> unscale(const VectorNd<N>& v) const
   {
-    Vecnf<N> res;
+    VectorNd<N> res;
     for(std::size_t i = 0; i < N; ++i)
       res[i] = v[i] * (v_max[i] - v_min[i]) + v_min[i];
     return res;
@@ -74,8 +113,8 @@ public:
 
   ~SVMClassifier() {}
   
-  virtual PredictResult predict(const Vecnf<N>& q) const = 0;
-  virtual std::vector<PredictResult> predict(const std::vector<Vecnf<N> >& qs) const = 0;
+  virtual PredictResult predict(const VectorNd<N>& q) const = 0;
+  virtual std::vector<PredictResult> predict(const std::vector<VectorNd<N> >& qs) const = 0;
 
   virtual std::vector<Item<N> > getSupportVectors() const = 0;
   virtual void setScaler(const Scaler<N>& scaler) = 0;
@@ -101,7 +140,7 @@ public:
 template<std::size_t N>
 Scaler<N> computeScaler(const std::vector<Item<N> >& data)
 {
-  Vecnf<N> lower_bound, upper_bound;
+  VectorNd<N> lower_bound, upper_bound;
   for(std::size_t j = 0; j < N; ++j)
   {
     lower_bound[j] = std::numeric_limits<FCL_REAL>::max();
@@ -121,9 +160,9 @@ Scaler<N> computeScaler(const std::vector<Item<N> >& data)
 }
 
 template<std::size_t N>
-Scaler<N> computeScaler(const std::vector<Vecnf<N> >& data)
+Scaler<N> computeScaler(const std::vector<VectorNd<N> >& data)
 {
-  Vecnf<N> lower_bound, upper_bound;
+  VectorNd<N> lower_bound, upper_bound;
   for(std::size_t j = 0; j < N; ++j)
   {
     lower_bound[j] = std::numeric_limits<FCL_REAL>::max();

@@ -223,11 +223,11 @@ bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, v
 template<typename HashTable>
 bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
-  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB aabb = obj->getAABB();
   if(min_dist < std::numeric_limits<FCL_REAL>::max())
   {
-    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+    Vector3d min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
@@ -316,7 +316,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
       {
         if(min_dist < old_min_distance)
         {
-          Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+          Vector3d min_dist_delta(min_dist, min_dist, min_dist);
           aabb = AABB(obj->getAABB(), min_dist_delta);
           status = 0;
         }

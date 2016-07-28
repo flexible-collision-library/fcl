@@ -120,9 +120,9 @@ void SaPCollisionManager::registerObjects(const std::vector<CollisionObject*>& o
     for(size_t coord = 0; coord < 3; ++coord)
     { 
       std::sort(endpoints.begin(), endpoints.end(), 
-                std::bind(std::less<Vec3f::Scalar>(),
-                            std::bind(static_cast<Vec3f::Scalar (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_1, coord),
-                            std::bind(static_cast<Vec3f::Scalar (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_2, coord)));
+                std::bind(std::less<Vector3d::Scalar>(),
+                            std::bind(static_cast<Vector3d::Scalar (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_1, coord),
+                            std::bind(static_cast<Vector3d::Scalar (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_2, coord)));
 
       endpoints[0]->prev[coord] = NULL;
       endpoints[0]->next[coord] = endpoints[1];
@@ -294,8 +294,8 @@ void SaPCollisionManager::update_(SaPAABB* updated_aabb)
 
   SaPAABB* current = updated_aabb;
 
-  Vec3f new_min = current->obj->getAABB().min_;
-  Vec3f new_max = current->obj->getAABB().max_;
+  Vector3d new_min = current->obj->getAABB().min_;
+  Vector3d new_max = current->obj->getAABB().max_;
 
   SaPAABB dummy;
   dummy.cached = current->obj->getAABB();
@@ -513,9 +513,9 @@ bool SaPCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionC
   
   // compute stop_pos by binary search, this is cheaper than check it in while iteration linearly
   std::vector<EndPoint*>::const_iterator res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
-                                                                   std::bind(std::less<Vec3f::Scalar>(),
-                                                                               std::bind(static_cast<Vec3f::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
-                                                                               std::bind(static_cast<Vec3f::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
+                                                                   std::bind(std::less<Vector3d::Scalar>(),
+                                                                               std::bind(static_cast<Vector3d::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
+                                                                               std::bind(static_cast<Vector3d::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
   
   EndPoint* end_pos = NULL;
   if(res_it != velist[axis].end())
@@ -549,12 +549,12 @@ void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCa
 
 bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
-  Vec3f delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB aabb = obj->getAABB();
 
   if(min_dist < std::numeric_limits<FCL_REAL>::max())
   {
-    Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+    Vector3d min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
@@ -579,9 +579,9 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
     
  
     std::vector<EndPoint*>::const_iterator res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
-                                                                     std::bind(std::less<Vec3f::Scalar>(),
-                                                                                 std::bind(static_cast<Vec3f::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
-                                                                                 std::bind(static_cast<Vec3f::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
+                                                                     std::bind(std::less<Vector3d::Scalar>(),
+                                                                                 std::bind(static_cast<Vector3d::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
+                                                                                 std::bind(static_cast<Vector3d::Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
 
     EndPoint* end_pos = NULL;
     if(res_it != velist[axis].end())
@@ -633,7 +633,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
       {
         if(min_dist < old_min_distance)
         {
-          Vec3f min_dist_delta(min_dist, min_dist, min_dist);
+          Vector3d min_dist_delta(min_dist, min_dist, min_dist);
           aabb = AABB(obj->getAABB(), min_dist_delta);
           status = 0;
         }

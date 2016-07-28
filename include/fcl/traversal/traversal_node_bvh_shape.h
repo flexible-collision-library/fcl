@@ -177,9 +177,9 @@ public:
 
     const Triangle& tri_id = tri_indices[primitive_id];
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    const Vector3d& p1 = vertices[tri_id[0]];
+    const Vector3d& p2 = vertices[tri_id[1]];
+    const Vector3d& p3 = vertices[tri_id[2]];
 
     if(this->model1->isOccupied() && this->model2->isOccupied())
     {
@@ -197,8 +197,8 @@ public:
       else
       {
         FCL_REAL penetration;
-        Vec3f normal;
-        Vec3f contactp;
+        Vector3d normal;
+        Vector3d contactp;
 
         if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, &contactp, &penetration, &normal))
         {
@@ -236,7 +236,7 @@ public:
     return this->request.isSatisfied(*(this->result));
   }
 
-  Vec3f* vertices;
+  Vector3d* vertices;
   Triangle* tri_indices;
   
   FCL_REAL cost_density;
@@ -250,9 +250,9 @@ namespace details
 template<typename BV, typename S, typename NarrowPhaseSolver>
 static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int /*b2*/,
                                                              const BVHModel<BV>* model1, const S& model2,
-                                                             Vec3f* vertices, Triangle* tri_indices,
-                                                             const Transform3f& tf1,
-                                                             const Transform3f& tf2, 
+                                                             Vector3d* vertices, Triangle* tri_indices,
+                                                             const Transform3d& tf1,
+                                                             const Transform3d& tf2, 
                                                              const NarrowPhaseSolver* nsolver,
                                                              bool enable_statistics, 
                                                              FCL_REAL cost_density,
@@ -267,9 +267,9 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int /*b2*/,
 
   const Triangle& tri_id = tri_indices[primitive_id];
 
-  const Vec3f& p1 = vertices[tri_id[0]];
-  const Vec3f& p2 = vertices[tri_id[1]];
-  const Vec3f& p3 = vertices[tri_id[2]];
+  const Vector3d& p1 = vertices[tri_id[0]];
+  const Vector3d& p2 = vertices[tri_id[1]];
+  const Vector3d& p3 = vertices[tri_id[2]];
 
   if(model1->isOccupied() && model2.isOccupied())
   {
@@ -287,8 +287,8 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int /*b2*/,
     else
     {
       FCL_REAL penetration;
-      Vec3f normal;
-      Vec3f contactp;
+      Vector3d normal;
+      Vector3d contactp;
 
       if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, &contactp, &penetration, &normal))
       {
@@ -438,9 +438,9 @@ public:
 
     const Triangle& tri_id = tri_indices[primitive_id];
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    const Vector3d& p1 = vertices[tri_id[0]];
+    const Vector3d& p2 = vertices[tri_id[1]];
+    const Vector3d& p3 = vertices[tri_id[2]];
 
     if(this->model1->isOccupied() && this->model2->isOccupied())
     {
@@ -458,8 +458,8 @@ public:
       else
       {
         FCL_REAL penetration;
-        Vec3f normal;
-        Vec3f contactp;
+        Vector3d normal;
+        Vector3d contactp;
 
         if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
         {
@@ -497,7 +497,7 @@ public:
     return this->request.isSatisfied(*(this->result));
   }
 
-  Vec3f* vertices;
+  Vector3d* vertices;
   Triangle* tri_indices;
 
   FCL_REAL cost_density;
@@ -728,12 +728,12 @@ public:
     
     const Triangle& tri_id = tri_indices[primitive_id];
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    const Vector3d& p1 = vertices[tri_id[0]];
+    const Vector3d& p2 = vertices[tri_id[1]];
+    const Vector3d& p3 = vertices[tri_id[2]];
     
     FCL_REAL d;
-    Vec3f closest_p1, closest_p2;
+    Vector3d closest_p1, closest_p2;
     nsolver->shapeTriangleDistance(*(this->model2), this->tf2, p1, p2, p3, &d, &closest_p2, &closest_p1);
 
     this->result->update(d, this->model1, this->model2, primitive_id, DistanceResult::NONE, closest_p1, closest_p2);
@@ -747,7 +747,7 @@ public:
     return false;
   }
 
-  Vec3f* vertices;
+  Vector3d* vertices;
   Triangle* tri_indices;
 
   FCL_REAL rel_err;
@@ -763,9 +763,9 @@ namespace details
 template<typename BV, typename S, typename NarrowPhaseSolver>
 void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
                                               const BVHModel<BV>* model1, const S& model2,
-                                              Vec3f* vertices, Triangle* tri_indices,
-                                              const Transform3f& tf1,
-                                              const Transform3f& tf2,
+                                              Vector3d* vertices, Triangle* tri_indices,
+                                              const Transform3d& tf1,
+                                              const Transform3d& tf2,
                                               const NarrowPhaseSolver* nsolver,
                                               bool enable_statistics,
                                               int & num_leaf_tests,
@@ -778,12 +778,12 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
   int primitive_id = node.primitiveId();
 
   const Triangle& tri_id = tri_indices[primitive_id];
-  const Vec3f& p1 = vertices[tri_id[0]];
-  const Vec3f& p2 = vertices[tri_id[1]];
-  const Vec3f& p3 = vertices[tri_id[2]];
+  const Vector3d& p1 = vertices[tri_id[0]];
+  const Vector3d& p2 = vertices[tri_id[1]];
+  const Vector3d& p3 = vertices[tri_id[2]];
     
   FCL_REAL distance;
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
   nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
 
   result.update(distance, model1, &model2, primitive_id, DistanceResult::NONE, closest_p1, closest_p2);
@@ -792,20 +792,20 @@ void meshShapeDistanceOrientedNodeLeafTesting(int b1, int /* b2 */,
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
 static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
-                                                  Vec3f* vertices, Triangle* tri_indices, int init_tri_id,
-                                                  const S& model2, const Transform3f& tf1, const Transform3f& tf2,
+                                                  Vector3d* vertices, Triangle* tri_indices, int init_tri_id,
+                                                  const S& model2, const Transform3d& tf1, const Transform3d& tf2,
                                                   const NarrowPhaseSolver* nsolver,
                                                   const DistanceRequest& /* request */,
                                                   DistanceResult& result)
 {
   const Triangle& init_tri = tri_indices[init_tri_id];
   
-  const Vec3f& p1 = vertices[init_tri[0]];
-  const Vec3f& p2 = vertices[init_tri[1]];
-  const Vec3f& p3 = vertices[init_tri[2]];
+  const Vector3d& p1 = vertices[init_tri[0]];
+  const Vector3d& p2 = vertices[init_tri[1]];
+  const Vector3d& p3 = vertices[init_tri[2]];
   
   FCL_REAL distance;
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
   nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
 
   result.update(distance, model1, &model2, init_tri_id, DistanceResult::NONE, closest_p1, closest_p2);
@@ -943,12 +943,12 @@ public:
     
     const Triangle& tri_id = tri_indices[primitive_id];
 
-    const Vec3f& p1 = vertices[tri_id[0]];
-    const Vec3f& p2 = vertices[tri_id[1]];
-    const Vec3f& p3 = vertices[tri_id[2]];
+    const Vector3d& p1 = vertices[tri_id[0]];
+    const Vector3d& p2 = vertices[tri_id[1]];
+    const Vector3d& p3 = vertices[tri_id[2]];
     
     FCL_REAL distance;
-    Vec3f closest_p1, closest_p2;
+    Vector3d closest_p1, closest_p2;
     nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &distance, &closest_p1, &closest_p2);
 
     this->result->update(distance, this->model1, this->model2, DistanceResult::NONE, primitive_id, closest_p1, closest_p2);
@@ -962,7 +962,7 @@ public:
     return false;
   }
 
-  Vec3f* vertices;
+  Vector3d* vertices;
   Triangle* tri_indices;
 
   FCL_REAL rel_err;
@@ -1089,7 +1089,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     FCL_REAL d = this->model2_bv.distance(this->model1->getBV(b1).bv, &P2, &P1);
 
     stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
@@ -1108,12 +1108,12 @@ public:
 
     const Triangle& tri_id = this->tri_indices[primitive_id];
 
-    const Vec3f& p1 = this->vertices[tri_id[0]];
-    const Vec3f& p2 = this->vertices[tri_id[1]];
-    const Vec3f& p3 = this->vertices[tri_id[2]];
+    const Vector3d& p1 = this->vertices[tri_id[0]];
+    const Vector3d& p2 = this->vertices[tri_id[1]];
+    const Vector3d& p3 = this->vertices[tri_id[2]];
 
     FCL_REAL d;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     this->nsolver->shapeTriangleDistance(*(this->model2), this->tf2, p1, p2, p3, &d, &P2, &P1);
 
     if(d < this->min_distance)
@@ -1126,7 +1126,7 @@ public:
       last_tri_id = primitive_id;
     }
 
-    Vec3f n = this->tf2 * p2 - P1; n.normalize();
+    Vector3d n = this->tf2 * p2 - P1; n.normalize();
     // here n should be in global frame
     TriangleMotionBoundVisitor mb_visitor1(p1, p2, p3, n);
     TBVMotionBoundVisitor<BV> mb_visitor2(this->model2_bv, -n);
@@ -1150,7 +1150,7 @@ public:
     {
       const ConservativeAdvancementStackData& data = stack.back();
 
-      Vec3f n = this->tf2 * data.P2 - data.P1; n.normalize();
+      Vector3d n = this->tf2 * data.P2 - data.P1; n.normalize();
       int c1 = data.c1;
 
       TBVMotionBoundVisitor<BV> mb_visitor1(this->model1->getBV(c1).bv, n);
@@ -1181,7 +1181,7 @@ public:
 
   mutable FCL_REAL min_distance;
 
-  mutable Vec3f closest_p1, closest_p2;
+  mutable Vector3d closest_p1, closest_p2;
 
   mutable int last_tri_id;
   
@@ -1223,7 +1223,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     FCL_REAL d = this->model1_bv.distance(this->model2->getBV(b2).bv, &P1, &P2);
 
     stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
@@ -1242,12 +1242,12 @@ public:
 
     const Triangle& tri_id = this->tri_indices[primitive_id];
  
-    const Vec3f& p1 = this->vertices[tri_id[0]];
-    const Vec3f& p2 = this->vertices[tri_id[1]];
-    const Vec3f& p3 = this->vertices[tri_id[2]];
+    const Vector3d& p1 = this->vertices[tri_id[0]];
+    const Vector3d& p2 = this->vertices[tri_id[1]];
+    const Vector3d& p3 = this->vertices[tri_id[2]];
 
     FCL_REAL d;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     this->nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &d, &P1, &P2);
 
     if(d < this->min_distance)
@@ -1260,7 +1260,7 @@ public:
       last_tri_id = primitive_id;
     }
 
-    Vec3f n = P2 - this->tf1 * p1; n.normalize();
+    Vector3d n = P2 - this->tf1 * p1; n.normalize();
     // here n should be in global frame
     TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
     TriangleMotionBoundVisitor mb_visitor2(p1, p2, p3, -n);
@@ -1284,7 +1284,7 @@ public:
     {
       const ConservativeAdvancementStackData& data = stack.back();
 
-      Vec3f n = data.P2 - this->tf1 * data.P1; n.normalize();
+      Vector3d n = data.P2 - this->tf1 * data.P1; n.normalize();
       int c2 = data.c2;
 
       TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
@@ -1315,7 +1315,7 @@ public:
 
   mutable FCL_REAL min_distance;
 
-  mutable Vec3f closest_p1, closest_p2;
+  mutable Vector3d closest_p1, closest_p2;
 
   mutable int last_tri_id;
   
@@ -1342,14 +1342,14 @@ template<typename BV, typename S, typename NarrowPhaseSolver>
 void meshShapeConservativeAdvancementOrientedNodeLeafTesting(int b1, int /* b2 */,
                                                              const BVHModel<BV>* model1, const S& model2,
                                                              const BV& model2_bv,
-                                                             Vec3f* vertices, Triangle* tri_indices,
-                                                             const Transform3f& tf1,
-                                                             const Transform3f& tf2,
+                                                             Vector3d* vertices, Triangle* tri_indices,
+                                                             const Transform3d& tf1,
+                                                             const Transform3d& tf2,
                                                              const MotionBase* motion1, const MotionBase* motion2,
                                                              const NarrowPhaseSolver* nsolver,
                                                              bool enable_statistics,
                                                              FCL_REAL& min_distance,
-                                                             Vec3f& p1, Vec3f& p2,
+                                                             Vector3d& p1, Vector3d& p2,
                                                              int& last_tri_id,
                                                              FCL_REAL& delta_t,
                                                              int& num_leaf_tests)
@@ -1360,13 +1360,13 @@ void meshShapeConservativeAdvancementOrientedNodeLeafTesting(int b1, int /* b2 *
   int primitive_id = node.primitiveId();
 
   const Triangle& tri_id = tri_indices[primitive_id];
-  const Vec3f& t1 = vertices[tri_id[0]];
-  const Vec3f& t2 = vertices[tri_id[1]];
-  const Vec3f& t3 = vertices[tri_id[2]];
+  const Vector3d& t1 = vertices[tri_id[0]];
+  const Vector3d& t2 = vertices[tri_id[1]];
+  const Vector3d& t3 = vertices[tri_id[2]];
     
   FCL_REAL distance;
-  Vec3f P1 = Vec3f::Zero();
-  Vec3f P2 = Vec3f::Zero();
+  Vector3d P1 = Vector3d::Zero();
+  Vector3d P2 = Vector3d::Zero();
   nsolver->shapeTriangleDistance(model2, tf2, t1, t2, t3, tf1, &distance, &P2, &P1);
 
   if(distance < min_distance)
@@ -1380,7 +1380,7 @@ void meshShapeConservativeAdvancementOrientedNodeLeafTesting(int b1, int /* b2 *
   }
 
   // n is in global frame
-  Vec3f n = P2 - P1; n.normalize();
+  Vector3d n = P2 - P1; n.normalize();
 
   TriangleMotionBoundVisitor mb_visitor1(t1, t2, t3, n);
   TBVMotionBoundVisitor<BV> mb_visitor2(model2_bv, -n);
@@ -1411,7 +1411,7 @@ bool meshShapeConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
   if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
   {
     const ConservativeAdvancementStackData& data = stack.back();
-    Vec3f n = data.P2 - data.P1; n.normalize();
+    Vector3d n = data.P2 - data.P1; n.normalize();
     int c1 = data.c1;
 
     TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n);
@@ -1454,7 +1454,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     FCL_REAL d = distance(this->tf1.linear(), this->tf1.translation(), this->model1->getBV(b1).bv, this->model2_bv, &P1, &P2);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
@@ -1500,7 +1500,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     FCL_REAL d = distance(this->tf1.linear(), this->tf1.translation(), this->model1->getBV(b1).bv, this->model2_bv, &P1, &P2);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
@@ -1547,7 +1547,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     FCL_REAL d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
@@ -1593,7 +1593,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     FCL_REAL d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
 
     this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));

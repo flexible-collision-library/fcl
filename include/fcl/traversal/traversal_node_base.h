@@ -39,7 +39,6 @@
 #define FCL_TRAVERSAL_NODE_BASE_H
 
 #include "fcl/data_types.h"
-#include "fcl/math/transform.h"
 #include "fcl/collision_data.h"
 
 namespace fcl
@@ -80,10 +79,10 @@ public:
   virtual void enableStatistics(bool enable) = 0;
 
   /// @brief configuation of first object
-  Transform3f tf1;
+  Transform3d tf1;
 
   /// @brief configuration of second object
-  Transform3f tf2;
+  Transform3d tf2;
 };
 
 /// @brief Node structure encoding the information required for collision traversal.
@@ -149,11 +148,11 @@ public:
 
 struct ConservativeAdvancementStackData
 {
-  ConservativeAdvancementStackData(const Vec3f& P1_, const Vec3f& P2_, int c1_, int c2_, FCL_REAL d_)
+  ConservativeAdvancementStackData(const Vector3d& P1_, const Vector3d& P2_, int c1_, int c2_, FCL_REAL d_)
     : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
 
-  Vec3f P1;
-  Vec3f P2;
+  Vector3d P1;
+  Vector3d P2;
   int c1;
   int c2;
   FCL_REAL d;

@@ -38,7 +38,7 @@
 #ifndef TEST_FCL_UTILITY_H
 #define TEST_FCL_UTILITY_H
 
-#include "fcl/math/transform.h"
+#include "fcl/math/triangle.h"
 #include "fcl/collision_data.h"
 #include "fcl/collision_object.h"
 
@@ -82,32 +82,32 @@ private:
 
 
 /// @brief Load an obj mesh file
-void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
+void loadOBJFile(const char* filename, std::vector<Vector3d>& points, std::vector<Triangle>& triangles);
 
-void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles);
+void saveOBJFile(const char* filename, std::vector<Vector3d>& points, std::vector<Triangle>& triangles);
 
 /// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 
 /// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
-void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform);
+void generateRandomTransform(FCL_REAL extents[6], Transform3d& transform);
 
 /// @brief Generate n random transforms whose translations are constrained by extents.
-void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::size_t n);
+void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3d>& transforms, std::size_t n);
 
 /// @brief Generate n random transforms whose translations are constrained by extents. Also generate another transforms2 which have additional random translation & rotation to the transforms generated.
-void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, std::size_t n);
+void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::vector<Transform3d>& transforms, std::vector<Transform3d>& transforms2, std::size_t n);
 
 /// @brief Generate n random tranforms and transform2 with addtional random translation/rotation. The transforms and transform2 are used as initial and goal configurations for the first mesh. The second mesh is in I. This is used for continuous collision detection checking.
-void generateRandomTransforms_ccd(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
-                                 const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2);
+void generateRandomTransforms_ccd(FCL_REAL extents[6], std::vector<Transform3d>& transforms, std::vector<Transform3d>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
+                                 const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                                 const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2);
 
 
 /// @ brief Structure for minimum distance between two meshes and the corresponding nearest point pair
 struct DistanceRes
 {
   double distance;
-  Vec3f p1;
-  Vec3f p2;
+  Vector3d p1;
+  Vector3d p2;
 };
 
 /// @brief Collision data stores the collision request and the result given by collision algorithm. 

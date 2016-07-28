@@ -112,7 +112,7 @@ struct morton_functor<FCL_UINT32>
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
   {}
 
-  FCL_UINT32 operator() (const Vec3f& point) const
+  FCL_UINT32 operator() (const Vector3d& point) const
   {
     FCL_UINT32 x = details::quantize((point[0] - base[0]) * inv[0], 1024u);
     FCL_UINT32 y = details::quantize((point[1] - base[1]) * inv[1], 1024u);
@@ -121,8 +121,8 @@ struct morton_functor<FCL_UINT32>
     return details::morton_code(x, y, z);
   }
 
-  const Vec3f base;
-  const Vec3f inv;
+  const Vector3d base;
+  const Vector3d inv;
 
   static constexpr size_t bits() { return 30; }
 };
@@ -138,7 +138,7 @@ struct morton_functor<FCL_UINT64>
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
   {}
 
-  FCL_UINT64 operator() (const Vec3f& point) const
+  FCL_UINT64 operator() (const Vector3d& point) const
   {
     FCL_UINT32 x = details::quantize((point[0] - base[0]) * inv[0], 1u << 20);
     FCL_UINT32 y = details::quantize((point[1] - base[1]) * inv[1], 1u << 20);
@@ -147,8 +147,8 @@ struct morton_functor<FCL_UINT64>
     return details::morton_code60(x, y, z);
   }
 
-  const Vec3f base;
-  const Vec3f inv;
+  const Vector3d base;
+  const Vector3d inv;
 
   static constexpr size_t bits() { return 60; }
 };
@@ -167,7 +167,7 @@ struct morton_functor<std::bitset<N>>
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
   {}
 
-  std::bitset<N> operator() (const Vec3f& point) const
+  std::bitset<N> operator() (const Vector3d& point) const
   {
     FCL_REAL x = (point[0] - base[0]) * inv[0];
     FCL_REAL y = (point[1] - base[1]) * inv[1];
@@ -192,8 +192,8 @@ struct morton_functor<std::bitset<N>>
     return bset;
   }
 
-  const Vec3f base;
-  const Vec3f inv;
+  const Vector3d base;
+  const Vector3d inv;
 
   static constexpr size_t bits() { return N; }
 };

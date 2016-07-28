@@ -87,7 +87,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFront
   }
 }
 
-void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3f& R, const Vec3f& T, BVHFrontList* front_list)
+void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3d& R, const Vector3d& T, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
   bool l2 = node->isSecondNodeLeaf(b2);
@@ -108,7 +108,7 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
     return;
   }
 
-  Vec3f temp;
+  Vector3d temp;
 
   if(node->firstOverSecond(b1, b2))
   {
@@ -117,9 +117,9 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
 
     const OBB& bv1 = node->model1->getBV(c1).bv;
 
-    Matrix3f Rc = R.transpose() * bv1.axis;
+    Matrix3d Rc = R.transpose() * bv1.axis;
     temp = T - bv1.To;
-    Vec3f Tc = temp.transpose() * bv1.axis;
+    Vector3d Tc = temp.transpose() * bv1.axis;
 
     collisionRecurse(node, c1, b2, Rc, Tc, front_list);
 
@@ -140,14 +140,14 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
     int c2 = node->getSecondRightChild(b2);
 
     const OBB& bv1 = node->model2->getBV(c1).bv;
-    Matrix3f Rc;
+    Matrix3d Rc;
     temp = R * bv1.axis.col(0);
     Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
     temp = R * bv1.axis.col(1);
     Rc(0, 1) = temp[0]; Rc(1, 1) = temp[1]; Rc(2, 1) = temp[2];
     temp = R * bv1.axis.col(2);
     Rc(0, 2) = temp[0]; Rc(1, 2) = temp[1]; Rc(2, 2) = temp[2];
-    Vec3f Tc = R * bv1.To + T;
+    Vector3d Tc = R * bv1.To + T;
 
     collisionRecurse(node, b1, c1, Rc, Tc, front_list);
 
@@ -167,7 +167,7 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
   }
 }
 
-void collisionRecurse(MeshCollisionTraversalNodeRSS* /*node*/, int /*b1*/, int /*b2*/, const Matrix3f& /*R*/, const Vec3f& /*T*/, BVHFrontList* /*front_list*/)
+void collisionRecurse(MeshCollisionTraversalNodeRSS* /*node*/, int /*b1*/, int /*b2*/, const Matrix3d& /*R*/, const Vector3d& /*T*/, BVHFrontList* /*front_list*/)
 {
   // TODO(JS): Not implemented?
 }

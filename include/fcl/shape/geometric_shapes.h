@@ -40,7 +40,6 @@
 #define FCL_GEOMETRIC_SHAPES_H
 
 #include "fcl/collision_object.h"
-#include "fcl/math/vec_3f.h"
 #include <string.h>
 
 namespace fcl
@@ -60,7 +59,7 @@ public:
 class TriangleP : public ShapeBase
 {
 public:
-  TriangleP(const Vec3f& a_, const Vec3f& b_, const Vec3f& c_) : ShapeBase(), a(a_), b(b_), c(c_)
+  TriangleP(const Vector3d& a_, const Vector3d& b_, const Vector3d& c_) : ShapeBase(), a(a_), b(b_), c(c_)
   {
   }
 
@@ -69,7 +68,7 @@ public:
   
   NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
 
-  Vec3f a, b, c;
+  Vector3d a, b, c;
 };
 
 /// @brief Center at zero point, axis aligned box
@@ -80,14 +79,14 @@ public:
   {
   }
 
-  Box(const Vec3f& side_) : ShapeBase(), side(side_) 
+  Box(const Vector3d& side_) : ShapeBase(), side(side_) 
   {
   }
 
   Box() {}
 
   /// @brief box side length
-  Vec3f side;
+  Vector3d side;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -100,7 +99,7 @@ public:
     return side[0] * side[1] * side[2];
   }
 
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
 
@@ -108,7 +107,7 @@ public:
     FCL_REAL b2 = side[1] * side[1] * V;
     FCL_REAL c2 = side[2] * side[2] * V;
 
-    Vec3f I((b2 + c2) / 12, (a2 + c2) / 12, (a2 + b2) / 12);
+    Vector3d I((b2 + c2) / 12, (a2 + c2) / 12, (a2 + b2) / 12);
 
     return I.asDiagonal();
   }
@@ -131,11 +130,11 @@ public:
   /// @brief Get node type: a sphere
   NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
 
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
     FCL_REAL I = 0.4 * radius * radius * computeVolume();
 
-    return Vec3f::Constant(I).asDiagonal();
+    return Vector3d::Constant(I).asDiagonal();
   }
 
   FCL_REAL computeVolume() const
@@ -152,12 +151,12 @@ public:
   {
   }
 
-  Ellipsoid(const Vec3f& radii_) : ShapeBase(), radii(radii_)
+  Ellipsoid(const Vector3d& radii_) : ShapeBase(), radii(radii_)
   {
   }
 
   /// @brief Radii of the ellipsoid
-  Vec3f radii;
+  Vector3d radii;
 
   /// @brief Compute AABB
   void computeLocalAABB();
@@ -165,7 +164,7 @@ public:
   /// @brief Get node type: a sphere
   NODE_TYPE getNodeType() const { return GEOM_ELLIPSOID; }
 
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
     const FCL_REAL V = computeVolume();
 
@@ -173,7 +172,7 @@ public:
     const FCL_REAL b2 = radii[1] * radii[1] * V;
     const FCL_REAL c2 = radii[2] * radii[2] * V;
 
-    return Vec3f(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
+    return Vector3d(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
   }
 
   FCL_REAL computeVolume() const
@@ -208,7 +207,7 @@ public:
     return constants::pi * radius * radius *(lz + radius * 4/3.0);
   }
 
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
     FCL_REAL v_cyl = radius * radius * lz * constants::pi;
     FCL_REAL v_sph = radius * radius * radius * constants::pi * 4 / 3.0;
@@ -216,7 +215,7 @@ public:
     FCL_REAL ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
     FCL_REAL iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
-    return Vec3f(ix, ix, iz).asDiagonal();
+    return Vector3d(ix, ix, iz).asDiagonal();
   }
   
 };
@@ -246,18 +245,18 @@ public:
     return constants::pi * radius * radius * lz / 3;
   }
 
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
     FCL_REAL ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
     FCL_REAL iz = 0.3 * V * radius * radius;
 
-    return Vec3f(ix, ix, iz).asDiagonal();
+    return Vector3d(ix, ix, iz).asDiagonal();
   }
 
-  Vec3f computeCOM() const
+  Vector3d computeCOM() const
   {
-    return Vec3f(0, 0, -0.25 * lz);
+    return Vector3d(0, 0, -0.25 * lz);
   }
 };
 
@@ -287,13 +286,13 @@ public:
     return constants::pi * radius * radius * lz;
   }
 
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
     FCL_REAL V = computeVolume();
     FCL_REAL ix = V * (3 * radius * radius + lz * lz) / 12;
     FCL_REAL iz = V * radius * radius / 2;
 
-    return Vec3f(ix, ix, iz).asDiagonal();
+    return Vector3d(ix, ix, iz).asDiagonal();
   }
 };
 
@@ -302,10 +301,10 @@ class Convex : public ShapeBase
 {
 public:
   /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
-  Convex(Vec3f* plane_normals_,
+  Convex(Vector3d* plane_normals_,
          FCL_REAL* plane_dis_,
          int num_planes_,
-         Vec3f* points_,
+         Vector3d* points_,
          int num_points_,
          int* polygons_) : ShapeBase()
   {
@@ -317,7 +316,7 @@ public:
     polygons = polygons_;
     edges = NULL;
 
-    Vec3f sum = Vec3f::Zero();
+    Vector3d sum = Vector3d::Zero();
     for(int i = 0; i < num_points; ++i)
     {
       sum += points[i];
@@ -352,14 +351,14 @@ public:
   NODE_TYPE getNodeType() const { return GEOM_CONVEX; }
 
   
-  Vec3f* plane_normals;
+  Vector3d* plane_normals;
   FCL_REAL* plane_dis;
 
   /// @brief An array of indices to the points of each polygon, it should be the number of vertices
   /// followed by that amount of indices to "points" in counter clockwise order
   int* polygons;
 
-  Vec3f* points;
+  Vector3d* points;
   int num_points;
   int num_edges;
   int num_planes;
@@ -372,15 +371,15 @@ public:
   Edge* edges;
 
   /// @brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) 
-  Vec3f center;
+  Vector3d center;
 
   /// based on http://number-none.com/blow/inertia/bb_inertia.doc
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
     
-    Matrix3f C = Matrix3f::Zero();
+    Matrix3d C = Matrix3d::Zero();
 
-    Matrix3f C_canonical;
+    Matrix3d C_canonical;
     C_canonical << 1/ 60.0, 1/120.0, 1/120.0,
                    1/120.0, 1/ 60.0, 1/120.0,
                    1/120.0, 1/120.0, 1/ 60.0;
@@ -389,7 +388,7 @@ public:
     int* index = polygons + 1;
     for(int i = 0; i < num_planes; ++i)
     {
-      Vec3f plane_center = Vec3f::Zero();
+      Vector3d plane_center = Vector3d::Zero();
 
       // compute the center of the polygon
       for(int j = 0; j < *points_in_poly; ++j)
@@ -397,15 +396,15 @@ public:
       plane_center = plane_center * (1.0 / *points_in_poly);
 
       // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-      const Vec3f& v3 = plane_center;
+      const Vector3d& v3 = plane_center;
       for(int j = 0; j < *points_in_poly; ++j)
       {
         int e_first = index[j];
         int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
+        const Vector3d& v1 = points[e_first];
+        const Vector3d& v2 = points[e_second];
         FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-        Matrix3f A; // this is A' in the original document
+        Matrix3d A; // this is A' in the original document
         A.row(0) = v1;
         A.row(1) = v2;
         A.row(2) = v3;
@@ -418,7 +417,7 @@ public:
 
     FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
 
-    Matrix3f m;
+    Matrix3d m;
     m << trace_C - C(0, 0), -C(0, 1), -C(0, 2),
          -C(1, 0), trace_C - C(1, 1), -C(1, 2),
          -C(2, 0), -C(2, 1), trace_C - C(2, 2);
@@ -426,15 +425,15 @@ public:
     return m;
   }
 
-  Vec3f computeCOM() const
+  Vector3d computeCOM() const
   {
-    Vec3f com = Vec3f::Zero();
+    Vector3d com = Vector3d::Zero();
     FCL_REAL vol = 0;
     int* points_in_poly = polygons;
     int* index = polygons + 1;
     for(int i = 0; i < num_planes; ++i)
     {
-      Vec3f plane_center = Vec3f::Zero();
+      Vector3d plane_center = Vector3d::Zero();
 
       // compute the center of the polygon
       for(int j = 0; j < *points_in_poly; ++j)
@@ -442,13 +441,13 @@ public:
       plane_center = plane_center * (1.0 / *points_in_poly);
 
       // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-      const Vec3f& v3 = plane_center;
+      const Vector3d& v3 = plane_center;
       for(int j = 0; j < *points_in_poly; ++j)
       {
         int e_first = index[j];
         int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
+        const Vector3d& v1 = points[e_first];
+        const Vector3d& v2 = points[e_second];
         FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
         vol += d_six_vol;
         com += (points[e_first] + points[e_second] + plane_center) * d_six_vol;
@@ -468,7 +467,7 @@ public:
     int* index = polygons + 1;
     for(int i = 0; i < num_planes; ++i)
     {
-      Vec3f plane_center = Vec3f::Zero();
+      Vector3d plane_center = Vector3d::Zero();
 
       // compute the center of the polygon
       for(int j = 0; j < *points_in_poly; ++j)
@@ -476,13 +475,13 @@ public:
       plane_center = plane_center * (1.0 / *points_in_poly);
 
       // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
-      const Vec3f& v3 = plane_center;
+      const Vector3d& v3 = plane_center;
       for(int j = 0; j < *points_in_poly; ++j)
       {
         int e_first = index[j];
         int e_second = index[(j+1)%*points_in_poly];
-        const Vec3f& v1 = points[e_first];
-        const Vec3f& v2 = points[e_second];
+        const Vector3d& v1 = points[e_first];
+        const Vector3d& v2 = points[e_second];
         FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
         vol += d_six_vol;
       }
@@ -509,7 +508,7 @@ class Halfspace : public ShapeBase
 {
 public:
   /// @brief Construct a half space with normal direction and offset
-  Halfspace(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_)
+  Halfspace(const Vector3d& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_)
   {
     unitNormalTest();
   }
@@ -524,12 +523,12 @@ public:
   {
   }
 
-  FCL_REAL signedDistance(const Vec3f& p) const
+  FCL_REAL signedDistance(const Vector3d& p) const
   {
     return n.dot(p) - d;
   }
 
-  FCL_REAL distance(const Vec3f& p) const
+  FCL_REAL distance(const Vector3d& p) const
   {
     return std::abs(n.dot(p) - d);
   }
@@ -541,7 +540,7 @@ public:
   NODE_TYPE getNodeType() const { return GEOM_HALFSPACE; }
   
   /// @brief Plane normal
-  Vec3f n;
+  Vector3d n;
   
   /// @brief Plane offset
   FCL_REAL d;
@@ -557,7 +556,7 @@ class Plane : public ShapeBase
 {
 public:
   /// @brief Construct a plane with normal direction and offset 
-  Plane(const Vec3f& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) 
+  Plane(const Vector3d& n_, FCL_REAL d_) : ShapeBase(), n(n_), d(d_) 
   { 
     unitNormalTest(); 
   }
@@ -571,12 +570,12 @@ public:
   Plane() : ShapeBase(), n(1, 0, 0), d(0)
   {}
 
-  FCL_REAL signedDistance(const Vec3f& p) const
+  FCL_REAL signedDistance(const Vector3d& p) const
   {
     return n.dot(p) - d;
   }
 
-  FCL_REAL distance(const Vec3f& p) const
+  FCL_REAL distance(const Vector3d& p) const
   {
     return std::abs(n.dot(p) - d);
   }
@@ -588,7 +587,7 @@ public:
   NODE_TYPE getNodeType() const { return GEOM_PLANE; }
 
   /// @brief Plane normal 
-  Vec3f n;
+  Vector3d n;
 
   /// @brief Plane offset 
   FCL_REAL d;

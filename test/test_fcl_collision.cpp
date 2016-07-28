@@ -50,25 +50,25 @@
 using namespace fcl;
 
 template<typename BV>
-bool collide_Test(const Transform3f& tf,
-                  const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                  const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose = true);
+bool collide_Test(const Transform3d& tf,
+                  const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                  const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose = true);
 
 template<typename BV>
-bool collide_Test2(const Transform3f& tf,
-                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose = true);
+bool collide_Test2(const Transform3d& tf,
+                   const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                   const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose = true);
 
 template<typename BV, typename TraversalNode>
-bool collide_Test_Oriented(const Transform3f& tf,
-                           const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                           const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose = true);
+bool collide_Test_Oriented(const Transform3d& tf,
+                           const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                           const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose = true);
 
 
 template<typename BV>
-bool test_collide_func(const Transform3f& tf,
-                       const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                       const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method);
+bool test_collide_func(const Transform3d& tf,
+                       const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                       const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method);
 
 int num_max_contacts = std::numeric_limits<int>::max();
 bool enable_contact = true;
@@ -79,23 +79,23 @@ std::vector<Contact> global_pairs_now;
 GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 {
   FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  std::vector<Transform3f> rotate_transform;
+  std::vector<Transform3d> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
   
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vector3d(-600, -600, -600);
+  aabb1.max_ = Vector3d(600, 600, 600);
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
   Box box1;
-  Transform3f box1_tf;
+  Transform3d box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
   FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
@@ -108,7 +108,7 @@ GTEST_TEST(FCL_COLLISION, OBB_Box_test)
     convertBV(aabb, transforms[i], obb2);
     
     Box box2;
-    Transform3f box2_tf;
+    Transform3d box2_tf;
     constructBox(aabb, transforms[i], box2, box2_tf);
 
     GJKSolver_libccd solver;
@@ -123,23 +123,23 @@ GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 GTEST_TEST(FCL_COLLISION, OBB_shape_test)
 {
   FCL_REAL r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  std::vector<Transform3f> rotate_transform;
+  std::vector<Transform3d> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
   
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vector3d(-600, -600, -600);
+  aabb1.max_ = Vector3d(600, 600, 600);
 
   OBB obb1;
   convertBV(aabb1, rotate_transform[0], obb1);
   Box box1;
-  Transform3f box1_tf;
+  Transform3d box1_tf;
   constructBox(aabb1, rotate_transform[0], box1, box1_tf);
 
   FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
@@ -200,15 +200,15 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
   FCL_REAL extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   generateRandomTransforms(extents, transforms, n);
 
   AABB aabb1;
-  aabb1.min_ = Vec3f(-600, -600, -600);
-  aabb1.max_ = Vec3f(600, 600, 600);
+  aabb1.min_ = Vector3d(-600, -600, -600);
+  aabb1.max_ = Vector3d(600, 600, 600);
   
   OBB obb1;
-  convertBV(aabb1, Transform3f::Identity(), obb1);
+  convertBV(aabb1, Transform3d::Identity(), obb1);
   
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
@@ -219,7 +219,7 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
     AABB aabb2 = translate(aabb, transforms[i].translation());
     
     OBB obb2;
-    convertBV(aabb, Transform3f(Eigen::Translation3d(transforms[i].translation())), obb2);
+    convertBV(aabb, Transform3d(Eigen::Translation3d(transforms[i].translation())), obb2);
 
     bool overlap_aabb = aabb1.overlap(aabb2);
     bool overlap_obb = obb1.overlap(obb2);
@@ -238,15 +238,19 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
 
 GTEST_TEST(FCL_COLLISION, mesh_mesh)
 {
-  std::vector<Vec3f> p1, p2;
+  std::vector<Vector3d> p1, p2;
   std::vector<Triangle> t1, t2;
   
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
   loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
+#ifdef FCL_BUILD_TYPE_DEBUG
+  std::size_t n = 1;
+#else
   std::size_t n = 10;
+#endif
   bool verbose = false;
 
   generateRandomTransforms(extents, transforms, n);
@@ -810,16 +814,16 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
 
 
 template<typename BV>
-bool collide_Test2(const Transform3f& tf,
-                   const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                   const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+bool collide_Test2(const Transform3d& tf,
+                   const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                   const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
 {
   BVHModel<BV> m1;
   BVHModel<BV> m2;
   m1.bv_splitter.reset(new BVSplitter<BV>(split_method));
   m2.bv_splitter.reset(new BVSplitter<BV>(split_method));
 
-  std::vector<Vec3f> vertices1_new(vertices1.size());
+  std::vector<Vector3d> vertices1_new(vertices1.size());
   for(unsigned int i = 0; i < vertices1_new.size(); ++i)
   {
     vertices1_new[i] = tf * vertices1[i];
@@ -834,8 +838,8 @@ bool collide_Test2(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1 = Transform3f::Identity();
-  Transform3f pose2 = Transform3f::Identity();
+  Transform3d pose1 = Transform3d::Identity();
+  Transform3d pose2 = Transform3d::Identity();
 
   CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
@@ -877,9 +881,9 @@ bool collide_Test2(const Transform3f& tf,
 }
 
 template<typename BV>
-bool collide_Test(const Transform3f& tf,
-                  const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                  const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+bool collide_Test(const Transform3d& tf,
+                  const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                  const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
 {
   BVHModel<BV> m1;
   BVHModel<BV> m2;
@@ -894,8 +898,8 @@ bool collide_Test(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf);
-  Transform3f pose2 = Transform3f::Identity();
+  Transform3d pose1(tf);
+  Transform3d pose2 = Transform3d::Identity();
 
   CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
@@ -936,9 +940,9 @@ bool collide_Test(const Transform3f& tf,
 }
 
 template<typename BV, typename TraversalNode>
-bool collide_Test_Oriented(const Transform3f& tf,
-                           const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                           const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+bool collide_Test_Oriented(const Transform3d& tf,
+                           const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                           const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
 {
   BVHModel<BV> m1;
   BVHModel<BV> m2;
@@ -953,8 +957,8 @@ bool collide_Test_Oriented(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf);
-  Transform3f pose2 = Transform3f::Identity();
+  Transform3d pose1(tf);
+  Transform3d pose2 = Transform3d::Identity();
 
   CollisionResult local_result;
   TraversalNode node;
@@ -994,9 +998,9 @@ bool collide_Test_Oriented(const Transform3f& tf,
 
 
 template<typename BV>
-bool test_collide_func(const Transform3f& tf,
-                       const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                       const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method)
+bool test_collide_func(const Transform3d& tf,
+                       const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                       const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method)
 {
   BVHModel<BV> m1;
   BVHModel<BV> m2;
@@ -1011,8 +1015,8 @@ bool test_collide_func(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf);
-  Transform3f pose2 = Transform3f::Identity();
+  Transform3d pose1(tf);
+  Transform3d pose2 = Transform3d::Identity();
 
   std::vector<Contact> contacts;
 

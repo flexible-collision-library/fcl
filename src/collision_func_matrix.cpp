@@ -42,13 +42,12 @@
 #include "fcl/collision_node.h"
 #include "fcl/narrowphase/narrowphase.h"
 
-
 namespace fcl
 {
 
 #if FCL_HAVE_OCTOMAP
 template<typename T_SH, typename NarrowPhaseSolver>
-std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2,
                                const NarrowPhaseSolver* nsolver,
                                const CollisionRequest& request, CollisionResult& result)
 {
@@ -66,7 +65,7 @@ std::size_t ShapeOcTreeCollide(const CollisionGeometry* o1, const Transform3f& t
 }
 
 template<typename T_SH, typename NarrowPhaseSolver>
-std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2,
                                const NarrowPhaseSolver* nsolver,
                                const CollisionRequest& request, CollisionResult& result)
 {
@@ -84,7 +83,7 @@ std::size_t OcTreeShapeCollide(const CollisionGeometry* o1, const Transform3f& t
 }
 
 template<typename NarrowPhaseSolver>
-std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2,
                           const NarrowPhaseSolver* nsolver,
                           const CollisionRequest& request, CollisionResult& result)
 {
@@ -102,7 +101,7 @@ std::size_t OcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, c
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
-std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
 {
@@ -122,7 +121,7 @@ std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1
     collide(&node);
 
     Box box;
-    Transform3f box_tf;
+    Transform3d box_tf;
     constructBox(obj2->getBV(0).bv, tf2, box, box_tf); // compute the box for BVH's root node
 
     box.cost_density = obj2->cost_density;
@@ -147,7 +146,7 @@ std::size_t OcTreeBVHCollide(const CollisionGeometry* o1, const Transform3f& tf1
 }
 
 template<typename T_BVH, typename NarrowPhaseSolver>
-std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2,
+std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
 {
@@ -167,7 +166,7 @@ std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1
     collide(&node);
 
     Box box;
-    Transform3f box_tf;
+    Transform3d box_tf;
     constructBox(obj1->getBV(0).bv, tf1, box, box_tf);
 
     box.cost_density = obj1->cost_density;
@@ -194,7 +193,7 @@ std::size_t BVHOcTreeCollide(const CollisionGeometry* o1, const Transform3f& tf1
 #endif
 
 template<typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
-std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                               const NarrowPhaseSolver* nsolver,
                               const CollisionRequest& request, CollisionResult& result)
 {
@@ -226,7 +225,7 @@ std::size_t ShapeShapeCollide(const CollisionGeometry* o1, const Transform3f& tf
 template<typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeCollider
 {
-  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+  static std::size_t collide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
@@ -240,7 +239,7 @@ struct BVHShapeCollider
       MeshShapeCollisionTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
       const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
       BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-      Transform3f tf1_tmp = tf1;
+      Transform3d tf1_tmp = tf1;
       const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
       initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, no_cost_request, result);
@@ -249,7 +248,7 @@ struct BVHShapeCollider
       delete obj1_tmp;
 
       Box box;
-      Transform3f box_tf;
+      Transform3d box_tf;
       constructBox(obj1->getBV(0).bv, tf1, box, box_tf);
 
       box.cost_density = obj1->cost_density;
@@ -264,7 +263,7 @@ struct BVHShapeCollider
       MeshShapeCollisionTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
       const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
       BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-      Transform3f tf1_tmp = tf1;
+      Transform3d tf1_tmp = tf1;
       const T_SH* obj2 = static_cast<const T_SH*>(o2);
 
       initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
@@ -281,7 +280,7 @@ namespace details
 {
 
 template<typename OrientMeshShapeCollisionTraveralNode, typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
-std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                                     const NarrowPhaseSolver* nsolver,
                                     const CollisionRequest& request, CollisionResult& result)
 {
@@ -300,7 +299,7 @@ std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform
     fcl::collide(&node);
    
     Box box;
-    Transform3f box_tf;
+    Transform3d box_tf;
     constructBox(obj1->getBV(0).bv, tf1, box, box_tf);
 
     box.cost_density = obj1->cost_density;
@@ -329,7 +328,7 @@ std::size_t orientedBVHShapeCollide(const CollisionGeometry* o1, const Transform
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeCollider<OBB, T_SH, NarrowPhaseSolver>
 {
-  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+  static std::size_t collide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
@@ -341,7 +340,7 @@ struct BVHShapeCollider<OBB, T_SH, NarrowPhaseSolver>
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeCollider<RSS, T_SH, NarrowPhaseSolver>
 {
-  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+  static std::size_t collide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
@@ -353,7 +352,7 @@ struct BVHShapeCollider<RSS, T_SH, NarrowPhaseSolver>
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeCollider<kIOS, T_SH, NarrowPhaseSolver>
 {
-  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+  static std::size_t collide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
@@ -365,7 +364,7 @@ struct BVHShapeCollider<kIOS, T_SH, NarrowPhaseSolver>
 template<typename T_SH, typename NarrowPhaseSolver>
 struct BVHShapeCollider<OBBRSS, T_SH, NarrowPhaseSolver>
 {
-  static std::size_t collide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+  static std::size_t collide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
@@ -375,7 +374,7 @@ struct BVHShapeCollider<OBBRSS, T_SH, NarrowPhaseSolver>
 
 
 template<typename T_BVH>
-std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
   
@@ -383,9 +382,9 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
   BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
-  Transform3f tf1_tmp = tf1;
+  Transform3d tf1_tmp = tf1;
   BVHModel<T_BVH>* obj2_tmp = new BVHModel<T_BVH>(*obj2);
-  Transform3f tf2_tmp = tf2;
+  Transform3d tf2_tmp = tf2;
   
   initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, request, result);
   collide(&node);
@@ -399,7 +398,7 @@ std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, cons
 namespace details
 {
 template<typename OrientedMeshCollisionTraversalNode, typename T_BVH>
-std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
@@ -416,27 +415,27 @@ std::size_t orientedMeshCollide(const CollisionGeometry* o1, const Transform3f& 
 }
 
 template<>
-std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<OBB>(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
   return details::orientedMeshCollide<MeshCollisionTraversalNodeOBB, OBB>(o1, tf1, o2, tf2, request, result);
 }
 
 template<>
-std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<OBBRSS>(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
   return details::orientedMeshCollide<MeshCollisionTraversalNodeOBBRSS, OBBRSS>(o1, tf1, o2, tf2, request, result);
 }
 
 
 template<>
-std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<kIOS>(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
   return details::orientedMeshCollide<MeshCollisionTraversalNodekIOS, kIOS>(o1, tf1, o2, tf2, request, result);
 }
 
 
 template<typename T_BVH, typename NarrowPhaseSolver>
-std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3f& tf1, const CollisionGeometry* o2, const Transform3f& tf2, 
+std::size_t BVHCollide(const CollisionGeometry* o1, const Transform3d& tf1, const CollisionGeometry* o2, const Transform3d& tf2, 
                        const NarrowPhaseSolver* /*nsolver*/,
                        const CollisionRequest& request, CollisionResult& result)
 {

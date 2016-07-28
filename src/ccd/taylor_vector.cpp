@@ -63,7 +63,7 @@ TVector3::TVector3(const TaylorModel& v1, const TaylorModel& v2, const TaylorMod
   i_[2] = v3;
 }
 
-TVector3::TVector3(const Vec3f& v, const std::shared_ptr<TimeInterval>& time_interval)
+TVector3::TVector3(const Vector3d& v, const std::shared_ptr<TimeInterval>& time_interval)
 {
   i_[0] = TaylorModel(v[0], time_interval);
   i_[1] = TaylorModel(v[1], time_interval);
@@ -108,12 +108,12 @@ TVector3& TVector3::operator -= (const TVector3& other)
   return *this;
 }
 
-TVector3 TVector3::operator + (const Vec3f& other) const
+TVector3 TVector3::operator + (const Vector3d& other) const
 {
   return TVector3(i_[0] + other[0], i_[1] + other[1], i_[2] + other[2]);
 }
 
-TVector3& TVector3::operator += (const Vec3f& other)
+TVector3& TVector3::operator += (const Vector3d& other)
 {
   i_[0] += other[0];
   i_[1] += other[1];
@@ -121,12 +121,12 @@ TVector3& TVector3::operator += (const Vec3f& other)
   return *this;
 }
 
-TVector3 TVector3::operator - (const Vec3f& other) const
+TVector3 TVector3::operator - (const Vector3d& other) const
 {
   return TVector3(i_[0] - other[0], i_[1] - other[1], i_[2] - other[2]);
 }
 
-TVector3& TVector3::operator -= (const Vec3f& other)
+TVector3& TVector3::operator -= (const Vector3d& other)
 {
   i_[0] -= other[0];
   i_[1] -= other[1];
@@ -183,12 +183,12 @@ TVector3 TVector3::cross(const TVector3& other) const
                   i_[0] * other.i_[1] - i_[1] * other.i_[0]);
 }
 
-TaylorModel TVector3::dot(const Vec3f& other) const
+TaylorModel TVector3::dot(const Vector3d& other) const
 {
   return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
 }
 
-TVector3 TVector3::cross(const Vec3f& other) const
+TVector3 TVector3::cross(const Vector3d& other) const
 {
   return TVector3(i_[1] * other[2] - i_[2] * other[1], 
                   i_[2] * other[0] - i_[0] * other[2],
@@ -258,7 +258,7 @@ const std::shared_ptr<TimeInterval>& TVector3::getTimeInterval() const
   return i_[0].getTimeInterval();
 }
 
-void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity)
+void generateTVector3ForLinearFunc(TVector3& v, const Vector3d& position, const Vector3d& velocity)
 {
   generateTaylorModelForLinearFunc(v[0], position[0], velocity[0]);
   generateTaylorModelForLinearFunc(v[1], position[1], velocity[1]);
@@ -266,7 +266,7 @@ void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec
 }
 
 
-TVector3 operator * (const Vec3f& v, const TaylorModel& a)
+TVector3 operator * (const Vector3d& v, const TaylorModel& a)
 {
   TVector3 res(a.getTimeInterval());
   res[0] = a * v[0];
@@ -276,12 +276,12 @@ TVector3 operator * (const Vec3f& v, const TaylorModel& a)
   return res;
 }
 
-TVector3 operator + (const Vec3f& v1, const TVector3& v2)
+TVector3 operator + (const Vector3d& v1, const TVector3& v2)
 {
   return v2 + v1;
 }
 
-TVector3 operator - (const Vec3f& v1, const TVector3& v2)
+TVector3 operator - (const Vector3d& v1, const TVector3& v2)
 {
   return -v2 + v1;
 }

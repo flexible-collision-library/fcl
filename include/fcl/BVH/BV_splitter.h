@@ -38,6 +38,7 @@
 #ifndef FCL_BV_SPLITTER_H
 #define FCL_BV_SPLITTER_H
 
+#include "fcl/math/triangle.h"
 #include "fcl/BVH/BVH_internal.h"
 #include "fcl/BV/kIOS.h"
 #include "fcl/BV/OBBRSS.h"
@@ -53,13 +54,13 @@ class BVSplitterBase
 {
 public:
   /// @brief Set the geometry data needed by the split rule
-  virtual void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+  virtual void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
   /// @brief Compute the split rule according to a subset of geometry and the corresponding BV node
   virtual void computeRule(const BV& bv, unsigned int* primitive_indices, int num_primitives) = 0;
 
   /// @brief Apply the split rule on a given point
-  virtual bool apply(const Vec3f& q) const = 0;
+  virtual bool apply(const Vector3d& q) const = 0;
 
   /// @brief Clear the geometry data set before
   virtual void clear() = 0;
@@ -84,7 +85,7 @@ public:
   virtual ~BVSplitter() {}
 
   /// @brief Set the geometry data needed by the split rule
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     tri_indices = tri_indices_;
@@ -111,7 +112,7 @@ public:
   }
 
   /// @brief Apply the split rule on a given point
-  bool apply(const Vec3f& q) const
+  bool apply(const Vector3d& q) const
   {
     return q[split_axis] > split_value;
   }
@@ -129,13 +130,13 @@ private:
   /// @brief The axis based on which the split decision is made. For most BV, the axis is aligned with one of the world coordinate, so only split_axis is needed.
   /// For oriented node, we can use a vector to make a better split decision.
   int split_axis;
-  Vec3f split_vector;
+  Vector3d split_vector;
 
   /// @brief The split threshold, different primitives are splitted according whether their projection on the split_axis is larger or smaller than the threshold
   FCL_REAL split_value;
 
   /// @brief The mesh vertices or points handled by the splitter
-  Vec3f* vertices;
+  Vector3d* vertices;
 
   /// @brief The triangles handled by the splitter
   Triangle* tri_indices;
@@ -149,7 +150,7 @@ private:
   /// @brief Split algorithm 1: Split the node from center
   void computeRule_bvcenter(const BV& bv, unsigned int* /*primitive_indices*/, int /*num_primitives*/)
   {
-    Vec3f center = bv.center();
+    Vector3d center = bv.center();
     int axis = 2;
 
     if(bv.width() >= bv.height() && bv.width() >= bv.depth())
@@ -237,16 +238,16 @@ private:
 
 
 template<>
-bool BVSplitter<OBB>::apply(const Vec3f& q) const;
+bool BVSplitter<OBB>::apply(const Vector3d& q) const;
 
 template<>
-bool BVSplitter<RSS>::apply(const Vec3f& q) const;
+bool BVSplitter<RSS>::apply(const Vector3d& q) const;
 
 template<>
-bool BVSplitter<kIOS>::apply(const Vec3f& q) const;
+bool BVSplitter<kIOS>::apply(const Vector3d& q) const;
 
 template<>
-bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const;
+bool BVSplitter<OBBRSS>::apply(const Vector3d& q) const;
 
 template<>
 void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives);

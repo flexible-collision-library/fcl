@@ -159,10 +159,10 @@ public:
   bool update(NodeType* leaf, const BV& bv);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(NodeType* leaf, const BV& bv, const Vec3f& vel, FCL_REAL margin);
+  bool update(NodeType* leaf, const BV& bv, const Vector3d& vel, FCL_REAL margin);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(NodeType* leaf, const BV& bv, const Vec3f& vel);
+  bool update(NodeType* leaf, const BV& bv, const Vector3d& vel);
 
   /// @brief get the max height of the tree
   size_t getMaxHeight() const;
@@ -304,10 +304,10 @@ public:
 
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vec3f& vel, FCL_REAL margin);
+bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel, FCL_REAL margin);
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vec3f& vel);
+bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel);
 
 
 namespace implementation_array
@@ -444,10 +444,10 @@ public:
   bool update(size_t leaf, const BV& bv);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(size_t leaf, const BV& bv, const Vec3f& vel, FCL_REAL margin);
+  bool update(size_t leaf, const BV& bv, const Vector3d& vel, FCL_REAL margin);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(size_t leaf, const BV& bv, const Vec3f& vel);
+  bool update(size_t leaf, const BV& bv, const Vector3d& vel);
 
   /// @brief get the max height of the tree
   size_t getMaxHeight() const;

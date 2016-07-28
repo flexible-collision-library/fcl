@@ -2,10 +2,11 @@
 Dependencies:
 ============
 
+ - Eigen (available at http://eigen.tuxfamily.org/)
  - libccd (available at http://libccd.danfis.cz/)
  - octomap (optional dependency, available at http://octomap.github.com)
 
-libccd is the only mandatory dependency. If octomap is not found,
+Eigen and libccd are mandatory dependencies. If octomap is not found,
 collision detection with octrees will not be possible.
 
 For installation, CMake will also be needed (http://cmake.org).

@@ -39,7 +39,6 @@
 #define FCL_GJK_H
 
 #include "fcl/shape/geometric_shapes.h"
-#include "fcl/math/transform.h"
 
 namespace fcl
 {
@@ -48,7 +47,7 @@ namespace details
 {
 
 /// @brief the support function for shape
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir); 
+Vector3d getSupport(const ShapeBase* shape, const Vector3d& dir); 
 
 /// @brief Minkowski difference class of two shapes
 struct MinkowskiDiff
@@ -57,33 +56,33 @@ struct MinkowskiDiff
   const ShapeBase* shapes[2];
 
   /// @brief rotation from shape0 to shape1
-  Matrix3f toshape1;
+  Matrix3d toshape1;
 
   /// @brief transform from shape1 to shape0 
-  Transform3f toshape0;
+  Transform3d toshape0;
 
   MinkowskiDiff() { }
 
   /// @brief support function for shape0
-  inline Vec3f support0(const Vec3f& d) const
+  inline Vector3d support0(const Vector3d& d) const
   {
     return getSupport(shapes[0], d);
   }
   
   /// @brief support function for shape1
-  inline Vec3f support1(const Vec3f& d) const
+  inline Vector3d support1(const Vector3d& d) const
   {
     return toshape0 * getSupport(shapes[1], toshape1 * d);
   }
 
   /// @brief support function for the pair of shapes
-  inline Vec3f support(const Vec3f& d) const
+  inline Vector3d support(const Vector3d& d) const
   {
     return support0(d) - support1(-d);
   }
 
   /// @brief support function for the d-th shape (d = 0 or 1)
-  inline Vec3f support(const Vec3f& d, size_t index) const
+  inline Vector3d support(const Vector3d& d, size_t index) const
   {
     if(index)
       return support1(d);
@@ -92,7 +91,7 @@ struct MinkowskiDiff
   }
 
   /// @brief support function for translating shape0, which is translating at velocity v
-  inline Vec3f support0(const Vec3f& d, const Vec3f& v) const
+  inline Vector3d support0(const Vector3d& d, const Vector3d& v) const
   {
     if(d.dot(v) <= 0)
       return getSupport(shapes[0], d);
@@ -101,13 +100,13 @@ struct MinkowskiDiff
   }
 
   /// @brief support function for the pair of shapes, where shape0 is translating at velocity v
-  inline Vec3f support(const Vec3f& d, const Vec3f& v) const
+  inline Vector3d support(const Vector3d& d, const Vector3d& v) const
   {
     return support0(d, v) - support1(-d);
   }
 
   /// @brief support function for the d-th shape (d = 0 or 1), where shape0 is translating at velocity v
-  inline Vec3f support(const Vec3f& d, const Vec3f& v, size_t index) const
+  inline Vector3d support(const Vector3d& d, const Vector3d& v, size_t index) const
   {
     if(index)
       return support1(d);
@@ -123,9 +122,9 @@ struct GJK
   struct SimplexV
   {
     /// @brief support direction
-    Vec3f d; 
+    Vector3d d; 
     /// @brieg support vector (i.e., the furthest point on the shape along the support direction)
-    Vec3f w;
+    Vector3d w;
   };
 
   struct Simplex
@@ -143,7 +142,7 @@ struct GJK
   enum Status {Valid, Inside, Failed};
 
   MinkowskiDiff shape;
-  Vec3f ray;
+  Vector3d ray;
   FCL_REAL distance;
   Simplex simplices[2];
 
@@ -157,19 +156,19 @@ struct GJK
   void initialize();
 
   /// @brief GJK algorithm, given the initial value guess
-  Status evaluate(const MinkowskiDiff& shape_, const Vec3f& guess);
+  Status evaluate(const MinkowskiDiff& shape_, const Vector3d& guess);
 
   /// @brief apply the support function along a direction, the result is return in sv
-  void getSupport(const Vec3f& d, SimplexV& sv) const;
+  void getSupport(const Vector3d& d, SimplexV& sv) const;
 
   /// @brief apply the support function along a direction, the result is return is sv, here shape0 is translating at velocity v
-  void getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const;
+  void getSupport(const Vector3d& d, const Vector3d& v, SimplexV& sv) const;
 
   /// @brief discard one vertex from the simplex
   void removeVertex(Simplex& simplex);
 
   /// @brief append one vertex to the simplex
-  void appendVertex(Simplex& simplex, const Vec3f& v);
+  void appendVertex(Simplex& simplex, const Vector3d& v);
 
   /// @brief whether the simplex enclose the origin
   bool encloseOrigin();
@@ -181,7 +180,7 @@ struct GJK
   }
 
   /// @brief get the guess from current simplex
-  Vec3f getGuessFromSimplex() const;
+  Vector3d getGuessFromSimplex() const;
 
 private:
   SimplexV store_v[4];
@@ -209,7 +208,7 @@ private:
   typedef GJK::SimplexV SimplexV;
   struct SimplexF
   {
-    Vec3f n;
+    Vector3d n;
     FCL_REAL d;
     SimplexV* c[3]; // a face has three vertices
     SimplexF* f[3]; // a face has three adjacent faces
@@ -267,7 +266,7 @@ public:
   
   Status status;
   GJK::Simplex result;
-  Vec3f normal;
+  Vector3d normal;
   FCL_REAL depth;
   SimplexV* sv_store;
   SimplexF* fc_store;
@@ -297,7 +296,7 @@ public:
   /// @brief Find the best polytope face to split
   SimplexF* findBest();
 
-  Status evaluate(GJK& gjk, const Vec3f& guess);
+  Status evaluate(GJK& gjk, const Vector3d& guess);
 
   /// @brief the goal is to add a face connecting vertex w and face edge f[e] 
   bool expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHorizon& horizon);  

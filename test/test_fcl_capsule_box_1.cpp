@@ -38,7 +38,6 @@
 
 #include <cmath>
 #include <fcl/distance.h>
-#include <fcl/math/transform.h>
 #include <fcl/collision.h>
 #include <fcl/collision_object.h>
 #include <fcl/shape/geometric_shapes.h>
@@ -55,17 +54,17 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   fcl::DistanceRequest distanceRequest (true);
   fcl::DistanceResult distanceResult;
   
-  fcl::Transform3f tf1(Eigen::Translation3d(fcl::Vec3f (3., 0, 0)));
-  fcl::Transform3f tf2 = fcl::Transform3f::Identity();
+  fcl::Transform3d tf1(Eigen::Translation3d(fcl::Vector3d (3., 0, 0)));
+  fcl::Transform3d tf2 = fcl::Transform3d::Identity();
   fcl::CollisionObject capsule (capsuleGeometry, tf1);
   fcl::CollisionObject box (boxGeometry, tf2);
 
   // test distance
   fcl::distance (&capsule, &box, distanceRequest, distanceResult);
   // Nearest point on capsule
-  fcl::Vec3f o1 (distanceResult.nearest_points [0]);
+  fcl::Vector3d o1 (distanceResult.nearest_points [0]);
   // Nearest point on box
-  fcl::Vec3f o2 (distanceResult.nearest_points [1]);
+  fcl::Vector3d o2 (distanceResult.nearest_points [1]);
   EXPECT_NEAR (distanceResult.min_distance, 0.5, 1e-4);
   EXPECT_NEAR (o1 [0], -2.0, 1e-4);
   EXPECT_NEAR (o1 [1],  0.0, 1e-4);
@@ -73,7 +72,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   EXPECT_NEAR (o1 [1],  0.0, 1e-4);
 
   // Move capsule above box
-  tf1 = Eigen::Translation3d(fcl::Vec3f (0., 0., 8.));
+  tf1 = Eigen::Translation3d(fcl::Vector3d (0., 0., 8.));
   capsule.setTransform (tf1);
 
   // test distance
@@ -93,8 +92,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   EXPECT_NEAR (o2 [2],  2.0, 1e-4);
 
   // Rotate capsule around y axis by pi/2 and move it behind box
-  tf1.translation() = fcl::Vec3f(-10., 0., 0.);
-  tf1.linear() = fcl::Quaternion3f(sqrt(2)/2, 0, sqrt(2)/2, 0).toRotationMatrix();
+  tf1.translation() = fcl::Vector3d(-10., 0., 0.);
+  tf1.linear() = fcl::Quaternion3d(sqrt(2)/2, 0, sqrt(2)/2, 0).toRotationMatrix();
   capsule.setTransform (tf1);
 
   // test distance

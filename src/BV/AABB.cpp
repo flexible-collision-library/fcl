@@ -43,12 +43,12 @@
 namespace fcl
 {
 
-AABB::AABB() : min_(Vec3f::Constant(std::numeric_limits<FCL_REAL>::max())),
-               max_(Vec3f::Constant(-std::numeric_limits<FCL_REAL>::max()))
+AABB::AABB() : min_(Vector3d::Constant(std::numeric_limits<FCL_REAL>::max())),
+               max_(Vector3d::Constant(-std::numeric_limits<FCL_REAL>::max()))
 {
 }
 
-FCL_REAL AABB::distance(const AABB& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL AABB::distance(const AABB& other, Vector3d* P, Vector3d* Q) const
 {
   FCL_REAL result = 0;
   for(std::size_t i = 0; i < 3; ++i)
