@@ -403,6 +403,12 @@ class HierarchyTree
       return false;
     }
 
+    SortByMorton(NodeType* nodes, FCL_UINT32 split = 0.0)
+      : nodes(nodes), split(split)
+    {
+      // Do nothing
+    }
+
     NodeType* nodes;
     FCL_UINT32 split;
   };

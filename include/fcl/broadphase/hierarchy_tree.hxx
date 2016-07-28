@@ -1030,8 +1030,7 @@ void HierarchyTree<BV>::init_1(NodeType* leaves, int n_leaves_)
   for(size_t i = 0; i < n_leaves; ++i)
     ids[i] = i;
 
-  SortByMorton comp;
-  comp.nodes = nodes;
+  SortByMorton comp(nodes);
   std::sort(ids, ids + n_leaves, comp);
   root_node = mortonRecurse_0(ids, ids + n_leaves, (1 << (coder.bits()-1)), coder.bits()-1);
   delete [] ids;
@@ -1074,8 +1073,7 @@ void HierarchyTree<BV>::init_2(NodeType* leaves, int n_leaves_)
   for(size_t i = 0; i < n_leaves; ++i)
     ids[i] = i;
 
-  SortByMorton comp;
-  comp.nodes = nodes;
+  SortByMorton comp(nodes);
   std::sort(ids, ids + n_leaves, comp);
   root_node = mortonRecurse_1(ids, ids + n_leaves, (1 << (coder.bits()-1)), coder.bits()-1);
   delete [] ids;
@@ -1118,8 +1116,7 @@ void HierarchyTree<BV>::init_3(NodeType* leaves, int n_leaves_)
   for(size_t i = 0; i < n_leaves; ++i)
     ids[i] = i;
 
-  SortByMorton comp;
-  comp.nodes = nodes;
+  SortByMorton comp(nodes);
   std::sort(ids, ids + n_leaves, comp);
   root_node = mortonRecurse_2(ids, ids + n_leaves);
   delete [] ids;
@@ -1551,9 +1548,7 @@ size_t HierarchyTree<BV>::mortonRecurse_0(size_t* lbeg, size_t* lend, const FCL_
   {
     if(bits > 0)
     {
-      SortByMorton comp;
-      comp.nodes = nodes;
-      comp.split = split;
+      SortByMorton comp(nodes, split);
       size_t* lcenter = std::lower_bound(lbeg, lend, NULL_NODE, comp);
 
       if(lcenter == lbeg)
@@ -1599,9 +1594,7 @@ size_t HierarchyTree<BV>::mortonRecurse_1(size_t* lbeg, size_t* lend, const FCL_
   {
     if(bits > 0)
     {
-      SortByMorton comp;
-      comp.nodes = nodes;
-      comp.split = split;
+      SortByMorton comp(nodes, split);
       size_t* lcenter = std::lower_bound(lbeg, lend, NULL_NODE, comp);
 
       if(lcenter == lbeg)

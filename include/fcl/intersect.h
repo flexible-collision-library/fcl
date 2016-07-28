@@ -261,7 +261,7 @@ public:
     /// @brief the code of the projection type
     unsigned int encode;
 
-    ProjectResult() : sqr_distance(-1), encode(0)
+    ProjectResult() : parameterization{0.0, 0.0, 0.0, 0.0}, sqr_distance(-1), encode(0)
     {
     }
   };
