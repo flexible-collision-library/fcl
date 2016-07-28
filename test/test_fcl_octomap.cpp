@@ -43,7 +43,6 @@
 #include "fcl/collision.h"
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
-#include "fcl/math/transform.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 

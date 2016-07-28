@@ -35,12 +35,14 @@
 
 #include <gtest/gtest.h>
 
+#include <sstream>
+
 #include "fcl/intersect.h"
 #include "fcl/collision.h"
 #include "fcl/BVH/BVH_model.h"
 #include "fcl_resources/config.h"
-#include <sstream>
 #include "fcl/math/sampling.h"
+#include "fcl/math/geometry.h"
 
 using namespace fcl;
 

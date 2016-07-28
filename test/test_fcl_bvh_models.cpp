@@ -38,7 +38,6 @@
 
 #include "fcl/config.h"
 #include "fcl/BVH/BVH_model.h"
-#include "fcl/math/transform.h"
 #include "fcl/shape/geometric_shapes.h"
 #include "test_fcl_utility.h"
 #include <iostream>
