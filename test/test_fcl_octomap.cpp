@@ -209,8 +209,8 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh_octomap_box)
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_collision_obb)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test_BVH<OBB>(2, false);
-  octomap_collision_test_BVH<OBB>(2, true);
+  octomap_collision_test_BVH<OBB>(1, false);
+  octomap_collision_test_BVH<OBB>(1, true);
 #else
   octomap_collision_test_BVH<OBB>(5, false);
   octomap_collision_test_BVH<OBB>(5, true);
@@ -220,7 +220,7 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_collision_obb)
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_rss_d_distance_rss)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<RSS>(2);
+  octomap_distance_test_BVH<RSS>(1);
 #else
   octomap_distance_test_BVH<RSS>(5);
 #endif
@@ -229,7 +229,7 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_rss_d_distance_rss)
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_d_distance_obb)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<OBBRSS>(2);
+  octomap_distance_test_BVH<OBBRSS>(1);
 #else
   octomap_distance_test_BVH<OBBRSS>(5);
 #endif
@@ -238,7 +238,7 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_d_distance_obb)
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_kios_d_distance_kios)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<kIOS>(2);
+  octomap_distance_test_BVH<kIOS>(1);
 #else
   octomap_distance_test_BVH<kIOS>(5);
 #endif
