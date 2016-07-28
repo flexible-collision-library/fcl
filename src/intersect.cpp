@@ -1310,7 +1310,10 @@ FCL_REAL TriangleDistance::triDistance(const Vec3f S[3], const Vec3f T[3], Vec3f
   // Even if these tests fail, it may be helpful to know the closest
   // points found, and whether the triangles were shown disjoint
 
-  Vec3f V, Z, minP, minQ;
+  Vec3f V;
+  Vec3f Z;
+  Vec3f minP = Vec3f::Zero();
+  Vec3f minQ = Vec3f::Zero();
   FCL_REAL mindd;
   int shown_disjoint = 0;
 
