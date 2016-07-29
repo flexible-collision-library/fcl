@@ -42,6 +42,32 @@
 namespace fcl
 {
 
+Quaternion3f& Quaternion3f::normalize()
+{
+  double l = data[0]*data[0] + data[1]*data[1] + data[2]*data[2] + data[3]*data[3];
+  double error = std::abs(1.0 - l);
+  const double epsilon = 2.107342e-08;
+
+  if (error < epsilon) {
+    for (uint i = 0 ; i < 4 ; i++) {
+      data[i] /= 0.5*(1+l);
+    }
+  } else {
+    if ( l < 1e-6 ) {
+      data[0] = 1;
+      data[1] = 0;
+      data[2] = 0;
+      data[3] = 0;
+    } else {
+      double sl = 1.0/std::sqrt(l);
+      for (uint i = 0 ; i < 4 ; i++) {
+        data[i] *= sl;
+      }
+    }
+  }
+  return *this;
+} 
+
 void Quaternion3f::fromRotation(const Matrix3f& R)
 {
   const int next[3] = {1, 2, 0};
@@ -83,13 +109,16 @@ void Quaternion3f::fromRotation(const Matrix3f& R)
     *quat[k] = (R(k, i) + R(i, k)) * root;
   }
 }
-
-void Quaternion3f::toRotation(Matrix3f& R) const
-{
+void Quaternion3f::assertNormalized() const{
   assert (.99 < data [0]*data [0] + data [1]*data [1] +
 	  data [2]*data [2] + data [3]*data [3]);
   assert (data [0]*data [0] + data [1]*data [1] +
 	  data [2]*data [2] + data [3]*data [3] < 1.01);
+}
+
+void Quaternion3f::toRotation(Matrix3f& R) const
+{
+  assertNormalized();
   FCL_REAL twoX  = 2.0*data[1];
   FCL_REAL twoY  = 2.0*data[2];
   FCL_REAL twoZ  = 2.0*data[3];

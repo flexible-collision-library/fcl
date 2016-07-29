@@ -57,7 +57,7 @@ public:
     data[2] = 0;
     data[3] = 0;
   }
-
+  
   Quaternion3f(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d)
   {
     data[0] = a;
@@ -65,6 +65,12 @@ public:
     data[2] = c;
     data[3] = d;
   }
+
+  /// @brief checks that quaternion is normalized
+  void assertNormalized() const;
+
+  /// @brief normalizes the quaternion
+  Quaternion3f& normalize();
 
   /// @brief Whether the rotation is identity
   bool isIdentity() const
