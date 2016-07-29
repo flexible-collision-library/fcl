@@ -65,7 +65,7 @@ std::vector<Vector3d> getBoundVertices(const Boxd& box, const Transform3d& tf)
 }
 
 // we use icosahedron to bound the sphere
-std::vector<Vector3d> getBoundVertices(const Sphere& sphere, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const Sphered& sphere, const Transform3d& tf)
 {
   std::vector<Vector3d> result(12);
   const FCL_REAL m = (1 + sqrt(5.0)) / 2.0;
@@ -89,7 +89,7 @@ std::vector<Vector3d> getBoundVertices(const Sphere& sphere, const Transform3d& 
   return result;
 }
 
-std::vector<Vector3d> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const Ellipsoidd& ellipsoid, const Transform3d& tf)
 {
   // we use scaled icosahedron to bound the ellipsoid
 
@@ -206,7 +206,7 @@ std::vector<Vector3d> getBoundVertices(const Coned& cone, const Transform3d& tf)
   return result;
 }
 
-std::vector<Vector3d> getBoundVertices(const Cylinder& cylinder, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const Cylinderd& cylinder, const Transform3d& tf)
 {
   std::vector<Vector3d> result(12);
 
@@ -232,7 +232,7 @@ std::vector<Vector3d> getBoundVertices(const Cylinder& cylinder, const Transform
   return result;
 }
 
-std::vector<Vector3d> getBoundVertices(const Convex& convex, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const Convexd& convex, const Transform3d& tf)
 {
   std::vector<Vector3d> result(convex.num_points);
   for(int i = 0; i < convex.num_points; ++i)
@@ -243,7 +243,7 @@ std::vector<Vector3d> getBoundVertices(const Convex& convex, const Transform3d& 
   return result;
 }
 
-std::vector<Vector3d> getBoundVertices(const TriangleP& triangle, const Transform3d& tf)
+std::vector<Vector3d> getBoundVertices(const TrianglePd& triangle, const Transform3d& tf)
 {
   std::vector<Vector3d> result(3);
   result[0] = tf * triangle.a;
@@ -255,7 +255,7 @@ std::vector<Vector3d> getBoundVertices(const TriangleP& triangle, const Transfor
 
 } // end detail
 
-Halfspace transform(const Halfspace& a, const Transform3d& tf)
+Halfspaced transform(const Halfspaced& a, const Transform3d& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -266,11 +266,11 @@ Halfspace transform(const Halfspace& a, const Transform3d& tf)
   Vector3d n = tf.linear() * a.n;
   FCL_REAL d = a.d + n.dot(tf.translation());
 
-  return Halfspace(n, d);
+  return Halfspaced(n, d);
 }
 
 
-Plane transform(const Plane& a, const Transform3d& tf)
+Planed transform(const Planed& a, const Transform3d& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -281,7 +281,7 @@ Plane transform(const Plane& a, const Transform3d& tf)
   Vector3d n = tf.linear() * a.n;
   FCL_REAL d = a.d + n.dot(tf.translation());
 
-  return Plane(n, d);
+  return Planed(n, d);
 }
 
 
@@ -302,7 +302,7 @@ void computeBV<AABB, Boxd>(const Boxd& s, const Transform3d& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, Sphere>(const Sphere& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Sphered>(const Sphered& s, const Transform3d& tf, AABB& bv)
 {
   const Vector3d& T = tf.translation();
 
@@ -312,7 +312,7 @@ void computeBV<AABB, Sphere>(const Sphere& s, const Transform3d& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Ellipsoidd>(const Ellipsoidd& s, const Transform3d& tf, AABB& bv)
 {
   const Matrix3d& R = tf.linear();
   const Vector3d& T = tf.translation();
@@ -357,7 +357,7 @@ void computeBV<AABB, Coned>(const Coned& s, const Transform3d& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Cylinderd>(const Cylinderd& s, const Transform3d& tf, AABB& bv)
 {
   const Matrix3d& R = tf.linear();
   const Vector3d& T = tf.translation();
@@ -372,7 +372,7 @@ void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3d& tf, AABB& b
 }
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Convexd>(const Convexd& s, const Transform3d& tf, AABB& bv)
 {
   const Matrix3d& R = tf.linear();
   const Vector3d& T = tf.translation();
@@ -388,16 +388,16 @@ void computeBV<AABB, Convex>(const Convex& s, const Transform3d& tf, AABB& bv)
 }
 
 template<>
-void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, TrianglePd>(const TrianglePd& s, const Transform3d& tf, AABB& bv)
 {
   bv = AABB(tf * s.a, tf * s.b, tf * s.c);
 }
 
 
 template<>
-void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Halfspaced>(const Halfspaced& s, const Transform3d& tf, AABB& bv)
 {
-  Halfspace new_s = transform(s, tf);
+  Halfspaced new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
@@ -427,9 +427,9 @@ void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3d& tf, AABB&
 }
 
 template<>
-void computeBV<AABB, Plane>(const Plane& s, const Transform3d& tf, AABB& bv)
+void computeBV<AABB, Planed>(const Planed& s, const Transform3d& tf, AABB& bv)
 {
-  Plane new_s = transform(s, tf);
+  Planed new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;  
 
@@ -468,7 +468,7 @@ void computeBV<OBB, Boxd>(const Boxd& s, const Transform3d& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Sphere>(const Sphere& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Sphered>(const Sphered& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis.setIdentity();
@@ -476,7 +476,7 @@ void computeBV<OBB, Sphere>(const Sphere& s, const Transform3d& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Ellipsoidd>(const Ellipsoidd& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -500,7 +500,7 @@ void computeBV<OBB, Coned>(const Coned& s, const Transform3d& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Cylinderd>(const Cylinderd& s, const Transform3d& tf, OBB& bv)
 {
   bv.To = tf.translation();
   bv.axis = tf.linear();
@@ -508,7 +508,7 @@ void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3d& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Convexd>(const Convexd& s, const Transform3d& tf, OBB& bv)
 {
   fit(s.points, s.num_points, bv);
 
@@ -517,7 +517,7 @@ void computeBV<OBB, Convex>(const Convex& s, const Transform3d& tf, OBB& bv)
 }
 
 template<>
-void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Halfspaced>(const Halfspaced& s, const Transform3d& tf, OBB& bv)
 {
   /// Half space can only have very rough OBB
   bv.axis.setIdentity();
@@ -526,7 +526,7 @@ void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3d& tf, OBB& b
 }
 
 template<>
-void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3d& tf, RSS& bv)
+void computeBV<RSS, Halfspaced>(const Halfspaced& s, const Transform3d& tf, RSS& bv)
 {
   /// Half space can only have very rough RSS
   bv.axis.setIdentity();
@@ -535,25 +535,25 @@ void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3d& tf, RSS& b
 }
 
 template<>
-void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3d& tf, OBBRSS& bv)
+void computeBV<OBBRSS, Halfspaced>(const Halfspaced& s, const Transform3d& tf, OBBRSS& bv)
 {
-  computeBV<OBB, Halfspace>(s, tf, bv.obb);
-  computeBV<RSS, Halfspace>(s, tf, bv.rss);
+  computeBV<OBB, Halfspaced>(s, tf, bv.obb);
+  computeBV<RSS, Halfspaced>(s, tf, bv.rss);
 }
 
 template<>
-void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3d& tf, kIOS& bv)
+void computeBV<kIOS, Halfspaced>(const Halfspaced& s, const Transform3d& tf, kIOS& bv)
 {
   bv.num_spheres = 1;
-  computeBV<OBB, Halfspace>(s, tf, bv.obb);
+  computeBV<OBB, Halfspaced>(s, tf, bv.obb);
   bv.spheres[0].o.setZero();
   bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
 }
 
 template<>
-void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<16>& bv)
+void computeBV<KDOP<16>, Halfspaced>(const Halfspaced& s, const Transform3d& tf, KDOP<16>& bv)
 {
-  Halfspace new_s = transform(s, tf);
+  Halfspaced new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
@@ -606,9 +606,9 @@ void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3d& tf, K
 }
 
 template<>
-void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<18>& bv)
+void computeBV<KDOP<18>, Halfspaced>(const Halfspaced& s, const Transform3d& tf, KDOP<18>& bv)
 {
-  Halfspace new_s = transform(s, tf);
+  Halfspaced new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
@@ -667,9 +667,9 @@ void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3d& tf, K
 }
 
 template<>
-void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<24>& bv)
+void computeBV<KDOP<24>, Halfspaced>(const Halfspaced& s, const Transform3d& tf, KDOP<24>& bv)
 {
-  Halfspace new_s = transform(s, tf);
+  Halfspaced new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
@@ -745,7 +745,7 @@ void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3d& tf, K
 
 
 template<>
-void computeBV<OBB, Plane>(const Plane& s, const Transform3d& tf, OBB& bv)
+void computeBV<OBB, Planed>(const Planed& s, const Transform3d& tf, OBB& bv)
 {
   Vector3d n = tf.linear() * s.n;
   bv.axis.col(0) = n;
@@ -758,7 +758,7 @@ void computeBV<OBB, Plane>(const Plane& s, const Transform3d& tf, OBB& bv)
 }
 
 template<>
-void computeBV<RSS, Plane>(const Plane& s, const Transform3d& tf, RSS& bv)
+void computeBV<RSS, Planed>(const Planed& s, const Transform3d& tf, RSS& bv)
 {
   Vector3d n = tf.linear() * s.n;
 
@@ -775,25 +775,25 @@ void computeBV<RSS, Plane>(const Plane& s, const Transform3d& tf, RSS& bv)
 }
 
 template<>
-void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3d& tf, OBBRSS& bv)
+void computeBV<OBBRSS, Planed>(const Planed& s, const Transform3d& tf, OBBRSS& bv)
 {
-  computeBV<OBB, Plane>(s, tf, bv.obb);
-  computeBV<RSS, Plane>(s, tf, bv.rss);
+  computeBV<OBB, Planed>(s, tf, bv.obb);
+  computeBV<RSS, Planed>(s, tf, bv.rss);
 }
 
 template<>
-void computeBV<kIOS, Plane>(const Plane& s, const Transform3d& tf, kIOS& bv)
+void computeBV<kIOS, Planed>(const Planed& s, const Transform3d& tf, kIOS& bv)
 {
   bv.num_spheres = 1;
-  computeBV<OBB, Plane>(s, tf, bv.obb);
+  computeBV<OBB, Planed>(s, tf, bv.obb);
   bv.spheres[0].o.setZero();
   bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
 }
 
 template<>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3d& tf, KDOP<16>& bv)
+void computeBV<KDOP<16>, Planed>(const Planed& s, const Transform3d& tf, KDOP<16>& bv)
 {
-  Plane new_s = transform(s, tf);
+  Planed new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
@@ -842,9 +842,9 @@ void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3d& tf, KDOP<16>&
 }
 
 template<>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3d& tf, KDOP<18>& bv)
+void computeBV<KDOP<18>, Planed>(const Planed& s, const Transform3d& tf, KDOP<18>& bv)
 {
-  Plane new_s = transform(s, tf);
+  Planed new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 
@@ -897,9 +897,9 @@ void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3d& tf, KDOP<18>&
 }
 
 template<>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3d& tf, KDOP<24>& bv)
+void computeBV<KDOP<24>, Planed>(const Planed& s, const Transform3d& tf, KDOP<24>& bv)
 {
-  Plane new_s = transform(s, tf);
+  Planed new_s = transform(s, tf);
   const Vector3d& n = new_s.n;
   const FCL_REAL& d = new_s.d;
 

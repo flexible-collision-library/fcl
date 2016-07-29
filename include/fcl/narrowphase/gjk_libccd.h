@@ -74,36 +74,36 @@ public:
   static void deleteGJKObject(void* o) {}
 };
 
-/// @brief initialize GJK Cylinder
+/// @brief initialize GJK Cylinderd
 template<>
-class GJKInitializer<Cylinder>
+class GJKInitializer<Cylinderd>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cylinder& s, const Transform3d& tf);
+  static void* createGJKObject(const Cylinderd& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Sphere
+/// @brief initialize GJK Sphered
 template<>
-class GJKInitializer<Sphere>
+class GJKInitializer<Sphered>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Sphere& s, const Transform3d& tf);
+  static void* createGJKObject(const Sphered& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Ellipsoid
+/// @brief initialize GJK Ellipsoidd
 template<>
-class GJKInitializer<Ellipsoid>
+class GJKInitializer<Ellipsoidd>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Ellipsoid& s, const Transform3d& tf);
+  static void* createGJKObject(const Ellipsoidd& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -140,14 +140,14 @@ public:
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Convex
+/// @brief initialize GJK Convexd
 template<>
-class GJKInitializer<Convex>
+class GJKInitializer<Convexd>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Convex& s, const Transform3d& tf);
+  static void* createGJKObject(const Convexd& s, const Transform3d& tf);
   static void deleteGJKObject(void* o);
 };
 

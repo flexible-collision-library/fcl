@@ -50,9 +50,13 @@ template <typename Scalar>
 class Box;
 using Boxd = Box<double>;
 
+template <typename Scalar>
 class Sphere;
+using Sphered = Sphere<double>;
 
+template <typename Scalar>
 class Ellipsoid;
+using Ellipsoidd = Ellipsoid<double>;
 
 template <typename Scalar>
 class Capsule;
@@ -62,28 +66,38 @@ template <typename Scalar>
 class Cone;
 using Coned = Cone<double>;
 
+template <typename Scalar>
 class Cylinder;
+using Cylinderd = Cylinder<double>;
 
+template <typename Scalar>
 class Convex;
+using Convexd = Convex<double>;
 
+template <typename Scalar>
 class TriangleP;
+using TrianglePd = TriangleP<double>;
 
+template <typename Scalar>
 class Halfspace;
+using Halfspaced = Halfspace<double>;
 
+template <typename Scalar>
 class Plane;
+using Planed = Plane<double>;
 
 /// @cond IGNORE
 namespace details
 {
 /// @brief get the vertices of some convex shape which can bound the given shape in a specific configuration
 std::vector<Vector3d> getBoundVertices(const Boxd& box, const Transform3d& tf);
-std::vector<Vector3d> getBoundVertices(const Sphere& sphere, const Transform3d& tf);
-std::vector<Vector3d> getBoundVertices(const Ellipsoid& ellipsoid, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const Sphered& sphere, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const Ellipsoidd& ellipsoid, const Transform3d& tf);
 std::vector<Vector3d> getBoundVertices(const Capsuled& capsule, const Transform3d& tf);
 std::vector<Vector3d> getBoundVertices(const Coned& cone, const Transform3d& tf);
-std::vector<Vector3d> getBoundVertices(const Cylinder& cylinder, const Transform3d& tf);
-std::vector<Vector3d> getBoundVertices(const Convex& convex, const Transform3d& tf);
-std::vector<Vector3d> getBoundVertices(const TriangleP& triangle, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const Cylinderd& cylinder, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const Convexd& convex, const Transform3d& tf);
+std::vector<Vector3d> getBoundVertices(const TrianglePd& triangle, const Transform3d& tf);
 } 
 /// @endcond
 
@@ -100,10 +114,10 @@ template<>
 void computeBV<AABB, Boxd>(const Boxd& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Sphere>(const Sphere& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Sphered>(const Sphered& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Ellipsoidd>(const Ellipsoidd& s, const Transform3d& tf, AABB& bv);
 
 template<>
 void computeBV<AABB, Capsuled>(const Capsuled& s, const Transform3d& tf, AABB& bv);
@@ -112,19 +126,19 @@ template<>
 void computeBV<AABB, Coned>(const Coned& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Cylinder>(const Cylinder& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Cylinderd>(const Cylinderd& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Convex>(const Convex& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Convexd>(const Convexd& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, TriangleP>(const TriangleP& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, TrianglePd>(const TrianglePd& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Halfspace>(const Halfspace& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Halfspaced>(const Halfspaced& s, const Transform3d& tf, AABB& bv);
 
 template<>
-void computeBV<AABB, Plane>(const Plane& s, const Transform3d& tf, AABB& bv);
+void computeBV<AABB, Planed>(const Planed& s, const Transform3d& tf, AABB& bv);
 
 
 
@@ -132,10 +146,10 @@ template<>
 void computeBV<OBB, Boxd>(const Boxd& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Sphere>(const Sphere& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Sphered>(const Sphered& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Ellipsoid>(const Ellipsoid& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Ellipsoidd>(const Ellipsoidd& s, const Transform3d& tf, OBB& bv);
 
 template<>
 void computeBV<OBB, Capsuled>(const Capsuled& s, const Transform3d& tf, OBB& bv);
@@ -144,52 +158,52 @@ template<>
 void computeBV<OBB, Coned>(const Coned& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Cylinder>(const Cylinder& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Cylinderd>(const Cylinderd& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Convex>(const Convex& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Convexd>(const Convexd& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<OBB, Halfspace>(const Halfspace& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Halfspaced>(const Halfspaced& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<RSS, Halfspace>(const Halfspace& s, const Transform3d& tf, RSS& bv);
+void computeBV<RSS, Halfspaced>(const Halfspaced& s, const Transform3d& tf, RSS& bv);
 
 template<>
-void computeBV<OBBRSS, Halfspace>(const Halfspace& s, const Transform3d& tf, OBBRSS& bv);
+void computeBV<OBBRSS, Halfspaced>(const Halfspaced& s, const Transform3d& tf, OBBRSS& bv);
 
 template<>
-void computeBV<kIOS, Halfspace>(const Halfspace& s, const Transform3d& tf, kIOS& bv);
+void computeBV<kIOS, Halfspaced>(const Halfspaced& s, const Transform3d& tf, kIOS& bv);
 
 template<>
-void computeBV<KDOP<16>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<16>& bv);
+void computeBV<KDOP<16>, Halfspaced>(const Halfspaced& s, const Transform3d& tf, KDOP<16>& bv);
 
 template<>
-void computeBV<KDOP<18>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<18>& bv);
+void computeBV<KDOP<18>, Halfspaced>(const Halfspaced& s, const Transform3d& tf, KDOP<18>& bv);
 
 template<>
-void computeBV<KDOP<24>, Halfspace>(const Halfspace& s, const Transform3d& tf, KDOP<24>& bv);
+void computeBV<KDOP<24>, Halfspaced>(const Halfspaced& s, const Transform3d& tf, KDOP<24>& bv);
 
 template<>
-void computeBV<OBB, Plane>(const Plane& s, const Transform3d& tf, OBB& bv);
+void computeBV<OBB, Planed>(const Planed& s, const Transform3d& tf, OBB& bv);
 
 template<>
-void computeBV<RSS, Plane>(const Plane& s, const Transform3d& tf, RSS& bv);
+void computeBV<RSS, Planed>(const Planed& s, const Transform3d& tf, RSS& bv);
 
 template<>
-void computeBV<OBBRSS, Plane>(const Plane& s, const Transform3d& tf, OBBRSS& bv);
+void computeBV<OBBRSS, Planed>(const Planed& s, const Transform3d& tf, OBBRSS& bv);
 
 template<>
-void computeBV<kIOS, Plane>(const Plane& s, const Transform3d& tf, kIOS& bv);
+void computeBV<kIOS, Planed>(const Planed& s, const Transform3d& tf, kIOS& bv);
 
 template<>
-void computeBV<KDOP<16>, Plane>(const Plane& s, const Transform3d& tf, KDOP<16>& bv);
+void computeBV<KDOP<16>, Planed>(const Planed& s, const Transform3d& tf, KDOP<16>& bv);
 
 template<>
-void computeBV<KDOP<18>, Plane>(const Plane& s, const Transform3d& tf, KDOP<18>& bv);
+void computeBV<KDOP<18>, Planed>(const Planed& s, const Transform3d& tf, KDOP<18>& bv);
 
 template<>
-void computeBV<KDOP<24>, Plane>(const Plane& s, const Transform3d& tf, KDOP<24>& bv);
+void computeBV<KDOP<24>, Planed>(const Planed& s, const Transform3d& tf, KDOP<24>& bv);
 
 
 /// @brief construct a box shape (with a configuration) from a given bounding volume
@@ -225,9 +239,9 @@ void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Boxd& box, Trans
 
 void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-Halfspace transform(const Halfspace& a, const Transform3d& tf);
+Halfspaced transform(const Halfspaced& a, const Transform3d& tf);
 
-Plane transform(const Plane& a, const Transform3d& tf);
+Planed transform(const Planed& a, const Transform3d& tf);
 
 }
 

@@ -35,61 +35,129 @@
 
 /** \author Jia Pan */
 
-
 #ifndef FCL_SHAPE_PLANE_H
 #define FCL_SHAPE_PLANE_H
 
 #include "fcl/shape/shape_base.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 
 namespace fcl
 {
 
 /// @brief Infinite plane 
-class Plane : public ShapeBased
+template <typename Scalar>
+class Plane : public ShapeBase<Scalar>
 {
 public:
   /// @brief Construct a plane with normal direction and offset 
-  Plane(const Vector3d& n_, FCL_REAL d_) : ShapeBased(), n(n_), d(d_)
-  { 
-    unitNormalTest(); 
-  }
+  Plane(const Vector3<Scalar>& n, Scalar d);
   
   /// @brief Construct a plane with normal direction and offset 
-  Plane(FCL_REAL a, FCL_REAL b, FCL_REAL c, FCL_REAL d_) : ShapeBased(), n(a, b, c), d(d_)
-  {
-    unitNormalTest();
-  }
+  Plane(Scalar a, Scalar b, Scalar c, Scalar d);
 
-  Plane() : ShapeBased(), n(1, 0, 0), d(0)
-  {}
+  Plane();
 
-  FCL_REAL signedDistance(const Vector3d& p) const
-  {
-    return n.dot(p) - d;
-  }
+  Scalar signedDistance(const Vector3<Scalar>& p) const;
 
-  FCL_REAL distance(const Vector3d& p) const
-  {
-    return std::abs(n.dot(p) - d);
-  }
+  Scalar distance(const Vector3<Scalar>& p) const;
 
   /// @brief Compute AABB 
-  void computeLocalAABB();
+  void computeLocalAABB() override;
 
   /// @brief Get node type: a plane 
-  NODE_TYPE getNodeType() const { return GEOM_PLANE; }
+  NODE_TYPE getNodeType() const override;
 
   /// @brief Plane normal 
-  Vector3d n;
+  Vector3<Scalar> n;
 
   /// @brief Plane offset 
-  FCL_REAL d;
+  Scalar d;
 
 protected:
   
   /// @brief Turn non-unit normal into unit 
   void unitNormalTest();
 };
+
+using Planef = Plane<float>;
+using Planed = Plane<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+Plane<Scalar>::Plane(const Vector3<Scalar>& n, Scalar d)
+  : ShapeBase<Scalar>(), n(n), d(d)
+{
+  unitNormalTest();
+}
+
+//==============================================================================
+template <typename Scalar>
+Plane<Scalar>::Plane(Scalar a, Scalar b, Scalar c, Scalar d)
+  : ShapeBase<Scalar>(), n(a, b, c), d(d)
+{
+  unitNormalTest();
+}
+
+//==============================================================================
+template <typename Scalar>
+Plane<Scalar>::Plane() : ShapeBased(), n(1, 0, 0), d(0)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar Plane<Scalar>::signedDistance(const Vector3<Scalar>& p) const
+{
+  return n.dot(p) - d;
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar Plane<Scalar>::distance(const Vector3<Scalar>& p) const
+{
+  return std::abs(n.dot(p) - d);
+}
+
+//==============================================================================
+template <typename Scalar>
+void Plane<Scalar>::computeLocalAABB()
+{
+  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  this->aabb_center = this->aabb_local.center();
+  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
+}
+
+//==============================================================================
+template <typename Scalar>
+NODE_TYPE Plane<Scalar>::getNodeType() const
+{
+  return GEOM_PLANE;
+}
+
+//==============================================================================
+template <typename Scalar>
+void Plane<Scalar>::unitNormalTest()
+{
+  Scalar l = n.norm();
+  if(l > 0)
+  {
+    Scalar inv_l = 1.0 / l;
+    n *= inv_l;
+    d *= inv_l;
+  }
+  else
+  {
+    n << 1, 0, 0;
+    d = 0;
+  }
+}
 
 
 }

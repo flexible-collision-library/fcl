@@ -735,14 +735,14 @@ void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Sphere* sphere = new Sphere(30);
+    Sphered* sphere = new Sphered(30);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(sphere), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Cylinder* cylinder = new Cylinder(10, 40);
+    Cylinderd* cylinder = new Cylinderd(10, 40);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(cylinder), transforms[i]));
   }
 
@@ -789,7 +789,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   }
 
   generateRandomTransforms(extents, transforms, n);
-  Sphere sphere(30);
+  Sphered sphere(30);
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
@@ -798,7 +798,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   }
 
   generateRandomTransforms(extents, transforms, n);
-  Cylinder cylinder(10, 40);
+  Cylinderd cylinder(10, 40);
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();

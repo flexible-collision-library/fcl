@@ -35,44 +35,81 @@
 
 /** \author Jia Pan */
 
-
 #ifndef FCL_SHAPE_SPHERE_H
 #define FCL_SHAPE_SPHERE_H
 
 #include "fcl/shape/shape_base.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 
 namespace fcl
 {
 
 /// @brief Center at zero point sphere
-class Sphere : public ShapeBased
+template <typename Scalar>
+class Sphere : public ShapeBase<Scalar>
 {
 public:
-  Sphere(FCL_REAL radius_) : ShapeBased(), radius(radius_)
-  {
-  }
+  Sphere(Scalar radius);
 
   /// @brief Radius of the sphere
-  FCL_REAL radius;
+  Scalar radius;
 
   /// @brief Compute AABB
-  void computeLocalAABB();
+  void computeLocalAABB() override;
 
   /// @brief Get node type: a sphere
-  NODE_TYPE getNodeType() const { return GEOM_SPHERE; }
+  NODE_TYPE getNodeType() const override;
 
-  Matrix3d computeMomentofInertia() const
-  {
-    FCL_REAL I = 0.4 * radius * radius * computeVolume();
+  Matrix3<Scalar> computeMomentofInertia() const override;
 
-    return Vector3d::Constant(I).asDiagonal();
-  }
-
-  FCL_REAL computeVolume() const
-  {
-    return 4.0 * constants::pi * radius * radius * radius / 3.0;
-  }
+  Scalar computeVolume() const override;
 };
+
+using Spheref = Sphere<float>;
+using Sphered = Sphere<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+Sphere<Scalar>::Sphere(Scalar radius) : ShapeBased(), radius(radius)
+{
+}
+
+//==============================================================================
+template <typename Scalar>
+void Sphere<Scalar>::computeLocalAABB()
+{
+  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  this->aabb_center = this->aabb_local.center();
+  this->aabb_radius = radius;
+}
+
+//==============================================================================
+template <typename Scalar>
+NODE_TYPE Sphere<Scalar>::getNodeType() const
+{
+  return GEOM_SPHERE; }
+
+//==============================================================================
+template <typename Scalar>
+Matrix3<Scalar> Sphere<Scalar>::computeMomentofInertia() const
+{
+  Scalar I = 0.4 * radius * radius * computeVolume();
+
+  return Vector3<Scalar>::Constant(I).asDiagonal();
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar Sphere<Scalar>::computeVolume() const
+{
+  return 4.0 * constants::pi * radius * radius * radius / 3.0;
+}
 
 }
 

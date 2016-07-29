@@ -40,48 +40,99 @@
 #define FCL_SHAPE_ELLIPSOID_H
 
 #include "fcl/shape/shape_base.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 
 namespace fcl
 {
 
 /// @brief Center at zero point ellipsoid
-class Ellipsoid : public ShapeBased
+template <typename Scalar>
+class Ellipsoid : public ShapeBase<Scalar>
 {
 public:
-  Ellipsoid(FCL_REAL a, FCL_REAL b, FCL_REAL c) : ShapeBase(), radii(a, b, c)
-  {
-  }
+  /// @brief Constructor
+  Ellipsoid(Scalar a, Scalar b, Scalar c);
 
-  Ellipsoid(const Vector3d& radii_) : ShapeBase(), radii(radii_)
-  {
-  }
+  /// @brief Constructor
+  Ellipsoid(const Vector3<Scalar>& radii);
 
   /// @brief Radii of the ellipsoid
-  Vector3d radii;
+  Vector3<Scalar> radii;
 
   /// @brief Compute AABB
-  void computeLocalAABB();
+  void computeLocalAABB() override;
 
   /// @brief Get node type: a sphere
-  NODE_TYPE getNodeType() const { return GEOM_ELLIPSOID; }
+  NODE_TYPE getNodeType() const override;
 
-  Matrix3d computeMomentofInertia() const
-  {
-    const FCL_REAL V = computeVolume();
+  // Documentation inherited
+  Matrix3<Scalar> computeMomentofInertia() const override;
 
-    const FCL_REAL a2 = radii[0] * radii[0] * V;
-    const FCL_REAL b2 = radii[1] * radii[1] * V;
-    const FCL_REAL c2 = radii[2] * radii[2] * V;
-
-    return Vector3d(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
-  }
-
-  FCL_REAL computeVolume() const
-  {
-    const FCL_REAL pi = constants::pi;
-    return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
-  }
+  // Documentation inherited
+  Scalar computeVolume() const override;
 };
+
+using Ellipsoidf = Ellipsoid<float>;
+using Ellipsoidd = Ellipsoid<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+Ellipsoid<Scalar>::Ellipsoid(Scalar a, Scalar b, Scalar c)
+  : ShapeBase<Scalar>(), radii(a, b, c)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+Ellipsoid<Scalar>::Ellipsoid(const Vector3<Scalar>& radii)
+  : ShapeBase<Scalar>(), radii(radii)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+void Ellipsoid<Scalar>::computeLocalAABB()
+{
+  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  this->aabb_center = this->aabb_local.center();
+  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
+}
+
+//==============================================================================
+template <typename Scalar>
+NODE_TYPE Ellipsoid<Scalar>::getNodeType() const
+{
+  return GEOM_ELLIPSOID;
+}
+
+//==============================================================================
+template <typename Scalar>
+Matrix3<Scalar> Ellipsoid<Scalar>::computeMomentofInertia() const
+{
+  const Scalar V = computeVolume();
+
+  const Scalar a2 = radii[0] * radii[0] * V;
+  const Scalar b2 = radii[1] * radii[1] * V;
+  const Scalar c2 = radii[2] * radii[2] * V;
+
+  return Vector3<Scalar>(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar Ellipsoid<Scalar>::computeVolume() const
+{
+  const Scalar pi = constants::pi;
+  return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
+}
 
 }
 

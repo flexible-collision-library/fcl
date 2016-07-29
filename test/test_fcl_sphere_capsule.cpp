@@ -48,7 +48,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
 {
 	GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
+	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., -50));
 
@@ -62,7 +62,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negativ
 {
 	GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
+	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., 50));
 
@@ -76,7 +76,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
 {
 	GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
+	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., -50));
 
@@ -90,7 +90,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_r
 {
 	GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
+	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
   sphere1_transform.translation() = (Vector3d (0., 0., -50));
 
@@ -111,7 +111,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
 {
   GJKSolver_libccd solver;
 
-  Sphere sphere1 (50);
+  Sphered sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
 
   Capsuled capsule (50, 200.);
@@ -135,7 +135,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
 {
 	GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
+	Sphered sphere1 (50);
   Transform3d sphere1_transform = Transform3d::Identity();
 
 	Capsuled capsule (50, 200.);
@@ -165,7 +165,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 {
 	GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
+	Sphered sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
 
 	Capsuled capsule (50, 200.);
@@ -181,7 +181,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_separated)
 {
 	GJKSolver_libccd solver;
 
-	Sphere sphere1 (50);
+	Sphered sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
 
 	Capsuled capsule (50, 200.);

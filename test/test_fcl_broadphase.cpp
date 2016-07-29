@@ -357,14 +357,14 @@ void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Sphere* sphere = new Sphere(30);
+    Sphered* sphere = new Sphered(30);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(sphere), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Cylinder* cylinder = new Cylinder(10, 40);
+    Cylinderd* cylinder = new Cylinderd(10, 40);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(cylinder), transforms[i]));
   }
 }
@@ -384,7 +384,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   }
 
   generateRandomTransforms(extents, transforms, n);
-  Sphere sphere(30);
+  Sphered sphere(30);
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
@@ -393,7 +393,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   }
 
   generateRandomTransforms(extents, transforms, n);
-  Cylinder cylinder(10, 40);
+  Cylinderd cylinder(10, 40);
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
@@ -430,7 +430,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int y = (i - n_edge * n_edge * x) % n_edge;
     int z = i - n_edge * n_edge * x - n_edge * y;
 
-    Sphere* sphere = new Sphere(single_size / 2);
+    Sphered* sphere = new Sphered(single_size / 2);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(sphere),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -443,7 +443,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int y = (i - n_edge * n_edge * x) % n_edge;
     int z = i - n_edge * n_edge * x - n_edge * y;
 
-    Ellipsoid* ellipsoid = new Ellipsoid(single_size / 2, single_size / 2, single_size / 2);
+    Ellipsoidd* ellipsoid = new Ellipsoidd(single_size / 2, single_size / 2, single_size / 2);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(ellipsoid),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -456,7 +456,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int y = (i - n_edge * n_edge * x) % n_edge;
     int z = i - n_edge * n_edge * x - n_edge * y;
 
-    Cylinder* cylinder = new Cylinder(single_size / 2, single_size);
+    Cylinderd* cylinder = new Cylinderd(single_size / 2, single_size);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(cylinder),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -507,7 +507,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int y = (i - n_edge * n_edge * x) % n_edge;
     int z = i - n_edge * n_edge * x - n_edge * y;
 
-    Sphere sphere(single_size / 2);
+    Sphered sphere(single_size / 2);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
     generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
@@ -522,7 +522,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int y = (i - n_edge * n_edge * x) % n_edge;
     int z = i - n_edge * n_edge * x - n_edge * y;
 
-    Ellipsoid ellipsoid(single_size / 2, single_size / 2, single_size / 2);
+    Ellipsoidd ellipsoid(single_size / 2, single_size / 2, single_size / 2);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
     generateBVHModel(*model, ellipsoid, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
@@ -537,7 +537,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int y = (i - n_edge * n_edge * x) % n_edge;
     int z = i - n_edge * n_edge * x - n_edge * y;
 
-    Cylinder cylinder(single_size / 2, single_size);
+    Cylinderd cylinder(single_size / 2, single_size);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
     generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),

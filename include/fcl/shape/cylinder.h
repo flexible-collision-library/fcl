@@ -35,50 +35,92 @@
 
 /** \author Jia Pan */
 
-
 #ifndef FCL_SHAPE_CYLINDER_H
 #define FCL_SHAPE_CYLINDER_H
 
 #include "fcl/shape/shape_base.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 
 namespace fcl
 {
 
 /// @brief Center at zero cylinder 
-class Cylinder : public ShapeBased
+template <typename Scalar>
+class Cylinder : public ShapeBase<Scalar>
 {
 public:
-  Cylinder(FCL_REAL radius_, FCL_REAL lz_) : ShapeBased(), radius(radius_), lz(lz_)
-  {
-  }
-
+  /// @brief Constructor
+  Cylinder(Scalar radius, Scalar lz);
   
   /// @brief Radius of the cylinder 
-  FCL_REAL radius;
+  Scalar radius;
 
   /// @brief Length along z axis 
-  FCL_REAL lz;
+  Scalar lz;
 
   /// @brief Compute AABB 
-  void computeLocalAABB();
+  void computeLocalAABB() override;
 
   /// @brief Get node type: a cylinder 
-  NODE_TYPE getNodeType() const { return GEOM_CYLINDER; }
+  NODE_TYPE getNodeType() const override;
 
-  FCL_REAL computeVolume() const
-  {
-    return constants::pi * radius * radius * lz;
-  }
+  // Documentation inherited
+  Scalar computeVolume() const override;
 
-  Matrix3d computeMomentofInertia() const
-  {
-    FCL_REAL V = computeVolume();
-    FCL_REAL ix = V * (3 * radius * radius + lz * lz) / 12;
-    FCL_REAL iz = V * radius * radius / 2;
-
-    return Vector3d(ix, ix, iz).asDiagonal();
-  }
+  // Documentation inherited
+  Matrix3<Scalar> computeMomentofInertia() const override;
 };
+
+using Cylinderf = Cylinder<float>;
+using Cylinderd = Cylinder<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+Cylinder<Scalar>::Cylinder(Scalar radius, Scalar lz)
+  : ShapeBase<Scalar>(), radius(radius), lz(lz)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+void Cylinder<Scalar>::computeLocalAABB()
+{
+  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  this->aabb_center = this->aabb_local.center();
+  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
+}
+
+//==============================================================================
+template <typename Scalar>
+NODE_TYPE Cylinder<Scalar>::getNodeType() const
+{
+  return GEOM_CYLINDER;
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar Cylinder<Scalar>::computeVolume() const
+{
+  return constants::pi * radius * radius * lz;
+}
+
+//==============================================================================
+template <typename Scalar>
+Matrix3<Scalar> Cylinder<Scalar>::computeMomentofInertia() const
+{
+  Scalar V = computeVolume();
+  Scalar ix = V * (3 * radius * radius + lz * lz) / 12;
+  Scalar iz = V * radius * radius / 2;
+
+  return Vector3<Scalar>(ix, ix, iz).asDiagonal();
+}
 
 }
 

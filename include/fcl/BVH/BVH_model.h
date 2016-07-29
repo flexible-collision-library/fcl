@@ -126,7 +126,7 @@ public:
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
   /// @brief Compute the AABB for the BVH, used for broad-phase collision
-  void computeLocalAABB();
+  void computeLocalAABB() override;
 
   /// @brief Begin a new BVH model
   int beginModel(int num_tris = 0, int num_vertices = 0);

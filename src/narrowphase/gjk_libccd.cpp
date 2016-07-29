@@ -85,7 +85,7 @@ struct ccd_ellipsoid_t : public ccd_obj_t
 
 struct ccd_convex_t : public ccd_obj_t
 {
-  const Convex* convex;
+  const Convexd* convex;
 };
 
 struct ccd_triangle_t : public ccd_obj_t
@@ -533,7 +533,7 @@ static void capToGJK(const Capsuled& s, const Transform3d& tf, ccd_cap_t* cap)
   cap->height = s.lz / 2;
 }
 
-static void cylToGJK(const Cylinder& s, const Transform3d& tf, ccd_cyl_t* cyl)
+static void cylToGJK(const Cylinderd& s, const Transform3d& tf, ccd_cyl_t* cyl)
 {
   shapeToGJK(s, tf, cyl);
   cyl->radius = s.radius;
@@ -547,13 +547,13 @@ static void coneToGJK(const Coned& s, const Transform3d& tf, ccd_cone_t* cone)
   cone->height = s.lz / 2;
 }
 
-static void sphereToGJK(const Sphere& s, const Transform3d& tf, ccd_sphere_t* sph)
+static void sphereToGJK(const Sphered& s, const Transform3d& tf, ccd_sphere_t* sph)
 {
   shapeToGJK(s, tf, sph);
   sph->radius = s.radius;
 }
 
-static void ellipsoidToGJK(const Ellipsoid& s, const Transform3d& tf, ccd_ellipsoid_t* ellipsoid)
+static void ellipsoidToGJK(const Ellipsoidd& s, const Transform3d& tf, ccd_ellipsoid_t* ellipsoid)
 {
   shapeToGJK(s, tf, ellipsoid);
   ellipsoid->radii[0] = s.radii[0];
@@ -561,7 +561,7 @@ static void ellipsoidToGJK(const Ellipsoid& s, const Transform3d& tf, ccd_ellips
   ellipsoid->radii[2] = s.radii[2];
 }
 
-static void convexToGJK(const Convex& s, const Transform3d& tf, ccd_convex_t* conv)
+static void convexToGJK(const Convexd& s, const Transform3d& tf, ccd_convex_t* conv)
 {
   shapeToGJK(s, tf, conv);
   conv->convex = &s;
@@ -853,19 +853,19 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
 }
 
 
-GJKSupportFunction GJKInitializer<Cylinder>::getSupportFunction()
+GJKSupportFunction GJKInitializer<Cylinderd>::getSupportFunction()
 {
   return &supportCyl;
 }
 
 
-GJKCenterFunction GJKInitializer<Cylinder>::getCenterFunction()
+GJKCenterFunction GJKInitializer<Cylinderd>::getCenterFunction()
 {
   return &centerShape;
 }
 
 
-void* GJKInitializer<Cylinder>::createGJKObject(const Cylinder& s, const Transform3d& tf)
+void* GJKInitializer<Cylinderd>::createGJKObject(const Cylinderd& s, const Transform3d& tf)
 {
   ccd_cyl_t* o = new ccd_cyl_t;
   cylToGJK(s, tf, o);
@@ -873,56 +873,56 @@ void* GJKInitializer<Cylinder>::createGJKObject(const Cylinder& s, const Transfo
 }
 
 
-void GJKInitializer<Cylinder>::deleteGJKObject(void* o_)
+void GJKInitializer<Cylinderd>::deleteGJKObject(void* o_)
 {
   ccd_cyl_t* o = static_cast<ccd_cyl_t*>(o_);
   delete o;
 }
 
 
-GJKSupportFunction GJKInitializer<Sphere>::getSupportFunction()
+GJKSupportFunction GJKInitializer<Sphered>::getSupportFunction()
 {
   return &supportSphere;
 }
 
 
-GJKCenterFunction GJKInitializer<Sphere>::getCenterFunction()
+GJKCenterFunction GJKInitializer<Sphered>::getCenterFunction()
 {
   return &centerShape;
 }
 
 
-void* GJKInitializer<Sphere>::createGJKObject(const Sphere& s, const Transform3d& tf)
+void* GJKInitializer<Sphered>::createGJKObject(const Sphered& s, const Transform3d& tf)
 {
   ccd_sphere_t* o = new ccd_sphere_t;
   sphereToGJK(s, tf, o);
   return o;
 }
 
-void GJKInitializer<Sphere>::deleteGJKObject(void* o_)
+void GJKInitializer<Sphered>::deleteGJKObject(void* o_)
 {
   ccd_sphere_t* o = static_cast<ccd_sphere_t*>(o_);
   delete o;
 }
 
-GJKSupportFunction GJKInitializer<Ellipsoid>::getSupportFunction()
+GJKSupportFunction GJKInitializer<Ellipsoidd>::getSupportFunction()
 {
   return &supportEllipsoid;
 }
 
-GJKCenterFunction GJKInitializer<Ellipsoid>::getCenterFunction()
+GJKCenterFunction GJKInitializer<Ellipsoidd>::getCenterFunction()
 {
   return &centerShape;
 }
 
-void* GJKInitializer<Ellipsoid>::createGJKObject(const Ellipsoid& s, const Transform3d& tf)
+void* GJKInitializer<Ellipsoidd>::createGJKObject(const Ellipsoidd& s, const Transform3d& tf)
 {
   ccd_ellipsoid_t* o = new ccd_ellipsoid_t;
   ellipsoidToGJK(s, tf, o);
   return o;
 }
 
-void GJKInitializer<Ellipsoid>::deleteGJKObject(void* o_)
+void GJKInitializer<Ellipsoidd>::deleteGJKObject(void* o_)
 {
   ccd_ellipsoid_t* o = static_cast<ccd_ellipsoid_t*>(o_);
   delete o;
@@ -1009,19 +1009,19 @@ void GJKInitializer<Coned>::deleteGJKObject(void* o_)
 }
 
 
-GJKSupportFunction GJKInitializer<Convex>::getSupportFunction()
+GJKSupportFunction GJKInitializer<Convexd>::getSupportFunction()
 {
   return &supportConvex;
 }
 
 
-GJKCenterFunction GJKInitializer<Convex>::getCenterFunction()
+GJKCenterFunction GJKInitializer<Convexd>::getCenterFunction()
 {
   return &centerConvex;
 }
 
 
-void* GJKInitializer<Convex>::createGJKObject(const Convex& s, const Transform3d& tf)
+void* GJKInitializer<Convexd>::createGJKObject(const Convexd& s, const Transform3d& tf)
 {
   ccd_convex_t* o = new ccd_convex_t;
   convexToGJK(s, tf, o);
@@ -1029,7 +1029,7 @@ void* GJKInitializer<Convex>::createGJKObject(const Convex& s, const Transform3d
 }
 
 
-void GJKInitializer<Convex>::deleteGJKObject(void* o_)
+void GJKInitializer<Convexd>::deleteGJKObject(void* o_)
 {
   ccd_convex_t* o = static_cast<ccd_convex_t*>(o_);
   delete o;

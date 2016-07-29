@@ -149,7 +149,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
     GJKSolver_libccd solver;
  
     {  
-      Sphere sphere(len);
+      Sphered sphere(len);
       computeBV(sphere, transforms[i], obb2);
  
       bool overlap_obb = obb1.overlap(obb2);
@@ -158,7 +158,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
     }
 
     {
-      Ellipsoid ellipsoid(len, len, len);
+      Ellipsoidd ellipsoid(len, len, len);
       computeBV(ellipsoid, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
@@ -185,7 +185,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
     }
 
     {
-      Cylinder cylinder(len, 2 * len);
+      Cylinderd cylinder(len, 2 * len);
       computeBV(cylinder, transforms[i], obb2);
       
       bool overlap_obb = obb1.overlap(obb2);

@@ -35,30 +35,70 @@
 
 /** \author Jia Pan */
 
-
 #ifndef FCL_SHAPE_TRIANGLE_P_H
 #define FCL_SHAPE_TRIANGLE_P_H
 
 #include "fcl/shape/shape_base.h"
+#include "fcl/shape/geometric_shapes_utility.h"
 
 namespace fcl
 {
 
 /// @brief Triangle stores the points instead of only indices of points
-class TriangleP : public ShapeBased
+template <typename Scalar>
+class TriangleP : public ShapeBase<Scalar>
 {
 public:
-  TriangleP(const Vector3d& a_, const Vector3d& b_, const Vector3d& c_) : ShapeBase(), a(a_), b(b_), c(c_)
-  {
-  }
+  TriangleP(const Vector3<Scalar>& a,
+            const Vector3<Scalar>& b,
+            const Vector3<Scalar>& c);
 
   /// @brief virtual function of compute AABB in local coordinate
-  void computeLocalAABB();
+  void computeLocalAABB() override;
   
-  NODE_TYPE getNodeType() const { return GEOM_TRIANGLE; }
+  // Documentation inherited
+  NODE_TYPE getNodeType() const override;
 
-  Vector3d a, b, c;
+  Vector3<Scalar> a;
+  Vector3<Scalar> b;
+  Vector3<Scalar> c;
 };
+
+using TrianglePf = TriangleP<float>;
+using TrianglePd = TriangleP<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+TriangleP<Scalar>::TriangleP(
+    const Vector3<Scalar>& a,
+    const Vector3<Scalar>& b,
+    const Vector3<Scalar>& c)
+  : ShapeBase<Scalar>(), a(a), b(b), c(c)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+void TriangleP<Scalar>::computeLocalAABB()
+{
+  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  this->aabb_center = this->aabb_local.center();
+  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
+}
+
+//==============================================================================
+template <typename Scalar>
+NODE_TYPE TriangleP<Scalar>::getNodeType() const
+{
+  return GEOM_TRIANGLE;
+}
 
 }
 

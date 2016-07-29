@@ -59,7 +59,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
   const double radius = 5.0;
   const double pi = constants::pi;
 
-  Sphere s(radius);
+  Sphered s(radius);
 
   const double volume = 4.0 / 3.0 * pi * radius * radius * radius;
   EXPECT_NEAR(volume, s.computeVolume(), tol);
@@ -67,7 +67,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
 {
-  Cylinder s1(5, 10);
+  Cylinderd s1(5, 10);
   Coned s2(5, 10);
 
   CollisionRequest request;
@@ -482,8 +482,8 @@ void testShapeIntersection(
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
 {
-  Sphere s1(20);
-  Sphere s2(10);
+  Sphered s1(20);
+  Sphered s2(10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -721,7 +721,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Boxd s2(5, 5, 5);
 
   Transform3d tf1;
@@ -768,7 +768,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Capsuled s2(5, 10);
 
   Transform3d tf1;
@@ -827,8 +827,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -931,7 +931,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
 {
-  Cylinder s1(5, 10);
+  Cylinderd s1(5, 10);
   Coned s2(5, 10);
 
   Transform3d tf1;
@@ -997,8 +997,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -1066,7 +1066,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
 {
-  Sphere s(10);
+  Sphered s(10);
   Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
@@ -1105,7 +1105,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
 {
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
   Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
@@ -1146,7 +1146,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
 {
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Planed hs(Vector3d(1, 0, 0), 0);
   Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
@@ -1187,8 +1187,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
 {
-  Sphere s(10);
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Sphered s(10);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -1273,8 +1273,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
 {
-  Sphere s(10);
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Sphered s(10);
+  Planed hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -1352,7 +1352,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 {
   Boxd s(5, 10, 20);
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -1443,7 +1443,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
 {
   Boxd s(5, 10, 20);
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Planed hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -1525,8 +1525,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
 {
-  Ellipsoid s(5, 10, 20);
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Ellipsoidd s(5, 10, 20);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -1611,7 +1611,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
 
 
 
-  hs = Halfspace(Vector3d(0, 1, 0), 0);
+  hs = Halfspaced(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1688,7 +1688,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
 
 
 
-  hs = Halfspace(Vector3d(0, 0, 1), 0);
+  hs = Halfspaced(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1765,8 +1765,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 {
-  Ellipsoid s(5, 10, 20);
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Ellipsoidd s(5, 10, 20);
+  Planed hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -1843,7 +1843,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 
 
 
-  hs = Plane(Vector3d(0, 1, 0), 0);
+  hs = Planed(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1912,7 +1912,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 
 
 
-  hs = Plane(Vector3d(0, 0, 1), 0);
+  hs = Planed(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -1982,7 +1982,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 {
   Capsuled s(5, 10);
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -2067,7 +2067,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 
 
 
-  hs = Halfspace(Vector3d(0, 1, 0), 0);
+  hs = Halfspaced(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2144,7 +2144,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 
 
 
-  hs = Halfspace(Vector3d(0, 0, 1), 0);
+  hs = Halfspaced(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2222,7 +2222,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 {
   Capsuled s(5, 10);
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Planed hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -2299,7 +2299,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 
 
 
-  hs = Plane(Vector3d(0, 1, 0), 0);
+  hs = Planed(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2368,7 +2368,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 
 
 
-  hs = Plane(Vector3d(0, 0, 1), 0);
+  hs = Planed(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2437,8 +2437,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
 {
-  Cylinder s(5, 10);
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Cylinderd s(5, 10);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -2523,7 +2523,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
 
 
 
-  hs = Halfspace(Vector3d(0, 1, 0), 0);
+  hs = Halfspaced(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2600,7 +2600,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
 
 
 
-  hs = Halfspace(Vector3d(0, 0, 1), 0);
+  hs = Halfspaced(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2677,8 +2677,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 {
-  Cylinder s(5, 10);
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Cylinderd s(5, 10);
+  Planed hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -2755,7 +2755,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 
 
 
-  hs = Plane(Vector3d(0, 1, 0), 0);
+  hs = Planed(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2824,7 +2824,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 
 
 
-  hs = Plane(Vector3d(0, 0, 1), 0);
+  hs = Planed(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -2895,7 +2895,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 {
   Coned s(5, 10);
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -2980,7 +2980,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 
 
 
-  hs = Halfspace(Vector3d(0, 1, 0), 0);
+  hs = Halfspaced(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -3057,7 +3057,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 
 
 
-  hs = Halfspace(Vector3d(0, 0, 1), 0);
+  hs = Halfspaced(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -3135,7 +3135,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 {
   Coned s(5, 10);
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Planed hs(Vector3d(1, 0, 0), 0);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -3212,7 +3212,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 
 
 
-  hs = Plane(Vector3d(0, 1, 0), 0);
+  hs = Planed(Vector3d(0, 1, 0), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -3281,7 +3281,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 
 
 
-  hs = Plane(Vector3d(0, 0, 1), 0);
+  hs = Planed(Vector3d(0, 0, 1), 0);
 
   tf1 = Transform3d::Identity();
   tf2 = Transform3d::Identity();
@@ -3374,8 +3374,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
 {
-  Sphere s1(20);
-  Sphere s2(10);
+  Sphered s1(20);
+  Sphered s2(10);
 
   Transform3d transform = Transform3d::Identity();
   //generateRandomTransform(extents, transform);
@@ -3502,7 +3502,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Boxd s2(5, 5, 5);
 
   Transform3d transform = Transform3d::Identity();
@@ -3538,8 +3538,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -3610,7 +3610,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
 {
-  Cylinder s1(5, 10);
+  Cylinderd s1(5, 10);
   Coned s2(5, 10);
 
   Transform3d transform = Transform3d::Identity();
@@ -3646,8 +3646,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -3732,8 +3732,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
 {
-  Sphere s1(20);
-  Sphere s2(10);
+  Sphered s1(20);
+  Sphered s2(10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -3901,7 +3901,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Boxd s2(5, 5, 5);
 
   Transform3d tf1;
@@ -3950,7 +3950,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Capsuled s2(5, 10);
 
   Transform3d tf1;
@@ -3998,8 +3998,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -4107,7 +4107,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
 {
-  Cylinder s1(5, 10);
+  Cylinderd s1(5, 10);
   Coned s2(5, 10);
 
   Transform3d tf1;
@@ -4175,8 +4175,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
 
   Transform3d tf1;
   Transform3d tf2;
@@ -4246,7 +4246,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
 {
-  Sphere s(10);
+  Sphered s(10);
   Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
@@ -4286,7 +4286,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
 {
-  Halfspace hs(Vector3d(1, 0, 0), 0);
+  Halfspaced hs(Vector3d(1, 0, 0), 0);
   Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
@@ -4327,7 +4327,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 {
-  Plane hs(Vector3d(1, 0, 0), 0);
+  Planed hs(Vector3d(1, 0, 0), 0);
   Vector3d t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
@@ -4392,8 +4392,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
 {
-  Sphere s1(20);
-  Sphere s2(10);
+  Sphered s1(20);
+  Sphered s2(10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -4489,7 +4489,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Boxd s2(5, 5, 5);
 
   Transform3d transform = Transform3d::Identity();
@@ -4525,8 +4525,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -4597,8 +4597,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
 
   Transform3d transform = Transform3d::Identity();
   generateRandomTransform(extents, transform);
@@ -4704,13 +4704,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
 
   // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
   Boxd box(10, 10, 10);
-  Sphere sphere(5);
-  Ellipsoid ellipsoid(5, 5, 5);
+  Sphered sphere(5);
+  Ellipsoidd ellipsoid(5, 5, 5);
   Capsuled capsule(5, 10);
   Coned cone(5, 10);
-  Cylinder cylinder(5, 10);
-  Plane plane(Vector3d::Zero(), 0.0);
-  Halfspace halfspace(Vector3d::Zero(), 0.0);
+  Cylinderd cylinder(5, 10);
+  Planed plane(Vector3d::Zero(), 0.0);
+  Halfspaced halfspace(Vector3d::Zero(), 0.0);
 
   // Use sufficiently short distance so that all the primitive shapes can intersect
   FCL_REAL distance = 5.0;
@@ -4800,13 +4800,13 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeDistance_allshapes)
 
   // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
   Boxd box(10, 10, 10);
-  Sphere sphere(5);
-  Ellipsoid ellipsoid(5, 5, 5);
+  Sphered sphere(5);
+  Ellipsoidd ellipsoid(5, 5, 5);
   Capsuled capsule(5, 10);
   Coned cone(5, 10);
-  Cylinder cylinder(5, 10);
-  Plane plane(Vector3d::Zero(), 0.0);
-  Halfspace halfspace(Vector3d::Zero(), 0.0);
+  Cylinderd cylinder(5, 10);
+  Planed plane(Vector3d::Zero(), 0.0);
+  Halfspaced halfspace(Vector3d::Zero(), 0.0);
 
   // Use sufficiently long distance so that all the primitive shapes CANNOT intersect
   FCL_REAL distance = 15.0;

@@ -51,7 +51,7 @@ Vector3d getSupport(const ShapeBased* shape, const Vector3d& dir)
   {
   case GEOM_TRIANGLE:
     {
-      const TriangleP* triangle = static_cast<const TriangleP*>(shape);
+      const TrianglePd* triangle = static_cast<const TrianglePd*>(shape);
       FCL_REAL dota = dir.dot(triangle->a);
       FCL_REAL dotb = dir.dot(triangle->b);
       FCL_REAL dotc = dir.dot(triangle->c);
@@ -81,13 +81,13 @@ Vector3d getSupport(const ShapeBased* shape, const Vector3d& dir)
     break;
   case GEOM_SPHERE:
     {
-      const Sphere* sphere = static_cast<const Sphere*>(shape);
+      const Sphered* sphere = static_cast<const Sphered*>(shape);
       return dir * sphere->radius;
     }
     break;
   case GEOM_ELLIPSOID:
     {
-      const Ellipsoid* ellipsoid = static_cast<const Ellipsoid*>(shape);
+      const Ellipsoidd* ellipsoid = static_cast<const Ellipsoidd*>(shape);
 
       const FCL_REAL a2 = ellipsoid->radii[0] * ellipsoid->radii[0];
       const FCL_REAL b2 = ellipsoid->radii[1] * ellipsoid->radii[1];
@@ -138,7 +138,7 @@ Vector3d getSupport(const ShapeBased* shape, const Vector3d& dir)
     break;
   case GEOM_CYLINDER:
     {
-      const Cylinder* cylinder = static_cast<const Cylinder*>(shape);
+      const Cylinderd* cylinder = static_cast<const Cylinderd*>(shape);
       FCL_REAL zdist = std::sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
       FCL_REAL half_h = cylinder->lz * 0.5;
       if(zdist == 0.0)
@@ -154,7 +154,7 @@ Vector3d getSupport(const ShapeBased* shape, const Vector3d& dir)
     break;
   case GEOM_CONVEX:
     {
-      const Convex* convex = static_cast<const Convex*>(shape);
+      const Convexd* convex = static_cast<const Convexd*>(shape);
       FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
       Vector3d* curp = convex->points;
       Vector3d bestv = Vector3d::Zero();

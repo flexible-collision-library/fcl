@@ -52,8 +52,8 @@ FCL_REAL extents[6] = {0, 0, 0, 10, 10, 10};
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
 {
-  Sphere s1(20);
-  Sphere s2(20);
+  Sphered s1(20);
+  Sphered s2(20);
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
@@ -143,8 +143,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_libccd)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
@@ -324,8 +324,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_libccd)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
@@ -506,8 +506,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
 {
-  Sphere s1(20);
-  Sphere s2(20);
+  Sphered s1(20);
+  Sphered s2(20);
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
@@ -599,8 +599,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_GJK)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
 
@@ -784,8 +784,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   BVHModel<RSS> s1_rss;
   BVHModel<RSS> s2_rss;
@@ -979,8 +979,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd)
 {
-  Sphere s1(20);
-  Sphere s2(10);
+  Sphered s1(20);
+  Sphered s2(10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
   BVHModel<OBB> s1_obb;
@@ -1198,8 +1198,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_libccd)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
   BVHModel<OBB> s1_obb;
@@ -1541,7 +1541,7 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Boxd s2(5, 5, 5);
 
   BVHModel<AABB> s1_aabb;
@@ -1663,8 +1663,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_libccd)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
@@ -1908,8 +1908,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
 {
-  Sphere s1(20);
-  Sphere s2(10);
+  Sphered s1(20);
+  Sphered s2(10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
   BVHModel<OBB> s1_obb;
@@ -2129,8 +2129,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_GJK)
 {
-  Ellipsoid s1(20, 40, 50);
-  Ellipsoid s2(10, 10, 10);
+  Ellipsoidd s1(20, 40, 50);
+  Ellipsoidd s2(10, 10, 10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
   BVHModel<OBB> s1_obb;
@@ -2474,7 +2474,7 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
 {
-  Sphere s1(20);
+  Sphered s1(20);
   Boxd s2(5, 5, 5);
 
   BVHModel<AABB> s1_aabb;
@@ -2598,8 +2598,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJK)
 {
-  Cylinder s1(5, 10);
-  Cylinder s2(5, 10);
+  Cylinderd s1(5, 10);
+  Cylinderd s2(5, 10);
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
