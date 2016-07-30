@@ -17,6 +17,9 @@ target_include_directories(${PROJECT_NAME} INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+target_include_directories(${PROJECT_NAME} PUBLIC
+  ${EIGEN3_INCLUDE_DIRS})
+
 export(TARGETS ${PROJECT_NAME}
   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
 
