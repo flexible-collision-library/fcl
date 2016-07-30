@@ -47,9 +47,10 @@
 namespace fcl
 {
 
-inline void normalize(Vector3d& v, bool* signal)
+template <typename Scalar>
+void normalize(Vector3<Scalar>& v, bool* signal)
 {
-  Vector3d::Scalar sqr_length = v.squaredNorm();
+  Scalar sqr_length = v.squaredNorm();
 
   if (sqr_length > 0)
   {
@@ -62,21 +63,27 @@ inline void normalize(Vector3d& v, bool* signal)
   }
 }
 
-inline Vector3d::Scalar triple(const Vector3d& x, const Vector3d& y, const Vector3d& z)
+template <typename Derived>
+typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
+                                    const Eigen::MatrixBase<Derived>& y,
+                                    const Eigen::MatrixBase<Derived>& z)
 {
   return x.dot(y.cross(z));
 }
 
-template <typename T>
-void generateCoordinateSystem(const Vector3<T>& w, Vector3<T>& u, Vector3<T>& v)
+template <typename Derived>
+void generateCoordinateSystem(
+    const Eigen::MatrixBase<Derived>& w,
+    Eigen::MatrixBase<Derived>& u,
+    Eigen::MatrixBase<Derived>& v)
 {
-  T inv_length;
+  typename Derived::RealScalar inv_length;
 
   if(std::abs(w[0]) >= std::abs(w[1]))
   {
-    inv_length = (T)1.0 / sqrt(w[0] * w[0] + w[2] * w[2]);
+    inv_length = 1.0 / std::sqrt(w[0] * w[0] + w[2] * w[2]);
     u[0] = -w[2] * inv_length;
-    u[1] = (T)0;
+    u[1] = 0;
     u[2] =  w[0] * inv_length;
     v[0] =  w[1] * u[2];
     v[1] =  w[2] * u[0] - w[0] * u[2];
@@ -84,8 +91,8 @@ void generateCoordinateSystem(const Vector3<T>& w, Vector3<T>& u, Vector3<T>& v)
   }
   else
   {
-    inv_length = (T)1.0 / sqrt(w[1] * w[1] + w[2] * w[2]);
-    u[0] = (T)0;
+    inv_length = 1.0 / std::sqrt(w[1] * w[1] + w[2] * w[2]);
+    u[0] = 0;
     u[1] =  w[2] * inv_length;
     u[2] = -w[1] * inv_length;
     v[0] =  w[1] * u[2] - w[2] * u[1];
@@ -94,10 +101,11 @@ void generateCoordinateSystem(const Vector3<T>& w, Vector3<T>& u, Vector3<T>& v)
   }
 }
 
-template <typename T, int M, int N>
-VectorN<T, M+N> combine(const VectorN<T, M>& v1, const VectorN<T, N>& v2)
+template <typename Scalar, int M, int N>
+VectorN<Scalar, M+N> combine(
+    const VectorN<Scalar, M>& v1, const VectorN<Scalar, N>& v2)
 {
-  VectorN<T, M+N> v;
+  VectorN<Scalar, M+N> v;
   v << v1, v2;
 
   return v;
@@ -169,50 +177,50 @@ void generateCoordinateSystem(Matrix3<T>& axis)
   }
 }
 
-template <typename Derived1, typename Derived2, typename Derived3, typename Derived4>
+template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
 void relativeTransform(
-    const Eigen::MatrixBase<Derived1>& R1, const Eigen::MatrixBase<Derived2>& t1,
-    const Eigen::MatrixBase<Derived1>& R2, const Eigen::MatrixBase<Derived2>& t2,
-    Eigen::MatrixBase<Derived3>& R, Eigen::MatrixBase<Derived4>& t)
+    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
+    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
+    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t)
 {
   EIGEN_STATIC_ASSERT(
-        Derived1::RowsAtCompileTime == 3
-        && Derived1::ColsAtCompileTime == 3,
+        DerivedA::RowsAtCompileTime == 3
+        && DerivedA::ColsAtCompileTime == 3,
         THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
   EIGEN_STATIC_ASSERT(
-        Derived2::RowsAtCompileTime == 3
-        && Derived2::ColsAtCompileTime == 1,
+        DerivedB::RowsAtCompileTime == 3
+        && DerivedB::ColsAtCompileTime == 1,
         THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
   EIGEN_STATIC_ASSERT(
-        Derived3::RowsAtCompileTime == 3
-        && Derived3::ColsAtCompileTime == 3,
+        DerivedC::RowsAtCompileTime == 3
+        && DerivedC::ColsAtCompileTime == 3,
         THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
   EIGEN_STATIC_ASSERT(
-        Derived4::RowsAtCompileTime == 3
-        && Derived4::ColsAtCompileTime == 1,
+        DerivedD::RowsAtCompileTime == 3
+        && DerivedD::ColsAtCompileTime == 1,
         THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
   R = R1.transpose() * R2;
   t = R1.transpose() * (t2 - t1);
 }
 
-template <typename Scalar, typename Derived1, typename Derived2>
+template <typename Scalar, typename DerivedA, typename DerivedB>
 void relativeTransform(
     const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T1,
     const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
-    Eigen::MatrixBase<Derived1>& R, Eigen::MatrixBase<Derived2>& t)
+    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t)
 {
   EIGEN_STATIC_ASSERT(
-        Derived1::RowsAtCompileTime == 3
-        && Derived1::ColsAtCompileTime == 3,
+        DerivedA::RowsAtCompileTime == 3
+        && DerivedA::ColsAtCompileTime == 3,
         THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
   EIGEN_STATIC_ASSERT(
-        Derived2::RowsAtCompileTime == 3
-        && Derived2::ColsAtCompileTime == 1,
+        DerivedB::RowsAtCompileTime == 3
+        && DerivedB::ColsAtCompileTime == 1,
         THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
   relativeTransform(

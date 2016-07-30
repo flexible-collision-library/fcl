@@ -97,7 +97,7 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
   VectorNd<4> aa = VectorNd<4>(1, 2, 1, 2);
   std::cout << aa << std::endl;
 
-  SamplerR<4> sampler(lower, upper);
+  SamplerRd<4> sampler(lower, upper);
   for(std::size_t i = 0; i < 10; ++i)
     std::cout << sampler.sample() << std::endl;
 
@@ -106,7 +106,7 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
   // for(std::size_t i = 0; i < 10; ++i)
   //   std::cout << sampler2.sample() << std::endl;
 
-  SamplerSE3Euler sampler3(Vector3d(0, 0, 0), Vector3d(1, 1, 1));
+  SamplerSE3Eulerd sampler3(Vector3d(0, 0, 0), Vector3d(1, 1, 1));
   for(std::size_t i = 0; i < 10; ++i)
     std::cout << sampler3.sample() << std::endl;
   
