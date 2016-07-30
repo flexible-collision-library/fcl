@@ -44,7 +44,7 @@ before_build:
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIRS="C:\Program Files\libccd\include" -DCCD_LIBRARY="C:\Program Files\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIRS="C:\Program Files\Eigen\include\eigen3" ..
+  - cmd: cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIRS="C:\Program Files\libccd\include" -DCCD_LIBRARY="C:\Program Files\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\Program Files\Eigen\include\eigen3" ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
