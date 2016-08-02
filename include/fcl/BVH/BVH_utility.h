@@ -44,10 +44,41 @@
 
 namespace fcl
 {
-/// @brief Expand the BVH bounding boxes according to the variance matrix corresponding to the data stored within each BV node
-template<typename BV>
-void BVHExpand(BVHModel<BV>& model, const Variance3d* ucs, FCL_REAL r)
+/// @brief Expand the BVH bounding boxes according to the variance matrix
+/// corresponding to the data stored within each BV node
+template <typename BV>
+void BVHExpand(
+    BVHModel<BV>& model,
+    const Variance3<typename BV::Scalar>* ucs,
+    typename BV::Scalar r);
+
+/// @brief Expand the BVH bounding boxes according to the corresponding variance
+/// information, for OBB
+template <typename Scalar>
+void BVHExpand(
+    BVHModel<OBB<Scalar>>& model, const Variance3<Scalar>* ucs, Scalar r = 1.0);
+
+/// @brief Expand the BVH bounding boxes according to the corresponding variance
+/// information, for RSS
+template <typename Scalar>
+void BVHExpand(
+    BVHModel<RSS<Scalar>>& model, const Variance3<Scalar>* ucs, Scalar r = 1.0);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename BV>
+void BVHExpand(
+    BVHModel<BV>& model,
+    const Variance3<typename BV::Scalar>* ucs,
+    typename BV::Scalar r)
 {
+  using Scalar = typename BV::Scalar;
+
   for(int i = 0; i < model.num_bvs; ++i)
   {
     BVNode<BV>& bvnode = model.getBV(i);
@@ -56,9 +87,9 @@ void BVHExpand(BVHModel<BV>& model, const Variance3d* ucs, FCL_REAL r)
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Variance3d& uc = ucs[v_id];
+      const Variance3<Scalar>& uc = ucs[v_id];
 
-      Vector3d& v = model.vertices[bvnode.first_primitive + j];
+      Vector3<Scalar>& v = model.vertices[bvnode.first_primitive + j];
 
       for(int k = 0; k < 3; ++k)
       {
@@ -71,11 +102,77 @@ void BVHExpand(BVHModel<BV>& model, const Variance3d* ucs, FCL_REAL r)
   }
 }
 
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for OBBd
-void BVHExpand(BVHModel<OBBd>& model, const Variance3d* ucs, FCL_REAL r);
+//==============================================================================
+template <typename Scalar>
+void BVHExpand(
+    BVHModel<OBB<Scalar>>& model,
+    const Variance3<Scalar>* ucs,
+    Scalar r)
+{
+  for(int i = 0; i < model.getNumBVs(); ++i)
+  {
+    BVNode<OBB<Scalar>>& bvnode = model.getBV(i);
 
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSSd
-void BVHExpand(BVHModel<RSSd>& model, const Variance3d* ucs, FCL_REAL r);
+    Vector3<Scalar>* vs = new Vector3<Scalar>[bvnode.num_primitives * 6];
+
+    for(int j = 0; j < bvnode.num_primitives; ++j)
+    {
+      int v_id = bvnode.first_primitive + j;
+      const Variance3<Scalar>& uc = ucs[v_id];
+
+      Vector3<Scalar>&v = model.vertices[bvnode.first_primitive + j];
+
+      for(int k = 0; k < 3; ++k)
+      {
+        vs[6 * j + 2 * k] = v + uc.axis.col(k) * (r * uc.sigma[k]);
+        vs[6 * j + 2 * k + 1] = v - uc.axis.col(k) * (r * uc.sigma[k]);
+      }
+    }
+
+    OBB<Scalar> bv;
+    fit(vs, bvnode.num_primitives * 6, bv);
+
+    delete [] vs;
+
+    bvnode.bv = bv;
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void BVHExpand(
+    BVHModel<RSS<Scalar>>& model,
+    const Variance3<Scalar>* ucs,
+    Scalar r)
+{
+  for(int i = 0; i < model.getNumBVs(); ++i)
+  {
+    BVNode<RSS<Scalar>>& bvnode = model.getBV(i);
+
+    Vector3<Scalar>* vs = new Vector3<Scalar>[bvnode.num_primitives * 6];
+
+    for(int j = 0; j < bvnode.num_primitives; ++j)
+    {
+      int v_id = bvnode.first_primitive + j;
+      const Variance3<Scalar>& uc = ucs[v_id];
+
+      Vector3<Scalar>&v = model.vertices[bvnode.first_primitive + j];
+
+      for(int k = 0; k < 3; ++k)
+      {
+        vs[6 * j + 2 * k] = v + uc.axis.col(k) * (r * uc.sigma[k]);
+        vs[6 * j + 2 * k + 1] = v - uc.axis.col(k) * (r * uc.sigma[k]);
+      }
+    }
+
+    RSS<Scalar> bv;
+    fit(vs, bvnode.num_primitives * 6, bv);
+
+    delete [] vs;
+
+    bvnode.bv = bv;
+  }
+}
 
 } // namespace fcl
 
