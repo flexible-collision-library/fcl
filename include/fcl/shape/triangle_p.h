@@ -39,7 +39,7 @@
 #define FCL_SHAPE_TRIANGLE_P_H
 
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/compute_bv.h"
 
 namespace fcl
 {
@@ -62,10 +62,33 @@ public:
   Vector3<Scalar> a;
   Vector3<Scalar> b;
   Vector3<Scalar> c;
+
+  std::vector<Vector3<Scalar>> getBoundVertices(
+      const Transform3<Scalar>& tf) const
+  {
+    std::vector<Vector3<Scalar>> result(3);
+    result[0] = tf * a;
+    result[1] = tf * b;
+    result[2] = tf * c;
+
+    return result;
+  }
 };
 
 using TrianglePf = TriangleP<float>;
 using TrianglePd = TriangleP<double>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, TrianglePd>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, TrianglePd>
+{
+  void operator()(const TrianglePd& s, const Transform3<Scalar>& tf, AABB& bv)
+  {
+    bv = AABB(tf * s.a, tf * s.b, tf * s.c);
+  }
+};
 
 //============================================================================//
 //                                                                            //
@@ -88,7 +111,7 @@ TriangleP<Scalar>::TriangleP(
 template <typename Scalar>
 void TriangleP<Scalar>::computeLocalAABB()
 {
-  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

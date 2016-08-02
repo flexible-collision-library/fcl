@@ -47,29 +47,6 @@
 namespace fcl
 {
 
-/// @brief Compute a bounding volume that fits a set of n points.
-template<typename BV>
-void fit(Vector3d* ps, int n, BV& bv)
-{
-  for(int i = 0; i < n; ++i)
-  {
-    bv += ps[i];
-  }
-}
-
-template<>
-void fit<OBB>(Vector3d* ps, int n, OBB& bv);
-
-template<>
-void fit<RSS>(Vector3d* ps, int n, RSS& bv);
-
-template<>
-void fit<kIOS>(Vector3d* ps, int n, kIOS& bv);
-
-template<>
-void fit<OBBRSS>(Vector3d* ps, int n, OBBRSS& bv);
-
-
 /// @brief Interface for fitting a bv given the triangles or points inside it.
 template<typename BV>
 class BVFitterBase
@@ -171,9 +148,9 @@ private:
 };
 
 
-/// @brief Specification of BVFitter for OBB bounding volume
+/// @brief Specification of BVFitter for OBBd bounding volume
 template<>
-class BVFitter<OBB> : public BVFitterBase<OBB>
+class BVFitter<OBBd> : public BVFitterBase<OBBd>
 {
 public:
   /// @brief Prepare the geometry primitive data for fitting
@@ -196,7 +173,7 @@ public:
 
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  OBB fit(unsigned int* primitive_indices, int num_primitives);
+  OBBd fit(unsigned int* primitive_indices, int num_primitives);
 
   /// brief Clear the geometry primitive data
   void clear()

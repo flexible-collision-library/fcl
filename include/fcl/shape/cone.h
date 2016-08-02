@@ -39,7 +39,8 @@
 #define FCL_SHAPE_CONE_H
 
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/compute_bv.h"
+#include "fcl/BV/OBB.h"
 
 namespace fcl
 {
@@ -71,10 +72,67 @@ public:
 
   // Documentation inherited
   Vector3<Scalar> computeCOM() const override;
+
+  std::vector<Vector3<Scalar>> getBoundVertices(
+      const Transform3<Scalar>& tf) const
+  {
+    std::vector<Vector3<Scalar>> result(7);
+
+    auto hl = lz * 0.5;
+    auto r2 = radius * 2 / std::sqrt(3.0);
+    auto a = 0.5 * r2;
+    auto b = radius;
+
+    result[0] = tf * Vector3<Scalar>(r2, 0, -hl);
+    result[1] = tf * Vector3<Scalar>(a, b, -hl);
+    result[2] = tf * Vector3<Scalar>(-a, b, -hl);
+    result[3] = tf * Vector3<Scalar>(-r2, 0, -hl);
+    result[4] = tf * Vector3<Scalar>(-a, -b, -hl);
+    result[5] = tf * Vector3<Scalar>(a, -b, -hl);
+
+    result[6] = tf * Vector3<Scalar>(0, 0, hl);
+
+    return result;
+  }
 };
 
 using Conef = Cone<float>;
 using Coned = Cone<double>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Cone<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Cone<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Cone<Scalar>>
+{
+  void operator()(const Cone<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  {
+    const Matrix3d& R = tf.linear();
+    const Vector3d& T = tf.translation();
+
+    FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
+    FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
+    FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
+
+    Vector3d v_delta(x_range, y_range, z_range);
+    bv.max_ = T + v_delta;
+    bv.min_ = T - v_delta;
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Cone<Scalar>>
+{
+  void operator()(const Cone<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  {
+    bv.To = tf.translation();
+    bv.axis = tf.linear();
+    bv.extent << s.radius, s.radius, s.lz / 2;
+  }
+};
 
 //============================================================================//
 //                                                                            //
@@ -94,7 +152,7 @@ Cone<Scalar>::Cone(Scalar radius, Scalar lz)
 template <typename Scalar>
 void Cone<Scalar>::computeLocalAABB()
 {
-  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

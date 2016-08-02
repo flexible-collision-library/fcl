@@ -38,8 +38,9 @@
 #ifndef FCL_SHAPE_BOX_H
 #define FCL_SHAPE_BOX_H
 
+#include "fcl/BVH/BV_fitter.h"
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/compute_bv.h"
 
 namespace fcl
 {
@@ -72,10 +73,50 @@ public:
 
   // Documentation inherited
   Matrix3<Scalar> computeMomentofInertia() const override;
+
+  /// @brief get the vertices of some convex shape which can bound this shape in
+  /// a specific configuration
+  std::vector<Vector3<Scalar>> getBoundVertices(
+      const Transform3<Scalar>& tf) const;
 };
 
 using Boxf = Box<float>;
 using Boxd = Box<double>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Box<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBBd, Box<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Box<Scalar>>
+{
+  void operator()(const Box<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  {
+    const Matrix3d& R = tf.linear();
+    const Vector3d& T = tf.translation();
+
+    FCL_REAL x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
+    FCL_REAL y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
+    FCL_REAL z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
+
+    Vector3d v_delta(x_range, y_range, z_range);
+    bv.max_ = T + v_delta;
+    bv.min_ = T - v_delta;
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBBd, Box<Scalar>>
+{
+  void operator()(const Box<Scalar>& s, const Transform3<Scalar>& tf, OBBd& bv)
+  {
+    bv.To = tf.translation();
+    bv.axis = tf.linear();
+    bv.extent = s.side * (FCL_REAL)0.5;
+  }
+};
 
 //============================================================================//
 //                                                                            //
@@ -109,7 +150,7 @@ Box<Scalar>::Box() : ShapeBase<Scalar>(), side(Vector3<Scalar>::Zero())
 template <typename Scalar>
 void Box<Scalar>::computeLocalAABB()
 {
-  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<Scalar>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -125,7 +166,7 @@ NODE_TYPE Box<Scalar>::getNodeType() const
 template <typename Scalar>
 Scalar Box<Scalar>::computeVolume() const
 {
-  return side[0] * side[1] * side[2];
+  return side.prod();
 }
 
 //==============================================================================
@@ -143,6 +184,27 @@ Matrix3<Scalar> Box<Scalar>::computeMomentofInertia() const
   return I.asDiagonal();
 }
 
+//==============================================================================
+template <typename Scalar>
+std::vector<Vector3<Scalar>> Box<Scalar>::getBoundVertices(
+    const Transform3<Scalar>& tf) const
+{
+  std::vector<Vector3<Scalar>> result(8);
+  auto a = side[0] / 2;
+  auto b = side[1] / 2;
+  auto c = side[2] / 2;
+  result[0] = tf * Vector3<Scalar>(a, b, c);
+  result[1] = tf * Vector3<Scalar>(a, b, -c);
+  result[2] = tf * Vector3<Scalar>(a, -b, c);
+  result[3] = tf * Vector3<Scalar>(a, -b, -c);
+  result[4] = tf * Vector3<Scalar>(-a, b, c);
+  result[5] = tf * Vector3<Scalar>(-a, b, -c);
+  result[6] = tf * Vector3<Scalar>(-a, -b, c);
+  result[7] = tf * Vector3<Scalar>(-a, -b, -c);
+
+  return result;
 }
+
+} // namespace fcl
 
 #endif

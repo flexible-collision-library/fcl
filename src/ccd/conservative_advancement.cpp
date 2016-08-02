@@ -798,14 +798,14 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   conservative_advancement_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeConservativeAdvancement<AABB, Planed, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<AABB, Halfspaced, NarrowPhaseSolver>;
   
-  conservative_advancement_matrix[BV_OBB][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBB, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBB, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<OBB, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][GEOM_CONE] = &BVHShapeConservativeAdvancement<OBB, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<OBB, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<OBB, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeConservativeAdvancement<OBB, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<OBB, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBBd, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBBd, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<OBBd, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_CONE] = &BVHShapeConservativeAdvancement<OBBd, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<OBBd, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<OBBd, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeConservativeAdvancement<OBBd, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<OBBd, Halfspaced, NarrowPhaseSolver>;
 
   conservative_advancement_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBBRSS, Boxd, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBBRSS, Sphered, NarrowPhaseSolver>;
@@ -871,14 +871,14 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   conservative_advancement_matrix[GEOM_PLANE][BV_AABB] = &ShapeBVHConservativeAdvancement<Planed, AABB, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_HALFSPACE][BV_AABB] = &ShapeBVHConservativeAdvancement<Halfspaced, AABB, NarrowPhaseSolver>;
   
-  conservative_advancement_matrix[GEOM_BOX][BV_OBB] = &ShapeBVHConservativeAdvancement<Boxd, OBB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_OBB] = &ShapeBVHConservativeAdvancement<Sphered, OBB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_OBB] = &ShapeBVHConservativeAdvancement<Capsuled, OBB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_OBB] = &ShapeBVHConservativeAdvancement<Coned, OBB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_OBB] = &ShapeBVHConservativeAdvancement<Cylinderd, OBB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_OBB] = &ShapeBVHConservativeAdvancement<Convexd, OBB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_OBB] = &ShapeBVHConservativeAdvancement<Planed, OBB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_OBB] = &ShapeBVHConservativeAdvancement<Halfspaced, OBB, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_OBB] = &ShapeBVHConservativeAdvancement<Boxd, OBBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_OBB] = &ShapeBVHConservativeAdvancement<Sphered, OBBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_OBB] = &ShapeBVHConservativeAdvancement<Capsuled, OBBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_OBB] = &ShapeBVHConservativeAdvancement<Coned, OBBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_OBB] = &ShapeBVHConservativeAdvancement<Cylinderd, OBBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_OBB] = &ShapeBVHConservativeAdvancement<Convexd, OBBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_OBB] = &ShapeBVHConservativeAdvancement<Planed, OBBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_OBB] = &ShapeBVHConservativeAdvancement<Halfspaced, OBBd, NarrowPhaseSolver>;
 
   conservative_advancement_matrix[GEOM_BOX][BV_RSS] = &ShapeBVHConservativeAdvancement<Boxd, RSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_RSS] = &ShapeBVHConservativeAdvancement<Sphered, RSS, NarrowPhaseSolver>;
@@ -935,7 +935,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   conservative_advancement_matrix[GEOM_HALFSPACE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Halfspaced, kIOS, NarrowPhaseSolver>;
 
   conservative_advancement_matrix[BV_AABB][BV_AABB] = &BVHConservativeAdvancement<AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBB][BV_OBB] = &BVHConservativeAdvancement<OBB, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBB][BV_OBB] = &BVHConservativeAdvancement<OBBd, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_RSS][BV_RSS] = &BVHConservativeAdvancement<RSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHConservativeAdvancement<OBBRSS, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_KDOP16][BV_KDOP16] = &BVHConservativeAdvancement<KDOP<16>, NarrowPhaseSolver>;

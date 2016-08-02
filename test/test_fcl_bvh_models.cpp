@@ -211,7 +211,7 @@ void testBVHModel()
 GTEST_TEST(FCL_BVH_MODELS, building_bvh_models)
 {
   testBVHModel<AABB>();
-  testBVHModel<OBB>();
+  testBVHModel<OBBd>();
   testBVHModel<RSS>();
   testBVHModel<kIOS>();
   testBVHModel<OBBRSS>();

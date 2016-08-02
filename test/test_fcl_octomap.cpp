@@ -208,11 +208,11 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh_octomap_box)
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_collision_obb)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test_BVH<OBB>(1, false, 1.0);
-  octomap_collision_test_BVH<OBB>(1, true, 1.0);
+  octomap_collision_test_BVH<OBBd>(1, false, 1.0);
+  octomap_collision_test_BVH<OBBd>(1, true, 1.0);
 #else
-  octomap_collision_test_BVH<OBB>(5, false, 0.1);
-  octomap_collision_test_BVH<OBB>(5, true, 0.1);
+  octomap_collision_test_BVH<OBBd>(5, false, 0.1);
+  octomap_collision_test_BVH<OBBd>(5, true, 0.1);
 #endif
 }
 

@@ -48,50 +48,83 @@ namespace fcl
 {
 
 /// @brief Class for variance matrix in 3d
-class Variance3f
+template <typename Scalar>
+class Variance3
 {
 public:
   /// @brief Variation matrix
-  Matrix3d Sigma;
+  Matrix3<Scalar> Sigma;
 
   /// @brief Variations along the eign axes
-  Vector3d sigma;
+  Vector3<Scalar> sigma;
 
   /// @brief Matrix whose columns are eigenvectors of Sigma
-  Matrix3d axis;
+  Matrix3<Scalar> axis;
 
-  Variance3f() {}
+  Variance3();
 
-  Variance3f(const Matrix3d& S) : Sigma(S)
-  {
-    init();
-  }
+  Variance3(const Matrix3<Scalar>& S);
 
   /// @brief init the Variance
-  void init()
-  {
-    eigen(Sigma, sigma, axis);
-  }
+  void init();
 
-  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized as a square variation matrix
-  Variance3f& sqrt()
-  {
-    for(std::size_t i = 0; i < 3; ++i)
-    {
-      if(sigma[i] < 0) sigma[i] = 0;
-      sigma[i] = std::sqrt(sigma[i]);
-    }
-
-    Sigma.noalias()
-        =  sigma[0] * axis.col(0) * axis.col(0).transpose();
-    Sigma.noalias()
-        += sigma[1] * axis.col(1) * axis.col(1).transpose();
-    Sigma.noalias()
-        += sigma[2] * axis.col(2) * axis.col(2).transpose();
-
-    return *this;
-  }
+  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition
+  /// result, this is useful when the uncertainty matrix is initialized as a
+  /// square variation matrix
+  Variance3<Scalar>& sqrt();
 };
+
+using Variance3f = Variance3<float>;
+using Variance3d = Variance3<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+Variance3<Scalar>::Variance3()
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+Variance3<Scalar>::Variance3(const Matrix3<Scalar>& S) : Sigma(S)
+{
+  init();
+}
+
+//==============================================================================
+template <typename Scalar>
+void Variance3<Scalar>::init()
+{
+  eigen(Sigma, sigma, axis);
+}
+
+//==============================================================================
+template <typename Scalar>
+Variance3<Scalar>& Variance3<Scalar>::sqrt()
+{
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    if(sigma[i] < 0)
+      sigma[i] = 0;
+
+    sigma[i] = std::sqrt(sigma[i]);
+  }
+
+  Sigma.noalias()
+      =  sigma[0] * axis.col(0) * axis.col(0).transpose();
+  Sigma.noalias()
+      += sigma[1] * axis.col(1) * axis.col(1).transpose();
+  Sigma.noalias()
+      += sigma[2] * axis.col(2) * axis.col(2).transpose();
+
+  return *this;
+}
 
 } // namespace fcl
 

@@ -310,7 +310,7 @@ private:
   int recursiveRefitTree_bottomup(int bv_id);
 
   /// @recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
-  /// For oriented BV (OBB, RSS, OBBRSS), special implementation is provided.
+  /// For oriented BV (OBBd, RSS, OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
   {
     if(!bvs[bv_id].isLeaf())
@@ -326,7 +326,7 @@ private:
 
 
 template<>
-void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
+void BVHModel<OBBd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
 
 template<>
 void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
@@ -340,7 +340,7 @@ template<>
 NODE_TYPE BVHModel<AABB>::getNodeType() const;
 
 template<>
-NODE_TYPE BVHModel<OBB>::getNodeType() const;
+NODE_TYPE BVHModel<OBBd>::getNodeType() const;
 
 template<>
 NODE_TYPE BVHModel<RSS>::getNodeType() const;

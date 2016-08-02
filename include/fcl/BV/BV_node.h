@@ -101,7 +101,7 @@ struct BVNode : public BVNodeBase
 };
 
 template<>
-inline Matrix3d BVNode<OBB>::getOrientation() const 
+inline Matrix3d BVNode<OBBd>::getOrientation() const 
 {
   return bv.axis;
 }

@@ -39,7 +39,8 @@
 #define FCL_SHAPE_SPHERE_H
 
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/compute_bv.h"
+#include "fcl/BV/OBB.h"
 
 namespace fcl
 {
@@ -63,10 +64,67 @@ public:
   Matrix3<Scalar> computeMomentofInertia() const override;
 
   Scalar computeVolume() const override;
+
+  std::vector<Vector3<Scalar>> getBoundVertices(
+      const Transform3<Scalar>& tf) const
+  {
+    // we use icosahedron to bound the sphere
+
+    std::vector<Vector3<Scalar>> result(12);
+    const auto m = (1 + std::sqrt(5.0)) / 2.0;
+    auto edge_size = radius * 6 / (std::sqrt(27.0) + std::sqrt(15.0));
+
+    auto a = edge_size;
+    auto b = m * edge_size;
+    result[0] = tf * Vector3<Scalar>(0, a, b);
+    result[1] = tf * Vector3<Scalar>(0, -a, b);
+    result[2] = tf * Vector3<Scalar>(0, a, -b);
+    result[3] = tf * Vector3<Scalar>(0, -a, -b);
+    result[4] = tf * Vector3<Scalar>(a, b, 0);
+    result[5] = tf * Vector3<Scalar>(-a, b, 0);
+    result[6] = tf * Vector3<Scalar>(a, -b, 0);
+    result[7] = tf * Vector3<Scalar>(-a, -b, 0);
+    result[8] = tf * Vector3<Scalar>(b, 0, a);
+    result[9] = tf * Vector3<Scalar>(b, 0, -a);
+    result[10] = tf * Vector3<Scalar>(-b, 0, a);
+    result[11] = tf * Vector3<Scalar>(-b, 0, -a);
+
+    return result;
+  }
 };
 
 using Spheref = Sphere<float>;
 using Sphered = Sphere<double>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Sphere<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Sphere<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Sphere<Scalar>>
+{
+  void operator()(const Sphere<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  {
+    const Vector3d& T = tf.translation();
+
+    Vector3d v_delta = Vector3d::Constant(s.radius);
+    bv.max_ = T + v_delta;
+    bv.min_ = T - v_delta;
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Sphere<Scalar>>
+{
+  void operator()(const Sphere<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  {
+    bv.To = tf.translation();
+    bv.axis.setIdentity();
+    bv.extent.setConstant(s.radius);
+  }
+};
 
 //============================================================================//
 //                                                                            //
@@ -84,7 +142,7 @@ Sphere<Scalar>::Sphere(Scalar radius) : ShapeBased(), radius(radius)
 template <typename Scalar>
 void Sphere<Scalar>::computeLocalAABB()
 {
-  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = radius;
 }

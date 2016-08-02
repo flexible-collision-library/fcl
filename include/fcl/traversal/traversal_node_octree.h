@@ -47,6 +47,8 @@
 #include "fcl/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/narrowphase.h"
 #include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/construct_box.h"
+#include "fcl/shape/box.h"
 #include "fcl/octree.h"
 #include "fcl/BVH/BVH_model.h"
 
@@ -175,8 +177,8 @@ public:
     cresult = &result_;
 
     AABB bv2;
-    computeBV<AABB>(s, Transform3d::Identity(), bv2);
-    OBB obb2;
+    computeBV<double, AABB>(s, Transform3d::Identity(), bv2);
+    OBBd obb2;
     convertBV(bv2, tf2, obb2);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                 s, obb2,
@@ -195,8 +197,8 @@ public:
     cresult = &result_;
 
     AABB bv1;
-    computeBV<AABB>(s, Transform3d::Identity(), bv1);
-    OBB obb1;
+    computeBV<double, AABB>(s, Transform3d::Identity(), bv1);
+    OBBd obb1;
     convertBV(bv1, tf1, obb1);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                 s, obb1,
@@ -214,7 +216,7 @@ public:
     dresult = &result_;
 
     AABB aabb2;
-    computeBV<AABB>(s, tf2, aabb2);
+    computeBV<double, AABB>(s, tf2, aabb2);
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                s, aabb2,
                                tf1, tf2);
@@ -231,7 +233,7 @@ public:
     dresult = &result_;
 
     AABB aabb1;
-    computeBV<AABB>(s, tf1, aabb1);
+    computeBV<double, AABB>(s, tf1, aabb1);
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                s, aabb1,
                                tf2, tf1);
@@ -290,12 +292,12 @@ private:
 
   template<typename S>
   bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                                   const S& s, const OBB& obb2,
+                                   const S& s, const OBBd& obb2,
                                    const Transform3d& tf1, const Transform3d& tf2) const
   {
     if(!root1)
     {
-      OBB obb1;
+      OBBd obb1;
       convertBV(bv1, tf1, obb1);
       if(obb1.overlap(obb2))
       {
@@ -307,8 +309,8 @@ private:
         {
           AABB overlap_part;
           AABB aabb1, aabb2;
-          computeBV<AABB, Boxd>(box, box_tf, aabb1);
-          computeBV<AABB, S>(s, tf2, aabb2);
+          computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
+          computeBV<double, AABB, S>(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
           cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);
         }
@@ -320,7 +322,7 @@ private:
     {
       if(tree1->isNodeOccupied(root1) && s.isOccupied()) // occupied area
       {
-        OBB obb1;
+        OBBd obb1;
         convertBV(bv1, tf1, obb1);
         if(obb1.overlap(obb2))
         {
@@ -370,8 +372,8 @@ private:
           {
             AABB overlap_part;
             AABB aabb1, aabb2;
-            computeBV<AABB, Boxd>(box, box_tf, aabb1);
-            computeBV<AABB, S>(s, tf2, aabb2);
+            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
+            computeBV<double, AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
           }
 
@@ -381,7 +383,7 @@ private:
       }
       else if(!tree1->isNodeFree(root1) && !s.isFree() && crequest->enable_cost) // uncertain area
       {
-        OBB obb1;
+        OBBd obb1;
         convertBV(bv1, tf1, obb1);
         if(obb1.overlap(obb2))
         {
@@ -393,8 +395,8 @@ private:
           {
             AABB overlap_part;
             AABB aabb1, aabb2;
-            computeBV<AABB, Boxd>(box, box_tf, aabb1);
-            computeBV<AABB, S>(s, tf2, aabb2);
+            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
+            computeBV<double, AABB, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
           }
         }
@@ -412,7 +414,7 @@ private:
     else if((tree1->isNodeUncertain(root1) || s.isUncertain()) && !crequest->enable_cost) return false;
     else
     {
-      OBB obb1;
+      OBBd obb1;
       convertBV(bv1, tf1, obb1);
       if(!obb1.overlap(obb2)) return false;
     }
@@ -537,7 +539,7 @@ private:
     {
       if(tree2->getBV(root2).isLeaf())
       {
-        OBB obb1, obb2;
+        OBBd obb1, obb2;
         convertBV(bv1, tf1, obb1);
         convertBV(tree2->getBV(root2).bv, tf2, obb2);
         if(obb1.overlap(obb2))
@@ -556,7 +558,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1;
-            computeBV<AABB, Boxd>(box, box_tf, aabb1);
+            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
             AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
             cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -580,7 +582,7 @@ private:
     {
       if(tree1->isNodeOccupied(root1) && tree2->isOccupied())
       {
-        OBB obb1, obb2;
+        OBBd obb1, obb2;
         convertBV(bv1, tf1, obb1);
         convertBV(tree2->getBV(root2).bv, tf2, obb2);
         if(obb1.overlap(obb2))
@@ -623,7 +625,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1;
-            computeBV<AABB, Boxd>(box, box_tf, aabb1);
+            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
             AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -636,7 +638,7 @@ private:
       }
       else if(!tree1->isNodeFree(root1) && !tree2->isFree() && crequest->enable_cost) // uncertain area
       {
-        OBB obb1, obb2;
+        OBBd obb1, obb2;
         convertBV(bv1, tf1, obb1);
         convertBV(tree2->getBV(root2).bv, tf2, obb2);
         if(obb1.overlap(obb2))
@@ -655,7 +657,7 @@ private:
           {
             AABB overlap_part;
             AABB aabb1;
-            computeBV<AABB, Boxd>(box, box_tf, aabb1);
+            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
             AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -675,7 +677,7 @@ private:
     else if((tree1->isNodeUncertain(root1) || tree2->isUncertain()) && !crequest->enable_cost) return false;
     else
     {
-      OBB obb1, obb2;
+      OBBd obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(tree2->getBV(root2).bv, tf2, obb2);
       if(!obb1.overlap(obb2)) return false;      
@@ -804,7 +806,7 @@ private:
   {
     if(!root1 && !root2)
     {
-      OBB obb1, obb2;
+      OBBd obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(bv2, tf2, obb2);
 
@@ -817,8 +819,8 @@ private:
         
         AABB overlap_part;
         AABB aabb1, aabb2;
-        computeBV<AABB, Boxd>(box1, box1_tf, aabb1);
-        computeBV<AABB, Boxd>(box2, box2_tf, aabb2);
+        computeBV<double, AABB, Boxd>(box1, box1_tf, aabb1);
+        computeBV<double, AABB, Boxd>(box2, box2_tf, aabb2);
         aabb1.overlap(aabb2, overlap_part);
         cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->getOccupancyThres()), crequest->num_max_cost_sources);
       }
@@ -894,7 +896,7 @@ private:
         bool is_intersect = false;
         if(!crequest->enable_contact)
         {
-          OBB obb1, obb2;
+          OBBd obb1, obb2;
           convertBV(bv1, tf1, obb1);
           convertBV(bv2, tf2, obb2);
           
@@ -947,8 +949,8 @@ private:
 
           AABB overlap_part;
           AABB aabb1, aabb2;
-          computeBV<AABB, Boxd>(box1, box1_tf, aabb1);
-          computeBV<AABB, Boxd>(box2, box2_tf, aabb2);
+          computeBV<double, AABB, Boxd>(box1, box1_tf, aabb1);
+          computeBV<double, AABB, Boxd>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
 	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
@@ -957,7 +959,7 @@ private:
       }
       else if(!tree1->isNodeFree(root1) && !tree2->isNodeFree(root2) && crequest->enable_cost) // uncertain area (here means both are uncertain or one uncertain and one occupied)
       {
-        OBB obb1, obb2;
+        OBBd obb1, obb2;
         convertBV(bv1, tf1, obb1);
         convertBV(bv2, tf2, obb2);
         
@@ -970,8 +972,8 @@ private:
 
           AABB overlap_part;
           AABB aabb1, aabb2;
-          computeBV<AABB, Boxd>(box1, box1_tf, aabb1);
-          computeBV<AABB, Boxd>(box2, box2_tf, aabb2);
+          computeBV<double, AABB, Boxd>(box1, box1_tf, aabb1);
+          computeBV<double, AABB, Boxd>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
 	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
@@ -989,7 +991,7 @@ private:
     else if((tree1->isNodeUncertain(root1) || tree2->isNodeUncertain(root2)) && !crequest->enable_cost) return false;
     else 
     {
-      OBB obb1, obb2;
+      OBBd obb1, obb2;
       convertBV(bv1, tf1, obb1);
       convertBV(bv2, tf2, obb2);
       if(!obb1.overlap(obb2)) return false;

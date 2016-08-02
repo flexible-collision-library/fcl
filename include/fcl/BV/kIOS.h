@@ -87,15 +87,15 @@ public:
   /// @brief The number of spheres, no larger than 5
   unsigned int num_spheres;
 
-  /// @ OBB related with kIOS
-  OBB obb;
+  /// @ OBBd related with kIOS
+  OBBd obb;
 
   /// @brief Check collision between two kIOS
   bool overlap(const kIOS& other) const;
 
   /// @brief Check collision between two kIOS and return the overlap part.
   /// For kIOS, we return nothing, as the overlappart of two kIOS usually is not an kIOS
-  /// @todo Not efficient. It first checks the sphere collisions and then use OBB for further culling.
+  /// @todo Not efficient. It first checks the sphere collisions and then use OBBd for further culling.
   bool overlap(const kIOS& other, kIOS& overlap_part) const
   {
     return overlap(other);
@@ -140,6 +140,10 @@ public:
 
   /// @brief The distance between two kIOS
   FCL_REAL distance(const kIOS& other, Vector3d* P = NULL, Vector3d* Q = NULL) const;
+
+  static constexpr double ratio() { return 1.5; }
+  static constexpr double invSinA() { return 2; }
+  static constexpr double cosA() { return std::sqrt(3.0) / 2.0; }
 };
 
 

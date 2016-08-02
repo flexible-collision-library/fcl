@@ -117,8 +117,8 @@ public:
       if(is_collision && request.enable_cost)
       {
         AABB aabb1, aabb2;
-        computeBV<AABB, S1>(*model1, tf1, aabb1);
-        computeBV<AABB, S2>(*model2, tf2, aabb2);
+        computeBV<double, AABB, S1>(*model1, tf1, aabb1);
+        computeBV<double, AABB, S2>(*model2, tf2, aabb2);
         AABB overlap_part;
         aabb1.overlap(aabb2, overlap_part);
         result->addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
@@ -129,8 +129,8 @@ public:
       if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL))
       {
         AABB aabb1, aabb2;
-        computeBV<AABB, S1>(*model1, tf1, aabb1);
-        computeBV<AABB, S2>(*model2, tf2, aabb2);
+        computeBV<double, AABB, S1>(*model1, tf1, aabb1);
+        computeBV<double, AABB, S2>(*model2, tf2, aabb2);
         AABB overlap_part;
         aabb1.overlap(aabb2, overlap_part);
         result->addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);        

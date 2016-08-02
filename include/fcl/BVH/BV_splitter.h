@@ -238,7 +238,7 @@ private:
 
 
 template<>
-bool BVSplitter<OBB>::apply(const Vector3d& q) const;
+bool BVSplitter<OBBd>::apply(const Vector3d& q) const;
 
 template<>
 bool BVSplitter<RSS>::apply(const Vector3d& q) const;
@@ -250,13 +250,13 @@ template<>
 bool BVSplitter<OBBRSS>::apply(const Vector3d& q) const;
 
 template<>
-void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBBd>::computeRule_bvcenter(const OBBd& bv, unsigned int* primitive_indices, int num_primitives);
 
 template<>
-void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBBd>::computeRule_mean(const OBBd& bv, unsigned int* primitive_indices, int num_primitives);
 
 template<>
-void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives);
+void BVSplitter<OBBd>::computeRule_median(const OBBd& bv, unsigned int* primitive_indices, int num_primitives);
 
 template<>
 void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives);

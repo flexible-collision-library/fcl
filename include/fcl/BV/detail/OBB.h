@@ -35,48 +35,19 @@
 
 /** \author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_OBB_H
+#define FCL_BV_DETAIL_OBB_H
 
-#ifndef FCL_BVH_UTILITY_H
-#define FCL_BVH_UTILITY_H
+#include <iostream>
 
-#include "fcl/math/variance.h"
-#include "fcl/BVH/BVH_model.h"
+#include "fcl/data_types.h"
 
-namespace fcl
-{
-/// @brief Expand the BVH bounding boxes according to the variance matrix corresponding to the data stored within each BV node
-template<typename BV>
-void BVHExpand(BVHModel<BV>& model, const Variance3d* ucs, FCL_REAL r)
-{
-  for(int i = 0; i < model.num_bvs; ++i)
-  {
-    BVNode<BV>& bvnode = model.getBV(i);
+namespace fcl {
+namespace detail {
 
-    BV bv;
-    for(int j = 0; j < bvnode.num_primitives; ++j)
-    {
-      int v_id = bvnode.first_primitive + j;
-      const Variance3d& uc = ucs[v_id];
 
-      Vector3d& v = model.vertices[bvnode.first_primitive + j];
 
-      for(int k = 0; k < 3; ++k)
-      {
-        bv += (v + uc.axis.col(k) * (r * uc.sigma[k]));
-        bv += (v - uc.axis.col(k) * (r * uc.sigma[k]));
-      }
-    }
-
-    bvnode.bv = bv;
-  }
-}
-
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for OBBd
-void BVHExpand(BVHModel<OBBd>& model, const Variance3d* ucs, FCL_REAL r);
-
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSS
-void BVHExpand(BVHModel<RSS>& model, const Variance3d* ucs, FCL_REAL r);
-
+} // namespace detail
 } // namespace fcl
 
 #endif

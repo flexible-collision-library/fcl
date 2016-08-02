@@ -83,10 +83,10 @@ public:
 };
 
 template<>
-class Converter<AABB, OBB>
+class Converter<AABB, OBBd>
 {
 public:
-  static void convert(const AABB& bv1, const Transform3d& tf1, OBB& bv2)
+  static void convert(const AABB& bv1, const Transform3d& tf1, OBBd& bv2)
   {    
     /*
     bv2.To = tf1 * bv1.center());
@@ -131,10 +131,10 @@ public:
 };
 
 template<>
-class Converter<OBB, OBB>
+class Converter<OBBd, OBBd>
 {
 public:
-  static void convert(const OBB& bv1, const Transform3d& tf1, OBB& bv2)
+  static void convert(const OBBd& bv1, const Transform3d& tf1, OBBd& bv2)
   {
     bv2.extent = bv1.extent;
     bv2.To = tf1 * bv1.To;
@@ -143,20 +143,20 @@ public:
 };
 
 template<>
-class Converter<OBBRSS, OBB>
+class Converter<OBBRSS, OBBd>
 {
 public:
-  static void convert(const OBBRSS& bv1, const Transform3d& tf1, OBB& bv2)
+  static void convert(const OBBRSS& bv1, const Transform3d& tf1, OBBd& bv2)
   {
-    Converter<OBB, OBB>::convert(bv1.obb, tf1, bv2);
+    Converter<OBBd, OBBd>::convert(bv1.obb, tf1, bv2);
   }
 };
 
 template<>
-class Converter<RSS, OBB>
+class Converter<RSS, OBBd>
 {
 public:
-  static void convert(const RSS& bv1, const Transform3d& tf1, OBB& bv2)
+  static void convert(const RSS& bv1, const Transform3d& tf1, OBBd& bv2)
   {
     bv2.extent = Vector3d(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
     bv2.To = tf1 * bv1.Tr;
@@ -181,22 +181,22 @@ public:
 };
 
 template<typename BV1>
-class Converter<BV1, OBB>
+class Converter<BV1, OBBd>
 {
 public:
-  static void convert(const BV1& bv1, const Transform3d& tf1, OBB& bv2)
+  static void convert(const BV1& bv1, const Transform3d& tf1, OBBd& bv2)
   {
     AABB bv;
     Converter<BV1, AABB>::convert(bv1, Transform3d::Identity(), bv);
-    Converter<AABB, OBB>::convert(bv, tf1, bv2);
+    Converter<AABB, OBBd>::convert(bv, tf1, bv2);
   }
 };
 
 template<>
-class Converter<OBB, RSS>
+class Converter<OBBd, RSS>
 {
 public:
-  static void convert(const OBB& bv1, const Transform3d& tf1, RSS& bv2)
+  static void convert(const OBBd& bv1, const Transform3d& tf1, RSS& bv2)
   {
     bv2.Tr = tf1 * bv1.To;
     bv2.axis = tf1.linear() * bv1.axis;

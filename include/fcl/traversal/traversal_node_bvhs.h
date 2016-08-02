@@ -246,8 +246,8 @@ public:
 };
 
 
-/// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBB, RSS, OBBRSS, kIOS)
-class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBB>
+/// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBBd, RSS, OBBRSS, kIOS)
+class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBBd>
 {
 public:
   MeshCollisionTraversalNodeOBB();
@@ -836,7 +836,7 @@ public:
 };
 
 
-/// @brief for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
+/// @brief for OBBd and RSS, there is local coordinate of BV, so normal need to be transformed
 namespace details
 {
 
@@ -925,9 +925,9 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
 
 }
 
-/// for OBB, RSS and OBBRSS, there is local coordinate of BV, so normal need to be transformed
+/// for OBBd, RSS and OBBRSS, there is local coordinate of BV, so normal need to be transformed
 template<>
-inline bool MeshConservativeAdvancementTraversalNode<OBB>::canStop(FCL_REAL c) const
+inline bool MeshConservativeAdvancementTraversalNode<OBBd>::canStop(FCL_REAL c) const
 {
   return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
                                                                   this->abs_err, this->rel_err, w,

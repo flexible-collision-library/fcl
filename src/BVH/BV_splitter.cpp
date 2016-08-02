@@ -171,24 +171,24 @@ void computeSplitValue_median(const BV& bv, Vector3d* vertices, Triangle* triang
 }
 
 template<>
-void BVSplitter<OBB>::computeRule_bvcenter(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBBd>::computeRule_bvcenter(const OBBd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<OBB>(bv, split_vector);
-  computeSplitValue_bvcenter<OBB>(bv, split_value);
+  computeSplitVector<OBBd>(bv, split_vector);
+  computeSplitValue_bvcenter<OBBd>(bv, split_value);
 }
 
 template<>
-void BVSplitter<OBB>::computeRule_mean(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBBd>::computeRule_mean(const OBBd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<OBB>(bv, split_vector);
-  computeSplitValue_mean<OBB>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<OBBd>(bv, split_vector);
+  computeSplitValue_mean<OBBd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 template<>
-void BVSplitter<OBB>::computeRule_median(const OBB& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBBd>::computeRule_median(const OBBd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<OBB>(bv, split_vector);
-  computeSplitValue_median<OBB>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<OBBd>(bv, split_vector);
+  computeSplitValue_median<OBBd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 template<>
@@ -256,7 +256,7 @@ void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* prim
 
 
 template<>
-bool BVSplitter<OBB>::apply(const Vector3d& q) const
+bool BVSplitter<OBBd>::apply(const Vector3d& q) const
 {
   return split_vector.dot(q) > split_value;
 }
@@ -282,7 +282,7 @@ bool BVSplitter<OBBRSS>::apply(const Vector3d& q) const
 
 template class BVSplitter<RSS>;
 template class BVSplitter<OBBRSS>;
-template class BVSplitter<OBB>;
+template class BVSplitter<OBBd>;
 template class BVSplitter<kIOS>;
 
 }

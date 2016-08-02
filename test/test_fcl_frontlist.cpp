@@ -104,14 +104,14 @@ GTEST_TEST(FCL_FRONT_LIST, front_list)
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test<OBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
+    res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test<OBBd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test<OBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
+    res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test<OBBd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test<OBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
+    res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test<OBBd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
     EXPECT_TRUE(res == res2);
   }
 
@@ -183,14 +183,14 @@ GTEST_TEST(FCL_FRONT_LIST, front_list)
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test_Oriented<OBB, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(res == res2);
   }
 

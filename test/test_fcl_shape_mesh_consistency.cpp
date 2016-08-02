@@ -983,8 +983,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd
   Sphered s2(10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);
@@ -1202,8 +1202,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
   Ellipsoidd s2(10, 10, 10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);
@@ -1424,8 +1424,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity());
   generateBVHModel(s2_aabb, s2, Transform3d::Identity());
@@ -1546,8 +1546,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity());
@@ -1668,8 +1668,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_li
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);
@@ -1757,8 +1757,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);
@@ -1912,8 +1912,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
   Sphered s2(10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);
@@ -2133,8 +2133,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
   Ellipsoidd s2(10, 10, 10);
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);
@@ -2355,8 +2355,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity());
   generateBVHModel(s2_aabb, s2, Transform3d::Identity());
@@ -2479,8 +2479,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity());
@@ -2603,8 +2603,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJ
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);
@@ -2694,8 +2694,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_GJK)
 
   BVHModel<AABB> s1_aabb;
   BVHModel<AABB> s2_aabb;
-  BVHModel<OBB> s1_obb;
-  BVHModel<OBB> s2_obb;
+  BVHModel<OBBd> s1_obb;
+  BVHModel<OBBd> s2_obb;
 
   generateBVHModel(s1_aabb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_aabb, s2, Transform3d::Identity(), 16, 16);

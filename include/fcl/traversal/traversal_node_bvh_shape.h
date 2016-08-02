@@ -212,7 +212,7 @@ public:
       {
         AABB overlap_part;
         AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
+        computeBV<double, AABB, S>(*(this->model2), this->tf2, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }
@@ -223,7 +223,7 @@ public:
       {
         AABB overlap_part;
         AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model2), this->tf2, shape_aabb);
+        computeBV<double, AABB, S>(*(this->model2), this->tf2, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);        
       }
@@ -302,7 +302,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
     {
       AABB overlap_part;
       AABB shape_aabb;
-      computeBV<AABB, S>(model2, tf2, shape_aabb);
+      computeBV<double, AABB, S>(model2, tf2, shape_aabb);
       /* bool res = */ AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
     }
@@ -313,7 +313,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
     {
       AABB overlap_part;
       AABB shape_aabb;
-      computeBV<AABB, S>(model2, tf2, shape_aabb);
+      computeBV<double, AABB, S>(model2, tf2, shape_aabb);
       /* bool res = */ AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
@@ -325,12 +325,12 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
 /// @endcond
 
 
-/// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
+/// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBBd, RSS, OBBRSS, kIOS)
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBBd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeOBB() : MeshShapeCollisionTraversalNode<OBB, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodeOBB() : MeshShapeCollisionTraversalNode<OBBd, S, NarrowPhaseSolver>()
   {
   }
 
@@ -473,7 +473,7 @@ public:
       {
         AABB overlap_part;
         AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
+        computeBV<double, AABB, S>(*(this->model1), this->tf1, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }
@@ -484,7 +484,7 @@ public:
       {
         AABB overlap_part;
         AABB shape_aabb;
-        computeBV<AABB, S>(*(this->model1), this->tf1, shape_aabb);
+        computeBV<double, AABB, S>(*(this->model1), this->tf1, shape_aabb);
         AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }   
@@ -505,12 +505,12 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 
-/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
+/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBBd, RSS, OBBRSS, kIOS)
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBB, NarrowPhaseSolver>
+class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBBd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBBd, NarrowPhaseSolver>()
   {
   }
 

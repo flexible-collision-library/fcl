@@ -46,13 +46,13 @@ namespace fcl
 {
 
 
-/// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
+/// @brief Class merging the OBBd and RSS, can handle collision and distance simultaneously
 class OBBRSS
 {
 public:
 
-  /// @brief OBB member, for rotation
-  OBB obb;
+  /// @brief OBBd member, for rotation
+  OBBd obb;
 
   /// @brief RSS member, for distance
   RSS rss;

@@ -128,6 +128,9 @@ private:
 
 };
 
+using RNGd = RNG<double>;
+using RNGf = RNG<double>;
+
 //============================================================================//
 //                                                                            //
 //                              Implementations                               //
@@ -208,7 +211,8 @@ Scalar RNG<Scalar>::halfNormalReal(Scalar r_min, Scalar r_max, Scalar focus)
 template <typename Scalar>
 int RNG<Scalar>::halfNormalInt(int r_min, int r_max, Scalar focus)
 {
-  int r = (int)floor(halfNormalReal((Scalar)r_min, (Scalar)(r_max) + 1.0, focus));
+  int r = (int)std::floor(halfNormalReal(
+                       (Scalar)r_min, (Scalar)(r_max) + 1.0, focus));
 
   return (r > r_max) ? r_max : r;
 }

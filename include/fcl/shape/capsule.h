@@ -39,7 +39,8 @@
 #define FCL_SHAPE_CAPSULE_H
 
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/compute_bv.h"
+#include "fcl/BV/OBB.h"
 
 namespace fcl
 {
@@ -69,11 +70,104 @@ public:
 
   // Documentation inherited
   Matrix3<Scalar> computeMomentofInertia() const override;
-  
+
+  /// @brief get the vertices of some convex shape which can bound this shape in
+  /// a specific configuration
+  std::vector<Vector3<Scalar>> getBoundVertices(
+      const Transform3<Scalar>& tf) const
+  {
+    std::vector<Vector3<Scalar>> result(36);
+    const auto m = (1 + std::sqrt(5.0)) / 2.0;
+
+    auto hl = lz * 0.5;
+    auto edge_size = radius * 6 / (std::sqrt(27.0) + std::sqrt(15.0));
+    auto a = edge_size;
+    auto b = m * edge_size;
+    auto r2 = radius * 2 / std::sqrt(3.0);
+
+    result[0] = tf * Vector3<Scalar>(0, a, b + hl);
+    result[1] = tf * Vector3<Scalar>(0, -a, b + hl);
+    result[2] = tf * Vector3<Scalar>(0, a, -b + hl);
+    result[3] = tf * Vector3<Scalar>(0, -a, -b + hl);
+    result[4] = tf * Vector3<Scalar>(a, b, hl);
+    result[5] = tf * Vector3<Scalar>(-a, b, hl);
+    result[6] = tf * Vector3<Scalar>(a, -b, hl);
+    result[7] = tf * Vector3<Scalar>(-a, -b, hl);
+    result[8] = tf * Vector3<Scalar>(b, 0, a + hl);
+    result[9] = tf * Vector3<Scalar>(b, 0, -a + hl);
+    result[10] = tf * Vector3<Scalar>(-b, 0, a + hl);
+    result[11] = tf * Vector3<Scalar>(-b, 0, -a + hl);
+
+    result[12] = tf * Vector3<Scalar>(0, a, b - hl);
+    result[13] = tf * Vector3<Scalar>(0, -a, b - hl);
+    result[14] = tf * Vector3<Scalar>(0, a, -b - hl);
+    result[15] = tf * Vector3<Scalar>(0, -a, -b - hl);
+    result[16] = tf * Vector3<Scalar>(a, b, -hl);
+    result[17] = tf * Vector3<Scalar>(-a, b, -hl);
+    result[18] = tf * Vector3<Scalar>(a, -b, -hl);
+    result[19] = tf * Vector3<Scalar>(-a, -b, -hl);
+    result[20] = tf * Vector3<Scalar>(b, 0, a - hl);
+    result[21] = tf * Vector3<Scalar>(b, 0, -a - hl);
+    result[22] = tf * Vector3<Scalar>(-b, 0, a - hl);
+    result[23] = tf * Vector3<Scalar>(-b, 0, -a - hl);
+
+    auto c = 0.5 * r2;
+    auto d = radius;
+    result[24] = tf * Vector3<Scalar>(r2, 0, hl);
+    result[25] = tf * Vector3<Scalar>(c, d, hl);
+    result[26] = tf * Vector3<Scalar>(-c, d, hl);
+    result[27] = tf * Vector3<Scalar>(-r2, 0, hl);
+    result[28] = tf * Vector3<Scalar>(-c, -d, hl);
+    result[29] = tf * Vector3<Scalar>(c, -d, hl);
+
+    result[30] = tf * Vector3<Scalar>(r2, 0, -hl);
+    result[31] = tf * Vector3<Scalar>(c, d, -hl);
+    result[32] = tf * Vector3<Scalar>(-c, d, -hl);
+    result[33] = tf * Vector3<Scalar>(-r2, 0, -hl);
+    result[34] = tf * Vector3<Scalar>(-c, -d, -hl);
+    result[35] = tf * Vector3<Scalar>(c, -d, -hl);
+
+    return result;
+  }
 };
 
 using Capsulef = Capsule<float>;
 using Capsuled = Capsule<double>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Capsule<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Capsule<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Capsule<Scalar>>
+{
+  void operator()(const Capsule<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  {
+    const Matrix3d& R = tf.linear();
+    const Vector3d& T = tf.translation();
+
+    FCL_REAL x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
+    FCL_REAL y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
+    FCL_REAL z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
+
+    Vector3d v_delta(x_range, y_range, z_range);
+    bv.max_ = T + v_delta;
+    bv.min_ = T - v_delta;
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Capsule<Scalar>>
+{
+  void operator()(const Capsule<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  {
+    bv.To = tf.translation();
+    bv.axis = tf.linear();
+    bv.extent << s.radius, s.radius, s.lz / 2 + s.radius;
+  }
+};
 
 //============================================================================//
 //                                                                            //
@@ -93,7 +187,7 @@ Capsule<Scalar>::Capsule(Scalar radius, Scalar lz)
 template <typename Scalar>
 void Capsule<Scalar>::computeLocalAABB()
 {
-  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

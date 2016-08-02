@@ -75,31 +75,31 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
   for(auto i = 0; i < b.size(); ++i)
     b[i] = 1;
 
-  std::cout << a << std::endl;
-  std::cout << b << std::endl;
-  std::cout << a + b << std::endl;
-  std::cout << a - b << std::endl;
-  std::cout << (a -= b) << std::endl;
-  std::cout << (a += b) << std::endl;
-  std::cout << a * 2 << std::endl;
-  std::cout << a / 2 << std::endl;
-  std::cout << (a *= 2) << std::endl;
-  std::cout << (a /= 2) << std::endl;
+  std::cout << a.transpose() << std::endl;
+  std::cout << b.transpose() << std::endl;
+  std::cout << (a + b).transpose() << std::endl;
+  std::cout << (a - b).transpose() << std::endl;
+  std::cout << (a -= b).transpose() << std::endl;
+  std::cout << (a += b).transpose() << std::endl;
+  std::cout << (a * 2).transpose() << std::endl;
+  std::cout << (a / 2).transpose() << std::endl;
+  std::cout << (a *= 2).transpose() << std::endl;
+  std::cout << (a /= 2).transpose() << std::endl;
   std::cout << a.dot(b) << std::endl;
 
   VectorNd<8> c = combine(a, b);
-  std::cout << c << std::endl;
+  std::cout << c.transpose() << std::endl;
 
   VectorNd<4> upper, lower;
   for(int i = 0; i < 4; ++i)
     upper[i] = 1;
 
   VectorNd<4> aa = VectorNd<4>(1, 2, 1, 2);
-  std::cout << aa << std::endl;
+  std::cout << aa.transpose() << std::endl;
 
   SamplerRd<4> sampler(lower, upper);
   for(std::size_t i = 0; i < 10; ++i)
-    std::cout << sampler.sample() << std::endl;
+    std::cout << sampler.sample().transpose() << std::endl;
 
   // Disabled broken test lines. Please see #25.
   // SamplerSE2 sampler2(0, 1, -1, 1);
@@ -108,7 +108,7 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
 
   SamplerSE3Eulerd sampler3(Vector3d(0, 0, 0), Vector3d(1, 1, 1));
   for(std::size_t i = 0; i < 10; ++i)
-    std::cout << sampler3.sample() << std::endl;
+    std::cout << sampler3.sample().transpose() << std::endl;
   
 }
 

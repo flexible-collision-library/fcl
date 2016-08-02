@@ -75,6 +75,9 @@ template <typename Scalar>
 using Quaternion3 = Eigen::Quaternion<Scalar>;
 
 template <typename Scalar>
+using Transform3 = Eigen::Transform<Scalar, 3, Eigen::Isometry>;
+
+template <typename Scalar>
 using Isometry3 = Eigen::Transform<Scalar, 3, Eigen::Isometry>;
 
 // float types

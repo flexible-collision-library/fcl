@@ -402,10 +402,10 @@ bool collide_Test_OBB(const Transform3d& tf,
                       const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
                       const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
 {
-  BVHModel<OBB> m1;
-  BVHModel<OBB> m2;
-  m1.bv_splitter.reset(new BVSplitter<OBB>(split_method));
-  m2.bv_splitter.reset(new BVSplitter<OBB>(split_method));
+  BVHModel<OBBd> m1;
+  BVHModel<OBBd> m2;
+  m1.bv_splitter.reset(new BVSplitter<OBBd>(split_method));
+  m2.bv_splitter.reset(new BVSplitter<OBBd>(split_method));
 
   m1.beginModel();
   m1.addSubModel(vertices1, triangles1);
@@ -417,7 +417,7 @@ bool collide_Test_OBB(const Transform3d& tf,
 
   CollisionResult local_result;	
   MeshCollisionTraversalNodeOBB node;
-  if(!initialize(node, (const BVHModel<OBB>&)m1, tf, (const BVHModel<OBB>&)m2, Transform3d::Identity(),
+  if(!initialize(node, (const BVHModel<OBBd>&)m1, tf, (const BVHModel<OBBd>&)m2, Transform3d::Identity(),
                  CollisionRequest(), local_result))
     std::cout << "initialize error" << std::endl;
 

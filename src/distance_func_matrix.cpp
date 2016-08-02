@@ -396,15 +396,15 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeDistancer<AABB, Planed, NarrowPhaseSolver>::distance;
   distance_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeDistancer<AABB, Halfspaced, NarrowPhaseSolver>::distance;
 
-  distance_matrix[BV_OBB][GEOM_BOX] = &BVHShapeDistancer<OBB, Boxd, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeDistancer<OBB, Sphered, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_ELLIPSOID] = &BVHShapeDistancer<OBB, Ellipsoidd, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeDistancer<OBB, Capsuled, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_CONE] = &BVHShapeDistancer<OBB, Coned, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeDistancer<OBB, Cylinderd, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeDistancer<OBB, Convexd, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeDistancer<OBB, Planed, NarrowPhaseSolver>::distance;
-  distance_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeDistancer<OBB, Halfspaced, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_BOX] = &BVHShapeDistancer<OBBd, Boxd, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeDistancer<OBBd, Sphered, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_ELLIPSOID] = &BVHShapeDistancer<OBBd, Ellipsoidd, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeDistancer<OBBd, Capsuled, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_CONE] = &BVHShapeDistancer<OBBd, Coned, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeDistancer<OBBd, Cylinderd, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeDistancer<OBBd, Convexd, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeDistancer<OBBd, Planed, NarrowPhaseSolver>::distance;
+  distance_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeDistancer<OBBd, Halfspaced, NarrowPhaseSolver>::distance;
   */
 
   distance_matrix[BV_RSS][GEOM_BOX] = &BVHShapeDistancer<RSS, Boxd, NarrowPhaseSolver>::distance;
@@ -499,7 +499,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeDistance<NarrowPhaseSolver>;
 
   distance_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHDistance<AABB, NarrowPhaseSolver>;
-  distance_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHDistance<OBB, NarrowPhaseSolver>;
+  distance_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHDistance<OBBd, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHDistance<RSS, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHDistance<OBBRSS, NarrowPhaseSolver>;
   distance_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHDistance<kIOS, NarrowPhaseSolver>;
@@ -508,7 +508,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHDistance<KDOP<24>, NarrowPhaseSolver>;
 
   distance_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeDistance<AABB, NarrowPhaseSolver>;
-  distance_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeDistance<OBB, NarrowPhaseSolver>;
+  distance_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeDistance<OBBd, NarrowPhaseSolver>;
   distance_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeDistance<RSS, NarrowPhaseSolver>;
   distance_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeDistance<OBBRSS, NarrowPhaseSolver>;
   distance_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeDistance<kIOS, NarrowPhaseSolver>;

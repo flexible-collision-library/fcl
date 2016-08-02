@@ -35,7 +35,8 @@
 
 /** \author Jia Pan */
 
-
+#include "fcl/shape/box.h"
+#include "fcl/shape/construct_box.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 
 #if FCL_HAVE_OCTOMAP
@@ -62,7 +63,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 
       if(!obj1->isFree())
       {
-        OBB obb1, obb2;
+        OBBd obb1, obb2;
         convertBV(root1->bv, Transform3d::Identity(), obb1);
         convertBV(root2_bv, tf2, obb2);
       
@@ -95,7 +96,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
 
     if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {
-      OBB obb1, obb2;
+      OBBd obb1, obb2;
       convertBV(root1->bv, Transform3d::Identity(), obb1);
       convertBV(root2_bv, tf2, obb2);
       
@@ -116,7 +117,7 @@ bool collisionRecurse_(DynamicAABBTreeCollisionManager::DynamicAABBNode* root1, 
     else return false;
   }
 
-  OBB obb1, obb2;
+  OBBd obb1, obb2;
   convertBV(root1->bv, Transform3d::Identity(), obb1);
   convertBV(root2_bv, tf2, obb2);
 

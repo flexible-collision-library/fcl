@@ -185,7 +185,7 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1, const Tran
     break;
   case BV_OBB:
     if(o2->getNodeType() == BV_OBB)
-      return details::continuousCollideBVHPolynomial<OBB>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<OBBd>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_RSS:
     if(o2->getNodeType() == BV_RSS)

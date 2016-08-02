@@ -115,7 +115,7 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
     int c1 = node->getFirstLeftChild(b1);
     int c2 = node->getFirstRightChild(b1);
 
-    const OBB& bv1 = node->model1->getBV(c1).bv;
+    const OBBd& bv1 = node->model1->getBV(c1).bv;
 
     Matrix3d Rc = R.transpose() * bv1.axis;
     temp = T - bv1.To;
@@ -126,7 +126,7 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
     // early stop is disabled is front_list is used
     if(node->canStop() && !front_list) return;
 
-    const OBB& bv2 = node->model1->getBV(c2).bv;
+    const OBBd& bv2 = node->model1->getBV(c2).bv;
 
     Rc = R.transpose() * bv2.axis;
     temp = T - bv2.To;
@@ -139,7 +139,7 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
     int c1 = node->getSecondLeftChild(b2);
     int c2 = node->getSecondRightChild(b2);
 
-    const OBB& bv1 = node->model2->getBV(c1).bv;
+    const OBBd& bv1 = node->model2->getBV(c1).bv;
     Matrix3d Rc;
     temp = R * bv1.axis.col(0);
     Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
@@ -154,7 +154,7 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const
     // early stop is disabled is front_list is used
     if(node->canStop() && !front_list) return;
 
-    const OBB& bv2 = node->model2->getBV(c2).bv;
+    const OBBd& bv2 = node->model2->getBV(c2).bv;
     temp = R * bv2.axis.col(0);
     Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
     temp = R * bv2.axis.col(1);

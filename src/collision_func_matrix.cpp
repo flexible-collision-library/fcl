@@ -326,13 +326,13 @@ std::size_t orientedBVHShapeCollide(const CollisionGeometryd* o1, const Transfor
 
 
 template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<OBB, T_SH, NarrowPhaseSolver>
+struct BVHShapeCollider<OBBd, T_SH, NarrowPhaseSolver>
 {
   static std::size_t collide(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBB<T_SH, NarrowPhaseSolver>, OBB, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBB<T_SH, NarrowPhaseSolver>, OBBd, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
@@ -415,9 +415,9 @@ std::size_t orientedMeshCollide(const CollisionGeometryd* o1, const Transform3d&
 }
 
 template<>
-std::size_t BVHCollide<OBB>(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<OBBd>(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
-  return details::orientedMeshCollide<MeshCollisionTraversalNodeOBB, OBB>(o1, tf1, o2, tf2, request, result);
+  return details::orientedMeshCollide<MeshCollisionTraversalNodeOBB, OBBd>(o1, tf1, o2, tf2, request, result);
 }
 
 template<>
@@ -551,15 +551,15 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeCollider<AABB, Planed, NarrowPhaseSolver>::collide;
   collision_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeCollider<AABB, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_OBB][GEOM_BOX] = &BVHShapeCollider<OBB, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeCollider<OBB, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_ELLIPSOID] = &BVHShapeCollider<OBB, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeCollider<OBB, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CONE] = &BVHShapeCollider<OBB, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeCollider<OBB, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeCollider<OBB, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeCollider<OBB, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeCollider<OBB, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_BOX] = &BVHShapeCollider<OBBd, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeCollider<OBBd, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_ELLIPSOID] = &BVHShapeCollider<OBBd, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CAPSULE] = &BVHShapeCollider<OBBd, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CONE] = &BVHShapeCollider<OBBd, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CYLINDER] = &BVHShapeCollider<OBBd, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_CONVEX] = &BVHShapeCollider<OBBd, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeCollider<OBBd, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeCollider<OBBd, Halfspaced, NarrowPhaseSolver>::collide;
 
   collision_matrix[BV_RSS][GEOM_BOX] = &BVHShapeCollider<RSS, Boxd, NarrowPhaseSolver>::collide;
   collision_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeCollider<RSS, Sphered, NarrowPhaseSolver>::collide;
@@ -622,7 +622,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeCollider<OBBRSS, Halfspaced, NarrowPhaseSolver>::collide;
 
   collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABB, NarrowPhaseSolver>;
-  collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBB, NarrowPhaseSolver>;
+  collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBBd, NarrowPhaseSolver>;
   collision_matrix[BV_RSS][BV_RSS] = &BVHCollide<RSS, NarrowPhaseSolver>;
   collision_matrix[BV_KDOP16][BV_KDOP16] = &BVHCollide<KDOP<16>, NarrowPhaseSolver>;
   collision_matrix[BV_KDOP18][BV_KDOP18] = &BVHCollide<KDOP<18>, NarrowPhaseSolver>;
@@ -654,7 +654,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeCollide<NarrowPhaseSolver>;
 
   collision_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHCollide<AABB, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHCollide<OBB, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHCollide<OBBd, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHCollide<RSS, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHCollide<OBBRSS, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHCollide<kIOS, NarrowPhaseSolver>;
@@ -663,7 +663,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHCollide<KDOP<24>, NarrowPhaseSolver>;
 
   collision_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeCollide<AABB, NarrowPhaseSolver>;
-  collision_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeCollide<OBB, NarrowPhaseSolver>;
+  collision_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeCollide<OBBd, NarrowPhaseSolver>;
   collision_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeCollide<RSS, NarrowPhaseSolver>;
   collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeCollide<OBBRSS, NarrowPhaseSolver>;
   collision_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeCollide<kIOS, NarrowPhaseSolver>;

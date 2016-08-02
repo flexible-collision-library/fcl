@@ -50,7 +50,7 @@ namespace fcl
 /// @brief Recurse function for collision
 void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFrontList* front_list);
 
-/// @brief Recurse function for collision, specialized for OBB type
+/// @brief Recurse function for collision, specialized for OBBd type
 void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3d& R, const Vector3d& T, BVHFrontList* front_list);
 
 /// @brief Recurse function for collision, specialized for RSS type

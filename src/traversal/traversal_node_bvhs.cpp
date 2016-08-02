@@ -179,7 +179,7 @@ static inline void meshDistanceOrientedNodeLeafTesting(int b1, int b2,
 
 }
 
-MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBB>()
+MeshCollisionTraversalNodeOBB::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBBd>()
 {
   R.setIdentity();
 }

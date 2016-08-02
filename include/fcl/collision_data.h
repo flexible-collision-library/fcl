@@ -54,7 +54,7 @@ namespace fcl
 enum GJKSolverType {GST_LIBCCD, GST_INDEP};
 
 /// @brief Minimal contact information returned by collision
-template <typename Scalar = double>
+template <typename Scalar>
 struct ContactPoint
 {
   /// @brief Contact normal, pointing from o1 to o2

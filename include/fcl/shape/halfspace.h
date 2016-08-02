@@ -39,7 +39,12 @@
 #define FCL_SHAPE_HALFSPACE_H
 
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/compute_bv.h"
+#include "fcl/BV/OBB.h"
+#include "fcl/BV/RSS.h"
+#include "fcl/BV/OBBRSS.h"
+#include "fcl/BV/kDOP.h"
+#include "fcl/BV/kIOS.h"
 
 namespace fcl
 {
@@ -83,6 +88,328 @@ protected:
 
 using Halfspacef = Halfspace<float>;
 using Halfspaced = Halfspace<double>;
+
+template <typename Scalar>
+Halfspace<Scalar> transform(
+    const Halfspace<Scalar>& a, const Transform3<Scalar>& tf)
+{
+  /// suppose the initial halfspace is n * x <= d
+  /// after transform (R, T), x --> x' = R x + T
+  /// and the new half space becomes n' * x' <= d'
+  /// where n' = R * n
+  ///   and d' = d + n' * T
+
+  Vector3<Scalar> n = tf.linear() * a.n;
+  Scalar d = a.d + n.dot(tf.translation());
+
+  return Halfspace<Scalar>(n, d);
+}
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, RSS, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBBRSS, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, kIOS, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, KDOP<16>, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, KDOP<18>, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, KDOP<24>, Halfspace<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  {
+    Halfspace<Scalar> new_s = transform(s, tf);
+    const Vector3d& n = new_s.n;
+    const FCL_REAL& d = new_s.d;
+
+    AABB bv_;
+    bv_.min_ = Vector3d::Constant(-std::numeric_limits<FCL_REAL>::max());
+    bv_.max_ = Vector3d::Constant(std::numeric_limits<FCL_REAL>::max());
+    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      // normal aligned with x axis
+      if(n[0] < 0) bv_.min_[0] = -d;
+      else if(n[0] > 0) bv_.max_[0] = d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      // normal aligned with y axis
+      if(n[1] < 0) bv_.min_[1] = -d;
+      else if(n[1] > 0) bv_.max_[1] = d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    {
+      // normal aligned with z axis
+      if(n[2] < 0) bv_.min_[2] = -d;
+      else if(n[2] > 0) bv_.max_[2] = d;
+    }
+
+    bv = bv_;
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  {
+    /// Half space can only have very rough OBB<Scalar>
+    bv.axis.setIdentity();
+    bv.To.setZero();
+    bv.extent.setConstant(std::numeric_limits<FCL_REAL>::max());
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, RSS, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, RSS& bv)
+  {
+    /// Half space can only have very rough RSS
+    bv.axis.setIdentity();
+    bv.Tr.setZero();
+    bv.l[0] = bv.l[1] = bv.r = std::numeric_limits<FCL_REAL>::max();
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBBRSS, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, OBBRSS& bv)
+  {
+    computeBV<Scalar, OBB<Scalar>, Halfspace<Scalar>>(s, tf, bv.obb);
+    computeBV<Scalar, RSS, Halfspace<Scalar>>(s, tf, bv.rss);
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, kIOS, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, kIOS& bv)
+  {
+    bv.num_spheres = 1;
+    computeBV<Scalar, OBB<Scalar>, Halfspace<Scalar>>(s, tf, bv.obb);
+    bv.spheres[0].o.setZero();
+    bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, KDOP<16>, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOP<16>& bv)
+  {
+    Halfspace<Scalar> new_s = transform(s, tf);
+    const Vector3d& n = new_s.n;
+    const FCL_REAL& d = new_s.d;
+
+    const std::size_t D = 8;
+    for(std::size_t i = 0; i < D; ++i)
+      bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+    for(std::size_t i = D; i < 2 * D; ++i)
+      bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+
+    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D) = d;
+      else bv.dist(0) = -d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      if(n[1] > 0) bv.dist(D + 1) = d;
+      else bv.dist(1) = -d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    {
+      if(n[2] > 0) bv.dist(D + 2) = d;
+      else bv.dist(2) = -d;
+    }
+    else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+    {
+      if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
+      else bv.dist(3) = n[0] * d * 2;
+    }
+    else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+    {
+      if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
+      else bv.dist(4) = n[0] * d * 2;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+    {
+      if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
+      else bv.dist(5) = n[1] * d * 2;
+    }
+    else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
+      else bv.dist(6) = n[0] * d * 2;
+    }
+    else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
+      else bv.dist(7) = n[0] * d * 2;
+    }
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, KDOP<18>, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOP<18>& bv)
+  {
+    Halfspace<Scalar> new_s = transform(s, tf);
+    const Vector3d& n = new_s.n;
+    const FCL_REAL& d = new_s.d;
+
+    const std::size_t D = 9;
+
+    for(std::size_t i = 0; i < D; ++i)
+      bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+    for(std::size_t i = D; i < 2 * D; ++i)
+      bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+
+    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D) = d;
+      else bv.dist(0) = -d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      if(n[1] > 0) bv.dist(D + 1) = d;
+      else bv.dist(1) = -d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    {
+      if(n[2] > 0) bv.dist(D + 2) = d;
+      else bv.dist(2) = -d;
+    }
+    else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+    {
+      if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
+      else bv.dist(3) = n[0] * d * 2;
+    }
+    else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+    {
+      if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
+      else bv.dist(4) = n[0] * d * 2;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+    {
+      if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
+      else bv.dist(5) = n[1] * d * 2;
+    }
+    else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
+      else bv.dist(6) = n[0] * d * 2;
+    }
+    else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
+      else bv.dist(7) = n[0] * d * 2;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+    {
+      if(n[1] > 0) bv.dist(D + 8) = n[1] * d * 2;
+      else bv.dist(8) = n[1] * d * 2;
+    }
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, KDOP<24>, Halfspace<Scalar>>
+{
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOP<24>& bv)
+  {
+    Halfspace<Scalar> new_s = transform(s, tf);
+    const Vector3d& n = new_s.n;
+    const FCL_REAL& d = new_s.d;
+
+    const std::size_t D = 12;
+
+    for(std::size_t i = 0; i < D; ++i)
+      bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+    for(std::size_t i = D; i < 2 * D; ++i)
+      bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+
+    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D) = d;
+      else bv.dist(0) = -d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    {
+      if(n[1] > 0) bv.dist(D + 1) = d;
+      else bv.dist(1) = -d;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    {
+      if(n[2] > 0) bv.dist(D + 2) = d;
+      else bv.dist(2) = -d;
+    }
+    else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+    {
+      if(n[0] > 0) bv.dist(D + 3) = n[0] * d * 2;
+      else bv.dist(3) = n[0] * d * 2;
+    }
+    else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+    {
+      if(n[1] > 0) bv.dist(D + 4) = n[0] * d * 2;
+      else bv.dist(4) = n[0] * d * 2;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+    {
+      if(n[1] > 0) bv.dist(D + 5) = n[1] * d * 2;
+      else bv.dist(5) = n[1] * d * 2;
+    }
+    else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 6) = n[0] * d * 2;
+      else bv.dist(6) = n[0] * d * 2;
+    }
+    else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 7) = n[0] * d * 2;
+      else bv.dist(7) = n[0] * d * 2;
+    }
+    else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+    {
+      if(n[1] > 0) bv.dist(D + 8) = n[1] * d * 2;
+      else bv.dist(8) = n[1] * d * 2;
+    }
+    else if(n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 9) = n[0] * d * 3;
+      else bv.dist(9) = n[0] * d * 3;
+    }
+    else if(n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+    {
+      if(n[0] > 0) bv.dist(D + 10) = n[0] * d * 3;
+      else bv.dist(10) = n[0] * d * 3;
+    }
+    else if(n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    {
+      if(n[1] > 0) bv.dist(D + 11) = n[1] * d * 3;
+      else bv.dist(11) = n[1] * d * 3;
+    }
+  }
+};
 
 //============================================================================//
 //                                                                            //
@@ -131,7 +458,7 @@ Scalar Halfspace<Scalar>::distance(const Vector3<Scalar>& p) const
 template <typename Scalar>
 void Halfspace<Scalar>::computeLocalAABB()
 {
-  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

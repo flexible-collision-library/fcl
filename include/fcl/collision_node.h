@@ -59,7 +59,7 @@ void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list = NU
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, int qsize = 2);
 
-/// @brief special collision on OBB traversal node
+/// @brief special collision on OBBd traversal node
 void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list = NULL);
 
 /// @brief special collision on RSS traversal node

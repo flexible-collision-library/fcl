@@ -1075,7 +1075,7 @@ RSS RSS::operator + (const RSS& other) const
   Matrix3d E; // row first eigen-vectors
   Vector3d s(0, 0, 0);
 
-  getCovariance(v, NULL, NULL, NULL, 16, M);
+  getCovariance<double>(v, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
 
   int min, mid, max;
@@ -1091,7 +1091,7 @@ RSS RSS::operator + (const RSS& other) const
   bv.axis.col(2) = axis.col(0).cross(axis.col(1));
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<double>(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
 
   return bv;
 }

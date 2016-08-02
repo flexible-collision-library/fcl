@@ -40,7 +40,8 @@
 #define FCL_SHAPE_CONVEX_H
 
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/geometric_shapes_utility.h"
+#include "fcl/shape/compute_bv.h"
+#include "fcl/BV/OBB.h"
 
 namespace fcl
 {
@@ -101,6 +102,18 @@ public:
   // Documentation inherited
   Scalar computeVolume() const override;
 
+  std::vector<Vector3<Scalar>> getBoundVertices(
+      const Transform3<Scalar>& tf) const
+  {
+    std::vector<Vector3<Scalar>> result(num_points);
+    for(int i = 0; i < num_points; ++i)
+    {
+      result[i] = tf * points[i];
+    }
+
+    return result;
+  }
+
 protected:
 
   /// @brief Get edge information 
@@ -109,6 +122,43 @@ protected:
 
 using Convexf = Convex<float>;
 using Convexd = Convex<double>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Convex<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Convex<Scalar>>;
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, AABB, Convex<Scalar>>
+{
+  void operator()(const Convex<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  {
+    const Matrix3d& R = tf.linear();
+    const Vector3d& T = tf.translation();
+
+    AABB bv_;
+    for(int i = 0; i < s.num_points; ++i)
+    {
+      Vector3d new_p = R * s.points[i] + T;
+      bv_ += new_p;
+    }
+
+    bv = bv_;
+  }
+};
+
+template <typename Scalar>
+struct ComputeBVImpl<Scalar, OBB<Scalar>, Convex<Scalar>>
+{
+  void operator()(const Convex<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  {
+    fit(s.points, s.num_points, bv);
+
+    bv.axis = tf.linear();
+    bv.To = tf * bv.To;
+  }
+};
 
 //============================================================================//
 //                                                                            //

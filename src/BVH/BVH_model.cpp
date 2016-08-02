@@ -37,6 +37,7 @@
 
 #include "fcl/BVH/BVH_model.h"
 #include "fcl/BV/BV.h"
+#include "fcl/BV/fit.h"
 #include <iostream>
 #include <string.h>
 
@@ -873,9 +874,9 @@ void BVHModel<BV>::computeLocalAABB()
 
 
 template<>
-void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
+void BVHModel<OBBd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
 {
-  OBB& obb = bvs[bv_id].bv;
+  OBBd& obb = bvs[bv_id].bv;
   if(!bvs[bv_id].isLeaf())
   {
     makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axis, obb.To);
@@ -907,7 +908,7 @@ void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_
 template<>
 void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
 {
-  OBB& obb = bvs[bv_id].bv.obb;
+  OBBd& obb = bvs[bv_id].bv.obb;
   RSS& rss = bvs[bv_id].bv.rss;
   if(!bvs[bv_id].isLeaf())
   {
@@ -934,7 +935,7 @@ NODE_TYPE BVHModel<AABB>::getNodeType() const
 }
 
 template<>
-NODE_TYPE BVHModel<OBB>::getNodeType() const
+NODE_TYPE BVHModel<OBBd>::getNodeType() const
 {
   return BV_OBB;
 }
@@ -983,7 +984,7 @@ NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const
 template class BVHModel<KDOP<16> >;
 template class BVHModel<KDOP<18> >;
 template class BVHModel<KDOP<24> >;
-template class BVHModel<OBB>;
+template class BVHModel<OBBd>;
 template class BVHModel<AABB>;
 template class BVHModel<RSS>;
 template class BVHModel<kIOS>;

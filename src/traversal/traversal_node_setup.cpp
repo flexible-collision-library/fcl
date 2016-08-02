@@ -79,8 +79,8 @@ static inline bool setupMeshCollisionOrientedNode(OrientedNode& node,
 
 
 bool initialize(MeshCollisionTraversalNodeOBB& node,
-                const BVHModel<OBB>& model1, const Transform3d& tf1,
-                const BVHModel<OBB>& model2, const Transform3d& tf2,
+                const BVHModel<OBBd>& model1, const Transform3d& tf1,
+                const BVHModel<OBBd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
