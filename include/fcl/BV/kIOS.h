@@ -143,7 +143,7 @@ public:
 
   static constexpr double ratio() { return 1.5; }
   static constexpr double invSinA() { return 2; }
-  static constexpr double cosA() { return std::sqrt(3.0) / 2.0; }
+  static const double cosA() { return std::sqrt(3.0) / 2.0; }
 };
 
 
