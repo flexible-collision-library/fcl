@@ -40,20 +40,142 @@
 
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
+#include "fcl/distance_func_matrix.h"
+#include "fcl/narrowphase/narrowphase.h"
 
 namespace fcl
 {
 
 /// @brief Main distance interface: given two collision objects, and the requirements for contacts, including whether return the nearest points, this function performs the distance between them. 
 /// Return value is the minimum distance generated between the two objects.
+template <typename Scalar>
+Scalar distance(
+    const CollisionObject* o1, const CollisionObject* o2,
+    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result);
 
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
-                  const DistanceRequest& request, DistanceResult& result);
+template <typename Scalar>
+Scalar distance(
+    const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
+    const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
+    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result);
 
-FCL_REAL distance(const CollisionGeometryd* o1, const Transform3d& tf1,
-                  const CollisionGeometryd* o2, const Transform3d& tf2,
-                  const DistanceRequest& request, DistanceResult& result);
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
 
+//==============================================================================
+template <typename GJKSolver>
+DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
+{
+  static DistanceFunctionMatrix<GJKSolver> table;
+  return table;
 }
+
+template <typename Scalar, typename NarrowPhaseSolver>
+Scalar distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver,
+                  const DistanceRequest& request, DistanceResult& result)
+{
+  return distance<NarrowPhaseSolver>(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
+                                     request, result);
+}
+
+template <typename Scalar, typename NarrowPhaseSolver>
+Scalar distance(const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
+                  const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
+                  const NarrowPhaseSolver* nsolver_,
+                  const DistanceRequest& request, DistanceResult& result)
+{
+  const NarrowPhaseSolver* nsolver = nsolver_;
+  if(!nsolver_)
+    nsolver = new NarrowPhaseSolver();
+
+  const DistanceFunctionMatrix<NarrowPhaseSolver>& looktable = getDistanceFunctionLookTable<NarrowPhaseSolver>();
+
+  OBJECT_TYPE object_type1 = o1->getObjectType();
+  NODE_TYPE node_type1 = o1->getNodeType();
+  OBJECT_TYPE object_type2 = o2->getObjectType();
+  NODE_TYPE node_type2 = o2->getNodeType();
+
+  Scalar res = std::numeric_limits<Scalar>::max();
+
+  if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
+  {
+    if(!looktable.distance_matrix[node_type2][node_type1])
+    {
+      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
+    }
+    else
+    {
+      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
+    }
+  }
+  else
+  {
+    if(!looktable.distance_matrix[node_type1][node_type2])
+    {
+      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
+    }
+    else
+    {
+      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, request, result);
+    }
+  }
+
+  if(!nsolver_)
+    delete nsolver;
+
+  return res;
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar distance(
+    const CollisionObject* o1, const CollisionObject* o2,
+    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result)
+{
+  switch(request.gjk_solver_type)
+  {
+  case GST_LIBCCD:
+    {
+      GJKSolver_libccd solver;
+      return distance<GJKSolver_libccd>(o1, o2, &solver, request, result);
+    }
+  case GST_INDEP:
+    {
+      GJKSolver_indep solver;
+      return distance<GJKSolver_indep>(o1, o2, &solver, request, result);
+    }
+  default:
+    return -1; // error
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar distance(
+    const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
+    const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
+    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result)
+{
+  switch(request.gjk_solver_type)
+  {
+  case GST_LIBCCD:
+    {
+      GJKSolver_libccd solver;
+      return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
+    }
+  case GST_INDEP:
+    {
+      GJKSolver_indep solver;
+      return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
+    }
+  default:
+    return -1;
+  }
+}
+
+} // namespace fcl
 
 #endif

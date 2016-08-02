@@ -48,17 +48,17 @@ namespace fcl
 /// @brief continous collision checking between two objects
 FCL_REAL continuousCollide(const CollisionGeometryd* o1, const Transform3d& tf1_beg, const Transform3d& tf1_end,
                            const CollisionGeometryd* o2, const Transform3d& tf2_beg, const Transform3d& tf2_end,
-                           const ContinuousCollisionRequest& request,
-                           ContinuousCollisionResult& result);
+                           const ContinuousCollisionRequestd& request,
+                           ContinuousCollisionResultd& result);
 
 FCL_REAL continuousCollide(const CollisionObject* o1, const Transform3d& tf1_end,
                            const CollisionObject* o2, const Transform3d& tf2_end,
-                           const ContinuousCollisionRequest& request,
-                           ContinuousCollisionResult& result);
+                           const ContinuousCollisionRequestd& request,
+                           ContinuousCollisionResultd& result);
 
 FCL_REAL collide(const ContinuousCollisionObject* o1, const ContinuousCollisionObject* o2,
-                 const ContinuousCollisionRequest& request,
-                 ContinuousCollisionResult& result);
+                 const ContinuousCollisionRequestd& request,
+                 ContinuousCollisionResultd& result);
           
 }
 

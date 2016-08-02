@@ -38,11 +38,13 @@
 #include "fcl/ccd/conservative_advancement.h"
 #include "fcl/ccd/motion.h"
 #include "fcl/collision_node.h"
-#include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/traversal/traversal_recurse.h"
 #include "fcl/collision.h"
-
+#include "fcl/traversal/mesh_conservative_advancement_traversal_node.h"
+#include "fcl/traversal/shape_conservative_advancement_traversal_node.h"
+#include "fcl/traversal/mesh_shape_conservative_advancement_traversal_node.h"
+#include "fcl/traversal/shape_mesh_conservative_advancement_traversal_node.h"
 
 namespace fcl
 {
@@ -55,8 +57,8 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
                              const MotionBase* motion1,
                              const BVHModel<BV>& o2,
                              const MotionBase* motion2,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   Transform3d tf1, tf2;
@@ -88,7 +90,7 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<FCL_REAL>::max();
 
-    distanceRecurse(&node, 0, 0, NULL);
+    distanceRecurse<double>(&node, 0, 0, NULL);
 
     if(node.delta_t <= node.t_err)
     {
@@ -130,8 +132,8 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
                                          const MotionBase* motion1,
                                          const BVHModel<BV>& o2,
                                          const MotionBase* motion2,
-                                         const CollisionRequest& request,
-                                         CollisionResult& result,
+                                         const CollisionRequestd& request,
+                                         CollisionResultd& result,
                                          FCL_REAL& toc)
 {
   Transform3d tf1, tf2;
@@ -202,8 +204,8 @@ bool conservativeAdvancement(const BVHModel<RSSd>& o1,
                              const MotionBase* motion1,
                              const BVHModel<RSSd>& o2,
                              const MotionBase* motion2,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc);
 
 
@@ -212,8 +214,8 @@ bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
                              const MotionBase* motion1,
                              const BVHModel<OBBRSSd>& o2,
                              const MotionBase* motion2,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc);
 
 template<typename S1, typename S2, typename NarrowPhaseSolver>
@@ -222,8 +224,8 @@ bool conservativeAdvancement(const S1& o1,
                              const S2& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* solver,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   Transform3d tf1, tf2;
@@ -288,8 +290,8 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
                              const S& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   Transform3d tf1, tf2;
@@ -317,7 +319,7 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<FCL_REAL>::max();
 
-    distanceRecurse(&node, 0, 0, NULL);
+    distanceRecurse<double>(&node, 0, 0, NULL);
 
     if(node.delta_t <= node.t_err)
     {
@@ -358,8 +360,8 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
                                               const S& o2,
                                               const MotionBase* motion2,
                                               const NarrowPhaseSolver* nsolver,
-                                              const CollisionRequest& request,
-                                              CollisionResult& result,
+                                              const CollisionRequestd& request,
+                                              CollisionResultd& result,
                                               FCL_REAL& toc)
 {
   Transform3d tf1, tf2;
@@ -426,8 +428,8 @@ bool conservativeAdvancement(const BVHModel<RSSd>& o1,
                              const S& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   return details::conservativeAdvancementMeshShapeOriented<RSSd, S, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
@@ -439,8 +441,8 @@ bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
                              const S& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   return details::conservativeAdvancementMeshShapeOriented<OBBRSSd, S, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);  
@@ -452,8 +454,8 @@ bool conservativeAdvancement(const S& o1,
                              const BVHModel<BV>& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   Transform3d tf1, tf2;
@@ -522,8 +524,8 @@ bool conservativeAdvancementShapeMeshOriented(const S& o1,
                                               const BVHModel<BV>& o2,
                                               const MotionBase* motion2,
                                               const NarrowPhaseSolver* nsolver,
-                                              const CollisionRequest& request,
-                                              CollisionResult& result,
+                                              const CollisionRequestd& request,
+                                              CollisionResultd& result,
                                               FCL_REAL& toc)
 {
   Transform3d tf1, tf2;
@@ -589,8 +591,8 @@ bool conservativeAdvancement(const S& o1,
                              const BVHModel<RSSd>& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   return details::conservativeAdvancementShapeMeshOriented<S, RSSd, NarrowPhaseSolver, ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
@@ -603,8 +605,8 @@ bool conservativeAdvancement(const S& o1,
                              const BVHModel<OBBRSSd>& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   return details::conservativeAdvancementShapeMeshOriented<S, OBBRSSd, NarrowPhaseSolver, ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
@@ -617,8 +619,8 @@ bool conservativeAdvancement(const BVHModel<RSSd>& o1,
                              const MotionBase* motion1,
                              const BVHModel<RSSd>& o2,
                              const MotionBase* motion2,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   return details::conservativeAdvancementMeshOriented<RSSd, MeshConservativeAdvancementTraversalNodeRSS>(o1, motion1, o2, motion2, request, result, toc);
@@ -629,8 +631,8 @@ bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
                              const MotionBase* motion1,
                              const BVHModel<OBBRSSd>& o2,
                              const MotionBase* motion2,
-                             const CollisionRequest& request,
-                             CollisionResult& result,
+                             const CollisionRequestd& request,
+                             CollisionResultd& result,
                              FCL_REAL& toc)
 {
   return details::conservativeAdvancementMeshOriented<OBBRSSd, MeshConservativeAdvancementTraversalNodeOBBRSS>(o1, motion1, o2, motion2, request, result, toc);
@@ -638,13 +640,13 @@ bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
 
 
 template<typename BV, typename NarrowPhaseSolver>
-FCL_REAL BVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL BVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
   const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>*>(o2);
 
-  CollisionRequest c_request;
-  CollisionResult c_result;
+  CollisionRequestd c_request;
+  CollisionResultd c_result;
   FCL_REAL toc;
   bool is_collide = conservativeAdvancement(*obj1, motion1, *obj2, motion2, c_request, c_result, toc);
 
@@ -655,13 +657,13 @@ FCL_REAL BVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBa
 }
 
 template<typename S1, typename S2, typename NarrowPhaseSolver>
-FCL_REAL ShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL ShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const S1* obj1 = static_cast<const S1*>(o1);
   const S2* obj2 = static_cast<const S2*>(o2);
 
-  CollisionRequest c_request;
-  CollisionResult c_result;
+  CollisionRequestd c_request;
+  CollisionResultd c_result;
   FCL_REAL toc;
   bool is_collide = conservativeAdvancement(*obj1, motion1, *obj2, motion2, nsolver, c_request, c_result, toc);
 
@@ -672,13 +674,13 @@ FCL_REAL ShapeConservativeAdvancement(const CollisionGeometryd* o1, const Motion
 }
 
 template<typename S, typename BV, typename NarrowPhaseSolver>
-FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const S* obj1 = static_cast<const S*>(o1);
   const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>*>(o2);
 
-  CollisionRequest c_request;
-  CollisionResult c_result;
+  CollisionRequestd c_request;
+  CollisionResultd c_result;
   FCL_REAL toc;
 
   bool is_collide = conservativeAdvancement(*obj1, motion1, *obj2, motion2, nsolver, c_request, c_result, toc);
@@ -690,13 +692,13 @@ FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometryd* o1, const Mot
 }
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
-FCL_REAL BVHShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest& request, ContinuousCollisionResult& result)
+FCL_REAL BVHShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
   const S* obj2 = static_cast<const S*>(o2);
 
-  CollisionRequest c_request;
-  CollisionResult c_result;
+  CollisionRequestd c_request;
+  CollisionResultd c_result;
   FCL_REAL toc;
 
   bool is_collide = conservativeAdvancement(*obj1, motion1, *obj2, motion2, nsolver, c_request, c_result, toc);

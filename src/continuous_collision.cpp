@@ -39,8 +39,8 @@
 #include "fcl/continuous_collision.h"
 #include "fcl/ccd/motion.h"
 #include "fcl/BVH/BVH_model.h"
-#include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
+#include "fcl/traversal/mesh_continuous_collision_traversal_node.h"
 #include "fcl/collision_node.h"
 #include "fcl/ccd/conservative_advancement.h"
 #include <iostream>
@@ -79,8 +79,8 @@ MotionBasePtr getMotionBase(const Transform3d& tf_beg, const Transform3d& tf_end
 
 FCL_REAL continuousCollideNaive(const CollisionGeometryd* o1, const MotionBase* motion1,
                                 const CollisionGeometryd* o2, const MotionBase* motion2,
-                                const ContinuousCollisionRequest& request,
-                                ContinuousCollisionResult& result)
+                                const ContinuousCollisionRequestd& request,
+                                ContinuousCollisionResultd& result)
 {
   std::size_t n_iter = std::min(request.num_max_iterations, (std::size_t)ceil(1 / request.toc_err));
   Transform3d cur_tf1, cur_tf2;
@@ -93,8 +93,8 @@ FCL_REAL continuousCollideNaive(const CollisionGeometryd* o1, const MotionBase* 
     motion1->getCurrentTransform(cur_tf1);
     motion2->getCurrentTransform(cur_tf2);
 
-    CollisionRequest c_request;
-    CollisionResult c_result;
+    CollisionRequestd c_request;
+    CollisionResultd c_result;
 
     if(collide(o1, cur_tf1, o2, cur_tf2, c_request, c_result))
     {
@@ -116,8 +116,8 @@ namespace details
 template<typename BV>
 FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1_, const TranslationMotion* motion1,
                                         const CollisionGeometryd* o2_, const TranslationMotion* motion2,
-                                        const ContinuousCollisionRequest& request,
-                                        ContinuousCollisionResult& result)
+                                        const ContinuousCollisionRequestd& request,
+                                        ContinuousCollisionResultd& result)
 {
   const BVHModel<BV>* o1__ = static_cast<const BVHModel<BV>*>(o1_);
   const BVHModel<BV>* o2__ = static_cast<const BVHModel<BV>*>(o2_);
@@ -142,7 +142,7 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1_, const Tra
   o2->endUpdateModel(true, true);
 
   MeshContinuousCollisionTraversalNode<BV> node;
-  CollisionRequest c_request;
+  CollisionRequestd c_request;
 
   motion1->integrate(0);
   motion2->integrate(0);
@@ -174,8 +174,8 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1_, const Tra
 
 FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1, const TranslationMotion* motion1,
                                         const CollisionGeometryd* o2, const TranslationMotion* motion2,
-                                        const ContinuousCollisionRequest& request,
-                                        ContinuousCollisionResult& result)
+                                        const ContinuousCollisionRequestd& request,
+                                        ContinuousCollisionResultd& result)
 {
   switch(o1->getNodeType())
   {
@@ -227,8 +227,8 @@ template<typename NarrowPhaseSolver>
 FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1,
                                                   const CollisionGeometryd* o2, const MotionBase* motion2,
                                                   const NarrowPhaseSolver* nsolver_,
-                                                  const ContinuousCollisionRequest& request,
-                                                  ContinuousCollisionResult& result)
+                                                  const ContinuousCollisionRequestd& request,
+                                                  ContinuousCollisionResultd& result)
 {
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_)
@@ -273,8 +273,8 @@ FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometryd* o1, 
 
 FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1,
                                                   const CollisionGeometryd* o2, const MotionBase* motion2,
-                                                  const ContinuousCollisionRequest& request,
-                                                  ContinuousCollisionResult& result)
+                                                  const ContinuousCollisionRequestd& request,
+                                                  ContinuousCollisionResultd& result)
 {
   switch(request.gjk_solver_type)
   {
@@ -296,8 +296,8 @@ FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometryd* o1, 
   
 FCL_REAL continuousCollide(const CollisionGeometryd* o1, const MotionBase* motion1,
                            const CollisionGeometryd* o2, const MotionBase* motion2,
-                           const ContinuousCollisionRequest& request,
-                           ContinuousCollisionResult& result)
+                           const ContinuousCollisionRequestd& request,
+                           ContinuousCollisionResultd& result)
 {
   switch(request.ccd_solver_type)
   {
@@ -340,8 +340,8 @@ FCL_REAL continuousCollide(const CollisionGeometryd* o1, const MotionBase* motio
 
 FCL_REAL continuousCollide(const CollisionGeometryd* o1, const Transform3d& tf1_beg, const Transform3d& tf1_end,
                            const CollisionGeometryd* o2, const Transform3d& tf2_beg, const Transform3d& tf2_end,
-                           const ContinuousCollisionRequest& request,
-                           ContinuousCollisionResult& result)
+                           const ContinuousCollisionRequestd& request,
+                           ContinuousCollisionResultd& result)
 {
   MotionBasePtr motion1 = getMotionBase(tf1_beg, tf1_end, request.ccd_motion_type);
   MotionBasePtr motion2 = getMotionBase(tf2_beg, tf2_end, request.ccd_motion_type);
@@ -352,8 +352,8 @@ FCL_REAL continuousCollide(const CollisionGeometryd* o1, const Transform3d& tf1_
 
 FCL_REAL continuousCollide(const CollisionObject* o1, const Transform3d& tf1_end,
                            const CollisionObject* o2, const Transform3d& tf2_end,
-                           const ContinuousCollisionRequest& request,
-                           ContinuousCollisionResult& result)
+                           const ContinuousCollisionRequestd& request,
+                           ContinuousCollisionResultd& result)
 {
   return continuousCollide(o1->collisionGeometry().get(), o1->getTransform(), tf1_end,
                            o2->collisionGeometry().get(), o2->getTransform(), tf2_end,
@@ -362,8 +362,8 @@ FCL_REAL continuousCollide(const CollisionObject* o1, const Transform3d& tf1_end
 
 
 FCL_REAL collide(const ContinuousCollisionObject* o1, const ContinuousCollisionObject* o2,
-                 const ContinuousCollisionRequest& request,
-                 ContinuousCollisionResult& result)
+                 const ContinuousCollisionRequestd& request,
+                 ContinuousCollisionResultd& result)
 {
   return continuousCollide(o1->collisionGeometry().get(), o1->getMotion(),
                            o2->collisionGeometry().get(), o2->getMotion(),

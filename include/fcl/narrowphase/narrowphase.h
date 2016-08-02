@@ -49,6 +49,8 @@ namespace fcl
 /// @brief collision and distance solver based on libccd library.
 struct GJKSolver_libccd
 {
+  using Scalar = double;
+
   /// @brief intersection checking between two shapes
   /// @deprecated use shapeIntersect(const S1&, const Transform3d&, const S2&, const Transform3d&, std::vector<ContactPointd>*) const
   template<typename S1, typename S2>
@@ -500,6 +502,8 @@ bool GJKSolver_libccd::shapeTriangleDistance<Sphered>(const Sphered& s, const Tr
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
 struct GJKSolver_indep
 {  
+  using Scalar = double;
+
   /// @brief intersection checking between two shapes
   /// @deprecated use shapeIntersect(const S1&, const Transform3d&, const S2&, const Transform3d&, std::vector<ContactPointd>*) const
   template<typename S1, typename S2>

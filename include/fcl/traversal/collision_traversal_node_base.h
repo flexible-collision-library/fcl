@@ -35,56 +35,47 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_NODE_BASE_H
-#define FCL_TRAVERSAL_NODE_BASE_H
+#ifndef FCL_TRAVERSAL_COLLISIONTRAVERSALNODEBASE_H
+#define FCL_TRAVERSAL_COLLISIONTRAVERSALNODEBASE_H
 
-#include "fcl/data_types.h"
-#include "fcl/collision_data.h"
+#include "fcl/traversal/traversal_node_base.h"
 
 namespace fcl
 {
 
-/// @brief Node structure encoding the information required for traversal.
+/// @brief Node structure encoding the information required for collision traversal.
 template <typename Scalar>
-class TraversalNodeBase
+class CollisionTraversalNodeBase : public TraversalNodeBase<Scalar>
 {
 public:
-  virtual ~TraversalNodeBase();
+  CollisionTraversalNodeBase();
 
-  virtual void preprocess();
-  
-  virtual void postprocess();
+  virtual ~CollisionTraversalNodeBase();
 
-  /// @brief Whether b is a leaf node in the first BVH tree 
-  virtual bool isFirstNodeLeaf(int b) const;
+  /// @brief BV test between b1 and b2
+  virtual bool BVTesting(int b1, int b2) const;
 
-  /// @brief Whether b is a leaf node in the second BVH tree
-  virtual bool isSecondNodeLeaf(int b) const;
+  /// @brief Leaf test between node b1 and b2, if they are both leafs
+  virtual void leafTesting(int b1, int b2) const;
 
-  /// @brief Traverse the subtree of the node in the first tree first
-  virtual bool firstOverSecond(int b1, int b2) const;
+  /// @brief Check whether the traversal can stop
+  virtual bool canStop() const;
 
-  /// @brief Get the left child of the node b in the first tree
-  virtual int getFirstLeftChild(int b) const;
+  /// @brief Whether store some statistics information during traversal
+  void enableStatistics(bool enable);
 
-  /// @brief Get the right child of the node b in the first tree
-  virtual int getFirstRightChild(int b) const;
+  /// @brief request setting for collision
+  CollisionRequest<Scalar> request;
 
-  /// @brief Get the left child of the node b in the second tree
-  virtual int getSecondLeftChild(int b) const;
+  /// @brief collision result kept during the traversal iteration
+  CollisionResult<Scalar>* result;
 
-  /// @brief Get the right child of the node b in the second tree
-  virtual int getSecondRightChild(int b) const;
-
-  /// @brief Enable statistics (verbose mode)
-  virtual void enableStatistics(bool enable) = 0;
-
-  /// @brief configuation of first object
-  Transform3<Scalar> tf1;
-
-  /// @brief configuration of second object
-  Transform3<Scalar> tf2;
+  /// @brief Whether stores statistics 
+  bool enable_statistics;
 };
+
+using CollisionTraversalNodeBasef = CollisionTraversalNodeBase<float>;
+using CollisionTraversalNodeBased = CollisionTraversalNodeBase<double>;
 
 //============================================================================//
 //                                                                            //
@@ -94,72 +85,45 @@ public:
 
 //==============================================================================
 template <typename Scalar>
-TraversalNodeBase<Scalar>::~TraversalNodeBase()
+CollisionTraversalNodeBase<Scalar>::CollisionTraversalNodeBase()
+  : result(NULL), enable_statistics(false)
 {
   // Do nothing
 }
 
 //==============================================================================
 template <typename Scalar>
-void TraversalNodeBase<Scalar>::preprocess()
+CollisionTraversalNodeBase<Scalar>::~CollisionTraversalNodeBase()
 {
   // Do nothing
 }
 
 //==============================================================================
 template <typename Scalar>
-void TraversalNodeBase<Scalar>::postprocess()
+bool CollisionTraversalNodeBase<Scalar>::BVTesting(int b1, int b2) const
+{
+  return true;
+}
+
+//==============================================================================
+template <typename Scalar>
+void CollisionTraversalNodeBase<Scalar>::leafTesting(int b1, int b2) const
 {
   // Do nothing
 }
 
 //==============================================================================
 template <typename Scalar>
-bool TraversalNodeBase<Scalar>::isFirstNodeLeaf(int b) const
+bool CollisionTraversalNodeBase<Scalar>::canStop() const
 {
-  return true;
+  return false;
 }
 
 //==============================================================================
 template <typename Scalar>
-bool TraversalNodeBase<Scalar>::isSecondNodeLeaf(int b) const
+void CollisionTraversalNodeBase<Scalar>::enableStatistics(bool enable)
 {
-  return true;
-}
-
-//==============================================================================
-template <typename Scalar>
-bool TraversalNodeBase<Scalar>::firstOverSecond(int b1, int b2) const
-{
-  return true;
-}
-
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getFirstLeftChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getFirstRightChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getSecondLeftChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getSecondRightChild(int b) const
-{
-  return b;
+  enable_statistics = enable;
 }
 
 } // namespace fcl

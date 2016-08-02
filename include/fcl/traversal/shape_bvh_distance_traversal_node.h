@@ -35,82 +35,70 @@
 
 /** \author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
+#define FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
 
-#include "fcl/collision_node.h"
-#include "fcl/traversal/traversal_recurse.h"
+#include "fcl/traversal/traversal_node_base.h"
 
 namespace fcl
 {
 
-void collide(CollisionTraversalNodeBase* node, BVHFrontList* front_list)
+/// @brief Traversal node for distance computation between shape and BVH
+template<typename S, typename BV>
+class ShapeBVHDistanceTraversalNode : public DistanceTraversalNodeBase
 {
-  if(front_list && front_list->size() > 0)
+public:
+  ShapeBVHDistanceTraversalNode() : DistanceTraversalNodeBase()
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
+    model1 = NULL;
+    model2 = NULL;
+    
+    num_bv_tests = 0;
+    num_leaf_tests = 0;
+    query_time_seconds = 0.0;
   }
-  else
+
+  /// @brief Whether the BV node in the second BVH tree is leaf
+  bool isSecondNodeLeaf(int b) const
   {
-    collisionRecurse(node, 0, 0, front_list);
+    return model2->getBV(b).isLeaf();
   }
-}
 
-void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list)
-{
-  if(front_list && front_list->size() > 0)
+  /// @brief Obtain the left child of BV node in the second BVH
+  int getSecondLeftChild(int b) const
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
+    return model2->getBV(b).leftChild();
   }
-  else
+
+  /// @brief Obtain the right child of BV node in the second BVH
+  int getSecondRightChild(int b) const
   {
-    Matrix3d Rtemp, R;
-    Vector3d Ttemp, T;
-    Rtemp = node->R * node->model2->getBV(0).getOrientation();
-    R = node->model1->getBV(0).getOrientation().transpose() * Rtemp;
-    Ttemp = node->R * node->model2->getBV(0).getCenter() + node->T;
-    Ttemp -= node->model1->getBV(0).getCenter();
-    T = node->model1->getBV(0).getOrientation().transpose() * Ttemp;
-
-    collisionRecurse(node, 0, 0, R, T, front_list);
+    return model2->getBV(b).rightChild();
   }
-}
 
-void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list)
-{
-  if(front_list && front_list->size() > 0)
+  /// @brief BV culling test in one BVTT node
+  FCL_REAL BVTesting(int b1, int b2) const
   {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
+    return model1_bv.distance(model2->getBV(b2).bv);
   }
-  else
-  {
-    collisionRecurse(node, 0, 0, node->R, node->T, front_list);
-  }
-}
 
-
-
-void selfCollide(CollisionTraversalNodeBase* node, BVHFrontList* front_list)
-{
-
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
-  }
-  else
-  {
-    selfCollisionRecurse(node, 0, front_list);
-  }
-}
-
-void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list, int qsize)
-{
-  node->preprocess();
+  const S* model1;
+  const BVHModel<BV>* model2;
+  BV model1_bv;
   
-  if(qsize <= 2)
-    distanceRecurse(node, 0, 0, front_list);
-  else
-    distanceQueueRecurse(node, 0, 0, front_list, qsize);
+  mutable int num_bv_tests;
+  mutable int num_leaf_tests;
+  mutable FCL_REAL query_time_seconds;
+};
 
-  node->postprocess();
-}
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
 
-}
+//==============================================================================
+
+} // namespace fcl
+
+#endif

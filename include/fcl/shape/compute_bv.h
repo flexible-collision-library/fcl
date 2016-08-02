@@ -56,6 +56,7 @@ struct ComputeBVImpl
   }
 };
 // TODO(JS): move this under detail namespace
+// TODO(JS): remove Scalar template argument and replace with typename BV::Scalar
 
 /// @brief calculate a bounding volume for a shape in a specific configuration
 template <typename Scalar, typename BV, typename S>

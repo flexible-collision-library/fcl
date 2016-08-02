@@ -35,55 +35,49 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_NODE_BASE_H
-#define FCL_TRAVERSAL_NODE_BASE_H
 
-#include "fcl/data_types.h"
-#include "fcl/collision_data.h"
+#ifndef FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_H
+#define FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_H
+
+#include "fcl/traversal/traversal_node_base.h"
+#include "fcl/BVH/BVH_model.h"
 
 namespace fcl
 {
 
-/// @brief Node structure encoding the information required for traversal.
-template <typename Scalar>
-class TraversalNodeBase
+/// @brief Traversal node for collision between shape and BVH
+template <typename S, typename BV>
+class ShapeBVHCollisionTraversalNode
+    : public CollisionTraversalNodeBase<typename BV::Scalar>
 {
 public:
-  virtual ~TraversalNodeBase();
 
-  virtual void preprocess();
-  
-  virtual void postprocess();
+  using Scalar = typename BV::Scalar;
 
-  /// @brief Whether b is a leaf node in the first BVH tree 
-  virtual bool isFirstNodeLeaf(int b) const;
+  ShapeBVHCollisionTraversalNode();
 
-  /// @brief Whether b is a leaf node in the second BVH tree
-  virtual bool isSecondNodeLeaf(int b) const;
+  /// @brief Alway extend the second model, which is a BVH model
+  bool firstOverSecond(int, int) const;
 
-  /// @brief Traverse the subtree of the node in the first tree first
-  virtual bool firstOverSecond(int b1, int b2) const;
+  /// @brief Whether the BV node in the second BVH tree is leaf
+  bool isSecondNodeLeaf(int b) const;
 
-  /// @brief Get the left child of the node b in the first tree
-  virtual int getFirstLeftChild(int b) const;
+  /// @brief Obtain the left child of BV node in the second BVH
+  int getSecondLeftChild(int b) const;
 
-  /// @brief Get the right child of the node b in the first tree
-  virtual int getFirstRightChild(int b) const;
+  /// @brief Obtain the right child of BV node in the second BVH
+  int getSecondRightChild(int b) const;
 
-  /// @brief Get the left child of the node b in the second tree
-  virtual int getSecondLeftChild(int b) const;
+  /// @brief BV culling test in one BVTT node
+  bool BVTesting(int b1, int b2) const;
 
-  /// @brief Get the right child of the node b in the second tree
-  virtual int getSecondRightChild(int b) const;
+  const S* model1;
+  const BVHModel<BV>* model2;
+  BV model1_bv;
 
-  /// @brief Enable statistics (verbose mode)
-  virtual void enableStatistics(bool enable) = 0;
-
-  /// @brief configuation of first object
-  Transform3<Scalar> tf1;
-
-  /// @brief configuration of second object
-  Transform3<Scalar> tf2;
+  mutable int num_bv_tests;
+  mutable int num_leaf_tests;
+  mutable FCL_REAL query_time_seconds;
 };
 
 //============================================================================//
@@ -93,74 +87,54 @@ public:
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-TraversalNodeBase<Scalar>::~TraversalNodeBase()
+template <typename S, typename BV>
+ShapeBVHCollisionTraversalNode<S, BV>::ShapeBVHCollisionTraversalNode()
+  : CollisionTraversalNodeBase<typename BV::Scalar>()
 {
-  // Do nothing
+  model1 = NULL;
+  model2 = NULL;
+
+  num_bv_tests = 0;
+  num_leaf_tests = 0;
+  query_time_seconds = 0.0;
 }
 
 //==============================================================================
-template <typename Scalar>
-void TraversalNodeBase<Scalar>::preprocess()
+template <typename S, typename BV>
+bool ShapeBVHCollisionTraversalNode<S, BV>::firstOverSecond(int, int) const
 {
-  // Do nothing
+  return false;
 }
 
 //==============================================================================
-template <typename Scalar>
-void TraversalNodeBase<Scalar>::postprocess()
+template <typename S, typename BV>
+bool ShapeBVHCollisionTraversalNode<S, BV>::isSecondNodeLeaf(int b) const
 {
-  // Do nothing
+  return model2->getBV(b).isLeaf();
 }
 
 //==============================================================================
-template <typename Scalar>
-bool TraversalNodeBase<Scalar>::isFirstNodeLeaf(int b) const
+template <typename S, typename BV>
+int ShapeBVHCollisionTraversalNode<S, BV>::getSecondLeftChild(int b) const
 {
-  return true;
+  return model2->getBV(b).leftChild();
 }
 
 //==============================================================================
-template <typename Scalar>
-bool TraversalNodeBase<Scalar>::isSecondNodeLeaf(int b) const
+template <typename S, typename BV>
+int ShapeBVHCollisionTraversalNode<S, BV>::getSecondRightChild(int b) const
 {
-  return true;
+  return model2->getBV(b).rightChild();
 }
 
 //==============================================================================
-template <typename Scalar>
-bool TraversalNodeBase<Scalar>::firstOverSecond(int b1, int b2) const
+template <typename S, typename BV>
+bool ShapeBVHCollisionTraversalNode<S, BV>::BVTesting(int b1, int b2) const
 {
-  return true;
+  if(this->enable_statistics) num_bv_tests++;
+  return !model2->getBV(b2).bv.overlap(model1_bv);
 }
 
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getFirstLeftChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getFirstRightChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getSecondLeftChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getSecondRightChild(int b) const
-{
-  return b;
-}
 
 } // namespace fcl
 

@@ -35,87 +35,46 @@
 
 /** \author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_CONVERVATIVEADVANCEMENTSTACKDATA_H
+#define FCL_TRAVERSAL_CONVERVATIVEADVANCEMENTSTACKDATA_H
 
-#include "fcl/traversal/traversal_node_base.h"
-#include <limits>
+#include "fcl/data_types.h"
 
 namespace fcl
 {
 
-TraversalNodeBase::~TraversalNodeBase()
+template <typename Scalar>
+struct ConservativeAdvancementStackData
 {
-}
+  ConservativeAdvancementStackData(
+      const Vector3<Scalar>& P1_,
+      const Vector3<Scalar>& P2_,
+      int c1_, int c2_, Scalar d_);
 
-bool TraversalNodeBase::isFirstNodeLeaf(int b) const
+  Vector3<Scalar> P1;
+  Vector3<Scalar> P2;
+  int c1;
+  int c2;
+  Scalar d;
+};
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+ConservativeAdvancementStackData<Scalar>::ConservativeAdvancementStackData(
+    const Vector3<Scalar>& P1_,
+    const Vector3<Scalar>& P2_,
+    int c1_, int c2_, Scalar d_)
+  : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_)
 {
-  return true;
+  // Do nothing
 }
 
-bool TraversalNodeBase::isSecondNodeLeaf(int b) const
-{
-  return true;
-}
+} // namespace fcl
 
-bool TraversalNodeBase::firstOverSecond(int b1, int b2) const
-{
-  return true;
-}
-
-int TraversalNodeBase::getFirstLeftChild(int b) const
-{
-  return b;
-}
-
-int TraversalNodeBase::getFirstRightChild(int b) const
-{
-  return b;
-}
-
-int TraversalNodeBase::getSecondLeftChild(int b) const
-{
-  return b;
-}
-
-int TraversalNodeBase::getSecondRightChild(int b) const
-{
-  return b;
-}
-
-CollisionTraversalNodeBase::~CollisionTraversalNodeBase()
-{
-}
-
-bool CollisionTraversalNodeBase::BVTesting(int b1, int b2) const
-{
-  return true;
-}
-
-void CollisionTraversalNodeBase::leafTesting(int b1, int b2) const
-{
-}
-
-bool CollisionTraversalNodeBase::canStop() const
-{
-  return false;
-}
-
-
-DistanceTraversalNodeBase::~DistanceTraversalNodeBase()
-{
-}
-
-FCL_REAL DistanceTraversalNodeBase::BVTesting(int b1, int b2) const
-{
-  return std::numeric_limits<FCL_REAL>::max();
-}
-
-void DistanceTraversalNodeBase::leafTesting(int b1, int b2) const
-{
-}
-
-bool DistanceTraversalNodeBase::canStop(FCL_REAL c) const
-{
-  return false;
-}
-
-}
+#endif
