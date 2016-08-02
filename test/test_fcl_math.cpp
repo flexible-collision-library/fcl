@@ -160,7 +160,7 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
 
 GTEST_TEST(FCL_MATH, morton)
 {
-  AABB bbox(Vector3d(0, 0, 0), Vector3d(1000, 1000, 1000));
+  AABBd bbox(Vector3d(0, 0, 0), Vector3d(1000, 1000, 1000));
   morton_functor<std::bitset<30>> F1(bbox);
   morton_functor<std::bitset<60>> F2(bbox);
   morton_functor<FCL_UINT64> F3(bbox); // 60 bits

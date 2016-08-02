@@ -41,11 +41,11 @@ namespace fcl
 {
 
 template<>
-size_t select(const NodeBase<AABB>& node, const NodeBase<AABB>& node1, const NodeBase<AABB>& node2)
+size_t select(const NodeBase<AABBd>& node, const NodeBase<AABBd>& node1, const NodeBase<AABBd>& node2)
 {
-  const AABB& bv = node.bv;
-  const AABB& bv1 = node1.bv;
-  const AABB& bv2 = node2.bv;
+  const AABBd& bv = node.bv;
+  const AABBd& bv1 = node1.bv;
+  const AABBd& bv2 = node2.bv;
   Vector3d v = bv.min_ + bv.max_;
   Vector3d v1 = v - (bv1.min_ + bv1.max_);
   Vector3d v2 = v - (bv2.min_ + bv2.max_);
@@ -55,11 +55,11 @@ size_t select(const NodeBase<AABB>& node, const NodeBase<AABB>& node1, const Nod
 }
 
 template<>
-size_t select(const AABB& query, const NodeBase<AABB>& node1, const NodeBase<AABB>& node2)
+size_t select(const AABBd& query, const NodeBase<AABBd>& node1, const NodeBase<AABBd>& node2)
 {
-  const AABB& bv = query;
-  const AABB& bv1 = node1.bv;
-  const AABB& bv2 = node2.bv;
+  const AABBd& bv = query;
+  const AABBd& bv1 = node1.bv;
+  const AABBd& bv2 = node2.bv;
   Vector3d v = bv.min_ + bv.max_;
   Vector3d v1 = v - (bv1.min_ + bv1.max_);
   Vector3d v2 = v - (bv2.min_ + bv2.max_);
@@ -69,9 +69,9 @@ size_t select(const AABB& query, const NodeBase<AABB>& node1, const NodeBase<AAB
 }
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel, FCL_REAL margin)
+bool HierarchyTree<AABBd>::update(NodeBase<AABBd>* leaf, const AABBd& bv_, const Vector3d& vel, FCL_REAL margin)
 {
-  AABB bv(bv_);
+  AABBd bv(bv_);
   if(leaf->bv.contain(bv)) return false;
   Vector3d marginv = Vector3d::Constant(margin);
   bv.min_ -= marginv;
@@ -87,9 +87,9 @@ bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Ve
 }
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel)
+bool HierarchyTree<AABBd>::update(NodeBase<AABBd>* leaf, const AABBd& bv_, const Vector3d& vel)
 {
-  AABB bv(bv_);
+  AABBd bv(bv_);
   if(leaf->bv.contain(bv)) return false;
   if(vel[0] > 0) bv.max_[0] += vel[0];
   else bv.min_[0] += vel[0];
@@ -104,11 +104,11 @@ bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Ve
 namespace implementation_array
 {
 template<>
-size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABB>* nodes)
+size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABBd>* nodes)
 {
-  const AABB& bv = nodes[query].bv;
-  const AABB& bv1 = nodes[node1].bv;
-  const AABB& bv2 = nodes[node2].bv;
+  const AABBd& bv = nodes[query].bv;
+  const AABBd& bv1 = nodes[node1].bv;
+  const AABBd& bv2 = nodes[node2].bv;
   Vector3d v = bv.min_ + bv.max_;
   Vector3d v1 = v - (bv1.min_ + bv1.max_);
   Vector3d v2 = v - (bv2.min_ + bv2.max_);
@@ -118,11 +118,11 @@ size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABB>* nodes)
 }
 
 template<>
-size_t select(const AABB& query, size_t node1, size_t node2, NodeBase<AABB>* nodes)
+size_t select(const AABBd& query, size_t node1, size_t node2, NodeBase<AABBd>* nodes)
 {
-  const AABB& bv = query;
-  const AABB& bv1 = nodes[node1].bv;
-  const AABB& bv2 = nodes[node2].bv;
+  const AABBd& bv = query;
+  const AABBd& bv1 = nodes[node1].bv;
+  const AABBd& bv2 = nodes[node2].bv;
   Vector3d v = bv.min_ + bv.max_;
   Vector3d v1 = v - (bv1.min_ + bv1.max_);
   Vector3d v2 = v - (bv2.min_ + bv2.max_);

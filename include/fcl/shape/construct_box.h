@@ -48,40 +48,40 @@ namespace fcl
 {
 
 /// @brief construct a box shape (with a configuration) from a given bounding volume
-void constructBox(const AABB& bv, Boxd& box, Transform3d& tf);
+void constructBox(const AABBd& bv, Boxd& box, Transform3d& tf);
 
 void constructBox(const OBBd& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const OBBRSS& bv, Boxd& box, Transform3d& tf);
+void constructBox(const OBBRSSd& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const kIOS& bv, Boxd& box, Transform3d& tf);
+void constructBox(const kIOSd& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const RSS& bv, Boxd& box, Transform3d& tf);
+void constructBox(const RSSd& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<16>& bv, Boxd& box, Transform3d& tf);
+void constructBox(const KDOPd<16>& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<18>& bv, Boxd& box, Transform3d& tf);
+void constructBox(const KDOPd<18>& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<24>& bv, Boxd& box, Transform3d& tf);
+void constructBox(const KDOPd<24>& bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const AABB& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
+void constructBox(const AABBd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
 void constructBox(const OBBd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
+void constructBox(const OBBRSSd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const kIOS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
+void constructBox(const kIOSd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const RSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
+void constructBox(const RSSd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<16>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
+void constructBox(const KDOPd<16>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
+void constructBox(const KDOPd<18>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
-void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
+void constructBox(const KDOPd<24>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf);
 
 
-inline void constructBox(const AABB& bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const AABBd& bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.max_ - bv.min_);
   tf.linear().setIdentity();
@@ -95,42 +95,42 @@ inline void constructBox(const OBBd& bv, Boxd& box, Transform3d& tf)
   tf.translation() = bv.To;
 }
 
-inline void constructBox(const OBBRSS& bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const OBBRSSd& bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
 }
 
-inline void constructBox(const kIOS& bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const kIOSd& bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;
 }
 
-inline void constructBox(const RSS& bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const RSSd& bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear() = bv.axis;
   tf.translation() = bv.Tr;
 }
 
-inline void constructBox(const KDOP<16>& bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const KDOPd<16>& bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-inline void constructBox(const KDOP<18>& bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const KDOPd<18>& bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
-inline void constructBox(const KDOP<24>& bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const KDOPd<24>& bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
@@ -139,7 +139,7 @@ inline void constructBox(const KDOP<24>& bv, Boxd& box, Transform3d& tf)
 
 
 
-inline void constructBox(const AABB& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const AABBd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.max_ - bv.min_);
   tf = tf_bv * Eigen::Translation3d(bv.center());
@@ -152,7 +152,7 @@ inline void constructBox(const OBBd& bv, const Transform3d& tf_bv, Boxd& box, Tr
   tf.translation() = bv.To;
 }
 
-inline void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const OBBRSSd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
@@ -160,7 +160,7 @@ inline void constructBox(const OBBRSS& bv, const Transform3d& tf_bv, Boxd& box, 
   tf = tf_bv * tf;
 }
 
-inline void constructBox(const kIOS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const kIOSd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
@@ -168,7 +168,7 @@ inline void constructBox(const kIOS& bv, const Transform3d& tf_bv, Boxd& box, Tr
   tf = tf_bv * tf;
 }
 
-inline void constructBox(const RSS& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const RSSd& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf.linear() = bv.axis;
@@ -176,19 +176,19 @@ inline void constructBox(const RSS& bv, const Transform3d& tf_bv, Boxd& box, Tra
   tf = tf_bv * tf;
 }
 
-inline void constructBox(const KDOP<16>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const KDOPd<16>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-inline void constructBox(const KDOP<18>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const KDOPd<18>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());
 }
 
-inline void constructBox(const KDOP<24>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
+inline void constructBox(const KDOPd<24>& bv, const Transform3d& tf_bv, Boxd& box, Transform3d& tf)
 {
   box = Boxd(bv.width(), bv.height(), bv.depth());
   tf = tf_bv * Eigen::Translation3d(bv.center());

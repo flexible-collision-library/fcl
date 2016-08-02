@@ -58,7 +58,7 @@ public:
   /// @brief Length along z axis 
   Scalar lz;
 
-  /// @brief Compute AABB 
+  /// @brief Compute AABBd 
   void computeLocalAABB() override;
 
   /// @brief Get node type: a cone 
@@ -100,15 +100,15 @@ using Conef = Cone<float>;
 using Coned = Cone<double>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Cone<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Cone<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBB<Scalar>, Cone<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Cone<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Cone<Scalar>>
 {
-  void operator()(const Cone<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Cone<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -152,7 +152,7 @@ Cone<Scalar>::Cone(Scalar radius, Scalar lz)
 template <typename Scalar>
 void Cone<Scalar>::computeLocalAABB()
 {
-  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

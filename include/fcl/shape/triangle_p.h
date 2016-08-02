@@ -53,7 +53,7 @@ public:
             const Vector3<Scalar>& b,
             const Vector3<Scalar>& c);
 
-  /// @brief virtual function of compute AABB in local coordinate
+  /// @brief virtual function of compute AABBd in local coordinate
   void computeLocalAABB() override;
   
   // Documentation inherited
@@ -79,14 +79,14 @@ using TrianglePf = TriangleP<float>;
 using TrianglePd = TriangleP<double>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, TrianglePd>;
+struct ComputeBVImpl<Scalar, AABBd, TrianglePd>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, TrianglePd>
+struct ComputeBVImpl<Scalar, AABBd, TrianglePd>
 {
-  void operator()(const TrianglePd& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const TrianglePd& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
-    bv = AABB(tf * s.a, tf * s.b, tf * s.c);
+    bv = AABBd(tf * s.a, tf * s.b, tf * s.c);
   }
 };
 
@@ -111,7 +111,7 @@ TriangleP<Scalar>::TriangleP(
 template <typename Scalar>
 void TriangleP<Scalar>::computeLocalAABB()
 {
-  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

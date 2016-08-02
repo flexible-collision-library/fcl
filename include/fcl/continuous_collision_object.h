@@ -73,13 +73,13 @@ public:
     return cgeom->getNodeType();
   }
 
-  /// @brief get the AABB in the world space for the motion
-  inline const AABB& getAABB() const
+  /// @brief get the AABBd in the world space for the motion
+  inline const AABBd& getAABB() const
   {
     return aabb;
   }
 
-  /// @brief compute the AABB in the world space for the motion
+  /// @brief compute the AABBd in the world space for the motion
   inline void computeAABB()
   {
     IVector3 box;
@@ -157,8 +157,8 @@ protected:
 
   std::shared_ptr<MotionBase> motion;
 
-  /// @brief AABB in the global coordinate for the motion
-  mutable AABB aabb;
+  /// @brief AABBd in the global coordinate for the motion
+  mutable AABBd aabb;
 
   /// @brief pointer to user defined data specific to this object
   void* user_data;

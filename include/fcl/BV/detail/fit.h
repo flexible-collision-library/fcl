@@ -142,7 +142,7 @@ void fitn(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
 namespace RSS_fit_functions {
 
 template <typename Scalar>
-void fit1(Vector3<Scalar>* ps, RSS& bv)
+void fit1(Vector3<Scalar>* ps, RSSd& bv)
 {
   bv.Tr = ps[0];
   bv.axis.setIdentity();
@@ -152,7 +152,7 @@ void fit1(Vector3<Scalar>* ps, RSS& bv)
 }
 
 template <typename Scalar>
-void fit2(Vector3<Scalar>* ps, RSS& bv)
+void fit2(Vector3<Scalar>* ps, RSSd& bv)
 {
   const Vector3<Scalar>& p1 = ps[0];
   const Vector3<Scalar>& p2 = ps[1];
@@ -170,7 +170,7 @@ void fit2(Vector3<Scalar>* ps, RSS& bv)
 }
 
 template <typename Scalar>
-void fit3(Vector3<Scalar>* ps, RSS& bv)
+void fit3(Vector3<Scalar>* ps, RSSd& bv)
 {
   const Vector3<Scalar>& p1 = ps[0];
   const Vector3<Scalar>& p2 = ps[1];
@@ -196,16 +196,16 @@ void fit3(Vector3<Scalar>* ps, RSS& bv)
 }
 
 template <typename Scalar>
-void fit6(Vector3<Scalar>* ps, RSS& bv)
+void fit6(Vector3<Scalar>* ps, RSSd& bv)
 {
-  RSS bv1, bv2;
+  RSSd bv1, bv2;
   fit3(ps, bv1);
   fit3(ps + 3, bv2);
   bv = bv1 + bv2;
 }
 
 template <typename Scalar>
-void fitn(Vector3<Scalar>* ps, int n, RSS& bv)
+void fitn(Vector3<Scalar>* ps, int n, RSSd& bv)
 {
   Matrix3<Scalar> M; // row first matrix
   Matrix3<Scalar> E; // row first eigen-vectors
@@ -224,7 +224,7 @@ void fitn(Vector3<Scalar>* ps, int n, RSS& bv)
 namespace kIOS_fit_functions {
 
 template <typename Scalar>
-void fit1(Vector3<Scalar>* ps, kIOS& bv)
+void fit1(Vector3<Scalar>* ps, kIOSd& bv)
 {
   bv.num_spheres = 1;
   bv.spheres[0].o = ps[0];
@@ -236,7 +236,7 @@ void fit1(Vector3<Scalar>* ps, kIOS& bv)
 }
 
 template <typename Scalar>
-void fit2(Vector3<Scalar>* ps, kIOS& bv)
+void fit2(Vector3<Scalar>* ps, kIOSd& bv)
 {
   bv.num_spheres = 5;
 
@@ -256,8 +256,8 @@ void fit2(Vector3<Scalar>* ps, kIOS& bv)
   bv.spheres[0].o = bv.obb.To;
   bv.spheres[0].r = r0;
 
-  Scalar r1 = r0 * kIOS::invSinA();
-  Scalar r1cosA = r1 * kIOS::cosA();
+  Scalar r1 = r0 * kIOSd::invSinA();
+  Scalar r1cosA = r1 * kIOSd::cosA();
   bv.spheres[1].r = r1;
   bv.spheres[2].r = r1;
   Vector3<Scalar> delta = bv.obb.axis.col(1) * r1cosA;
@@ -272,7 +272,7 @@ void fit2(Vector3<Scalar>* ps, kIOS& bv)
 }
 
 template <typename Scalar>
-void fit3(Vector3<Scalar>* ps, kIOS& bv)
+void fit3(Vector3<Scalar>* ps, kIOSd& bv)
 {
   bv.num_spheres = 3;
 
@@ -306,8 +306,8 @@ void fit3(Vector3<Scalar>* ps, kIOS& bv)
   bv.spheres[0].o = center;
   bv.spheres[0].r = r0;
 
-  Scalar r1 = r0 * kIOS::invSinA();
-  Vector3<Scalar> delta = bv.obb.axis.col(2) * (r1 * kIOS::cosA());
+  Scalar r1 = r0 * kIOSd::invSinA();
+  Vector3<Scalar> delta = bv.obb.axis.col(2) * (r1 * kIOSd::cosA());
 
   bv.spheres[1].r = r1;
   bv.spheres[1].o = center - delta;
@@ -316,7 +316,7 @@ void fit3(Vector3<Scalar>* ps, kIOS& bv)
 }
 
 template <typename Scalar>
-void fitn(Vector3<Scalar>* ps, int n, kIOS& bv)
+void fitn(Vector3<Scalar>* ps, int n, kIOSd& bv)
 {
   Matrix3<Scalar> M;
   Matrix3<Scalar> E;
@@ -334,10 +334,10 @@ void fitn(Vector3<Scalar>* ps, int n, kIOS& bv)
   const Vector3<Scalar>& extent = bv.obb.extent;
   Scalar r0 = maximumDistance<double>(ps, NULL, NULL, NULL, n, center);
 
-  // decide the k in kIOS
-  if(extent[0] > kIOS::ratio() * extent[2])
+  // decide the k in kIOSd
+  if(extent[0] > kIOSd::ratio() * extent[2])
   {
-    if(extent[0] > kIOS::ratio() * extent[1]) bv.num_spheres = 5;
+    if(extent[0] > kIOSd::ratio() * extent[1]) bv.num_spheres = 5;
     else bv.num_spheres = 3;
   }
   else bv.num_spheres = 1;
@@ -348,8 +348,8 @@ void fitn(Vector3<Scalar>* ps, int n, kIOS& bv)
 
   if(bv.num_spheres >= 3)
   {
-    Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS::invSinA();
-    Vector3<Scalar> delta = bv.obb.axis.col(2) * (r10 * kIOS::cosA() - extent[2]);
+    Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOSd::invSinA();
+    Vector3<Scalar> delta = bv.obb.axis.col(2) * (r10 * kIOSd::cosA() - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 
@@ -387,28 +387,28 @@ void fitn(Vector3<Scalar>* ps, int n, kIOS& bv)
 namespace OBBRSS_fit_functions {
 
 template <typename Scalar>
-void fit1(Vector3<Scalar>* ps, OBBRSS& bv)
+void fit1(Vector3<Scalar>* ps, OBBRSSd& bv)
 {
   OBB_fit_functions::fit1(ps, bv.obb);
   RSS_fit_functions::fit1(ps, bv.rss);
 }
 
 template <typename Scalar>
-void fit2(Vector3<Scalar>* ps, OBBRSS& bv)
+void fit2(Vector3<Scalar>* ps, OBBRSSd& bv)
 {
   OBB_fit_functions::fit2(ps, bv.obb);
   RSS_fit_functions::fit2(ps, bv.rss);
 }
 
 template <typename Scalar>
-void fit3(Vector3<Scalar>* ps, OBBRSS& bv)
+void fit3(Vector3<Scalar>* ps, OBBRSSd& bv)
 {
   OBB_fit_functions::fit3(ps, bv.obb);
   RSS_fit_functions::fit3(ps, bv.rss);
 }
 
 template <typename Scalar>
-void fitn(Vector3<Scalar>* ps, int n, OBBRSS& bv)
+void fitn(Vector3<Scalar>* ps, int n, OBBRSSd& bv)
 {
   OBB_fit_functions::fitn(ps, n, bv.obb);
   RSS_fit_functions::fitn(ps, n, bv.rss);
@@ -444,9 +444,9 @@ struct FitImpl<Scalar, OBB<Scalar>>
 
 //==============================================================================
 template <typename Scalar>
-struct FitImpl<Scalar, RSS>
+struct FitImpl<Scalar, RSSd>
 {
-  void operator()(Vector3<Scalar>* ps, int n, RSS& bv)
+  void operator()(Vector3<Scalar>* ps, int n, RSSd& bv)
   {
     switch(n)
     {
@@ -467,9 +467,9 @@ struct FitImpl<Scalar, RSS>
 
 //==============================================================================
 template <typename Scalar>
-struct FitImpl<Scalar, kIOS>
+struct FitImpl<Scalar, kIOSd>
 {
-  void operator()(Vector3<Scalar>* ps, int n, kIOS& bv)
+  void operator()(Vector3<Scalar>* ps, int n, kIOSd& bv)
   {
     switch(n)
     {
@@ -490,9 +490,9 @@ struct FitImpl<Scalar, kIOS>
 
 //==============================================================================
 template <typename Scalar>
-struct FitImpl<Scalar, OBBRSS>
+struct FitImpl<Scalar, OBBRSSd>
 {
-  void operator()(Vector3<Scalar>* ps, int n, OBBRSS& bv)
+  void operator()(Vector3<Scalar>* ps, int n, OBBRSSd& bv)
   {
     switch(n)
     {

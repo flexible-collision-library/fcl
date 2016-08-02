@@ -64,7 +64,7 @@ public:
 
   ~Convex();
 
-  /// @brief Compute AABB 
+  /// @brief Compute AABBd 
   void computeLocalAABB() override;
 
   /// @brief Get node type: a conex polytope 
@@ -124,20 +124,20 @@ using Convexf = Convex<float>;
 using Convexd = Convex<double>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Convex<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Convex<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBB<Scalar>, Convex<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Convex<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Convex<Scalar>>
 {
-  void operator()(const Convex<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Convex<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
 
-    AABB bv_;
+    AABBd bv_;
     for(int i = 0; i < s.num_points; ++i)
     {
       Vector3d new_p = R * s.points[i] + T;
@@ -217,7 +217,7 @@ Convex<Scalar>::~Convex()
 template <typename Scalar>
 void Convex<Scalar>::computeLocalAABB()
 {
-  computeBV<AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

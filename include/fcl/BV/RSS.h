@@ -46,101 +46,138 @@ namespace fcl
 {
 
 /// @brief A class for rectangle sphere-swept bounding volume
+template <typename Scalar>
 class RSS
 {
 public:
   /// @brief Orientation of RSS. axis[i] is the ith column of the orientation matrix for the RSS; it is also the i-th principle direction of the RSS.
   /// We assume that axis[0] corresponds to the axis with the longest length, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Matrix3d axis;
+  Matrix3<Scalar> axis;
 
   /// @brief Origin of the rectangle in RSS
-  Vector3d Tr;
+  Vector3<Scalar> Tr;
 
   /// @brief Side lengths of rectangle
-  FCL_REAL l[2];
+  Scalar l[2];
 
   /// @brief Radius of sphere summed with rectangle to form RSS
-  FCL_REAL r;
+  Scalar r;
 
   /// Constructor
-  RSS();
+  RSS<Scalar>();
 
   /// @brief Check collision between two RSS
-  bool overlap(const RSS& other) const;
+  bool overlap(const RSS<Scalar>& other) const;
 
   /// @brief Check collision between two RSS and return the overlap part.
   /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
-  bool overlap(const RSS& other, RSS& overlap_part) const;
+  bool overlap(const RSS<Scalar>& other, RSS<Scalar>& overlap_part) const;
 
   /// @brief Check whether the RSS contains a point
-  inline bool contain(const Vector3d& p) const;
+  bool contain(const Vector3<Scalar>& p) const;
 
   /// @brief A simple way to merge the RSS and a point, not compact.
   /// @todo This function may have some bug.
-  RSS& operator += (const Vector3d& p);
+  RSS<Scalar>& operator += (const Vector3<Scalar>& p);
 
   /// @brief Merge the RSS and another RSS
-  RSS& operator += (const RSS& other);
+  RSS<Scalar>& operator += (const RSS<Scalar>& other);
 
   /// @brief Return the merged RSS of current RSS and the other one
-  RSS operator + (const RSS& other) const;
+  RSS<Scalar> operator + (const RSS<Scalar>& other) const;
 
   /// @brief Width of the RSS
-  FCL_REAL width() const;
+  Scalar width() const;
 
   /// @brief Height of the RSS
-  FCL_REAL height() const;
+  Scalar height() const;
 
   /// @brief Depth of the RSS
-  FCL_REAL depth() const;
+  Scalar depth() const;
 
   /// @brief Volume of the RSS
-  FCL_REAL volume() const;
+  Scalar volume() const;
 
   /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)
-  FCL_REAL size() const;
+  Scalar size() const;
 
   /// @brief The RSS center
-  const Vector3d& center() const;
+  const Vector3<Scalar>& center() const;
 
   /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
-  FCL_REAL distance(const RSS& other, Vector3d* P = NULL, Vector3d* Q = NULL) const;
+  Scalar distance(const RSS<Scalar>& other,
+                  Vector3<Scalar>* P = NULL,
+                  Vector3<Scalar>* Q = NULL) const;
 
 };
 
-/// @brief Clip value between a and b
-void clipToRange(FCL_REAL& val, FCL_REAL a, FCL_REAL b);
+using RSSf = RSS<float>;
+using RSSd = RSS<double>;
 
-/// @brief Finds the parameters t & u corresponding to the two closest points on a pair of line segments.
-/// The first segment is defined as Pa + A*t, 0 <= t <= a,  where "Pa" is one endpoint of the segment, "A" is a unit vector
-/// pointing to the other endpoint, and t is a scalar that produces all the points between the two endpoints. Since "A" is a unit
-/// vector, "a" is the segment's length.
-/// The second segment is defined as Pb + B*u, 0 <= u <= b.
-/// Many of the terms needed by the algorithm are already computed for other purposes,so we just pass these terms into the function
-/// instead of complete specifications of each segment. "T" in the dot products is the vector betweeen Pa and Pb.
-/// Reference: "On fast computation of distance between line segments." Vladimir J. Lumelsky, in Information Processing Letters, no. 21, pages 55-61, 1985.
-void segCoords(FCL_REAL& t, FCL_REAL& u, FCL_REAL a, FCL_REAL b, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T);
+/// @brief Clip value between a and b
+template <typename Scalar>
+void clipToRange(Scalar& val, Scalar a, Scalar b);
+
+/// @brief Finds the parameters t & u corresponding to the two closest points on
+/// a pair of line segments. The first segment is defined as
+/// Pa + A*t, 0 <= t <= a,  where "Pa" is one endpoint of the segment, "A" is a
+/// unit vector pointing to the other endpoint, and t is a scalar that produces
+/// all the points between the two endpoints. Since "A" is a unit vector, "a" is
+/// the segment's length. The second segment is defined as
+/// Pb + B*u, 0 <= u <= b. Many of the terms needed by the algorithm are already
+/// computed for other purposes,so we just pass these terms into the function
+/// instead of complete specifications of each segment. "T" in the dot products
+/// is the vector betweeen Pa and Pb.
+/// Reference: "On fast computation of distance between line segments." Vladimir
+/// J. Lumelsky, in Information Processing Letters, no. 21, pages 55-61, 1985.
+template <typename Scalar>
+void segCoords(Scalar& t, Scalar& u, Scalar a, Scalar b,
+               Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T);
 
 /// @brief Returns whether the nearest point on rectangle edge
 /// Pb + B*u, 0 <= u <= b, to the rectangle edge,
 /// Pa + A*t, 0 <= t <= a, is within the half space
 /// determined by the point Pa and the direction Anorm.
 /// A,B, and Anorm are unit vectors. T is the vector between Pa and Pb.
-bool inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_T, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T);
+template <typename Scalar>
+bool inVoronoi(Scalar a, Scalar b,
+               Scalar Anorm_dot_B, Scalar Anorm_dot_T,
+               Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T);
 
-/// @brief Distance between two oriented rectangles; P and Q (optional return values) are the closest points in the rectangles, both are in the local frame of the first rectangle.
-FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vector3d* P = NULL, Vector3d* Q = NULL);
+/// @brief Distance between two oriented rectangles; P and Q (optional return
+/// values) are the closest points in the rectangles, both are in the local
+/// frame of the first rectangle.
+template <typename Scalar>
+Scalar rectDistance(const Matrix3<Scalar>& Rab, const Vector3<Scalar>& Tab,
+                    const Scalar a[2], const Scalar b[2],
+                    Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL);
 
 /// @brief distance between two RSS bounding volumes
-/// P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points
-/// Notice that P and Q are both in the local frame of the first RSS (not global frame and not even the local frame of object 1)
-FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2, Vector3d* P = NULL, Vector3d* Q = NULL);
+/// P and Q (optional return values) are the closest points in the rectangles,
+/// not the RSS. But the direction P - Q is the correct direction for cloest
+/// points. Notice that P and Q are both in the local frame of the first RSS
+/// (not global frame and not even the local frame of object 1)
+template <typename Scalar, typename DerivedA, typename DerivedB>
+Scalar distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const RSS<Scalar>& b1,
+    const RSS<Scalar>& b2,
+    Vector3<Scalar>* P = NULL,
+    Vector3<Scalar>* Q = NULL);
 
-/// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2);
+/// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
+/// b2 is in identity.
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const RSS<Scalar>& b1,
+    const RSS<Scalar>& b2);
 
 /// @brief Translate the RSS bv
-RSS translate(const RSS& bv, const Vector3d& t);
+template <typename Scalar>
+RSS<Scalar> translate(const RSS<Scalar>& bv, const Vector3<Scalar>& t);
 
 //============================================================================//
 //                                                                            //
@@ -149,41 +186,49 @@ RSS translate(const RSS& bv, const Vector3d& t);
 //============================================================================//
 
 //==============================================================================
-RSS::RSS()
-  : axis(Matrix3d::Identity()), Tr(Vector3d::Zero())
+template <typename Scalar>
+RSS<Scalar>::RSS()
+  : axis(Matrix3<Scalar>::Identity()), Tr(Vector3<Scalar>::Zero())
 {
   // Do nothing
 }
 
-bool RSS::overlap(const RSS& other) const
+//==============================================================================
+template <typename Scalar>
+bool RSS<Scalar>::overlap(const RSS<Scalar>& other) const
 {
   /// compute what transform [R,T] that takes us from cs1 to cs2.
   /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
   /// First compute the rotation part, then translation part
 
   /// First compute T2 - T1
-  Vector3d t = other.Tr - Tr;
+  Vector3<Scalar> t = other.Tr - Tr;
 
   /// Then compute R1'(T2 - T1)
-  Vector3d T = t.transpose() * axis;
+  Vector3<Scalar> T = t.transpose() * axis;
 
   /// Now compute R1'R2
-  Matrix3d R = axis.transpose() * other.axis;
+  Matrix3<Scalar> R = axis.transpose() * other.axis;
 
-  FCL_REAL dist = rectDistance(R, T, l, other.l);
+  Scalar dist = rectDistance(R, T, l, other.l);
   return (dist <= (r + other.r));
 }
 
-bool RSS::overlap(const RSS& other, RSS& overlap_part) const
+//==============================================================================
+template <typename Scalar>
+bool RSS<Scalar>::overlap(const RSS<Scalar>& other,
+                          RSS<Scalar>& /*overlap_part*/) const
 {
   return overlap(other);
 }
 
-bool RSS::contain(const Vector3d& p) const
+//==============================================================================
+template <typename Scalar>
+bool RSS<Scalar>::contain(const Vector3<Scalar>& p) const
 {
-  Vector3d local_p = p - Tr;
-  Vector3d proj = local_p.transpose() * axis;
-  FCL_REAL abs_proj2 = fabs(proj[2]);
+  Vector3<Scalar> local_p = p - Tr;
+  Vector3<Scalar> proj = local_p.transpose() * axis;
+  Scalar abs_proj2 = fabs(proj[2]);
 
   /// projection is within the rectangle
   if((proj[0] < l[0]) && (proj[0] > 0) && (proj[1] < l[1]) && (proj[1] > 0))
@@ -192,31 +237,33 @@ bool RSS::contain(const Vector3d& p) const
   }
   else if((proj[0] < l[0]) && (proj[0] > 0) && ((proj[1] < 0) || (proj[1] > l[1])))
   {
-    FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vector3d v(proj[0], y, 0);
+    Scalar y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<Scalar> v(proj[0], y, 0);
     return ((proj - v).squaredNorm() < r * r);
   }
   else if((proj[1] < l[1]) && (proj[1] > 0) && ((proj[0] < 0) || (proj[0] > l[0])))
   {
-    FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
-    Vector3d v(x, proj[1], 0);
+    Scalar x = (proj[0] > 0) ? l[0] : 0;
+    Vector3<Scalar> v(x, proj[1], 0);
     return ((proj - v).squaredNorm() < r * r);
   }
   else
   {
-    FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
-    FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vector3d v(x, y, 0);
+    Scalar x = (proj[0] > 0) ? l[0] : 0;
+    Scalar y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<Scalar> v(x, y, 0);
     return ((proj - v).squaredNorm() < r * r);
   }
 }
 
-RSS&RSS::operator +=(const Vector3d& p)
+//==============================================================================
+template <typename Scalar>
+RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
 
 {
-  Vector3d local_p = p - Tr;
-  Vector3d proj = local_p.transpose() * axis;
-  FCL_REAL abs_proj2 = fabs(proj[2]);
+  Vector3<Scalar> local_p = p - Tr;
+  Vector3<Scalar> proj = local_p.transpose() * axis;
+  Scalar abs_proj2 = fabs(proj[2]);
 
   // projection is within the rectangle
   if((proj[0] < l[0]) && (proj[0] > 0) && (proj[1] < l[1]) && (proj[1] > 0))
@@ -235,23 +282,23 @@ RSS&RSS::operator +=(const Vector3d& p)
   }
   else if((proj[0] < l[0]) && (proj[0] > 0) && ((proj[1] < 0) || (proj[1] > l[1])))
   {
-    FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vector3d v(proj[0], y, 0);
-    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
+    Scalar y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<Scalar> v(proj[0], y, 0);
+    Scalar new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        FCL_REAL delta_y = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[1] - y);
+        Scalar delta_y = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[1] - y);
         l[1] += delta_y;
         if(proj[1] < 0)
           Tr[1] -= delta_y;
       }
       else
       {
-        FCL_REAL delta_y = fabs(proj[1] - y);
+        Scalar delta_y = fabs(proj[1] - y);
         l[1] += delta_y;
         if(proj[1] < 0)
           Tr[1] -= delta_y;
@@ -265,23 +312,23 @@ RSS&RSS::operator +=(const Vector3d& p)
   }
   else if((proj[1] < l[1]) && (proj[1] > 0) && ((proj[0] < 0) || (proj[0] > l[0])))
   {
-    FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
-    Vector3d v(x, proj[1], 0);
-    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
+    Scalar x = (proj[0] > 0) ? l[0] : 0;
+    Vector3<Scalar> v(x, proj[1], 0);
+    Scalar new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        FCL_REAL delta_x = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[0] - x);
+        Scalar delta_x = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[0] - x);
         l[0] += delta_x;
         if(proj[0] < 0)
           Tr[0] -= delta_x;
       }
       else
       {
-        FCL_REAL delta_x = fabs(proj[0] - x);
+        Scalar delta_x = fabs(proj[0] - x);
         l[0] += delta_x;
         if(proj[0] < 0)
           Tr[0] -= delta_x;
@@ -295,21 +342,21 @@ RSS&RSS::operator +=(const Vector3d& p)
   }
   else
   {
-    FCL_REAL x = (proj[0] > 0) ? l[0] : 0;
-    FCL_REAL y = (proj[1] > 0) ? l[1] : 0;
-    Vector3d v(x, y, 0);
-    FCL_REAL new_r_sqr = (proj - v).squaredNorm();
+    Scalar x = (proj[0] > 0) ? l[0] : 0;
+    Scalar y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<Scalar> v(x, y, 0);
+    Scalar new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        FCL_REAL diag = std::sqrt(new_r_sqr - proj[2] * proj[2]);
-        FCL_REAL delta_diag = - std::sqrt(r * r - proj[2] * proj[2]) + diag;
+        Scalar diag = std::sqrt(new_r_sqr - proj[2] * proj[2]);
+        Scalar delta_diag = - std::sqrt(r * r - proj[2] * proj[2]) + diag;
 
-        FCL_REAL delta_x = delta_diag / diag * fabs(proj[0] - x);
-        FCL_REAL delta_y = delta_diag / diag * fabs(proj[1] - y);
+        Scalar delta_x = delta_diag / diag * fabs(proj[0] - x);
+        Scalar delta_y = delta_diag / diag * fabs(proj[1] - y);
         l[0] += delta_x;
         l[1] += delta_y;
 
@@ -321,8 +368,8 @@ RSS&RSS::operator +=(const Vector3d& p)
       }
       else
       {
-        FCL_REAL delta_x = fabs(proj[0] - x);
-        FCL_REAL delta_y = fabs(proj[1] - y);
+        Scalar delta_x = fabs(proj[0] - x);
+        Scalar delta_y = fabs(proj[1] - y);
 
         l[0] += delta_x;
         l[1] += delta_y;
@@ -344,26 +391,30 @@ RSS&RSS::operator +=(const Vector3d& p)
   return *this;
 }
 
-RSS&RSS::operator +=(const RSS& other)
+//==============================================================================
+template <typename Scalar>
+RSS<Scalar>& RSS<Scalar>::operator +=(const RSS<Scalar>& other)
 {
   *this = *this + other;
   return *this;
 }
 
-RSS RSS::operator +(const RSS& other) const
+//==============================================================================
+template <typename Scalar>
+RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
 {
-  RSS bv;
+  RSS<Scalar> bv;
 
-  Vector3d v[16];
+  Vector3<Scalar> v[16];
 
-  Vector3d d0_pos = other.axis.col(0) * (other.l[0] + other.r);
-  Vector3d d1_pos = other.axis.col(1) * (other.l[1] + other.r);
+  Vector3<Scalar> d0_pos = other.axis.col(0) * (other.l[0] + other.r);
+  Vector3<Scalar> d1_pos = other.axis.col(1) * (other.l[1] + other.r);
 
-  Vector3d d0_neg = other.axis.col(0) * (-other.r);
-  Vector3d d1_neg = other.axis.col(1) * (-other.r);
+  Vector3<Scalar> d0_neg = other.axis.col(0) * (-other.r);
+  Vector3<Scalar> d1_neg = other.axis.col(1) * (-other.r);
 
-  Vector3d d2_pos = other.axis.col(2) * other.r;
-  Vector3d d2_neg = other.axis.col(2) * (-other.r);
+  Vector3<Scalar> d2_pos = other.axis.col(2) * other.r;
+  Vector3<Scalar> d2_neg = other.axis.col(2) * (-other.r);
 
   v[0] = other.Tr + d0_pos + d1_pos + d2_pos;
   v[1] = other.Tr + d0_pos + d1_pos + d2_neg;
@@ -391,9 +442,9 @@ RSS RSS::operator +(const RSS& other) const
   v[15] = Tr + d0_neg + d1_neg + d2_neg;
 
 
-  Matrix3d M; // row first matrix
-  Matrix3d E; // row first eigen-vectors
-  Vector3d s(0, 0, 0);
+  Matrix3<Scalar> M; // row first matrix
+  Matrix3<Scalar> E; // row first eigen-vectors
+  Vector3<Scalar> s(0, 0, 0);
 
   getCovariance<double>(v, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
@@ -416,67 +467,86 @@ RSS RSS::operator +(const RSS& other) const
   return bv;
 }
 
-FCL_REAL RSS::width() const
+//==============================================================================
+template <typename Scalar>
+Scalar RSS<Scalar>::width() const
 {
   return l[0] + 2 * r;
 }
 
-FCL_REAL RSS::height() const
+//==============================================================================
+template <typename Scalar>
+Scalar RSS<Scalar>::height() const
 {
   return l[1] + 2 * r;
 }
 
-FCL_REAL RSS::depth() const
+//==============================================================================
+template <typename Scalar>
+Scalar RSS<Scalar>::depth() const
 {
   return 2 * r;
 }
 
-FCL_REAL RSS::volume() const
+//==============================================================================
+template <typename Scalar>
+Scalar RSS<Scalar>::volume() const
 {
   return (l[0] * l[1] * 2 * r + 4 * constants::pi * r * r * r);
 }
 
-FCL_REAL RSS::size() const
+//==============================================================================
+template <typename Scalar>
+Scalar RSS<Scalar>::size() const
 {
   return (std::sqrt(l[0] * l[0] + l[1] * l[1]) + 2 * r);
 }
 
-const Vector3d&RSS::center() const
+//==============================================================================
+template <typename Scalar>
+const Vector3<Scalar>& RSS<Scalar>::center() const
 {
   return Tr;
 }
 
-FCL_REAL RSS::distance(const RSS& other, Vector3d* P, Vector3d* Q) const
+//==============================================================================
+template <typename Scalar>
+Scalar RSS<Scalar>::distance(
+    const RSS<Scalar>& other,
+    Vector3<Scalar>* P,
+    Vector3<Scalar>* Q) const
 {
   // compute what transform [R,T] that takes us from cs1 to cs2.
   // [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
   // First compute the rotation part, then translation part
-  Vector3d t = other.Tr - Tr; // T2 - T1
-  Vector3d T = t.transpose() * axis; // R1'(T2-T1)
-  Matrix3d R = axis.transpose() * other.axis;
+  Vector3<Scalar> t = other.Tr - Tr; // T2 - T1
+  Vector3<Scalar> T = t.transpose() * axis; // R1'(T2-T1)
+  Matrix3<Scalar> R = axis.transpose() * other.axis;
 
-  FCL_REAL dist = rectDistance(R, T, l, other.l, P, Q);
+  Scalar dist = rectDistance(R, T, l, other.l, P, Q);
   dist -= (r + other.r);
-  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
+  return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
 }
 
 //==============================================================================
-void clipToRange(FCL_REAL& val, FCL_REAL a, FCL_REAL b)
+template <typename Scalar>
+void clipToRange(Scalar& val, Scalar a, Scalar b)
 {
   if(val < a) val = a;
   else if(val > b) val = b;
 }
 
 //==============================================================================
-void segCoords(FCL_REAL& t, FCL_REAL& u, FCL_REAL a, FCL_REAL b, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
+template <typename Scalar>
+void segCoords(Scalar& t, Scalar& u, Scalar a, Scalar b, Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T)
 {
-  FCL_REAL denom = 1 - A_dot_B * A_dot_B;
+  Scalar denom = 1 - A_dot_B * A_dot_B;
 
   if(denom == 0) t = 0;
   else
   {
     t = (A_dot_T - B_dot_T * A_dot_B) / denom;
-    clipToRange(t, 0, a);
+    clipToRange(t, 0.0, a);
   }
 
   u = t * A_dot_B - B_dot_T;
@@ -484,28 +554,29 @@ void segCoords(FCL_REAL& t, FCL_REAL& u, FCL_REAL a, FCL_REAL b, FCL_REAL A_dot_
   {
     u = 0;
     t = A_dot_T;
-    clipToRange(t, 0, a);
+    clipToRange(t, 0.0, a);
   }
   else if(u > b)
   {
     u = b;
     t = u * A_dot_B + A_dot_T;
-    clipToRange(t, 0, a);
+    clipToRange(t, 0.0, a);
   }
 }
 
 //==============================================================================
-bool inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_T, FCL_REAL A_dot_B, FCL_REAL A_dot_T, FCL_REAL B_dot_T)
+template <typename Scalar>
+bool inVoronoi(Scalar a, Scalar b, Scalar Anorm_dot_B, Scalar Anorm_dot_T, Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T)
 {
   if(fabs(Anorm_dot_B) < 1e-7) return false;
 
-  FCL_REAL t, u, v;
+  Scalar t, u, v;
 
   u = -Anorm_dot_T / Anorm_dot_B;
-  clipToRange(u, 0, b);
+  clipToRange(u, 0.0, b);
 
   t = u * A_dot_B + A_dot_T;
-  clipToRange(t, 0, a);
+  clipToRange(t, 0.0, a);
 
   v = t * A_dot_B - B_dot_T;
 
@@ -522,17 +593,18 @@ bool inVoronoi(FCL_REAL a, FCL_REAL b, FCL_REAL Anorm_dot_B, FCL_REAL Anorm_dot_
 
 
 //==============================================================================
-FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a[2], const FCL_REAL b[2], Vector3d* P, Vector3d* Q)
+template <typename Scalar>
+Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, const Scalar a[2], const Scalar b[2], Vector3<Scalar>* P, Vector3<Scalar>* Q)
 {
-  FCL_REAL A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
+  Scalar A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
 
   A0_dot_B0 = Rab(0, 0);
   A0_dot_B1 = Rab(0, 1);
   A1_dot_B0 = Rab(1, 0);
   A1_dot_B1 = Rab(1, 1);
 
-  FCL_REAL aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
-  FCL_REAL bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
+  Scalar aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
+  Scalar bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
 
   aA0_dot_B0 = a[0] * A0_dot_B0;
   aA0_dot_B1 = a[0] * A0_dot_B1;
@@ -543,16 +615,16 @@ FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a
   bA0_dot_B1 = b[1] * A0_dot_B1;
   bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vector3d Tba = Rab.transpose() * Tab;
+  Vector3<Scalar> Tba = Rab.transpose() * Tab;
 
-  Vector3d S;
-  FCL_REAL t, u;
+  Vector3<Scalar> S;
+  Scalar t, u;
 
   // determine if any edge pair contains the closest points
 
-  FCL_REAL ALL_x, ALU_x, AUL_x, AUU_x;
-  FCL_REAL BLL_x, BLU_x, BUL_x, BUU_x;
-  FCL_REAL LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
+  Scalar ALL_x, ALU_x, AUL_x, AUU_x;
+  Scalar BLL_x, BLU_x, BUL_x, BUU_x;
+  Scalar LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
 
   ALL_x = -Tba[0];
   ALU_x = ALL_x + aA1_dot_B0;
@@ -709,14 +781,14 @@ FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a
     }
   }
 
-  FCL_REAL ALL_y, ALU_y, AUL_y, AUU_y;
+  Scalar ALL_y, ALU_y, AUL_y, AUU_y;
 
   ALL_y = -Tba[1];
   ALU_y = ALL_y + aA1_dot_B1;
   AUL_y = ALL_y + aA0_dot_B1;
   AUU_y = ALU_y + aA0_dot_B1;
 
-  FCL_REAL LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
+  Scalar LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
 
   if(ALL_y < ALU_y)
   {
@@ -863,14 +935,14 @@ FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a
     }
   }
 
-  FCL_REAL BLL_y, BLU_y, BUL_y, BUU_y;
+  Scalar BLL_y, BLU_y, BUL_y, BUU_y;
 
   BLL_y = Tab[1];
   BLU_y = BLL_y + bA1_dot_B1;
   BUL_y = BLL_y + bA1_dot_B0;
   BUU_y = BLU_y + bA1_dot_B0;
 
-  FCL_REAL LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
+  Scalar LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
 
   if(ALL_x < AUL_x)
   {
@@ -1015,7 +1087,7 @@ FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a
     }
   }
 
-  FCL_REAL LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
+  Scalar LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
 
   if(ALL_y < AUL_y)
   {
@@ -1163,7 +1235,7 @@ FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a
 
   // no edges passed, take max separation along face normals
 
-  FCL_REAL sep1, sep2;
+  Scalar sep1, sep2;
 
   if(Tab[2] > 0.0)
   {
@@ -1207,8 +1279,8 @@ FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a
 
   if(sep2 >= sep1 && sep2 >= 0)
   {
-    Vector3d Q_(Tab[0], Tab[1], Tab[2]);
-    Vector3d P_;
+    Vector3<Scalar> Q_(Tab[0], Tab[1], Tab[2]);
+    Vector3<Scalar> P_;
     if(Tba[2] < 0)
     {
       P_[0] = Rab(0, 2) * sep2 + Tab[0];
@@ -1231,41 +1303,54 @@ FCL_REAL rectDistance(const Matrix3d& Rab, Vector3d const& Tab, const FCL_REAL a
     }
   }
 
-  FCL_REAL sep = (sep1 > sep2 ? sep1 : sep2);
+  Scalar sep = (sep1 > sep2 ? sep1 : sep2);
   return (sep > 0 ? sep : 0);
 }
 
 //==============================================================================
-bool overlap(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2)
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const RSS<Scalar>& b1,
+    const RSS<Scalar>& b2)
 {
-  Matrix3d R0b2 = R0 * b2.axis;
-  Matrix3d R = b1.axis.transpose() * R0b2;
+  Matrix3<Scalar> R0b2 = R0 * b2.axis;
+  Matrix3<Scalar> R = b1.axis.transpose() * R0b2;
 
-  Vector3d Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vector3d T = Ttemp.transpose() * b1.axis;
+  Vector3<Scalar> Ttemp = R0 * b2.Tr + T0 - b1.Tr;
+  Vector3<Scalar> T = Ttemp.transpose() * b1.axis;
 
-  FCL_REAL dist = rectDistance(R, T, b1.l, b2.l);
+  Scalar dist = rectDistance(R, T, b1.l, b2.l);
   return (dist <= (b1.r + b2.r));
 }
 
 //==============================================================================
-FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2, Vector3d* P, Vector3d* Q)
+template <typename Scalar, typename DerivedA, typename DerivedB>
+Scalar distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const RSS<Scalar>& b1,
+    const RSS<Scalar>& b2,
+    Vector3<Scalar>* P,
+    Vector3<Scalar>* Q)
 {
-  Matrix3d R0b2 = R0 * b2.axis;
-  Matrix3d R = b1.axis.transpose() * R0b2;
+  Matrix3<Scalar> R0b2 = R0 * b2.axis;
+  Matrix3<Scalar> R = b1.axis.transpose() * R0b2;
 
-  Vector3d Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vector3d T = Ttemp.transpose() * b1.axis;
+  Vector3<Scalar> Ttemp = R0 * b2.Tr + T0 - b1.Tr;
+  Vector3<Scalar> T = Ttemp.transpose() * b1.axis;
 
-  FCL_REAL dist = rectDistance(R, T, b1.l, b2.l, P, Q);
+  Scalar dist = rectDistance(R, T, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);
-  return (dist < (FCL_REAL)0.0) ? (FCL_REAL)0.0 : dist;
+  return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
 }
 
 //==============================================================================
-RSS translate(const RSS& bv, const Vector3d& t)
+template <typename Scalar>
+RSS<Scalar> translate(const RSS<Scalar>& bv, const Vector3<Scalar>& t)
 {
-  RSS res(bv);
+  RSS<Scalar> res(bv);
   res.Tr += t;
   return res;
 }

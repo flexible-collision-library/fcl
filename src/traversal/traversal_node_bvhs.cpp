@@ -115,8 +115,8 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
 
     if(is_intersect && request.enable_cost)
     {
-      AABB overlap_part;
-      AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
+      AABBd overlap_part;
+      AABBd(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABBd(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
@@ -124,8 +124,8 @@ static inline void meshCollisionOrientedNodeLeafTesting(int b1, int b2,
   {
     if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
     {
-      AABB overlap_part;
-      AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
+      AABBd overlap_part;
+      AABBd(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABBd(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);          
     }    
   }
@@ -221,7 +221,7 @@ void MeshCollisionTraversalNodeOBB::leafTesting(int b1, int b2, const Matrix3d& 
 
 
 
-MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS() : MeshCollisionTraversalNode<RSS>()
+MeshCollisionTraversalNodeRSS::MeshCollisionTraversalNodeRSS() : MeshCollisionTraversalNode<RSSd>()
 {
   R.setIdentity();
 }
@@ -246,7 +246,7 @@ void MeshCollisionTraversalNodeRSS::leafTesting(int b1, int b2) const
 
 
 
-MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS() : MeshCollisionTraversalNode<kIOS>()
+MeshCollisionTraversalNodekIOS::MeshCollisionTraversalNodekIOS() : MeshCollisionTraversalNode<kIOSd>()
 {
   R.setIdentity();
 }
@@ -270,7 +270,7 @@ void MeshCollisionTraversalNodekIOS::leafTesting(int b1, int b2) const
 
 
 
-MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS() : MeshCollisionTraversalNode<OBBRSS>()
+MeshCollisionTraversalNodeOBBRSS::MeshCollisionTraversalNodeOBBRSS() : MeshCollisionTraversalNode<OBBRSSd>()
 {
   R.setIdentity();
 }
@@ -344,7 +344,7 @@ static inline void distancePostprocessOrientedNode(const BVHModel<BV>* model1, c
 
 }
 
-MeshDistanceTraversalNodeRSS::MeshDistanceTraversalNodeRSS() : MeshDistanceTraversalNode<RSS>(), R(Matrix3d::Identity()), T(Vector3d::Zero())
+MeshDistanceTraversalNodeRSS::MeshDistanceTraversalNodeRSS() : MeshDistanceTraversalNode<RSSd>(), R(Matrix3d::Identity()), T(Vector3d::Zero())
 {
 }
 
@@ -371,7 +371,7 @@ void MeshDistanceTraversalNodeRSS::leafTesting(int b1, int b2) const
                                                request, *result);
 }
 
-MeshDistanceTraversalNodekIOS::MeshDistanceTraversalNodekIOS() : MeshDistanceTraversalNode<kIOS>()
+MeshDistanceTraversalNodekIOS::MeshDistanceTraversalNodekIOS() : MeshDistanceTraversalNode<kIOSd>()
 {
   R.setIdentity();
 }
@@ -399,7 +399,7 @@ void MeshDistanceTraversalNodekIOS::leafTesting(int b1, int b2) const
                                                request, *result);
 }
 
-MeshDistanceTraversalNodeOBBRSS::MeshDistanceTraversalNodeOBBRSS() : MeshDistanceTraversalNode<OBBRSS>()
+MeshDistanceTraversalNodeOBBRSS::MeshDistanceTraversalNodeOBBRSS() : MeshDistanceTraversalNode<OBBRSSd>()
 {
   R.setIdentity();
 }
@@ -588,7 +588,7 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(int b1, int b2,
 
 
 MeshConservativeAdvancementTraversalNodeRSS::MeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_)
-  : MeshConservativeAdvancementTraversalNode<RSS>(w_)
+  : MeshConservativeAdvancementTraversalNode<RSSd>(w_)
 {
   R.setIdentity();
 }
@@ -636,7 +636,7 @@ bool MeshConservativeAdvancementTraversalNodeRSS::canStop(FCL_REAL c) const
 
 
 MeshConservativeAdvancementTraversalNodeOBBRSS::MeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_)
-  : MeshConservativeAdvancementTraversalNode<OBBRSS>(w_)
+  : MeshConservativeAdvancementTraversalNode<OBBRSSd>(w_)
 {
   R.setIdentity();
 }

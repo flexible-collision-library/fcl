@@ -67,7 +67,7 @@ public:
 
   Scalar distance(const Vector3<Scalar>& p) const;
 
-  /// @brief Compute AABB 
+  /// @brief Compute AABBd 
   void computeLocalAABB() override;
 
   /// @brief Get node type: a plane 
@@ -104,39 +104,39 @@ Plane<Scalar> transform(const Plane<Scalar>& a, const Transform3<Scalar>& tf)
 }
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Plane<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Plane<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBB<Scalar>, Plane<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSS, Plane<Scalar>>;
+struct ComputeBVImpl<Scalar, RSSd, Plane<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSS, Plane<Scalar>>;
+struct ComputeBVImpl<Scalar, OBBRSSd, Plane<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOS, Plane<Scalar>>;
+struct ComputeBVImpl<Scalar, kIOSd, Plane<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<16>, Plane<Scalar>>;
+struct ComputeBVImpl<Scalar, KDOPd<16>, Plane<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<18>, Plane<Scalar>>;
+struct ComputeBVImpl<Scalar, KDOPd<18>, Plane<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<24>, Plane<Scalar>>;
+struct ComputeBVImpl<Scalar, KDOPd<24>, Plane<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Plane<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Plane<Scalar>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     Plane<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
-    AABB bv_;
+    AABBd bv_;
     bv_.min_ = Vector3d::Constant(-std::numeric_limits<FCL_REAL>::max());
     bv_.max_ = Vector3d::Constant(std::numeric_limits<FCL_REAL>::max());
     if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
@@ -179,9 +179,9 @@ struct ComputeBVImpl<Scalar, OBB<Scalar>, Plane<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSS, Plane<Scalar>>
+struct ComputeBVImpl<Scalar, RSSd, Plane<Scalar>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, RSS& bv)
+  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, RSSd& bv)
   {
     Vector3d n = tf.linear() * s.n;
 
@@ -199,19 +199,19 @@ struct ComputeBVImpl<Scalar, RSS, Plane<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSS, Plane<Scalar>>
+struct ComputeBVImpl<Scalar, OBBRSSd, Plane<Scalar>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, OBBRSS& bv)
+  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, OBBRSSd& bv)
   {
     computeBV<Scalar, OBB<Scalar>, Plane<Scalar>>(s, tf, bv.obb);
-    computeBV<Scalar, RSS, Plane<Scalar>>(s, tf, bv.rss);
+    computeBV<Scalar, RSSd, Plane<Scalar>>(s, tf, bv.rss);
   }
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOS, Plane<Scalar>>
+struct ComputeBVImpl<Scalar, kIOSd, Plane<Scalar>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, kIOS& bv)
+  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, kIOSd& bv)
   {
     bv.num_spheres = 1;
     computeBV<Scalar, OBB<Scalar>, Plane<Scalar>>(s, tf, bv.obb);
@@ -221,9 +221,9 @@ struct ComputeBVImpl<Scalar, kIOS, Plane<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<16>, Plane<Scalar>>
+struct ComputeBVImpl<Scalar, KDOPd<16>, Plane<Scalar>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOP<16>& bv)
+  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<16>& bv)
   {
     Plane<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
@@ -275,9 +275,9 @@ struct ComputeBVImpl<Scalar, KDOP<16>, Plane<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<18>, Plane<Scalar>>
+struct ComputeBVImpl<Scalar, KDOPd<18>, Plane<Scalar>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOP<18>& bv)
+  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<18>& bv)
   {
     Plane<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
@@ -333,9 +333,9 @@ struct ComputeBVImpl<Scalar, KDOP<18>, Plane<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<24>, Plane<Scalar>>
+struct ComputeBVImpl<Scalar, KDOPd<24>, Plane<Scalar>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOP<24>& bv)
+  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<24>& bv)
   {
     Plane<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
@@ -449,7 +449,7 @@ Scalar Plane<Scalar>::distance(const Vector3<Scalar>& p) const
 template <typename Scalar>
 void Plane<Scalar>::computeLocalAABB()
 {
-  computeBV<Scalar, AABB>(*this, Transform3<Scalar>::Identity(), this->aabb_local);
+  computeBV<Scalar, AABBd>(*this, Transform3<Scalar>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

@@ -89,7 +89,7 @@ public:
     free_threshold = 0;
   }
 
-  /// @brief compute the AABB for the octree in its local coordinate system
+  /// @brief compute the AABBd for the octree in its local coordinate system
   void computeLocalAABB() 
   {
     aabb_local = getRootBV();
@@ -98,12 +98,12 @@ public:
   }
 
   /// @brief get the bounding volume for the root
-  AABB getRootBV() const
+  AABBd getRootBV() const
   {
     FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
     // std::cout << "octree size " << delta << std::endl;
-    return AABB(Vector3d(-delta, -delta, -delta), Vector3d(delta, delta, delta));
+    return AABBd(Vector3d(-delta, -delta, -delta), Vector3d(delta, delta, delta));
   }
 
   /// @brief get the root node of the octree
@@ -239,7 +239,7 @@ public:
 };
 
 /// @brief compute the bounding volume of an octree node's i-th child
-static inline void computeChildBV(const AABB& root_bv, unsigned int i, AABB& child_bv)
+static inline void computeChildBV(const AABBd& root_bv, unsigned int i, AABBd& child_bv)
 {
   if(i&1)
   {

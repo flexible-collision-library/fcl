@@ -73,11 +73,11 @@ void BVHExpand(BVHModel<OBBd>& model, const Variance3d* ucs, FCL_REAL r = 1.0)
   }
 }
 
-void BVHExpand(BVHModel<RSS>& model, const Variance3d* ucs, FCL_REAL r = 1.0)
+void BVHExpand(BVHModel<RSSd>& model, const Variance3d* ucs, FCL_REAL r = 1.0)
 {
   for(int i = 0; i < model.getNumBVs(); ++i)
   {
-    BVNode<RSS>& bvnode = model.getBV(i);
+    BVNode<RSSd>& bvnode = model.getBV(i);
 
     Vector3d* vs = new Vector3d[bvnode.num_primitives * 6];
 
@@ -95,7 +95,7 @@ void BVHExpand(BVHModel<RSS>& model, const Variance3d* ucs, FCL_REAL r = 1.0)
       }
     }
 
-    RSS bv;
+    RSSd bv;
     fit(vs, bvnode.num_primitives * 6, bv);
 
     delete [] vs;

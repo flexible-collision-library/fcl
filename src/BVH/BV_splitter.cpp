@@ -48,7 +48,7 @@ void computeSplitVector(const BV& bv, Vector3d& split_vector)
 }
 
 template<>
-void computeSplitVector<kIOS>(const kIOS& bv, Vector3d& split_vector)
+void computeSplitVector<kIOSd>(const kIOSd& bv, Vector3d& split_vector)
 {
   /*
     switch(bv.num_spheres)
@@ -82,7 +82,7 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vector3d& split_vector)
 }
 
 template<>
-void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vector3d& split_vector)
+void computeSplitVector<OBBRSSd>(const OBBRSSd& bv, Vector3d& split_vector)
 {
   split_vector = bv.obb.axis.col(0);
 }
@@ -192,66 +192,66 @@ void BVSplitter<OBBd>::computeRule_median(const OBBd& bv, unsigned int* primitiv
 }
 
 template<>
-void BVSplitter<RSS>::computeRule_bvcenter(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<RSSd>::computeRule_bvcenter(const RSSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<RSS>(bv, split_vector);
-  computeSplitValue_bvcenter<RSS>(bv, split_value);
+  computeSplitVector<RSSd>(bv, split_vector);
+  computeSplitValue_bvcenter<RSSd>(bv, split_value);
 }
           
 template<>                        
-void BVSplitter<RSS>::computeRule_mean(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<RSSd>::computeRule_mean(const RSSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<RSS>(bv, split_vector);
-  computeSplitValue_mean<RSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<RSSd>(bv, split_vector);
+  computeSplitValue_mean<RSSd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 template<>
-void BVSplitter<RSS>::computeRule_median(const RSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<RSSd>::computeRule_median(const RSSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<RSS>(bv, split_vector);
-  computeSplitValue_median<RSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<RSSd>(bv, split_vector);
+  computeSplitValue_median<RSSd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 template<>
-void BVSplitter<kIOS>::computeRule_bvcenter(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<kIOSd>::computeRule_bvcenter(const kIOSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<kIOS>(bv, split_vector);
-  computeSplitValue_bvcenter<kIOS>(bv, split_value);
+  computeSplitVector<kIOSd>(bv, split_vector);
+  computeSplitValue_bvcenter<kIOSd>(bv, split_value);
 }
 
 template<>
-void BVSplitter<kIOS>::computeRule_mean(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<kIOSd>::computeRule_mean(const kIOSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<kIOS>(bv, split_vector);
-  computeSplitValue_mean<kIOS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<kIOSd>(bv, split_vector);
+  computeSplitValue_mean<kIOSd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 template<>
-void BVSplitter<kIOS>::computeRule_median(const kIOS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<kIOSd>::computeRule_median(const kIOSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<kIOS>(bv, split_vector);
-  computeSplitValue_median<kIOS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<kIOSd>(bv, split_vector);
+  computeSplitValue_median<kIOSd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 template<>
-void BVSplitter<OBBRSS>::computeRule_bvcenter(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBBRSSd>::computeRule_bvcenter(const OBBRSSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<OBBRSS>(bv, split_vector);
-  computeSplitValue_bvcenter<OBBRSS>(bv, split_value);
+  computeSplitVector<OBBRSSd>(bv, split_vector);
+  computeSplitValue_bvcenter<OBBRSSd>(bv, split_value);
 }
 
 template<>
-void BVSplitter<OBBRSS>::computeRule_mean(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBBRSSd>::computeRule_mean(const OBBRSSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<OBBRSS>(bv, split_vector);
-  computeSplitValue_mean<OBBRSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<OBBRSSd>(bv, split_vector);
+  computeSplitValue_mean<OBBRSSd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 template<>
-void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* primitive_indices, int num_primitives)
+void BVSplitter<OBBRSSd>::computeRule_median(const OBBRSSd& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  computeSplitVector<OBBRSS>(bv, split_vector);
-  computeSplitValue_median<OBBRSS>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
+  computeSplitVector<OBBRSSd>(bv, split_vector);
+  computeSplitValue_median<OBBRSSd>(bv, vertices, tri_indices, primitive_indices, num_primitives, type, split_vector, split_value);
 }
 
 
@@ -262,27 +262,27 @@ bool BVSplitter<OBBd>::apply(const Vector3d& q) const
 }
 
 template<>
-bool BVSplitter<RSS>::apply(const Vector3d& q) const
+bool BVSplitter<RSSd>::apply(const Vector3d& q) const
 {
   return split_vector.dot(q) > split_value;
 }
 
 template<>
-bool BVSplitter<kIOS>::apply(const Vector3d& q) const
+bool BVSplitter<kIOSd>::apply(const Vector3d& q) const
 {
   return split_vector.dot(q) > split_value;
 }
 
 template<>
-bool BVSplitter<OBBRSS>::apply(const Vector3d& q) const
+bool BVSplitter<OBBRSSd>::apply(const Vector3d& q) const
 {
   return split_vector.dot(q) > split_value;
 }
 
 
-template class BVSplitter<RSS>;
-template class BVSplitter<OBBRSS>;
+template class BVSplitter<RSSd>;
+template class BVSplitter<OBBRSSd>;
 template class BVSplitter<OBBd>;
-template class BVSplitter<kIOS>;
+template class BVSplitter<kIOSd>;
 
 }

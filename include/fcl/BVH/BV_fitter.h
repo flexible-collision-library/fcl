@@ -193,9 +193,9 @@ private:
 };
 
 
-/// @brief Specification of BVFitter for RSS bounding volume
+/// @brief Specification of BVFitter for RSSd bounding volume
 template<>
-class BVFitter<RSS> : public BVFitterBase<RSS>
+class BVFitter<RSSd> : public BVFitterBase<RSSd>
 {
 public:
   /// brief Prepare the geometry primitive data for fitting
@@ -218,7 +218,7 @@ public:
 
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  RSS fit(unsigned int* primitive_indices, int num_primitives);
+  RSSd fit(unsigned int* primitive_indices, int num_primitives);
 
   /// @brief Clear the geometry primitive data
   void clear()
@@ -238,9 +238,9 @@ private:
 };
 
 
-/// @brief Specification of BVFitter for kIOS bounding volume
+/// @brief Specification of BVFitter for kIOSd bounding volume
 template<>
-class BVFitter<kIOS> : public BVFitterBase<kIOS>
+class BVFitter<kIOSd> : public BVFitterBase<kIOSd>
 {
 public:
   /// @brief Prepare the geometry primitive data for fitting
@@ -263,7 +263,7 @@ public:
 
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  kIOS fit(unsigned int* primitive_indices, int num_primitives);
+  kIOSd fit(unsigned int* primitive_indices, int num_primitives);
 
   /// @brief Clear the geometry primitive data
   void clear()
@@ -282,9 +282,9 @@ private:
 };
 
 
-/// @brief Specification of BVFitter for OBBRSS bounding volume
+/// @brief Specification of BVFitter for OBBRSSd bounding volume
 template<>
-class BVFitter<OBBRSS> : public BVFitterBase<OBBRSS>
+class BVFitter<OBBRSSd> : public BVFitterBase<OBBRSSd>
 {
 public:
   /// @brief Prepare the geometry primitive data for fitting
@@ -307,7 +307,7 @@ public:
 
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  OBBRSS fit(unsigned int* primitive_indices, int num_primitives);
+  OBBRSSd fit(unsigned int* primitive_indices, int num_primitives);
 
   /// @brief Clear the geometry primitive data
   void clear()

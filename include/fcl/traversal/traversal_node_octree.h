@@ -176,8 +176,8 @@ public:
     crequest = &request_;
     cresult = &result_;
 
-    AABB bv2;
-    computeBV<double, AABB>(s, Transform3d::Identity(), bv2);
+    AABBd bv2;
+    computeBV<double, AABBd>(s, Transform3d::Identity(), bv2);
     OBBd obb2;
     convertBV(bv2, tf2, obb2);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
@@ -196,8 +196,8 @@ public:
     crequest = &request_;
     cresult = &result_;
 
-    AABB bv1;
-    computeBV<double, AABB>(s, Transform3d::Identity(), bv1);
+    AABBd bv1;
+    computeBV<double, AABBd>(s, Transform3d::Identity(), bv1);
     OBBd obb1;
     convertBV(bv1, tf1, obb1);
     OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
@@ -215,8 +215,8 @@ public:
     drequest = &request_;
     dresult = &result_;
 
-    AABB aabb2;
-    computeBV<double, AABB>(s, tf2, aabb2);
+    AABBd aabb2;
+    computeBV<double, AABBd>(s, tf2, aabb2);
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                s, aabb2,
                                tf1, tf2);
@@ -232,8 +232,8 @@ public:
     drequest = &request_;
     dresult = &result_;
 
-    AABB aabb1;
-    computeBV<double, AABB>(s, tf1, aabb1);
+    AABBd aabb1;
+    computeBV<double, AABBd>(s, tf1, aabb1);
     OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                                s, aabb1,
                                tf2, tf1);
@@ -242,8 +242,8 @@ public:
 
 private:
   template<typename S>
-  bool OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                                  const S& s, const AABB& aabb2,
+  bool OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABBd& bv1,
+                                  const S& s, const AABBd& aabb2,
                                   const Transform3d& tf1, const Transform3d& tf2) const
   {
     if(!tree1->nodeHasChildren(root1))
@@ -273,10 +273,10 @@ private:
       if(tree1->nodeChildExists(root1, i))
       {
         const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-        AABB child_bv;
+        AABBd child_bv;
         computeChildBV(bv1, i, child_bv);
         
-        AABB aabb1;
+        AABBd aabb1;
         convertBV(child_bv, tf1, aabb1);
         FCL_REAL d = aabb1.distance(aabb2);
         if(d < dresult->min_distance)
@@ -291,7 +291,7 @@ private:
   }
 
   template<typename S>
-  bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+  bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABBd& bv1,
                                    const S& s, const OBBd& obb2,
                                    const Transform3d& tf1, const Transform3d& tf2) const
   {
@@ -307,10 +307,10 @@ private:
 
         if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
         {
-          AABB overlap_part;
-          AABB aabb1, aabb2;
-          computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
-          computeBV<double, AABB, S>(s, tf2, aabb2);
+          AABBd overlap_part;
+          AABBd aabb1, aabb2;
+          computeBV<double, AABBd, Boxd>(box, box_tf, aabb1);
+          computeBV<double, AABBd, S>(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
           cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);
         }
@@ -370,10 +370,10 @@ private:
 
           if(is_intersect && crequest->enable_cost)
           {
-            AABB overlap_part;
-            AABB aabb1, aabb2;
-            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
-            computeBV<double, AABB, S>(s, tf2, aabb2);
+            AABBd overlap_part;
+            AABBd aabb1, aabb2;
+            computeBV<double, AABBd, Boxd>(box, box_tf, aabb1);
+            computeBV<double, AABBd, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
           }
 
@@ -393,10 +393,10 @@ private:
 
           if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
           {
-            AABB overlap_part;
-            AABB aabb1, aabb2;
-            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
-            computeBV<double, AABB, S>(s, tf2, aabb2);
+            AABBd overlap_part;
+            AABBd aabb1, aabb2;
+            computeBV<double, AABBd, Boxd>(box, box_tf, aabb1);
+            computeBV<double, AABBd, S>(s, tf2, aabb2);
             aabb1.overlap(aabb2, overlap_part);
           }
         }
@@ -424,7 +424,7 @@ private:
       if(tree1->nodeChildExists(root1, i))
       {
         const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-        AABB child_bv;
+        AABBd child_bv;
         computeChildBV(bv1, i, child_bv);
         
         if(OcTreeShapeIntersectRecurse(tree1, child, child_bv, s, obb2, tf1, tf2))
@@ -432,7 +432,7 @@ private:
       }
       else if(!s.isFree() && crequest->enable_cost)
       {
-        AABB child_bv;
+        AABBd child_bv;
         computeChildBV(bv1, i, child_bv);
 
         if(OcTreeShapeIntersectRecurse(tree1, NULL, child_bv, s, obb2, tf1, tf2))
@@ -444,7 +444,7 @@ private:
   }
 
   template<typename BV>
-  bool OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+  bool OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABBd& bv1,
                                  const BVHModel<BV>* tree2, int root2,
                                  const Transform3d& tf1, const Transform3d& tf2) const
   {
@@ -483,11 +483,11 @@ private:
         if(tree1->nodeChildExists(root1, i))
         {
           const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv1, i, child_bv);
 
           FCL_REAL d;
-          AABB aabb1, aabb2;
+          AABBd aabb1, aabb2;
           convertBV(child_bv, tf1, aabb1);
           convertBV(tree2->getBV(root2).bv, tf2, aabb2);
           d = aabb1.distance(aabb2);
@@ -503,7 +503,7 @@ private:
     else
     {
       FCL_REAL d;
-      AABB aabb1, aabb2;
+      AABBd aabb1, aabb2;
       convertBV(bv1, tf1, aabb1);
       int child = tree2->getBV(root2).leftChild();
       convertBV(tree2->getBV(child).bv, tf2, aabb2);
@@ -531,7 +531,7 @@ private:
 
 
   template<typename BV>
-  bool OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
+  bool OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABBd& bv1,
                                   const BVHModel<BV>* tree2, int root2,
                                   const Transform3d& tf1, const Transform3d& tf2) const
   {
@@ -556,10 +556,10 @@ private:
         
           if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
           {
-            AABB overlap_part;
-            AABB aabb1;
-            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
-            AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
+            AABBd overlap_part;
+            AABBd aabb1;
+            computeBV<double, AABBd, Boxd>(box, box_tf, aabb1);
+            AABBd aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
             cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->cost_density), crequest->num_max_cost_sources);
           }
@@ -623,10 +623,10 @@ private:
 
           if(is_intersect && crequest->enable_cost)
           {
-            AABB overlap_part;
-            AABB aabb1;
-            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
-            AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
+            AABBd overlap_part;
+            AABBd aabb1;
+            computeBV<double, AABBd, Boxd>(box, box_tf, aabb1);
+            AABBd aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }
@@ -655,10 +655,10 @@ private:
         
           if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
           {
-            AABB overlap_part;
-            AABB aabb1;
-            computeBV<double, AABB, Boxd>(box, box_tf, aabb1);
-            AABB aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
+            AABBd overlap_part;
+            AABBd aabb1;
+            computeBV<double, AABBd, Boxd>(box, box_tf, aabb1);
+            AABBd aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
             aabb1.overlap(aabb2, overlap_part);
 	    cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
           }
@@ -690,7 +690,7 @@ private:
         if(tree1->nodeChildExists(root1, i))
         {
           const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv1, i, child_bv);
           
           if(OcTreeMeshIntersectRecurse(tree1, child, child_bv, tree2, root2, tf1, tf2))
@@ -698,7 +698,7 @@ private:
         }
 	else if(!tree2->isFree() && crequest->enable_cost)
         {
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv1, i, child_bv);
 
           if(OcTreeMeshIntersectRecurse(tree1, NULL, child_bv, tree2, root2, tf1, tf2))
@@ -719,8 +719,8 @@ private:
     return false;
   }
 
-  bool OcTreeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                             const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
+  bool OcTreeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABBd& bv1,
+                             const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABBd& bv2,
                              const Transform3d& tf1, const Transform3d& tf2) const
   {
     if(!tree1->nodeHasChildren(root1) && !tree2->nodeHasChildren(root2))
@@ -753,11 +753,11 @@ private:
         if(tree1->nodeChildExists(root1, i))
         {
           const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv1, i, child_bv);
 
           FCL_REAL d;
-          AABB aabb1, aabb2;
+          AABBd aabb1, aabb2;
           convertBV(bv1, tf1, aabb1);
           convertBV(bv2, tf2, aabb2);
           d = aabb1.distance(aabb2);
@@ -778,11 +778,11 @@ private:
         if(tree2->nodeChildExists(root2, i))
         {
           const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv2, i, child_bv);
 
           FCL_REAL d;
-          AABB aabb1, aabb2;
+          AABBd aabb1, aabb2;
           convertBV(bv1, tf1, aabb1);
           convertBV(bv2, tf2, aabb2);
           d = aabb1.distance(aabb2);
@@ -800,8 +800,8 @@ private:
   }
 
 
-  bool OcTreeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB& bv1,
-                              const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB& bv2,
+  bool OcTreeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABBd& bv1,
+                              const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABBd& bv2,
                               const Transform3d& tf1, const Transform3d& tf2) const
   {
     if(!root1 && !root2)
@@ -817,10 +817,10 @@ private:
         constructBox(bv1, tf1, box1, box1_tf);
         constructBox(bv2, tf2, box2, box2_tf);
         
-        AABB overlap_part;
-        AABB aabb1, aabb2;
-        computeBV<double, AABB, Boxd>(box1, box1_tf, aabb1);
-        computeBV<double, AABB, Boxd>(box2, box2_tf, aabb2);
+        AABBd overlap_part;
+        AABBd aabb1, aabb2;
+        computeBV<double, AABBd, Boxd>(box1, box1_tf, aabb1);
+        computeBV<double, AABBd, Boxd>(box2, box2_tf, aabb2);
         aabb1.overlap(aabb2, overlap_part);
         cresult->addCostSource(CostSource(overlap_part, tree1->getOccupancyThres() * tree2->getOccupancyThres()), crequest->num_max_cost_sources);
       }
@@ -836,14 +836,14 @@ private:
           if(tree2->nodeChildExists(root2, i))
           {
             const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
-            AABB child_bv;
+            AABBd child_bv;
             computeChildBV(bv2, i, child_bv);
             if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, child, child_bv, tf1, tf2))
               return true;
           }
           else 
           {
-            AABB child_bv;
+            AABBd child_bv;
             computeChildBV(bv2, i, child_bv);
             if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, child_bv, tf1, tf2))
               return true;
@@ -867,14 +867,14 @@ private:
           if(tree1->nodeChildExists(root1, i))
           {
             const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-            AABB child_bv;
+            AABBd child_bv;
             computeChildBV(bv1, i,  child_bv);
             if(OcTreeIntersectRecurse(tree1, child, child_bv, tree2, NULL, bv2, tf1, tf2))
               return true;
           }
           else
           {
-            AABB child_bv;
+            AABBd child_bv;
             computeChildBV(bv1, i, child_bv);
             if(OcTreeIntersectRecurse(tree1, NULL, child_bv, tree2, NULL, bv2, tf1, tf2))
               return true;
@@ -947,10 +947,10 @@ private:
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
-          AABB overlap_part;
-          AABB aabb1, aabb2;
-          computeBV<double, AABB, Boxd>(box1, box1_tf, aabb1);
-          computeBV<double, AABB, Boxd>(box2, box2_tf, aabb2);
+          AABBd overlap_part;
+          AABBd aabb1, aabb2;
+          computeBV<double, AABBd, Boxd>(box1, box1_tf, aabb1);
+          computeBV<double, AABBd, Boxd>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
 	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
@@ -970,10 +970,10 @@ private:
           constructBox(bv1, tf1, box1, box1_tf);
           constructBox(bv2, tf2, box2, box2_tf);
 
-          AABB overlap_part;
-          AABB aabb1, aabb2;
-          computeBV<double, AABB, Boxd>(box1, box1_tf, aabb1);
-          computeBV<double, AABB, Boxd>(box2, box2_tf, aabb2);
+          AABBd overlap_part;
+          AABBd aabb1, aabb2;
+          computeBV<double, AABBd, Boxd>(box1, box1_tf, aabb1);
+          computeBV<double, AABBd, Boxd>(box2, box2_tf, aabb2);
           aabb1.overlap(aabb2, overlap_part);
 	  cresult->addCostSource(CostSource(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
         }
@@ -1004,7 +1004,7 @@ private:
         if(tree1->nodeChildExists(root1, i))
         {
           const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv1, i, child_bv);
         
           if(OcTreeIntersectRecurse(tree1, child, child_bv, 
@@ -1014,7 +1014,7 @@ private:
         }
         else if(!tree2->isNodeFree(root2) && crequest->enable_cost)
         {
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv1, i, child_bv);
           
           if(OcTreeIntersectRecurse(tree1, NULL, child_bv,
@@ -1031,7 +1031,7 @@ private:
         if(tree2->nodeChildExists(root2, i))
         {
           const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv2, i, child_bv);
           
           if(OcTreeIntersectRecurse(tree1, root1, bv1,
@@ -1041,7 +1041,7 @@ private:
         }
         else if(!tree1->isNodeFree(root1) && crequest->enable_cost)
         {
-          AABB child_bv;
+          AABBd child_bv;
           computeChildBV(bv2, i, child_bv);
 
           if(OcTreeIntersectRecurse(tree1, root1, bv1,

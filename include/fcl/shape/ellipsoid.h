@@ -60,7 +60,7 @@ public:
   /// @brief Radii of the ellipsoid
   Vector3<Scalar> radii;
 
-  /// @brief Compute AABB
+  /// @brief Compute AABBd
   void computeLocalAABB() override;
 
   /// @brief Get node type: a sphere
@@ -116,15 +116,15 @@ using Ellipsoidf = Ellipsoid<float>;
 using Ellipsoidd = Ellipsoid<double>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Ellipsoid<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Ellipsoid<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBB<Scalar>, Ellipsoid<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Ellipsoid<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Ellipsoid<Scalar>>
 {
-  void operator()(const Ellipsoid<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Ellipsoid<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -176,7 +176,7 @@ Ellipsoid<Scalar>::Ellipsoid(const Vector3<Scalar>& radii)
 template <typename Scalar>
 void Ellipsoid<Scalar>::computeLocalAABB()
 {
-  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

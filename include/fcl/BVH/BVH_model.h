@@ -125,7 +125,7 @@ public:
   /// @brief Get the BV type: default is unknown
   NODE_TYPE getNodeType() const { return BV_UNKNOWN; }
 
-  /// @brief Compute the AABB for the BVH, used for broad-phase collision
+  /// @brief Compute the AABBd for the BVH, used for broad-phase collision
   void computeLocalAABB() override;
 
   /// @brief Begin a new BVH model
@@ -310,7 +310,7 @@ private:
   int recursiveRefitTree_bottomup(int bv_id);
 
   /// @recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
-  /// For oriented BV (OBBd, RSS, OBBRSS), special implementation is provided.
+  /// For oriented BV (OBBd, RSSd, OBBRSSd), special implementation is provided.
   void makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
   {
     if(!bvs[bv_id].isLeaf())
@@ -329,36 +329,36 @@ template<>
 void BVHModel<OBBd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
 
 template<>
-void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
+void BVHModel<RSSd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
 
 template<>
-void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
+void BVHModel<OBBRSSd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
 
 
 /// @brief Specialization of getNodeType() for BVHModel with different BV types
 template<>
-NODE_TYPE BVHModel<AABB>::getNodeType() const;
+NODE_TYPE BVHModel<AABBd>::getNodeType() const;
 
 template<>
 NODE_TYPE BVHModel<OBBd>::getNodeType() const;
 
 template<>
-NODE_TYPE BVHModel<RSS>::getNodeType() const;
+NODE_TYPE BVHModel<RSSd>::getNodeType() const;
 
 template<>
-NODE_TYPE BVHModel<kIOS>::getNodeType() const;
+NODE_TYPE BVHModel<kIOSd>::getNodeType() const;
 
 template<>
-NODE_TYPE BVHModel<OBBRSS>::getNodeType() const;
+NODE_TYPE BVHModel<OBBRSSd>::getNodeType() const;
 
 template<>
-NODE_TYPE BVHModel<KDOP<16> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOPd<16> >::getNodeType() const;
 
 template<>
-NODE_TYPE BVHModel<KDOP<18> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOPd<18> >::getNodeType() const;
 
 template<>
-NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const;
+NODE_TYPE BVHModel<KDOPd<24> >::getNodeType() const;
 
 }
 

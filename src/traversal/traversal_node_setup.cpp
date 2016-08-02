@@ -89,8 +89,8 @@ bool initialize(MeshCollisionTraversalNodeOBB& node,
 
 
 bool initialize(MeshCollisionTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
@@ -99,8 +99,8 @@ bool initialize(MeshCollisionTraversalNodeRSS& node,
 
 
 bool initialize(MeshCollisionTraversalNodekIOS& node,
-                const BVHModel<kIOS>& model1, const Transform3d& tf1,
-                const BVHModel<kIOS>& model2, const Transform3d& tf2,
+                const BVHModel<kIOSd>& model1, const Transform3d& tf1,
+                const BVHModel<kIOSd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
@@ -108,8 +108,8 @@ bool initialize(MeshCollisionTraversalNodekIOS& node,
 }
 
 bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request,
                 CollisionResult& result)
 {
@@ -152,8 +152,8 @@ static inline bool setupMeshDistanceOrientedNode(OrientedNode& node,
 }
 
 bool initialize(MeshDistanceTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -162,8 +162,8 @@ bool initialize(MeshDistanceTraversalNodeRSS& node,
 
 
 bool initialize(MeshDistanceTraversalNodekIOS& node,
-                const BVHModel<kIOS>& model1, const Transform3d& tf1,
-                const BVHModel<kIOS>& model2, const Transform3d& tf2,
+                const BVHModel<kIOSd>& model1, const Transform3d& tf1,
+                const BVHModel<kIOSd>& model2, const Transform3d& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -171,8 +171,8 @@ bool initialize(MeshDistanceTraversalNodekIOS& node,
 }
 
 bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result)
 {
@@ -212,8 +212,8 @@ static inline bool setupMeshConservativeAdvancementOrientedDistanceNode(Oriented
 
 
 bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 FCL_REAL w)
 {
   return details::setupMeshConservativeAdvancementOrientedDistanceNode(node, model1, tf1, model2, tf2, w);
@@ -221,8 +221,8 @@ bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node,
 
 
 bool initialize(MeshConservativeAdvancementTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 FCL_REAL w)
 {
   return details::setupMeshConservativeAdvancementOrientedDistanceNode(node, model1, tf1, model2, tf2, w);

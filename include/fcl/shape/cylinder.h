@@ -59,7 +59,7 @@ public:
   /// @brief Length along z axis 
   Scalar lz;
 
-  /// @brief Compute AABB 
+  /// @brief Compute AABBd 
   void computeLocalAABB() override;
 
   /// @brief Get node type: a cylinder 
@@ -103,15 +103,15 @@ using Cylinderf = Cylinder<float>;
 using Cylinderd = Cylinder<double>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Cylinder<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Cylinder<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBB<Scalar>, Cylinder<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Cylinder<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Cylinder<Scalar>>
 {
-  void operator()(const Cylinder<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Cylinder<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -155,7 +155,7 @@ Cylinder<Scalar>::Cylinder(Scalar radius, Scalar lz)
 template <typename Scalar>
 void Cylinder<Scalar>::computeLocalAABB()
 {
-  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

@@ -116,10 +116,10 @@ public:
 
       if(is_collision && request.enable_cost)
       {
-        AABB aabb1, aabb2;
-        computeBV<double, AABB, S1>(*model1, tf1, aabb1);
-        computeBV<double, AABB, S2>(*model2, tf2, aabb2);
-        AABB overlap_part;
+        AABBd aabb1, aabb2;
+        computeBV<double, AABBd, S1>(*model1, tf1, aabb1);
+        computeBV<double, AABBd, S2>(*model2, tf2, aabb2);
+        AABBd overlap_part;
         aabb1.overlap(aabb2, overlap_part);
         result->addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
       }
@@ -128,10 +128,10 @@ public:
     {
       if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL))
       {
-        AABB aabb1, aabb2;
-        computeBV<double, AABB, S1>(*model1, tf1, aabb1);
-        computeBV<double, AABB, S2>(*model2, tf2, aabb2);
-        AABB overlap_part;
+        AABBd aabb1, aabb2;
+        computeBV<double, AABBd, S1>(*model1, tf1, aabb1);
+        computeBV<double, AABBd, S2>(*model2, tf2, aabb2);
+        AABBd overlap_part;
         aabb1.overlap(aabb2, overlap_part);
         result->addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);        
       }      
@@ -202,8 +202,8 @@ public:
 
     Vector3d n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
     n.normalize();
-    TBVMotionBoundVisitor<RSS> mb_visitor1(model1_bv, n);
-    TBVMotionBoundVisitor<RSS> mb_visitor2(model2_bv, -n);
+    TBVMotionBoundVisitor<RSSd> mb_visitor1(model1_bv, n);
+    TBVMotionBoundVisitor<RSSd> mb_visitor2(model2_bv, -n);
     FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
     FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
 
@@ -230,7 +230,7 @@ public:
   const MotionBase* motion1;
   const MotionBase* motion2;
 
-  RSS model1_bv, model2_bv; // local bv for the two shapes
+  RSSd model1_bv, model2_bv; // local bv for the two shapes
 };
 
 

@@ -132,8 +132,8 @@ protected:
     /// @brief higher bound end point of the interval
     EndPoint* hi;
 
-    /// @brief cached AABB value
-    AABB cached;
+    /// @brief cached AABBd value
+    AABBd cached;
   };
 
   /// @brief End point for an interval

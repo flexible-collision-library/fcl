@@ -219,27 +219,27 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_collision_obb)
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_rss_d_distance_rss)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<RSS>(1, 1.0);
+  octomap_distance_test_BVH<RSSd>(1, 1.0);
 #else
-  octomap_distance_test_BVH<RSS>(5, 0.1);
+  octomap_distance_test_BVH<RSSd>(5, 0.1);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_d_distance_obb)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<OBBRSS>(1, 1.0);
+  octomap_distance_test_BVH<OBBRSSd>(1, 1.0);
 #else
-  octomap_distance_test_BVH<OBBRSS>(5, 0.1);
+  octomap_distance_test_BVH<OBBRSSd>(5, 0.1);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_kios_d_distance_kios)
 {
 #ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<kIOS>(1, 1.0);
+  octomap_distance_test_BVH<kIOSd>(1, 1.0);
 #else
-  octomap_distance_test_BVH<kIOS>(5, 0.1);
+  octomap_distance_test_BVH<kIOSd>(5, 0.1);
 #endif
 }
 
@@ -564,7 +564,7 @@ void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaust
   else
   {
     if(use_mesh) EXPECT_TRUE((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0));
-    else EXPECT_TRUE((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0)); // because AABB return collision when two boxes contact
+    else EXPECT_TRUE((cdata.result.numContacts() > 0) >= (cdata2.result.numContacts() > 0)); // because AABBd return collision when two boxes contact
   }
 
   delete manager;
@@ -602,7 +602,7 @@ void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_s
     for(std::size_t index=0; index<cResult.numContacts(); ++index)
     {
       const Contact& contact = cResult.getContact(index);
-      const fcl::BVHModel<fcl::OBBRSS>* surface = static_cast<const fcl::BVHModel<fcl::OBBRSS>*> (contact.o2);
+      const fcl::BVHModel<fcl::OBBRSSd>* surface = static_cast<const fcl::BVHModel<fcl::OBBRSSd>*> (contact.o2);
       EXPECT_TRUE(surface->num_tris > contact.b2);
     }
   }
@@ -763,7 +763,7 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& boxes, OcTree& 
     FCL_REAL threshold = boxes_[i][5];
 
     Boxd box(size, size, size);
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, box, Transform3d::Identity());
     model->cost_density = cost;
     model->threshold_occupied = threshold;
@@ -783,7 +783,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   Boxd box(5, 10, 20);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, box, Transform3d::Identity());
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
@@ -792,7 +792,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   Sphered sphere(30);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
@@ -801,7 +801,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   Cylinderd cylinder(10, 40);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }

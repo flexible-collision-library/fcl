@@ -338,37 +338,37 @@ struct BVHShapeCollider<OBBd, T_SH, NarrowPhaseSolver>
 
 
 template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<RSS, T_SH, NarrowPhaseSolver>
+struct BVHShapeCollider<RSSd, T_SH, NarrowPhaseSolver>
 {
   static std::size_t collide(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeRSS<T_SH, NarrowPhaseSolver>, RSS, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeRSS<T_SH, NarrowPhaseSolver>, RSSd, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
 
 template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<kIOS, T_SH, NarrowPhaseSolver>
+struct BVHShapeCollider<kIOSd, T_SH, NarrowPhaseSolver>
 {
   static std::size_t collide(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodekIOS<T_SH, NarrowPhaseSolver>, kIOS, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodekIOS<T_SH, NarrowPhaseSolver>, kIOSd, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
 
 template<typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeCollider<OBBRSS, T_SH, NarrowPhaseSolver>
+struct BVHShapeCollider<OBBRSSd, T_SH, NarrowPhaseSolver>
 {
   static std::size_t collide(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, 
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request, CollisionResult& result)
   {
-    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBBRSS<T_SH, NarrowPhaseSolver>, OBBRSS, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
+    return details::orientedBVHShapeCollide<MeshShapeCollisionTraversalNodeOBBRSS<T_SH, NarrowPhaseSolver>, OBBRSSd, T_SH, NarrowPhaseSolver>(o1, tf1, o2, tf2, nsolver, request, result);
   } 
 };
 
@@ -421,16 +421,16 @@ std::size_t BVHCollide<OBBd>(const CollisionGeometryd* o1, const Transform3d& tf
 }
 
 template<>
-std::size_t BVHCollide<OBBRSS>(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<OBBRSSd>(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
-  return details::orientedMeshCollide<MeshCollisionTraversalNodeOBBRSS, OBBRSS>(o1, tf1, o2, tf2, request, result);
+  return details::orientedMeshCollide<MeshCollisionTraversalNodeOBBRSS, OBBRSSd>(o1, tf1, o2, tf2, request, result);
 }
 
 
 template<>
-std::size_t BVHCollide<kIOS>(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
+std::size_t BVHCollide<kIOSd>(const CollisionGeometryd* o1, const Transform3d& tf1, const CollisionGeometryd* o2, const Transform3d& tf2, const CollisionRequest& request, CollisionResult& result)
 {
-  return details::orientedMeshCollide<MeshCollisionTraversalNodekIOS, kIOS>(o1, tf1, o2, tf2, request, result);
+  return details::orientedMeshCollide<MeshCollisionTraversalNodekIOS, kIOSd>(o1, tf1, o2, tf2, request, result);
 }
 
 
@@ -541,15 +541,15 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[GEOM_HALFSPACE][GEOM_PLANE] = &ShapeShapeCollide<Halfspaced, Planed, NarrowPhaseSolver>;
   collision_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] = &ShapeShapeCollide<Halfspaced, Halfspaced, NarrowPhaseSolver>;
 
-  collision_matrix[BV_AABB][GEOM_BOX] = &BVHShapeCollider<AABB, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeCollider<AABB, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_ELLIPSOID] = &BVHShapeCollider<AABB, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeCollider<AABB, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CONE] = &BVHShapeCollider<AABB, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeCollider<AABB, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_CONVEX] = &BVHShapeCollider<AABB, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeCollider<AABB, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeCollider<AABB, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_BOX] = &BVHShapeCollider<AABBd, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeCollider<AABBd, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_ELLIPSOID] = &BVHShapeCollider<AABBd, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeCollider<AABBd, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CONE] = &BVHShapeCollider<AABBd, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeCollider<AABBd, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_CONVEX] = &BVHShapeCollider<AABBd, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeCollider<AABBd, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeCollider<AABBd, Halfspaced, NarrowPhaseSolver>::collide;
 
   collision_matrix[BV_OBB][GEOM_BOX] = &BVHShapeCollider<OBBd, Boxd, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeCollider<OBBd, Sphered, NarrowPhaseSolver>::collide;
@@ -561,74 +561,74 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   collision_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeCollider<OBBd, Planed, NarrowPhaseSolver>::collide;
   collision_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeCollider<OBBd, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_RSS][GEOM_BOX] = &BVHShapeCollider<RSS, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeCollider<RSS, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_ELLIPSOID] = &BVHShapeCollider<RSS, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeCollider<RSS, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CONE] = &BVHShapeCollider<RSS, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeCollider<RSS, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_CONVEX] = &BVHShapeCollider<RSS, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_PLANE] = &BVHShapeCollider<RSS, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_RSS][GEOM_HALFSPACE] = &BVHShapeCollider<RSS, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_BOX] = &BVHShapeCollider<RSSd, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeCollider<RSSd, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_ELLIPSOID] = &BVHShapeCollider<RSSd, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeCollider<RSSd, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CONE] = &BVHShapeCollider<RSSd, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeCollider<RSSd, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_CONVEX] = &BVHShapeCollider<RSSd, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_PLANE] = &BVHShapeCollider<RSSd, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_RSS][GEOM_HALFSPACE] = &BVHShapeCollider<RSSd, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeCollider<KDOP<16>, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeCollider<KDOP<16>, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOP<16>, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<16>, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeCollider<KDOP<16>, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<16>, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_CONVEX] = &BVHShapeCollider<KDOP<16>, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_PLANE] = &BVHShapeCollider<KDOP<16>, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP16][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<16>, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeCollider<KDOPd<16>, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeCollider<KDOPd<16>, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOPd<16>, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeCollider<KDOPd<16>, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeCollider<KDOPd<16>, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeCollider<KDOPd<16>, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_CONVEX] = &BVHShapeCollider<KDOPd<16>, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_PLANE] = &BVHShapeCollider<KDOPd<16>, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP16][GEOM_HALFSPACE] = &BVHShapeCollider<KDOPd<16>, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeCollider<KDOP<18>, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeCollider<KDOP<18>, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOP<18>, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<18>, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeCollider<KDOP<18>, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<18>, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_CONVEX] = &BVHShapeCollider<KDOP<18>, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_PLANE] = &BVHShapeCollider<KDOP<18>, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP18][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<18>, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeCollider<KDOPd<18>, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeCollider<KDOPd<18>, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOPd<18>, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeCollider<KDOPd<18>, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeCollider<KDOPd<18>, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeCollider<KDOPd<18>, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_CONVEX] = &BVHShapeCollider<KDOPd<18>, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_PLANE] = &BVHShapeCollider<KDOPd<18>, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP18][GEOM_HALFSPACE] = &BVHShapeCollider<KDOPd<18>, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeCollider<KDOP<24>, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeCollider<KDOP<24>, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOP<24>, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeCollider<KDOP<24>, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeCollider<KDOP<24>, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeCollider<KDOP<24>, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_CONVEX] = &BVHShapeCollider<KDOP<24>, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_PLANE] = &BVHShapeCollider<KDOP<24>, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_KDOP24][GEOM_HALFSPACE] = &BVHShapeCollider<KDOP<24>, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeCollider<KDOPd<24>, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeCollider<KDOPd<24>, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_ELLIPSOID] = &BVHShapeCollider<KDOPd<24>, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeCollider<KDOPd<24>, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeCollider<KDOPd<24>, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeCollider<KDOPd<24>, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_CONVEX] = &BVHShapeCollider<KDOPd<24>, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_PLANE] = &BVHShapeCollider<KDOPd<24>, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_KDOP24][GEOM_HALFSPACE] = &BVHShapeCollider<KDOPd<24>, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeCollider<kIOS, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeCollider<kIOS, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_ELLIPSOID] = &BVHShapeCollider<kIOS, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeCollider<kIOS, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeCollider<kIOS, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeCollider<kIOS, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeCollider<kIOS, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeCollider<kIOS, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_kIOS][GEOM_HALFSPACE] = &BVHShapeCollider<kIOS, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeCollider<kIOSd, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeCollider<kIOSd, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_ELLIPSOID] = &BVHShapeCollider<kIOSd, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeCollider<kIOSd, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeCollider<kIOSd, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeCollider<kIOSd, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeCollider<kIOSd, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeCollider<kIOSd, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_kIOS][GEOM_HALFSPACE] = &BVHShapeCollider<kIOSd, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeCollider<OBBRSS, Boxd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeCollider<OBBRSS, Sphered, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_ELLIPSOID] = &BVHShapeCollider<OBBRSS, Ellipsoidd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeCollider<OBBRSS, Capsuled, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeCollider<OBBRSS, Coned, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeCollider<OBBRSS, Cylinderd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeCollider<OBBRSS, Convexd, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeCollider<OBBRSS, Planed, NarrowPhaseSolver>::collide;
-  collision_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeCollider<OBBRSS, Halfspaced, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeCollider<OBBRSSd, Boxd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeCollider<OBBRSSd, Sphered, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_ELLIPSOID] = &BVHShapeCollider<OBBRSSd, Ellipsoidd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeCollider<OBBRSSd, Capsuled, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeCollider<OBBRSSd, Coned, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeCollider<OBBRSSd, Cylinderd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeCollider<OBBRSSd, Convexd, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeCollider<OBBRSSd, Planed, NarrowPhaseSolver>::collide;
+  collision_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeCollider<OBBRSSd, Halfspaced, NarrowPhaseSolver>::collide;
 
-  collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABB, NarrowPhaseSolver>;
+  collision_matrix[BV_AABB][BV_AABB] = &BVHCollide<AABBd, NarrowPhaseSolver>;
   collision_matrix[BV_OBB][BV_OBB] = &BVHCollide<OBBd, NarrowPhaseSolver>;
-  collision_matrix[BV_RSS][BV_RSS] = &BVHCollide<RSS, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP16][BV_KDOP16] = &BVHCollide<KDOP<16>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP18][BV_KDOP18] = &BVHCollide<KDOP<18>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP24][BV_KDOP24] = &BVHCollide<KDOP<24>, NarrowPhaseSolver>;
-  collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOS, NarrowPhaseSolver>;
-  collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSS, NarrowPhaseSolver>;
+  collision_matrix[BV_RSS][BV_RSS] = &BVHCollide<RSSd, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP16][BV_KDOP16] = &BVHCollide<KDOPd<16>, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP18][BV_KDOP18] = &BVHCollide<KDOPd<18>, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP24][BV_KDOP24] = &BVHCollide<KDOPd<24>, NarrowPhaseSolver>;
+  collision_matrix[BV_kIOS][BV_kIOS] = &BVHCollide<kIOSd, NarrowPhaseSolver>;
+  collision_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHCollide<OBBRSSd, NarrowPhaseSolver>;
 
 #if FCL_HAVE_OCTOMAP
   collision_matrix[GEOM_OCTREE][GEOM_BOX] = &OcTreeShapeCollide<Boxd, NarrowPhaseSolver>;
@@ -653,23 +653,23 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
   collision_matrix[GEOM_OCTREE][GEOM_OCTREE] = &OcTreeCollide<NarrowPhaseSolver>;
 
-  collision_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHCollide<AABB, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_AABB] = &OcTreeBVHCollide<AABBd, NarrowPhaseSolver>;
   collision_matrix[GEOM_OCTREE][BV_OBB] = &OcTreeBVHCollide<OBBd, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHCollide<RSS, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHCollide<OBBRSS, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHCollide<kIOS, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHCollide<KDOP<16>, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHCollide<KDOP<18>, NarrowPhaseSolver>;
-  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHCollide<KDOP<24>, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_RSS] = &OcTreeBVHCollide<RSSd, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_OBBRSS] = &OcTreeBVHCollide<OBBRSSd, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_kIOS] = &OcTreeBVHCollide<kIOSd, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP16] = &OcTreeBVHCollide<KDOPd<16>, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP18] = &OcTreeBVHCollide<KDOPd<18>, NarrowPhaseSolver>;
+  collision_matrix[GEOM_OCTREE][BV_KDOP24] = &OcTreeBVHCollide<KDOPd<24>, NarrowPhaseSolver>;
 
-  collision_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeCollide<AABB, NarrowPhaseSolver>;
+  collision_matrix[BV_AABB][GEOM_OCTREE] = &BVHOcTreeCollide<AABBd, NarrowPhaseSolver>;
   collision_matrix[BV_OBB][GEOM_OCTREE] = &BVHOcTreeCollide<OBBd, NarrowPhaseSolver>;
-  collision_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeCollide<RSS, NarrowPhaseSolver>;
-  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeCollide<OBBRSS, NarrowPhaseSolver>;
-  collision_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeCollide<kIOS, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<16>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<18>, NarrowPhaseSolver>;
-  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeCollide<KDOP<24>, NarrowPhaseSolver>;
+  collision_matrix[BV_RSS][GEOM_OCTREE] = &BVHOcTreeCollide<RSSd, NarrowPhaseSolver>;
+  collision_matrix[BV_OBBRSS][GEOM_OCTREE] = &BVHOcTreeCollide<OBBRSSd, NarrowPhaseSolver>;
+  collision_matrix[BV_kIOS][GEOM_OCTREE] = &BVHOcTreeCollide<kIOSd, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP16][GEOM_OCTREE] = &BVHOcTreeCollide<KDOPd<16>, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP18][GEOM_OCTREE] = &BVHOcTreeCollide<KDOPd<18>, NarrowPhaseSolver>;
+  collision_matrix[BV_KDOP24][GEOM_OCTREE] = &BVHOcTreeCollide<KDOPd<24>, NarrowPhaseSolver>;
 #endif
 }
 

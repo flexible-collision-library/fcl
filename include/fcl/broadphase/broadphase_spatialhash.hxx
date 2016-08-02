@@ -43,8 +43,8 @@ void SpatialHashingCollisionManager<HashTable>::registerObject(CollisionObject* 
 {
   objs.push_back(obj);
 
-  const AABB& obj_aabb = obj->getAABB();
-  AABB overlap_aabb;
+  const AABBd& obj_aabb = obj->getAABB();
+  AABBd overlap_aabb;
 
   if(scene_limit.overlap(obj_aabb, overlap_aabb))
   {
@@ -64,8 +64,8 @@ void SpatialHashingCollisionManager<HashTable>::unregisterObject(CollisionObject
 {
   objs.remove(obj);
 
-  const AABB& obj_aabb = obj->getAABB();
-  AABB overlap_aabb;
+  const AABBd& obj_aabb = obj->getAABB();
+  AABBd overlap_aabb;
 
   if(scene_limit.overlap(obj_aabb, overlap_aabb))
   {
@@ -94,8 +94,8 @@ void SpatialHashingCollisionManager<HashTable>::update()
       it != end; ++it)
   {
     CollisionObject* obj = *it;
-    const AABB& obj_aabb = obj->getAABB();
-    AABB overlap_aabb;
+    const AABBd& obj_aabb = obj->getAABB();
+    AABBd overlap_aabb;
 
     if(scene_limit.overlap(obj_aabb, overlap_aabb))
     {
@@ -114,8 +114,8 @@ void SpatialHashingCollisionManager<HashTable>::update()
 template<typename HashTable>
 void SpatialHashingCollisionManager<HashTable>::update(CollisionObject* updated_obj)
 {
-  const AABB& new_aabb = updated_obj->getAABB();
-  const AABB& old_aabb = obj_aabb_map[updated_obj];
+  const AABBd& new_aabb = updated_obj->getAABB();
+  const AABBd& old_aabb = obj_aabb_map[updated_obj];
 
   if(!scene_limit.contain(old_aabb)) // previously not completely in scene limit
   {
@@ -131,11 +131,11 @@ void SpatialHashingCollisionManager<HashTable>::update(CollisionObject* updated_
   else if(!scene_limit.contain(new_aabb)) // previous completely in scenelimit, now not
     objs_outside_scene_limit.push_back(updated_obj);
   
-  AABB old_overlap_aabb;
+  AABBd old_overlap_aabb;
   if(scene_limit.overlap(old_aabb, old_overlap_aabb))
     hash_table->remove(old_overlap_aabb, updated_obj);
 
-  AABB new_overlap_aabb;
+  AABBd new_overlap_aabb;
   if(scene_limit.overlap(new_aabb, new_overlap_aabb))
     hash_table->insert(new_overlap_aabb, updated_obj);
 
@@ -184,8 +184,8 @@ void SpatialHashingCollisionManager<HashTable>::distance(CollisionObject* obj, v
 template<typename HashTable>
 bool SpatialHashingCollisionManager<HashTable>::collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
-  const AABB& obj_aabb = obj->getAABB();
-  AABB overlap_aabb;
+  const AABBd& obj_aabb = obj->getAABB();
+  AABBd overlap_aabb;
 
   if(scene_limit.overlap(obj_aabb, overlap_aabb))
   {
@@ -224,14 +224,14 @@ template<typename HashTable>
 bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
   Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  AABB aabb = obj->getAABB();
+  AABBd aabb = obj->getAABB();
   if(min_dist < std::numeric_limits<FCL_REAL>::max())
   {
     Vector3d min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
-  AABB overlap_aabb;
+  AABBd overlap_aabb;
 
   int status = 1;
   FCL_REAL old_min_distance;
@@ -317,7 +317,7 @@ bool SpatialHashingCollisionManager<HashTable>::distance_(CollisionObject* obj, 
         if(min_dist < old_min_distance)
         {
           Vector3d min_dist_delta(min_dist, min_dist, min_dist);
-          aabb = AABB(obj->getAABB(), min_dist_delta);
+          aabb = AABBd(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else
@@ -344,8 +344,8 @@ void SpatialHashingCollisionManager<HashTable>::collide(void* cdata, CollisionCa
   for(std::list<CollisionObject*>::const_iterator it1 = objs.begin(), end1 = objs.end(); 
       it1 != end1; ++it1)
   {
-    const AABB& obj_aabb = (*it1)->getAABB();
-    AABB overlap_aabb;
+    const AABBd& obj_aabb = (*it1)->getAABB();
+    AABBd overlap_aabb;
     
     if(scene_limit.overlap(obj_aabb, overlap_aabb))
     {

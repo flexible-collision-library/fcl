@@ -50,7 +50,7 @@ namespace fcl
 /// @brief object type: BVH (mesh, points), basic geometry, octree
 enum OBJECT_TYPE {OT_UNKNOWN, OT_BVH, OT_GEOM, OT_OCTREE, OT_COUNT};
 
-/// @brief traversal node type: bounding volume (AABB, OBBd, RSS, kIOS, OBBRSS, KDOP16, KDOP18, kDOP24), basic shape (box, sphere, ellipsoid, capsule, cone, cylinder, convex, plane, halfspace, triangle), and octree
+/// @brief traversal node type: bounding volume (AABBd, OBBd, RSSd, kIOSd, OBBRSSd, KDOP16, KDOP18, kDOP24), basic shape (box, sphere, ellipsoid, capsule, cone, cylinder, convex, plane, halfspace, triangle), and octree
 enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP16, BV_KDOP18, BV_KDOP24,
                 GEOM_BOX, GEOM_SPHERE, GEOM_ELLIPSOID, GEOM_CAPSULE, GEOM_CONE, GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE, GEOM_HALFSPACE, GEOM_TRIANGLE, GEOM_OCTREE, NODE_COUNT};
 
@@ -69,7 +69,7 @@ public:
   /// @brief get the node type
   virtual NODE_TYPE getNodeType() const;
 
-  /// @brief compute the AABB for object in local coordinate
+  /// @brief compute the AABBd for object in local coordinate
   virtual void computeLocalAABB() = 0;
 
   /// @brief get user data in geometry
@@ -87,14 +87,14 @@ public:
   /// @brief whether the object has some uncertainty
   bool isUncertain() const;
 
-  /// @brief AABB center in local coordinate
+  /// @brief AABBd center in local coordinate
   Vector3<Scalar> aabb_center;
 
-  /// @brief AABB radius
+  /// @brief AABBd radius
   Scalar aabb_radius;
 
-  /// @brief AABB in local coordinate, used for tight AABB when only translation transform
-  AABB aabb_local;
+  /// @brief AABBd in local coordinate, used for tight AABBd when only translation transform
+  AABBd aabb_local;
 
   /// @brief pointer to user defined data specific to this object
   void* user_data;

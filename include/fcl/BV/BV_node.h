@@ -107,13 +107,13 @@ inline Matrix3d BVNode<OBBd>::getOrientation() const
 }
 
 template<>
-inline Matrix3d BVNode<RSS>::getOrientation() const 
+inline Matrix3d BVNode<RSSd>::getOrientation() const 
 {
   return bv.axis;
 }
 
 template<>
-inline Matrix3d BVNode<OBBRSS>::getOrientation() const 
+inline Matrix3d BVNode<OBBRSSd>::getOrientation() const 
 {
   return bv.obb.axis;
 }

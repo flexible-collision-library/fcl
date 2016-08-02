@@ -62,7 +62,7 @@ public:
   /// @brief box side length
   Vector3<Scalar> side;
 
-  /// @brief Compute AABB
+  /// @brief Compute AABBd
   void computeLocalAABB() override;
 
   /// @brief Get node type: a box
@@ -84,15 +84,15 @@ using Boxf = Box<float>;
 using Boxd = Box<double>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Box<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Box<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBBd, Box<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Box<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Box<Scalar>>
 {
-  void operator()(const Box<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Box<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();

@@ -62,7 +62,7 @@ void distance(DistanceTraversalNodeBase* node, BVHFrontList* front_list = NULL, 
 /// @brief special collision on OBBd traversal node
 void collide2(MeshCollisionTraversalNodeOBB* node, BVHFrontList* front_list = NULL);
 
-/// @brief special collision on RSS traversal node
+/// @brief special collision on RSSd traversal node
 void collide2(MeshCollisionTraversalNodeRSS* node, BVHFrontList* front_list = NULL);
 
 }

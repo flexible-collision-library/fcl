@@ -74,8 +74,8 @@ void BVHExpand(BVHModel<BV>& model, const Variance3d* ucs, FCL_REAL r)
 /// @brief Expand the BVH bounding boxes according to the corresponding variance information, for OBBd
 void BVHExpand(BVHModel<OBBd>& model, const Variance3d* ucs, FCL_REAL r);
 
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSS
-void BVHExpand(BVHModel<RSS>& model, const Variance3d* ucs, FCL_REAL r);
+/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSSd
+void BVHExpand(BVHModel<RSSd>& model, const Variance3d* ucs, FCL_REAL r);
 
 } // namespace fcl
 

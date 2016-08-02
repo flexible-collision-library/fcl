@@ -214,8 +214,8 @@ public:
 
       if(is_intersect && this->request.enable_cost)
       {
-        AABB overlap_part;
-        AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
+        AABBd overlap_part;
+        AABBd(p1, p2, p3).overlap(AABBd(q1, q2, q3), overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);      
       }
     }   
@@ -223,8 +223,8 @@ public:
     {
       if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
-        AABB overlap_part;
-        AABB(p1, p2, p3).overlap(AABB(q1, q2, q3), overlap_part);
+        AABBd overlap_part;
+        AABBd(p1, p2, p3).overlap(AABBd(q1, q2, q3), overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);      
       }
     }
@@ -246,7 +246,7 @@ public:
 };
 
 
-/// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBBd, RSS, OBBRSS, kIOS)
+/// @brief Traversal node for collision between two meshes if their underlying BVH node is oriented node (OBBd, RSSd, OBBRSSd, kIOSd)
 class MeshCollisionTraversalNodeOBB : public MeshCollisionTraversalNode<OBBd>
 {
 public:
@@ -264,7 +264,7 @@ public:
   Vector3d T;
 };
 
-class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS>
+class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSSd>
 {
 public:
   MeshCollisionTraversalNodeRSS();
@@ -281,7 +281,7 @@ public:
   Vector3d T;
 };
 
-class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS>
+class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOSd>
 {
 public:
   MeshCollisionTraversalNodekIOS();
@@ -294,7 +294,7 @@ public:
   Vector3d T;
 };
 
-class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS>
+class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSSd>
 {
 public:
   MeshCollisionTraversalNodeOBBRSS();
@@ -611,8 +611,8 @@ public:
   FCL_REAL abs_err;
 };
 
-/// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
-class MeshDistanceTraversalNodeRSS : public MeshDistanceTraversalNode<RSS>
+/// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSSd, OBBRSSd, kIOSd)
+class MeshDistanceTraversalNodeRSS : public MeshDistanceTraversalNode<RSSd>
 {
 public:
   MeshDistanceTraversalNodeRSS();
@@ -630,7 +630,7 @@ public:
 };
 
 
-class MeshDistanceTraversalNodekIOS : public MeshDistanceTraversalNode<kIOS>
+class MeshDistanceTraversalNodekIOS : public MeshDistanceTraversalNode<kIOSd>
 {
 public:
   MeshDistanceTraversalNodekIOS();
@@ -647,7 +647,7 @@ public:
   Vector3d T;
 };
 
-class MeshDistanceTraversalNodeOBBRSS : public MeshDistanceTraversalNode<OBBRSS>
+class MeshDistanceTraversalNodeOBBRSS : public MeshDistanceTraversalNode<OBBRSSd>
 {
 public:
   MeshDistanceTraversalNodeOBBRSS();
@@ -836,7 +836,7 @@ public:
 };
 
 
-/// @brief for OBBd and RSS, there is local coordinate of BV, so normal need to be transformed
+/// @brief for OBBd and RSSd, there is local coordinate of BV, so normal need to be transformed
 namespace details
 {
 
@@ -847,7 +847,7 @@ const Vector3d getBVAxis(const BV& bv, int i)
 }
 
 template<>
-inline const Vector3d getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
+inline const Vector3d getBVAxis<OBBRSSd>(const OBBRSSd& bv, int i)
 {
   return bv.obb.axis.col(i);
 }
@@ -925,7 +925,7 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
 
 }
 
-/// for OBBd, RSS and OBBRSS, there is local coordinate of BV, so normal need to be transformed
+/// for OBBd, RSSd and OBBRSSd, there is local coordinate of BV, so normal need to be transformed
 template<>
 inline bool MeshConservativeAdvancementTraversalNode<OBBd>::canStop(FCL_REAL c) const
 {
@@ -937,7 +937,7 @@ inline bool MeshConservativeAdvancementTraversalNode<OBBd>::canStop(FCL_REAL c) 
 }
 
 template<>
-inline bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) const
+inline bool MeshConservativeAdvancementTraversalNode<RSSd>::canStop(FCL_REAL c) const
 {
   return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
                                                                   this->abs_err, this->rel_err, w,
@@ -947,7 +947,7 @@ inline bool MeshConservativeAdvancementTraversalNode<RSS>::canStop(FCL_REAL c) c
 }
 
 template<>
-inline bool MeshConservativeAdvancementTraversalNode<OBBRSS>::canStop(FCL_REAL c) const
+inline bool MeshConservativeAdvancementTraversalNode<OBBRSSd>::canStop(FCL_REAL c) const
 {
   return details::meshConservativeAdvancementTraversalNodeCanStop(c, this->min_distance,
                                                                   this->abs_err, this->rel_err, w,
@@ -957,7 +957,7 @@ inline bool MeshConservativeAdvancementTraversalNode<OBBRSS>::canStop(FCL_REAL c
 }
 
 
-class MeshConservativeAdvancementTraversalNodeRSS : public MeshConservativeAdvancementTraversalNode<RSS>
+class MeshConservativeAdvancementTraversalNodeRSS : public MeshConservativeAdvancementTraversalNode<RSSd>
 {
 public:
   MeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_ = 1);
@@ -972,7 +972,7 @@ public:
   Vector3d T;
 };
 
-class MeshConservativeAdvancementTraversalNodeOBBRSS : public MeshConservativeAdvancementTraversalNode<OBBRSS>
+class MeshConservativeAdvancementTraversalNodeOBBRSS : public MeshConservativeAdvancementTraversalNode<OBBRSSd>
 {
 public:
   MeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1);

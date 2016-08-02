@@ -47,10 +47,10 @@
 namespace fcl
 {
 
-/// @brief Spatial hash function: hash an AABB to a set of integer values
+/// @brief Spatial hash function: hash an AABBd to a set of integer values
 struct SpatialHash
 {
-  SpatialHash(const AABB& scene_limit_, FCL_REAL cell_size_) : cell_size(cell_size_),
+  SpatialHash(const AABBd& scene_limit_, FCL_REAL cell_size_) : cell_size(cell_size_),
                                                                scene_limit(scene_limit_)
   {
     width[0] = std::ceil(scene_limit.width() / cell_size);
@@ -58,7 +58,7 @@ struct SpatialHash
     width[2] = std::ceil(scene_limit.depth() / cell_size);
   }
     
-  std::vector<unsigned int> operator() (const AABB& aabb) const
+  std::vector<unsigned int> operator() (const AABBd& aabb) const
   {
     int min_x = std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size);
     int max_x = std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size);
@@ -85,16 +85,16 @@ struct SpatialHash
 private:
 
   FCL_REAL cell_size;
-  AABB scene_limit;
+  AABBd scene_limit;
   unsigned int width[3];
 };
 
 /// @brief spatial hashing collision mananger
-template<typename HashTable = SimpleHashTable<AABB, CollisionObject*, SpatialHash> >
+template<typename HashTable = SimpleHashTable<AABBd, CollisionObject*, SpatialHash> >
 class SpatialHashingCollisionManager : public BroadPhaseCollisionManager
 {
 public:
-  SpatialHashingCollisionManager(FCL_REAL cell_size, const Vector3d& scene_min, const Vector3d& scene_max, unsigned int default_table_size = 1000) : scene_limit(AABB(scene_min, scene_max)),
+  SpatialHashingCollisionManager(FCL_REAL cell_size, const Vector3d& scene_min, const Vector3d& scene_max, unsigned int default_table_size = 1000) : scene_limit(AABBd(scene_min, scene_max)),
                                                                                                                                                hash_table(new HashTable(SpatialHash(scene_limit, cell_size)))
   {
     hash_table->init(default_table_size);
@@ -156,7 +156,7 @@ public:
   /// @brief compute the bound for the environent
   static void computeBound(std::vector<CollisionObject*>& objs, Vector3d& l, Vector3d& u)
   {
-    AABB bound;
+    AABBd bound;
     for(unsigned int i = 0; i < objs.size(); ++i)
       bound += objs[i]->getAABB();
     
@@ -180,10 +180,10 @@ protected:
   std::list<CollisionObject*> objs_outside_scene_limit;
 
   /// @brief the size of the scene
-  AABB scene_limit;
+  AABBd scene_limit;
 
   /// @brief store the map between objects and their aabbs. will make update more convenient
-  std::map<CollisionObject*, AABB> obj_aabb_map; 
+  std::map<CollisionObject*, AABBd> obj_aabb_map; 
 
   /// @brief objects in the scene limit (given by scene_min and scene_max) are in the spatial hash table
   HashTable* hash_table;

@@ -47,7 +47,7 @@
 namespace fcl
 {
 
-/// @brief dynamic AABB tree node
+/// @brief dynamic AABBd tree node
 template<typename BV>
 struct NodeBase
 {
@@ -98,7 +98,7 @@ size_t select(const NodeBase<BV>& query, const NodeBase<BV>& node1, const NodeBa
 }
 
 template<>
-size_t select(const NodeBase<AABB>& node, const NodeBase<AABB>& node1, const NodeBase<AABB>& node2);
+size_t select(const NodeBase<AABBd>& node, const NodeBase<AABBd>& node1, const NodeBase<AABBd>& node2);
 
 /// @brief select from node1 and node2 which is close to a given query bounding volume. 0 for node1 and 1 for node2
 template<typename BV>
@@ -108,7 +108,7 @@ size_t select(const BV& query, const NodeBase<BV>& node1, const NodeBase<BV>& no
 }
 
 template<>
-size_t select(const AABB& query, const NodeBase<AABB>& node1, const NodeBase<AABB>& node2);
+size_t select(const AABBd& query, const NodeBase<AABBd>& node1, const NodeBase<AABBd>& node2);
 
 
 /// @brief Class for hierarchy tree structure
@@ -211,7 +211,7 @@ private:
   void getMaxDepth(NodeType* node, size_t depth, size_t& max_depth) const;
 
   /// @brief construct a tree from a list of nodes stored in [lbeg, lend) in a topdown manner.
-  /// During construction, first compute the best split axis as the axis along with the longest AABB edge.
+  /// During construction, first compute the best split axis as the axis along with the longest AABBd edge.
   /// Then compute the median of all nodes' center projection onto the axis and using it as the split threshold.
   NodeType* topdown_0(const NodeVecIterator lbeg, const NodeVecIterator lend);
 
@@ -304,10 +304,10 @@ public:
 
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel, FCL_REAL margin);
+bool HierarchyTree<AABBd>::update(NodeBase<AABBd>* leaf, const AABBd& bv_, const Vector3d& vel, FCL_REAL margin);
 
 template<>
-bool HierarchyTree<AABB>::update(NodeBase<AABB>* leaf, const AABB& bv_, const Vector3d& vel);
+bool HierarchyTree<AABBd>::update(NodeBase<AABBd>* leaf, const AABBd& bv_, const Vector3d& vel);
 
 
 namespace implementation_array
@@ -371,9 +371,9 @@ size_t select(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
 }
 
 template<>
-size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABB>* nodes);
+size_t select(size_t query, size_t node1, size_t node2, NodeBase<AABBd>* nodes);
 
-/// @brief select the node from node1 and node2 which is close to the query AABB. 0 for node1 and 1 for node2.
+/// @brief select the node from node1 and node2 which is close to the query AABBd. 0 for node1 and 1 for node2.
 template<typename BV>
 size_t select(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
 {
@@ -381,7 +381,7 @@ size_t select(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
 }
 
 template<>
-size_t select(const AABB& query, size_t node1, size_t node2, NodeBase<AABB>* nodes);
+size_t select(const AABBd& query, size_t node1, size_t node2, NodeBase<AABBd>* nodes);
 
 /// @brief Class for hierarchy tree structure
 template<typename BV>
@@ -491,7 +491,7 @@ private:
   void getMaxDepth(size_t node, size_t depth, size_t& max_depth) const;
 
   /// @brief construct a tree from a list of nodes stored in [lbeg, lend) in a topdown manner.
-  /// During construction, first compute the best split axis as the axis along with the longest AABB edge.
+  /// During construction, first compute the best split axis as the axis along with the longest AABBd edge.
   /// Then compute the median of all nodes' center projection onto the axis and using it as the split threshold.
   size_t topdown_0(size_t* lbeg, size_t* lend);
 

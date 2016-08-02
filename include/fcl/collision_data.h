@@ -150,7 +150,7 @@ struct Contact
   }
 };
 
-/// @brief Cost source describes an area with a cost. The area is described by an AABB region.
+/// @brief Cost source describes an area with a cost. The area is described by an AABBd region.
 struct CostSource
 {
   /// @brief aabb lower bound
@@ -159,7 +159,7 @@ struct CostSource
   /// @brief aabb upper bound
   Vector3d aabb_max;
 
-  /// @brief cost density in the AABB region
+  /// @brief cost density in the AABBd region
   FCL_REAL cost_density;
 
   FCL_REAL total_cost;
@@ -171,7 +171,7 @@ struct CostSource
     total_cost = cost_density * (aabb_max[0] - aabb_min[0]) * (aabb_max[1] - aabb_min[1]) * (aabb_max[2] - aabb_min[2]);
   }
 
-  CostSource(const AABB& aabb, FCL_REAL cost_density_) : aabb_min(aabb.min_),
+  CostSource(const AABBd& aabb, FCL_REAL cost_density_) : aabb_min(aabb.min_),
                                                          aabb_max(aabb.max_),
                                                          cost_density(cost_density_)
   {

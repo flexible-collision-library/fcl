@@ -119,8 +119,9 @@ template <typename Scalar>
 OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2);
 
 /// @brief Translate the OBB bv
-template <typename Scalar>
-OBB<Scalar> translate(const OBB<Scalar>& bv, const Vector3<Scalar>& t);
+template <typename Scalar, typename Derived>
+OBB<Scalar> translate(
+    const OBB<Scalar>& bv, const Eigen::MatrixBase<Derived>& t);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
@@ -414,8 +415,9 @@ OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
 }
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar> translate(const OBB<Scalar>& bv, const Vector3<Scalar>& t)
+template <typename Scalar, typename Derived>
+OBB<Scalar> translate(
+    const OBB<Scalar>& bv, const Eigen::MatrixBase<Derived>& t)
 {
   OBB<Scalar> res(bv);
   res.To += t;

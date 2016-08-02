@@ -82,16 +82,16 @@ protected:
 };
 
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const;
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const SplineMotion& motion) const;
 
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const;
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const ScrewMotion& motion) const;
 
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const;
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const InterpMotion& motion) const;
 
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const TranslationMotion& motion) const;
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const TranslationMotion& motion) const;
 
 
 class TriangleMotionBoundVisitor

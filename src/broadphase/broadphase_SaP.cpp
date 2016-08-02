@@ -500,7 +500,7 @@ void SaPCollisionManager::getObjects(std::vector<CollisionObject*>& objs) const
 bool SaPCollisionManager::collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const
 {
   size_t axis = optimal_axis;
-  const AABB& obj_aabb = obj->getAABB();
+  const AABBd& obj_aabb = obj->getAABB();
 
   FCL_REAL min_val = obj_aabb.min_[axis];
   //  FCL_REAL max_val = obj_aabb.max_[axis];
@@ -550,7 +550,7 @@ void SaPCollisionManager::collide(CollisionObject* obj, void* cdata, CollisionCa
 bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const
 {
   Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  AABB aabb = obj->getAABB();
+  AABBd aabb = obj->getAABB();
 
   if(min_dist < std::numeric_limits<FCL_REAL>::max())
   {
@@ -634,7 +634,7 @@ bool SaPCollisionManager::distance_(CollisionObject* obj, void* cdata, DistanceC
         if(min_dist < old_min_distance)
         {
           Vector3d min_dist_delta(min_dist, min_dist, min_dist);
-          aabb = AABB(obj->getAABB(), min_dist_delta);
+          aabb = AABBd(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else

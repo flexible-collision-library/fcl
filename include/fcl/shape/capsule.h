@@ -59,7 +59,7 @@ public:
   /// @brief Length along z axis 
   Scalar lz;
 
-  /// @brief Compute AABB 
+  /// @brief Compute AABBd
   void computeLocalAABB() override;
 
   /// @brief Get node type: a capsule 
@@ -135,15 +135,15 @@ using Capsulef = Capsule<float>;
 using Capsuled = Capsule<double>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Capsule<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Capsule<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBB<Scalar>, Capsule<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Capsule<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Capsule<Scalar>>
 {
-  void operator()(const Capsule<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Capsule<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -187,7 +187,7 @@ Capsule<Scalar>::Capsule(Scalar radius, Scalar lz)
 template <typename Scalar>
 void Capsule<Scalar>::computeLocalAABB()
 {
-  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

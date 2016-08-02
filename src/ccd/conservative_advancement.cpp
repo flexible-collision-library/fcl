@@ -198,9 +198,9 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
 }
 
 template<>
-bool conservativeAdvancement(const BVHModel<RSS>& o1,
+bool conservativeAdvancement(const BVHModel<RSSd>& o1,
                              const MotionBase* motion1,
-                             const BVHModel<RSS>& o2,
+                             const BVHModel<RSSd>& o2,
                              const MotionBase* motion2,
                              const CollisionRequest& request,
                              CollisionResult& result,
@@ -208,9 +208,9 @@ bool conservativeAdvancement(const BVHModel<RSS>& o1,
 
 
 template<>
-bool conservativeAdvancement(const BVHModel<OBBRSS>& o1,
+bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
                              const MotionBase* motion1,
-                             const BVHModel<OBBRSS>& o2,
+                             const BVHModel<OBBRSSd>& o2,
                              const MotionBase* motion2,
                              const CollisionRequest& request,
                              CollisionResult& result,
@@ -421,7 +421,7 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
 
 
 template<typename S, typename NarrowPhaseSolver>
-bool conservativeAdvancement(const BVHModel<RSS>& o1,
+bool conservativeAdvancement(const BVHModel<RSSd>& o1,
                              const MotionBase* motion1,
                              const S& o2,
                              const MotionBase* motion2,
@@ -430,11 +430,11 @@ bool conservativeAdvancement(const BVHModel<RSS>& o1,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementMeshShapeOriented<RSS, S, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
+  return details::conservativeAdvancementMeshShapeOriented<RSSd, S, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
 template<typename S, typename NarrowPhaseSolver>
-bool conservativeAdvancement(const BVHModel<OBBRSS>& o1,
+bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
                              const MotionBase* motion1,
                              const S& o2,
                              const MotionBase* motion2,
@@ -443,7 +443,7 @@ bool conservativeAdvancement(const BVHModel<OBBRSS>& o1,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementMeshShapeOriented<OBBRSS, S, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);  
+  return details::conservativeAdvancementMeshShapeOriented<OBBRSSd, S, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);  
 }
                             
 template<typename S, typename BV, typename NarrowPhaseSolver>
@@ -586,54 +586,54 @@ bool conservativeAdvancementShapeMeshOriented(const S& o1,
 template<typename S, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const S& o1,
                              const MotionBase* motion1,
-                             const BVHModel<RSS>& o2,
+                             const BVHModel<RSSd>& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementShapeMeshOriented<S, RSS, NarrowPhaseSolver, ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
+  return details::conservativeAdvancementShapeMeshOriented<S, RSSd, NarrowPhaseSolver, ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
 
 template<typename S, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const S& o1,
                              const MotionBase* motion1,
-                             const BVHModel<OBBRSS>& o2,
+                             const BVHModel<OBBRSSd>& o2,
                              const MotionBase* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequest& request,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementShapeMeshOriented<S, OBBRSS, NarrowPhaseSolver, ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
+  return details::conservativeAdvancementShapeMeshOriented<S, OBBRSSd, NarrowPhaseSolver, ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
 
 
 template<>
-bool conservativeAdvancement(const BVHModel<RSS>& o1,
+bool conservativeAdvancement(const BVHModel<RSSd>& o1,
                              const MotionBase* motion1,
-                             const BVHModel<RSS>& o2,
+                             const BVHModel<RSSd>& o2,
                              const MotionBase* motion2,
                              const CollisionRequest& request,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementMeshOriented<RSS, MeshConservativeAdvancementTraversalNodeRSS>(o1, motion1, o2, motion2, request, result, toc);
+  return details::conservativeAdvancementMeshOriented<RSSd, MeshConservativeAdvancementTraversalNodeRSS>(o1, motion1, o2, motion2, request, result, toc);
 }
 
 template<>
-bool conservativeAdvancement(const BVHModel<OBBRSS>& o1,
+bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
                              const MotionBase* motion1,
-                             const BVHModel<OBBRSS>& o2,
+                             const BVHModel<OBBRSSd>& o2,
                              const MotionBase* motion2,
                              const CollisionRequest& request,
                              CollisionResult& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementMeshOriented<OBBRSS, MeshConservativeAdvancementTraversalNodeOBBRSS>(o1, motion1, o2, motion2, request, result, toc);
+  return details::conservativeAdvancementMeshOriented<OBBRSSd, MeshConservativeAdvancementTraversalNodeOBBRSS>(o1, motion1, o2, motion2, request, result, toc);
 }
 
 
@@ -789,14 +789,14 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   conservative_advancement_matrix[GEOM_HALFSPACE][GEOM_PLANE] = &ShapeConservativeAdvancement<Halfspaced, Planed, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] = &ShapeConservativeAdvancement<Halfspaced, Halfspaced, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_AABB][GEOM_BOX] = &BVHShapeConservativeAdvancement<AABB, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<AABB, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<AABB, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_AABB][GEOM_CONE] = &BVHShapeConservativeAdvancement<AABB, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<AABB, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_AABB][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<AABB, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeConservativeAdvancement<AABB, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<AABB, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_BOX] = &BVHShapeConservativeAdvancement<AABBd, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<AABBd, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<AABBd, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_CONE] = &BVHShapeConservativeAdvancement<AABBd, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<AABBd, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<AABBd, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_PLANE] = &BVHShapeConservativeAdvancement<AABBd, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<AABBd, Halfspaced, NarrowPhaseSolver>;
   
   conservative_advancement_matrix[BV_OBB][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBBd, Boxd, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBB][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBBd, Sphered, NarrowPhaseSolver>;
@@ -807,69 +807,69 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   conservative_advancement_matrix[BV_OBB][GEOM_PLANE] = &BVHShapeConservativeAdvancement<OBBd, Planed, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBB][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<OBBd, Halfspaced, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBBRSS, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBBRSS, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<OBBRSS, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeConservativeAdvancement<OBBRSS, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<OBBRSS, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<OBBRSS, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeConservativeAdvancement<OBBRSS, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<OBBRSS, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_BOX] = &BVHShapeConservativeAdvancement<OBBRSSd, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<OBBRSSd, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<OBBRSSd, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_CONE] = &BVHShapeConservativeAdvancement<OBBRSSd, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<OBBRSSd, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<OBBRSSd, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_PLANE] = &BVHShapeConservativeAdvancement<OBBRSSd, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<OBBRSSd, Halfspaced, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_RSS][GEOM_BOX] = &BVHShapeConservativeAdvancement<RSS, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<RSS, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<RSS, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][GEOM_CONE] = &BVHShapeConservativeAdvancement<RSS, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<RSS, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<RSS, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][GEOM_PLANE] = &BVHShapeConservativeAdvancement<RSS, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<RSS, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_BOX] = &BVHShapeConservativeAdvancement<RSSd, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<RSSd, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<RSSd, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_CONE] = &BVHShapeConservativeAdvancement<RSSd, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<RSSd, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<RSSd, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_PLANE] = &BVHShapeConservativeAdvancement<RSSd, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<RSSd, Halfspaced, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOP<16>, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOP<16>, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOP<16>, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOP<16>, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOP<16>, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<KDOP<16>, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][GEOM_PLANE] = &BVHShapeConservativeAdvancement<KDOP<16>, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<KDOP<16>, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOPd<16>, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOPd<16>, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOPd<16>, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOPd<16>, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOPd<16>, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<KDOPd<16>, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_PLANE] = &BVHShapeConservativeAdvancement<KDOPd<16>, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<KDOPd<16>, Halfspaced, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOP<18>, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOP<18>, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOP<18>, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOP<18>, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOP<18>, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<KDOP<18>, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][GEOM_PLANE] = &BVHShapeConservativeAdvancement<KDOP<18>, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<KDOP<18>, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOPd<18>, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOPd<18>, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOPd<18>, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOPd<18>, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOPd<18>, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<KDOPd<18>, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_PLANE] = &BVHShapeConservativeAdvancement<KDOPd<18>, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<KDOPd<18>, Halfspaced, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOP<24>, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOP<24>, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOP<24>, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOP<24>, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOP<24>, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<KDOP<24>, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][GEOM_PLANE] = &BVHShapeConservativeAdvancement<KDOP<24>, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<KDOP<24>, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_BOX] = &BVHShapeConservativeAdvancement<KDOPd<24>, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<KDOPd<24>, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<KDOPd<24>, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_CONE] = &BVHShapeConservativeAdvancement<KDOPd<24>, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<KDOPd<24>, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<KDOPd<24>, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_PLANE] = &BVHShapeConservativeAdvancement<KDOPd<24>, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<KDOPd<24>, Halfspaced, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeConservativeAdvancement<kIOS, Boxd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<kIOS, Sphered, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<kIOS, Capsuled, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeConservativeAdvancement<kIOS, Coned, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<kIOS, Cylinderd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<kIOS, Convexd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeConservativeAdvancement<kIOS, Planed, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<kIOS, Halfspaced, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_BOX] = &BVHShapeConservativeAdvancement<kIOSd, Boxd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_SPHERE] = &BVHShapeConservativeAdvancement<kIOSd, Sphered, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_CAPSULE] = &BVHShapeConservativeAdvancement<kIOSd, Capsuled, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_CONE] = &BVHShapeConservativeAdvancement<kIOSd, Coned, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_CYLINDER] = &BVHShapeConservativeAdvancement<kIOSd, Cylinderd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_CONVEX] = &BVHShapeConservativeAdvancement<kIOSd, Convexd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_PLANE] = &BVHShapeConservativeAdvancement<kIOSd, Planed, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][GEOM_HALFSPACE] = &BVHShapeConservativeAdvancement<kIOSd, Halfspaced, NarrowPhaseSolver>;
 
 
-  conservative_advancement_matrix[GEOM_BOX][BV_AABB] = &ShapeBVHConservativeAdvancement<Boxd, AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_AABB] = &ShapeBVHConservativeAdvancement<Sphered, AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_AABB] = &ShapeBVHConservativeAdvancement<Capsuled, AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_AABB] = &ShapeBVHConservativeAdvancement<Coned, AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_AABB] = &ShapeBVHConservativeAdvancement<Cylinderd, AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_AABB] = &ShapeBVHConservativeAdvancement<Convexd, AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_AABB] = &ShapeBVHConservativeAdvancement<Planed, AABB, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_AABB] = &ShapeBVHConservativeAdvancement<Halfspaced, AABB, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_AABB] = &ShapeBVHConservativeAdvancement<Boxd, AABBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_AABB] = &ShapeBVHConservativeAdvancement<Sphered, AABBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_AABB] = &ShapeBVHConservativeAdvancement<Capsuled, AABBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_AABB] = &ShapeBVHConservativeAdvancement<Coned, AABBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_AABB] = &ShapeBVHConservativeAdvancement<Cylinderd, AABBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_AABB] = &ShapeBVHConservativeAdvancement<Convexd, AABBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_AABB] = &ShapeBVHConservativeAdvancement<Planed, AABBd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_AABB] = &ShapeBVHConservativeAdvancement<Halfspaced, AABBd, NarrowPhaseSolver>;
   
   conservative_advancement_matrix[GEOM_BOX][BV_OBB] = &ShapeBVHConservativeAdvancement<Boxd, OBBd, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_SPHERE][BV_OBB] = &ShapeBVHConservativeAdvancement<Sphered, OBBd, NarrowPhaseSolver>;
@@ -880,68 +880,68 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   conservative_advancement_matrix[GEOM_PLANE][BV_OBB] = &ShapeBVHConservativeAdvancement<Planed, OBBd, NarrowPhaseSolver>;
   conservative_advancement_matrix[GEOM_HALFSPACE][BV_OBB] = &ShapeBVHConservativeAdvancement<Halfspaced, OBBd, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[GEOM_BOX][BV_RSS] = &ShapeBVHConservativeAdvancement<Boxd, RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_RSS] = &ShapeBVHConservativeAdvancement<Sphered, RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_RSS] = &ShapeBVHConservativeAdvancement<Capsuled, RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_RSS] = &ShapeBVHConservativeAdvancement<Coned, RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_RSS] = &ShapeBVHConservativeAdvancement<Cylinderd, RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_RSS] = &ShapeBVHConservativeAdvancement<Convexd, RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_RSS] = &ShapeBVHConservativeAdvancement<Planed, RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_RSS] = &ShapeBVHConservativeAdvancement<Halfspaced, RSS, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_RSS] = &ShapeBVHConservativeAdvancement<Boxd, RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_RSS] = &ShapeBVHConservativeAdvancement<Sphered, RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_RSS] = &ShapeBVHConservativeAdvancement<Capsuled, RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_RSS] = &ShapeBVHConservativeAdvancement<Coned, RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_RSS] = &ShapeBVHConservativeAdvancement<Cylinderd, RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_RSS] = &ShapeBVHConservativeAdvancement<Convexd, RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_RSS] = &ShapeBVHConservativeAdvancement<Planed, RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_RSS] = &ShapeBVHConservativeAdvancement<Halfspaced, RSSd, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[GEOM_BOX][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Boxd, OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Sphered, OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Capsuled, OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Coned, OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Cylinderd, OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Convexd, OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Planed, OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Halfspaced, OBBRSS, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Boxd, OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Sphered, OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Capsuled, OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Coned, OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Cylinderd, OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Convexd, OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Planed, OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_OBBRSS] = &ShapeBVHConservativeAdvancement<Halfspaced, OBBRSSd, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[GEOM_BOX][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Boxd, KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Sphered, KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Capsuled, KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Coned, KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Cylinderd, KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Convexd, KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Planed, KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Halfspaced, KDOP<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Boxd, KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Sphered, KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Capsuled, KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Coned, KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Cylinderd, KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Convexd, KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Planed, KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_KDOP16] = &ShapeBVHConservativeAdvancement<Halfspaced, KDOPd<16>, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[GEOM_BOX][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Boxd, KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Sphered, KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Capsuled, KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Coned, KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Cylinderd, KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Convexd, KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Planed, KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Halfspaced, KDOP<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Boxd, KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Sphered, KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Capsuled, KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Coned, KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Cylinderd, KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Convexd, KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Planed, KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_KDOP18] = &ShapeBVHConservativeAdvancement<Halfspaced, KDOPd<18>, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[GEOM_BOX][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Boxd, KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Sphered, KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Capsuled, KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Coned, KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Cylinderd, KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Convexd, KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Planed, KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Halfspaced, KDOP<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Boxd, KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Sphered, KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Capsuled, KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Coned, KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Cylinderd, KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Convexd, KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Planed, KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_KDOP24] = &ShapeBVHConservativeAdvancement<Halfspaced, KDOPd<24>, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[GEOM_BOX][BV_kIOS] = &ShapeBVHConservativeAdvancement<Boxd, kIOS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_SPHERE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Sphered, kIOS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CAPSULE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Capsuled, kIOS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Coned, kIOS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CYLINDER][BV_kIOS] = &ShapeBVHConservativeAdvancement<Cylinderd, kIOS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_CONVEX][BV_kIOS] = &ShapeBVHConservativeAdvancement<Convexd, kIOS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_PLANE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Planed, kIOS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[GEOM_HALFSPACE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Halfspaced, kIOS, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_BOX][BV_kIOS] = &ShapeBVHConservativeAdvancement<Boxd, kIOSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_SPHERE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Sphered, kIOSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CAPSULE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Capsuled, kIOSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Coned, kIOSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CYLINDER][BV_kIOS] = &ShapeBVHConservativeAdvancement<Cylinderd, kIOSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_CONVEX][BV_kIOS] = &ShapeBVHConservativeAdvancement<Convexd, kIOSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_PLANE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Planed, kIOSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[GEOM_HALFSPACE][BV_kIOS] = &ShapeBVHConservativeAdvancement<Halfspaced, kIOSd, NarrowPhaseSolver>;
 
-  conservative_advancement_matrix[BV_AABB][BV_AABB] = &BVHConservativeAdvancement<AABB, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_AABB][BV_AABB] = &BVHConservativeAdvancement<AABBd, NarrowPhaseSolver>;
   conservative_advancement_matrix[BV_OBB][BV_OBB] = &BVHConservativeAdvancement<OBBd, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_RSS][BV_RSS] = &BVHConservativeAdvancement<RSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHConservativeAdvancement<OBBRSS, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP16][BV_KDOP16] = &BVHConservativeAdvancement<KDOP<16>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP18][BV_KDOP18] = &BVHConservativeAdvancement<KDOP<18>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_KDOP24][BV_KDOP24] = &BVHConservativeAdvancement<KDOP<24>, NarrowPhaseSolver>;
-  conservative_advancement_matrix[BV_kIOS][BV_kIOS] = &BVHConservativeAdvancement<kIOS, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_RSS][BV_RSS] = &BVHConservativeAdvancement<RSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_OBBRSS][BV_OBBRSS] = &BVHConservativeAdvancement<OBBRSSd, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP16][BV_KDOP16] = &BVHConservativeAdvancement<KDOPd<16>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP18][BV_KDOP18] = &BVHConservativeAdvancement<KDOPd<18>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_KDOP24][BV_KDOP24] = &BVHConservativeAdvancement<KDOPd<24>, NarrowPhaseSolver>;
+  conservative_advancement_matrix[BV_kIOS][BV_kIOS] = &BVHConservativeAdvancement<kIOSd, NarrowPhaseSolver>;
   
 }
 

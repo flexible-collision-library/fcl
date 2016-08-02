@@ -43,206 +43,413 @@
 namespace fcl
 {
 
-/// @brief A class describing the AABB collision structure, which is a box in 3D space determined by two diagonal points
+/// @brief A class describing the AABB collision structure, which is a box in 3D
+/// space determined by two diagonal points
+template <typename Scalar>
 class AABB
 {
 public:
   /// @brief The min point in the AABB
-  Vector3d min_;
+  Vector3<Scalar> min_;
+
   /// @brief The max point in the AABB
-  Vector3d max_;
+  Vector3<Scalar> max_;
 
   /// @brief Creating an AABB with zero size (low bound +inf, upper bound -inf)
   AABB();
 
   /// @brief Creating an AABB at position v with zero size
-  AABB(const Vector3d& v) : min_(v), max_(v)
-  {
-  }
+  AABB(const Vector3<Scalar>& v);
 
   /// @brief Creating an AABB with two endpoints a and b
-  AABB(const Vector3d& a, const Vector3d&b) : min_(a.cwiseMin(b)),
-                                        max_(a.cwiseMax(b))
-  {
-  }
+  AABB(const Vector3<Scalar>& a, const Vector3<Scalar>&b);
 
   /// @brief Creating an AABB centered as core and is of half-dimension delta
-  AABB(const AABB& core, const Vector3d& delta) : min_(core.min_ - delta),
-                                               max_(core.max_ + delta)
-  {
-  }
+  AABB(const AABB<Scalar>& core, const Vector3<Scalar>& delta);
 
   /// @brief Creating an AABB contains three points
-  AABB(const Vector3d& a, const Vector3d& b, const Vector3d& c) : min_(a.cwiseMin(b).cwiseMin(c)),
-                                                         max_(a.cwiseMax(b).cwiseMax(c))
-  {
-  }
+  AABB(const Vector3<Scalar>& a, const Vector3<Scalar>& b, const Vector3<Scalar>& c);
 
   /// @brief Check whether two AABB are overlap
-  inline bool overlap(const AABB& other) const
-  {
-    if ((min_.array() > other.max_.array()).any())
-      return false;
-
-    if ((max_.array() < other.min_.array()).any())
-      return false;
-
-    return true;
-  }    
+  bool overlap(const AABB<Scalar>& other) const;
 
   /// @brief Check whether the AABB contains another AABB
-  inline bool contain(const AABB& other) const
-  {
-    if ((min_.array() > other.min_.array()).any())
-      return false;
-
-    if ((max_.array() < other.max_.array()).any())
-      return false;
-
-    return true;
-  }
-
+  bool contain(const AABB<Scalar>& other) const;
 
   /// @brief Check whether two AABB are overlapped along specific axis
-  inline bool axisOverlap(const AABB& other, int axis_id) const
-  {
-    if(min_[axis_id] > other.max_[axis_id]) return false;
-
-    if(max_[axis_id] < other.min_[axis_id]) return false;
-
-    return true;
-  }
+  bool axisOverlap(const AABB<Scalar>& other, int axis_id) const;
 
   /// @brief Check whether two AABB are overlap and return the overlap part
-  inline bool overlap(const AABB& other, AABB& overlap_part) const
-  {
-    if(!overlap(other))
-    {
-      return false;
-    }
-    
-    overlap_part.min_ = min_.cwiseMax(other.min_);
-    overlap_part.max_ = max_.cwiseMin(other.max_);
-    return true;
-  }
-
+  bool overlap(const AABB<Scalar>& other, AABB<Scalar>& overlap_part) const;
 
   /// @brief Check whether the AABB contains a point
-  inline bool contain(const Vector3d& p) const
-  {
-    if ((min_.array() > p.array()).any())
-      return false;
-
-    if ((max_.array() < p.array()).any())
-      return false;
-
-    return true;
-  }
+  bool contain(const Vector3<Scalar>& p) const;
 
   /// @brief Merge the AABB and a point
-  inline AABB& operator += (const Vector3d& p)
-  {
-    min_ = min_.cwiseMin(p);
-    max_ = max_.cwiseMax(p);
-    return *this;
-  }
+  AABB<Scalar>& operator += (const Vector3<Scalar>& p);
 
   /// @brief Merge the AABB and another AABB
-  inline AABB& operator += (const AABB& other)
-  {
-    min_ = min_.cwiseMin(other.min_);
-    max_ = max_.cwiseMax(other.max_);
-    return *this;
-  }
+  AABB<Scalar>& operator += (const AABB<Scalar>& other);
 
   /// @brief Return the merged AABB of current AABB and the other one
-  inline AABB operator + (const AABB& other) const
-  {
-    AABB res(*this);
-    return res += other;
-  }
+  AABB<Scalar> operator + (const AABB<Scalar>& other) const;
 
   /// @brief Width of the AABB
-  inline FCL_REAL width() const
-  {
-    return max_[0] - min_[0];
-  }
+  Scalar width() const;
 
   /// @brief Height of the AABB
-  inline FCL_REAL height() const
-  {
-    return max_[1] - min_[1];
-  }
+  Scalar height() const;
 
   /// @brief Depth of the AABB
-  inline FCL_REAL depth() const
-  {
-    return max_[2] - min_[2];
-  }
+  Scalar depth() const;
 
   /// @brief Volume of the AABB
-  inline FCL_REAL volume() const
-  {
-    return width() * height() * depth();
-  }  
+  Scalar volume() const;
 
   /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
-  inline FCL_REAL size() const
-  {
-    return (max_ - min_).squaredNorm();
-  }
+  Scalar size() const;
 
   /// @brief Radius of the AABB
-  inline FCL_REAL radius() const
-  {
-    return (max_ - min_).norm() / 2;
-  }
+  Scalar radius() const;
 
   /// @brief Center of the AABB
-  inline  Vector3d center() const
-  {
-    return (min_ + max_) * 0.5;
-  }
+  Vector3<Scalar> center() const;
 
   /// @brief Distance between two AABBs; P and Q, should not be NULL, return the nearest points 
-  FCL_REAL distance(const AABB& other, Vector3d* P, Vector3d* Q) const;
+  Scalar distance(
+      const AABB<Scalar>& other, Vector3<Scalar>* P, Vector3<Scalar>* Q) const;
 
   /// @brief Distance between two AABBs
-  FCL_REAL distance(const AABB& other) const;
+  Scalar distance(const AABB<Scalar>& other) const;
 
   /// @brief whether two AABB are equal
-  inline bool equal(const AABB& other) const
-  {
-    return min_.isApprox(other.min_, std::numeric_limits<Vector3d::Scalar>::epsilon() * 100)
-        && max_.isApprox(other.max_, std::numeric_limits<Vector3d::Scalar>::epsilon() * 100);
-  }
+  bool equal(const AABB<Scalar>& other) const;
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.
-  inline AABB& expand(const Vector3d& delta)
-  {
-    min_ -= delta;
-    max_ += delta;
-    return *this;
-  }
+  AABB<Scalar>& expand(const Vector3<Scalar>& delta);
 
   /// @brief expand the aabb by increase the thickness of the plate by a ratio
-  inline AABB& expand(const AABB& core, FCL_REAL ratio)
-  {
-    min_ = min_ * ratio - core.min_;
-    max_ = max_ * ratio - core.max_;
-    return *this;
-  }  
+  AABB<Scalar>& expand(const AABB<Scalar>& core, Scalar ratio);
 };
 
+using AABBf = AABB<float>;
+using AABBd = AABB<double>;
+
 /// @brief translate the center of AABB by t
-static inline AABB translate(const AABB& aabb, const Vector3d& t)
+template <typename Scalar, typename Derived>
+AABB<Scalar> translate(
+    const AABB<Scalar>& aabb, const Eigen::MatrixBase<Derived>& t);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>::AABB()
+  : min_(Vector3<Scalar>::Constant(std::numeric_limits<Scalar>::max())),
+    max_(Vector3<Scalar>::Constant(-std::numeric_limits<Scalar>::max()))
 {
-  AABB res(aabb);
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>::AABB(const Vector3<Scalar>& v) : min_(v), max_(v)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>::AABB(const Vector3<Scalar>& a, const Vector3<Scalar>& b)
+  : min_(a.cwiseMin(b)),
+    max_(a.cwiseMax(b))
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>::AABB(const AABB<Scalar>& core, const Vector3<Scalar>& delta)
+  : min_(core.min_ - delta),
+    max_(core.max_ + delta)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>::AABB(
+    const Vector3<Scalar>& a,
+    const Vector3<Scalar>& b,
+    const Vector3<Scalar>& c)
+  : min_(a.cwiseMin(b).cwiseMin(c)),
+    max_(a.cwiseMax(b).cwiseMax(c))
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+bool AABB<Scalar>::overlap(const AABB<Scalar>& other) const
+{
+  if ((min_.array() > other.max_.array()).any())
+    return false;
+
+  if ((max_.array() < other.min_.array()).any())
+    return false;
+
+  return true;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool AABB<Scalar>::contain(const AABB<Scalar>& other) const
+{
+  if ((min_.array() > other.min_.array()).any())
+    return false;
+
+  if ((max_.array() < other.max_.array()).any())
+    return false;
+
+  return true;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool AABB<Scalar>::axisOverlap(const AABB<Scalar>& other, int axis_id) const
+{
+  if(min_[axis_id] > other.max_[axis_id]) return false;
+
+  if(max_[axis_id] < other.min_[axis_id]) return false;
+
+  return true;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool AABB<Scalar>::overlap(const AABB<Scalar>& other, AABB<Scalar>& overlap_part) const
+{
+  if(!overlap(other))
+  {
+    return false;
+  }
+
+  overlap_part.min_ = min_.cwiseMax(other.min_);
+  overlap_part.max_ = max_.cwiseMin(other.max_);
+  return true;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool AABB<Scalar>::contain(const Vector3<Scalar>& p) const
+{
+  if ((min_.array() > p.array()).any())
+    return false;
+
+  if ((max_.array() < p.array()).any())
+    return false;
+
+  return true;
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>& AABB<Scalar>::operator +=(const Vector3<Scalar>& p)
+{
+  min_ = min_.cwiseMin(p);
+  max_ = max_.cwiseMax(p);
+  return *this;
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>& AABB<Scalar>::operator +=(const AABB<Scalar>& other)
+{
+  min_ = min_.cwiseMin(other.min_);
+  max_ = max_.cwiseMax(other.max_);
+  return *this;
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar> AABB<Scalar>::operator +(const AABB<Scalar>& other) const
+{
+  AABB res(*this);
+  return res += other;
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::width() const
+{
+  return max_[0] - min_[0];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::height() const
+{
+  return max_[1] - min_[1];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::depth() const
+{
+  return max_[2] - min_[2];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::volume() const
+{
+  return width() * height() * depth();
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::size() const
+{
+  return (max_ - min_).squaredNorm();
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::radius() const
+{
+  return (max_ - min_).norm() / 2;
+}
+
+//==============================================================================
+template <typename Scalar>
+Vector3<Scalar> AABB<Scalar>::center() const
+{
+  return (min_ + max_) * 0.5;
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::distance(const AABB<Scalar>& other, Vector3<Scalar>* P, Vector3<Scalar>* Q) const
+{
+  Scalar result = 0;
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    const Scalar& amin = min_[i];
+    const Scalar& amax = max_[i];
+    const Scalar& bmin = other.min_[i];
+    const Scalar& bmax = other.max_[i];
+
+    if(amin > bmax)
+    {
+      Scalar delta = bmax - amin;
+      result += delta * delta;
+      if(P && Q)
+      {
+        (*P)[i] = amin;
+        (*Q)[i] = bmax;
+      }
+    }
+    else if(bmin > amax)
+    {
+      Scalar delta = amax - bmin;
+      result += delta * delta;
+      if(P && Q)
+      {
+        (*P)[i] = amax;
+        (*Q)[i] = bmin;
+      }
+    }
+    else
+    {
+      if(P && Q)
+      {
+        if(bmin >= amin)
+        {
+          Scalar t = 0.5 * (amax + bmin);
+          (*P)[i] = t;
+          (*Q)[i] = t;
+        }
+        else
+        {
+          Scalar t = 0.5 * (amin + bmax);
+          (*P)[i] = t;
+          (*Q)[i] = t;
+        }
+      }
+    }
+  }
+
+  return std::sqrt(result);
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar AABB<Scalar>::distance(const AABB<Scalar>& other) const
+{
+  Scalar result = 0;
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    const Scalar& amin = min_[i];
+    const Scalar& amax = max_[i];
+    const Scalar& bmin = other.min_[i];
+    const Scalar& bmax = other.max_[i];
+
+    if(amin > bmax)
+    {
+      Scalar delta = bmax - amin;
+      result += delta * delta;
+    }
+    else if(bmin > amax)
+    {
+      Scalar delta = amax - bmin;
+      result += delta * delta;
+    }
+  }
+
+  return std::sqrt(result);
+}
+
+//==============================================================================
+template <typename Scalar>
+bool AABB<Scalar>::equal(const AABB<Scalar>& other) const
+{
+  return min_.isApprox(other.min_, std::numeric_limits<Scalar>::epsilon() * 100)
+      && max_.isApprox(other.max_, std::numeric_limits<Scalar>::epsilon() * 100);
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>& AABB<Scalar>::expand(const Vector3<Scalar>& delta)
+{
+  min_ -= delta;
+  max_ += delta;
+  return *this;
+}
+
+//==============================================================================
+template <typename Scalar>
+AABB<Scalar>& AABB<Scalar>::expand(const AABB<Scalar>& core, Scalar ratio)
+{
+  min_ = min_ * ratio - core.min_;
+  max_ = max_ * ratio - core.max_;
+  return *this;
+}
+
+//==============================================================================
+template <typename Scalar, typename Derived>
+AABB<Scalar> translate(
+    const AABB<Scalar>& aabb, const Eigen::MatrixBase<Derived>& t)
+{
+  AABB<Scalar> res(aabb);
   res.min_ += t;
   res.max_ += t;
   return res;
 }
 
-}
+} // namespace fcl
 
 #endif

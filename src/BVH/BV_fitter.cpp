@@ -61,9 +61,9 @@ OBBd BVFitter<OBBd>::fit(unsigned int* primitive_indices, int num_primitives)
   return bv;
 }
 
-OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives)
+OBBRSSd BVFitter<OBBRSSd>::fit(unsigned int* primitive_indices, int num_primitives)
 {
-  OBBRSS bv;
+  OBBRSSd bv;
   Matrix3d M;
   Matrix3d E;
   Vector3d s;
@@ -89,9 +89,9 @@ OBBRSS BVFitter<OBBRSS>::fit(unsigned int* primitive_indices, int num_primitives
   return bv;
 }
 
-RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
+RSSd BVFitter<RSSd>::fit(unsigned int* primitive_indices, int num_primitives)
 {
-  RSS bv;
+  RSSd bv;
 
   Matrix3d M; // row first matrix
   Matrix3d E; // row first eigen-vectors
@@ -117,9 +117,9 @@ RSS BVFitter<RSS>::fit(unsigned int* primitive_indices, int num_primitives)
 }
 
 
-kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
+kIOSd BVFitter<kIOSd>::fit(unsigned int* primitive_indices, int num_primitives)
 {
-  kIOS bv;
+  kIOSd bv;
 
   Matrix3d M; // row first matrix
   Matrix3d E; // row first eigen-vectors
@@ -137,10 +137,10 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
   const Vector3d& extent = bv.obb.extent;
   FCL_REAL r0 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, center);
 
-  // decide k in kIOS
-  if(extent[0] > kIOS::ratio() * extent[2])
+  // decide k in kIOSd
+  if(extent[0] > kIOSd::ratio() * extent[2])
   {
-    if(extent[0] > kIOS::ratio() * extent[1]) bv.num_spheres = 5;
+    if(extent[0] > kIOSd::ratio() * extent[1]) bv.num_spheres = 5;
     else bv.num_spheres = 3;
   }
   else bv.num_spheres = 1;
@@ -150,8 +150,8 @@ kIOS BVFitter<kIOS>::fit(unsigned int* primitive_indices, int num_primitives)
 
   if(bv.num_spheres >= 3)
   {
-    FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS::invSinA();
-    Vector3d delta = bv.obb.axis.col(2) * (r10 * kIOS::cosA() - extent[2]);
+    FCL_REAL r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOSd::invSinA();
+    Vector3d delta = bv.obb.axis.col(2) * (r10 * kIOSd::cosA() - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 

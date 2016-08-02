@@ -248,8 +248,8 @@ void IntervalTreeCollisionManager::update()
 
 void IntervalTreeCollisionManager::update(CollisionObject* updated_obj)
 {
-  AABB old_aabb;
-  const AABB& new_aabb = updated_obj->getAABB();
+  AABBd old_aabb;
+  const AABBd& new_aabb = updated_obj->getAABB();
   for(int i = 0; i < 3; ++i)
   {
     std::map<CollisionObject*, SAPInterval*>::const_iterator it = obj_interval_maps[i].find(updated_obj);
@@ -389,7 +389,7 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, 
   static const unsigned int CUTOFF = 100;
 
   Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  AABB aabb = obj->getAABB();
+  AABBd aabb = obj->getAABB();
   if(min_dist < std::numeric_limits<FCL_REAL>::max())
   {
     Vector3d min_dist_delta(min_dist, min_dist, min_dist);
@@ -451,7 +451,7 @@ bool IntervalTreeCollisionManager::distance_(CollisionObject* obj, void* cdata, 
         if(min_dist < old_min_distance)
         {
           Vector3d min_dist_delta(min_dist, min_dist, min_dist);
-          aabb = AABB(obj->getAABB(), min_dist_delta);
+          aabb = AABBd(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else
@@ -498,8 +498,8 @@ void IntervalTreeCollisionManager::collide(void* cdata, CollisionCallBack callba
       for(; iter != end; ++iter)
       {
         CollisionObject* active_index = *iter;
-        const AABB& b0 = active_index->getAABB();
-        const AABB& b1 = index->getAABB();
+        const AABBd& b0 = active_index->getAABB();
+        const AABBd& b1 = index->getAABB();
 
         int axis2 = (axis + 1) % 3;
         int axis3 = (axis + 2) % 3;

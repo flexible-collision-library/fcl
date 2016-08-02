@@ -42,7 +42,7 @@
 namespace fcl
 {
 
-/** \brief Functor sorting objects according to the AABB lower x bound */
+/** \brief Functor sorting objects according to the AABBd lower x bound */
 struct SortByXLow
 {
   bool operator()(const CollisionObject* a, const CollisionObject* b) const
@@ -53,7 +53,7 @@ struct SortByXLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB lower y bound */
+/** \brief Functor sorting objects according to the AABBd lower y bound */
 struct SortByYLow
 {
   bool operator()(const CollisionObject* a, const CollisionObject* b) const
@@ -64,7 +64,7 @@ struct SortByYLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB lower z bound */
+/** \brief Functor sorting objects according to the AABBd lower z bound */
 struct SortByZLow
 {
   bool operator()(const CollisionObject* a, const CollisionObject* b) const
@@ -75,11 +75,11 @@ struct SortByZLow
   }
 };
 
-/** \brief Dummy collision object with a point AABB */
+/** \brief Dummy collision object with a point AABBd */
 class DummyCollisionObject : public CollisionObject
 {
 public:
-  DummyCollisionObject(const AABB& aabb_) : CollisionObject(std::shared_ptr<CollisionGeometryd>())
+  DummyCollisionObject(const AABBd& aabb_) : CollisionObject(std::shared_ptr<CollisionGeometryd>())
   {
     aabb = aabb_;
   }
@@ -92,7 +92,7 @@ void SSaPCollisionManager::unregisterObject(CollisionObject* obj)
 {
   setup();
 
-  DummyCollisionObject dummyHigh(AABB(obj->getAABB().max_));
+  DummyCollisionObject dummyHigh(AABBd(obj->getAABB().max_));
 
   std::vector<CollisionObject*>::iterator pos_start1 = objs_x.begin();
   std::vector<CollisionObject*>::iterator pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
@@ -223,7 +223,7 @@ bool SSaPCollisionManager::collide_(CollisionObject* obj, void* cdata, Collision
 {
   static const unsigned int CUTOFF = 100;
 
-  DummyCollisionObject dummyHigh(AABB(obj->getAABB().max_));
+  DummyCollisionObject dummyHigh(AABBd(obj->getAABB().max_));
   bool coll_res = false;
 
   std::vector<CollisionObject*>::const_iterator pos_start1 = objs_x.begin();
@@ -296,7 +296,7 @@ bool SSaPCollisionManager::distance_(CollisionObject* obj, void* cdata, Distance
   while(1)
   {
     old_min_distance = min_dist;
-    DummyCollisionObject dummyHigh((AABB(dummy_vector)));
+    DummyCollisionObject dummyHigh((AABBd(dummy_vector)));
 
     pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow());
     unsigned int d1 = pos_end1 - pos_start1;

@@ -53,7 +53,7 @@ void collisionRecurse(CollisionTraversalNodeBase* node, int b1, int b2, BVHFront
 /// @brief Recurse function for collision, specialized for OBBd type
 void collisionRecurse(MeshCollisionTraversalNodeOBB* node, int b1, int b2, const Matrix3d& R, const Vector3d& T, BVHFrontList* front_list);
 
-/// @brief Recurse function for collision, specialized for RSS type
+/// @brief Recurse function for collision, specialized for RSSd type
 void collisionRecurse(MeshCollisionTraversalNodeRSS* node, int b1, int b2, const Matrix3d& R, const Vector3d& T, BVHFrontList* front_list);
 
 /// @brief Recurse function for self collision. Make sure node is set correctly so that the first and second tree are the same

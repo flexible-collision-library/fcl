@@ -68,7 +68,7 @@ public:
 
   Scalar distance(const Vector3<Scalar>& p) const;
 
-  /// @brief Compute AABB
+  /// @brief Compute AABBd
   void computeLocalAABB() override;
 
   /// @brief Get node type: a half space
@@ -106,39 +106,39 @@ Halfspace<Scalar> transform(
 }
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Halfspace<Scalar>>;
+struct ComputeBVImpl<Scalar, AABBd, Halfspace<Scalar>>;
 
 template <typename Scalar>
 struct ComputeBVImpl<Scalar, OBB<Scalar>, Halfspace<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSS, Halfspace<Scalar>>;
+struct ComputeBVImpl<Scalar, RSSd, Halfspace<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSS, Halfspace<Scalar>>;
+struct ComputeBVImpl<Scalar, OBBRSSd, Halfspace<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOS, Halfspace<Scalar>>;
+struct ComputeBVImpl<Scalar, kIOSd, Halfspace<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<16>, Halfspace<Scalar>>;
+struct ComputeBVImpl<Scalar, KDOPd<16>, Halfspace<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<18>, Halfspace<Scalar>>;
+struct ComputeBVImpl<Scalar, KDOPd<18>, Halfspace<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<24>, Halfspace<Scalar>>;
+struct ComputeBVImpl<Scalar, KDOPd<24>, Halfspace<Scalar>>;
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABB, Halfspace<Scalar>>
+struct ComputeBVImpl<Scalar, AABBd, Halfspace<Scalar>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, AABB& bv)
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
   {
     Halfspace<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
-    AABB bv_;
+    AABBd bv_;
     bv_.min_ = Vector3d::Constant(-std::numeric_limits<FCL_REAL>::max());
     bv_.max_ = Vector3d::Constant(std::numeric_limits<FCL_REAL>::max());
     if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
@@ -177,11 +177,11 @@ struct ComputeBVImpl<Scalar, OBB<Scalar>, Halfspace<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSS, Halfspace<Scalar>>
+struct ComputeBVImpl<Scalar, RSSd, Halfspace<Scalar>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, RSS& bv)
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, RSSd& bv)
   {
-    /// Half space can only have very rough RSS
+    /// Half space can only have very rough RSSd
     bv.axis.setIdentity();
     bv.Tr.setZero();
     bv.l[0] = bv.l[1] = bv.r = std::numeric_limits<FCL_REAL>::max();
@@ -189,19 +189,19 @@ struct ComputeBVImpl<Scalar, RSS, Halfspace<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSS, Halfspace<Scalar>>
+struct ComputeBVImpl<Scalar, OBBRSSd, Halfspace<Scalar>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, OBBRSS& bv)
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, OBBRSSd& bv)
   {
     computeBV<Scalar, OBB<Scalar>, Halfspace<Scalar>>(s, tf, bv.obb);
-    computeBV<Scalar, RSS, Halfspace<Scalar>>(s, tf, bv.rss);
+    computeBV<Scalar, RSSd, Halfspace<Scalar>>(s, tf, bv.rss);
   }
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOS, Halfspace<Scalar>>
+struct ComputeBVImpl<Scalar, kIOSd, Halfspace<Scalar>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, kIOS& bv)
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, kIOSd& bv)
   {
     bv.num_spheres = 1;
     computeBV<Scalar, OBB<Scalar>, Halfspace<Scalar>>(s, tf, bv.obb);
@@ -211,9 +211,9 @@ struct ComputeBVImpl<Scalar, kIOS, Halfspace<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<16>, Halfspace<Scalar>>
+struct ComputeBVImpl<Scalar, KDOPd<16>, Halfspace<Scalar>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOP<16>& bv)
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<16>& bv)
   {
     Halfspace<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
@@ -269,9 +269,9 @@ struct ComputeBVImpl<Scalar, KDOP<16>, Halfspace<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<18>, Halfspace<Scalar>>
+struct ComputeBVImpl<Scalar, KDOPd<18>, Halfspace<Scalar>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOP<18>& bv)
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<18>& bv)
   {
     Halfspace<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
@@ -333,9 +333,9 @@ struct ComputeBVImpl<Scalar, KDOP<18>, Halfspace<Scalar>>
 };
 
 template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOP<24>, Halfspace<Scalar>>
+struct ComputeBVImpl<Scalar, KDOPd<24>, Halfspace<Scalar>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOP<24>& bv)
+  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<24>& bv)
   {
     Halfspace<Scalar> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
@@ -458,7 +458,7 @@ Scalar Halfspace<Scalar>::distance(const Vector3<Scalar>& p) const
 template <typename Scalar>
 void Halfspace<Scalar>::computeLocalAABB()
 {
-  computeBV<Scalar, AABB>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

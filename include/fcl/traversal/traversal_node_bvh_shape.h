@@ -210,10 +210,10 @@ public:
 
       if(is_intersect && this->request.enable_cost)
       {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<double, AABB, S>(*(this->model2), this->tf2, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        AABBd overlap_part;
+        AABBd shape_aabb;
+        computeBV<double, AABBd, S>(*(this->model2), this->tf2, shape_aabb);
+        AABBd(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }
     }
@@ -221,10 +221,10 @@ public:
     {
       if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
       {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<double, AABB, S>(*(this->model2), this->tf2, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        AABBd overlap_part;
+        AABBd shape_aabb;
+        computeBV<double, AABBd, S>(*(this->model2), this->tf2, shape_aabb);
+        AABBd(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);        
       }
     }
@@ -300,10 +300,10 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
 
     if(is_intersect && request.enable_cost)
     {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<double, AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
+      AABBd overlap_part;
+      AABBd shape_aabb;
+      computeBV<double, AABBd, S>(model2, tf2, shape_aabb);
+      /* bool res = */ AABBd(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);
     }
   }
@@ -311,10 +311,10 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
   {
     if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
     {
-      AABB overlap_part;
-      AABB shape_aabb;
-      computeBV<double, AABB, S>(model2, tf2, shape_aabb);
-      /* bool res = */ AABB(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
+      AABBd overlap_part;
+      AABBd shape_aabb;
+      computeBV<double, AABBd, S>(model2, tf2, shape_aabb);
+      /* bool res = */ AABBd(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource(overlap_part, cost_density), request.num_max_cost_sources);    
     }
   }
@@ -325,7 +325,7 @@ static inline void meshShapeCollisionOrientedNodeLeafTesting(int b1, int b2,
 /// @endcond
 
 
-/// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBBd, RSS, OBBRSS, kIOS)
+/// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBBd, RSSd, OBBRSSd, kIOSd)
 template<typename S, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNodeOBB : public MeshShapeCollisionTraversalNode<OBBd, S, NarrowPhaseSolver>
 {
@@ -349,10 +349,10 @@ public:
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodeRSS : public MeshShapeCollisionTraversalNode<RSSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeRSS() : MeshShapeCollisionTraversalNode<RSS, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodeRSS() : MeshShapeCollisionTraversalNode<RSSd, S, NarrowPhaseSolver>()
   {
   }
 
@@ -371,10 +371,10 @@ public:
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodekIOS : public MeshShapeCollisionTraversalNode<kIOSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodekIOS() : MeshShapeCollisionTraversalNode<kIOS, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodekIOS() : MeshShapeCollisionTraversalNode<kIOSd, S, NarrowPhaseSolver>()
   {
   }
 
@@ -393,10 +393,10 @@ public:
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver>
+class MeshShapeCollisionTraversalNodeOBBRSS : public MeshShapeCollisionTraversalNode<OBBRSSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeCollisionTraversalNodeOBBRSS() : MeshShapeCollisionTraversalNode<OBBRSS, S, NarrowPhaseSolver>()
+  MeshShapeCollisionTraversalNodeOBBRSS() : MeshShapeCollisionTraversalNode<OBBRSSd, S, NarrowPhaseSolver>()
   {
   }
 
@@ -471,10 +471,10 @@ public:
 
       if(is_intersect && this->request.enable_cost)
       {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<double, AABB, S>(*(this->model1), this->tf1, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        AABBd overlap_part;
+        AABBd shape_aabb;
+        computeBV<double, AABBd, S>(*(this->model1), this->tf1, shape_aabb);
+        AABBd(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }
     }
@@ -482,10 +482,10 @@ public:
     {
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
       {
-        AABB overlap_part;
-        AABB shape_aabb;
-        computeBV<double, AABB, S>(*(this->model1), this->tf1, shape_aabb);
-        AABB(p1, p2, p3).overlap(shape_aabb, overlap_part);
+        AABBd overlap_part;
+        AABBd shape_aabb;
+        computeBV<double, AABBd, S>(*(this->model1), this->tf1, shape_aabb);
+        AABBd(p1, p2, p3).overlap(shape_aabb, overlap_part);
         this->result->addCostSource(CostSource(overlap_part, cost_density), this->request.num_max_cost_sources);
       }   
     }
@@ -505,7 +505,7 @@ public:
   const NarrowPhaseSolver* nsolver;
 };
 
-/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBBd, RSS, OBBRSS, kIOS)
+/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBBd, RSSd, OBBRSSd, kIOSd)
 template<typename S, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNodeOBB : public ShapeMeshCollisionTraversalNode<S, OBBd, NarrowPhaseSolver>
 {
@@ -531,10 +531,10 @@ public:
 
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNode<S, RSS, NarrowPhaseSolver>
+class ShapeMeshCollisionTraversalNodeRSS : public ShapeMeshCollisionTraversalNode<S, RSSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSSd, NarrowPhaseSolver>()
   {
   }
 
@@ -556,10 +556,10 @@ public:
 
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNode<S, kIOS, NarrowPhaseSolver>
+class ShapeMeshCollisionTraversalNodekIOS : public ShapeMeshCollisionTraversalNode<S, kIOSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOSd, NarrowPhaseSolver>()
   {
   }
 
@@ -581,10 +581,10 @@ public:
 
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversalNode<S, OBBRSS, NarrowPhaseSolver>
+class ShapeMeshCollisionTraversalNodeOBBRSS : public ShapeMeshCollisionTraversalNode<S, OBBRSSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS, NarrowPhaseSolver>()
+  ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSSd, NarrowPhaseSolver>()
   {
   }
 
@@ -818,12 +818,12 @@ static inline void distancePreprocessOrientedNode(const BVHModel<BV>* model1,
 
 
 
-/// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
+/// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSSd, OBBRSSd, kIOSd)
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSS, S, NarrowPhaseSolver>
+class MeshShapeDistanceTraversalNodeRSS : public MeshShapeDistanceTraversalNode<RSSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSS, S, NarrowPhaseSolver>()
+  MeshShapeDistanceTraversalNodeRSS() : MeshShapeDistanceTraversalNode<RSSd, S, NarrowPhaseSolver>()
   {
   }
 
@@ -852,10 +852,10 @@ public:
 
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOS, S, NarrowPhaseSolver>
+class MeshShapeDistanceTraversalNodekIOS : public MeshShapeDistanceTraversalNode<kIOSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS, S, NarrowPhaseSolver>()
+  MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOSd, S, NarrowPhaseSolver>()
   {
   }
 
@@ -884,10 +884,10 @@ public:
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSS, S, NarrowPhaseSolver>
+class MeshShapeDistanceTraversalNodeOBBRSS : public MeshShapeDistanceTraversalNode<OBBRSSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS, S, NarrowPhaseSolver>()
+  MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSSd, S, NarrowPhaseSolver>()
   {
   }
 
@@ -972,10 +972,10 @@ public:
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSS, NarrowPhaseSolver>
+class ShapeMeshDistanceTraversalNodeRSS : public ShapeMeshDistanceTraversalNode<S, RSSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSS, NarrowPhaseSolver>()
+  ShapeMeshDistanceTraversalNodeRSS() : ShapeMeshDistanceTraversalNode<S, RSSd, NarrowPhaseSolver>()
   {
   }
 
@@ -1004,10 +1004,10 @@ public:
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOS, NarrowPhaseSolver>
+class ShapeMeshDistanceTraversalNodekIOS : public ShapeMeshDistanceTraversalNode<S, kIOSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOS, NarrowPhaseSolver>()
+  ShapeMeshDistanceTraversalNodekIOS() : ShapeMeshDistanceTraversalNode<S, kIOSd, NarrowPhaseSolver>()
   {
   }
 
@@ -1036,10 +1036,10 @@ public:
 };
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSS, NarrowPhaseSolver>
+class ShapeMeshDistanceTraversalNodeOBBRSS : public ShapeMeshDistanceTraversalNode<S, OBBRSSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSS, NarrowPhaseSolver>()
+  ShapeMeshDistanceTraversalNodeOBBRSS() : ShapeMeshDistanceTraversalNode<S, OBBRSSd, NarrowPhaseSolver>()
   {
   }
 
@@ -1444,10 +1444,10 @@ bool meshShapeConservativeAdvancementOrientedNodeCanStop(FCL_REAL c,
 }
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeConservativeAdvancementTraversalNodeRSS : public MeshShapeConservativeAdvancementTraversalNode<RSS, S, NarrowPhaseSolver>
+class MeshShapeConservativeAdvancementTraversalNodeRSS : public MeshShapeConservativeAdvancementTraversalNode<RSSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeConservativeAdvancementTraversalNodeRSS(FCL_REAL w_ = 1) : MeshShapeConservativeAdvancementTraversalNode<RSS, S, NarrowPhaseSolver>(w_)
+  MeshShapeConservativeAdvancementTraversalNodeRSS(FCL_REAL w_ = 1) : MeshShapeConservativeAdvancementTraversalNode<RSSd, S, NarrowPhaseSolver>(w_)
   {
   }
 
@@ -1490,10 +1490,10 @@ public:
 
 
 template<typename S, typename NarrowPhaseSolver>
-class MeshShapeConservativeAdvancementTraversalNodeOBBRSS : public MeshShapeConservativeAdvancementTraversalNode<OBBRSS, S, NarrowPhaseSolver>
+class MeshShapeConservativeAdvancementTraversalNodeOBBRSS : public MeshShapeConservativeAdvancementTraversalNode<OBBRSSd, S, NarrowPhaseSolver>
 {
 public:
-  MeshShapeConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1) : MeshShapeConservativeAdvancementTraversalNode<OBBRSS, S, NarrowPhaseSolver>(w_)
+  MeshShapeConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1) : MeshShapeConservativeAdvancementTraversalNode<OBBRSSd, S, NarrowPhaseSolver>(w_)
   {
   }
 
@@ -1537,10 +1537,10 @@ public:
 
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNodeRSS : public ShapeMeshConservativeAdvancementTraversalNode<S, RSS, NarrowPhaseSolver>
+class ShapeMeshConservativeAdvancementTraversalNodeRSS : public ShapeMeshConservativeAdvancementTraversalNode<S, RSSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_ = 1) : ShapeMeshConservativeAdvancementTraversalNode<S, RSS, NarrowPhaseSolver>(w_)
+  ShapeMeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_ = 1) : ShapeMeshConservativeAdvancementTraversalNode<S, RSSd, NarrowPhaseSolver>(w_)
   {
   }
 
@@ -1583,10 +1583,10 @@ public:
 
 
 template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNodeOBBRSS : public ShapeMeshConservativeAdvancementTraversalNode<S, OBBRSS, NarrowPhaseSolver>
+class ShapeMeshConservativeAdvancementTraversalNodeOBBRSS : public ShapeMeshConservativeAdvancementTraversalNode<S, OBBRSSd, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1) : ShapeMeshConservativeAdvancementTraversalNode<S, OBBRSS, NarrowPhaseSolver>(w_)
+  ShapeMeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1) : ShapeMeshConservativeAdvancementTraversalNode<S, OBBRSSd, NarrowPhaseSolver>(w_)
   {
   }
 

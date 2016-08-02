@@ -82,7 +82,7 @@ GTEST_TEST(FCL_COLLISION, OBB_Box_test)
   std::vector<Transform3d> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
   
-  AABB aabb1;
+  AABBd aabb1;
   aabb1.min_ = Vector3d(-600, -600, -600);
   aabb1.max_ = Vector3d(600, 600, 600);
 
@@ -100,7 +100,7 @@ GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    AABB aabb;
+    AABBd aabb;
     aabb.min_ = aabb1.min_ * 0.5;
     aabb.max_ = aabb1.max_ * 0.5;    
 
@@ -126,7 +126,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
   std::vector<Transform3d> rotate_transform;
   generateRandomTransforms(r_extents, rotate_transform, 1);
   
-  AABB aabb1;
+  AABBd aabb1;
   aabb1.min_ = Vector3d(-600, -600, -600);
   aabb1.max_ = Vector3d(600, 600, 600);
 
@@ -203,7 +203,7 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
   std::vector<Transform3d> transforms;
   generateRandomTransforms(extents, transforms, n);
 
-  AABB aabb1;
+  AABBd aabb1;
   aabb1.min_ = Vector3d(-600, -600, -600);
   aabb1.max_ = Vector3d(600, 600, 600);
   
@@ -212,11 +212,11 @@ GTEST_TEST(FCL_COLLISION, OBB_AABB_test)
   
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    AABB aabb;
+    AABBd aabb;
     aabb.min_ = aabb1.min_ * 0.5;
     aabb.max_ = aabb1.max_ * 0.5;    
 
-    AABB aabb2 = translate(aabb, transforms[i].translation());
+    AABBd aabb2 = translate(aabb, transforms[i].translation());
     
     OBBd obb2;
     convertBV(aabb, Transform3d(Eigen::Translation3d(transforms[i].translation())), obb2);
@@ -279,7 +279,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test<RSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -287,7 +287,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test<RSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -295,7 +295,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test<RSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -303,7 +303,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test<AABBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -311,7 +311,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test<AABBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -319,7 +319,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test<AABBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -327,7 +327,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test<KDOPd<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -335,7 +335,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test<KDOPd<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -343,7 +343,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test<KDOPd<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -351,7 +351,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test<KDOPd<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -359,7 +359,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test<KDOPd<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -367,7 +367,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test<KDOPd<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -375,7 +375,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test<KDOPd<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -383,7 +383,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test<KDOPd<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -391,7 +391,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test<KDOPd<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -423,7 +423,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test2<RSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -431,7 +431,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test2<RSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -439,7 +439,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test2<RSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -447,7 +447,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test2<AABBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -455,7 +455,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test2<AABBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -463,7 +463,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test2<AABBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -471,7 +471,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test2<KDOPd<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -479,7 +479,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test2<KDOPd<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -487,7 +487,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test2<KDOPd<24> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -495,7 +495,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test2<KDOPd<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -503,7 +503,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test2<KDOPd<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -511,7 +511,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test2<KDOPd<18> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -519,7 +519,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test2<KDOPd<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -527,7 +527,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test2<KDOPd<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -535,7 +535,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<KDOP<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test2<KDOPd<16> >(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -569,7 +569,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -577,7 +577,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -585,7 +585,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<RSS, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -593,7 +593,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<RSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
+    test_collide_func<RSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -609,7 +609,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<AABB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
+    test_collide_func<AABBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -618,7 +618,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
     }
 
     
-    collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -626,7 +626,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -634,7 +634,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -642,7 +642,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test2<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -650,7 +650,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test2<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -658,7 +658,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test2<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -666,7 +666,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
     
-    collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test_Oriented<kIOSd, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -674,7 +674,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test_Oriented<kIOSd, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -682,7 +682,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<kIOS, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test_Oriented<kIOSd, MeshCollisionTraversalNodekIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -690,7 +690,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
+    test_collide_func<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -698,7 +698,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
+    test_collide_func<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -706,7 +706,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<kIOS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
+    test_collide_func<kIOSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -714,7 +714,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -722,7 +722,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -730,7 +730,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -738,7 +738,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test2<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -746,7 +746,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test2<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -754,7 +754,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test2<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test2<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -762,7 +762,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
     
-    collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test_Oriented<OBBRSSd, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -770,7 +770,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test_Oriented<OBBRSSd, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -778,7 +778,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<OBBRSS, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test_Oriented<OBBRSSd, MeshCollisionTraversalNodeOBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -786,7 +786,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
+    test_collide_func<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -794,7 +794,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
+    test_collide_func<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -802,7 +802,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    test_collide_func<OBBRSS>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
+    test_collide_func<OBBRSSd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {

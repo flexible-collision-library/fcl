@@ -53,7 +53,7 @@ namespace fcl
 class DynamicAABBTreeCollisionManager_Array : public BroadPhaseCollisionManager
 {
 public:
-  typedef implementation_array::NodeBase<AABB> DynamicAABBNode;
+  typedef implementation_array::NodeBase<AABBd> DynamicAABBNode;
   typedef std::unordered_map<CollisionObject*, size_t> DynamicAABBTable;
 
   int max_tree_nonbalanced_level;
@@ -146,10 +146,10 @@ public:
   }
 
 
-  const implementation_array::HierarchyTree<AABB>& getTree() const { return dtree; }
+  const implementation_array::HierarchyTree<AABBd>& getTree() const { return dtree; }
 
 private:
-  implementation_array::HierarchyTree<AABB> dtree;
+  implementation_array::HierarchyTree<AABBd> dtree;
   std::unordered_map<CollisionObject*, size_t> table;
 
   bool setup_;

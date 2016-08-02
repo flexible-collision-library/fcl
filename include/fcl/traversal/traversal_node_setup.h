@@ -460,10 +460,10 @@ bool initialize(MeshShapeCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
   return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type
+/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request, 
@@ -472,10 +472,10 @@ bool initialize(MeshShapeCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
   return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type
+/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-                const BVHModel<kIOS>& model1, const Transform3d& tf1,
+                const BVHModel<kIOSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
@@ -484,10 +484,10 @@ bool initialize(MeshShapeCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
   return details::setupMeshShapeCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type
+/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
@@ -544,11 +544,11 @@ bool initialize(ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
   return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSS type
+/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for RSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -556,11 +556,11 @@ bool initialize(ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
   return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOS type
+/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for kIOSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<kIOS>& model2, const Transform3d& tf2,
+                const BVHModel<kIOSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -568,11 +568,11 @@ bool initialize(ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
   return details::setupShapeMeshCollisionOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSS type
+/// @brief Initialize the traversal node for collision between one mesh and one shape, specialized for OBBRSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const CollisionRequest& request,
                 CollisionResult& result)
@@ -655,22 +655,22 @@ bool initialize(MeshCollisionTraversalNodeOBB& node,
                 const BVHModel<OBBd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
-/// @brief Initialize traversal node for collision between two meshes, specialized for RSS type
+/// @brief Initialize traversal node for collision between two meshes, specialized for RSSd type
 bool initialize(MeshCollisionTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
-/// @brief Initialize traversal node for collision between two meshes, specialized for OBBRSS type
+/// @brief Initialize traversal node for collision between two meshes, specialized for OBBRSSd type
 bool initialize(MeshCollisionTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
-/// @brief Initialize traversal node for collision between two meshes, specialized for kIOS type
+/// @brief Initialize traversal node for collision between two meshes, specialized for kIOSd type
 bool initialize(MeshCollisionTraversalNodekIOS& node,
-                const BVHModel<kIOS>& model1, const Transform3d& tf1,
-                const BVHModel<kIOS>& model2, const Transform3d& tf2,
+                const BVHModel<kIOSd>& model1, const Transform3d& tf1,
+                const BVHModel<kIOSd>& model2, const Transform3d& tf2,
                 const CollisionRequest& request, CollisionResult& result);
 
 
@@ -759,24 +759,24 @@ bool initialize(MeshDistanceTraversalNode<BV>& node,
 }
 
 
-/// @brief Initialize traversal node for distance computation between two meshes, specialized for RSS type
+/// @brief Initialize traversal node for distance computation between two meshes, specialized for RSSd type
 bool initialize(MeshDistanceTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result);
 
-/// @brief Initialize traversal node for distance computation between two meshes, specialized for kIOS type
+/// @brief Initialize traversal node for distance computation between two meshes, specialized for kIOSd type
 bool initialize(MeshDistanceTraversalNodekIOS& node,
-                const BVHModel<kIOS>& model1, const Transform3d& tf1,
-                const BVHModel<kIOS>& model2, const Transform3d& tf2,
+                const BVHModel<kIOSd>& model1, const Transform3d& tf1,
+                const BVHModel<kIOSd>& model2, const Transform3d& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result);
 
-/// @brief Initialize traversal node for distance computation between two meshes, specialized for OBBRSS type
+/// @brief Initialize traversal node for distance computation between two meshes, specialized for OBBRSSd type
 bool initialize(MeshDistanceTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 const DistanceRequest& request,
                 DistanceResult& result);
 
@@ -908,10 +908,10 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<S, NarrowPhas
 }
 /// @endcond
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for RSS type
+/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for RSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request, 
@@ -920,10 +920,10 @@ bool initialize(MeshShapeDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
   return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for kIOS type
+/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for kIOSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-                const BVHModel<kIOS>& model1, const Transform3d& tf1,
+                const BVHModel<kIOSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
@@ -932,10 +932,10 @@ bool initialize(MeshShapeDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
   return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);  
 }
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for OBBRSS type
+/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for OBBRSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
@@ -979,11 +979,11 @@ static inline bool setupShapeMeshDistanceOrientedNode(OrientedNode<S, NarrowPhas
 }
 
 
-/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for RSS type
+/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for RSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -991,11 +991,11 @@ bool initialize(ShapeMeshDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
   return details::setupShapeMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for kIOS type
+/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for kIOSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<kIOS>& model2, const Transform3d& tf2,
+                const BVHModel<kIOSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -1003,11 +1003,11 @@ bool initialize(ShapeMeshDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
   return details::setupShapeMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
-/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for OBBRSS type
+/// @brief Initialize traversal node for distance computation between one shape and one mesh, specialized for OBBRSSd type
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 const DistanceRequest& request,
                 DistanceResult& result)
@@ -1091,15 +1091,15 @@ bool initialize(MeshConservativeAdvancementTraversalNode<BV>& node,
 }
 
 
-/// @brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms, specialized for RSS
+/// @brief Initialize traversal node for conservative advancement computation between two meshes, given the current transforms, specialized for RSSd
 bool initialize(MeshConservativeAdvancementTraversalNodeRSS& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 FCL_REAL w = 1);
 
 bool initialize(MeshConservativeAdvancementTraversalNodeOBBRSS& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 FCL_REAL w = 1);
 
 template<typename S1, typename S2, typename NarrowPhaseSolver>
@@ -1114,8 +1114,8 @@ bool initialize(ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSol
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  computeBV<double, RSS, S1>(shape1, Transform3d::Identity(), node.model1_bv);
-  computeBV<double, RSS, S2>(shape2, Transform3d::Identity(), node.model2_bv);
+  computeBV<double, RSSd, S1>(shape1, Transform3d::Identity(), node.model1_bv);
+  computeBV<double, RSSd, S2>(shape2, Transform3d::Identity(), node.model2_bv);
   
   return true;
 }
@@ -1160,7 +1160,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNode<BV, S, NarrowPhase
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<RSS>& model1, const Transform3d& tf1,
+                const BVHModel<RSSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 FCL_REAL w = 1)
@@ -1173,7 +1173,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseS
 
   node.w = w;
 
-  computeBV<double, RSS, S>(model2, Transform3d::Identity(), node.model2_bv);
+  computeBV<double, RSSd, S>(model2, Transform3d::Identity(), node.model2_bv);
 
   return true;
 }
@@ -1181,7 +1181,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseS
 
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(MeshShapeConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const BVHModel<OBBRSS>& model1, const Transform3d& tf1,
+                const BVHModel<OBBRSSd>& model1, const Transform3d& tf1,
                 const S& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 FCL_REAL w = 1)
@@ -1194,7 +1194,7 @@ bool initialize(MeshShapeConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPha
 
   node.w = w;
 
-  computeBV<double, OBBRSS, S>(model2, Transform3d::Identity(), node.model2_bv);
+  computeBV<double, OBBRSSd, S>(model2, Transform3d::Identity(), node.model2_bv);
 
   return true;
 }
@@ -1241,7 +1241,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhase
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<RSS>& model2, const Transform3d& tf2,
+                const BVHModel<RSSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 FCL_REAL w = 1)
 {
@@ -1253,7 +1253,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseS
 
   node.w = w;
 
-  computeBV<double, RSS, S>(model1, Transform3d::Identity(), node.model1_bv);
+  computeBV<double, RSSd, S>(model1, Transform3d::Identity(), node.model1_bv);
 
   return true;
 }
@@ -1262,7 +1262,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseS
 template<typename S, typename NarrowPhaseSolver>
 bool initialize(ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
                 const S& model1, const Transform3d& tf1,
-                const BVHModel<OBBRSS>& model2, const Transform3d& tf2,
+                const BVHModel<OBBRSSd>& model2, const Transform3d& tf2,
                 const NarrowPhaseSolver* nsolver,
                 FCL_REAL w = 1)
 {
@@ -1274,7 +1274,7 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPha
 
   node.w = w;
 
-  computeBV<double, OBBRSS, S>(model1, Transform3d::Identity(), node.model1_bv);
+  computeBV<double, OBBRSSd, S>(model1, Transform3d::Identity(), node.model1_bv);
 
   return true;
 }

@@ -181,7 +181,7 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1, const Tran
   {
   case BV_AABB:
     if(o2->getNodeType() == BV_AABB)
-      return details::continuousCollideBVHPolynomial<AABB>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<AABBd>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_OBB:
     if(o2->getNodeType() == BV_OBB)
@@ -189,27 +189,27 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometryd* o1, const Tran
     break;
   case BV_RSS:
     if(o2->getNodeType() == BV_RSS)
-      return details::continuousCollideBVHPolynomial<RSS>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<RSSd>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_kIOS:
     if(o2->getNodeType() == BV_kIOS)
-      return details::continuousCollideBVHPolynomial<kIOS>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<kIOSd>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_OBBRSS:
     if(o2->getNodeType() == BV_OBBRSS)
-      return details::continuousCollideBVHPolynomial<OBBRSS>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<OBBRSSd>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_KDOP16:
     if(o2->getNodeType() == BV_KDOP16)
-      return details::continuousCollideBVHPolynomial<KDOP<16> >(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<KDOPd<16> >(o1, motion1, o2, motion2, request, result);
     break;
   case BV_KDOP18:
     if(o2->getNodeType() == BV_KDOP18)
-      return details::continuousCollideBVHPolynomial<KDOP<18> >(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<KDOPd<18> >(o1, motion1, o2, motion2, request, result);
     break;
   case BV_KDOP24:
     if(o2->getNodeType() == BV_KDOP24)
-      return details::continuousCollideBVHPolynomial<KDOP<24> >(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<KDOPd<24> >(o1, motion1, o2, motion2, request, result);
     break;
   default:
     ;

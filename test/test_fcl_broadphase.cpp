@@ -378,7 +378,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   Boxd box(5, 10, 20);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, box, Transform3d::Identity());
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
@@ -387,7 +387,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   Sphered sphere(30);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
@@ -396,7 +396,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   Cylinderd cylinder(10, 40);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
@@ -493,7 +493,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Boxd box(single_size, single_size, single_size);
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, box, Transform3d::Identity());
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -508,7 +508,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Sphered sphere(single_size / 2);
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -523,7 +523,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Ellipsoidd ellipsoid(single_size / 2, single_size / 2, single_size / 2);
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, ellipsoid, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -538,7 +538,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Cylinderd cylinder(single_size / 2, single_size);
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -553,7 +553,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Coned cone(single_size / 2, single_size);
-    BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
+    BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, cone, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
@@ -593,10 +593,10 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
   FCL_REAL ncell_per_axis = 20;
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / ncell_per_axis, (upper_limit[1] - lower_limit[1]) / ncell_per_axis), (upper_limit[2] - lower_limit[2]) / ncell_per_axis);
   // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
 
@@ -780,10 +780,10 @@ void broad_phase_self_distance_test(double env_scale, std::size_t env_size, bool
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 5, (upper_limit[1] - lower_limit[1]) / 5), (upper_limit[2] - lower_limit[2]) / 5);
   // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
   managers.push_back(new DynamicAABBTreeCollisionManager_Array());
@@ -923,10 +923,10 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size, std::size
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
   // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
   managers.push_back(new DynamicAABBTreeCollisionManager_Array());
@@ -1054,10 +1054,10 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
   SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
   // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABB, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager());
   managers.push_back(new DynamicAABBTreeCollisionManager_Array());

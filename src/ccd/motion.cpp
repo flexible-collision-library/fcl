@@ -42,7 +42,7 @@ namespace fcl
 {
 
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const SplineMotion& motion) const
 {
   FCL_REAL T_bound = motion.computeTBound(n);
   FCL_REAL tf_t = motion.getCurrentTime();
@@ -310,10 +310,10 @@ FCL_REAL SplineMotion::getWeight3(FCL_REAL t) const
 
 /// @brief Compute the motion bound for a bounding volume along a given direction n
 /// according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||R0(ci) x w||. w is the angular axis (normalized)
-/// and ci are the endpoints of the generator primitives of RSS.
+/// and ci are the endpoints of the generator primitives of RSSd.
 /// Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const ScrewMotion& motion) const
 {
   Transform3d tf;
   motion.getCurrentTransform(tf);
@@ -375,10 +375,10 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const ScrewMotion& motion) const
 
 /// @brief Compute the motion bound for a bounding volume along a given direction n
 /// according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||R0(ci) x w||. w is the angular axis (normalized)
-/// and ci are the endpoints of the generator primitives of RSS.
+/// and ci are the endpoints of the generator primitives of RSSd.
 /// Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const InterpMotion& motion) const
 {
   Transform3d tf;
   motion.getCurrentTransform(tf);
@@ -541,7 +541,7 @@ Quaternion3d InterpMotion::absoluteRotation(FCL_REAL dt) const
 
 /// @brief Compute the motion bound for a bounding volume along a given direction n
 template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const TranslationMotion& motion) const
+FCL_REAL TBVMotionBoundVisitor<RSSd>::visit(const TranslationMotion& motion) const
 {
   return motion.getVelocity().dot(n);
 }
@@ -552,6 +552,6 @@ FCL_REAL TriangleMotionBoundVisitor::visit(const TranslationMotion& motion) cons
   return motion.getVelocity().dot(n);
 }
 
-template class TBVMotionBoundVisitor<RSS>;
+template class TBVMotionBoundVisitor<RSSd>;
 
 }

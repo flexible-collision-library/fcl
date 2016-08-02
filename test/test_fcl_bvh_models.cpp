@@ -210,14 +210,14 @@ void testBVHModel()
 
 GTEST_TEST(FCL_BVH_MODELS, building_bvh_models)
 {
-  testBVHModel<AABB>();
+  testBVHModel<AABBd>();
   testBVHModel<OBBd>();
-  testBVHModel<RSS>();
-  testBVHModel<kIOS>();
-  testBVHModel<OBBRSS>();
-  testBVHModel<KDOP<16> >();
-  testBVHModel<KDOP<18> >();
-  testBVHModel<KDOP<24> >();
+  testBVHModel<RSSd>();
+  testBVHModel<kIOSd>();
+  testBVHModel<OBBRSSd>();
+  testBVHModel<KDOPd<16> >();
+  testBVHModel<KDOPd<18> >();
+  testBVHModel<KDOPd<24> >();
 }
 
 //==============================================================================

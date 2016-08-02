@@ -93,7 +93,7 @@ void relativeTransform(
     const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
     Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t);
 
-/// @brief Compute the RSS bounding volume parameters: radius, rectangle size
+/// @brief Compute the RSSd bounding volume parameters: radius, rectangle size
 /// and the origin, given the BV axises.
 template <typename Scalar>
 void getRadiusAndOriginAndRectangleSize(

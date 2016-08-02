@@ -66,12 +66,12 @@ private:
 };
 
 
-/// @brief Convert from AABB to AABB, not very tight but is fast.
+/// @brief Convert from AABBd to AABBd, not very tight but is fast.
 template<>
-class Converter<AABB, AABB>
+class Converter<AABBd, AABBd>
 {
 public:
-  static void convert(const AABB& bv1, const Transform3d& tf1, AABB& bv2)
+  static void convert(const AABBd& bv1, const Transform3d& tf1, AABBd& bv2)
   {
     const Vector3d& center = bv1.center();
     FCL_REAL r = (bv1.max_ - bv1.min_).norm() * 0.5;
@@ -83,15 +83,15 @@ public:
 };
 
 template<>
-class Converter<AABB, OBBd>
+class Converter<AABBd, OBBd>
 {
 public:
-  static void convert(const AABB& bv1, const Transform3d& tf1, OBBd& bv2)
+  static void convert(const AABBd& bv1, const Transform3d& tf1, OBBd& bv2)
   {    
     /*
     bv2.To = tf1 * bv1.center());
 
-    /// Sort the AABB edges so that AABB extents are ordered.
+    /// Sort the AABBd edges so that AABBd extents are ordered.
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
 
@@ -143,20 +143,20 @@ public:
 };
 
 template<>
-class Converter<OBBRSS, OBBd>
+class Converter<OBBRSSd, OBBd>
 {
 public:
-  static void convert(const OBBRSS& bv1, const Transform3d& tf1, OBBd& bv2)
+  static void convert(const OBBRSSd& bv1, const Transform3d& tf1, OBBd& bv2)
   {
     Converter<OBBd, OBBd>::convert(bv1.obb, tf1, bv2);
   }
 };
 
 template<>
-class Converter<RSS, OBBd>
+class Converter<RSSd, OBBd>
 {
 public:
-  static void convert(const RSS& bv1, const Transform3d& tf1, OBBd& bv2)
+  static void convert(const RSSd& bv1, const Transform3d& tf1, OBBd& bv2)
   {
     bv2.extent = Vector3d(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
     bv2.To = tf1 * bv1.Tr;
@@ -166,10 +166,10 @@ public:
 
 
 template<typename BV1>
-class Converter<BV1, AABB>
+class Converter<BV1, AABBd>
 {
 public:
-  static void convert(const BV1& bv1, const Transform3d& tf1, AABB& bv2)
+  static void convert(const BV1& bv1, const Transform3d& tf1, AABBd& bv2)
   {
     const Vector3d& center = bv1.center();
     FCL_REAL r = Vector3d(bv1.width(), bv1.height(), bv1.depth()).norm() * 0.5;
@@ -186,17 +186,17 @@ class Converter<BV1, OBBd>
 public:
   static void convert(const BV1& bv1, const Transform3d& tf1, OBBd& bv2)
   {
-    AABB bv;
-    Converter<BV1, AABB>::convert(bv1, Transform3d::Identity(), bv);
-    Converter<AABB, OBBd>::convert(bv, tf1, bv2);
+    AABBd bv;
+    Converter<BV1, AABBd>::convert(bv1, Transform3d::Identity(), bv);
+    Converter<AABBd, OBBd>::convert(bv, tf1, bv2);
   }
 };
 
 template<>
-class Converter<OBBd, RSS>
+class Converter<OBBd, RSSd>
 {
 public:
-  static void convert(const OBBd& bv1, const Transform3d& tf1, RSS& bv2)
+  static void convert(const OBBd& bv1, const Transform3d& tf1, RSSd& bv2)
   {
     bv2.Tr = tf1 * bv1.To;
     bv2.axis = tf1.linear() * bv1.axis;
@@ -208,10 +208,10 @@ public:
 };
 
 template<>
-class Converter<RSS, RSS>
+class Converter<RSSd, RSSd>
 {
 public:
-  static void convert(const RSS& bv1, const Transform3d& tf1, RSS& bv2)
+  static void convert(const RSSd& bv1, const Transform3d& tf1, RSSd& bv2)
   {
     bv2.Tr = tf1 * bv1.Tr;
     bv2.axis = tf1.linear() * bv1.axis;
@@ -223,24 +223,24 @@ public:
 };
 
 template<>
-class Converter<OBBRSS, RSS>
+class Converter<OBBRSSd, RSSd>
 {
 public:
-  static void convert(const OBBRSS& bv1, const Transform3d& tf1, RSS& bv2)
+  static void convert(const OBBRSSd& bv1, const Transform3d& tf1, RSSd& bv2)
   {
-    Converter<RSS, RSS>::convert(bv1.rss, tf1, bv2);
+    Converter<RSSd, RSSd>::convert(bv1.rss, tf1, bv2);
   }
 };
 
 template<>
-class Converter<AABB, RSS>
+class Converter<AABBd, RSSd>
 {
 public:
-  static void convert(const AABB& bv1, const Transform3d& tf1, RSS& bv2)
+  static void convert(const AABBd& bv1, const Transform3d& tf1, RSSd& bv2)
   {
     bv2.Tr = tf1 * bv1.center();
 
-    /// Sort the AABB edges so that AABB extents are ordered.
+    /// Sort the AABBd edges so that AABBd extents are ordered.
     FCL_REAL d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
 

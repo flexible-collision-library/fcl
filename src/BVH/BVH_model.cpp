@@ -852,7 +852,7 @@ int BVHModel<BV>::refitTree_topdown()
 template<typename BV>
 void BVHModel<BV>::computeLocalAABB()
 {
-  AABB aabb_;
+  AABBd aabb_;
   for(int i = 0; i < num_vertices; ++i)
   {
     aabb_ += vertices[i];
@@ -890,9 +890,9 @@ void BVHModel<OBBd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent
 }
 
 template<>
-void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
+void BVHModel<RSSd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
 {
-  RSS& rss = bvs[bv_id].bv;
+  RSSd& rss = bvs[bv_id].bv;
   if(!bvs[bv_id].isLeaf())
   {
     makeParentRelativeRecurse(bvs[bv_id].first_child, rss.axis, rss.Tr);
@@ -906,10 +906,10 @@ void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_
 }
 
 template<>
-void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
+void BVHModel<OBBRSSd>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
 {
   OBBd& obb = bvs[bv_id].bv.obb;
-  RSS& rss = bvs[bv_id].bv.rss;
+  RSSd& rss = bvs[bv_id].bv.rss;
   if(!bvs[bv_id].isLeaf())
   {
     makeParentRelativeRecurse(bvs[bv_id].first_child, obb.axis, obb.To);
@@ -929,7 +929,7 @@ void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& pare
 
 
 template<>
-NODE_TYPE BVHModel<AABB>::getNodeType() const
+NODE_TYPE BVHModel<AABBd>::getNodeType() const
 {
   return BV_AABB;
 }
@@ -941,37 +941,37 @@ NODE_TYPE BVHModel<OBBd>::getNodeType() const
 }
 
 template<>
-NODE_TYPE BVHModel<RSS>::getNodeType() const
+NODE_TYPE BVHModel<RSSd>::getNodeType() const
 {
   return BV_RSS;
 }
 
 template<>
-NODE_TYPE BVHModel<kIOS>::getNodeType() const
+NODE_TYPE BVHModel<kIOSd>::getNodeType() const
 {
   return BV_kIOS;
 }
 
 template<>
-NODE_TYPE BVHModel<OBBRSS>::getNodeType() const
+NODE_TYPE BVHModel<OBBRSSd>::getNodeType() const
 {
   return BV_OBBRSS;
 }
 
 template<>
-NODE_TYPE BVHModel<KDOP<16> >::getNodeType() const
+NODE_TYPE BVHModel<KDOPd<16> >::getNodeType() const
 {
   return BV_KDOP16;
 }
 
 template<>
-NODE_TYPE BVHModel<KDOP<18> >::getNodeType() const
+NODE_TYPE BVHModel<KDOPd<18> >::getNodeType() const
 {
   return BV_KDOP18;
 }
 
 template<>
-NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const
+NODE_TYPE BVHModel<KDOPd<24> >::getNodeType() const
 {
   return BV_KDOP24;
 }
@@ -981,12 +981,12 @@ NODE_TYPE BVHModel<KDOP<24> >::getNodeType() const
 
 
 
-template class BVHModel<KDOP<16> >;
-template class BVHModel<KDOP<18> >;
-template class BVHModel<KDOP<24> >;
+template class BVHModel<KDOPd<16> >;
+template class BVHModel<KDOPd<18> >;
+template class BVHModel<KDOPd<24> >;
 template class BVHModel<OBBd>;
-template class BVHModel<AABB>;
-template class BVHModel<RSS>;
-template class BVHModel<kIOS>;
-template class BVHModel<OBBRSS>;
+template class BVHModel<AABBd>;
+template class BVHModel<RSSd>;
+template class BVHModel<kIOSd>;
+template class BVHModel<OBBRSSd>;
 }

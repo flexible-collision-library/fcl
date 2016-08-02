@@ -94,7 +94,7 @@ static inline FCL_UINT64 morton_code60(FCL_UINT32 x, FCL_UINT32 y, FCL_UINT32 z)
 /// @endcond
 
 
-/// @brief Functor to compute the morton code for a given AABB
+/// @brief Functor to compute the morton code for a given AABBd
 /// This is specialized for 32- and 64-bit unsigned integers giving
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
 /// N is the length of the code and must be a multiple of 3.
@@ -102,11 +102,11 @@ template<typename T>
 struct morton_functor {};
 
 
-/// @brief Functor to compute 30 bit morton code for a given AABB
+/// @brief Functor to compute 30 bit morton code for a given AABBd
 template<>
 struct morton_functor<FCL_UINT32>
 {
-  morton_functor(const AABB& bbox) : base(bbox.min_), 
+  morton_functor(const AABBd& bbox) : base(bbox.min_), 
                                      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
                                          1.0 / (bbox.max_[1] - bbox.min_[1]),
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
@@ -128,11 +128,11 @@ struct morton_functor<FCL_UINT32>
 };
 
 
-/// @brief Functor to compute 60 bit morton code for a given AABB
+/// @brief Functor to compute 60 bit morton code for a given AABBd
 template<>
 struct morton_functor<FCL_UINT64>
 {
-  morton_functor(const AABB& bbox) : base(bbox.min_),
+  morton_functor(const AABBd& bbox) : base(bbox.min_),
                                      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
                                          1.0 / (bbox.max_[1] - bbox.min_[1]),
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
@@ -154,14 +154,14 @@ struct morton_functor<FCL_UINT64>
 };
 
 
-/// @brief Functor to compute N bit morton code for a given AABB
+/// @brief Functor to compute N bit morton code for a given AABBd
 /// N must be a multiple of 3.
 template<size_t N>
 struct morton_functor<std::bitset<N>> 
 {
   static_assert(N%3==0, "Number of bits must be a multiple of 3");
 
-  morton_functor(const AABB& bbox) : base(bbox.min_),
+  morton_functor(const AABBd& bbox) : base(bbox.min_),
                                      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
                                          1.0 / (bbox.max_[1] - bbox.min_[1]),
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))

@@ -92,13 +92,13 @@ public:
     return cgeom->getNodeType();
   }
 
-  /// @brief get the AABB in world space
-  inline const AABB& getAABB() const
+  /// @brief get the AABBd in world space
+  inline const AABBd& getAABB() const
   {
     return aabb;
   }
 
-  /// @brief compute the AABB in world space
+  /// @brief compute the AABBd in world space
   inline void computeAABB()
   {
     if(t.linear().isIdentity())
@@ -250,8 +250,8 @@ protected:
 
   Transform3d t;
 
-  /// @brief AABB in global coordinate
-  mutable AABB aabb;
+  /// @brief AABBd in global coordinate
+  mutable AABBd aabb;
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;
