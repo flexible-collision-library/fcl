@@ -48,59 +48,62 @@ namespace fcl
 {
 
 /// @brief Oriented bounding box class
-template <typename Scalar>
+template <typename ScalarT>
 class OBB
 {
 public:
+
+  using Scalar = ScalarT;
+
   /// @brief Orientation of OBB. axis[i] is the ith column of the orientation matrix for the box; it is also the i-th principle direction of the box. 
   /// We assume that axis[0] corresponds to the axis with the longest box edge, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Matrix3<Scalar> axis;
+  Matrix3<ScalarT> axis;
 
   /// @brief Center of OBB
-  Vector3<Scalar> To;
+  Vector3<ScalarT> To;
   
   /// @brief Half dimensions of OBB
-  Vector3<Scalar> extent;
+  Vector3<ScalarT> extent;
 
   /// @brief Check collision between two OBB, return true if collision happens. 
-  bool overlap(const OBB<Scalar>& other) const;
+  bool overlap(const OBB<ScalarT>& other) const;
   
   /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
-  bool overlap(const OBB<Scalar>& other, OBB<Scalar>& overlap_part) const;
+  bool overlap(const OBB<ScalarT>& other, OBB<ScalarT>& overlap_part) const;
 
   /// @brief Check whether the OBB contains a point.
-  bool contain(const Vector3<Scalar>& p) const;
+  bool contain(const Vector3<ScalarT>& p) const;
 
   /// @brief A simple way to merge the OBB and a point (the result is not compact).
-  OBB<Scalar>& operator +=(const Vector3<Scalar>& p);
+  OBB<ScalarT>& operator +=(const Vector3<ScalarT>& p);
 
   /// @brief Merge the OBB and another OBB (the result is not compact).
-  OBB<Scalar>& operator += (const OBB<Scalar>& other);
+  OBB<ScalarT>& operator += (const OBB<ScalarT>& other);
 
   /// @brief Return the merged OBB of current OBB and the other one (the result is not compact).
-  OBB<Scalar> operator + (const OBB<Scalar>& other) const;
+  OBB<ScalarT> operator + (const OBB<ScalarT>& other) const;
 
   /// @brief Width of the OBB.
-  Scalar width() const;
+  ScalarT width() const;
 
   /// @brief Height of the OBB.
-  Scalar height() const;
+  ScalarT height() const;
 
   /// @brief Depth of the OBB
-  Scalar depth() const;
+  ScalarT depth() const;
 
   /// @brief Volume of the OBB
-  Scalar volume() const;
+  ScalarT volume() const;
 
   /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
-  Scalar size() const;
+  ScalarT size() const;
 
   /// @brief Center of the OBB
-  const Vector3<Scalar>& center() const;
+  const Vector3<ScalarT>& center() const;
 
   /// @brief Distance between two OBBs, not implemented.
-  Scalar distance(const OBB& other, Vector3<Scalar>* P = NULL,
-                  Vector3<Scalar>* Q = NULL) const;
+  ScalarT distance(const OBB& other, Vector3<ScalarT>* P = NULL,
+                  Vector3<ScalarT>* Q = NULL) const;
 };
 
 using OBBf = OBB<float>;

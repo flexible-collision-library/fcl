@@ -74,14 +74,21 @@ namespace detail {
 /// \brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
 template <typename Scalar>
-void getExtentAndCenter_pointcloud(Vector3<Scalar>* ps, Vector3<Scalar>* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3<Scalar>& axis, Vector3d& center, Vector3<Scalar>& extent);
+void getExtentAndCenter_pointcloud(
+    Vector3<Scalar>* ps, Vector3<Scalar>* ps2,
+    Triangle* ts, unsigned int* indices, int n,
+    const Matrix3<Scalar>& axis, Vector3d& center, Vector3<Scalar>& extent);
 
 /// \brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
 template <typename Scalar>
-void getExtentAndCenter_mesh(Vector3<Scalar>* ps, Vector3<Scalar>* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3<Scalar>& axis, Vector3<Scalar>& center, Vector3<Scalar>& extent);
+void getExtentAndCenter_mesh(
+    Vector3<Scalar>* ps, Vector3<Scalar>* ps2,
+    Triangle* ts, unsigned int* indices, int n,
+    const Matrix3<Scalar>& axis, Vector3<Scalar>& center,
+    Vector3<Scalar>& extent);
 
-}
+} // namespace detail
 
 //============================================================================//
 //                                                                            //

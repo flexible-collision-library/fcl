@@ -45,14 +45,14 @@ namespace fcl
 {
  
 /// @brief A class describing the kIOS collision structure, which is a set of spheres.
-template <typename Scalar>
+template <typename ScalarT>
 class kIOS
 {
   /// @brief One sphere in kIOS
   struct kIOS_Sphere
   {
-    Vector3<Scalar> o;
-    Scalar r;
+    Vector3<ScalarT> o;
+    ScalarT r;
   };
 
   /// @brief generate one sphere enclosing two spheres
@@ -60,7 +60,9 @@ class kIOS
       const kIOS_Sphere& s0, const kIOS_Sphere& s1);
 
 public:
-    
+
+  using Scalar = ScalarT;
+
   /// @brief The (at most) five spheres for intersection
   kIOS_Sphere spheres[5];
 
@@ -68,52 +70,52 @@ public:
   unsigned int num_spheres;
 
   /// @ OBBd related with kIOS
-  OBB<Scalar> obb;
+  OBB<ScalarT> obb;
 
   /// @brief Check collision between two kIOS
-  bool overlap(const kIOS<Scalar>& other) const;
+  bool overlap(const kIOS<ScalarT>& other) const;
 
   /// @brief Check collision between two kIOS and return the overlap part.
   /// For kIOS, we return nothing, as the overlappart of two kIOS usually is not
   /// an kIOS
   /// @todo Not efficient. It first checks the sphere collisions and then use
   /// OBB for further culling.
-  bool overlap(const kIOS<Scalar>& other, kIOS<Scalar>& overlap_part) const;
+  bool overlap(const kIOS<ScalarT>& other, kIOS<ScalarT>& overlap_part) const;
 
   /// @brief Check whether the kIOS contains a point
-  inline bool contain(const Vector3<Scalar>& p) const;
+  inline bool contain(const Vector3<ScalarT>& p) const;
 
   /// @brief A simple way to merge the kIOS and a point
-  kIOS<Scalar>& operator += (const Vector3<Scalar>& p);
+  kIOS<ScalarT>& operator += (const Vector3<ScalarT>& p);
 
   /// @brief Merge the kIOS and another kIOS
-  kIOS<Scalar>& operator += (const kIOS<Scalar>& other);
+  kIOS<ScalarT>& operator += (const kIOS<ScalarT>& other);
 
   /// @brief Return the merged kIOS of current kIOS and the other one
-  kIOS<Scalar> operator + (const kIOS<Scalar>& other) const;
+  kIOS<ScalarT> operator + (const kIOS<ScalarT>& other) const;
 
   /// @brief Center of the kIOS
-  const Vector3<Scalar>& center() const;
+  const Vector3<ScalarT>& center() const;
 
   /// @brief Width of the kIOS
-  Scalar width() const;
+  ScalarT width() const;
 
   /// @brief Height of the kIOS
-  Scalar height() const;
+  ScalarT height() const;
 
   /// @brief Depth of the kIOS
-  Scalar depth() const;
+  ScalarT depth() const;
 
   /// @brief Volume of the kIOS
-  Scalar volume() const;
+  ScalarT volume() const;
 
   /// @brief size of the kIOS (used in BV_Splitter to order two kIOSs)
-  Scalar size() const;
+  ScalarT size() const;
 
   /// @brief The distance between two kIOS
-  Scalar distance(
-      const kIOS<Scalar>& other,
-      Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL) const;
+  ScalarT distance(
+      const kIOS<ScalarT>& other,
+      Vector3<ScalarT>* P = NULL, Vector3<ScalarT>* Q = NULL) const;
 
   static constexpr double ratio() { return 1.5; }
   static constexpr double invSinA() { return 2; }

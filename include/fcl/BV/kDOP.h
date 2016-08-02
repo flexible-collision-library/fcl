@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief KDOP class describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
 ///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
-/// For K = 16, the planes are 6 AABBd planes and 10 diagonal planes that cut off some space of the edges:
+/// For K = 16, the planes are 6 AABB planes and 10 diagonal planes that cut off some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 8
 /// (0,-1,0) and (0,1,0)  -> indices 1 and 9
 /// (0,0,-1) and (0,0,1)  -> indices 2 and 10
@@ -57,7 +57,7 @@ namespace fcl
 /// (0,-1,-1) and (0,1,1) -> indices 5 and 13
 /// (-1,1,0) and (1,-1,0) -> indices 6 and 14
 /// (-1,0,1) and (1,0,-1) -> indices 7 and 15
-/// For K = 18, the planes are 6 AABBd planes and 12 diagonal planes that cut off some space of the edges:
+/// For K = 18, the planes are 6 AABB planes and 12 diagonal planes that cut off some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 9
 /// (0,-1,0) and (0,1,0)  -> indices 1 and 10
 /// (0,0,-1) and (0,0,1)  -> indices 2 and 11
@@ -67,7 +67,7 @@ namespace fcl
 /// (-1,1,0) and (1,-1,0) -> indices 6 and 15
 /// (-1,0,1) and (1,0,-1) -> indices 7 and 16
 /// (0,-1,1) and (0,1,-1) -> indices 8 and 17
-/// For K = 18, the planes are 6 AABBd planes and 18 diagonal planes that cut off some space of the edges:
+/// For K = 18, the planes are 6 AABB planes and 18 diagonal planes that cut off some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 12
 /// (0,-1,0) and (0,1,0)  -> indices 1 and 13
 /// (0,0,-1) and (0,0,1)  -> indices 2 and 14
@@ -80,66 +80,68 @@ namespace fcl
 /// (-1, -1, 1) and (1, 1, -1) --> indices 9 and 21
 /// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
 /// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
-template <typename Scalar, std::size_t N>
+template <typename ScalarT, std::size_t N>
 class KDOP
 {
 public:
+
+  using Scalar = ScalarT;
 
   /// @brief Creating kDOP containing nothing
   KDOP();
 
   /// @brief Creating kDOP containing only one point
-  KDOP(const Vector3<Scalar>& v);
+  KDOP(const Vector3<ScalarT>& v);
 
   /// @brief Creating kDOP containing two points
-  KDOP(const Vector3<Scalar>& a, const Vector3<Scalar>& b);
+  KDOP(const Vector3<ScalarT>& a, const Vector3<ScalarT>& b);
   
   /// @brief Check whether two KDOPs are overlapped
-  bool overlap(const KDOP<Scalar, N>& other) const;
+  bool overlap(const KDOP<ScalarT, N>& other) const;
 
   //// @brief Check whether one point is inside the KDOP
-  bool inside(const Vector3<Scalar>& p) const;
+  bool inside(const Vector3<ScalarT>& p) const;
 
   /// @brief Merge the point and the KDOP
-  KDOP<Scalar, N>& operator += (const Vector3<Scalar>& p);
+  KDOP<ScalarT, N>& operator += (const Vector3<ScalarT>& p);
 
   /// @brief Merge two KDOPs
-  KDOP<Scalar, N>& operator += (const KDOP<Scalar, N>& other);
+  KDOP<ScalarT, N>& operator += (const KDOP<ScalarT, N>& other);
 
   /// @brief Create a KDOP by mergin two KDOPs
-  KDOP<Scalar, N> operator + (const KDOP<Scalar, N>& other) const;
+  KDOP<ScalarT, N> operator + (const KDOP<ScalarT, N>& other) const;
 
-  /// @brief The (AABBd) width
-  Scalar width() const;
+  /// @brief The (AABB) width
+  ScalarT width() const;
 
-  /// @brief The (AABBd) height
-  Scalar height() const;
+  /// @brief The (AABB) height
+  ScalarT height() const;
 
-  /// @brief The (AABBd) depth
-  Scalar depth() const;
+  /// @brief The (AABB) depth
+  ScalarT depth() const;
 
-  /// @brief The (AABBd) volume
-  Scalar volume() const;
+  /// @brief The (AABB) volume
+  ScalarT volume() const;
 
   /// @brief Size of the kDOP (used in BV_Splitter to order two kDOPs)
-  Scalar size() const;
+  ScalarT size() const;
 
-  /// @brief The (AABBd) center
-  Vector3<Scalar> center() const;
+  /// @brief The (AABB) center
+  Vector3<ScalarT> center() const;
 
   /// @brief The distance between two KDOP<Scalar, N>. Not implemented.
-  Scalar distance(
-      const KDOP<Scalar, N>& other,
-      Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL) const;
+  ScalarT distance(
+      const KDOP<ScalarT, N>& other,
+      Vector3<ScalarT>* P = NULL, Vector3<ScalarT>* Q = NULL) const;
 
 private:
   /// @brief Origin's distances to N KDOP planes
-  Scalar dist_[N];
+  ScalarT dist_[N];
 
 public:
-  Scalar dist(std::size_t i) const;
+  ScalarT dist(std::size_t i) const;
 
-  Scalar& dist(std::size_t i);
+  ScalarT& dist(std::size_t i);
 
 };
 
@@ -157,7 +159,7 @@ template <typename Scalar>
 void minmax(Scalar p, Scalar& minv, Scalar& maxv);
 
 /// @brief Compute the distances to planes with normals from KDOP vectors except
-/// those of AABBd face planes
+/// those of AABB face planes
 template <typename Scalar, std::size_t N>
 void getDistances(const Vector3<Scalar>& p, Scalar* d);
 

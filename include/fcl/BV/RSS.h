@@ -46,68 +46,71 @@ namespace fcl
 {
 
 /// @brief A class for rectangle sphere-swept bounding volume
-template <typename Scalar>
+template <typename ScalarT>
 class RSS
 {
 public:
+
+  using Scalar = ScalarT;
+
   /// @brief Orientation of RSS. axis[i] is the ith column of the orientation matrix for the RSS; it is also the i-th principle direction of the RSS.
   /// We assume that axis[0] corresponds to the axis with the longest length, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Matrix3<Scalar> axis;
+  Matrix3<ScalarT> axis;
 
   /// @brief Origin of the rectangle in RSS
-  Vector3<Scalar> Tr;
+  Vector3<ScalarT> Tr;
 
   /// @brief Side lengths of rectangle
-  Scalar l[2];
+  ScalarT l[2];
 
   /// @brief Radius of sphere summed with rectangle to form RSS
-  Scalar r;
+  ScalarT r;
 
   /// Constructor
-  RSS<Scalar>();
+  RSS<ScalarT>();
 
   /// @brief Check collision between two RSS
-  bool overlap(const RSS<Scalar>& other) const;
+  bool overlap(const RSS<ScalarT>& other) const;
 
   /// @brief Check collision between two RSS and return the overlap part.
   /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
-  bool overlap(const RSS<Scalar>& other, RSS<Scalar>& overlap_part) const;
+  bool overlap(const RSS<ScalarT>& other, RSS<ScalarT>& overlap_part) const;
 
   /// @brief Check whether the RSS contains a point
-  bool contain(const Vector3<Scalar>& p) const;
+  bool contain(const Vector3<ScalarT>& p) const;
 
   /// @brief A simple way to merge the RSS and a point, not compact.
   /// @todo This function may have some bug.
-  RSS<Scalar>& operator += (const Vector3<Scalar>& p);
+  RSS<ScalarT>& operator += (const Vector3<ScalarT>& p);
 
   /// @brief Merge the RSS and another RSS
-  RSS<Scalar>& operator += (const RSS<Scalar>& other);
+  RSS<ScalarT>& operator += (const RSS<ScalarT>& other);
 
   /// @brief Return the merged RSS of current RSS and the other one
-  RSS<Scalar> operator + (const RSS<Scalar>& other) const;
+  RSS<ScalarT> operator + (const RSS<ScalarT>& other) const;
 
   /// @brief Width of the RSS
-  Scalar width() const;
+  ScalarT width() const;
 
   /// @brief Height of the RSS
-  Scalar height() const;
+  ScalarT height() const;
 
   /// @brief Depth of the RSS
-  Scalar depth() const;
+  ScalarT depth() const;
 
   /// @brief Volume of the RSS
-  Scalar volume() const;
+  ScalarT volume() const;
 
   /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)
-  Scalar size() const;
+  ScalarT size() const;
 
   /// @brief The RSS center
-  const Vector3<Scalar>& center() const;
+  const Vector3<ScalarT>& center() const;
 
   /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
-  Scalar distance(const RSS<Scalar>& other,
-                  Vector3<Scalar>* P = NULL,
-                  Vector3<Scalar>* Q = NULL) const;
+  ScalarT distance(const RSS<ScalarT>& other,
+                  Vector3<ScalarT>* P = NULL,
+                  Vector3<ScalarT>* Q = NULL) const;
 
 };
 

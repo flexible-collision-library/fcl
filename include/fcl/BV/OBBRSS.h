@@ -46,56 +46,58 @@ namespace fcl
 
 /// @brief Class merging the OBBd and RSS, can handle collision and distance
 /// simultaneously
-template <typename Scalar>
+template <typename ScalarT>
 class OBBRSS
 {
 public:
 
+  using Scalar = ScalarT;
+
   /// @brief OBBd member, for rotation
-  OBB<Scalar> obb;
+  OBB<ScalarT> obb;
 
   /// @brief RSSd member, for distance
-  RSS<Scalar> rss;
+  RSS<ScalarT> rss;
 
   /// @brief Check collision between two OBBRSS
-  bool overlap(const OBBRSS<Scalar>& other) const;
+  bool overlap(const OBBRSS<ScalarT>& other) const;
 
   /// @brief Check collision between two OBBRSS and return the overlap part.
-  bool overlap(const OBBRSS<Scalar>& other, OBBRSS<Scalar>& overlap_part) const;
+  bool overlap(const OBBRSS<ScalarT>& other, OBBRSS<ScalarT>& overlap_part) const;
 
   /// @brief Check whether the OBBRSS contains a point
-  bool contain(const Vector3<Scalar>& p) const;
+  bool contain(const Vector3<ScalarT>& p) const;
 
   /// @brief Merge the OBBRSS and a point
-  OBBRSS<Scalar>& operator += (const Vector3<Scalar>& p);
+  OBBRSS<ScalarT>& operator += (const Vector3<ScalarT>& p);
 
   /// @brief Merge two OBBRSS
-  OBBRSS<Scalar>& operator += (const OBBRSS<Scalar>& other);
+  OBBRSS<ScalarT>& operator += (const OBBRSS<ScalarT>& other);
 
   /// @brief Merge two OBBRSS
-  OBBRSS<Scalar> operator + (const OBBRSS<Scalar>& other) const;
+  OBBRSS<ScalarT> operator + (const OBBRSS<ScalarT>& other) const;
 
   /// @brief Width of the OBRSS
-  Scalar width() const;
+  ScalarT width() const;
 
   /// @brief Height of the OBBRSS
-  Scalar height() const;
+  ScalarT height() const;
 
   /// @brief Depth of the OBBRSS
-  Scalar depth() const;
+  ScalarT depth() const;
 
   /// @brief Volume of the OBBRSS
-  Scalar volume() const;
+  ScalarT volume() const;
 
   /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
-  Scalar size() const;
+  ScalarT size() const;
 
   /// @brief Center of the OBBRSS<Scalar>
-  const Vector3<Scalar>& center() const;
+  const Vector3<ScalarT>& center() const;
 
   /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
-  Scalar distance(const OBBRSS<Scalar>& other,
-                  Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL) const;
+  ScalarT distance(const OBBRSS<ScalarT>& other,
+                  Vector3<ScalarT>* P = NULL, Vector3<ScalarT>* Q = NULL) const;
 };
 
 using OBBRSSf = OBBRSS<float>;

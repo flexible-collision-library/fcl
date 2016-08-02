@@ -76,32 +76,32 @@ void generateBoxesFromOctomap(std::vector<CollisionObject*>& env, OcTree& tree);
 void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& env, OcTree& tree);
 
 /// @brief Generate an octree
-octomap::OcTree* generateOcTree(double resolution);
+octomap::OcTree* generateOcTree(double resolution = 0.1);
 
 /// @brief Octomap collision with an environment with 3 * env_size objects
-void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaustive, std::size_t num_max_contacts, bool use_mesh, bool use_mesh_octomap, double resolution);
+void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaustive, std::size_t num_max_contacts, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
 /// @brief Octomap collision with an environment with 3 * env_size objects, compute cost
-void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution);
+void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
 /// @brief Octomap distance with an environment with 3 * env_size objects
-void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution);
+void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
 /// @brief Octomap collision with an environment mesh with 3 * env_size objects, asserting that correct triangle ids
 /// are returned when performing collision tests
-void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts, double resolution);
+void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts, double resolution = 0.1);
 
 
 template<typename BV>
-void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolution);
+void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolution = 0.1);
 
 
 template<typename BV>
-void octomap_distance_test_BVH(std::size_t n, double resolution);
+void octomap_distance_test_BVH(std::size_t n, double resolution = 0.1);
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_cost)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_cost_test(200, 10, 10, false, false, 0.1);
   octomap_cost_test(200, 100, 10, false, false, 0.1);
 #else
@@ -112,7 +112,7 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_cost)
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_cost_mesh)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_cost_test(200, 2, 4, true, false, 1.0);
   octomap_cost_test(200, 5, 4, true, false, 1.0);
 #else
@@ -123,123 +123,123 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_cost_mesh)
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_collision_test(200, 10, false, 10, false, false, 0.1);
   octomap_collision_test(200, 100, false, 10, false, false, 0.1);
   octomap_collision_test(200, 10, true, 1, false, false, 0.1);
   octomap_collision_test(200, 100, true, 1, false, false, 0.1);
 #else
-  octomap_collision_test(200, 100, false, 10, false, false, 0.1);
-  octomap_collision_test(200, 1000, false, 10, false, false, 0.1);
-  octomap_collision_test(200, 100, true, 1, false, false, 0.1);
-  octomap_collision_test(200, 1000, true, 1, false, false, 0.1);
+  octomap_collision_test(200, 100, false, 10, false, false);
+  octomap_collision_test(200, 1000, false, 10, false, false);
+  octomap_collision_test(200, 100, true, 1, false, false);
+  octomap_collision_test(200, 1000, true, 1, false, false);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_collision_test(200, 4, false, 1, true, true, 1.0);
   octomap_collision_test(200, 4, true, 1, true, true, 1.0);
 #else
-  octomap_collision_test(200, 100, false, 10, true, true, 0.1);
-  octomap_collision_test(200, 1000, false, 10, true, true, 0.1);
-  octomap_collision_test(200, 100, true, 1, true, true, 0.1);
-  octomap_collision_test(200, 1000, true, 1, true, true, 0.1);
+  octomap_collision_test(200, 100, false, 10, true, true);
+  octomap_collision_test(200, 1000, false, 10, true, true);
+  octomap_collision_test(200, 100, true, 1, true, true);
+  octomap_collision_test(200, 1000, true, 1, true, true);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_triangle_id)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_collision_test_mesh_triangle_id(1, 10, 10000, 1.0);
 #else
-  octomap_collision_test_mesh_triangle_id(1, 30, 100000, 0.1);
+  octomap_collision_test_mesh_triangle_id(1, 30, 100000);
 #endif
 }
 
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_octomap_box)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_collision_test(200, 4, false, 4, true, false, 1.0);
   octomap_collision_test(200, 4, true, 1, true, false, 1.0);
 #else
-  octomap_collision_test(200, 100, false, 10, true, false, 0.1);
-  octomap_collision_test(200, 1000, false, 10, true, false, 0.1);
-  octomap_collision_test(200, 100, true, 1, true, false, 0.1);
-  octomap_collision_test(200, 1000, true, 1, true, false, 0.1);
+  octomap_collision_test(200, 100, false, 10, true, false);
+  octomap_collision_test(200, 1000, false, 10, true, false);
+  octomap_collision_test(200, 100, true, 1, true, false);
+  octomap_collision_test(200, 1000, true, 1, true, false);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test(200, 2, false, false, 1.0);
   octomap_distance_test(200, 10, false, false, 1.0);
 #else
-  octomap_distance_test(200, 100, false, false, 0.1);
-  octomap_distance_test(200, 1000, false, false, 0.1);
+  octomap_distance_test(200, 100, false, false);
+  octomap_distance_test(200, 1000, false, false);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test(200, 2, true, true, 1.0);
   octomap_distance_test(200, 5, true, true, 1.0);
 #else
-  octomap_distance_test(200, 100, true, true, 0.1);
-  octomap_distance_test(200, 1000, true, true, 0.1);
+  octomap_distance_test(200, 100, true, true);
+  octomap_distance_test(200, 1000, true, true);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh_octomap_box)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test(200, 2, true, false, 1.0);
   octomap_distance_test(200, 5, true, false, 1.0);
 #else
-  octomap_distance_test(200, 100, true, false, 0.1);
-  octomap_distance_test(200, 1000, true, false, 0.1);
+  octomap_distance_test(200, 100, true, false);
+  octomap_distance_test(200, 1000, true, false);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_collision_obb)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_collision_test_BVH<OBBd>(1, false, 1.0);
   octomap_collision_test_BVH<OBBd>(1, true, 1.0);
 #else
-  octomap_collision_test_BVH<OBBd>(5, false, 0.1);
-  octomap_collision_test_BVH<OBBd>(5, true, 0.1);
+  octomap_collision_test_BVH<OBBd>(5, false);
+  octomap_collision_test_BVH<OBBd>(5, true);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_rss_d_distance_rss)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test_BVH<RSSd>(1, 1.0);
 #else
-  octomap_distance_test_BVH<RSSd>(5, 0.1);
+  octomap_distance_test_BVH<RSSd>(5);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_d_distance_obb)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test_BVH<OBBRSSd>(1, 1.0);
 #else
-  octomap_distance_test_BVH<OBBRSSd>(5, 0.1);
+  octomap_distance_test_BVH<OBBRSSd>(5);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_kios_d_distance_kios)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test_BVH<kIOSd>(1, 1.0);
 #else
-  octomap_distance_test_BVH<kIOSd>(5, 0.1);
+  octomap_distance_test_BVH<kIOSd>(5);
 #endif
 }
 

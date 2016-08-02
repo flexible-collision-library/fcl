@@ -45,10 +45,13 @@ namespace fcl
 
 /// @brief A class describing the AABB collision structure, which is a box in 3D
 /// space determined by two diagonal points
-template <typename Scalar>
+template <typename ScalarT>
 class AABB
 {
 public:
+
+  using Scalar = ScalarT;
+
   /// @brief The min point in the AABB
   Vector3<Scalar> min_;
 
@@ -65,34 +68,34 @@ public:
   AABB(const Vector3<Scalar>& a, const Vector3<Scalar>&b);
 
   /// @brief Creating an AABB centered as core and is of half-dimension delta
-  AABB(const AABB<Scalar>& core, const Vector3<Scalar>& delta);
+  AABB(const AABB<ScalarT>& core, const Vector3<Scalar>& delta);
 
   /// @brief Creating an AABB contains three points
   AABB(const Vector3<Scalar>& a, const Vector3<Scalar>& b, const Vector3<Scalar>& c);
 
   /// @brief Check whether two AABB are overlap
-  bool overlap(const AABB<Scalar>& other) const;
+  bool overlap(const AABB<ScalarT>& other) const;
 
   /// @brief Check whether the AABB contains another AABB
-  bool contain(const AABB<Scalar>& other) const;
+  bool contain(const AABB<ScalarT>& other) const;
 
   /// @brief Check whether two AABB are overlapped along specific axis
-  bool axisOverlap(const AABB<Scalar>& other, int axis_id) const;
+  bool axisOverlap(const AABB<ScalarT>& other, int axis_id) const;
 
   /// @brief Check whether two AABB are overlap and return the overlap part
-  bool overlap(const AABB<Scalar>& other, AABB<Scalar>& overlap_part) const;
+  bool overlap(const AABB<ScalarT>& other, AABB<ScalarT>& overlap_part) const;
 
   /// @brief Check whether the AABB contains a point
   bool contain(const Vector3<Scalar>& p) const;
 
   /// @brief Merge the AABB and a point
-  AABB<Scalar>& operator += (const Vector3<Scalar>& p);
+  AABB<ScalarT>& operator += (const Vector3<Scalar>& p);
 
   /// @brief Merge the AABB and another AABB
-  AABB<Scalar>& operator += (const AABB<Scalar>& other);
+  AABB<ScalarT>& operator += (const AABB<ScalarT>& other);
 
   /// @brief Return the merged AABB of current AABB and the other one
-  AABB<Scalar> operator + (const AABB<Scalar>& other) const;
+  AABB<ScalarT> operator + (const AABB<ScalarT>& other) const;
 
   /// @brief Width of the AABB
   Scalar width() const;
@@ -113,32 +116,32 @@ public:
   Scalar radius() const;
 
   /// @brief Center of the AABB
-  Vector3<Scalar> center() const;
+  Vector3<ScalarT> center() const;
 
   /// @brief Distance between two AABBs; P and Q, should not be NULL, return the nearest points 
   Scalar distance(
-      const AABB<Scalar>& other, Vector3<Scalar>* P, Vector3<Scalar>* Q) const;
+      const AABB<ScalarT>& other, Vector3<Scalar>* P, Vector3<Scalar>* Q) const;
 
   /// @brief Distance between two AABBs
-  Scalar distance(const AABB<Scalar>& other) const;
+  Scalar distance(const AABB<ScalarT>& other) const;
 
   /// @brief whether two AABB are equal
-  bool equal(const AABB<Scalar>& other) const;
+  bool equal(const AABB<ScalarT>& other) const;
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.
-  AABB<Scalar>& expand(const Vector3<Scalar>& delta);
+  AABB<ScalarT>& expand(const Vector3<Scalar>& delta);
 
   /// @brief expand the aabb by increase the thickness of the plate by a ratio
-  AABB<Scalar>& expand(const AABB<Scalar>& core, Scalar ratio);
+  AABB<ScalarT>& expand(const AABB<ScalarT>& core, Scalar ratio);
 };
 
 using AABBf = AABB<float>;
 using AABBd = AABB<double>;
 
 /// @brief translate the center of AABB by t
-template <typename Scalar, typename Derived>
-AABB<Scalar> translate(
-    const AABB<Scalar>& aabb, const Eigen::MatrixBase<Derived>& t);
+template <typename ScalarT, typename Derived>
+AABB<ScalarT> translate(
+    const AABB<ScalarT>& aabb, const Eigen::MatrixBase<Derived>& t);
 
 //============================================================================//
 //                                                                            //
@@ -147,8 +150,8 @@ AABB<Scalar> translate(
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>::AABB()
+template <typename ScalarT>
+AABB<ScalarT>::AABB()
   : min_(Vector3<Scalar>::Constant(std::numeric_limits<Scalar>::max())),
     max_(Vector3<Scalar>::Constant(-std::numeric_limits<Scalar>::max()))
 {
@@ -156,15 +159,15 @@ AABB<Scalar>::AABB()
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>::AABB(const Vector3<Scalar>& v) : min_(v), max_(v)
+template <typename ScalarT>
+AABB<ScalarT>::AABB(const Vector3<Scalar>& v) : min_(v), max_(v)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>::AABB(const Vector3<Scalar>& a, const Vector3<Scalar>& b)
+template <typename ScalarT>
+AABB<ScalarT>::AABB(const Vector3<Scalar>& a, const Vector3<Scalar>& b)
   : min_(a.cwiseMin(b)),
     max_(a.cwiseMax(b))
 {
@@ -172,8 +175,8 @@ AABB<Scalar>::AABB(const Vector3<Scalar>& a, const Vector3<Scalar>& b)
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>::AABB(const AABB<Scalar>& core, const Vector3<Scalar>& delta)
+template <typename ScalarT>
+AABB<ScalarT>::AABB(const AABB<ScalarT>& core, const Vector3<Scalar>& delta)
   : min_(core.min_ - delta),
     max_(core.max_ + delta)
 {
@@ -181,8 +184,8 @@ AABB<Scalar>::AABB(const AABB<Scalar>& core, const Vector3<Scalar>& delta)
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>::AABB(
+template <typename ScalarT>
+AABB<ScalarT>::AABB(
     const Vector3<Scalar>& a,
     const Vector3<Scalar>& b,
     const Vector3<Scalar>& c)
@@ -193,8 +196,8 @@ AABB<Scalar>::AABB(
 }
 
 //==============================================================================
-template <typename Scalar>
-bool AABB<Scalar>::overlap(const AABB<Scalar>& other) const
+template <typename ScalarT>
+bool AABB<ScalarT>::overlap(const AABB<ScalarT>& other) const
 {
   if ((min_.array() > other.max_.array()).any())
     return false;
@@ -206,8 +209,8 @@ bool AABB<Scalar>::overlap(const AABB<Scalar>& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-bool AABB<Scalar>::contain(const AABB<Scalar>& other) const
+template <typename ScalarT>
+bool AABB<ScalarT>::contain(const AABB<ScalarT>& other) const
 {
   if ((min_.array() > other.min_.array()).any())
     return false;
@@ -219,8 +222,8 @@ bool AABB<Scalar>::contain(const AABB<Scalar>& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-bool AABB<Scalar>::axisOverlap(const AABB<Scalar>& other, int axis_id) const
+template <typename ScalarT>
+bool AABB<ScalarT>::axisOverlap(const AABB<ScalarT>& other, int axis_id) const
 {
   if(min_[axis_id] > other.max_[axis_id]) return false;
 
@@ -230,8 +233,8 @@ bool AABB<Scalar>::axisOverlap(const AABB<Scalar>& other, int axis_id) const
 }
 
 //==============================================================================
-template <typename Scalar>
-bool AABB<Scalar>::overlap(const AABB<Scalar>& other, AABB<Scalar>& overlap_part) const
+template <typename ScalarT>
+bool AABB<ScalarT>::overlap(const AABB<ScalarT>& other, AABB<ScalarT>& overlap_part) const
 {
   if(!overlap(other))
   {
@@ -244,8 +247,8 @@ bool AABB<Scalar>::overlap(const AABB<Scalar>& other, AABB<Scalar>& overlap_part
 }
 
 //==============================================================================
-template <typename Scalar>
-bool AABB<Scalar>::contain(const Vector3<Scalar>& p) const
+template <typename ScalarT>
+bool AABB<ScalarT>::contain(const Vector3<Scalar>& p) const
 {
   if ((min_.array() > p.array()).any())
     return false;
@@ -257,8 +260,8 @@ bool AABB<Scalar>::contain(const Vector3<Scalar>& p) const
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>& AABB<Scalar>::operator +=(const Vector3<Scalar>& p)
+template <typename ScalarT>
+AABB<ScalarT>& AABB<ScalarT>::operator +=(const Vector3<Scalar>& p)
 {
   min_ = min_.cwiseMin(p);
   max_ = max_.cwiseMax(p);
@@ -266,8 +269,8 @@ AABB<Scalar>& AABB<Scalar>::operator +=(const Vector3<Scalar>& p)
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>& AABB<Scalar>::operator +=(const AABB<Scalar>& other)
+template <typename ScalarT>
+AABB<ScalarT>& AABB<ScalarT>::operator +=(const AABB<ScalarT>& other)
 {
   min_ = min_.cwiseMin(other.min_);
   max_ = max_.cwiseMax(other.max_);
@@ -275,65 +278,65 @@ AABB<Scalar>& AABB<Scalar>::operator +=(const AABB<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar> AABB<Scalar>::operator +(const AABB<Scalar>& other) const
+template <typename ScalarT>
+AABB<ScalarT> AABB<ScalarT>::operator +(const AABB<ScalarT>& other) const
 {
   AABB res(*this);
   return res += other;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::width() const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::width() const
 {
   return max_[0] - min_[0];
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::height() const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::height() const
 {
   return max_[1] - min_[1];
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::depth() const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::depth() const
 {
   return max_[2] - min_[2];
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::volume() const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::volume() const
 {
   return width() * height() * depth();
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::size() const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::size() const
 {
   return (max_ - min_).squaredNorm();
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::radius() const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::radius() const
 {
   return (max_ - min_).norm() / 2;
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> AABB<Scalar>::center() const
+template <typename ScalarT>
+Vector3<ScalarT> AABB<ScalarT>::center() const
 {
   return (min_ + max_) * 0.5;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::distance(const AABB<Scalar>& other, Vector3<Scalar>* P, Vector3<Scalar>* Q) const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::distance(const AABB<ScalarT>& other, Vector3<Scalar>* P, Vector3<Scalar>* Q) const
 {
   Scalar result = 0;
   for(std::size_t i = 0; i < 3; ++i)
@@ -387,8 +390,8 @@ Scalar AABB<Scalar>::distance(const AABB<Scalar>& other, Vector3<Scalar>* P, Vec
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar AABB<Scalar>::distance(const AABB<Scalar>& other) const
+template <typename ScalarT>
+ScalarT AABB<ScalarT>::distance(const AABB<ScalarT>& other) const
 {
   Scalar result = 0;
   for(std::size_t i = 0; i < 3; ++i)
@@ -414,16 +417,16 @@ Scalar AABB<Scalar>::distance(const AABB<Scalar>& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-bool AABB<Scalar>::equal(const AABB<Scalar>& other) const
+template <typename ScalarT>
+bool AABB<ScalarT>::equal(const AABB<ScalarT>& other) const
 {
   return min_.isApprox(other.min_, std::numeric_limits<Scalar>::epsilon() * 100)
       && max_.isApprox(other.max_, std::numeric_limits<Scalar>::epsilon() * 100);
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>& AABB<Scalar>::expand(const Vector3<Scalar>& delta)
+template <typename ScalarT>
+AABB<ScalarT>& AABB<ScalarT>::expand(const Vector3<Scalar>& delta)
 {
   min_ -= delta;
   max_ += delta;
@@ -431,8 +434,8 @@ AABB<Scalar>& AABB<Scalar>::expand(const Vector3<Scalar>& delta)
 }
 
 //==============================================================================
-template <typename Scalar>
-AABB<Scalar>& AABB<Scalar>::expand(const AABB<Scalar>& core, Scalar ratio)
+template <typename ScalarT>
+AABB<ScalarT>& AABB<ScalarT>::expand(const AABB<ScalarT>& core, Scalar ratio)
 {
   min_ = min_ * ratio - core.min_;
   max_ = max_ * ratio - core.max_;
@@ -440,11 +443,11 @@ AABB<Scalar>& AABB<Scalar>::expand(const AABB<Scalar>& core, Scalar ratio)
 }
 
 //==============================================================================
-template <typename Scalar, typename Derived>
-AABB<Scalar> translate(
-    const AABB<Scalar>& aabb, const Eigen::MatrixBase<Derived>& t)
+template <typename ScalarT, typename Derived>
+AABB<ScalarT> translate(
+    const AABB<ScalarT>& aabb, const Eigen::MatrixBase<Derived>& t)
 {
-  AABB<Scalar> res(aabb);
+  AABB<ScalarT> res(aabb);
   res.min_ += t;
   res.max_ += t;
   return res;

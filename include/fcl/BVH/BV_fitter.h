@@ -48,7 +48,7 @@ namespace fcl
 {
 
 /// @brief Interface for fitting a bv given the triangles or points inside it.
-template<typename BV>
+template <typename BV>
 class BVFitterBase
 {
 public:
@@ -66,7 +66,7 @@ public:
 };
 
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
-template<typename BV>
+template <typename BV>
 class BVFitter : public BVFitterBase<BV>
 {
 public:
