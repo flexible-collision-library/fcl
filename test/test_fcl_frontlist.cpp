@@ -78,7 +78,7 @@ GTEST_TEST(FCL_FRONT_LIST, front_list)
   std::vector<Transform3d> transforms2; // t1
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   FCL_REAL delta_trans[] = {1, 1, 1};
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   std::size_t n = 1;
 #else
   std::size_t n = 10;

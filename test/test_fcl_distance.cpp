@@ -88,7 +88,7 @@ GTEST_TEST(FCL_DISTANCE, mesh_distance)
 
   std::vector<Transform3d> transforms; // t0
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   std::size_t n = 1;
 #else
   std::size_t n = 10;
