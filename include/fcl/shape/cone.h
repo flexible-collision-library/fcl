@@ -46,17 +46,20 @@ namespace fcl
 {
 
 /// @brief Center at zero cone 
-template <typename Scalar>
-class Cone : public ShapeBase<Scalar>
+template <typename ScalarT>
+class Cone : public ShapeBase<ScalarT>
 {
 public:
-  Cone(Scalar radius, Scalar lz);
+
+  using Scalar = ScalarT;
+
+  Cone(ScalarT radius, ScalarT lz);
 
   /// @brief Radius of the cone 
-  Scalar radius;
+  ScalarT radius;
 
   /// @brief Length along z axis 
-  Scalar lz;
+  ScalarT lz;
 
   /// @brief Compute AABBd 
   void computeLocalAABB() override;
@@ -65,32 +68,32 @@ public:
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  Scalar computeVolume() const override;
+  ScalarT computeVolume() const override;
 
   // Documentation inherited
-  Matrix3<Scalar> computeMomentofInertia() const override;
+  Matrix3<ScalarT> computeMomentofInertia() const override;
 
   // Documentation inherited
-  Vector3<Scalar> computeCOM() const override;
+  Vector3<ScalarT> computeCOM() const override;
 
-  std::vector<Vector3<Scalar>> getBoundVertices(
-      const Transform3<Scalar>& tf) const
+  std::vector<Vector3<ScalarT>> getBoundVertices(
+      const Transform3<ScalarT>& tf) const
   {
-    std::vector<Vector3<Scalar>> result(7);
+    std::vector<Vector3<ScalarT>> result(7);
 
     auto hl = lz * 0.5;
     auto r2 = radius * 2 / std::sqrt(3.0);
     auto a = 0.5 * r2;
     auto b = radius;
 
-    result[0] = tf * Vector3<Scalar>(r2, 0, -hl);
-    result[1] = tf * Vector3<Scalar>(a, b, -hl);
-    result[2] = tf * Vector3<Scalar>(-a, b, -hl);
-    result[3] = tf * Vector3<Scalar>(-r2, 0, -hl);
-    result[4] = tf * Vector3<Scalar>(-a, -b, -hl);
-    result[5] = tf * Vector3<Scalar>(a, -b, -hl);
+    result[0] = tf * Vector3<ScalarT>(r2, 0, -hl);
+    result[1] = tf * Vector3<ScalarT>(a, b, -hl);
+    result[2] = tf * Vector3<ScalarT>(-a, b, -hl);
+    result[3] = tf * Vector3<ScalarT>(-r2, 0, -hl);
+    result[4] = tf * Vector3<ScalarT>(-a, -b, -hl);
+    result[5] = tf * Vector3<ScalarT>(a, -b, -hl);
 
-    result[6] = tf * Vector3<Scalar>(0, 0, hl);
+    result[6] = tf * Vector3<ScalarT>(0, 0, hl);
 
     return result;
   }
@@ -99,16 +102,16 @@ public:
 using Conef = Cone<float>;
 using Coned = Cone<double>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Cone<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Cone<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Cone<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Cone<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Cone<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Cone<ScalarT>>
 {
-  void operator()(const Cone<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
+  void operator()(const Cone<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -123,10 +126,10 @@ struct ComputeBVImpl<Scalar, AABBd, Cone<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Cone<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Cone<ScalarT>>
 {
-  void operator()(const Cone<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  void operator()(const Cone<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
     bv.To = tf.translation();
     bv.axis = tf.linear();
@@ -141,52 +144,52 @@ struct ComputeBVImpl<Scalar, OBB<Scalar>, Cone<Scalar>>
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Cone<Scalar>::Cone(Scalar radius, Scalar lz)
-  : ShapeBase<Scalar>(), radius(radius), lz(lz)
+template <typename ScalarT>
+Cone<ScalarT>::Cone(ScalarT radius, ScalarT lz)
+  : ShapeBase<ScalarT>(), radius(radius), lz(lz)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void Cone<Scalar>::computeLocalAABB()
+template <typename ScalarT>
+void Cone<ScalarT>::computeLocalAABB()
 {
-  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename Scalar>
-NODE_TYPE Cone<Scalar>::getNodeType() const
+template <typename ScalarT>
+NODE_TYPE Cone<ScalarT>::getNodeType() const
 {
   return GEOM_CONE;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Cone<Scalar>::computeVolume() const
+template <typename ScalarT>
+ScalarT Cone<ScalarT>::computeVolume() const
 {
   return constants::pi * radius * radius * lz / 3;
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> Cone<Scalar>::computeMomentofInertia() const
+template <typename ScalarT>
+Matrix3<ScalarT> Cone<ScalarT>::computeMomentofInertia() const
 {
-  Scalar V = computeVolume();
-  Scalar ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
-  Scalar iz = 0.3 * V * radius * radius;
+  ScalarT V = computeVolume();
+  ScalarT ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
+  ScalarT iz = 0.3 * V * radius * radius;
 
-  return Vector3<Scalar>(ix, ix, iz).asDiagonal();
+  return Vector3<ScalarT>(ix, ix, iz).asDiagonal();
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> Cone<Scalar>::computeCOM() const
+template <typename ScalarT>
+Vector3<ScalarT> Cone<ScalarT>::computeCOM() const
 {
-  return Vector3<Scalar>(0, 0, -0.25 * lz);
+  return Vector3<ScalarT>(0, 0, -0.25 * lz);
 }
 
 }

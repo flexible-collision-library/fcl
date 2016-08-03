@@ -126,6 +126,9 @@ struct Contact
   bool operator < (const Contact& other) const;
 };
 
+using Contactf = Contact<float>;
+using Contactd = Contact<float>;
+
 /// @brief Cost source describes an area with a cost. The area is described by an AABBd region.
 template <typename Scalar>
 struct CostSource
@@ -267,6 +270,9 @@ struct DistanceRequest
   bool isSatisfied(const DistanceResult<Scalar>& result) const;
 };
 
+using DistanceRequestf = DistanceRequest<float>;
+using DistanceRequestd = DistanceRequest<double>;
+
 /// @brief distance result
 template <typename Scalar>
 struct DistanceResult
@@ -315,6 +321,9 @@ public:
   /// @brief clear the result
   void clear();
 };
+
+using DistanceResultf = DistanceResult<float>;
+using DistanceResultd = DistanceResult<double>;
 
 enum CCDMotionType {CCDM_TRANS, CCDM_LINEAR, CCDM_SCREW, CCDM_SPLINE};
 enum CCDSolverType {CCDC_NAIVE, CCDC_CONSERVATIVE_ADVANCEMENT, CCDC_RAY_SHOOTING, CCDC_POLYNOMIAL_SOLVER};

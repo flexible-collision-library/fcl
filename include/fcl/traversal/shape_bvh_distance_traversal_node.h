@@ -35,52 +35,38 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
-#define FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
+#ifndef FCL_TRAVERSAL_SHAPEBVHDISTANCETRAVERSALNODE_H
+#define FCL_TRAVERSAL_SHAPEBVHDISTANCETRAVERSALNODE_H
 
 #include "fcl/traversal/traversal_node_base.h"
+#include "fcl/traversal/distance_traversal_node_base.h"
+#include "fcl/BVH/BVH_model.h"
 
 namespace fcl
 {
 
 /// @brief Traversal node for distance computation between shape and BVH
 template<typename S, typename BV>
-class ShapeBVHDistanceTraversalNode : public DistanceTraversalNodeBase
+class ShapeBVHDistanceTraversalNode
+    : public DistanceTraversalNodeBase<typename BV::Scalar>
 {
 public:
-  ShapeBVHDistanceTraversalNode() : DistanceTraversalNodeBase()
-  {
-    model1 = NULL;
-    model2 = NULL;
-    
-    num_bv_tests = 0;
-    num_leaf_tests = 0;
-    query_time_seconds = 0.0;
-  }
+
+  using Scalar = typename BV::Scalar;
+
+  ShapeBVHDistanceTraversalNode();
 
   /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(int b) const
-  {
-    return model2->getBV(b).isLeaf();
-  }
+  bool isSecondNodeLeaf(int b) const;
 
   /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(int b) const
-  {
-    return model2->getBV(b).leftChild();
-  }
+  int getSecondLeftChild(int b) const;
 
   /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(int b) const
-  {
-    return model2->getBV(b).rightChild();
-  }
+  int getSecondRightChild(int b) const;
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
-  {
-    return model1_bv.distance(model2->getBV(b2).bv);
-  }
+  Scalar BVTesting(int b1, int b2) const;
 
   const S* model1;
   const BVHModel<BV>* model2;
@@ -88,7 +74,7 @@ public:
   
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable FCL_REAL query_time_seconds;
+  mutable Scalar query_time_seconds;
 };
 
 //============================================================================//
@@ -98,6 +84,46 @@ public:
 //============================================================================//
 
 //==============================================================================
+template<typename S, typename BV>
+ShapeBVHDistanceTraversalNode<S, BV>::ShapeBVHDistanceTraversalNode()
+  : DistanceTraversalNodeBase<typename BV::Scalar>()
+{
+  model1 = NULL;
+  model2 = NULL;
+
+  num_bv_tests = 0;
+  num_leaf_tests = 0;
+  query_time_seconds = 0.0;
+}
+
+//==============================================================================
+template<typename S, typename BV>
+bool ShapeBVHDistanceTraversalNode<S, BV>::isSecondNodeLeaf(int b) const
+{
+  return model2->getBV(b).isLeaf();
+}
+
+//==============================================================================
+template<typename S, typename BV>
+int ShapeBVHDistanceTraversalNode<S, BV>::getSecondLeftChild(int b) const
+{
+  return model2->getBV(b).leftChild();
+}
+
+//==============================================================================
+template<typename S, typename BV>
+int ShapeBVHDistanceTraversalNode<S, BV>::getSecondRightChild(int b) const
+{
+  return model2->getBV(b).rightChild();
+}
+
+//==============================================================================
+template<typename S, typename BV>
+typename BV::Scalar
+ShapeBVHDistanceTraversalNode<S, BV>::BVTesting(int b1, int b2) const
+{
+  return model1_bv.distance(model2->getBV(b2).bv);
+}
 
 } // namespace fcl
 

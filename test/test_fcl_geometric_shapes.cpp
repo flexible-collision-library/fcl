@@ -70,7 +70,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
   Cylinderd s1(5, 10);
   Coned s2(5, 10);
 
-  CollisionRequest request;
+  CollisionRequestd request;
   request.enable_cached_gjk_guess = true;
   request.gjk_solver_type = GST_INDEP;
 
@@ -89,7 +89,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
     Transform3d tf;
     motion.getCurrentTransform(tf);
 
-    CollisionResult result;
+    CollisionResultd result;
 
     collide(&s1, Transform3d::Identity(), &s2, tf, request, result);
     result1[i] = result.isCollision();
@@ -109,7 +109,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
     Transform3d tf;
     motion.getCurrentTransform(tf);
 
-    CollisionResult result;
+    CollisionResultd result;
 
     collide(&s1, Transform3d::Identity(), &s2, tf, request, result);
     result2[i] = result.isCollision();
@@ -351,14 +351,14 @@ bool inspectContactPointds(const S1& s1, const Transform3d& tf1,
   return foundAll;
 }
 
-void getContactPointdsFromResult(std::vector<ContactPointd>& contacts, const CollisionResult& result)
+void getContactPointdsFromResult(std::vector<ContactPointd>& contacts, const CollisionResultd& result)
 {
   const size_t numContacts = result.numContacts();
   contacts.resize(numContacts);
 
   for (size_t i = 0; i < numContacts; ++i)
   {
-    const Contact& cnt = result.getContact(i);
+    const auto& cnt = result.getContact(i);
 
     contacts[i].pos = cnt.pos;
     contacts[i].normal = cnt.normal;
@@ -379,10 +379,10 @@ void testShapeIntersection(
     bool check_opposite_normal = false,
     FCL_REAL tol = 1e-9)
 {
-  CollisionRequest request;
+  CollisionRequestd request;
   request.gjk_solver_type = solver_type;
   request.num_max_contacts = std::numeric_limits<size_t>::max();
-  CollisionResult result;
+  CollisionResultd result;
 
   std::vector<ContactPointd> actual_contacts;
 

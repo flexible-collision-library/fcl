@@ -103,6 +103,9 @@ public:
   Vector3<Scalar> T;
 };
 
+using MeshCollisionTraversalNodeOBBf = MeshCollisionTraversalNodeOBB<float>;
+using MeshCollisionTraversalNodeOBBd = MeshCollisionTraversalNodeOBB<double>;
+
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for OBB type
 template <typename Scalar>
@@ -334,10 +337,11 @@ bool initialize(
     Transform3<typename BV::Scalar>& tf2,
     const CollisionRequest<typename BV::Scalar>& request,
     CollisionResult<typename BV::Scalar>& result,
-    bool use_refit = false,
-    bool refit_bottomup = false)
+    bool use_refit,
+    bool refit_bottomup)
 {
-  if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
+  if(model1.getModelType() != BVH_MODEL_TRIANGLES
+     || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf1.matrix().isIdentity())

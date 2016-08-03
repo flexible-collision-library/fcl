@@ -623,7 +623,7 @@ bool conservativeAdvancement(const BVHModel<RSSd>& o1,
                              CollisionResultd& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementMeshOriented<RSSd, MeshConservativeAdvancementTraversalNodeRSS>(o1, motion1, o2, motion2, request, result, toc);
+  return details::conservativeAdvancementMeshOriented<RSSd, MeshConservativeAdvancementTraversalNodeRSSd>(o1, motion1, o2, motion2, request, result, toc);
 }
 
 template<>
@@ -635,7 +635,7 @@ bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
                              CollisionResultd& result,
                              FCL_REAL& toc)
 {
-  return details::conservativeAdvancementMeshOriented<OBBRSSd, MeshConservativeAdvancementTraversalNodeOBBRSS>(o1, motion1, o2, motion2, request, result, toc);
+  return details::conservativeAdvancementMeshOriented<OBBRSSd, MeshConservativeAdvancementTraversalNodeOBBRSSd>(o1, motion1, o2, motion2, request, result, toc);
 }
 
 

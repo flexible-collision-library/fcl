@@ -53,7 +53,7 @@ namespace fcl
 /// @brief Traversal node for octree collision
 template <typename NarrowPhaseSolver>
 class OcTreeCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scala>
+    : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
 {
 public:
 

@@ -46,18 +46,21 @@ namespace fcl
 {
 
 /// @brief Center at zero point capsule 
-template <typename Scalar>
-class Capsule : public ShapeBase<Scalar>
+template <typename ScalarT>
+class Capsule : public ShapeBase<ScalarT>
 {
 public:
+
+  using Scalar = ScalarT;
+
   /// @brief Constructor
-  Capsule(Scalar radius, Scalar lz);
+  Capsule(ScalarT radius, ScalarT lz);
 
   /// @brief Radius of capsule 
-  Scalar radius;
+  ScalarT radius;
 
   /// @brief Length along z axis 
-  Scalar lz;
+  ScalarT lz;
 
   /// @brief Compute AABBd
   void computeLocalAABB() override;
@@ -66,17 +69,17 @@ public:
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  Scalar computeVolume() const override;
+  ScalarT computeVolume() const override;
 
   // Documentation inherited
-  Matrix3<Scalar> computeMomentofInertia() const override;
+  Matrix3<ScalarT> computeMomentofInertia() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<Scalar>> getBoundVertices(
-      const Transform3<Scalar>& tf) const
+  std::vector<Vector3<ScalarT>> getBoundVertices(
+      const Transform3<ScalarT>& tf) const
   {
-    std::vector<Vector3<Scalar>> result(36);
+    std::vector<Vector3<ScalarT>> result(36);
     const auto m = (1 + std::sqrt(5.0)) / 2.0;
 
     auto hl = lz * 0.5;
@@ -85,47 +88,47 @@ public:
     auto b = m * edge_size;
     auto r2 = radius * 2 / std::sqrt(3.0);
 
-    result[0] = tf * Vector3<Scalar>(0, a, b + hl);
-    result[1] = tf * Vector3<Scalar>(0, -a, b + hl);
-    result[2] = tf * Vector3<Scalar>(0, a, -b + hl);
-    result[3] = tf * Vector3<Scalar>(0, -a, -b + hl);
-    result[4] = tf * Vector3<Scalar>(a, b, hl);
-    result[5] = tf * Vector3<Scalar>(-a, b, hl);
-    result[6] = tf * Vector3<Scalar>(a, -b, hl);
-    result[7] = tf * Vector3<Scalar>(-a, -b, hl);
-    result[8] = tf * Vector3<Scalar>(b, 0, a + hl);
-    result[9] = tf * Vector3<Scalar>(b, 0, -a + hl);
-    result[10] = tf * Vector3<Scalar>(-b, 0, a + hl);
-    result[11] = tf * Vector3<Scalar>(-b, 0, -a + hl);
+    result[0] = tf * Vector3<ScalarT>(0, a, b + hl);
+    result[1] = tf * Vector3<ScalarT>(0, -a, b + hl);
+    result[2] = tf * Vector3<ScalarT>(0, a, -b + hl);
+    result[3] = tf * Vector3<ScalarT>(0, -a, -b + hl);
+    result[4] = tf * Vector3<ScalarT>(a, b, hl);
+    result[5] = tf * Vector3<ScalarT>(-a, b, hl);
+    result[6] = tf * Vector3<ScalarT>(a, -b, hl);
+    result[7] = tf * Vector3<ScalarT>(-a, -b, hl);
+    result[8] = tf * Vector3<ScalarT>(b, 0, a + hl);
+    result[9] = tf * Vector3<ScalarT>(b, 0, -a + hl);
+    result[10] = tf * Vector3<ScalarT>(-b, 0, a + hl);
+    result[11] = tf * Vector3<ScalarT>(-b, 0, -a + hl);
 
-    result[12] = tf * Vector3<Scalar>(0, a, b - hl);
-    result[13] = tf * Vector3<Scalar>(0, -a, b - hl);
-    result[14] = tf * Vector3<Scalar>(0, a, -b - hl);
-    result[15] = tf * Vector3<Scalar>(0, -a, -b - hl);
-    result[16] = tf * Vector3<Scalar>(a, b, -hl);
-    result[17] = tf * Vector3<Scalar>(-a, b, -hl);
-    result[18] = tf * Vector3<Scalar>(a, -b, -hl);
-    result[19] = tf * Vector3<Scalar>(-a, -b, -hl);
-    result[20] = tf * Vector3<Scalar>(b, 0, a - hl);
-    result[21] = tf * Vector3<Scalar>(b, 0, -a - hl);
-    result[22] = tf * Vector3<Scalar>(-b, 0, a - hl);
-    result[23] = tf * Vector3<Scalar>(-b, 0, -a - hl);
+    result[12] = tf * Vector3<ScalarT>(0, a, b - hl);
+    result[13] = tf * Vector3<ScalarT>(0, -a, b - hl);
+    result[14] = tf * Vector3<ScalarT>(0, a, -b - hl);
+    result[15] = tf * Vector3<ScalarT>(0, -a, -b - hl);
+    result[16] = tf * Vector3<ScalarT>(a, b, -hl);
+    result[17] = tf * Vector3<ScalarT>(-a, b, -hl);
+    result[18] = tf * Vector3<ScalarT>(a, -b, -hl);
+    result[19] = tf * Vector3<ScalarT>(-a, -b, -hl);
+    result[20] = tf * Vector3<ScalarT>(b, 0, a - hl);
+    result[21] = tf * Vector3<ScalarT>(b, 0, -a - hl);
+    result[22] = tf * Vector3<ScalarT>(-b, 0, a - hl);
+    result[23] = tf * Vector3<ScalarT>(-b, 0, -a - hl);
 
     auto c = 0.5 * r2;
     auto d = radius;
-    result[24] = tf * Vector3<Scalar>(r2, 0, hl);
-    result[25] = tf * Vector3<Scalar>(c, d, hl);
-    result[26] = tf * Vector3<Scalar>(-c, d, hl);
-    result[27] = tf * Vector3<Scalar>(-r2, 0, hl);
-    result[28] = tf * Vector3<Scalar>(-c, -d, hl);
-    result[29] = tf * Vector3<Scalar>(c, -d, hl);
+    result[24] = tf * Vector3<ScalarT>(r2, 0, hl);
+    result[25] = tf * Vector3<ScalarT>(c, d, hl);
+    result[26] = tf * Vector3<ScalarT>(-c, d, hl);
+    result[27] = tf * Vector3<ScalarT>(-r2, 0, hl);
+    result[28] = tf * Vector3<ScalarT>(-c, -d, hl);
+    result[29] = tf * Vector3<ScalarT>(c, -d, hl);
 
-    result[30] = tf * Vector3<Scalar>(r2, 0, -hl);
-    result[31] = tf * Vector3<Scalar>(c, d, -hl);
-    result[32] = tf * Vector3<Scalar>(-c, d, -hl);
-    result[33] = tf * Vector3<Scalar>(-r2, 0, -hl);
-    result[34] = tf * Vector3<Scalar>(-c, -d, -hl);
-    result[35] = tf * Vector3<Scalar>(c, -d, -hl);
+    result[30] = tf * Vector3<ScalarT>(r2, 0, -hl);
+    result[31] = tf * Vector3<ScalarT>(c, d, -hl);
+    result[32] = tf * Vector3<ScalarT>(-c, d, -hl);
+    result[33] = tf * Vector3<ScalarT>(-r2, 0, -hl);
+    result[34] = tf * Vector3<ScalarT>(-c, -d, -hl);
+    result[35] = tf * Vector3<ScalarT>(c, -d, -hl);
 
     return result;
   }
@@ -134,16 +137,16 @@ public:
 using Capsulef = Capsule<float>;
 using Capsuled = Capsule<double>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Capsule<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Capsule<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Capsule<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Capsule<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Capsule<ScalarT>>
 {
-  void operator()(const Capsule<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
+  void operator()(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -158,10 +161,10 @@ struct ComputeBVImpl<Scalar, AABBd, Capsule<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Capsule<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>
 {
-  void operator()(const Capsule<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  void operator()(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
     bv.To = tf.translation();
     bv.axis = tf.linear();
@@ -176,47 +179,47 @@ struct ComputeBVImpl<Scalar, OBB<Scalar>, Capsule<Scalar>>
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Capsule<Scalar>::Capsule(Scalar radius, Scalar lz)
+template <typename ScalarT>
+Capsule<ScalarT>::Capsule(ScalarT radius, ScalarT lz)
   : ShapeBased(), radius(radius), lz(lz)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void Capsule<Scalar>::computeLocalAABB()
+template <typename ScalarT>
+void Capsule<ScalarT>::computeLocalAABB()
 {
-  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename Scalar>
-NODE_TYPE Capsule<Scalar>::getNodeType() const
+template <typename ScalarT>
+NODE_TYPE Capsule<ScalarT>::getNodeType() const
 {
   return GEOM_CAPSULE;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Capsule<Scalar>::computeVolume() const
+template <typename ScalarT>
+ScalarT Capsule<ScalarT>::computeVolume() const
 {
   return constants::pi * radius * radius *(lz + radius * 4/3.0);
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> Capsule<Scalar>::computeMomentofInertia() const
+template <typename ScalarT>
+Matrix3<ScalarT> Capsule<ScalarT>::computeMomentofInertia() const
 {
-  Scalar v_cyl = radius * radius * lz * constants::pi;
-  Scalar v_sph = radius * radius * radius * constants::pi * 4 / 3.0;
+  ScalarT v_cyl = radius * radius * lz * constants::pi;
+  ScalarT v_sph = radius * radius * radius * constants::pi * 4 / 3.0;
 
-  Scalar ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
-  Scalar iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
+  ScalarT ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
+  ScalarT iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;
 
-  return Vector3<Scalar>(ix, ix, iz).asDiagonal();
+  return Vector3<ScalarT>(ix, ix, iz).asDiagonal();
 }
 
 }

@@ -73,25 +73,41 @@ DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
   return table;
 }
 
-template <typename Scalar, typename NarrowPhaseSolver>
-Scalar distance(const CollisionObject* o1, const CollisionObject* o2, const NarrowPhaseSolver* nsolver,
-                  const DistanceRequest& request, DistanceResult& result)
+template <typename NarrowPhaseSolver>
+typename NarrowPhaseSolver::Scalar distance(
+    const CollisionObject* o1,
+    const CollisionObject* o2,
+    const NarrowPhaseSolver* nsolver,
+    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
+    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
 {
-  return distance<NarrowPhaseSolver>(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(), nsolver,
-                                     request, result);
+  return distance<NarrowPhaseSolver>(
+        o1->collisionGeometry().get(),
+        o1->getTransform(),
+        o2->collisionGeometry().get(),
+        o2->getTransform(),
+        nsolver,
+        request,
+        result);
 }
 
-template <typename Scalar, typename NarrowPhaseSolver>
-Scalar distance(const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
-                  const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
-                  const NarrowPhaseSolver* nsolver_,
-                  const DistanceRequest& request, DistanceResult& result)
+template <typename NarrowPhaseSolver>
+typename NarrowPhaseSolver::Scalar distance(
+    const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver_,
+    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
+    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
 {
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_)
     nsolver = new NarrowPhaseSolver();
 
-  const DistanceFunctionMatrix<NarrowPhaseSolver>& looktable = getDistanceFunctionLookTable<NarrowPhaseSolver>();
+  const auto& looktable = getDistanceFunctionLookTable<NarrowPhaseSolver>();
 
   OBJECT_TYPE object_type1 = o1->getObjectType();
   NODE_TYPE node_type1 = o1->getNodeType();
@@ -132,8 +148,10 @@ Scalar distance(const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& t
 //==============================================================================
 template <typename Scalar>
 Scalar distance(
-    const CollisionObject* o1, const CollisionObject* o2,
-    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result)
+    const CollisionObject* o1,
+    const CollisionObject* o2,
+    const DistanceRequest<Scalar>& request,
+    DistanceResult<Scalar>& result)
 {
   switch(request.gjk_solver_type)
   {

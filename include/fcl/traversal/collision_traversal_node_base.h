@@ -39,6 +39,7 @@
 #define FCL_TRAVERSAL_COLLISIONTRAVERSALNODEBASE_H
 
 #include "fcl/traversal/traversal_node_base.h"
+#include "fcl/collision_data.h"
 
 namespace fcl
 {

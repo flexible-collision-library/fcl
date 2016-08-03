@@ -400,8 +400,8 @@ void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3d>& 
 bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_)
 {
   CollisionData* cdata = static_cast<CollisionData*>(cdata_);
-  const CollisionRequest& request = cdata->request;
-  CollisionResult& result = cdata->result;
+  const CollisionRequestd& request = cdata->request;
+  CollisionResultd& result = cdata->result;
 
   if(cdata->done) return true;
 
@@ -416,8 +416,8 @@ bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cd
 bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata_, FCL_REAL& dist)
 {
   DistanceData* cdata = static_cast<DistanceData*>(cdata_);
-  const DistanceRequest& request = cdata->request;
-  DistanceResult& result = cdata->result;
+  const DistanceRequestd& request = cdata->request;
+  DistanceResultd& result = cdata->result;
 
   if(cdata->done) { dist = result.min_distance; return true; }
 
@@ -433,8 +433,8 @@ bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cda
 bool defaultContinuousCollisionFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_)
 {
   ContinuousCollisionData* cdata = static_cast<ContinuousCollisionData*>(cdata_);
-  const ContinuousCollisionRequest& request = cdata->request;
-  ContinuousCollisionResult& result = cdata->result;
+  const ContinuousCollisionRequestd& request = cdata->request;
+  ContinuousCollisionResultd& result = cdata->result;
 
   if(cdata->done) return true;
 

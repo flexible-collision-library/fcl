@@ -45,10 +45,13 @@ namespace fcl
 {
 
 /// @brief Base class for all basic geometric shapes
-template <typename Scalar>
-class ShapeBase : public CollisionGeometry<Scalar>
+template <typename ScalarT>
+class ShapeBase : public CollisionGeometry<ScalarT>
 {
 public:
+
+  using Scalar = ScalarT;
+
   ShapeBase();
 
   /// @brief Get object type: a geometric shape
@@ -65,15 +68,16 @@ using ShapeBased = ShapeBase<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-ShapeBase<Scalar>::ShapeBase()
+template <typename ScalarT>
+ShapeBase<ScalarT>::ShapeBase()
+  : CollisionGeometry<ScalarT>()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-OBJECT_TYPE ShapeBase<Scalar>::getObjectType() const
+template <typename ScalarT>
+OBJECT_TYPE ShapeBase<ScalarT>::getObjectType() const
 {
   return OT_GEOM;
 }

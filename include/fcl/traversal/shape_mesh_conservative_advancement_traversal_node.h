@@ -38,157 +38,263 @@
 #ifndef FCL_TRAVERSAL_SHAPEMESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 #define FCL_TRAVERSAL_SHAPEMESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 
+#include "fcl/shape/compute_bv.h"
 #include "fcl/traversal/shape_mesh_distance_traversal_node.h"
+#include "fcl/traversal/conservative_advancement_stack_data.h"
 
 namespace fcl
 {
 
-template<typename S, typename BV, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNode : public ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>
+template <typename S, typename BV, typename NarrowPhaseSolver>
+class ShapeMeshConservativeAdvancementTraversalNode
+    : public ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>
 {
 public:
-  ShapeMeshConservativeAdvancementTraversalNode(FCL_REAL w_ = 1) : ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>()
-  {
-    delta_t = 1;
-    toc = 0;
-    t_err = (FCL_REAL)0.0001;
 
-    w = w_;
+  using Scalar = typename BV::Scalar;
 
-    motion1 = NULL;
-    motion2 = NULL;
-  }
+  ShapeMeshConservativeAdvancementTraversalNode(Scalar w_ = 1);
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    Vector3d P1, P2;
-    FCL_REAL d = this->model1_bv.distance(this->model2->getBV(b2).bv, &P1, &P2);
-
-    stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
-
-    return d;
-  }
+  Scalar BVTesting(int b1, int b2) const;
 
   /// @brief Conservative advancement testing between leaves (one triangle and one shape)
-  void leafTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_leaf_tests++;
-
-    const BVNode<BV>& node = this->model2->getBV(b2);
-
-    int primitive_id = node.primitiveId();
-
-    const Triangle& tri_id = this->tri_indices[primitive_id];
- 
-    const Vector3d& p1 = this->vertices[tri_id[0]];
-    const Vector3d& p2 = this->vertices[tri_id[1]];
-    const Vector3d& p3 = this->vertices[tri_id[2]];
-
-    FCL_REAL d;
-    Vector3d P1, P2;
-    this->nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &d, &P1, &P2);
-
-    if(d < this->min_distance)
-    {
-      this->min_distance = d;
-
-      closest_p1 = P1;
-      closest_p2 = P2;
-
-      last_tri_id = primitive_id;
-    }
-
-    Vector3d n = P2 - this->tf1 * p1; n.normalize();
-    // here n should be in global frame
-    TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
-    TriangleMotionBoundVisitor mb_visitor2(p1, p2, p3, -n);
-    FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
-    FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
-
-    FCL_REAL bound = bound1 + bound2;
-
-    FCL_REAL cur_delta_t;
-    if(bound <= d) cur_delta_t = 1;
-    else cur_delta_t = d / bound;
-
-    if(cur_delta_t < delta_t)
-      delta_t = cur_delta_t;
-  }
+  void leafTesting(int b1, int b2) const;
 
   /// @brief Whether the traversal process can stop early
-  bool canStop(FCL_REAL c) const
-  {
-    if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
-    {
-      const ConservativeAdvancementStackData& data = stack.back();
+  bool canStop(Scalar c) const;
 
-      Vector3d n = data.P2 - this->tf1 * data.P1; n.normalize();
-      int c2 = data.c2;
+  mutable Scalar min_distance;
 
-      TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
-      TBVMotionBoundVisitor<BV> mb_visitor2(this->model2->getBV(c2).bv, -n);
-      FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
-      FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
-
-      FCL_REAL bound = bound1 + bound2;
-
-      FCL_REAL cur_delta_t;
-      if(bound < c) cur_delta_t = 1;
-      else cur_delta_t = c / bound;
-
-      if(cur_delta_t < delta_t)
-        delta_t = cur_delta_t;
-
-      stack.pop_back();
-
-      return true;
-    }
-    else
-    {
-      stack.pop_back();
-
-      return false;
-    }
-  }
-
-  mutable FCL_REAL min_distance;
-
-  mutable Vector3d closest_p1, closest_p2;
+  mutable Vector3<Scalar> closest_p1, closest_p2;
 
   mutable int last_tri_id;
   
    /// @brief CA controlling variable: early stop for the early iterations of CA
-  FCL_REAL w;
+  Scalar w;
 
   /// @brief The time from beginning point
-  FCL_REAL toc;
-  FCL_REAL t_err;
+  Scalar toc;
+  Scalar t_err;
 
   /// @brief The delta_t each step
-  mutable FCL_REAL delta_t;
+  mutable Scalar delta_t;
 
   /// @brief Motions for the two objects in query
   const MotionBase* motion1;
   const MotionBase* motion2;
 
-  mutable std::vector<ConservativeAdvancementStackData> stack;  
+  mutable std::vector<ConservativeAdvancementStackData<Scalar>> stack;
 };
 
 template <typename S, typename BV, typename NarrowPhaseSolver>
-bool initialize(ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>& node,
-                const S& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-                BVHModel<BV>& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
-                const NarrowPhaseSolver* nsolver,
-                FCL_REAL w = 1,
-                bool use_refit = false, bool refit_bottomup = false)
+bool initialize(
+    ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>& node,
+    const S& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    BVHModel<BV>& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver,
+    typename BV::Scalar w = 1,
+    bool use_refit = false,
+    bool refit_bottomup = false);
+
+template <typename S, typename NarrowPhaseSolver>
+class ShapeMeshConservativeAdvancementTraversalNodeRSS
+    : public ShapeMeshConservativeAdvancementTraversalNode<
+    S, RSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>
 {
-  std::vector<Vector3d> vertices_transformed(model2.num_vertices);
+public:
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
+  ShapeMeshConservativeAdvancementTraversalNodeRSS(Scalar w_ = 1);
+
+  Scalar BVTesting(int b1, int b2) const;
+
+  void leafTesting(int b1, int b2) const;
+
+  bool canStop(Scalar c) const;
+};
+
+template <typename S, typename NarrowPhaseSolver>
+bool initialize(
+    ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>& node,
+    const S& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const BVHModel<RSS<typename NarrowPhaseSolver::Scalar>>& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver,
+    typename NarrowPhaseSolver::Scalar w = 1);
+
+template <typename S, typename NarrowPhaseSolver>
+class ShapeMeshConservativeAdvancementTraversalNodeOBBRSS
+    : public ShapeMeshConservativeAdvancementTraversalNode<
+    S, OBBRSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>
+{
+public:
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
+  ShapeMeshConservativeAdvancementTraversalNodeOBBRSS(Scalar w_ = 1);
+
+  Scalar BVTesting(int b1, int b2) const;
+
+  void leafTesting(int b1, int b2) const;
+
+  bool canStop(Scalar c) const;
+};
+
+template <typename S, typename NarrowPhaseSolver>
+bool initialize(
+    ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
+    const S& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const BVHModel<OBBRSS<typename NarrowPhaseSolver::Scalar>>& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver,
+    typename NarrowPhaseSolver::Scalar w = 1);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename S, typename BV, typename NarrowPhaseSolver>
+ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>::
+ShapeMeshConservativeAdvancementTraversalNode(Scalar w_)
+  : ShapeMeshDistanceTraversalNode<S, BV, NarrowPhaseSolver>()
+{
+  delta_t = 1;
+  toc = 0;
+  t_err = (Scalar)0.0001;
+
+  w = w_;
+
+  motion1 = NULL;
+  motion2 = NULL;
+}
+
+//==============================================================================
+template <typename S, typename BV, typename NarrowPhaseSolver>
+typename BV::Scalar
+ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>::
+BVTesting(int b1, int b2) const
+{
+  if(this->enable_statistics) this->num_bv_tests++;
+  Vector3<Scalar> P1, P2;
+  Scalar d = this->model1_bv.distance(this->model2->getBV(b2).bv, &P1, &P2);
+
+  stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+
+  return d;
+}
+
+//==============================================================================
+template <typename S, typename BV, typename NarrowPhaseSolver>
+void ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
+{
+  if(this->enable_statistics) this->num_leaf_tests++;
+
+  const BVNode<BV>& node = this->model2->getBV(b2);
+
+  int primitive_id = node.primitiveId();
+
+  const Triangle& tri_id = this->tri_indices[primitive_id];
+
+  const Vector3<Scalar>& p1 = this->vertices[tri_id[0]];
+  const Vector3<Scalar>& p2 = this->vertices[tri_id[1]];
+  const Vector3<Scalar>& p3 = this->vertices[tri_id[2]];
+
+  Scalar d;
+  Vector3<Scalar> P1, P2;
+  this->nsolver->shapeTriangleDistance(*(this->model1), this->tf1, p1, p2, p3, &d, &P1, &P2);
+
+  if(d < this->min_distance)
+  {
+    this->min_distance = d;
+
+    closest_p1 = P1;
+    closest_p2 = P2;
+
+    last_tri_id = primitive_id;
+  }
+
+  Vector3<Scalar> n = P2 - this->tf1 * p1; n.normalize();
+  // here n should be in global frame
+  TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
+  TriangleMotionBoundVisitor mb_visitor2(p1, p2, p3, -n);
+  Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
+  Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
+
+  Scalar bound = bound1 + bound2;
+
+  Scalar cur_delta_t;
+  if(bound <= d) cur_delta_t = 1;
+  else cur_delta_t = d / bound;
+
+  if(cur_delta_t < delta_t)
+    delta_t = cur_delta_t;
+}
+
+//==============================================================================
+template <typename S, typename BV, typename NarrowPhaseSolver>
+bool ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>::
+canStop(Scalar c) const
+{
+  if((c >= w * (this->min_distance - this->abs_err)) && (c * (1 + this->rel_err) >= w * this->min_distance))
+  {
+    const auto& data = stack.back();
+
+    Vector3<Scalar> n = data.P2 - this->tf1 * data.P1; n.normalize();
+    int c2 = data.c2;
+
+    TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
+    TBVMotionBoundVisitor<BV> mb_visitor2(this->model2->getBV(c2).bv, -n);
+    Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
+    Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
+
+    Scalar bound = bound1 + bound2;
+
+    Scalar cur_delta_t;
+    if(bound < c) cur_delta_t = 1;
+    else cur_delta_t = c / bound;
+
+    if(cur_delta_t < delta_t)
+      delta_t = cur_delta_t;
+
+    stack.pop_back();
+
+    return true;
+  }
+  else
+  {
+    stack.pop_back();
+
+    return false;
+  }
+}
+
+//==============================================================================
+template <typename S, typename BV, typename NarrowPhaseSolver>
+bool initialize(
+    ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>& node,
+    const S& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    BVHModel<BV>& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver,
+    typename BV::Scalar w,
+    bool use_refit,
+    bool refit_bottomup)
+{
+  using Scalar = typename BV::Scalar;
+
+  std::vector<Vector3<Scalar>> vertices_transformed(model2.num_vertices);
   for(int i = 0; i < model2.num_vertices; ++i)
   {
-    Vector3d& p = model2.vertices[i];
-    Vector3d new_v = tf2 * p;
+    Vector3<Scalar>& p = model2.vertices[i];
+    Vector3<Scalar> new_v = tf2 * p;
     vertices_transformed[i] = new_v;
   }
 
@@ -213,58 +319,94 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhase
   return true;
 }
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNodeRSS : public ShapeMeshConservativeAdvancementTraversalNode<S, RSSd, NarrowPhaseSolver>
-{
-public:
-  ShapeMeshConservativeAdvancementTraversalNodeRSS(FCL_REAL w_ = 1) : ShapeMeshConservativeAdvancementTraversalNode<S, RSSd, NarrowPhaseSolver>(w_)
-  {
-  }
-
-  FCL_REAL BVTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    Vector3d P1, P2;
-    FCL_REAL d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
-
-    this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
-
-    return d;
-  }
-
-  void leafTesting(int b1, int b2) const
-  {
-    details::meshShapeConservativeAdvancementOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1),
-                                                                     this->model1_bv,
-                                                                     this->vertices, this->tri_indices,
-                                                                     this->tf2, this->tf1,
-                                                                     this->motion2, this->motion1,
-                                                                     this->nsolver,
-                                                                     this->enable_statistics,
-                                                                     this->min_distance,
-                                                                     this->closest_p2, this->closest_p1,
-                                                                     this->last_tri_id,
-                                                                     this->delta_t,
-                                                                     this->num_leaf_tests);
-  }
-
-  bool canStop(FCL_REAL c) const
-  {
-    return details::meshShapeConservativeAdvancementOrientedNodeCanStop(c, this->min_distance,
-                                                                        this->abs_err, this->rel_err, this->w,
-                                                                        this->model2, *(this->model1), this->model1_bv,
-                                                                        this->motion2, this->motion1,
-                                                                        this->stack, this->delta_t);
-  }
-};
-
+//==============================================================================
 template <typename S, typename NarrowPhaseSolver>
-bool initialize(ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-                const S& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-                const BVHModel<RSS<Scalar>>& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
-                const NarrowPhaseSolver* nsolver,
-                FCL_REAL w = 1)
+ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>::
+ShapeMeshConservativeAdvancementTraversalNodeRSS(
+    typename NarrowPhaseSolver::Scalar w_)
+  : ShapeMeshConservativeAdvancementTraversalNode<
+    S, RSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>(w_)
 {
+  // Do nothing
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+typename NarrowPhaseSolver::Scalar
+ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>::
+BVTesting(int b1, int b2) const
+{
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
+  if(this->enable_statistics) this->num_bv_tests++;
+  Vector3<Scalar> P1, P2;
+  Scalar d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
+
+  this->stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+
+  return d;
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+void ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>::
+leafTesting(int b1, int b2) const
+{
+  details::meshShapeConservativeAdvancementOrientedNodeLeafTesting(
+        b2,
+        b1,
+        this->model2,
+        *(this->model1),
+        this->model1_bv,
+        this->vertices,
+        this->tri_indices,
+        this->tf2,
+        this->tf1,
+        this->motion2,
+        this->motion1,
+        this->nsolver,
+        this->enable_statistics,
+        this->min_distance,
+        this->closest_p2,
+        this->closest_p1,
+        this->last_tri_id,
+        this->delta_t,
+        this->num_leaf_tests);
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+bool ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>::
+canStop(typename NarrowPhaseSolver::Scalar c) const
+{
+  return details::meshShapeConservativeAdvancementOrientedNodeCanStop(
+        c,
+        this->min_distance,
+        this->abs_err,
+        this->rel_err,
+        this->w,
+        this->model2,
+        *(this->model1),
+        this->model1_bv,
+        this->motion2,
+        this->motion1,
+        this->stack,
+        this->delta_t);
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+bool initialize(
+    ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver>& node,
+    const S& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const BVHModel<RSS<typename NarrowPhaseSolver::Scalar>>& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver,
+    typename NarrowPhaseSolver::Scalar w)
+{
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   node.model1 = &model1;
   node.tf1 = tf1;
   node.model2 = &model2;
@@ -278,59 +420,93 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseS
   return true;
 }
 
-template<typename S, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNodeOBBRSS : public ShapeMeshConservativeAdvancementTraversalNode<S, OBBRSSd, NarrowPhaseSolver>
-{
-public:
-  ShapeMeshConservativeAdvancementTraversalNodeOBBRSS(FCL_REAL w_ = 1) : ShapeMeshConservativeAdvancementTraversalNode<S, OBBRSSd, NarrowPhaseSolver>(w_)
-  {
-  }
-
-  FCL_REAL BVTesting(int b1, int b2) const
-  {
-    if(this->enable_statistics) this->num_bv_tests++;
-    Vector3d P1, P2;
-    FCL_REAL d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
-
-    this->stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
-
-    return d;
-  }
-
-  void leafTesting(int b1, int b2) const
-  {
-    details::meshShapeConservativeAdvancementOrientedNodeLeafTesting(b2, b1, this->model2, *(this->model1),
-                                                                     this->model1_bv,
-                                                                     this->vertices, this->tri_indices,
-                                                                     this->tf2, this->tf1,
-                                                                     this->motion2, this->motion1,
-                                                                     this->nsolver,
-                                                                     this->enable_statistics,
-                                                                     this->min_distance,
-                                                                     this->closest_p2, this->closest_p1,
-                                                                     this->last_tri_id,
-                                                                     this->delta_t,
-                                                                     this->num_leaf_tests);
-  }
-
-  bool canStop(FCL_REAL c) const
-  {
-    return details::meshShapeConservativeAdvancementOrientedNodeCanStop(c, this->min_distance,
-                                                                        this->abs_err, this->rel_err, this->w,
-                                                                        this->model2, *(this->model1), this->model1_bv,
-                                                                        this->motion2, this->motion1,
-                                                                        this->stack, this->delta_t);
-  }
-};
-
-
+//==============================================================================
 template <typename S, typename NarrowPhaseSolver>
-bool initialize(ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-                const S& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-                const BVHModel<OBBRSS<Scalar>>& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
-                const NarrowPhaseSolver* nsolver,
-                FCL_REAL w = 1)
+ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>::
+ShapeMeshConservativeAdvancementTraversalNodeOBBRSS(
+    typename NarrowPhaseSolver::Scalar w_)
+  : ShapeMeshConservativeAdvancementTraversalNode<
+    S, OBBRSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>(w_)
 {
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+typename NarrowPhaseSolver::Scalar
+ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>::
+BVTesting(int b1, int b2) const
+{
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
+  if(this->enable_statistics) this->num_bv_tests++;
+  Vector3<Scalar> P1, P2;
+  Scalar d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
+
+  this->stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+
+  return d;
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+void ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>::
+leafTesting(int b1, int b2) const
+{
+  details::meshShapeConservativeAdvancementOrientedNodeLeafTesting(
+        b2,
+        b1,
+        this->model2,
+        *(this->model1),
+        this->model1_bv,
+        this->vertices,
+        this->tri_indices,
+        this->tf2,
+        this->tf1,
+        this->motion2,
+        this->motion1,
+        this->nsolver,
+        this->enable_statistics,
+        this->min_distance,
+        this->closest_p2,
+        this->closest_p1,
+        this->last_tri_id,
+        this->delta_t,
+        this->num_leaf_tests);
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+bool ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>::
+canStop(ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>::Scalar c) const
+{
+  return details::meshShapeConservativeAdvancementOrientedNodeCanStop(
+        c,
+        this->min_distance,
+        this->abs_err,
+        this->rel_err,
+        this->w,
+        this->model2,
+        *(this->model1),
+        this->model1_bv,
+        this->motion2,
+        this->motion1,
+        this->stack,
+        this->delta_t);
+}
+
+//==============================================================================
+template <typename S, typename NarrowPhaseSolver>
+bool initialize(
+    ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
+    const S& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const BVHModel<OBBRSS<typename NarrowPhaseSolver::Scalar>>& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver,
+    typename NarrowPhaseSolver::Scalar w)
+{
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   node.model1 = &model1;
   node.tf1 = tf1;
   node.model2 = &model2;
@@ -343,14 +519,6 @@ bool initialize(ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPha
 
   return true;
 }
-
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
 
 } // namespace fcl
 

@@ -40,13 +40,15 @@
 
 #include "fcl/shape/compute_bv.h"
 #include "fcl/traversal/traversal_node_base.h"
+#include "fcl/traversal/collision_traversal_node_base.h"
 
 namespace fcl
 {
 
 /// @brief Traversal node for collision between two shapes
 template <typename S1, typename S2, typename NarrowPhaseSolver>
-class ShapeCollisionTraversalNode : public CollisionTraversalNodeBased
+class ShapeCollisionTraversalNode
+    : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
 {
 public:
 
@@ -91,7 +93,7 @@ bool initialize(
 template <typename S1, typename S2, typename NarrowPhaseSolver>
 ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::
 ShapeCollisionTraversalNode()
-  : CollisionTraversalNodeBased()
+  : CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scalar>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -101,29 +103,29 @@ ShapeCollisionTraversalNode()
 
 //==============================================================================
 template <typename S1, typename S2, typename NarrowPhaseSolver>
-bool ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::BVTesting(
-    int, int) const
+bool ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::
+BVTesting(int, int) const
 {
   return false;
 }
 
 //==============================================================================
 template <typename S1, typename S2, typename NarrowPhaseSolver>
-void ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
-    int, int) const
+void ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::
+leafTesting(int, int) const
 {
   if(model1->isOccupied() && model2->isOccupied())
   {
     bool is_collision = false;
-    if(request.enable_contact)
+    if(this->request.enable_contact)
     {
       std::vector<ContactPointd> contacts;
-      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, &contacts))
+      if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, &contacts))
       {
         is_collision = true;
-        if(request.num_max_contacts > result->numContacts())
+        if(this->request.num_max_contacts > this->result->numContacts())
         {
-          const size_t free_space = request.num_max_contacts - result->numContacts();
+          const size_t free_space = this->request.num_max_contacts - this->result->numContacts();
           size_t num_adding_contacts;
 
           // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
@@ -138,40 +140,40 @@ void ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
           }
 
           for(size_t i = 0; i < num_adding_contacts; ++i)
-            result->addContact(Contact<Scalar>(model1, model2, Contact<Scalar>::NONE, Contact<Scalar>::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
+            this->result->addContact(Contact<Scalar>(model1, model2, Contact<Scalar>::NONE, Contact<Scalar>::NONE, contacts[i].pos, contacts[i].normal, contacts[i].penetration_depth));
         }
       }
     }
     else
     {
-      if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL))
+      if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, NULL))
       {
         is_collision = true;
-        if(request.num_max_contacts > result->numContacts())
-          result->addContact(Contact<Scalar>(model1, model2, Contact<Scalar>::NONE, Contact<Scalar>::NONE));
+        if(this->request.num_max_contacts > this->result->numContacts())
+          this->result->addContact(Contact<Scalar>(model1, model2, Contact<Scalar>::NONE, Contact<Scalar>::NONE));
       }
     }
 
-    if(is_collision && request.enable_cost)
+    if(is_collision && this->request.enable_cost)
     {
       AABB<Scalar> aabb1, aabb2;
-      computeBV<Scalar, AABB<Scalar>, S1>(*model1, tf1, aabb1);
-      computeBV<Scalar, AABB<Scalar>, S2>(*model2, tf2, aabb2);
+      computeBV<Scalar, AABB<Scalar>, S1>(*model1, this->tf1, aabb1);
+      computeBV<Scalar, AABB<Scalar>, S2>(*model2, this->tf2, aabb2);
       AABB<Scalar> overlap_part;
       aabb1.overlap(aabb2, overlap_part);
-      result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), request.num_max_cost_sources);
+      this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);
     }
   }
-  else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
+  else if((!model1->isFree() && !model2->isFree()) && this->request.enable_cost)
   {
-    if(nsolver->shapeIntersect(*model1, tf1, *model2, tf2, NULL))
+    if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, NULL))
     {
       AABB<Scalar> aabb1, aabb2;
-      computeBV<Scalar, AABB<Scalar>, S1>(*model1, tf1, aabb1);
-      computeBV<Scalar, AABB<Scalar>, S2>(*model2, tf2, aabb2);
+      computeBV<Scalar, AABB<Scalar>, S1>(*model1, this->tf1, aabb1);
+      computeBV<Scalar, AABB<Scalar>, S2>(*model2, this->tf2, aabb2);
       AABB<Scalar> overlap_part;
       aabb1.overlap(aabb2, overlap_part);
-      result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), request.num_max_cost_sources);
+      this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);
     }
   }
 }

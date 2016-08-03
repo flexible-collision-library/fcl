@@ -51,21 +51,24 @@ namespace fcl
 {
 
 /// @brief Infinite plane 
-template <typename Scalar>
-class Plane : public ShapeBase<Scalar>
+template <typename ScalarT>
+class Plane : public ShapeBase<ScalarT>
 {
 public:
+
+  using Scalar = ScalarT;
+
   /// @brief Construct a plane with normal direction and offset 
-  Plane(const Vector3<Scalar>& n, Scalar d);
+  Plane(const Vector3<ScalarT>& n, ScalarT d);
   
   /// @brief Construct a plane with normal direction and offset 
-  Plane(Scalar a, Scalar b, Scalar c, Scalar d);
+  Plane(ScalarT a, ScalarT b, ScalarT c, ScalarT d);
 
   Plane();
 
-  Scalar signedDistance(const Vector3<Scalar>& p) const;
+  ScalarT signedDistance(const Vector3<ScalarT>& p) const;
 
-  Scalar distance(const Vector3<Scalar>& p) const;
+  ScalarT distance(const Vector3<ScalarT>& p) const;
 
   /// @brief Compute AABBd 
   void computeLocalAABB() override;
@@ -74,10 +77,10 @@ public:
   NODE_TYPE getNodeType() const override;
 
   /// @brief Plane normal 
-  Vector3<Scalar> n;
+  Vector3<ScalarT> n;
 
   /// @brief Plane offset 
-  Scalar d;
+  ScalarT d;
 
 protected:
   
@@ -88,8 +91,8 @@ protected:
 using Planef = Plane<float>;
 using Planed = Plane<double>;
 
-template <typename Scalar>
-Plane<Scalar> transform(const Plane<Scalar>& a, const Transform3<Scalar>& tf)
+template <typename ScalarT>
+Plane<ScalarT> transform(const Plane<ScalarT>& a, const Transform3<ScalarT>& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -97,42 +100,42 @@ Plane<Scalar> transform(const Plane<Scalar>& a, const Transform3<Scalar>& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vector3<Scalar> n = tf.linear() * a.n;
-  Scalar d = a.d + n.dot(tf.translation());
+  Vector3<ScalarT> n = tf.linear() * a.n;
+  ScalarT d = a.d + n.dot(tf.translation());
 
-  return Plane<Scalar>(n, d);
+  return Plane<ScalarT>(n, d);
 }
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSSd, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, RSSd, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSSd, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBBRSSd, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOSd, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, kIOSd, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<16>, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<16>, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<18>, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<18>, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<24>, Plane<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<24>, Plane<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
-    Plane<Scalar> new_s = transform(s, tf);
+    Plane<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -162,10 +165,10 @@ struct ComputeBVImpl<Scalar, AABBd, Plane<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
     Vector3d n = tf.linear() * s.n;
     bv.axis.col(0) = n;
@@ -178,10 +181,10 @@ struct ComputeBVImpl<Scalar, OBB<Scalar>, Plane<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSSd, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, RSSd, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, RSSd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, RSSd& bv)
   {
     Vector3d n = tf.linear() * s.n;
 
@@ -198,34 +201,34 @@ struct ComputeBVImpl<Scalar, RSSd, Plane<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSSd, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBBRSSd, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, OBBRSSd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, OBBRSSd& bv)
   {
-    computeBV<Scalar, OBB<Scalar>, Plane<Scalar>>(s, tf, bv.obb);
-    computeBV<Scalar, RSSd, Plane<Scalar>>(s, tf, bv.rss);
+    computeBV<ScalarT, OBB<ScalarT>, Plane<ScalarT>>(s, tf, bv.obb);
+    computeBV<ScalarT, RSSd, Plane<ScalarT>>(s, tf, bv.rss);
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOSd, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, kIOSd, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, kIOSd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, kIOSd& bv)
   {
     bv.num_spheres = 1;
-    computeBV<Scalar, OBB<Scalar>, Plane<Scalar>>(s, tf, bv.obb);
+    computeBV<ScalarT, OBB<ScalarT>, Plane<ScalarT>>(s, tf, bv.obb);
     bv.spheres[0].o.setZero();
     bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<16>, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<16>, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<16>& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<16>& bv)
   {
-    Plane<Scalar> new_s = transform(s, tf);
+    Plane<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -274,12 +277,12 @@ struct ComputeBVImpl<Scalar, KDOPd<16>, Plane<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<18>, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<18>, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<18>& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<18>& bv)
   {
-    Plane<Scalar> new_s = transform(s, tf);
+    Plane<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -332,12 +335,12 @@ struct ComputeBVImpl<Scalar, KDOPd<18>, Plane<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<24>, Plane<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<24>, Plane<ScalarT>>
 {
-  void operator()(const Plane<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<24>& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<24>& bv)
   {
-    Plane<Scalar> new_s = transform(s, tf);
+    Plane<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -409,66 +412,66 @@ struct ComputeBVImpl<Scalar, KDOPd<24>, Plane<Scalar>>
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Plane<Scalar>::Plane(const Vector3<Scalar>& n, Scalar d)
-  : ShapeBase<Scalar>(), n(n), d(d)
+template <typename ScalarT>
+Plane<ScalarT>::Plane(const Vector3<ScalarT>& n, ScalarT d)
+  : ShapeBase<ScalarT>(), n(n), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename Scalar>
-Plane<Scalar>::Plane(Scalar a, Scalar b, Scalar c, Scalar d)
-  : ShapeBase<Scalar>(), n(a, b, c), d(d)
+template <typename ScalarT>
+Plane<ScalarT>::Plane(ScalarT a, ScalarT b, ScalarT c, ScalarT d)
+  : ShapeBase<ScalarT>(), n(a, b, c), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename Scalar>
-Plane<Scalar>::Plane() : ShapeBased(), n(1, 0, 0), d(0)
+template <typename ScalarT>
+Plane<ScalarT>::Plane() : ShapeBased(), n(1, 0, 0), d(0)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Plane<Scalar>::signedDistance(const Vector3<Scalar>& p) const
+template <typename ScalarT>
+ScalarT Plane<ScalarT>::signedDistance(const Vector3<ScalarT>& p) const
 {
   return n.dot(p) - d;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Plane<Scalar>::distance(const Vector3<Scalar>& p) const
+template <typename ScalarT>
+ScalarT Plane<ScalarT>::distance(const Vector3<ScalarT>& p) const
 {
   return std::abs(n.dot(p) - d);
 }
 
 //==============================================================================
-template <typename Scalar>
-void Plane<Scalar>::computeLocalAABB()
+template <typename ScalarT>
+void Plane<ScalarT>::computeLocalAABB()
 {
-  computeBV<Scalar, AABBd>(*this, Transform3<Scalar>::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABBd>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename Scalar>
-NODE_TYPE Plane<Scalar>::getNodeType() const
+template <typename ScalarT>
+NODE_TYPE Plane<ScalarT>::getNodeType() const
 {
   return GEOM_PLANE;
 }
 
 //==============================================================================
-template <typename Scalar>
-void Plane<Scalar>::unitNormalTest()
+template <typename ScalarT>
+void Plane<ScalarT>::unitNormalTest()
 {
-  Scalar l = n.norm();
+  ScalarT l = n.norm();
   if(l > 0)
   {
-    Scalar inv_l = 1.0 / l;
+    ScalarT inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   }

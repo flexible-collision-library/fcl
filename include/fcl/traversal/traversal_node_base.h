@@ -35,11 +35,10 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_NODE_BASE_H
-#define FCL_TRAVERSAL_NODE_BASE_H
+#ifndef FCL_TRAVERSAL_TRAVERSALNODEBASE_H
+#define FCL_TRAVERSAL_TRAVERSALNODEBASE_H
 
 #include "fcl/data_types.h"
-#include "fcl/collision_data.h"
 
 namespace fcl
 {

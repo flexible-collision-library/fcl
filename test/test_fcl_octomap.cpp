@@ -596,12 +596,12 @@ void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_s
   for(std::vector<CollisionObject*>::const_iterator cit = env.begin();
       cit != env.end(); ++cit)
   {
-    fcl::CollisionRequest req(num_max_contacts, true);
-    fcl::CollisionResult cResult;
+    fcl::CollisionRequestd req(num_max_contacts, true);
+    fcl::CollisionResultd cResult;
     fcl::collide(&tree_obj, *cit, req, cResult);
     for(std::size_t index=0; index<cResult.numContacts(); ++index)
     {
-      const Contact& contact = cResult.getContact(index);
+      const Contactd& contact = cResult.getContact(index);
       const fcl::BVHModel<fcl::OBBRSSd>* surface = static_cast<const fcl::BVHModel<fcl::OBBRSSd>*> (contact.o2);
       EXPECT_TRUE(surface->num_tris > contact.b2);
     }

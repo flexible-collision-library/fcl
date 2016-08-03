@@ -120,10 +120,10 @@ struct CollisionData
   }
 
   /// @brief Collision request
-  CollisionRequest request;
+  CollisionRequestd request;
 
   /// @brief Collision result
-  CollisionResult result;
+  CollisionResultd result;
 
   /// @brief Whether the collision iteration can stop
   bool done;
@@ -139,10 +139,10 @@ struct DistanceData
   }
 
   /// @brief Distance request
-  DistanceRequest request;
+  DistanceRequestd request;
 
   /// @brief Distance result
-  DistanceResult result;
+  DistanceResultd result;
 
   /// @brief Whether the distance iteration can stop
   bool done;
@@ -158,10 +158,10 @@ struct ContinuousCollisionData
   }
 
   /// @brief Continuous collision request
-  ContinuousCollisionRequest request;
+  ContinuousCollisionRequestd request;
 
   /// @brief Continuous collision result
-  ContinuousCollisionResult result;
+  ContinuousCollisionResultd result;
 
   /// @brief Whether the continuous collision iteration can stop
   bool done;

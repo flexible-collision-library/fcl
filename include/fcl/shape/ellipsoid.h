@@ -47,18 +47,21 @@ namespace fcl
 {
 
 /// @brief Center at zero point ellipsoid
-template <typename Scalar>
-class Ellipsoid : public ShapeBase<Scalar>
+template <typename ScalarT>
+class Ellipsoid : public ShapeBase<ScalarT>
 {
 public:
-  /// @brief Constructor
-  Ellipsoid(Scalar a, Scalar b, Scalar c);
+
+  using Scalar = ScalarT;
 
   /// @brief Constructor
-  Ellipsoid(const Vector3<Scalar>& radii);
+  Ellipsoid(ScalarT a, ScalarT b, ScalarT c);
+
+  /// @brief Constructor
+  Ellipsoid(const Vector3<ScalarT>& radii);
 
   /// @brief Radii of the ellipsoid
-  Vector3<Scalar> radii;
+  Vector3<ScalarT> radii;
 
   /// @brief Compute AABBd
   void computeLocalAABB() override;
@@ -67,17 +70,17 @@ public:
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  Matrix3<Scalar> computeMomentofInertia() const override;
+  Matrix3<ScalarT> computeMomentofInertia() const override;
 
   // Documentation inherited
-  Scalar computeVolume() const override;
+  ScalarT computeVolume() const override;
 
-  std::vector<Vector3<Scalar>> getBoundVertices(
-      const Transform3<Scalar>& tf) const
+  std::vector<Vector3<ScalarT>> getBoundVertices(
+      const Transform3<ScalarT>& tf) const
   {
     // we use scaled icosahedron to bound the ellipsoid
 
-    std::vector<Vector3<Scalar>> result(12);
+    std::vector<Vector3<ScalarT>> result(12);
 
     const auto phi = (1.0 + std::sqrt(5.0)) / 2.0;  // golden ratio
 
@@ -95,18 +98,18 @@ public:
     const auto Ca = C * a;
     const auto Cb = C * b;
 
-    result[0] = tf * Vector3<Scalar>(0, Ba, Cb);
-    result[1] = tf * Vector3<Scalar>(0, -Ba, Cb);
-    result[2] = tf * Vector3<Scalar>(0, Ba, -Cb);
-    result[3] = tf * Vector3<Scalar>(0, -Ba, -Cb);
-    result[4] = tf * Vector3<Scalar>(Aa, Bb, 0);
-    result[5] = tf * Vector3<Scalar>(-Aa, Bb, 0);
-    result[6] = tf * Vector3<Scalar>(Aa, -Bb, 0);
-    result[7] = tf * Vector3<Scalar>(-Aa, -Bb, 0);
-    result[8] = tf * Vector3<Scalar>(Ab, 0, Ca);
-    result[9] = tf * Vector3<Scalar>(Ab, 0, -Ca);
-    result[10] = tf * Vector3<Scalar>(-Ab, 0, Ca);
-    result[11] = tf * Vector3<Scalar>(-Ab, 0, -Ca);
+    result[0] = tf * Vector3<ScalarT>(0, Ba, Cb);
+    result[1] = tf * Vector3<ScalarT>(0, -Ba, Cb);
+    result[2] = tf * Vector3<ScalarT>(0, Ba, -Cb);
+    result[3] = tf * Vector3<ScalarT>(0, -Ba, -Cb);
+    result[4] = tf * Vector3<ScalarT>(Aa, Bb, 0);
+    result[5] = tf * Vector3<ScalarT>(-Aa, Bb, 0);
+    result[6] = tf * Vector3<ScalarT>(Aa, -Bb, 0);
+    result[7] = tf * Vector3<ScalarT>(-Aa, -Bb, 0);
+    result[8] = tf * Vector3<ScalarT>(Ab, 0, Ca);
+    result[9] = tf * Vector3<ScalarT>(Ab, 0, -Ca);
+    result[10] = tf * Vector3<ScalarT>(-Ab, 0, Ca);
+    result[11] = tf * Vector3<ScalarT>(-Ab, 0, -Ca);
 
     return result;
   }
@@ -115,16 +118,16 @@ public:
 using Ellipsoidf = Ellipsoid<float>;
 using Ellipsoidd = Ellipsoid<double>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Ellipsoid<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Ellipsoid<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Ellipsoid<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Ellipsoid<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Ellipsoid<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Ellipsoid<ScalarT>>
 {
-  void operator()(const Ellipsoid<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
+  void operator()(const Ellipsoid<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -139,10 +142,10 @@ struct ComputeBVImpl<Scalar, AABBd, Ellipsoid<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Ellipsoid<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Ellipsoid<ScalarT>>
 {
-  void operator()(const Ellipsoid<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  void operator()(const Ellipsoid<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
     bv.To = tf.translation();
     bv.axis = tf.linear();
@@ -157,55 +160,55 @@ struct ComputeBVImpl<Scalar, OBB<Scalar>, Ellipsoid<Scalar>>
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Ellipsoid<Scalar>::Ellipsoid(Scalar a, Scalar b, Scalar c)
-  : ShapeBase<Scalar>(), radii(a, b, c)
+template <typename ScalarT>
+Ellipsoid<ScalarT>::Ellipsoid(ScalarT a, ScalarT b, ScalarT c)
+  : ShapeBase<ScalarT>(), radii(a, b, c)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Ellipsoid<Scalar>::Ellipsoid(const Vector3<Scalar>& radii)
-  : ShapeBase<Scalar>(), radii(radii)
+template <typename ScalarT>
+Ellipsoid<ScalarT>::Ellipsoid(const Vector3<ScalarT>& radii)
+  : ShapeBase<ScalarT>(), radii(radii)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void Ellipsoid<Scalar>::computeLocalAABB()
+template <typename ScalarT>
+void Ellipsoid<ScalarT>::computeLocalAABB()
 {
-  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename Scalar>
-NODE_TYPE Ellipsoid<Scalar>::getNodeType() const
+template <typename ScalarT>
+NODE_TYPE Ellipsoid<ScalarT>::getNodeType() const
 {
   return GEOM_ELLIPSOID;
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> Ellipsoid<Scalar>::computeMomentofInertia() const
+template <typename ScalarT>
+Matrix3<ScalarT> Ellipsoid<ScalarT>::computeMomentofInertia() const
 {
-  const Scalar V = computeVolume();
+  const ScalarT V = computeVolume();
 
-  const Scalar a2 = radii[0] * radii[0] * V;
-  const Scalar b2 = radii[1] * radii[1] * V;
-  const Scalar c2 = radii[2] * radii[2] * V;
+  const ScalarT a2 = radii[0] * radii[0] * V;
+  const ScalarT b2 = radii[1] * radii[1] * V;
+  const ScalarT c2 = radii[2] * radii[2] * V;
 
-  return Vector3<Scalar>(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
+  return Vector3<ScalarT>(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Ellipsoid<Scalar>::computeVolume() const
+template <typename ScalarT>
+ScalarT Ellipsoid<ScalarT>::computeVolume() const
 {
-  const Scalar pi = constants::pi;
+  const ScalarT pi = constants::pi;
   return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
 }
 

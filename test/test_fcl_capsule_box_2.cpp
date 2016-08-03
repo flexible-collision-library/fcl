@@ -51,8 +51,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   CollisionGeometrydPtr_t boxGeometry (new fcl::Boxd (1., 2., 4.));
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
-  fcl::DistanceResult distanceResult;
+  fcl::DistanceRequestd distanceRequest (true);
+  fcl::DistanceResultd distanceResult;
 
   // Rotate capsule around y axis by pi/2 and move it behind box
   fcl::Transform3d tf1 = Eigen::Translation3d(fcl::Vector3d(-10., 0.8, 1.5))

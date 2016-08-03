@@ -46,21 +46,24 @@ namespace fcl
 {
 
 /// @brief Center at zero point, axis aligned box
-template <typename Scalar>
-class Box : public ShapeBase<Scalar>
+template <typename ScalarT>
+class Box : public ShapeBase<ScalarT>
 {
 public:
-  /// @brief Constructor
-  Box(Scalar x, Scalar y, Scalar z);
+
+  using Scalar = ScalarT;
 
   /// @brief Constructor
-  Box(const Vector3<Scalar>& side);
+  Box(ScalarT x, ScalarT y, ScalarT z);
+
+  /// @brief Constructor
+  Box(const Vector3<ScalarT>& side);
 
   /// @brief Constructor
   Box();
 
   /// @brief box side length
-  Vector3<Scalar> side;
+  Vector3<ScalarT> side;
 
   /// @brief Compute AABBd
   void computeLocalAABB() override;
@@ -69,30 +72,30 @@ public:
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  Scalar computeVolume() const override;
+  ScalarT computeVolume() const override;
 
   // Documentation inherited
-  Matrix3<Scalar> computeMomentofInertia() const override;
+  Matrix3<ScalarT> computeMomentofInertia() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<Scalar>> getBoundVertices(
-      const Transform3<Scalar>& tf) const;
+  std::vector<Vector3<ScalarT>> getBoundVertices(
+      const Transform3<ScalarT>& tf) const;
 };
 
 using Boxf = Box<float>;
 using Boxd = Box<double>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Box<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Box<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBd, Box<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBBd, Box<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Box<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Box<ScalarT>>
 {
-  void operator()(const Box<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
+  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
     const Matrix3d& R = tf.linear();
     const Vector3d& T = tf.translation();
@@ -107,10 +110,10 @@ struct ComputeBVImpl<Scalar, AABBd, Box<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBd, Box<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBBd, Box<ScalarT>>
 {
-  void operator()(const Box<Scalar>& s, const Transform3<Scalar>& tf, OBBd& bv)
+  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, OBBd& bv)
   {
     bv.To = tf.translation();
     bv.axis = tf.linear();
@@ -125,82 +128,84 @@ struct ComputeBVImpl<Scalar, OBBd, Box<Scalar>>
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Box<Scalar>::Box(Scalar x, Scalar y, Scalar z)
-  : ShapeBase<Scalar>(), side(x, y, z)
+template <typename ScalarT>
+Box<ScalarT>::Box(ScalarT x, ScalarT y, ScalarT z)
+  : ShapeBase<ScalarT>(), side(x, y, z)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Box<Scalar>::Box(const Vector3<Scalar>& side_) : ShapeBase<Scalar>(), side(side_)
+template <typename ScalarT>
+Box<ScalarT>::Box(const Vector3<ScalarT>& side_)
+  : ShapeBase<ScalarT>(), side(side_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Box<Scalar>::Box() : ShapeBase<Scalar>(), side(Vector3<Scalar>::Zero())
+template <typename ScalarT>
+Box<ScalarT>::Box()
+  : ShapeBase<ScalarT>(), side(Vector3<ScalarT>::Zero())
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void Box<Scalar>::computeLocalAABB()
+template <typename ScalarT>
+void Box<ScalarT>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<Scalar>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename Scalar>
-NODE_TYPE Box<Scalar>::getNodeType() const
+template <typename ScalarT>
+NODE_TYPE Box<ScalarT>::getNodeType() const
 {
   return GEOM_BOX;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Box<Scalar>::computeVolume() const
+template <typename ScalarT>
+ScalarT Box<ScalarT>::computeVolume() const
 {
   return side.prod();
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> Box<Scalar>::computeMomentofInertia() const
+template <typename ScalarT>
+Matrix3<ScalarT> Box<ScalarT>::computeMomentofInertia() const
 {
-  Scalar V = computeVolume();
+  ScalarT V = computeVolume();
 
-  Scalar a2 = side[0] * side[0] * V;
-  Scalar b2 = side[1] * side[1] * V;
-  Scalar c2 = side[2] * side[2] * V;
+  ScalarT a2 = side[0] * side[0] * V;
+  ScalarT b2 = side[1] * side[1] * V;
+  ScalarT c2 = side[2] * side[2] * V;
 
-  Vector3<Scalar> I((b2 + c2) / 12, (a2 + c2) / 12, (a2 + b2) / 12);
+  Vector3<ScalarT> I((b2 + c2) / 12, (a2 + c2) / 12, (a2 + b2) / 12);
 
   return I.asDiagonal();
 }
 
 //==============================================================================
-template <typename Scalar>
-std::vector<Vector3<Scalar>> Box<Scalar>::getBoundVertices(
-    const Transform3<Scalar>& tf) const
+template <typename ScalarT>
+std::vector<Vector3<ScalarT>> Box<ScalarT>::getBoundVertices(
+    const Transform3<ScalarT>& tf) const
 {
-  std::vector<Vector3<Scalar>> result(8);
+  std::vector<Vector3<ScalarT>> result(8);
   auto a = side[0] / 2;
   auto b = side[1] / 2;
   auto c = side[2] / 2;
-  result[0] = tf * Vector3<Scalar>(a, b, c);
-  result[1] = tf * Vector3<Scalar>(a, b, -c);
-  result[2] = tf * Vector3<Scalar>(a, -b, c);
-  result[3] = tf * Vector3<Scalar>(a, -b, -c);
-  result[4] = tf * Vector3<Scalar>(-a, b, c);
-  result[5] = tf * Vector3<Scalar>(-a, b, -c);
-  result[6] = tf * Vector3<Scalar>(-a, -b, c);
-  result[7] = tf * Vector3<Scalar>(-a, -b, -c);
+  result[0] = tf * Vector3<ScalarT>(a, b, c);
+  result[1] = tf * Vector3<ScalarT>(a, b, -c);
+  result[2] = tf * Vector3<ScalarT>(a, -b, c);
+  result[3] = tf * Vector3<ScalarT>(a, -b, -c);
+  result[4] = tf * Vector3<ScalarT>(-a, b, c);
+  result[5] = tf * Vector3<ScalarT>(-a, b, -c);
+  result[6] = tf * Vector3<ScalarT>(-a, -b, c);
+  result[7] = tf * Vector3<ScalarT>(-a, -b, -c);
 
   return result;
 }

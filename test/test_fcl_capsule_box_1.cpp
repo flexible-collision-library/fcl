@@ -51,8 +51,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   CollisionGeometrydPtr_t boxGeometry (new fcl::Boxd (1., 2., 4.));
 
   // Enable computation of nearest points
-  fcl::DistanceRequest distanceRequest (true);
-  fcl::DistanceResult distanceResult;
+  fcl::DistanceRequestd distanceRequest (true);
+  fcl::DistanceResultd distanceResult;
   
   fcl::Transform3d tf1(Eigen::Translation3d(fcl::Vector3d (3., 0, 0)));
   fcl::Transform3d tf2 = fcl::Transform3d::Identity();

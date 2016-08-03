@@ -60,8 +60,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
 
-  DistanceRequest request;
-  DistanceResult res, res1;
+  DistanceRequestd request;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -151,8 +151,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_l
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
 
-  DistanceRequest request;
-  DistanceResult res, res1;
+  DistanceRequestd request;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -242,8 +242,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
   generateBVHModel(s1_rss, s1, Transform3d::Identity());
   generateBVHModel(s2_rss, s2, Transform3d::Identity());
 
-  DistanceRequest request;
-  DistanceResult res, res1;
+  DistanceRequestd request;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -333,8 +333,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_lib
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
 
-  DistanceRequest request;
-  DistanceResult res, res1;
+  DistanceRequestd request;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -424,8 +424,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
 
-  DistanceRequest request;
-  DistanceResult res, res1;
+  DistanceRequestd request;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -514,9 +514,9 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
 
-  DistanceRequest request;
+  DistanceRequestd request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult res, res1;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -607,9 +607,9 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_G
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
 
-  DistanceRequest request;
+  DistanceRequestd request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult res, res1;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -701,9 +701,9 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
   generateBVHModel(s1_rss, s1, Transform3d::Identity());
   generateBVHModel(s2_rss, s2, Transform3d::Identity());
 
-  DistanceRequest request;
+  DistanceRequestd request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult res, res1;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -793,9 +793,9 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
   
-  DistanceRequest request;
+  DistanceRequestd request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult res, res1;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -894,9 +894,9 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
   generateBVHModel(s1_rss, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3d::Identity(), 16, 16);
 
-  DistanceRequest request;
+  DistanceRequestd request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult res, res1;
+  DistanceResultd res, res1;
 
   Transform3d pose = Transform3d::Identity();
 
@@ -991,8 +991,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
-  CollisionResult result;
+  CollisionRequestd request;
+  CollisionResultd result;
 
   bool res;
 
@@ -1210,8 +1210,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
-  CollisionResult result;
+  CollisionRequestd request;
+  CollisionResultd result;
 
   bool res;
 
@@ -1432,8 +1432,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
   generateBVHModel(s1_obb, s1, Transform3d::Identity());
   generateBVHModel(s2_obb, s2, Transform3d::Identity());
 
-  CollisionRequest request;
-  CollisionResult result;
+  CollisionRequestd request;
+  CollisionResultd result;
 
   bool res;
 
@@ -1554,8 +1554,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity());
 
-  CollisionRequest request;
-  CollisionResult result;
+  CollisionRequestd request;
+  CollisionResultd result;
 
   bool res;
 
@@ -1676,8 +1676,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_li
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
-  CollisionResult result;
+  CollisionRequestd request;
+  CollisionResultd result;
 
   bool res;
 
@@ -1765,8 +1765,8 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
-  CollisionResult result;
+  CollisionRequestd request;
+  CollisionResultd result;
 
   bool res;
 
@@ -1920,10 +1920,10 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
+  CollisionRequestd request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult result;
+  CollisionResultd result;
 
   bool res;
 
@@ -2141,10 +2141,10 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
+  CollisionRequestd request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult result;
+  CollisionResultd result;
 
   bool res;
 
@@ -2363,10 +2363,10 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
   generateBVHModel(s1_obb, s1, Transform3d::Identity());
   generateBVHModel(s2_obb, s2, Transform3d::Identity());
 
-  CollisionRequest request;
+  CollisionRequestd request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult result;
+  CollisionResultd result;
 
   bool res;
 
@@ -2487,10 +2487,10 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity());
 
-  CollisionRequest request;
+  CollisionRequestd request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult result;
+  CollisionResultd result;
 
   bool res;
 
@@ -2611,10 +2611,10 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJ
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
+  CollisionRequestd request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult result;
+  CollisionResultd result;
 
   bool res;
 
@@ -2702,10 +2702,10 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_GJK)
   generateBVHModel(s1_obb, s1, Transform3d::Identity(), 16, 16);
   generateBVHModel(s2_obb, s2, Transform3d::Identity(), 16, 16);
 
-  CollisionRequest request;
+  CollisionRequestd request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult result;
+  CollisionResultd result;
 
   bool res;
 

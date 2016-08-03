@@ -94,7 +94,7 @@ public:
   Scalar aabb_radius;
 
   /// @brief AABBd in local coordinate, used for tight AABBd when only translation transform
-  AABBd aabb_local;
+  AABB<Scalar> aabb_local;
 
   /// @brief pointer to user defined data specific to this object
   void* user_data;

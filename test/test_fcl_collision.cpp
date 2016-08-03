@@ -72,8 +72,8 @@ bool test_collide_func(const Transform3d& tf,
 int num_max_contacts = std::numeric_limits<int>::max();
 bool enable_contact = true;
 
-std::vector<Contact> global_pairs;
-std::vector<Contact> global_pairs_now;
+std::vector<Contactd> global_pairs;
+std::vector<Contactd> global_pairs_now;
 
 GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 {
@@ -542,7 +542,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
 
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
@@ -551,7 +551,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    collide_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
 
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
@@ -560,7 +560,7 @@ GTEST_TEST(FCL_COLLISION, mesh_mesh)
       EXPECT_TRUE(global_pairs[j].b2 == global_pairs_now[j].b2);
     }
 
-    collide_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    collide_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBBd>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(global_pairs.size() == global_pairs_now.size());
     for(std::size_t j = 0; j < global_pairs.size(); ++j)
     {
@@ -840,11 +840,11 @@ bool collide_Test2(const Transform3d& tf,
   Transform3d pose1 = Transform3d::Identity();
   Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;
+  CollisionResultd local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(num_max_contacts, enable_contact), local_result))
+                     CollisionRequestd(num_max_contacts, enable_contact), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -900,11 +900,11 @@ bool collide_Test(const Transform3d& tf,
   Transform3d pose1(tf);
   Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;
+  CollisionResultd local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(num_max_contacts, enable_contact), local_result))
+                     CollisionRequestd(num_max_contacts, enable_contact), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -959,10 +959,10 @@ bool collide_Test_Oriented(const Transform3d& tf,
   Transform3d pose1(tf);
   Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;
+  CollisionResultd local_result;
   TraversalNode node;
   if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, 
-                 CollisionRequest(num_max_contacts, enable_contact), local_result))
+                 CollisionRequestd(num_max_contacts, enable_contact), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -1017,10 +1017,10 @@ bool test_collide_func(const Transform3d& tf,
   Transform3d pose1(tf);
   Transform3d pose2 = Transform3d::Identity();
 
-  std::vector<Contact> contacts;
+  std::vector<Contactd> contacts;
 
-  CollisionRequest request(num_max_contacts, enable_contact);
-  CollisionResult result;
+  CollisionRequestd request(num_max_contacts, enable_contact);
+  CollisionResultd result;
   int num_contacts = collide(&m1, pose1, &m2, pose2, 
                              request, result);
 	

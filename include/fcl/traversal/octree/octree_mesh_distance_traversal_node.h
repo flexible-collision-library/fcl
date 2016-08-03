@@ -84,21 +84,7 @@ bool initialize(
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
-{
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.otsolver = otsolver;
-
-  node.tf1 = tf1;
-  node.tf2 = tf2;
-
-  return true;
-}
+    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
 
 //============================================================================//
 //                                                                            //

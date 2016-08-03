@@ -52,21 +52,24 @@ namespace fcl
 /// @brief Half Space: this is equivalent to the Planed in ODE. The separation plane is defined as n * x = d;
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
 /// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
-template <typename Scalar>
-class Halfspace : public ShapeBase<Scalar>
+template <typename ScalarT>
+class Halfspace : public ShapeBase<ScalarT>
 {
 public:
+
+  using Scalar = ScalarT;
+
   /// @brief Construct a half space with normal direction and offset
-  Halfspace(const Vector3<Scalar>& n, Scalar d);
+  Halfspace(const Vector3<ScalarT>& n, ScalarT d);
 
   /// @brief Construct a plane with normal direction and offset
-  Halfspace(Scalar a, Scalar b, Scalar c, Scalar d_);
+  Halfspace(ScalarT a, ScalarT b, ScalarT c, ScalarT d_);
 
   Halfspace();
 
-  Scalar signedDistance(const Vector3<Scalar>& p) const;
+  ScalarT signedDistance(const Vector3<ScalarT>& p) const;
 
-  Scalar distance(const Vector3<Scalar>& p) const;
+  ScalarT distance(const Vector3<ScalarT>& p) const;
 
   /// @brief Compute AABBd
   void computeLocalAABB() override;
@@ -75,10 +78,10 @@ public:
   NODE_TYPE getNodeType() const override;
   
   /// @brief Planed normal
-  Vector3<Scalar> n;
+  Vector3<ScalarT> n;
   
   /// @brief Planed offset
-  Scalar d;
+  ScalarT d;
 
 protected:
 
@@ -89,9 +92,9 @@ protected:
 using Halfspacef = Halfspace<float>;
 using Halfspaced = Halfspace<double>;
 
-template <typename Scalar>
-Halfspace<Scalar> transform(
-    const Halfspace<Scalar>& a, const Transform3<Scalar>& tf)
+template <typename ScalarT>
+Halfspace<ScalarT> transform(
+    const Halfspace<ScalarT>& a, const Transform3<ScalarT>& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -99,42 +102,42 @@ Halfspace<Scalar> transform(
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vector3<Scalar> n = tf.linear() * a.n;
-  Scalar d = a.d + n.dot(tf.translation());
+  Vector3<ScalarT> n = tf.linear() * a.n;
+  ScalarT d = a.d + n.dot(tf.translation());
 
-  return Halfspace<Scalar>(n, d);
+  return Halfspace<ScalarT>(n, d);
 }
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSSd, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, RSSd, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSSd, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBBRSSd, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOSd, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, kIOSd, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<16>, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<16>, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<18>, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<18>, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<24>, Halfspace<Scalar>>;
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<24>, Halfspace<ScalarT>>;
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, AABBd, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, AABBd, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, AABBd& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
-    Halfspace<Scalar> new_s = transform(s, tf);
+    Halfspace<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -164,22 +167,22 @@ struct ComputeBVImpl<Scalar, AABBd, Halfspace<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBB<Scalar>, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, OBB<Scalar>& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    /// Half space can only have very rough OBB<Scalar>
+    /// Half space can only have very rough OBB<ScalarT>
     bv.axis.setIdentity();
     bv.To.setZero();
     bv.extent.setConstant(std::numeric_limits<FCL_REAL>::max());
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, RSSd, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, RSSd, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, RSSd& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, RSSd& bv)
   {
     /// Half space can only have very rough RSSd
     bv.axis.setIdentity();
@@ -188,34 +191,34 @@ struct ComputeBVImpl<Scalar, RSSd, Halfspace<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, OBBRSSd, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, OBBRSSd, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, OBBRSSd& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, OBBRSSd& bv)
   {
-    computeBV<Scalar, OBB<Scalar>, Halfspace<Scalar>>(s, tf, bv.obb);
-    computeBV<Scalar, RSSd, Halfspace<Scalar>>(s, tf, bv.rss);
+    computeBV<ScalarT, OBB<ScalarT>, Halfspace<ScalarT>>(s, tf, bv.obb);
+    computeBV<ScalarT, RSSd, Halfspace<ScalarT>>(s, tf, bv.rss);
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, kIOSd, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, kIOSd, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, kIOSd& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, kIOSd& bv)
   {
     bv.num_spheres = 1;
-    computeBV<Scalar, OBB<Scalar>, Halfspace<Scalar>>(s, tf, bv.obb);
+    computeBV<ScalarT, OBB<ScalarT>, Halfspace<ScalarT>>(s, tf, bv.obb);
     bv.spheres[0].o.setZero();
     bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<16>, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<16>, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<16>& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<16>& bv)
   {
-    Halfspace<Scalar> new_s = transform(s, tf);
+    Halfspace<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -268,12 +271,12 @@ struct ComputeBVImpl<Scalar, KDOPd<16>, Halfspace<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<18>, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<18>, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<18>& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<18>& bv)
   {
-    Halfspace<Scalar> new_s = transform(s, tf);
+    Halfspace<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -332,12 +335,12 @@ struct ComputeBVImpl<Scalar, KDOPd<18>, Halfspace<Scalar>>
   }
 };
 
-template <typename Scalar>
-struct ComputeBVImpl<Scalar, KDOPd<24>, Halfspace<Scalar>>
+template <typename ScalarT>
+struct ComputeBVImpl<ScalarT, KDOPd<24>, Halfspace<ScalarT>>
 {
-  void operator()(const Halfspace<Scalar>& s, const Transform3<Scalar>& tf, KDOPd<24>& bv)
+  void operator()(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<24>& bv)
   {
-    Halfspace<Scalar> new_s = transform(s, tf);
+    Halfspace<ScalarT> new_s = transform(s, tf);
     const Vector3d& n = new_s.n;
     const FCL_REAL& d = new_s.d;
 
@@ -418,66 +421,66 @@ struct ComputeBVImpl<Scalar, KDOPd<24>, Halfspace<Scalar>>
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Halfspace<Scalar>::Halfspace(const Vector3<Scalar>& n, Scalar d)
-  : ShapeBase<Scalar>(), n(n), d(d)
+template <typename ScalarT>
+Halfspace<ScalarT>::Halfspace(const Vector3<ScalarT>& n, ScalarT d)
+  : ShapeBase<ScalarT>(), n(n), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename Scalar>
-Halfspace<Scalar>::Halfspace(Scalar a, Scalar b, Scalar c, Scalar d)
-  : ShapeBase<Scalar>(), n(a, b, c), d(d)
+template <typename ScalarT>
+Halfspace<ScalarT>::Halfspace(ScalarT a, ScalarT b, ScalarT c, ScalarT d)
+  : ShapeBase<ScalarT>(), n(a, b, c), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename Scalar>
-Halfspace<Scalar>::Halfspace() : ShapeBase<Scalar>(), n(1, 0, 0), d(0)
+template <typename ScalarT>
+Halfspace<ScalarT>::Halfspace() : ShapeBase<ScalarT>(), n(1, 0, 0), d(0)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Halfspace<Scalar>::signedDistance(const Vector3<Scalar>& p) const
+template <typename ScalarT>
+ScalarT Halfspace<ScalarT>::signedDistance(const Vector3<ScalarT>& p) const
 {
   return n.dot(p) - d;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Halfspace<Scalar>::distance(const Vector3<Scalar>& p) const
+template <typename ScalarT>
+ScalarT Halfspace<ScalarT>::distance(const Vector3<ScalarT>& p) const
 {
   return std::abs(n.dot(p) - d);
 }
 
 //==============================================================================
-template <typename Scalar>
-void Halfspace<Scalar>::computeLocalAABB()
+template <typename ScalarT>
+void Halfspace<ScalarT>::computeLocalAABB()
 {
-  computeBV<Scalar, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename Scalar>
-NODE_TYPE Halfspace<Scalar>::getNodeType() const
+template <typename ScalarT>
+NODE_TYPE Halfspace<ScalarT>::getNodeType() const
 {
   return GEOM_HALFSPACE;
 }
 
 //==============================================================================
-template <typename Scalar>
-void Halfspace<Scalar>::unitNormalTest()
+template <typename ScalarT>
+void Halfspace<ScalarT>::unitNormalTest()
 {
-  Scalar l = n.norm();
+  ScalarT l = n.norm();
   if(l > 0)
   {
-    Scalar inv_l = 1.0 / l;
+    ScalarT inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   }

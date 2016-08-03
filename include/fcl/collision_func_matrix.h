@@ -54,24 +54,20 @@
 #include "fcl/shape/plane.h"
 #include "fcl/shape/sphere.h"
 #include "fcl/shape/triangle_p.h"
+#include "fcl/shape/construct_box.h"
 
 #include "fcl/traversal/shape_collision_traversal_node.h"
-
 #include "fcl/traversal/mesh_shape_collision_traversal_node.h"
 #include "fcl/traversal/shape_mesh_collision_traversal_node.h"
-
 #include "fcl/traversal/mesh_collision_traversal_node.h"
 
+#include "fcl/config.h"
 #if FCL_HAVE_OCTOMAP
-
 #include "fcl/traversal/octree/shape_octree_collision_traversal_node.h"
 #include "fcl/traversal/octree/octree_shape_collision_traversal_node.h"
-
 #include "fcl/traversal/octree/octree_mesh_collision_traversal_node.h"
 #include "fcl/traversal/octree/mesh_octree_collision_traversal_node.h"
-
 #include "fcl/traversal/octree/octree_collision_traversal_node.h"
-
 #endif
 
 namespace fcl
@@ -89,8 +85,10 @@ struct CollisionFunctionMatrix
   /// 3. the request setting for collision (e.g., whether need to return normal information, whether need to compute cost);
   /// 4. the structure to return collision result
   using CollisionFunc = std::size_t (*)(
-      const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
-      const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
+      const CollisionGeometry<Scalar>* o1,
+      const Transform3<Scalar>& tf1,
+      const CollisionGeometry<Scalar>* o2,
+      const Transform3<Scalar>& tf2,
       const NarrowPhaseSolver* nsolver,
       const CollisionRequest<Scalar>& request,
       CollisionResult<Scalar>& result);
@@ -111,12 +109,15 @@ struct CollisionFunctionMatrix
 #if FCL_HAVE_OCTOMAP
 
 //==============================================================================
-template <typename Scalar, typename T_SH, typename NarrowPhaseSolver>
+template <typename T_SH, typename NarrowPhaseSolver>
 std::size_t ShapeOcTreeCollide(
-    const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
-    const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
+    const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<Scalar>& request, CollisionResult<Scalar>& result)
+    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
+    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
 {
   if(request.isSatisfied(result)) return result.numContacts();
 
@@ -298,8 +299,6 @@ std::size_t ShapeShapeCollide(
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
     CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
 {
-  using Scalar = typename NarrowPhaseSolver::Scalar;
-
   if(request.isSatisfied(result)) return result.numContacts();
 
   ShapeCollisionTraversalNode<T_SH1, T_SH2, NarrowPhaseSolver> node;
@@ -537,7 +536,7 @@ struct BVHShapeCollider<OBBRSS<typename NarrowPhaseSolver::Scalar>, T_SH, Narrow
 template <typename Scalar, typename T_BVH>
 struct BVHCollideImpl
 {
-  void operator()(
+  std::size_t operator()(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -610,7 +609,7 @@ std::size_t orientedMeshCollide(
 template <typename Scalar>
 struct BVHCollideImpl<Scalar, OBB<Scalar>>
 {
-  void operator()(
+  std::size_t operator()(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -619,7 +618,7 @@ struct BVHCollideImpl<Scalar, OBB<Scalar>>
       CollisionResult<Scalar>& result)
   {
     return details::orientedMeshCollide<
-        MeshCollisionTraversalNodeOBB, OBB<Scalar>>(
+        MeshCollisionTraversalNodeOBB<Scalar>, OBB<Scalar>>(
             o1, tf1, o2, tf2, request, result);
   }
 };
@@ -628,7 +627,7 @@ struct BVHCollideImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct BVHCollideImpl<Scalar, OBBRSS<Scalar>>
 {
-  void operator()(
+  std::size_t operator()(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -637,7 +636,7 @@ struct BVHCollideImpl<Scalar, OBBRSS<Scalar>>
       CollisionResult<Scalar>& result)
   {
     return details::orientedMeshCollide<
-        MeshCollisionTraversalNodeOBBRSS, OBBRSS<Scalar>>(
+        MeshCollisionTraversalNodeOBBRSS<Scalar>, OBBRSS<Scalar>>(
             o1, tf1, o2, tf2, request, result);
   }
 };
@@ -646,7 +645,7 @@ struct BVHCollideImpl<Scalar, OBBRSS<Scalar>>
 template <typename Scalar>
 struct BVHCollideImpl<Scalar, kIOS<Scalar>>
 {
-  void operator()(
+  std::size_t operator()(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -655,7 +654,7 @@ struct BVHCollideImpl<Scalar, kIOS<Scalar>>
       CollisionResult<Scalar>& result)
   {
     return details::orientedMeshCollide<
-        MeshCollisionTraversalNodekIOS, kIOS<Scalar>>(
+        MeshCollisionTraversalNodekIOS<Scalar>, kIOS<Scalar>>(
             o1, tf1, o2, tf2, request, result);
   }
 };

@@ -122,6 +122,9 @@ public:
   Vector3<Scalar> T;
 };
 
+using MeshConservativeAdvancementTraversalNodeRSSf = MeshConservativeAdvancementTraversalNodeRSS<float>;
+using MeshConservativeAdvancementTraversalNodeRSSd = MeshConservativeAdvancementTraversalNodeRSS<double>;
+
 /// @brief Initialize traversal node for conservative advancement computation
 /// between two meshes, given the current transforms, specialized for RSS
 template <typename Scalar>
@@ -149,6 +152,9 @@ public:
   Matrix3<Scalar> R;
   Vector3<Scalar> T;
 };
+
+using MeshConservativeAdvancementTraversalNodeOBBRSSf = MeshConservativeAdvancementTraversalNodeOBBRSS<float>;
+using MeshConservativeAdvancementTraversalNodeOBBRSSd = MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 template <typename Scalar>
 bool initialize(
@@ -463,9 +469,9 @@ bool initialize(
     const Transform3<typename BV::Scalar>& tf1,
     BVHModel<BV>& model2,
     const Transform3<typename BV::Scalar>& tf2,
-    typename BV::Scalar w = 1,
-    bool use_refit = false,
-    bool refit_bottomup = false)
+    typename BV::Scalar w,
+    bool use_refit,
+    bool refit_bottomup)
 {
   using Scalar = typename BV::Scalar;
 
@@ -971,7 +977,7 @@ bool initialize(
     const Transform3<Scalar>& tf1,
     const BVHModel<RSS<Scalar>>& model2,
     const Transform3<Scalar>& tf2,
-    Scalar w = 1)
+    Scalar w)
 {
   return details::setupMeshConservativeAdvancementOrientedDistanceNode(
         node, model1, tf1, model2, tf2, w);
@@ -985,7 +991,7 @@ bool initialize(
     const Transform3<Scalar>& tf1,
     const BVHModel<OBBRSS<Scalar>>& model2,
     const Transform3<Scalar>& tf2,
-    Scalar w = 1)
+    Scalar w)
 {
   return details::setupMeshConservativeAdvancementOrientedDistanceNode(
         node, model1, tf1, model2, tf2, w);

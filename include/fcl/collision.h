@@ -57,8 +57,8 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
                     CollisionResult<Scalar>& result);
 
 template <typename Scalar>
-std::size_t collide(const CollisionGeometry<Scalar>* o1, const Transform3d& tf1,
-                    const CollisionGeometry<Scalar>* o2, const Transform3d& tf2,
+std::size_t collide(const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
+                    const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
                     const CollisionRequest<Scalar>& request,
                     CollisionResult<Scalar>& result);
 
@@ -77,21 +77,26 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 }
 
 template <typename Scalar, typename NarrowPhaseSolver>
-std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
-                    const NarrowPhaseSolver* nsolver,
-                    const CollisionRequest<Scalar>& request,
-                    CollisionResult<Scalar>& result)
+std::size_t collide(
+    const CollisionObject* o1,
+    const CollisionObject* o2,
+    const NarrowPhaseSolver* nsolver,
+    const CollisionRequest<Scalar>& request,
+    CollisionResult<Scalar>& result)
 {
   return collide(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(),
                  nsolver, request, result);
 }
 
 template <typename Scalar, typename NarrowPhaseSolver>
-std::size_t collide(const CollisionGeometry<Scalar>* o1, const Transform3d& tf1,
-                    const CollisionGeometry<Scalar>* o2, const Transform3d& tf2,
-                    const NarrowPhaseSolver* nsolver_,
-                    const CollisionRequest<Scalar>& request,
-                    CollisionResult<Scalar>& result)
+std::size_t collide(
+    const CollisionGeometry<Scalar>* o1,
+    const Transform3<Scalar>& tf1,
+    const CollisionGeometry<Scalar>* o2,
+    const Transform3<Scalar>& tf2,
+    const NarrowPhaseSolver* nsolver_,
+    const CollisionRequest<Scalar>& request,
+    CollisionResult<Scalar>& result)
 {
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_)
@@ -150,12 +155,12 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
   case GST_LIBCCD:
     {
       GJKSolver_libccd solver;
-      return collide<GJKSolver_libccd>(o1, o2, &solver, request, result);
+      return collide<Scalar, GJKSolver_libccd>(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
       GJKSolver_indep solver;
-      return collide<GJKSolver_indep>(o1, o2, &solver, request, result);
+      return collide<Scalar, GJKSolver_indep>(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -164,21 +169,27 @@ std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
 
 //==============================================================================
 template <typename Scalar>
-std::size_t collide(const CollisionGeometry<Scalar>* o1, const Transform3d& tf1,
-                    const CollisionGeometry<Scalar>* o2, const Transform3d& tf2,
-                    const CollisionRequest<Scalar>& request, CollisionResult<Scalar>& result)
+std::size_t collide(
+    const CollisionGeometry<Scalar>* o1,
+    const Transform3<Scalar>& tf1,
+    const CollisionGeometry<Scalar>* o2,
+    const Transform3<Scalar>& tf2,
+    const CollisionRequest<Scalar>& request,
+    CollisionResult<Scalar>& result)
 {
   switch(request.gjk_solver_type)
   {
   case GST_LIBCCD:
     {
       GJKSolver_libccd solver;
-      return collide<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
+      return collide<Scalar, GJKSolver_libccd>(
+          o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
       GJKSolver_indep solver;
-      return collide<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
+      return collide<Scalar, GJKSolver_indep>(
+          o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     std::cerr << "Warning! Invalid GJK solver" << std::endl;

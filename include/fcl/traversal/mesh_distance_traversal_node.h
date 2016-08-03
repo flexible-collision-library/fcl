@@ -39,6 +39,7 @@
 #ifndef FCL_TRAVERSAL_MESHDISTANCETRAVERSALNODE_H
 #define FCL_TRAVERSAL_MESHDISTANCETRAVERSALNODE_H
 
+#include "fcl/intersect.h"
 #include "fcl/traversal/bvh_distance_traversal_node.h"
 
 namespace fcl
@@ -86,7 +87,8 @@ bool initialize(
 
 /// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS<Scalar>, OBBRSS<Scalar>, kIOS<Scalar>)
 template <typename Scalar>
-class MeshDistanceTraversalNodeRSS : public MeshDistanceTraversalNode<RSS<Scalar>>
+class MeshDistanceTraversalNodeRSS
+    : public MeshDistanceTraversalNode<RSS<Scalar>>
 {
 public:
   MeshDistanceTraversalNodeRSS();
@@ -103,6 +105,9 @@ public:
   Vector3<Scalar> T;
 };
 
+using MeshDistanceTraversalNodeRSSf = MeshDistanceTraversalNodeRSS<float>;
+using MeshDistanceTraversalNodeRSSd = MeshDistanceTraversalNodeRSS<double>;
+
 /// @brief Initialize traversal node for distance computation between two
 ///  meshes, specialized for RSS type
 template <typename Scalar>
@@ -116,7 +121,8 @@ bool initialize(
     DistanceResult<Scalar>& result);
 
 template <typename Scalar>
-class MeshDistanceTraversalNodekIOS : public MeshDistanceTraversalNode<kIOS<Scalar>>
+class MeshDistanceTraversalNodekIOS
+    : public MeshDistanceTraversalNode<kIOS<Scalar>>
 {
 public:
   MeshDistanceTraversalNodekIOS();
@@ -133,6 +139,8 @@ public:
   Vector3<Scalar> T;
 };
 
+using MeshDistanceTraversalNodekIOSf = MeshDistanceTraversalNodekIOS<float>;
+using MeshDistanceTraversalNodekIOSd = MeshDistanceTraversalNodekIOS<double>;
 
 /// @brief Initialize traversal node for distance computation between two
 ///  meshes, specialized for kIOS type
@@ -147,7 +155,8 @@ bool initialize(
     DistanceResult<Scalar>& result);
 
 template <typename Scalar>
-class MeshDistanceTraversalNodeOBBRSS : public MeshDistanceTraversalNode<OBBRSS<Scalar>>
+class MeshDistanceTraversalNodeOBBRSS
+    : public MeshDistanceTraversalNode<OBBRSS<Scalar>>
 {
 public:
   MeshDistanceTraversalNodeOBBRSS();
@@ -163,6 +172,9 @@ public:
   Matrix3<Scalar> R;
   Vector3<Scalar> T;
 };
+
+using MeshDistanceTraversalNodeOBBRSSf = MeshDistanceTraversalNodeOBBRSS<float>;
+using MeshDistanceTraversalNodeOBBRSSd = MeshDistanceTraversalNodeOBBRSS<double>;
 
 /// @brief Initialize traversal node for distance computation between two
 ///  meshes, specialized for OBBRSS type
@@ -298,7 +310,8 @@ bool initialize(
     Transform3<typename BV::Scalar>& tf2,
     const DistanceRequest<typename BV::Scalar>& request,
     DistanceResult<typename BV::Scalar>& result,
-    bool use_refit = false, bool refit_bottomup = false)
+    bool use_refit,
+    bool refit_bottomup)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;

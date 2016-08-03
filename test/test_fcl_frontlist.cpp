@@ -183,13 +183,13 @@ GTEST_TEST(FCL_FRONT_LIST, front_list)
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBBd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(res == res2);
     res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBBd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(res == res2);
     res = collide_Test<OBBd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBB>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test_Oriented<OBBd, MeshCollisionTraversalNodeOBBd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(res == res2);
   }
 
@@ -227,11 +227,11 @@ bool collide_front_list_Test(const Transform3d& tf1, const Transform3d& tf2,
   Transform3d pose1 = Transform3d::Identity();
   Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;
+  CollisionResultd local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(std::numeric_limits<int>::max(), false), local_result))
+                     CollisionRequestd(std::numeric_limits<int>::max(), false), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -291,11 +291,11 @@ bool collide_front_list_Test_Oriented(const Transform3d& tf1, const Transform3d&
   Transform3d pose1(tf1);
   Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;
+  CollisionResultd local_result;
   TraversalNode node;
 
   if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2,
-                 CollisionRequest(std::numeric_limits<int>::max(), false), local_result))
+                 CollisionRequestd(std::numeric_limits<int>::max(), false), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -307,7 +307,7 @@ bool collide_front_list_Test_Oriented(const Transform3d& tf1, const Transform3d&
 
   // update the mesh
   pose1 = tf2;
-  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, CollisionRequest(), local_result))
+  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, CollisionRequestd(), local_result))
     std::cout << "initialize error" << std::endl;
 
   local_result.clear();
@@ -341,11 +341,11 @@ bool collide_Test(const Transform3d& tf,
   Transform3d pose1(tf);
   Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;
+  CollisionResultd local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
-                     CollisionRequest(std::numeric_limits<int>::max(), false), local_result))
+                     CollisionRequestd(std::numeric_limits<int>::max(), false), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;

@@ -286,7 +286,8 @@ bool initialize(
     const NarrowPhaseSolver* nsolver,
     const CollisionRequest<typename BV::Scalar>& request,
     CollisionResult<typename BV::Scalar>& result,
-    bool use_refit = false, bool refit_bottomup = false)
+    bool use_refit,
+    bool refit_bottomup)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
