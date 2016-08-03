@@ -85,7 +85,7 @@ bool initialize(
     DistanceResult<typename BV::Scalar>& result,
     bool use_refit = false, bool refit_bottomup = false);
 
-/// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS<Scalar>, OBBRSS<Scalar>, kIOS<Scalar>)
+/// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
 template <typename Scalar>
 class MeshDistanceTraversalNodeRSS
     : public MeshDistanceTraversalNode<RSS<Scalar>>

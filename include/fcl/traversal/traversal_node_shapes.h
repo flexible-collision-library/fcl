@@ -35,13 +35,9 @@
 
 /** \author Jia Pan */
 
-
 #ifndef FCL_TRAVERSAL_NODE_SHAPES_H
 #define FCL_TRAVERSAL_NODE_SHAPES_H
 
-namespace fcl
-{
-
-}
+#warning "This header has been deprecated in FCL 0.6. "
 
 #endif

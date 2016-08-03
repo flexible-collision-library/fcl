@@ -92,7 +92,7 @@ public:
   /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
   ScalarT size() const;
 
-  /// @brief Center of the OBBRSS<Scalar>
+  /// @brief Center of the OBBRSS
   const Vector3<ScalarT>& center() const;
 
   /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points

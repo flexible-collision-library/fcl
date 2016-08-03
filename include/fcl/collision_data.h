@@ -127,7 +127,7 @@ struct Contact
 };
 
 using Contactf = Contact<float>;
-using Contactd = Contact<float>;
+using Contactd = Contact<double>;
 
 /// @brief Cost source describes an area with a cost. The area is described by an AABBd region.
 template <typename Scalar>
@@ -152,6 +152,9 @@ struct CostSource
 
   bool operator < (const CostSource& other) const;
 };
+
+using CostSourcef = CostSource<float>;
+using CostSourced = CostSource<double>;
 
 template <typename Scalar>
 struct CollisionResult;

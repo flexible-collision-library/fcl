@@ -41,7 +41,6 @@
 
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
-#include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
 
 #include "fcl/shape/box.h"

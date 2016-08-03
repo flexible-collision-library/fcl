@@ -121,7 +121,7 @@ bool initialize(
     DistanceResult<typename NarrowPhaseSolver::Scalar>& result,
     bool use_refit = false, bool refit_bottomup = false);
 
-/// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS<Scalar>, OBBRSS<Scalar>, kIOS<Scalar>)
+/// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
 template <typename S, typename NarrowPhaseSolver>
 class MeshShapeDistanceTraversalNodeRSS
     : public MeshShapeDistanceTraversalNode<
@@ -169,7 +169,7 @@ public:
 
 };
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for kIOS<Scalar> type
+/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for kIOS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
@@ -198,7 +198,7 @@ public:
   
 };
 
-/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for OBBRSS<Scalar> type
+/// @brief Initialize traversal node for distance computation between one mesh and one shape, specialized for OBBRSS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,

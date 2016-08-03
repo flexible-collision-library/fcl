@@ -41,7 +41,6 @@
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
 #include "fcl/collision_node.h"
-#include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/narrowphase/narrowphase.h"
 
 #include "fcl/traversal/shape_distance_traversal_node.h"
@@ -582,7 +581,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   distance_matrix[GEOM_HALFSPACE][GEOM_PLANE] = &ShapeShapeDistance<Halfspace<Scalar>, Plane<Scalar>, NarrowPhaseSolver>;
   distance_matrix[GEOM_HALFSPACE][GEOM_HALFSPACE] = &ShapeShapeDistance<Halfspace<Scalar>, Halfspace<Scalar>, NarrowPhaseSolver>;
 
-  /* AABB<Scalar> distance not implemented */
+  /* AABB distance not implemented */
   /*
   distance_matrix[BV_AABB][GEOM_BOX] = &BVHShapeDistancer<AABB<Scalar>, Box<Scalar>, NarrowPhaseSolver>::distance;
   distance_matrix[BV_AABB][GEOM_SPHERE] = &BVHShapeDistancer<AABB<Scalar>, Sphere<Scalar>, NarrowPhaseSolver>::distance;

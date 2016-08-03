@@ -91,9 +91,9 @@ template <typename BV, typename S, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeConservativeAdvancementTraversalNode<BV, S, NarrowPhaseSolver>& node,
     BVHModel<BV>& model1,
-    const Transform3<typename BV::Scalar>& tf1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
     const S& model2,
-    const Transform3<typename BV::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
     typename BV::Scalar w = 1,
     bool use_refit = false,

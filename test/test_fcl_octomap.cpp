@@ -39,7 +39,7 @@
 
 #include "fcl/config.h"
 #include "fcl/octree.h"
-#include "fcl/traversal/traversal_node_octree.h"
+#include "fcl/traversal/traversal_nodes.h"
 #include "fcl/collision.h"
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
@@ -439,7 +439,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
   std::cout << cdata.result.numCostSources() << " " << cdata3.result.numCostSources() << " " << cdata2.result.numCostSources() << std::endl;
 
   {
-    std::vector<CostSource> cost_sources;
+    std::vector<CostSourced> cost_sources;
     cdata.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {

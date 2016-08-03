@@ -35,7 +35,6 @@
 
 /** \author Jia Pan */
 
-
 #ifndef FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 #define FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 
@@ -661,7 +660,7 @@ bool MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>::canStop(Scalar c) c
         this->delta_t);
 }
 
-/// @brief for OBB<Scalar> and RSS<Scalar>, there is local coordinate of BV, so normal need to be transformed
+/// @brief for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
 namespace details
 {
 

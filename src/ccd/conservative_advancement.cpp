@@ -38,7 +38,6 @@
 #include "fcl/ccd/conservative_advancement.h"
 #include "fcl/ccd/motion.h"
 #include "fcl/collision_node.h"
-#include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/traversal/traversal_recurse.h"
 #include "fcl/collision.h"
 #include "fcl/traversal/mesh_conservative_advancement_traversal_node.h"

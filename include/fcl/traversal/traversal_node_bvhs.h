@@ -35,13 +35,9 @@
 
 /** \author Jia Pan */
 
-
 #ifndef FCL_TRAVERSAL_NODE_MESHES_H
 #define FCL_TRAVERSAL_NODE_MESHES_H
 
-namespace fcl
-{
-
-} // namespace fcl
+#warning "This header has been deprecated in FCL 0.6. "
 
 #endif

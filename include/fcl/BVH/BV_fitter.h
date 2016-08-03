@@ -467,7 +467,7 @@ kIOS<Scalar> BVFitter<kIOS<Scalar>>::fit(
   const Vector3<Scalar>& extent = bv.obb.extent;
   Scalar r0 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, center);
 
-  // decide k in kIOS<Scalar>
+  // decide k in kIOS
   if(extent[0] > kIOS<Scalar>::ratio() * extent[2])
   {
     if(extent[0] > kIOS<Scalar>::ratio() * extent[1]) bv.num_spheres = 5;

@@ -136,6 +136,9 @@ public:
   Vector3<Scalar> T;
 };
 
+using MeshCollisionTraversalNodeRSSf = MeshCollisionTraversalNodeRSS<float>;
+using MeshCollisionTraversalNodeRSSd = MeshCollisionTraversalNodeRSS<double>;
+
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for RSS type
 template <typename Scalar>
@@ -161,6 +164,9 @@ public:
   Matrix3<Scalar> R;
   Vector3<Scalar> T;
 };
+
+using MeshCollisionTraversalNodekIOSf = MeshCollisionTraversalNodekIOS<float>;
+using MeshCollisionTraversalNodekIOSd = MeshCollisionTraversalNodekIOS<double>;
 
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for kIOS type
@@ -188,6 +194,9 @@ public:
   Matrix3<Scalar> R;
   Vector3<Scalar> T;
 };
+
+using MeshCollisionTraversalNodeOBBRSSf = MeshCollisionTraversalNodeOBBRSS<float>;
+using MeshCollisionTraversalNodeOBBRSSd = MeshCollisionTraversalNodeOBBRSS<double>;
 
 /// @brief Initialize traversal node for collision between two meshes,
 /// specialized for OBBRSS type

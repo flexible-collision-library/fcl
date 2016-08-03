@@ -38,34 +38,6 @@
 #ifndef FCL_TRAVERSAL_NODE_SETUP_H
 #define FCL_TRAVERSAL_NODE_SETUP_H
 
-#include "fcl/traversal/shape_collision_traversal_node.h"
-#include "fcl/traversal/mesh_shape_collision_traversal_node.h"
-#include "fcl/traversal/shape_mesh_collision_traversal_node.h"
-#include "fcl/traversal/mesh_collision_traversal_node.h"
-
-#include "fcl/traversal/shape_distance_traversal_node.h"
-#include "fcl/traversal/mesh_shape_distance_traversal_node.h"
-#include "fcl/traversal/shape_mesh_distance_traversal_node.h"
-#include "fcl/traversal/mesh_distance_traversal_node.h"
-
-#include "fcl/config.h"
-
-#if FCL_HAVE_OCTOMAP
-
-#include "fcl/traversal/octree/octree_solver.h"
-
-#include "fcl/traversal/octree/mesh_octree_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_mesh_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_shape_collision_traversal_node.h"
-#include "fcl/traversal/octree/shape_octree_collision_traversal_node.h"
-
-#include "fcl/traversal/octree/mesh_octree_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_mesh_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_shape_distance_traversal_node.h"
-#include "fcl/traversal/octree/shape_octree_distance_traversal_node.h"
-
-#endif
+#warning "This header has been deprecated in FCL 0.6. "
 
 #endif

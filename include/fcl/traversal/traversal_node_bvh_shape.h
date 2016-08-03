@@ -38,9 +38,6 @@
 #ifndef FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 #define FCL_TRAVERSAL_NODE_MESH_SHAPE_H
 
-namespace fcl
-{
-
-} // namespace fcl
+#warning "This header has been deprecated in FCL 0.6. "
 
 #endif

@@ -44,6 +44,7 @@
 #include "fcl/collision_geometry.h"
 #include "fcl/BV/BV_node.h"
 #include "fcl/BV/OBB.h"
+#include "fcl/BV/fit.h"
 #include "fcl/BVH/BVH_internal.h"
 #include "fcl/BVH/BV_splitter.h"
 #include "fcl/BVH/BV_fitter.h"
@@ -89,7 +90,7 @@ public:
   /// @brief Get the BV type: default is unknown
   NODE_TYPE getNodeType() const;
 
-  /// @brief Compute the AABB<Scalar> for the BVH, used for broad-phase collision
+  /// @brief Compute the AABB for the BVH, used for broad-phase collision
   void computeLocalAABB() override;
 
   /// @brief Begin a new BVH model

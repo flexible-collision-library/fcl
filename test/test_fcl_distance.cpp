@@ -37,8 +37,7 @@
 
 #include <gtest/gtest.h>
 
-#include "fcl/traversal/traversal_node_setup.h"
-#include "fcl/traversal/mesh_distance_traversal_node.h"
+#include "fcl/traversal/traversal_nodes.h"
 #include "fcl/collision_node.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"

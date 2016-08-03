@@ -65,7 +65,7 @@ private:
 };
 
 
-/// @brief Convert from AABB<Scalar> to AABB<Scalar>, not very tight but is fast.
+/// @brief Convert from AABB to AABB, not very tight but is fast.
 template <typename Scalar>
 class Converter<Scalar, AABB<Scalar>, AABB<Scalar>>
 {
@@ -90,7 +90,7 @@ public:
     /*
     bv2.To = tf1 * bv1.center());
 
-    /// Sort the AABB<Scalar> edges so that AABB<Scalar> extents are ordered.
+    /// Sort the AABB edges so that AABB extents are ordered.
     Scalar d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
 
@@ -239,7 +239,7 @@ public:
   {
     bv2.Tr = tf1 * bv1.center();
 
-    /// Sort the AABB<Scalar> edges so that AABB<Scalar> extents are ordered.
+    /// Sort the AABB edges so that AABB extents are ordered.
     Scalar d[3] = {bv1.width(), bv1.height(), bv1.depth() };
     std::size_t id[3] = {0, 1, 2};
 

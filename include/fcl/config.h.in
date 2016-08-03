@@ -48,6 +48,15 @@
 #cmakedefine01 FCL_BUILD_TYPE_DEBUG
 #cmakedefine01 FCL_BUILD_TYPE_RELEASE
 
+// Detect the compiler
+#if defined(__clang__)
+  #define FCL_COMPILER_CLANG
+#elif defined(__GNUC__) || defined(__GNUG__)
+  #define FCL_COMPILER_GCC
+#elif defined(_MSC_VER)
+  #define FCL_COMPILER_MSVC
+#endif
+
 #if FCL_HAVE_OCTOMAP
   #define OCTOMAP_MAJOR_VERSION @OCTOMAP_MAJOR_VERSION@
   #define OCTOMAP_MINOR_VERSION @OCTOMAP_MINOR_VERSION@

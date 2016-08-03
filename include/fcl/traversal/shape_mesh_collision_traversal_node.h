@@ -80,7 +80,7 @@ bool initialize(
     CollisionResult<typename BV::Scalar>& result,
     bool use_refit = false, bool refit_bottomup = false);
 
-/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB<Scalar>, RSS<Scalar>, OBBRSS<Scalar>, kIOS<Scalar>)
+/// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
 template <typename S, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNodeOBB
     : public ShapeMeshCollisionTraversalNode<
@@ -95,7 +95,7 @@ public:
 };
 
 /// @brief Initialize the traversal node for collision between one mesh and one
-/// shape, specialized for OBB<Scalar> type
+/// shape, specialized for OBB type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
@@ -121,7 +121,7 @@ public:
 };
 
 /// @brief Initialize the traversal node for collision between one mesh and one
-/// shape, specialized for RSS<Scalar> type
+/// shape, specialized for RSS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
@@ -147,7 +147,7 @@ public:
 };
 
 /// @brief Initialize the traversal node for collision between one mesh and one
-/// shape, specialized for kIOS<Scalar> type
+/// shape, specialized for kIOS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
@@ -173,7 +173,7 @@ public:
 };
 
 /// @brief Initialize the traversal node for collision between one mesh and one
-/// shape, specialized for OBBRSS<Scalar> type
+/// shape, specialized for OBBRSS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,

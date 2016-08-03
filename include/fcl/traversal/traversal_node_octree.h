@@ -38,21 +38,6 @@
 #ifndef FCL_TRAVERSAL_NODE_OCTREE_H
 #define FCL_TRAVERSAL_NODE_OCTREE_H
 
-#include "fcl/config.h"
-#if not(FCL_HAVE_OCTOMAP)
-#error "This header requires fcl to be compiled with octomap support"
-#endif
-
-#include "fcl/traversal/octree/mesh_octree_collision_traversal_node.h"
-#include "fcl/traversal/octree/mesh_octree_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_mesh_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_mesh_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_shape_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_shape_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_solver.h"
-#include "fcl/traversal/octree/shape_octree_collision_traversal_node.h"
-#include "fcl/traversal/octree/shape_octree_distance_traversal_node.h"
+#warning "This header has been deprecated in FCL 0.6. "
 
 #endif

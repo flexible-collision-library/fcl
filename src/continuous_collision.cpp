@@ -39,7 +39,6 @@
 #include "fcl/continuous_collision.h"
 #include "fcl/ccd/motion.h"
 #include "fcl/BVH/BVH_model.h"
-#include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/traversal/mesh_continuous_collision_traversal_node.h"
 #include "fcl/collision_node.h"
 #include "fcl/ccd/conservative_advancement.h"

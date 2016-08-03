@@ -107,7 +107,7 @@ public:
 };
 
 /// @brief Initialize traversal node for distance computation between one shape
-/// and one mesh, specialized for RSS<Scalar> type
+/// and one mesh, specialized for RSS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshDistanceTraversalNodeRSS<S, NarrowPhaseSolver>& node,
@@ -141,7 +141,7 @@ public:
 };
 
 /// @brief Initialize traversal node for distance computation between one shape
-/// and one mesh, specialized for kIOS<Scalar> type
+/// and one mesh, specialized for kIOS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshDistanceTraversalNodekIOS<S, NarrowPhaseSolver>& node,
@@ -175,7 +175,7 @@ public:
 };
 
 /// @brief Initialize traversal node for distance computation between one shape
-/// and one mesh, specialized for OBBRSS<Scalar> type
+/// and one mesh, specialized for OBBRSS type
 template <typename S, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,

@@ -37,7 +37,6 @@
 
 #include <gtest/gtest.h>
 
-#include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
 #include "test_fcl_utility.h"
 
@@ -170,13 +169,13 @@ GTEST_TEST(FCL_FRONT_LIST, front_list)
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     res = collide_Test<RSSd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSSd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
     EXPECT_TRUE(res == res2);
     res = collide_Test<RSSd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSSd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     EXPECT_TRUE(res == res2);
     res = collide_Test<RSSd>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSS>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test_Oriented<RSSd, MeshCollisionTraversalNodeRSSd>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(res == res2);
   }
 
