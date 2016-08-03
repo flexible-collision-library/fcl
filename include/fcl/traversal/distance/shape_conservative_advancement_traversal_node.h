@@ -35,57 +35,47 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_OCTREE_SHAPEOCTREECOLLISIONTRAVERSALNODE_H
-#define FCL_TRAVERSAL_OCTREE_SHAPEOCTREECOLLISIONTRAVERSALNODE_H
+#ifndef FCL_TRAVERSAL_SHAPECONSERVATIVEADVANCEMENTTRAVERSALNODE_H
+#define FCL_TRAVERSAL_SHAPECONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 
-#include "fcl/config.h"
-#if not(FCL_HAVE_OCTOMAP)
-#error "This header requires fcl to be compiled with octomap support"
-#endif
-
-#include "fcl/octree.h"
-#include "fcl/BVH/BVH_model.h"
-#include "fcl/traversal/collision_traversal_node_base.h"
-#include "fcl/traversal/octree/octree_solver.h"
+#include "fcl/traversal/distance/shape_distance_traversal_node.h"
 
 namespace fcl
 {
 
-/// @brief Traversal node for shape-octree collision
-template <typename S, typename NarrowPhaseSolver>
-class ShapeOcTreeCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
+template<typename S1, typename S2, typename NarrowPhaseSolver>
+class ShapeConservativeAdvancementTraversalNode
+    : public ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>
 {
 public:
-
-  using Scalar = typename NarrowPhaseSolver::Scalar;
-
-  ShapeOcTreeCollisionTraversalNode();
-
-  bool BVTesting(int, int) const;
+  ShapeConservativeAdvancementTraversalNode();
 
   void leafTesting(int, int) const;
 
-  const S* model1;
-  const OcTree* model2;
+  mutable FCL_REAL min_distance;
 
-  Transform3<Scalar> tf1, tf2;
+  /// @brief The time from beginning point
+  FCL_REAL toc;
+  FCL_REAL t_err;
 
-  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+  /// @brief The delta_t each step
+  mutable FCL_REAL delta_t;
+
+  /// @brief Motions for the two objects in query
+  const MotionBase* motion1;
+  const MotionBase* motion2;
+
+  RSSd model1_bv, model2_bv; // local bv for the two shapes
 };
 
-/// @brief Initialize traversal node for collision between one shape and one
-/// octree, given current object transform
-template <typename S, typename NarrowPhaseSolver>
+template <typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
-    const S& model1,
+    ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>& node,
+    const S1& shape1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const S2& shape2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
-    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
+    const NarrowPhaseSolver* nsolver);
 
 //============================================================================//
 //                                                                            //
@@ -94,55 +84,70 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>::
-ShapeOcTreeCollisionTraversalNode()
+template <typename S1, typename S2, typename NarrowPhaseSolver>
+ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>::
+ShapeConservativeAdvancementTraversalNode()
+  : ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>()
 {
-  model1 = NULL;
-  model2 = NULL;
+  delta_t = 1;
+  toc = 0;
+  t_err = (FCL_REAL)0.0001;
 
-  otsolver = NULL;
+  motion1 = NULL;
+  motion2 = NULL;
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-bool ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>::
-BVTesting(int, int) const
-{
-  return false;
-}
-
-//==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-void ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>::
+template <typename S1, typename S2, typename NarrowPhaseSolver>
+void ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
-  otsolver->OcTreeShapeIntersect(
-        model2, *model1, tf2, tf1, this->request, *this->result);
+  FCL_REAL distance;
+  Vector3d closest_p1, closest_p2;
+  this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
+
+  Vector3d n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
+  n.normalize();
+  TBVMotionBoundVisitor<RSSd> mb_visitor1(model1_bv, n);
+  TBVMotionBoundVisitor<RSSd> mb_visitor2(model2_bv, -n);
+  FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
+  FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
+
+  FCL_REAL bound = bound1 + bound2;
+
+  FCL_REAL cur_delta_t;
+  if(bound <= distance) cur_delta_t = 1;
+  else cur_delta_t = distance / bound;
+
+  if(cur_delta_t < delta_t)
+    delta_t  = cur_delta_t;
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
+template <typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
-    const S& model1,
+    ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>& node,
+    const S1& shape1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const S2& shape2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
-    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
+    const NarrowPhaseSolver* nsolver)
 {
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.otsolver = otsolver;
-
+  node.model1 = &shape1;
   node.tf1 = tf1;
+  node.model2 = &shape2;
   node.tf2 = tf2;
+  node.nsolver = nsolver;
+
+  computeBV<double, RSS<typename NarrowPhaseSolver::Scalar>, S1>(
+        shape1,
+        Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
+        node.model1_bv);
+
+  computeBV<double, RSS<typename NarrowPhaseSolver::Scalar>, S2>(
+        shape2,
+        Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
+        node.model2_bv);
 
   return true;
 }

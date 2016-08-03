@@ -35,46 +35,56 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
-#define FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
+#ifndef FCL_TRAVERSAL_OCTREE_MESHOCTREEDISTANCETRAVERSALNODE_H
+#define FCL_TRAVERSAL_OCTREE_MESHOCTREEDISTANCETRAVERSALNODE_H
 
-#include "fcl/traversal/distance_traversal_node_base.h"
+#include "fcl/config.h"
+#if not(FCL_HAVE_OCTOMAP)
+#error "This header requires fcl to be compiled with octomap support"
+#endif
+
+#include "fcl/octree.h"
 #include "fcl/BVH/BVH_model.h"
+#include "fcl/traversal/distance/distance_traversal_node_base.h"
+#include "fcl/traversal/octree/octree_solver.h"
 
 namespace fcl
 {
 
-/// @brief Traversal node for distance computation between BVH and shape
-template<typename BV, typename S>
-class BVHShapeDistanceTraversalNode
+/// @brief Traversal node for mesh-octree distance
+template <typename BV, typename NarrowPhaseSolver>
+class MeshOcTreeDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename BV::Scalar>
 {
 public:
 
   using Scalar = typename BV::Scalar;
 
-  BVHShapeDistanceTraversalNode();
+  MeshOcTreeDistanceTraversalNode();
 
-  /// @brief Whether the BV node in the first BVH tree is leaf
-  bool isFirstNodeLeaf(int b) const;
+  Scalar BVTesting(int, int) const;
 
-  /// @brief Obtain the left child of BV node in the first BVH
-  int getFirstLeftChild(int b) const;
-
-  /// @brief Obtain the right child of BV node in the first BVH
-  int getFirstRightChild(int b) const;
-
-  /// @brief BV culling test in one BVTT node
-  Scalar BVTesting(int b1, int b2) const;
+  void leafTesting(int, int) const;
 
   const BVHModel<BV>* model1;
-  const S* model2;
-  BV model2_bv;
+  const OcTree* model2;
 
-  mutable int num_bv_tests;
-  mutable int num_leaf_tests;
-  mutable Scalar query_time_seconds;
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+
 };
+
+/// @brief Initialize traversal node for distance between one mesh and one
+/// octree, given current object transform
+template <typename BV, typename NarrowPhaseSolver>
+bool initialize(
+    MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
+    const BVHModel<BV>& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const OcTree& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
+    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
 
 //============================================================================//
 //                                                                            //
@@ -83,45 +93,57 @@ public:
 //============================================================================//
 
 //==============================================================================
-template<typename BV, typename S>
-BVHShapeDistanceTraversalNode<BV, S>::BVHShapeDistanceTraversalNode()
-  : DistanceTraversalNodeBase<typename BV::Scalar>()
+template <typename BV, typename NarrowPhaseSolver>
+MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>::
+MeshOcTreeDistanceTraversalNode()
 {
   model1 = NULL;
   model2 = NULL;
 
-  num_bv_tests = 0;
-  num_leaf_tests = 0;
-  query_time_seconds = 0.0;
+  otsolver = NULL;
 }
 
 //==============================================================================
-template<typename BV, typename S>
-bool BVHShapeDistanceTraversalNode<BV, S>::isFirstNodeLeaf(int b) const
+template <typename BV, typename NarrowPhaseSolver>
+typename BV::Scalar MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>::
+BVTesting(int, int) const
 {
-  return model1->getBV(b).isLeaf();
+  return -1;
 }
 
 //==============================================================================
-template<typename BV, typename S>
-int BVHShapeDistanceTraversalNode<BV, S>::getFirstLeftChild(int b) const
+template <typename BV, typename NarrowPhaseSolver>
+void MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>::
+leafTesting(int, int) const
 {
-  return model1->getBV(b).leftChild();
+  otsolver->OcTreeMeshDistance(
+        model2, model1, this->tf2, this->tf1, this->request, *this->result);
 }
 
 //==============================================================================
-template<typename BV, typename S>
-int BVHShapeDistanceTraversalNode<BV, S>::getFirstRightChild(int b) const
+template <typename BV, typename NarrowPhaseSolver>
+bool initialize(
+    MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
+    const BVHModel<BV>& model1,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const OcTree& model2,
+    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
+    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
 {
-  return model1->getBV(b).rightChild();
-}
+  node.request = request;
+  node.result = &result;
 
-//==============================================================================
-template<typename BV, typename S>
-typename BV::Scalar BVHShapeDistanceTraversalNode<BV, S>::BVTesting(
-    int b1, int b2) const
-{
-  return model1->getBV(b1).bv.distance(model2_bv);
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
+  node.tf1 = tf1;
+  node.tf2 = tf2;
+
+  return true;
 }
 
 } // namespace fcl

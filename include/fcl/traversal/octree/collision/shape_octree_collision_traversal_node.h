@@ -35,46 +35,57 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_SHAPEDISTANCETRAVERSALNODE_H
-#define FCL_TRAVERSAL_SHAPEDISTANCETRAVERSALNODE_H
+#ifndef FCL_TRAVERSAL_OCTREE_SHAPEOCTREECOLLISIONTRAVERSALNODE_H
+#define FCL_TRAVERSAL_OCTREE_SHAPEOCTREECOLLISIONTRAVERSALNODE_H
 
-#include "fcl/traversal/traversal_node_base.h"
-#include "fcl/traversal/distance_traversal_node_base.h"
+#include "fcl/config.h"
+#if not(FCL_HAVE_OCTOMAP)
+#error "This header requires fcl to be compiled with octomap support"
+#endif
+
+#include "fcl/octree.h"
+#include "fcl/BVH/BVH_model.h"
+#include "fcl/traversal/collision/collision_traversal_node_base.h"
+#include "fcl/traversal/octree/octree_solver.h"
 
 namespace fcl
 {
 
-/// @brief Traversal node for distance between two shapes
-template<typename S1, typename S2, typename NarrowPhaseSolver>
-class ShapeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
+/// @brief Traversal node for shape-octree collision
+template <typename S, typename NarrowPhaseSolver>
+class ShapeOcTreeCollisionTraversalNode
+    : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
 {
 public:
-  ShapeDistanceTraversalNode();
 
-  /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int, int) const;
+  using Scalar = typename NarrowPhaseSolver::Scalar;
 
-  /// @brief Distance testing between leaves (two shapes)
+  ShapeOcTreeCollisionTraversalNode();
+
+  bool BVTesting(int, int) const;
+
   void leafTesting(int, int) const;
 
-  const S1* model1;
-  const S2* model2;
+  const S* model1;
+  const OcTree* model2;
 
-  const NarrowPhaseSolver* nsolver;
+  Transform3<Scalar> tf1, tf2;
+
+  const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
-/// @brief Initialize traversal node for distance between two geometric shapes
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+/// @brief Initialize traversal node for collision between one shape and one
+/// octree, given current object transform
+template <typename S, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
+    const S& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const S2& shape2,
+    const OcTree& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
-    const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
+    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
 
 //============================================================================//
 //                                                                            //
@@ -83,63 +94,55 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::
-ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSolver::Scalar>()
+template <typename S, typename NarrowPhaseSolver>
+ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>::
+ShapeOcTreeCollisionTraversalNode()
 {
   model1 = NULL;
   model2 = NULL;
 
-  nsolver = NULL;
+  otsolver = NULL;
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-FCL_REAL ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::BVTesting(
-    int, int) const
+template <typename S, typename NarrowPhaseSolver>
+bool ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>::
+BVTesting(int, int) const
 {
-  return -1; // should not be used
+  return false;
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
-    int, int) const
+template <typename S, typename NarrowPhaseSolver>
+void ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>::
+leafTesting(int, int) const
 {
-  FCL_REAL distance;
-  Vector3d closest_p1, closest_p2;
-  nsolver->shapeDistance(
-        *model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
-  this->result->update(
-        distance,
-        model1,
-        model2,
-        DistanceResult<typename NarrowPhaseSolver::Scalar>::NONE,
-        DistanceResult<typename NarrowPhaseSolver::Scalar>::NONE,
-        closest_p1,
-        closest_p2);
+  otsolver->OcTreeShapeIntersect(
+        model2, *model1, tf2, tf1, this->request, *this->result);
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename S, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
+    const S& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const S2& shape2,
+    const OcTree& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
-    const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
+    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
+    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
 {
   node.request = request;
   node.result = &result;
 
-  node.model1 = &shape1;
+  node.model1 = &model1;
+  node.model2 = &model2;
+
+  node.otsolver = otsolver;
+
   node.tf1 = tf1;
-  node.model2 = &shape2;
   node.tf2 = tf2;
-  node.nsolver = nsolver;
 
   return true;
 }

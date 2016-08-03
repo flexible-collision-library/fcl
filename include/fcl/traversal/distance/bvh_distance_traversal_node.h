@@ -35,29 +35,42 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_SHAPEBVHDISTANCETRAVERSALNODE_H
-#define FCL_TRAVERSAL_SHAPEBVHDISTANCETRAVERSALNODE_H
+
+#ifndef FCL_TRAVERSAL_BVHDISTANCETRAVERSALNODE_H
+#define FCL_TRAVERSAL_BVHDISTANCETRAVERSALNODE_H
 
 #include "fcl/traversal/traversal_node_base.h"
-#include "fcl/traversal/distance_traversal_node_base.h"
+#include "fcl/traversal/distance/distance_traversal_node_base.h"
 #include "fcl/BVH/BVH_model.h"
 
 namespace fcl
 {
 
-/// @brief Traversal node for distance computation between shape and BVH
-template<typename S, typename BV>
-class ShapeBVHDistanceTraversalNode
+/// @brief Traversal node for distance computation between BVH models
+template <typename BV>
+class BVHDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename BV::Scalar>
 {
 public:
 
   using Scalar = typename BV::Scalar;
 
-  ShapeBVHDistanceTraversalNode();
+  BVHDistanceTraversalNode();
+
+  /// @brief Whether the BV node in the first BVH tree is leaf
+  bool isFirstNodeLeaf(int b) const;
 
   /// @brief Whether the BV node in the second BVH tree is leaf
   bool isSecondNodeLeaf(int b) const;
+
+  /// @brief Determine the traversal order, is the first BVTT subtree better
+  bool firstOverSecond(int b1, int b2) const;
+
+  /// @brief Obtain the left child of BV node in the first BVH
+  int getFirstLeftChild(int b) const;
+
+  /// @brief Obtain the right child of BV node in the first BVH
+  int getFirstRightChild(int b) const;
 
   /// @brief Obtain the left child of BV node in the second BVH
   int getSecondLeftChild(int b) const;
@@ -68,10 +81,12 @@ public:
   /// @brief BV culling test in one BVTT node
   Scalar BVTesting(int b1, int b2) const;
 
-  const S* model1;
+  /// @brief The first BVH model
+  const BVHModel<BV>* model1;
+  /// @brief The second BVH model
   const BVHModel<BV>* model2;
-  BV model1_bv;
-  
+
+  /// @brief statistical information
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable Scalar query_time_seconds;
@@ -84,8 +99,8 @@ public:
 //============================================================================//
 
 //==============================================================================
-template<typename S, typename BV>
-ShapeBVHDistanceTraversalNode<S, BV>::ShapeBVHDistanceTraversalNode()
+template <typename BV>
+BVHDistanceTraversalNode<BV>::BVHDistanceTraversalNode()
   : DistanceTraversalNodeBase<typename BV::Scalar>()
 {
   model1 = NULL;
@@ -97,32 +112,68 @@ ShapeBVHDistanceTraversalNode<S, BV>::ShapeBVHDistanceTraversalNode()
 }
 
 //==============================================================================
-template<typename S, typename BV>
-bool ShapeBVHDistanceTraversalNode<S, BV>::isSecondNodeLeaf(int b) const
+template <typename BV>
+bool BVHDistanceTraversalNode<BV>::isFirstNodeLeaf(int b) const
+{
+  return model1->getBV(b).isLeaf();
+}
+
+//==============================================================================
+template <typename BV>
+bool BVHDistanceTraversalNode<BV>::isSecondNodeLeaf(int b) const
 {
   return model2->getBV(b).isLeaf();
 }
 
 //==============================================================================
-template<typename S, typename BV>
-int ShapeBVHDistanceTraversalNode<S, BV>::getSecondLeftChild(int b) const
+template <typename BV>
+bool BVHDistanceTraversalNode<BV>::firstOverSecond(int b1, int b2) const
+{
+  Scalar sz1 = model1->getBV(b1).bv.size();
+  Scalar sz2 = model2->getBV(b2).bv.size();
+
+  bool l1 = model1->getBV(b1).isLeaf();
+  bool l2 = model2->getBV(b2).isLeaf();
+
+  if(l2 || (!l1 && (sz1 > sz2)))
+    return true;
+  return false;
+}
+
+//==============================================================================
+template <typename BV>
+int BVHDistanceTraversalNode<BV>::getFirstLeftChild(int b) const
+{
+  return model1->getBV(b).leftChild();
+}
+
+//==============================================================================
+template <typename BV>
+int BVHDistanceTraversalNode<BV>::getFirstRightChild(int b) const
+{
+  return model1->getBV(b).rightChild();
+}
+
+//==============================================================================
+template <typename BV>
+int BVHDistanceTraversalNode<BV>::getSecondLeftChild(int b) const
 {
   return model2->getBV(b).leftChild();
 }
 
 //==============================================================================
-template<typename S, typename BV>
-int ShapeBVHDistanceTraversalNode<S, BV>::getSecondRightChild(int b) const
+template <typename BV>
+int BVHDistanceTraversalNode<BV>::getSecondRightChild(int b) const
 {
   return model2->getBV(b).rightChild();
 }
 
 //==============================================================================
-template<typename S, typename BV>
-typename BV::Scalar
-ShapeBVHDistanceTraversalNode<S, BV>::BVTesting(int b1, int b2) const
+template <typename BV>
+typename BV::Scalar BVHDistanceTraversalNode<BV>::BVTesting(int b1, int b2) const
 {
-  return model1_bv.distance(model2->getBV(b2).bv);
+  if(this->enable_statistics) this->num_bv_tests++;
+  return model1->getBV(b1).distance(model2->getBV(b2));
 }
 
 } // namespace fcl

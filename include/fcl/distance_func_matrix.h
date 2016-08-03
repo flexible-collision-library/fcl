@@ -42,21 +42,7 @@
 #include "fcl/collision_data.h"
 #include "fcl/collision_node.h"
 #include "fcl/narrowphase/narrowphase.h"
-
-#include "fcl/traversal/shape_distance_traversal_node.h"
-#include "fcl/traversal/mesh_shape_distance_traversal_node.h"
-#include "fcl/traversal/shape_mesh_distance_traversal_node.h"
-#include "fcl/traversal/mesh_distance_traversal_node.h"
-
-#include "fcl/config.h"
-#if FCL_HAVE_OCTOMAP
-#include "fcl/traversal/octree/mesh_octree_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_mesh_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_shape_distance_traversal_node.h"
-#include "fcl/traversal/octree/octree_solver.h"
-#include "fcl/traversal/octree/shape_octree_distance_traversal_node.h"
-#endif
+#include "fcl/traversal/traversal_nodes.h"
 
 namespace fcl
 {

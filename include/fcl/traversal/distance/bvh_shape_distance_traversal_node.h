@@ -35,34 +35,28 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_BVHCOLLISIONTRAVERSALNODE_H
-#define FCL_TRAVERSAL_BVHCOLLISIONTRAVERSALNODE_H
+#ifndef FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
+#define FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
 
-#include "fcl/traversal/collision_traversal_node_base.h"
+#include "fcl/traversal/distance/distance_traversal_node_base.h"
 #include "fcl/BVH/BVH_model.h"
 
 namespace fcl
 {
 
-/// @brief Traversal node for collision between BVH models
-template <typename BV>
-class BVHCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename BV::Scalar>
+/// @brief Traversal node for distance computation between BVH and shape
+template<typename BV, typename S>
+class BVHShapeDistanceTraversalNode
+    : public DistanceTraversalNodeBase<typename BV::Scalar>
 {
 public:
 
   using Scalar = typename BV::Scalar;
 
-  BVHCollisionTraversalNode();
+  BVHShapeDistanceTraversalNode();
 
   /// @brief Whether the BV node in the first BVH tree is leaf
   bool isFirstNodeLeaf(int b) const;
-
-  /// @brief Whether the BV node in the second BVH tree is leaf
-  bool isSecondNodeLeaf(int b) const;
-
-  /// @brief Determine the traversal order, is the first BVTT subtree better
-  bool firstOverSecond(int b1, int b2) const;
 
   /// @brief Obtain the left child of BV node in the first BVH
   int getFirstLeftChild(int b) const;
@@ -70,22 +64,13 @@ public:
   /// @brief Obtain the right child of BV node in the first BVH
   int getFirstRightChild(int b) const;
 
-  /// @brief Obtain the left child of BV node in the second BVH
-  int getSecondLeftChild(int b) const;
-
-  /// @brief Obtain the right child of BV node in the second BVH
-  int getSecondRightChild(int b) const;
-
   /// @brief BV culling test in one BVTT node
-  bool BVTesting(int b1, int b2) const;
-  
-  /// @brief The first BVH model
+  Scalar BVTesting(int b1, int b2) const;
+
   const BVHModel<BV>* model1;
+  const S* model2;
+  BV model2_bv;
 
-  /// @brief The second BVH model
-  const BVHModel<BV>* model2;
-
-  /// @brief statistical information
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
   mutable Scalar query_time_seconds;
@@ -98,9 +83,9 @@ public:
 //============================================================================//
 
 //==============================================================================
-template <typename BV>
-BVHCollisionTraversalNode<BV>::BVHCollisionTraversalNode()
-  : CollisionTraversalNodeBase<typename BV::Scalar>()
+template<typename BV, typename S>
+BVHShapeDistanceTraversalNode<BV, S>::BVHShapeDistanceTraversalNode()
+  : DistanceTraversalNodeBase<typename BV::Scalar>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -111,68 +96,32 @@ BVHCollisionTraversalNode<BV>::BVHCollisionTraversalNode()
 }
 
 //==============================================================================
-template <typename BV>
-bool BVHCollisionTraversalNode<BV>::isFirstNodeLeaf(int b) const
+template<typename BV, typename S>
+bool BVHShapeDistanceTraversalNode<BV, S>::isFirstNodeLeaf(int b) const
 {
   return model1->getBV(b).isLeaf();
 }
 
 //==============================================================================
-template <typename BV>
-bool BVHCollisionTraversalNode<BV>::isSecondNodeLeaf(int b) const
-{
-  return model2->getBV(b).isLeaf();
-}
-
-//==============================================================================
-template <typename BV>
-bool BVHCollisionTraversalNode<BV>::firstOverSecond(int b1, int b2) const
-{
-  Scalar sz1 = model1->getBV(b1).bv.size();
-  Scalar sz2 = model2->getBV(b2).bv.size();
-
-  bool l1 = model1->getBV(b1).isLeaf();
-  bool l2 = model2->getBV(b2).isLeaf();
-
-  if(l2 || (!l1 && (sz1 > sz2)))
-    return true;
-  return false;
-}
-
-//==============================================================================
-template <typename BV>
-int BVHCollisionTraversalNode<BV>::getFirstLeftChild(int b) const
+template<typename BV, typename S>
+int BVHShapeDistanceTraversalNode<BV, S>::getFirstLeftChild(int b) const
 {
   return model1->getBV(b).leftChild();
 }
 
 //==============================================================================
-template <typename BV>
-int BVHCollisionTraversalNode<BV>::getFirstRightChild(int b) const
+template<typename BV, typename S>
+int BVHShapeDistanceTraversalNode<BV, S>::getFirstRightChild(int b) const
 {
   return model1->getBV(b).rightChild();
 }
 
 //==============================================================================
-template <typename BV>
-int BVHCollisionTraversalNode<BV>::getSecondLeftChild(int b) const
+template<typename BV, typename S>
+typename BV::Scalar BVHShapeDistanceTraversalNode<BV, S>::BVTesting(
+    int b1, int b2) const
 {
-  return model2->getBV(b).leftChild();
-}
-
-//==============================================================================
-template <typename BV>
-int BVHCollisionTraversalNode<BV>::getSecondRightChild(int b) const
-{
-  return model2->getBV(b).rightChild();
-}
-
-//==============================================================================
-template <typename BV>
-bool BVHCollisionTraversalNode<BV>::BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics) num_bv_tests++;
-  return !model1->getBV(b1).overlap(model2->getBV(b2));
+  return model1->getBV(b1).bv.distance(model2_bv);
 }
 
 } // namespace fcl

@@ -40,7 +40,7 @@
 #define FCL_TRAVERSAL_MESHDISTANCETRAVERSALNODE_H
 
 #include "fcl/intersect.h"
-#include "fcl/traversal/bvh_distance_traversal_node.h"
+#include "fcl/traversal/distance/bvh_distance_traversal_node.h"
 
 namespace fcl
 {

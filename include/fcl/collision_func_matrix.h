@@ -55,19 +55,7 @@
 #include "fcl/shape/triangle_p.h"
 #include "fcl/shape/construct_box.h"
 
-#include "fcl/traversal/shape_collision_traversal_node.h"
-#include "fcl/traversal/mesh_shape_collision_traversal_node.h"
-#include "fcl/traversal/shape_mesh_collision_traversal_node.h"
-#include "fcl/traversal/mesh_collision_traversal_node.h"
-
-#include "fcl/config.h"
-#if FCL_HAVE_OCTOMAP
-#include "fcl/traversal/octree/shape_octree_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_shape_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_mesh_collision_traversal_node.h"
-#include "fcl/traversal/octree/mesh_octree_collision_traversal_node.h"
-#include "fcl/traversal/octree/octree_collision_traversal_node.h"
-#endif
+#include "fcl/traversal/traversal_nodes.h"
 
 namespace fcl
 {

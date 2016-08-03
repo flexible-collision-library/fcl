@@ -40,10 +40,10 @@
 #include "fcl/collision_node.h"
 #include "fcl/traversal/traversal_recurse.h"
 #include "fcl/collision.h"
-#include "fcl/traversal/mesh_conservative_advancement_traversal_node.h"
-#include "fcl/traversal/shape_conservative_advancement_traversal_node.h"
-#include "fcl/traversal/mesh_shape_conservative_advancement_traversal_node.h"
-#include "fcl/traversal/shape_mesh_conservative_advancement_traversal_node.h"
+#include "fcl/traversal/distance/mesh_conservative_advancement_traversal_node.h"
+#include "fcl/traversal/distance/shape_conservative_advancement_traversal_node.h"
+#include "fcl/traversal/distance/mesh_shape_conservative_advancement_traversal_node.h"
+#include "fcl/traversal/distance/shape_mesh_conservative_advancement_traversal_node.h"
 
 namespace fcl
 {

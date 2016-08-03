@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2013-2016, CNRS-LAAS and AIST
+ *  Copyright (c) 2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/// \author Jeongseok Lee
+/// \author Jeongseok Lee <jslee02@gmail.com>
 
 #ifndef FCL_COMMON_WARNING_H
 #define FCL_COMMON_WARNING_H
@@ -61,19 +61,19 @@
   #define FCL_SUPPRESS_DEPRECATED_END \
     _Pragma("GCC diagnostic pop")
 
-#define FCL_SUPPRESS_UNINITIALIZED_BEGIN                           \
-  _Pragma("GCC diagnostic push")                                   \
-  _Pragma("GCC diagnostic ignored \"-Wuninitialized\"")
+  #define FCL_SUPPRESS_UNINITIALIZED_BEGIN                           \
+    _Pragma("GCC diagnostic push")                                   \
+    _Pragma("GCC diagnostic ignored \"-Wuninitialized\"")
 
-#define FCL_SUPPRESS_UNINITIALIZED_END \
-  _Pragma("GCC diagnostic pop")
+  #define FCL_SUPPRESS_UNINITIALIZED_END \
+    _Pragma("GCC diagnostic pop")
 
-#define FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN                           \
-  _Pragma("GCC diagnostic push")                                   \
-  _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN                           \
+    _Pragma("GCC diagnostic push")                                   \
+    _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
 
-#define FCL_SUPPRESS_MAYBE_UNINITIALIZED_END \
-  _Pragma("GCC diagnostic pop")
+  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_END \
+    _Pragma("GCC diagnostic pop")
 
 #elif defined (FCL_COMPILER_CLANG)
 

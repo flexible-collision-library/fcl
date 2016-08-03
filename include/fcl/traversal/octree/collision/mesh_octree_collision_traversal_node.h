@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_OCTREE_OCTREEMESHDISTANCETRAVERSALNODE_H
-#define FCL_TRAVERSAL_OCTREE_OCTREEMESHDISTANCETRAVERSALNODE_H
+#ifndef FCL_TRAVERSAL_OCTREE_MESHOCTREECOLLISIONTRAVERSALNODE_H
+#define FCL_TRAVERSAL_OCTREE_MESHOCTREECOLLISIONTRAVERSALNODE_H
 
 #include "fcl/config.h"
 #if not(FCL_HAVE_OCTOMAP)
@@ -45,46 +45,47 @@
 
 #include "fcl/octree.h"
 #include "fcl/BVH/BVH_model.h"
-#include "fcl/traversal/distance_traversal_node_base.h"
+#include "fcl/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/traversal/octree/octree_solver.h"
 
 namespace fcl
 {
 
-/// @brief Traversal node for octree-mesh distance
+/// @brief Traversal node for mesh-octree collision
 template <typename BV, typename NarrowPhaseSolver>
-class OcTreeMeshDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename BV::Scalar>
+class MeshOcTreeCollisionTraversalNode
+    : public CollisionTraversalNodeBase<typename BV::Scalar>
 {
 public:
 
   using Scalar = typename BV::Scalar;
 
-  OcTreeMeshDistanceTraversalNode();
+  MeshOcTreeCollisionTraversalNode();
 
-  Scalar BVTesting(int, int) const;
+  bool BVTesting(int, int) const;
 
   void leafTesting(int, int) const;
 
-  const OcTree* model1;
-  const BVHModel<BV>* model2;
+  const BVHModel<BV>* model1;
+  const OcTree* model2;
+
+  Transform3<Scalar> tf1, tf2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
-
 };
 
-/// @brief Initialize traversal node for collision between one octree and one
-/// mesh, given current object transform
+/// @brief Initialize traversal node for collision between one mesh and one
+/// octree, given current object transform
 template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
-    OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
-    const OcTree& model1,
+    MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
+    const BVHModel<BV>& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<BV>& model2,
+    const OcTree& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
+    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
 
 //============================================================================//
 //                                                                            //
@@ -94,8 +95,8 @@ bool initialize(
 
 //==============================================================================
 template <typename BV, typename NarrowPhaseSolver>
-OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>::
-OcTreeMeshDistanceTraversalNode()
+MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>::
+MeshOcTreeCollisionTraversalNode()
 {
   model1 = NULL;
   model2 = NULL;
@@ -105,32 +106,32 @@ OcTreeMeshDistanceTraversalNode()
 
 //==============================================================================
 template <typename BV, typename NarrowPhaseSolver>
-typename BV::Scalar OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>::
+bool MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>::
 BVTesting(int, int) const
 {
-  return -1;
+  return false;
 }
 
 //==============================================================================
 template <typename BV, typename NarrowPhaseSolver>
-void OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>::
+void MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
-  otsolver->OcTreeMeshDistance(
-        model1, model2, this->tf1, this->tf2, this->request, *this->result);
+  otsolver->OcTreeMeshIntersect(
+        model2, model1, tf2, tf1, this->request, *this->result);
 }
 
 //==============================================================================
 template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
-    OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
-    const OcTree& model1,
+    MeshOcTreeCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
+    const BVHModel<BV>& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<BV>& model2,
+    const OcTree& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
+    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
 {
   node.request = request;
   node.result = &result;

@@ -40,9 +40,11 @@
 #define FCL_TRAVERSAL_RECURSE_H
 
 #include <queue>
-#include "fcl/traversal/traversal_node_base.h"
-#include "fcl/traversal/mesh_collision_traversal_node.h"
 #include "fcl/BVH/BVH_front.h"
+#include "fcl/traversal/traversal_node_base.h"
+#include "fcl/traversal/collision/collision_traversal_node_base.h"
+#include "fcl/traversal/collision/mesh_collision_traversal_node.h"
+#include "fcl/traversal/distance/distance_traversal_node_base.h"
 
 namespace fcl
 {

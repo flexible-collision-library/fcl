@@ -39,7 +39,7 @@
 #ifndef FCL_TRAVERSAL_MESHCONTINUOUSCOLLISIONTRAVERSALNODE_H
 #define FCL_TRAVERSAL_MESHCONTINUOUSCOLLISIONTRAVERSALNODE_H
 
-#include "fcl/traversal/bvh_collision_traversal_node.h"
+#include "fcl/traversal/collision/bvh_collision_traversal_node.h"
 
 namespace fcl
 {

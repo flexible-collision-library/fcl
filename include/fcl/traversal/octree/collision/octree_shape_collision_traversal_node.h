@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_OCTREE_OCTREECOLLISIONTRAVERSALNODE_H
-#define FCL_TRAVERSAL_OCTREE_OCTREECOLLISIONTRAVERSALNODE_H
+#ifndef FCL_TRAVERSAL_OCTREE_OCTREESHAPECOLLISIONTRAVERSALNODE_H
+#define FCL_TRAVERSAL_OCTREE_OCTREESHAPECOLLISIONTRAVERSALNODE_H
 
 #include "fcl/config.h"
 #if not(FCL_HAVE_OCTOMAP)
@@ -44,43 +44,44 @@
 #endif
 
 #include "fcl/octree.h"
-#include "fcl/traversal/collision_traversal_node_base.h"
+#include "fcl/BVH/BVH_model.h"
+#include "fcl/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/traversal/octree/octree_solver.h"
 
 namespace fcl
 {
 
-/// @brief Traversal node for octree collision
-template <typename NarrowPhaseSolver>
-class OcTreeCollisionTraversalNode
+/// @brief Traversal node for octree-shape collision
+template <typename S, typename NarrowPhaseSolver>
+class OcTreeShapeCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
 {
 public:
 
   using Scalar = typename NarrowPhaseSolver::Scalar;
 
-  OcTreeCollisionTraversalNode();
+  OcTreeShapeCollisionTraversalNode();
 
   bool BVTesting(int, int) const;
 
   void leafTesting(int, int) const;
 
   const OcTree* model1;
-  const OcTree* model2;
+  const S* model2;
 
   Transform3<Scalar> tf1, tf2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
-/// @brief Initialize traversal node for collision between two octrees, given
-/// current object transform
-template <typename NarrowPhaseSolver>
+/// @brief Initialize traversal node for collision between one octree and one
+/// shape, given current object transform
+template <typename S, typename NarrowPhaseSolver>
 bool initialize(
-    OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
+    OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
     const OcTree& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const S& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
@@ -93,8 +94,9 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename NarrowPhaseSolver>
-OcTreeCollisionTraversalNode<NarrowPhaseSolver>::OcTreeCollisionTraversalNode()
+template <typename S, typename NarrowPhaseSolver>
+OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>::
+OcTreeShapeCollisionTraversalNode()
 {
   model1 = NULL;
   model2 = NULL;
@@ -103,29 +105,29 @@ OcTreeCollisionTraversalNode<NarrowPhaseSolver>::OcTreeCollisionTraversalNode()
 }
 
 //==============================================================================
-template <typename NarrowPhaseSolver>
-bool OcTreeCollisionTraversalNode<NarrowPhaseSolver>::BVTesting(
-    int, int) const
+template <typename S, typename NarrowPhaseSolver>
+bool OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>::
+BVTesting(int, int) const
 {
   return false;
 }
 
 //==============================================================================
-template <typename NarrowPhaseSolver>
-void OcTreeCollisionTraversalNode<NarrowPhaseSolver>::leafTesting(
-    int, int) const
+template <typename S, typename NarrowPhaseSolver>
+void OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>::
+leafTesting(int, int) const
 {
-  otsolver->OcTreeIntersect(
-        model1, model2, tf1, tf2, this->request, *this->result);
+  otsolver->OcTreeShapeIntersect(
+        model1, *model2, tf1, tf2, this->request, *this->result);
 }
 
 //==============================================================================
-template <typename NarrowPhaseSolver>
+template <typename S, typename NarrowPhaseSolver>
 bool initialize(
-    OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
+    OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
     const OcTree& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const S& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,

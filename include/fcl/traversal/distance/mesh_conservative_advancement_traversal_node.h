@@ -38,8 +38,8 @@
 #ifndef FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 #define FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 
-#include "fcl/traversal/mesh_distance_traversal_node.h"
-#include "fcl/traversal/conservative_advancement_stack_data.h"
+#include "fcl/traversal/distance/mesh_distance_traversal_node.h"
+#include "fcl/traversal/distance/conservative_advancement_stack_data.h"
 #include "fcl/intersect.h"
 
 namespace fcl

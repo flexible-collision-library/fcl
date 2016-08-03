@@ -39,11 +39,11 @@
 #ifndef FCL_COLLISION_NODE_H
 #define FCL_COLLISION_NODE_H
 
-#include "fcl/traversal/collision_traversal_node_base.h"
-#include "fcl/traversal/distance_traversal_node_base.h"
-#include "fcl/traversal/mesh_collision_traversal_node.h"
 #include "fcl/BVH/BVH_front.h"
 #include "fcl/traversal/traversal_recurse.h"
+#include "fcl/traversal/collision/collision_traversal_node_base.h"
+#include "fcl/traversal/collision/mesh_collision_traversal_node.h"
+#include "fcl/traversal/distance/distance_traversal_node_base.h"
 
 /// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
 namespace fcl
