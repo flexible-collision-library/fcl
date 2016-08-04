@@ -688,8 +688,8 @@ bool sphereTriangleDistance(const Sphered& sp, const Transform3d& tf,
   if(p1 || p2)
   {
     Vector3d o = tf.translation();
-    Project::ProjectResult result;
-    result = Project::projectTriangle(P1, P2, P3, o);
+    Projectd::ProjectResult result;
+    result = Projectd::projectTriangle(P1, P2, P3, o);
     if(result.sqr_distance > sp.radius * sp.radius)
     {
       if(dist) *dist = std::sqrt(result.sqr_distance) - sp.radius;

@@ -266,7 +266,7 @@ FCL_REAL SplineMotion::computeDWMax() const
 
   FCL_REAL roots[3];
 
-  int root_num = PolySolver::solveCubic(da, roots);
+  int root_num = PolySolverd::solveCubic(da, roots);
 
   FCL_REAL dWdW_max = a[0] * tf_t * tf_t * tf_t + a[1] * tf_t * tf_t * tf_t + a[2] * tf_t * tf_t + a[3] * tf_t + a[4];
   FCL_REAL dWdW_1 = a[0] + a[1] + a[2] + a[3] + a[4];

@@ -184,7 +184,7 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
   for(int i = 0; i < 3; ++i)
   {
     if(this->enable_statistics) num_vf_tests++;
-    if(Intersect::intersect_VF(*(S0[0]), *(S0[1]), *(S0[2]), *(T0[i]), *(S1[0]), *(S1[1]), *(S1[2]), *(T1[i]), &tmp, &tmpv))
+    if(Intersect<Scalar>::intersect_VF(*(S0[0]), *(S0[1]), *(S0[2]), *(T0[i]), *(S1[0]), *(S1[1]), *(S1[2]), *(T1[i]), &tmp, &tmpv))
     {
       if(collision_time > tmp)
       {
@@ -193,7 +193,7 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
     }
 
     if(this->enable_statistics) num_vf_tests++;
-    if(Intersect::intersect_VF(*(T0[0]), *(T0[1]), *(T0[2]), *(S0[i]), *(T1[0]), *(T1[1]), *(T1[2]), *(S1[i]), &tmp, &tmpv))
+    if(Intersect<Scalar>::intersect_VF(*(T0[0]), *(T0[1]), *(T0[2]), *(S0[i]), *(T1[0]), *(T1[1]), *(T1[2]), *(S1[i]), &tmp, &tmpv))
     {
       if(collision_time > tmp)
       {
@@ -215,7 +215,7 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
       if(T_id2 == 3) T_id2 = 0;
 
       num_ee_tests++;
-      if(Intersect::intersect_EE(*(S0[S_id1]), *(S0[S_id2]), *(T0[T_id1]), *(T0[T_id2]), *(S1[S_id1]), *(S1[S_id2]), *(T1[T_id1]), *(T1[T_id2]), &tmp, &tmpv))
+      if(Intersect<Scalar>::intersect_EE(*(S0[S_id1]), *(S0[S_id2]), *(T0[T_id1]), *(T0[T_id2]), *(S1[S_id1]), *(S1[S_id2]), *(T1[T_id1]), *(T1[T_id2]), &tmp, &tmpv))
       {
         if(collision_time > tmp)
         {

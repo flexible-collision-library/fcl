@@ -279,7 +279,7 @@ void MeshCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
 
     if(!this->request.enable_contact) // only interested in collision or not
     {
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
+      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3))
       {
         is_intersect = true;
         if(this->result->numContacts() < this->request.num_max_contacts)
@@ -293,7 +293,7 @@ void MeshCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
       unsigned int n_contacts;
       Vector3<Scalar> contacts[2];
 
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
+      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                        contacts,
                                        &n_contacts,
                                        &penetration,
@@ -320,7 +320,7 @@ void MeshCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
   }
   else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
   {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3))
+    if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3))
     {
       AABB<Scalar> overlap_part;
       AABB<Scalar>(p1, p2, p3).overlap(AABB<Scalar>(q1, q2, q3), overlap_part);
@@ -661,7 +661,7 @@ void meshCollisionOrientedNodeLeafTesting(
 
     if(!request.enable_contact) // only interested in collision or not
     {
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
       {
         is_intersect = true;
         if(result.numContacts() < request.num_max_contacts)
@@ -675,7 +675,7 @@ void meshCollisionOrientedNodeLeafTesting(
       unsigned int n_contacts;
       Vector3d contacts[2];
 
-      if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
+      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                        R, T,
                                        contacts,
                                        &n_contacts,
@@ -703,7 +703,7 @@ void meshCollisionOrientedNodeLeafTesting(
   }
   else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
   {
-    if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+    if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
     {
       AABB<Scalar> overlap_part;
       AABB<Scalar>(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB<Scalar>(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);

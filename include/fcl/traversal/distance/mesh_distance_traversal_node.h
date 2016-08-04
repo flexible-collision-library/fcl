@@ -278,7 +278,7 @@ void MeshDistanceTraversalNode<BV>::leafTesting(int b1, int b2) const
   // nearest point pair
   Vector3<Scalar> P1, P2;
 
-  Scalar d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
+  Scalar d = TriangleDistance<Scalar>::triDistance(t11, t12, t13, t21, t22, t23,
                                            P1, P2);
 
   if(this->request.enable_nearest_points)
@@ -627,7 +627,7 @@ void meshDistanceOrientedNodeLeafTesting(int b1,
   // nearest point pair
   Vector3<Scalar> P1, P2;
 
-  Scalar d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
+  Scalar d = TriangleDistance<Scalar>::triDistance(t11, t12, t13, t21, t22, t23,
                                            R, T,
                                            P1, P2);
 
@@ -670,7 +670,7 @@ void distancePreprocessOrientedNode(
   init_tri2_points[2] = vertices2[init_tri2[2]];
 
   Vector3<Scalar> p1, p2;
-  Scalar distance = TriangleDistance::triDistance(init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
+  Scalar distance = TriangleDistance<Scalar>::triDistance(init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
       init_tri2_points[0], init_tri2_points[1], init_tri2_points[2],
       R, T, p1, p2);
 

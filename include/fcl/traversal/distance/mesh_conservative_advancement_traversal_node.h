@@ -286,7 +286,7 @@ void MeshConservativeAdvancementTraversalNode<BV>::leafTesting(int b1, int b2) c
   // nearest point pair
   Vector3<Scalar> P1, P2;
 
-  Scalar d = TriangleDistance::triDistance(p1, p2, p3, q1, q2, q3,
+  Scalar d = TriangleDistance<Scalar>::triDistance(p1, p2, p3, q1, q2, q3,
                                            P1, P2);
 
   if(d < this->min_distance)
@@ -901,7 +901,7 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
   // nearest point pair
   Vector3<Scalar> P1, P2;
 
-  Scalar d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
+  Scalar d = TriangleDistance<Scalar>::triDistance(t11, t12, t13, t21, t22, t23,
                                            R, T,
                                            P1, P2);
 

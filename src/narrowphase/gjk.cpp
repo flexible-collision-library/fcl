@@ -267,15 +267,15 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vector3d& guess)
       break;
     }
 
-    Project::ProjectResult project_res;
+    Projectd::ProjectResult project_res;
     switch(curr_simplex.rank)
     {
     case 2:
-      project_res = Project::projectLineOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w); break;
+      project_res = Projectd::projectLineOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w); break;
     case 3:
-      project_res = Project::projectTriangleOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w); break;
+      project_res = Projectd::projectTriangleOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w); break;
     case 4:
-      project_res = Project::projectTetrahedraOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, curr_simplex.c[3]->w); break;
+      project_res = Projectd::projectTetrahedraOrigin(curr_simplex.c[0]->w, curr_simplex.c[1]->w, curr_simplex.c[2]->w, curr_simplex.c[3]->w); break;
     }
       
     if(project_res.sqr_distance >= 0)
