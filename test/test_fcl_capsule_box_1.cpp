@@ -56,8 +56,8 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
   
   fcl::Transform3d tf1(Eigen::Translation3d(fcl::Vector3d (3., 0, 0)));
   fcl::Transform3d tf2 = fcl::Transform3d::Identity();
-  fcl::CollisionObject capsule (capsuleGeometry, tf1);
-  fcl::CollisionObject box (boxGeometry, tf2);
+  fcl::CollisionObjectd capsule (capsuleGeometry, tf1);
+  fcl::CollisionObjectd box (boxGeometry, tf2);
 
   // test distance
   fcl::distance (&capsule, &box, distanceRequest, distanceResult);

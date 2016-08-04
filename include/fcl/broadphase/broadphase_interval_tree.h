@@ -47,7 +47,8 @@ namespace fcl
 {
 
 /// @brief Collision manager based on interval tree
-class IntervalTreeCollisionManager : public BroadPhaseCollisionManager
+template <typename Scalar>
+class IntervalTreeCollisionManager : public BroadPhaseCollisionManager<Scalar>
 {
 public:
   IntervalTreeCollisionManager() : setup_(false)
@@ -62,10 +63,10 @@ public:
   }
 
   /// @brief remove one object from the manager
-  void registerObject(CollisionObject* obj);
+  void registerObject(CollisionObject<Scalar>* obj);
 
   /// @brief add one object to the manager
-  void unregisterObject(CollisionObject* obj);
+  void unregisterObject(CollisionObject<Scalar>* obj);
 
   /// @brief initialize the manager, related with the specific type of manager
   void setup();
@@ -74,34 +75,34 @@ public:
   void update();
 
   /// @brief update the manager by explicitly given the object updated
-  void update(CollisionObject* updated_obj);
+  void update(CollisionObject<Scalar>* updated_obj);
 
   /// @brief update the manager by explicitly given the set of objects update
-  void update(const std::vector<CollisionObject*>& updated_objs);
+  void update(const std::vector<CollisionObject<Scalar>*>& updated_objs);
 
   /// @brief clear the manager
   void clear();
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObject*>& objs) const;
+  void getObjects(std::vector<CollisionObject<Scalar>*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+  void collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject* obj, void* cdata, DistanceCallBack callback) const;
+  void distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(void* cdata, CollisionCallBack callback) const;
+  void collide(void* cdata, CollisionCallBack<Scalar> callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(void* cdata, DistanceCallBack callback) const;
+  void distance(void* cdata, DistanceCallBack<Scalar> callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager* other_manager, void* cdata, CollisionCallBack callback) const;
+  void collide(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, CollisionCallBack<Scalar> callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager* other_manager, void* cdata, DistanceCallBack callback) const;
+  void distance(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, DistanceCallBack<Scalar> callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
@@ -109,18 +110,16 @@ public:
   /// @brief the number of objects managed by the manager
   inline size_t size() const { return endpoints[0].size() / 2; }
 
-
-
 protected:
 
   /// @brief SAP end point
   struct EndPoint
   {
     /// @brief object related with the end point
-    CollisionObject* obj;
+    CollisionObject<Scalar>* obj;
 
     /// @brief end point value
-    FCL_REAL value;
+    Scalar value;
 
     /// @brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi
     char minmax;
@@ -134,8 +133,8 @@ protected:
   /// @brief Extention interval tree's interval to SAP interval, adding more information
   struct SAPInterval : public SimpleInterval
   {
-    CollisionObject* obj;
-    SAPInterval(double low_, double high_, CollisionObject* obj_) : SimpleInterval()
+    CollisionObject<Scalar>* obj;
+    SAPInterval(double low_, double high_, CollisionObject<Scalar>* obj_) : SimpleInterval()
     {
       low = low_;
       high = high_;
@@ -144,13 +143,13 @@ protected:
   };
 
 
-  bool checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+  bool checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
 
-  bool checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
+  bool checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const;
 
-  bool collide_(CollisionObject* obj, void* cdata, CollisionCallBack callback) const;
+  bool collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
 
-  bool distance_(CollisionObject* obj, void* cdata, DistanceCallBack callback, FCL_REAL& min_dist) const;
+  bool distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const;
 
   /// @brief vector stores all the end points
   std::vector<EndPoint> endpoints[3];
@@ -158,13 +157,667 @@ protected:
   /// @brief  interval tree manages the intervals
   IntervalTree* interval_trees[3];
 
-  std::map<CollisionObject*, SAPInterval*> obj_interval_maps[3];
+  std::map<CollisionObject<Scalar>*, SAPInterval*> obj_interval_maps[3];
 
   /// @brief tag for whether the interval tree is maintained suitably
   bool setup_;
 };
 
+using IntervalTreeCollisionManagerf = IntervalTreeCollisionManager<float>;
+using IntervalTreeCollisionManagerd = IntervalTreeCollisionManager<double>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
+{
+  // must sorted before
+  setup();
+
+  EndPoint p;
+  p.value = obj->getAABB().min_[0];
+  auto start1 = std::lower_bound(endpoints[0].begin(), endpoints[0].end(), p);
+  p.value = obj->getAABB().max_[0];
+  auto end1 = std::upper_bound(start1, endpoints[0].end(), p);
+
+  if(start1 < end1)
+  {
+    unsigned int start_id = start1 - endpoints[0].begin();
+    unsigned int end_id = end1 - endpoints[0].begin();
+    unsigned int cur_id = start_id;
+    for(unsigned int i = start_id; i < end_id; ++i)
+    {
+      if(endpoints[0][i].obj != obj)
+      {
+        if(i == cur_id) cur_id++;
+        else
+        {
+          endpoints[0][cur_id] = endpoints[0][i];
+          cur_id++;
+        }
+      }
+    }
+    if(cur_id < end_id)
+      endpoints[0].resize(endpoints[0].size() - 2);
+  }
+
+  p.value = obj->getAABB().min_[1];
+  auto start2 = std::lower_bound(endpoints[1].begin(), endpoints[1].end(), p);
+  p.value = obj->getAABB().max_[1];
+  auto end2 = std::upper_bound(start2, endpoints[1].end(), p);
+
+  if(start2 < end2)
+  {
+    unsigned int start_id = start2 - endpoints[1].begin();
+    unsigned int end_id = end2 - endpoints[1].begin();
+    unsigned int cur_id = start_id;
+    for(unsigned int i = start_id; i < end_id; ++i)
+    {
+      if(endpoints[1][i].obj != obj)
+      {
+        if(i == cur_id) cur_id++;
+        else
+        {
+          endpoints[1][cur_id] = endpoints[1][i];
+          cur_id++;
+        }
+      }
+    }
+    if(cur_id < end_id)
+      endpoints[1].resize(endpoints[1].size() - 2);
+  }
+
+
+  p.value = obj->getAABB().min_[2];
+  auto start3 = std::lower_bound(endpoints[2].begin(), endpoints[2].end(), p);
+  p.value = obj->getAABB().max_[2];
+  auto end3 = std::upper_bound(start3, endpoints[2].end(), p);
+
+  if(start3 < end3)
+  {
+    unsigned int start_id = start3 - endpoints[2].begin();
+    unsigned int end_id = end3 - endpoints[2].begin();
+    unsigned int cur_id = start_id;
+    for(unsigned int i = start_id; i < end_id; ++i)
+    {
+      if(endpoints[2][i].obj != obj)
+      {
+        if(i == cur_id) cur_id++;
+        else
+        {
+          endpoints[2][cur_id] = endpoints[2][i];
+          cur_id++;
+        }
+      }
+    }
+    if(cur_id < end_id)
+      endpoints[2].resize(endpoints[2].size() - 2);
+  }
+
+  // update the interval tree
+  if(obj_interval_maps[0].find(obj) != obj_interval_maps[0].end())
+  {
+    SAPInterval* ivl1 = obj_interval_maps[0][obj];
+    SAPInterval* ivl2 = obj_interval_maps[1][obj];
+    SAPInterval* ivl3 = obj_interval_maps[2][obj];
+
+    interval_trees[0]->deleteNode(ivl1);
+    interval_trees[1]->deleteNode(ivl2);
+    interval_trees[2]->deleteNode(ivl3);
+
+    delete ivl1;
+    delete ivl2;
+    delete ivl3;
+
+    obj_interval_maps[0].erase(obj);
+    obj_interval_maps[1].erase(obj);
+    obj_interval_maps[2].erase(obj);
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
+{
+  EndPoint p, q;
+
+  p.obj = obj;
+  q.obj = obj;
+  p.minmax = 0;
+  q.minmax = 1;
+  p.value = obj->getAABB().min_[0];
+  q.value = obj->getAABB().max_[0];
+  endpoints[0].push_back(p);
+  endpoints[0].push_back(q);
+
+  p.value = obj->getAABB().min_[1];
+  q.value = obj->getAABB().max_[1];
+  endpoints[1].push_back(p);
+  endpoints[1].push_back(q);
+
+  p.value = obj->getAABB().min_[2];
+  q.value = obj->getAABB().max_[2];
+  endpoints[2].push_back(p);
+  endpoints[2].push_back(q);
+  setup_ = false;
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::setup()
+{
+  if(!setup_)
+  {
+    std::sort(endpoints[0].begin(), endpoints[0].end());
+    std::sort(endpoints[1].begin(), endpoints[1].end());
+    std::sort(endpoints[2].begin(), endpoints[2].end());
+
+    for(int i = 0; i < 3; ++i)
+      delete interval_trees[i];
+
+    for(int i = 0; i < 3; ++i)
+      interval_trees[i] = new IntervalTree;
+
+    for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
+    {
+      EndPoint p = endpoints[0][i];
+      CollisionObject<Scalar>* obj = p.obj;
+      if(p.minmax == 0)
+      {
+        SAPInterval* ivl1 = new SAPInterval(obj->getAABB().min_[0], obj->getAABB().max_[0], obj);
+        SAPInterval* ivl2 = new SAPInterval(obj->getAABB().min_[1], obj->getAABB().max_[1], obj);
+        SAPInterval* ivl3 = new SAPInterval(obj->getAABB().min_[2], obj->getAABB().max_[2], obj);
+
+        interval_trees[0]->insert(ivl1);
+        interval_trees[1]->insert(ivl2);
+        interval_trees[2]->insert(ivl3);
+
+        obj_interval_maps[0][obj] = ivl1;
+        obj_interval_maps[1][obj] = ivl2;
+        obj_interval_maps[2][obj] = ivl3;
+      }
+    }
+
+    setup_ = true;
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::update()
+{
+  setup_ = false;
+
+  for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
+  {
+    if(endpoints[0][i].minmax == 0)
+      endpoints[0][i].value = endpoints[0][i].obj->getAABB().min_[0];
+    else
+      endpoints[0][i].value = endpoints[0][i].obj->getAABB().max_[0];
+  }
+
+  for(unsigned int i = 0, size = endpoints[1].size(); i < size; ++i)
+  {
+    if(endpoints[1][i].minmax == 0)
+      endpoints[1][i].value = endpoints[1][i].obj->getAABB().min_[1];
+    else
+      endpoints[1][i].value = endpoints[1][i].obj->getAABB().max_[1];
+  }
+
+  for(unsigned int i = 0, size = endpoints[2].size(); i < size; ++i)
+  {
+    if(endpoints[2][i].minmax == 0)
+      endpoints[2][i].value = endpoints[2][i].obj->getAABB().min_[2];
+    else
+      endpoints[2][i].value = endpoints[2][i].obj->getAABB().max_[2];
+  }
+
+  setup();
 
 }
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::update(CollisionObject<Scalar>* updated_obj)
+{
+  AABBd old_aabb;
+  const AABBd& new_aabb = updated_obj->getAABB();
+  for(int i = 0; i < 3; ++i)
+  {
+    const auto it = obj_interval_maps[i].find(updated_obj);
+    interval_trees[i]->deleteNode(it->second);
+    old_aabb.min_[i] = it->second->low;
+    old_aabb.max_[i] = it->second->high;
+    it->second->low = new_aabb.min_[i];
+    it->second->high = new_aabb.max_[i];
+    interval_trees[i]->insert(it->second);
+  }
+
+  EndPoint dummy;
+  typename std::vector<EndPoint>::iterator it;
+  for(int i = 0; i < 3; ++i)
+  {
+    dummy.value = old_aabb.min_[i];
+    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy);
+    for(; it != endpoints[i].end(); ++it)
+    {
+      if(it->obj == updated_obj && it->minmax == 0)
+      {
+        it->value = new_aabb.min_[i];
+        break;
+      }
+    }
+
+    dummy.value = old_aabb.max_[i];
+    it = std::lower_bound(endpoints[i].begin(), endpoints[i].end(), dummy);
+    for(; it != endpoints[i].end(); ++it)
+    {
+      if(it->obj == updated_obj && it->minmax == 0)
+      {
+        it->value = new_aabb.max_[i];
+        break;
+      }
+    }
+
+    std::sort(endpoints[i].begin(), endpoints[i].end());
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::update(const std::vector<CollisionObject<Scalar>*>& updated_objs)
+{
+  for(size_t i = 0; i < updated_objs.size(); ++i)
+    update(updated_objs[i]);
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::clear()
+{
+  endpoints[0].clear();
+  endpoints[1].clear();
+  endpoints[2].clear();
+
+  delete interval_trees[0]; interval_trees[0] = NULL;
+  delete interval_trees[1]; interval_trees[1] = NULL;
+  delete interval_trees[2]; interval_trees[2] = NULL;
+
+  for(int i = 0; i < 3; ++i)
+  {
+    for(auto it = obj_interval_maps[i].cbegin(), end = obj_interval_maps[i].cend();
+        it != end; ++it)
+    {
+      delete it->second;
+    }
+  }
+
+  for(int i = 0; i < 3; ++i)
+    obj_interval_maps[i].clear();
+
+  setup_ = false;
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::getObjects(std::vector<CollisionObject<Scalar>*>& objs) const
+{
+  objs.resize(endpoints[0].size() / 2);
+  unsigned int j = 0;
+  for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
+  {
+    if(endpoints[0][i].minmax == 0)
+    {
+      objs[j] = endpoints[0][i].obj; j++;
+    }
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+{
+  if(size() == 0) return;
+  collide_(obj, cdata, callback);
+}
+
+//==============================================================================
+template <typename Scalar>
+bool IntervalTreeCollisionManager<Scalar>::collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+{
+  static const unsigned int CUTOFF = 100;
+
+  std::deque<SimpleInterval*> results0, results1, results2;
+
+  results0 = interval_trees[0]->query(obj->getAABB().min_[0], obj->getAABB().max_[0]);
+  if(results0.size() > CUTOFF)
+  {
+    results1 = interval_trees[1]->query(obj->getAABB().min_[1], obj->getAABB().max_[1]);
+    if(results1.size() > CUTOFF)
+    {
+      results2 = interval_trees[2]->query(obj->getAABB().min_[2], obj->getAABB().max_[2]);
+      if(results2.size() > CUTOFF)
+      {
+        int d1 = results0.size();
+        int d2 = results1.size();
+        int d3 = results2.size();
+
+        if(d1 >= d2 && d1 >= d3)
+          return checkColl(results0.begin(), results0.end(), obj, cdata, callback);
+        else if(d2 >= d1 && d2 >= d3)
+          return checkColl(results1.begin(), results1.end(), obj, cdata, callback);
+        else
+          return checkColl(results2.begin(), results2.end(), obj, cdata, callback);
+      }
+      else
+        return checkColl(results2.begin(), results2.end(), obj, cdata, callback);
+    }
+    else
+      return checkColl(results1.begin(), results1.end(), obj, cdata, callback);
+  }
+  else
+    return checkColl(results0.begin(), results0.end(), obj, cdata, callback);
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const
+{
+  if(size() == 0) return;
+  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  distance_(obj, cdata, callback, min_dist);
+}
+
+//==============================================================================
+template <typename Scalar>
+bool IntervalTreeCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const
+{
+  static const unsigned int CUTOFF = 100;
+
+  Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  AABBd aabb = obj->getAABB();
+  if(min_dist < std::numeric_limits<Scalar>::max())
+  {
+    Vector3d min_dist_delta(min_dist, min_dist, min_dist);
+    aabb.expand(min_dist_delta);
+  }
+
+  int status = 1;
+  Scalar old_min_distance;
+
+  while(1)
+  {
+    bool dist_res = false;
+
+    old_min_distance = min_dist;
+
+    std::deque<SimpleInterval*> results0, results1, results2;
+
+    results0 = interval_trees[0]->query(aabb.min_[0], aabb.max_[0]);
+    if(results0.size() > CUTOFF)
+    {
+      results1 = interval_trees[1]->query(aabb.min_[1], aabb.max_[1]);
+      if(results1.size() > CUTOFF)
+      {
+        results2 = interval_trees[2]->query(aabb.min_[2], aabb.max_[2]);
+        if(results2.size() > CUTOFF)
+        {
+          int d1 = results0.size();
+          int d2 = results1.size();
+          int d3 = results2.size();
+
+          if(d1 >= d2 && d1 >= d3)
+            dist_res = checkDist(results0.begin(), results0.end(), obj, cdata, callback, min_dist);
+          else if(d2 >= d1 && d2 >= d3)
+            dist_res = checkDist(results1.begin(), results1.end(), obj, cdata, callback, min_dist);
+          else
+            dist_res = checkDist(results2.begin(), results2.end(), obj, cdata, callback, min_dist);
+        }
+        else
+          dist_res = checkDist(results2.begin(), results2.end(), obj, cdata, callback, min_dist);
+      }
+      else
+        dist_res = checkDist(results1.begin(), results1.end(), obj, cdata, callback, min_dist);
+    }
+    else
+      dist_res = checkDist(results0.begin(), results0.end(), obj, cdata, callback, min_dist);
+
+    if(dist_res) return true;
+
+    results0.clear();
+    results1.clear();
+    results2.clear();
+
+    if(status == 1)
+    {
+      if(old_min_distance < std::numeric_limits<Scalar>::max())
+        break;
+      else
+      {
+        if(min_dist < old_min_distance)
+        {
+          Vector3d min_dist_delta(min_dist, min_dist, min_dist);
+          aabb = AABBd(obj->getAABB(), min_dist_delta);
+          status = 0;
+        }
+        else
+        {
+          if(aabb.equal(obj->getAABB()))
+            aabb.expand(delta);
+          else
+            aabb.expand(obj->getAABB(), 2.0);
+        }
+      }
+    }
+    else if(status == 0)
+      break;
+  }
+
+  return false;
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar> callback) const
+{
+  if(size() == 0) return;
+
+  std::set<CollisionObject<Scalar>*> active;
+  std::set<std::pair<CollisionObject<Scalar>*, CollisionObject<Scalar>*> > overlap;
+  unsigned int n = endpoints[0].size();
+  double diff_x = endpoints[0][0].value - endpoints[0][n-1].value;
+  double diff_y = endpoints[1][0].value - endpoints[1][n-1].value;
+  double diff_z = endpoints[2][0].value - endpoints[2][n-1].value;
+
+  int axis = 0;
+  if(diff_y > diff_x && diff_y > diff_z)
+    axis = 1;
+  else if(diff_z > diff_y && diff_z > diff_x)
+    axis = 2;
+
+  for(unsigned int i = 0; i < n; ++i)
+  {
+    const EndPoint& endpoint = endpoints[axis][i];
+    CollisionObject<Scalar>* index = endpoint.obj;
+    if(endpoint.minmax == 0)
+    {
+      auto iter = active.begin();
+      auto end = active.end();
+      for(; iter != end; ++iter)
+      {
+        CollisionObject<Scalar>* active_index = *iter;
+        const AABBd& b0 = active_index->getAABB();
+        const AABBd& b1 = index->getAABB();
+
+        int axis2 = (axis + 1) % 3;
+        int axis3 = (axis + 2) % 3;
+
+        if(b0.axisOverlap(b1, axis2) && b0.axisOverlap(b1, axis3))
+        {
+          std::pair<typename std::set<std::pair<CollisionObject<Scalar>*, CollisionObject<Scalar>*> >::iterator, bool> insert_res;
+          if(active_index < index)
+            insert_res = overlap.insert(std::make_pair(active_index, index));
+          else
+            insert_res = overlap.insert(std::make_pair(index, active_index));
+
+          if(insert_res.second)
+          {
+            if(callback(active_index, index, cdata))
+              return;
+          }
+        }
+      }
+      active.insert(index);
+    }
+    else
+      active.erase(index);
+  }
+
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scalar> callback) const
+{
+  if(size() == 0) return;
+
+  this->enable_tested_set_ = true;
+  this->tested_set.clear();
+  Scalar min_dist = std::numeric_limits<Scalar>::max();
+
+  for(size_t i = 0; i < endpoints[0].size(); ++i)
+    if(distance_(endpoints[0][i].obj, cdata, callback, min_dist)) break;
+
+  this->enable_tested_set_ = false;
+  this->tested_set.clear();
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, CollisionCallBack<Scalar> callback) const
+{
+  IntervalTreeCollisionManager* other_manager = static_cast<IntervalTreeCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
+  if(this == other_manager)
+  {
+    collide(cdata, callback);
+    return;
+  }
+
+  if(this->size() < other_manager->size())
+  {
+    for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
+      if(other_manager->collide_(endpoints[0][i].obj, cdata, callback)) return;
+  }
+  else
+  {
+    for(size_t i = 0, size = other_manager->endpoints[0].size(); i < size; ++i)
+      if(collide_(other_manager->endpoints[0][i].obj, cdata, callback)) return;
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void IntervalTreeCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, DistanceCallBack<Scalar> callback) const
+{
+  IntervalTreeCollisionManager* other_manager = static_cast<IntervalTreeCollisionManager*>(other_manager_);
+
+  if((size() == 0) || (other_manager->size() == 0)) return;
+
+  if(this == other_manager)
+  {
+    distance(cdata, callback);
+    return;
+  }
+
+  Scalar min_dist = std::numeric_limits<Scalar>::max();
+
+  if(this->size() < other_manager->size())
+  {
+    for(size_t i = 0, size = endpoints[0].size(); i < size; ++i)
+      if(other_manager->distance_(endpoints[0][i].obj, cdata, callback, min_dist)) return;
+  }
+  else
+  {
+    for(size_t i = 0, size = other_manager->endpoints[0].size(); i < size; ++i)
+      if(distance_(other_manager->endpoints[0][i].obj, cdata, callback, min_dist)) return;
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+bool IntervalTreeCollisionManager<Scalar>::empty() const
+{
+  return endpoints[0].empty();
+}
+
+//==============================================================================
+template <typename Scalar>
+bool IntervalTreeCollisionManager<Scalar>::checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+{
+  while(pos_start < pos_end)
+  {
+    SAPInterval* ivl = static_cast<SAPInterval*>(*pos_start);
+    if(ivl->obj != obj)
+    {
+      if(ivl->obj->getAABB().overlap(obj->getAABB()))
+      {
+        if(callback(ivl->obj, obj, cdata))
+          return true;
+      }
+    }
+
+    pos_start++;
+  }
+
+  return false;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool IntervalTreeCollisionManager<Scalar>::checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const
+{
+  while(pos_start < pos_end)
+  {
+    SAPInterval* ivl = static_cast<SAPInterval*>(*pos_start);
+    if(ivl->obj != obj)
+    {
+      if(!this->enable_tested_set_)
+      {
+        if(ivl->obj->getAABB().distance(obj->getAABB()) < min_dist)
+        {
+          if(callback(ivl->obj, obj, cdata, min_dist))
+            return true;
+        }
+      }
+      else
+      {
+        if(!this->inTestedSet(ivl->obj, obj))
+        {
+          if(ivl->obj->getAABB().distance(obj->getAABB()) < min_dist)
+          {
+            if(callback(ivl->obj, obj, cdata, min_dist))
+              return true;
+          }
+
+          this->insertTestedSet(ivl->obj, obj);
+        }
+      }
+    }
+
+    pos_start++;
+  }
+
+  return false;
+}
+
+} // namespace fcl
 
 #endif

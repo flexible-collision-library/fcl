@@ -66,7 +66,7 @@ public:
 
   void leafTesting(int, int) const;
 
-  const OcTree* model1;
+  const OcTree<Scalar>* model1;
   const BVHModel<BV>* model2;
 
   Transform3<Scalar> tf1, tf2;
@@ -79,13 +79,13 @@ public:
 template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
     OcTreeMeshCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
-    const OcTree& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const OcTree<typename BV::Scalar>& model1,
+    const Transform3<typename BV::Scalar>& tf1,
     const BVHModel<BV>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename BV::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
+    const CollisionRequest<typename BV::Scalar>& request,
+    CollisionResult<typename BV::Scalar>& result);
 
 //============================================================================//
 //                                                                            //
@@ -125,13 +125,13 @@ leafTesting(int, int) const
 template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
     OcTreeMeshCollisionTraversalNode<BV, NarrowPhaseSolver>& node,
-    const OcTree& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const OcTree<typename BV::Scalar>& model1,
+    const Transform3<typename BV::Scalar>& tf1,
     const BVHModel<BV>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename BV::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
+    const CollisionRequest<typename BV::Scalar>& request,
+    CollisionResult<typename BV::Scalar>& result)
 {
   node.request = request;
   node.result = &result;

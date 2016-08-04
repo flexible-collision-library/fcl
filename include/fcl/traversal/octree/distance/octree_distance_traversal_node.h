@@ -65,8 +65,8 @@ public:
 
   void leafTesting(int, int) const;
 
-  const OcTree* model1;
-  const OcTree* model2;
+  const OcTree<Scalar>* model1;
+  const OcTree<Scalar>* model2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
@@ -76,9 +76,9 @@ public:
 template <typename NarrowPhaseSolver>
 bool initialize(
     OcTreeDistanceTraversalNode<NarrowPhaseSolver>& node,
-    const OcTree& model1,
+    const OcTree<typename NarrowPhaseSolver::Scalar>& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
@@ -123,9 +123,9 @@ leafTesting(int, int) const
 template <typename NarrowPhaseSolver>
 bool initialize(
     OcTreeDistanceTraversalNode<NarrowPhaseSolver>& node,
-    const OcTree& model1,
+    const OcTree<typename NarrowPhaseSolver::Scalar>& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,

@@ -68,16 +68,16 @@ struct TStruct
 };
 
 /// @brief Generate environment with 3 * n objects: n boxes, n spheres and n cylinders.
-void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n);
+void generateEnvironments(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n);
 
 /// @brief Generate environment with 3 * n objects for self distance, so we try to make sure none of them collide with each other.
-void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n);
+void generateSelfDistanceEnvironments(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n);
 
 /// @brief Generate environment with 3 * n objects, but all in meshes.
-void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_scale, std::size_t n);
+void generateEnvironmentsMesh(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n);
 
 /// @brief Generate environment with 3 * n objects for self distance, but all in meshes.
-void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_scale, std::size_t n);
+void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n);
 
 /// @brief test for broad phase collision and self collision
 void broad_phase_collision_test(double env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);
@@ -342,7 +342,7 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_exhausti
 #endif
 }
 
-void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
+void generateEnvironments(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n)
 {
   FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
   std::vector<Transform3d> transforms;
@@ -351,25 +351,25 @@ void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, 
   for(std::size_t i = 0; i < n; ++i)
   {
     Boxd* box = new Boxd(5, 10, 20);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(box), transforms[i]));
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(box), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
     Sphered* sphere = new Sphered(30);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(sphere), transforms[i]));
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(sphere), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
     Cylinderd* cylinder = new Cylinderd(10, 40);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(cylinder), transforms[i]));
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(cylinder), transforms[i]));
   }
 }
 
-void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
+void generateEnvironmentsMesh(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n)
 {
   FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
   std::vector<Transform3d> transforms;
@@ -380,7 +380,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   {
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, box, Transform3d::Identity());
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -389,7 +389,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   {
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
@@ -398,11 +398,11 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   {
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model), transforms[i]));
   }
 }
 
-void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
+void generateSelfDistanceEnvironments(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n)
 {
   unsigned int n_edge = std::floor(std::pow(n, 1/3.0));
 
@@ -418,7 +418,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Boxd* box = new Boxd(single_size, single_size, single_size);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(box),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(box),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -431,7 +431,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Sphered* sphere = new Sphered(single_size / 2);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(sphere),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(sphere),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -444,7 +444,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Ellipsoidd* ellipsoid = new Ellipsoidd(single_size / 2, single_size / 2, single_size / 2);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(ellipsoid),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(ellipsoid),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -457,7 +457,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Cylinderd* cylinder = new Cylinderd(single_size / 2, single_size);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(cylinder),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(cylinder),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -470,14 +470,14 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject*>& env, double
     int z = i - n_edge * n_edge * x - n_edge * y;
 
     Coned* cone = new Coned(single_size / 2, single_size);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(cone),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(cone),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
   }
 }
 
-void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
+void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObjectd*>& env, double env_scale, std::size_t n)
 {
   unsigned int n_edge = std::floor(std::pow(n, 1/3.0));
 
@@ -495,7 +495,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     Boxd box(single_size, single_size, single_size);
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, box, Transform3d::Identity());
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -510,7 +510,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     Sphered sphere(single_size / 2);
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -525,7 +525,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     Ellipsoidd ellipsoid(single_size / 2, single_size / 2, single_size / 2);
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, ellipsoid, Transform3d::Identity(), 16, 16);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -540,7 +540,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     Cylinderd cylinder(single_size / 2, single_size);
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -555,7 +555,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject*>& env, do
     Coned cone(single_size / 2, single_size);
     BVHModel<OBBRSSd>* model = new BVHModel<OBBRSSd>();
     generateBVHModel(*model, cone, Transform3d::Identity(), 16, 16);
-    env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometryd>(model),
+    env.push_back(new CollisionObjectd(std::shared_ptr<CollisionGeometryd>(model),
                                       Transform3d(Eigen::Translation3d(Vector3d(x * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             y * step_size + delta_size + 0.5 * single_size - env_scale,
                                                             z * step_size + delta_size + 0.5 * single_size - env_scale)))));
@@ -568,48 +568,48 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
   std::vector<TStruct> ts;
   std::vector<Timer> timers;
 
-  std::vector<CollisionObject*> env;
+  std::vector<CollisionObjectd*> env;
   if(use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
-  std::vector<CollisionObject*> query;
+  std::vector<CollisionObjectd*> query;
   if(use_mesh)
     generateEnvironmentsMesh(query, env_scale, query_size);
   else
     generateEnvironments(query, env_scale, query_size);
 
-  std::vector<BroadPhaseCollisionManager*> managers;
+  std::vector<BroadPhaseCollisionManagerd*> managers;
   
-  managers.push_back(new NaiveCollisionManager());
-  managers.push_back(new SSaPCollisionManager());
-  managers.push_back(new SaPCollisionManager());
-  managers.push_back(new IntervalTreeCollisionManager());
+  managers.push_back(new NaiveCollisionManagerd());
+  managers.push_back(new SSaPCollisionManagerd());
+  managers.push_back(new SaPCollisionManagerd());
+  managers.push_back(new IntervalTreeCollisionManagerd());
   
   Vector3d lower_limit, upper_limit;
-  SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
+  SpatialHashingCollisionManagerd<>::computeBound(env, lower_limit, upper_limit);
   // FCL_REAL ncell_per_axis = std::pow((FCL_REAL)env_size / 10, 1 / 3.0);
   FCL_REAL ncell_per_axis = 20;
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / ncell_per_axis, (upper_limit[1] - lower_limit[1]) / ncell_per_axis), (upper_limit[2] - lower_limit[2]) / ncell_per_axis);
-  // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  // managers.push_back(new SpatialHashingCollisionManagerd<>(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
-  managers.push_back(new DynamicAABBTreeCollisionManager());
+  managers.push_back(new DynamicAABBTreeCollisionManagerd());
 
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array());
+  managers.push_back(new DynamicAABBTreeCollisionManager_Arrayd());
 
   {
-    DynamicAABBTreeCollisionManager* m = new DynamicAABBTreeCollisionManager();
+    DynamicAABBTreeCollisionManagerd* m = new DynamicAABBTreeCollisionManagerd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array* m = new DynamicAABBTreeCollisionManager_Array();
+    DynamicAABBTreeCollisionManager_Arrayd* m = new DynamicAABBTreeCollisionManager_Arrayd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -763,39 +763,39 @@ void broad_phase_self_distance_test(double env_scale, std::size_t env_size, bool
   std::vector<TStruct> ts;
   std::vector<Timer> timers;
 
-  std::vector<CollisionObject*> env;
+  std::vector<CollisionObjectd*> env;
   if(use_mesh)
     generateSelfDistanceEnvironmentsMesh(env, env_scale, env_size);
   else
     generateSelfDistanceEnvironments(env, env_scale, env_size);
   
-  std::vector<BroadPhaseCollisionManager*> managers;
+  std::vector<BroadPhaseCollisionManagerd*> managers;
   
-  managers.push_back(new NaiveCollisionManager());
-  managers.push_back(new SSaPCollisionManager());
-  managers.push_back(new SaPCollisionManager());
-  managers.push_back(new IntervalTreeCollisionManager());
+  managers.push_back(new NaiveCollisionManagerd());
+  managers.push_back(new SSaPCollisionManagerd());
+  managers.push_back(new SaPCollisionManagerd());
+  managers.push_back(new IntervalTreeCollisionManagerd());
   
   Vector3d lower_limit, upper_limit;
-  SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
+  SpatialHashingCollisionManagerd<>::computeBound(env, lower_limit, upper_limit);
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 5, (upper_limit[1] - lower_limit[1]) / 5), (upper_limit[2] - lower_limit[2]) / 5);
-  // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  // managers.push_back(new SpatialHashingCollisionManagerd<>(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
-  managers.push_back(new DynamicAABBTreeCollisionManager());
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array());
+  managers.push_back(new DynamicAABBTreeCollisionManagerd());
+  managers.push_back(new DynamicAABBTreeCollisionManager_Arrayd());
 
   {
-    DynamicAABBTreeCollisionManager* m = new DynamicAABBTreeCollisionManager();
+    DynamicAABBTreeCollisionManagerd* m = new DynamicAABBTreeCollisionManagerd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array* m = new DynamicAABBTreeCollisionManager_Array();
+    DynamicAABBTreeCollisionManager_Arrayd* m = new DynamicAABBTreeCollisionManager_Arrayd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -875,22 +875,22 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size, std::size
   std::vector<TStruct> ts;
   std::vector<Timer> timers;
 
-  std::vector<CollisionObject*> env;
+  std::vector<CollisionObjectd*> env;
   if(use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
-  std::vector<CollisionObject*> query;
+  std::vector<CollisionObjectd*> query;
 
-  BroadPhaseCollisionManager* manager = new NaiveCollisionManager();
+  BroadPhaseCollisionManagerd* manager = new NaiveCollisionManagerd();
   for(std::size_t i = 0; i < env.size(); ++i)
     manager->registerObject(env[i]);
   manager->setup();
 
   while(1)
   {
-    std::vector<CollisionObject*> candidates;
+    std::vector<CollisionObjectd*> candidates;
     if(use_mesh)
       generateEnvironmentsMesh(candidates, env_scale, query_size);
     else
@@ -912,33 +912,33 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size, std::size
 
   delete manager;
 
-  std::vector<BroadPhaseCollisionManager*> managers;
+  std::vector<BroadPhaseCollisionManagerd*> managers;
 
-  managers.push_back(new NaiveCollisionManager());
-  managers.push_back(new SSaPCollisionManager());
-  managers.push_back(new SaPCollisionManager());
-  managers.push_back(new IntervalTreeCollisionManager());
+  managers.push_back(new NaiveCollisionManagerd());
+  managers.push_back(new SSaPCollisionManagerd());
+  managers.push_back(new SaPCollisionManagerd());
+  managers.push_back(new IntervalTreeCollisionManagerd());
   
   Vector3d lower_limit, upper_limit;
-  SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
+  SpatialHashingCollisionManagerd<>::computeBound(env, lower_limit, upper_limit);
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
-  // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  // managers.push_back(new SpatialHashingCollisionManagerd<>(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
-  managers.push_back(new DynamicAABBTreeCollisionManager());
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array());
+  managers.push_back(new DynamicAABBTreeCollisionManagerd());
+  managers.push_back(new DynamicAABBTreeCollisionManager_Arrayd());
 
   {
-    DynamicAABBTreeCollisionManager* m = new DynamicAABBTreeCollisionManager();
+    DynamicAABBTreeCollisionManagerd* m = new DynamicAABBTreeCollisionManagerd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array* m = new DynamicAABBTreeCollisionManager_Array();
+    DynamicAABBTreeCollisionManager_Arrayd* m = new DynamicAABBTreeCollisionManager_Arrayd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -1029,47 +1029,47 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
   std::vector<TStruct> ts;
   std::vector<Timer> timers;
 
-  std::vector<CollisionObject*> env;
+  std::vector<CollisionObjectd*> env;
   if(use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
-  std::vector<CollisionObject*> query;
+  std::vector<CollisionObjectd*> query;
   if(use_mesh)
     generateEnvironmentsMesh(query, env_scale, query_size); 
   else
     generateEnvironments(query, env_scale, query_size); 
 
-  std::vector<BroadPhaseCollisionManager*> managers;
+  std::vector<BroadPhaseCollisionManagerd*> managers;
   
-  managers.push_back(new NaiveCollisionManager());
-  managers.push_back(new SSaPCollisionManager());
+  managers.push_back(new NaiveCollisionManagerd());
+  managers.push_back(new SSaPCollisionManagerd());
 
   
-  managers.push_back(new SaPCollisionManager());
-  managers.push_back(new IntervalTreeCollisionManager());
+  managers.push_back(new SaPCollisionManagerd());
+  managers.push_back(new IntervalTreeCollisionManagerd());
   
   Vector3d lower_limit, upper_limit;
-  SpatialHashingCollisionManager<>::computeBound(env, lower_limit, upper_limit);
+  SpatialHashingCollisionManagerd<>::computeBound(env, lower_limit, upper_limit);
   FCL_REAL cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
-  // managers.push_back(new SpatialHashingCollisionManager<>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash> >(cell_size, lower_limit, upper_limit));
+  // managers.push_back(new SpatialHashingCollisionManagerd<>(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<SparseHashTable<AABBd, CollisionObject*, SpatialHash, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManagerd<SparseHashTable<AABBd, CollisionObjectd*, SpatialHashd, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
-  managers.push_back(new DynamicAABBTreeCollisionManager());
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array());
+  managers.push_back(new DynamicAABBTreeCollisionManagerd());
+  managers.push_back(new DynamicAABBTreeCollisionManager_Arrayd());
 
   {
-    DynamicAABBTreeCollisionManager* m = new DynamicAABBTreeCollisionManager();
+    DynamicAABBTreeCollisionManagerd* m = new DynamicAABBTreeCollisionManagerd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array* m = new DynamicAABBTreeCollisionManager_Array();
+    DynamicAABBTreeCollisionManager_Arrayd* m = new DynamicAABBTreeCollisionManager_Arrayd();
     m->tree_init_level = 2;
     managers.push_back(m);
   }

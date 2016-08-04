@@ -65,7 +65,7 @@ void Link::setParentJoint(const std::shared_ptr<Joint>& joint)
   parent_joint_ = joint;
 }
 
-void Link::addObject(const std::shared_ptr<CollisionObject>& object)
+void Link::addObject(const std::shared_ptr<CollisionObjectd>& object)
 {
   objects_.push_back(object);
 }

@@ -71,69 +71,69 @@ public:
   OcTreeSolver(const NarrowPhaseSolver* solver_);
 
   /// @brief collision between two octrees
-  void OcTreeIntersect(const OcTree* tree1, const OcTree* tree2,
+  void OcTreeIntersect(const OcTree<Scalar>* tree1, const OcTree<Scalar>* tree2,
                        const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                        const CollisionRequest<Scalar>& request_,
                        CollisionResult<Scalar>& result_) const;
 
   /// @brief distance between two octrees
-  void OcTreeDistance(const OcTree* tree1, const OcTree* tree2,
+  void OcTreeDistance(const OcTree<Scalar>* tree1, const OcTree<Scalar>* tree2,
                       const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                       const DistanceRequest<Scalar>& request_,
                       DistanceResult<Scalar>& result_) const;
 
   /// @brief collision between octree and mesh
   template <typename BV>
-  void OcTreeMeshIntersect(const OcTree* tree1, const BVHModel<BV>* tree2,
+  void OcTreeMeshIntersect(const OcTree<Scalar>* tree1, const BVHModel<BV>* tree2,
                            const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                            const CollisionRequest<Scalar>& request_,
                            CollisionResult<Scalar>& result_) const;
 
   /// @brief distance between octree and mesh
   template <typename BV>
-  void OcTreeMeshDistance(const OcTree* tree1, const BVHModel<BV>* tree2,
+  void OcTreeMeshDistance(const OcTree<Scalar>* tree1, const BVHModel<BV>* tree2,
                           const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                           const DistanceRequest<Scalar>& request_,
                           DistanceResult<Scalar>& result_) const;
 
   /// @brief collision between mesh and octree
   template <typename BV>
-  void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree* tree2,
+  void MeshOcTreeIntersect(const BVHModel<BV>* tree1, const OcTree<Scalar>* tree2,
                            const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                            const CollisionRequest<Scalar>& request_,
                            CollisionResult<Scalar>& result_) const;
 
   /// @brief distance between mesh and octree
   template <typename BV>
-  void MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree* tree2,
+  void MeshOcTreeDistance(const BVHModel<BV>* tree1, const OcTree<Scalar>* tree2,
                           const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                           const DistanceRequest<Scalar>& request_,
                           DistanceResult<Scalar>& result_) const;
 
   /// @brief collision between octree and shape
   template <typename S>
-  void OcTreeShapeIntersect(const OcTree* tree, const S& s,
+  void OcTreeShapeIntersect(const OcTree<Scalar>* tree, const S& s,
                             const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                             const CollisionRequest<Scalar>& request_,
                             CollisionResult<Scalar>& result_) const;
 
   /// @brief collision between shape and octree
   template <typename S>
-  void ShapeOcTreeIntersect(const S& s, const OcTree* tree,
+  void ShapeOcTreeIntersect(const S& s, const OcTree<Scalar>* tree,
                             const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                             const CollisionRequest<Scalar>& request_,
                             CollisionResult<Scalar>& result_) const;
 
   /// @brief distance between octree and shape
   template <typename S>
-  void OcTreeShapeDistance(const OcTree* tree, const S& s,
+  void OcTreeShapeDistance(const OcTree<Scalar>* tree, const S& s,
                            const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                            const DistanceRequest<Scalar>& request_,
                            DistanceResult<Scalar>& result_) const;
 
   /// @brief distance between shape and octree
   template <typename S>
-  void ShapeOcTreeDistance(const S& s, const OcTree* tree,
+  void ShapeOcTreeDistance(const S& s, const OcTree<Scalar>* tree,
                            const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2,
                            const DistanceRequest<Scalar>& request_,
                            DistanceResult<Scalar>& result_) const;
@@ -141,33 +141,33 @@ public:
 private:
 
   template <typename S>
-  bool OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+  bool OcTreeShapeDistanceRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                   const S& s, const AABB<Scalar>& aabb2,
                                   const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const;
 
   template <typename S>
-  bool OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+  bool OcTreeShapeIntersectRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                    const S& s, const OBB<Scalar>& obb2,
                                    const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const;
 
   template <typename BV>
-  bool OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+  bool OcTreeMeshDistanceRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                  const BVHModel<BV>* tree2, int root2,
                                  const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const;
 
 
   template <typename BV>
-  bool OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+  bool OcTreeMeshIntersectRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                   const BVHModel<BV>* tree2, int root2,
                                   const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const;
 
-  bool OcTreeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
-                             const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB<Scalar>& bv2,
+  bool OcTreeDistanceRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
+                             const OcTree<Scalar>* tree2, const typename OcTree<Scalar>::OcTreeNode* root2, const AABB<Scalar>& bv2,
                              const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const;
 
 
-  bool OcTreeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
-                              const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB<Scalar>& bv2,
+  bool OcTreeIntersectRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
+                              const OcTree<Scalar>* tree2, const typename OcTree<Scalar>::OcTreeNode* root2, const AABB<Scalar>& bv2,
                               const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const;
 };
 
@@ -192,8 +192,8 @@ OcTreeSolver<NarrowPhaseSolver>::OcTreeSolver(
 //==============================================================================
 template <typename NarrowPhaseSolver>
 void OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersect(
-    const OcTree* tree1,
-    const OcTree* tree2,
+    const OcTree<Scalar>* tree1,
+    const OcTree<Scalar>* tree2,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
     const CollisionRequest<Scalar>& request_,
@@ -210,8 +210,8 @@ void OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersect(
 //==============================================================================
 template <typename NarrowPhaseSolver>
 void OcTreeSolver<NarrowPhaseSolver>::OcTreeDistance(
-    const OcTree* tree1,
-    const OcTree* tree2,
+    const OcTree<Scalar>* tree1,
+    const OcTree<Scalar>* tree2,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
     const DistanceRequest<Scalar>& request_,
@@ -229,7 +229,7 @@ void OcTreeSolver<NarrowPhaseSolver>::OcTreeDistance(
 template <typename NarrowPhaseSolver>
 template <typename BV>
 void OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersect(
-    const OcTree* tree1,
+    const OcTree<Scalar>* tree1,
     const BVHModel<BV>* tree2,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
@@ -248,7 +248,7 @@ void OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersect(
 template <typename NarrowPhaseSolver>
 template <typename BV>
 void OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistance(
-    const OcTree* tree1,
+    const OcTree<Scalar>* tree1,
     const BVHModel<BV>* tree2,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
@@ -268,7 +268,7 @@ template <typename NarrowPhaseSolver>
 template <typename BV>
 void OcTreeSolver<NarrowPhaseSolver>::MeshOcTreeIntersect(
     const BVHModel<BV>* tree1,
-    const OcTree* tree2,
+    const OcTree<Scalar>* tree2,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
     const CollisionRequest<Scalar>& request_,
@@ -289,7 +289,7 @@ template <typename NarrowPhaseSolver>
 template <typename BV>
 void OcTreeSolver<NarrowPhaseSolver>::MeshOcTreeDistance(
     const BVHModel<BV>* tree1,
-    const OcTree* tree2,
+    const OcTree<Scalar>* tree2,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
     const DistanceRequest<Scalar>& request_,
@@ -308,7 +308,7 @@ void OcTreeSolver<NarrowPhaseSolver>::MeshOcTreeDistance(
 template <typename NarrowPhaseSolver>
 template <typename S>
 void OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersect(
-    const OcTree* tree,
+    const OcTree<Scalar>* tree,
     const S& s,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
@@ -334,7 +334,7 @@ template <typename NarrowPhaseSolver>
 template <typename S>
 void OcTreeSolver<NarrowPhaseSolver>::ShapeOcTreeIntersect(
     const S& s,
-    const OcTree* tree,
+    const OcTree<Scalar>* tree,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
     const CollisionRequest<Scalar>& request_,
@@ -357,7 +357,7 @@ void OcTreeSolver<NarrowPhaseSolver>::ShapeOcTreeIntersect(
 template <typename NarrowPhaseSolver>
 template <typename S>
 void OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistance(
-    const OcTree* tree,
+    const OcTree<Scalar>* tree,
     const S& s,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
@@ -380,7 +380,7 @@ template <typename NarrowPhaseSolver>
 template <typename S>
 void OcTreeSolver<NarrowPhaseSolver>::ShapeOcTreeDistance(
     const S& s,
-    const OcTree* tree,
+    const OcTree<Scalar>* tree,
     const Transform3<Scalar>& tf1,
     const Transform3<Scalar>& tf2,
     const DistanceRequest<Scalar>& request_,
@@ -399,7 +399,7 @@ void OcTreeSolver<NarrowPhaseSolver>::ShapeOcTreeDistance(
 //==============================================================================
 template <typename NarrowPhaseSolver>
 template <typename S>
-bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistanceRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                 const S& s, const AABB<Scalar>& aabb2,
                                 const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
 {
@@ -429,7 +429,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistanceRecurse(const OcTree* t
   {
     if(tree1->nodeChildExists(root1, i))
     {
-      const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+      const typename OcTree<Scalar>::OcTreeNode* child = tree1->getNodeChild(root1, i);
       AABB<Scalar> child_bv;
       computeChildBV(bv1, i, child_bv);
 
@@ -450,7 +450,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistanceRecurse(const OcTree* t
 //==============================================================================
 template <typename NarrowPhaseSolver>
 template <typename S>
-bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                  const S& s, const OBB<Scalar>& obb2,
                                  const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
 {
@@ -582,7 +582,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree* 
   {
     if(tree1->nodeChildExists(root1, i))
     {
-      const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+      const typename OcTree<Scalar>::OcTreeNode* child = tree1->getNodeChild(root1, i);
       AABB<Scalar> child_bv;
       computeChildBV(bv1, i, child_bv);
 
@@ -605,7 +605,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree* 
 //==============================================================================
 template <typename NarrowPhaseSolver>
 template <typename BV>
-bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                const BVHModel<BV>* tree2, int root2,
                                const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
 {
@@ -643,7 +643,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree* tr
     {
       if(tree1->nodeChildExists(root1, i))
       {
-        const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+        const typename OcTree<Scalar>::OcTreeNode* child = tree1->getNodeChild(root1, i);
         AABB<Scalar> child_bv;
         computeChildBV(bv1, i, child_bv);
 
@@ -693,7 +693,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree* tr
 //==============================================================================
 template <typename NarrowPhaseSolver>
 template <typename BV>
-bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1,
+bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1,
                                 const BVHModel<BV>* tree2, int root2,
                                 const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
 {
@@ -851,7 +851,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree* t
     {
       if(tree1->nodeChildExists(root1, i))
       {
-        const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+        const typename OcTree<Scalar>::OcTreeNode* child = tree1->getNodeChild(root1, i);
         AABB<Scalar> child_bv;
         computeChildBV(bv1, i, child_bv);
 
@@ -883,7 +883,7 @@ else if(!tree2->isFree() && crequest->enable_cost)
 
 //==============================================================================
 template <typename NarrowPhaseSolver>
-bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB<Scalar>& bv2, const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
+bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1, const OcTree<Scalar>* tree2, const typename OcTree<Scalar>::OcTreeNode* root2, const AABB<Scalar>& bv2, const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
 {
   if(!tree1->nodeHasChildren(root1) && !tree2->nodeHasChildren(root2))
   {
@@ -914,7 +914,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree* tree1,
     {
       if(tree1->nodeChildExists(root1, i))
       {
-        const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+        const typename OcTree<Scalar>::OcTreeNode* child = tree1->getNodeChild(root1, i);
         AABB<Scalar> child_bv;
         computeChildBV(bv1, i, child_bv);
 
@@ -939,7 +939,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree* tree1,
     {
       if(tree2->nodeChildExists(root2, i))
       {
-        const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
+        const typename OcTree<Scalar>::OcTreeNode* child = tree2->getNodeChild(root2, i);
         AABB<Scalar> child_bv;
         computeChildBV(bv2, i, child_bv);
 
@@ -963,7 +963,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree* tree1,
 
 //==============================================================================
 template <typename NarrowPhaseSolver>
-bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree* tree1, const OcTree::OcTreeNode* root1, const AABB<Scalar>& bv1, const OcTree* tree2, const OcTree::OcTreeNode* root2, const AABB<Scalar>& bv2, const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
+bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<Scalar>* tree1, const typename OcTree<Scalar>::OcTreeNode* root1, const AABB<Scalar>& bv1, const OcTree<Scalar>* tree2, const typename OcTree<Scalar>::OcTreeNode* root2, const AABB<Scalar>& bv2, const Transform3<Scalar>& tf1, const Transform3<Scalar>& tf2) const
 {
   if(!root1 && !root2)
   {
@@ -996,7 +996,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree* tree1
       {
         if(tree2->nodeChildExists(root2, i))
         {
-          const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
+          const typename OcTree<Scalar>::OcTreeNode* child = tree2->getNodeChild(root2, i);
           AABB<Scalar> child_bv;
           computeChildBV(bv2, i, child_bv);
           if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, child, child_bv, tf1, tf2))
@@ -1027,7 +1027,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree* tree1
       {
         if(tree1->nodeChildExists(root1, i))
         {
-          const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+          const typename OcTree<Scalar>::OcTreeNode* child = tree1->getNodeChild(root1, i);
           AABB<Scalar> child_bv;
           computeChildBV(bv1, i,  child_bv);
           if(OcTreeIntersectRecurse(tree1, child, child_bv, tree2, NULL, bv2, tf1, tf2))
@@ -1164,7 +1164,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree* tree1
     {
       if(tree1->nodeChildExists(root1, i))
       {
-        const OcTree::OcTreeNode* child = tree1->getNodeChild(root1, i);
+        const typename OcTree<Scalar>::OcTreeNode* child = tree1->getNodeChild(root1, i);
         AABB<Scalar> child_bv;
         computeChildBV(bv1, i, child_bv);
 
@@ -1191,7 +1191,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree* tree1
     {
       if(tree2->nodeChildExists(root2, i))
       {
-        const OcTree::OcTreeNode* child = tree2->getNodeChild(root2, i);
+        const typename OcTree<Scalar>::OcTreeNode* child = tree2->getNodeChild(root2, i);
         AABB<Scalar> child_bv;
         computeChildBV(bv2, i, child_bv);
 

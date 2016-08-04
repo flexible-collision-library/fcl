@@ -62,7 +62,7 @@ public:
   
   void setParentJoint(const std::shared_ptr<Joint>& joint);
   
-  void addObject(const std::shared_ptr<CollisionObject>& object);
+  void addObject(const std::shared_ptr<CollisionObjectd>& object);
   
   std::size_t getNumChildJoints() const;
   
@@ -71,7 +71,7 @@ public:
 protected:
   std::string name_;
 
-  std::vector<std::shared_ptr<CollisionObject> > objects_;
+  std::vector<std::shared_ptr<CollisionObjectd> > objects_;
 
   std::vector<std::shared_ptr<Joint> > children_joints_;
 

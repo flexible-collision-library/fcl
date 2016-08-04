@@ -46,11 +46,13 @@
 namespace fcl
 {
 
-/// @brief the object for collision or distance computation, contains the geometry and the transform information
+/// @brief the object for collision or distance computation, contains the
+/// geometry and the transform information
+template <typename Scalar>
 class CollisionObject
 {
 public:
- CollisionObject(const std::shared_ptr<CollisionGeometryd> &cgeom_) :
+ CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
     if (cgeom)
@@ -60,14 +62,14 @@ public:
     }
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometryd> &cgeom_, const Transform3d& tf) :
+  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Transform3d& tf) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometryd> &cgeom_, const Matrix3d& R, const Vector3d& T):
+  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Matrix3d& R, const Vector3d& T):
       cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
     t.linear() = R;
@@ -93,13 +95,13 @@ public:
   }
 
   /// @brief get the AABBd in world space
-  inline const AABBd& getAABB() const
+  const AABBd& getAABB() const
   {
     return aabb;
   }
 
   /// @brief compute the AABBd in world space
-  inline void computeAABB()
+  void computeAABB()
   {
     if(t.linear().isIdentity())
     {
@@ -127,25 +129,25 @@ public:
   }
 
   /// @brief get translation of the object
-  inline const Vector3d getTranslation() const
+  const Vector3d getTranslation() const
   {
     return t.translation();
   }
 
   /// @brief get matrix rotation of the object
-  inline const Matrix3d getRotation() const
+  const Matrix3d getRotation() const
   {
     return t.linear();
   }
 
   /// @brief get quaternion rotation of the object
-  inline const Quaternion3d getQuatRotation() const
+  const Quaternion3d getQuatRotation() const
   {
     return Quaternion3d(t.linear());
   }
 
   /// @brief get object's transform
-  inline const Transform3d& getTransform() const
+  const Transform3d& getTransform() const
   {
     return t;
   }
@@ -202,51 +204,51 @@ public:
 
   /// @brief get geometry from the object instance
   FCL_DEPRECATED
-  const CollisionGeometryd* getCollisionGeometryd() const
+  const CollisionGeometry<Scalar>* getCollisionGeometry() const
   {
     return cgeom.get();
   }
 
   /// @brief get geometry from the object instance
-  const std::shared_ptr<const CollisionGeometryd>& collisionGeometry() const
+  const std::shared_ptr<const CollisionGeometry<Scalar>>& collisionGeometry() const
   {
     return cgeom_const;
   }
 
   /// @brief get object's cost density
-  FCL_REAL getCostDensity() const
+  Scalar getCostDensity() const
   {
     return cgeom->cost_density;
   }
 
   /// @brief set object's cost density
-  void setCostDensity(FCL_REAL c)
+  void setCostDensity(Scalar c)
   {
     cgeom->cost_density = c;
   }
 
   /// @brief whether the object is completely occupied
-  inline bool isOccupied() const
+  bool isOccupied() const
   {
     return cgeom->isOccupied();
   }
 
   /// @brief whether the object is completely free
-  inline bool isFree() const
+  bool isFree() const
   {
     return cgeom->isFree();
   }
 
   /// @brief whether the object is uncertain
-  inline bool isUncertain() const
+  bool isUncertain() const
   {
     return cgeom->isUncertain();
   }
 
 protected:
 
-  std::shared_ptr<CollisionGeometryd> cgeom;
-  std::shared_ptr<const CollisionGeometryd> cgeom_const;
+  std::shared_ptr<CollisionGeometry<Scalar>> cgeom;
+  std::shared_ptr<const CollisionGeometry<Scalar>> cgeom_const;
 
   Transform3d t;
 
@@ -257,6 +259,9 @@ protected:
   void *user_data;
 };
 
-}
+using CollisionObjectf = CollisionObject<float>;
+using CollisionObjectd = CollisionObject<double>;
+
+} // namespace fcl
 
 #endif

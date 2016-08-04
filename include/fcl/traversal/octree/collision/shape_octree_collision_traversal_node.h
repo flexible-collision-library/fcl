@@ -67,7 +67,7 @@ public:
   void leafTesting(int, int) const;
 
   const S* model1;
-  const OcTree* model2;
+  const OcTree<Scalar>* model2;
 
   Transform3<Scalar> tf1, tf2;
 
@@ -81,7 +81,7 @@ bool initialize(
     ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
     const S& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
@@ -127,7 +127,7 @@ bool initialize(
     ShapeOcTreeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
     const S& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree& model2,
+    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,

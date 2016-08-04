@@ -52,7 +52,7 @@ namespace fcl
 /// performs the collision between them. 
 /// Return value is the number of contacts generated between the two objects.
 template <typename Scalar>
-std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
+std::size_t collide(const CollisionObjectd* o1, const CollisionObjectd* o2,
                     const CollisionRequest<Scalar>& request,
                     CollisionResult<Scalar>& result);
 
@@ -78,8 +78,8 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 
 template <typename Scalar, typename NarrowPhaseSolver>
 std::size_t collide(
-    const CollisionObject* o1,
-    const CollisionObject* o2,
+    const CollisionObjectd* o1,
+    const CollisionObjectd* o2,
     const NarrowPhaseSolver* nsolver,
     const CollisionRequest<Scalar>& request,
     CollisionResult<Scalar>& result)
@@ -147,7 +147,7 @@ std::size_t collide(
 
 //==============================================================================
 template <typename Scalar>
-std::size_t collide(const CollisionObject* o1, const CollisionObject* o2,
+std::size_t collide(const CollisionObjectd* o1, const CollisionObjectd* o2,
                     const CollisionRequest<Scalar>& request, CollisionResult<Scalar>& result)
 {
   switch(request.gjk_solver_type)

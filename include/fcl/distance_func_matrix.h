@@ -90,10 +90,12 @@ typename T_SH::Scalar ShapeOcTreeDistance(
     const DistanceRequest<typename T_SH::Scalar>& request,
     DistanceResult<typename T_SH::Scalar>& result)
 {
+  using Scalar = typename T_SH::Scalar;
+
   if(request.isSatisfied(result)) return result.min_distance;
   ShapeOcTreeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
   const T_SH* obj1 = static_cast<const T_SH*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
@@ -112,9 +114,11 @@ typename T_SH::Scalar OcTreeShapeDistance(
     const DistanceRequest<typename T_SH::Scalar>& request,
     DistanceResult<typename T_SH::Scalar>& result)
 {
+  using Scalar = typename T_SH::Scalar;
+
   if(request.isSatisfied(result)) return result.min_distance;
   OcTreeShapeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
   const T_SH* obj2 = static_cast<const T_SH*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
@@ -134,10 +138,12 @@ typename NarrowPhaseSolver::Scalar OcTreeDistance(
     const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
     DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
 {
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   if(request.isSatisfied(result)) return result.min_distance;
   OcTreeDistanceTraversalNode<NarrowPhaseSolver> node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
+  const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
@@ -156,10 +162,12 @@ typename T_BVH::Scalar BVHOcTreeDistance(
     const DistanceRequest<typename T_BVH::Scalar>& request,
     DistanceResult<typename T_BVH::Scalar>& result)
 {
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   if(request.isSatisfied(result)) return result.min_distance;
   MeshOcTreeDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
   const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
@@ -178,9 +186,11 @@ typename T_BVH::Scalar OcTreeBVHDistance(
     const DistanceRequest<typename T_BVH::Scalar>& request,
     DistanceResult<typename T_BVH::Scalar>& result)
 {
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   if(request.isSatisfied(result)) return result.min_distance;
   OcTreeMeshDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
   const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 

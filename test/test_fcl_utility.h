@@ -170,18 +170,18 @@ struct ContinuousCollisionData
 
 
 /// @brief Default collision callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now.
-bool defaultCollisionFunction(CollisionObject* o1, CollisionObject* o2, void* cdata);
+bool defaultCollisionFunction(CollisionObjectd* o1, CollisionObjectd* o2, void* cdata);
 
 /// @brief Default distance callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now
-bool defaultDistanceFunction(CollisionObject* o1, CollisionObject* o2, void* cdata, FCL_REAL& dist);
+bool defaultDistanceFunction(CollisionObjectd* o1, CollisionObjectd* o2, void* cdata, FCL_REAL& dist);
 
 
 
 
 
-bool defaultContinuousCollisionFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_);
+bool defaultContinuousCollisionFunction(ContinuousCollisionObjectd* o1, ContinuousCollisionObjectd* o2, void* cdata_);
 
-bool defaultContinuousDistanceFunction(ContinuousCollisionObject* o1, ContinuousCollisionObject* o2, void* cdata_, FCL_REAL& dist);
+bool defaultContinuousDistanceFunction(ContinuousCollisionObjectd* o1, ContinuousCollisionObjectd* o2, void* cdata_, FCL_REAL& dist);
 
 
 std::string getNodeTypeName(NODE_TYPE node_type);

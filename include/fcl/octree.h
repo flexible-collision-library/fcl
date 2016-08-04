@@ -54,23 +54,25 @@
 namespace fcl
 {
 
-/// @brief Octree is one type of collision geometry which can encode uncertainty information in the sensor data.
-class OcTree : public CollisionGeometryd
+/// @brief Octree is one type of collision geometry which can encode uncertainty
+/// information in the sensor data.
+template <typename Scalar>
+class OcTree : public CollisionGeometry<Scalar>
 {
 private:
   std::shared_ptr<const octomap::OcTree> tree;
 
-  FCL_REAL default_occupancy;
+  Scalar default_occupancy;
 
-  FCL_REAL occupancy_threshold;
-  FCL_REAL free_threshold;
+  Scalar occupancy_threshold;
+  Scalar free_threshold;
 
 public:
 
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(FCL_REAL resolution) : tree(std::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))                               
+  OcTree(Scalar resolution) : tree(std::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -89,21 +91,21 @@ public:
     free_threshold = 0;
   }
 
-  /// @brief compute the AABBd for the octree in its local coordinate system
+  /// @brief compute the AABB<Scalar> for the octree in its local coordinate system
   void computeLocalAABB() 
   {
-    aabb_local = getRootBV();
-    aabb_center = aabb_local.center();
-    aabb_radius = (aabb_local.min_ - aabb_center).norm();
+    this->aabb_local = getRootBV();
+    this->aabb_center = this->aabb_local.center();
+    this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
   }
 
   /// @brief get the bounding volume for the root
-  AABBd getRootBV() const
+  AABB<Scalar> getRootBV() const
   {
-    FCL_REAL delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
+    Scalar delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
     // std::cout << "octree size " << delta << std::endl;
-    return AABBd(Vector3d(-delta, -delta, -delta), Vector3d(delta, delta, delta));
+    return AABB<Scalar>(Vector3<Scalar>(-delta, -delta, -delta), Vector3<Scalar>(delta, delta, delta));
   }
 
   /// @brief get the root node of the octree
@@ -134,9 +136,9 @@ public:
 
   /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
   /// only keep the occupied boxes (i.e., the boxes whose occupied probability is higher enough).
-  std::vector<std::array<FCL_REAL, 6> > toBoxes() const
+  std::vector<std::array<Scalar, 6> > toBoxes() const
   {
-    std::vector<std::array<FCL_REAL, 6> > boxes;
+    std::vector<std::array<Scalar, 6> > boxes;
     boxes.reserve(tree->size() / 2);
     for(octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end();
         it != end;
@@ -145,14 +147,14 @@ public:
       // if(tree->isNodeOccupied(*it))
       if(isNodeOccupied(&*it))
       {
-        FCL_REAL size = it.getSize();
-        FCL_REAL x = it.getX();
-        FCL_REAL y = it.getY();
-        FCL_REAL z = it.getZ();
-        FCL_REAL c = (*it).getOccupancy();
-        FCL_REAL t = tree->getOccupancyThres();
+        Scalar size = it.getSize();
+        Scalar x = it.getX();
+        Scalar y = it.getY();
+        Scalar z = it.getZ();
+        Scalar c = (*it).getOccupancy();
+        Scalar t = tree->getOccupancyThres();
 
-        std::array<FCL_REAL, 6> box = {{x, y, z, size, c, t}};
+        std::array<Scalar, 6> box = {{x, y, z, size, c, t}};
         boxes.push_back(box);
       }
     }
@@ -160,33 +162,33 @@ public:
   }
 
   /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree occupied_thresold
-  FCL_REAL getOccupancyThres() const
+  Scalar getOccupancyThres() const
   {
     return occupancy_threshold;
   }
 
   /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree free_threshold
-  FCL_REAL getFreeThres() const
+  Scalar getFreeThres() const
   {
     return free_threshold;
   }
 
-  FCL_REAL getDefaultOccupancy() const
+  Scalar getDefaultOccupancy() const
   {
     return default_occupancy;
   }
 
-  void setCellDefaultOccupancy(FCL_REAL d)
+  void setCellDefaultOccupancy(Scalar d)
   {
     default_occupancy = d;
   }
 
-  void setOccupancyThres(FCL_REAL d)
+  void setOccupancyThres(Scalar d)
   {
     occupancy_threshold = d;
   }
 
-  void setFreeThres(FCL_REAL d)
+  void setFreeThres(Scalar d)
   {
     free_threshold = d;
   }
@@ -239,7 +241,8 @@ public:
 };
 
 /// @brief compute the bounding volume of an octree node's i-th child
-static inline void computeChildBV(const AABBd& root_bv, unsigned int i, AABBd& child_bv)
+template <typename Scalar>
+void computeChildBV(const AABB<Scalar>& root_bv, unsigned int i, AABB<Scalar>& child_bv)
 {
   if(i&1)
   {
@@ -275,8 +278,9 @@ static inline void computeChildBV(const AABBd& root_bv, unsigned int i, AABBd& c
   }
 }
 
+using OcTreef = OcTree<float>;
+using OcTreed = OcTree<double>;
 
-
-}
+} // namespace fcl
 
 #endif

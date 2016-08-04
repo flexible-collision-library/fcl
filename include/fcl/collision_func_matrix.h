@@ -106,11 +106,13 @@ std::size_t ShapeOcTreeCollide(
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
     CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
 {
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   if(request.isSatisfied(result)) return result.numContacts();
 
   ShapeOcTreeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node;
   const T_SH* obj1 = static_cast<const T_SH*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
@@ -130,10 +132,12 @@ std::size_t OcTreeShapeCollide(
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
     CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
 {
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   if(request.isSatisfied(result)) return result.numContacts();
 
   OcTreeShapeCollisionTraversalNode<T_SH, NarrowPhaseSolver> node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
+  const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
   const T_SH* obj2 = static_cast<const T_SH*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
@@ -154,11 +158,13 @@ std::size_t OcTreeCollide(
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
     CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
 {
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   if(request.isSatisfied(result)) return result.numContacts();
 
   OcTreeCollisionTraversalNode<NarrowPhaseSolver> node;
-  const OcTree* obj1 = static_cast<const OcTree*>(o1);
-  const OcTree* obj2 = static_cast<const OcTree*>(o2);
+  const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
+  const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
@@ -188,7 +194,7 @@ std::size_t OcTreeBVHCollide(
     no_cost_request.enable_cost = false; // disable cost computation
 
     OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
-    const OcTree* obj1 = static_cast<const OcTree*>(o1);
+    const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
     const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
@@ -209,7 +215,7 @@ std::size_t OcTreeBVHCollide(
   else
   {
     OcTreeMeshCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
-    const OcTree* obj1 = static_cast<const OcTree*>(o1);
+    const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
     const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
@@ -242,7 +248,7 @@ std::size_t BVHOcTreeCollide(
 
     MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-    const OcTree* obj2 = static_cast<const OcTree*>(o2);
+    const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
     initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, no_cost_request, result);
@@ -263,7 +269,7 @@ std::size_t BVHOcTreeCollide(
   {
     MeshOcTreeCollisionTraversalNode<T_BVH, NarrowPhaseSolver> node;
     const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
-    const OcTree* obj2 = static_cast<const OcTree*>(o2);
+    const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
     OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
     initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);

@@ -50,7 +50,7 @@ namespace fcl
 /// Return value is the minimum distance generated between the two objects.
 template <typename Scalar>
 Scalar distance(
-    const CollisionObject* o1, const CollisionObject* o2,
+    const CollisionObjectd* o1, const CollisionObjectd* o2,
     const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result);
 
 template <typename Scalar>
@@ -75,8 +75,8 @@ DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
 
 template <typename NarrowPhaseSolver>
 typename NarrowPhaseSolver::Scalar distance(
-    const CollisionObject* o1,
-    const CollisionObject* o2,
+    const CollisionObjectd* o1,
+    const CollisionObjectd* o2,
     const NarrowPhaseSolver* nsolver,
     const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
     DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
@@ -148,8 +148,8 @@ typename NarrowPhaseSolver::Scalar distance(
 //==============================================================================
 template <typename Scalar>
 Scalar distance(
-    const CollisionObject* o1,
-    const CollisionObject* o2,
+    const CollisionObjectd* o1,
+    const CollisionObjectd* o2,
     const DistanceRequest<Scalar>& request,
     DistanceResult<Scalar>& result)
 {
