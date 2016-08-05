@@ -40,6 +40,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 #include "fcl/config.h"
 #include "fcl/data_types.h"

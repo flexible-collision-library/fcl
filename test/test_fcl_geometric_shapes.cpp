@@ -75,7 +75,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
   request.enable_cached_gjk_guess = true;
   request.gjk_solver_type = GST_INDEP;
 
-  TranslationMotion motion(Transform3d(Eigen::Translation3d(Vector3d(-20.0, -20.0, -20.0))), Transform3d(Eigen::Translation3d(Vector3d(20.0, 20.0, 20.0))));
+  TranslationMotiond motion(Transform3d(Eigen::Translation3d(Vector3d(-20.0, -20.0, -20.0))), Transform3d(Eigen::Translation3d(Vector3d(20.0, 20.0, 20.0))));
 
   int N = 1000;
   FCL_REAL dt = 1.0 / (N - 1);

@@ -115,6 +115,9 @@ public:
   mutable Transform3<Scalar> tf;
 };
 
+using TranslationMotionf = TranslationMotion<float>;
+using TranslationMotiond = TranslationMotion<double>;
+
 template <typename Scalar>
 class SplineMotion : public MotionBase<Scalar>
 {
