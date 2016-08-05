@@ -69,10 +69,10 @@ endif()
 find_package(PkgConfig QUIET)
 
 # Find Eigen3
-find_package(EIGEN3 3.0.5 QUIET)
+find_package(Eigen3 3.0.5 QUIET)
 if(EIGEN3_FOUND)
   set(FCL_HAVE_EIGEN TRUE)
-  include_directories(${EIGEN3_INCLUDE_DIRS})
+  include_directories(${EIGEN3_INCLUDE_DIR})
 else()
   message(SEND_ERROR "EIGEN3 (>= 3.0.5) is required by FCL")
   set(FCL_HAVE_EIGEN FALSE)
