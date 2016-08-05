@@ -212,7 +212,7 @@ bool collisionRecurse_(
 
           box->cost_density = tree2->getDefaultOccupancy();
 
-          CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
+          CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
@@ -246,7 +246,7 @@ bool collisionRecurse_(
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
+        CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -322,7 +322,7 @@ bool collisionRecurse_(
 
           box->cost_density = tree2->getOccupancyThres(); // thresholds are 0, 1, so uncertain
 
-          CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
+          CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
@@ -355,7 +355,7 @@ bool collisionRecurse_(
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometryd>(box), box_tf);
+        CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -417,7 +417,7 @@ bool distanceRecurse_(
       Box<Scalar>* box = new Box<Scalar>();
       Transform3<Scalar> box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject<Scalar> obj(std::shared_ptr<CollisionGeometryd>(box), box_tf);
+      CollisionObject<Scalar> obj(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
       return callback(static_cast<CollisionObject<Scalar>*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;
@@ -526,7 +526,7 @@ bool distanceRecurse_(
       Transform3<Scalar> tf2 = Transform3<Scalar>::Identity();
       tf2.translation() = translation2;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject<Scalar> obj(std::shared_ptr<CollisionGeometryd>(box), box_tf);
+      CollisionObject<Scalar> obj(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
       return callback(static_cast<CollisionObject<Scalar>*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;

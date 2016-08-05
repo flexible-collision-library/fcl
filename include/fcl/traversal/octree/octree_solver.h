@@ -501,7 +501,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
         }
         else
         {
-          std::vector<ContactPointd> contacts;
+          std::vector<ContactPoint<Scalar>> contacts;
           if(solver->shapeIntersect(box, box_tf, s, tf2, &contacts))
           {
             is_intersect = true;
@@ -513,7 +513,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
               // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
               if (free_space < contacts.size())
               {
-                std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<double>, std::placeholders::_2, std::placeholders::_1));
+                std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<Scalar>, std::placeholders::_2, std::placeholders::_1));
                 num_adding_contacts = free_space;
               }
               else
@@ -1075,7 +1075,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<Scalar
         constructBox(bv1, tf1, box1, box1_tf);
         constructBox(bv2, tf2, box2, box2_tf);
 
-        std::vector<ContactPointd> contacts;
+        std::vector<ContactPoint<Scalar>> contacts;
         if(solver->shapeIntersect(box1, box1_tf, box2, box2_tf, &contacts))
         {
           is_intersect = true;
@@ -1087,7 +1087,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<Scalar
             // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
             if (free_space < contacts.size())
             {
-              std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<double>, std::placeholders::_2, std::placeholders::_1));
+              std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<Scalar>, std::placeholders::_2, std::placeholders::_1));
               num_adding_contacts = free_space;
             }
             else

@@ -110,9 +110,9 @@ protected:
   static inline size_t selectOptimalAxis(const std::vector<CollisionObject<Scalar>*>& objs_x, const std::vector<CollisionObject<Scalar>*>& objs_y, const std::vector<CollisionObject<Scalar>*>& objs_z, typename std::vector<CollisionObject<Scalar>*>::const_iterator& it_beg, typename std::vector<CollisionObject<Scalar>*>::const_iterator& it_end)
   {
     /// simple sweep and prune method
-    double delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
-    double delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
-    double delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
+    Scalar delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
+    Scalar delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
+    Scalar delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
 
     int axis = 0;
     if(delta_y > delta_x && delta_y > delta_z)
@@ -203,7 +203,7 @@ template <typename Scalar>
 class DummyCollisionObject : public CollisionObject<Scalar>
 {
 public:
-  DummyCollisionObject(const AABB<Scalar>& aabb_) : CollisionObject<Scalar>(std::shared_ptr<CollisionGeometryd>())
+  DummyCollisionObject(const AABB<Scalar>& aabb_) : CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>())
   {
     this->aabb = aabb_;
   }

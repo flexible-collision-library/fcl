@@ -41,7 +41,8 @@
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
 #include "fcl/collision_node.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 #include "fcl/traversal/traversal_nodes.h"
 
 namespace fcl

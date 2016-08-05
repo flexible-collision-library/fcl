@@ -53,13 +53,13 @@ public:
   NaiveCollisionManager() {}
 
   /// @brief add objects to the manager
-  void registerObjects(const std::vector<CollisionObjectd*>& other_objs);
+  void registerObjects(const std::vector<CollisionObject<Scalar>*>& other_objs);
 
   /// @brief add one object to the manager
-  void registerObject(CollisionObjectd* obj);
+  void registerObject(CollisionObject<Scalar>* obj);
 
   /// @brief remove one object from the manager
-  void unregisterObject(CollisionObjectd* obj);
+  void unregisterObject(CollisionObject<Scalar>* obj);
 
   /// @brief initialize the manager, related with the specific type of manager
   void setup();
@@ -71,13 +71,13 @@ public:
   void clear();
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObjectd*>& objs) const;
+  void getObjects(std::vector<CollisionObject<Scalar>*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObjectd* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObjectd* obj, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
   void collide(void* cdata, CollisionCallBack<Scalar> callback) const;
@@ -100,7 +100,7 @@ public:
 protected:
 
   /// @brief objects belonging to the manager are stored in a list structure
-  std::list<CollisionObjectd*> objs;
+  std::list<CollisionObject<Scalar>*> objs;
 };
 
 using NaiveCollisionManagerf = NaiveCollisionManager<float>;
@@ -114,21 +114,21 @@ using NaiveCollisionManagerd = NaiveCollisionManager<double>;
 
 //==============================================================================
 template <typename Scalar>
-void NaiveCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObjectd*>& other_objs)
+void NaiveCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObject<Scalar>*>& other_objs)
 {
   std::copy(other_objs.begin(), other_objs.end(), std::back_inserter(objs));
 }
 
 //==============================================================================
 template <typename Scalar>
-void NaiveCollisionManager<Scalar>::unregisterObject(CollisionObjectd* obj)
+void NaiveCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
 {
   objs.remove(obj);
 }
 
 //==============================================================================
 template <typename Scalar>
-void NaiveCollisionManager<Scalar>::registerObject(CollisionObjectd* obj)
+void NaiveCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
 {
   objs.push_back(obj);
 }
@@ -156,7 +156,7 @@ void NaiveCollisionManager<Scalar>::clear()
 
 //==============================================================================
 template <typename Scalar>
-void NaiveCollisionManager<Scalar>::getObjects(std::vector<CollisionObjectd*>& objs_) const
+void NaiveCollisionManager<Scalar>::getObjects(std::vector<CollisionObject<Scalar>*>& objs_) const
 {
   objs_.resize(objs.size());
   std::copy(objs.begin(), objs.end(), objs_.begin());
@@ -164,30 +164,29 @@ void NaiveCollisionManager<Scalar>::getObjects(std::vector<CollisionObjectd*>& o
 
 //==============================================================================
 template <typename Scalar>
-void NaiveCollisionManager<Scalar>::collide(CollisionObjectd* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+void NaiveCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
 {
   if(size() == 0) return;
 
-  for(std::list<CollisionObjectd*>::const_iterator it = objs.begin(), end = objs.end(); it != end; ++it)
+  for(auto* obj2 : objs)
   {
-    if(callback(obj, *it, cdata))
+    if(callback(obj, obj2, cdata))
       return;
   }
 }
 
 //==============================================================================
 template <typename Scalar>
-void NaiveCollisionManager<Scalar>::distance(CollisionObjectd* obj, void* cdata, DistanceCallBack<Scalar> callback) const
+void NaiveCollisionManager<Scalar>::distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const
 {
   if(size() == 0) return;
 
   Scalar min_dist = std::numeric_limits<Scalar>::max();
-  for(std::list<CollisionObjectd*>::const_iterator it = objs.begin(), end = objs.end();
-      it != end; ++it)
+  for(auto* obj2 : objs)
   {
-    if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
+    if(obj->getAABB().distance(obj2->getAABB()) < min_dist)
     {
-      if(callback(obj, *it, cdata, min_dist))
+      if(callback(obj, obj2, cdata, min_dist))
         return;
     }
   }
@@ -199,15 +198,17 @@ void NaiveCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scala
 {
   if(size() == 0) return;
 
-  for(std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end = objs.end();
+  for(typename std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end = objs.end();
       it1 != end; ++it1)
   {
-    std::list<CollisionObjectd*>::const_iterator it2 = it1; it2++;
+    typename std::list<CollisionObjectd*>::const_iterator it2 = it1; it2++;
     for(; it2 != end; ++it2)
     {
       if((*it1)->getAABB().overlap((*it2)->getAABB()))
+      {
         if(callback(*it1, *it2, cdata))
           return;
+      }
     }
   }
 }
@@ -219,9 +220,9 @@ void NaiveCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scala
   if(size() == 0) return;
 
   Scalar min_dist = std::numeric_limits<Scalar>::max();
-  for(std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end = objs.end(); it1 != end; ++it1)
+  for(typename std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end = objs.end(); it1 != end; ++it1)
   {
-    std::list<CollisionObjectd*>::const_iterator it2 = it1; it2++;
+    typename std::list<CollisionObjectd*>::const_iterator it2 = it1; it2++;
     for(; it2 != end; ++it2)
     {
       if((*it1)->getAABB().distance((*it2)->getAABB()) < min_dist)
@@ -247,13 +248,15 @@ void NaiveCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* 
     return;
   }
 
-  for(std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end1 = objs.end(); it1 != end1; ++it1)
+  for(auto* obj1 : objs)
   {
-    for(std::list<CollisionObjectd*>::const_iterator it2 = other_manager->objs.begin(), end2 = other_manager->objs.end(); it2 != end2; ++it2)
+    for(auto* obj2 : other_manager->objs)
     {
-      if((*it1)->getAABB().overlap((*it2)->getAABB()))
-        if(callback((*it1), (*it2), cdata))
+      if(obj1->getAABB().overlap(obj2->getAABB()))
+      {
+        if(callback(obj1, obj2, cdata))
           return;
+      }
     }
   }
 }
@@ -273,13 +276,13 @@ void NaiveCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>*
   }
 
   Scalar min_dist = std::numeric_limits<Scalar>::max();
-  for(std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end1 = objs.end(); it1 != end1; ++it1)
+  for(auto* obj1 : objs)
   {
-    for(std::list<CollisionObjectd*>::const_iterator it2 = other_manager->objs.begin(), end2 = other_manager->objs.end(); it2 != end2; ++it2)
+    for(auto* obj2 : other_manager->objs)
     {
-      if((*it1)->getAABB().distance((*it2)->getAABB()) < min_dist)
+      if(obj1->getAABB().distance(obj2->getAABB()) < min_dist)
       {
-        if(callback(*it1, *it2, cdata, min_dist))
+        if(callback(obj1, obj2, cdata, min_dist))
           return;
       }
     }

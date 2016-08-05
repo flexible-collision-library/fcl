@@ -134,7 +134,7 @@ protected:
   struct SAPInterval : public SimpleInterval
   {
     CollisionObject<Scalar>* obj;
-    SAPInterval(double low_, double high_, CollisionObject<Scalar>* obj_) : SimpleInterval()
+    SAPInterval(Scalar low_, Scalar high_, CollisionObject<Scalar>* obj_) : SimpleInterval()
     {
       low = low_;
       high = high_;
@@ -630,9 +630,9 @@ void IntervalTreeCollisionManager<Scalar>::collide(void* cdata, CollisionCallBac
   std::set<CollisionObject<Scalar>*> active;
   std::set<std::pair<CollisionObject<Scalar>*, CollisionObject<Scalar>*> > overlap;
   unsigned int n = endpoints[0].size();
-  double diff_x = endpoints[0][0].value - endpoints[0][n-1].value;
-  double diff_y = endpoints[1][0].value - endpoints[1][n-1].value;
-  double diff_z = endpoints[2][0].value - endpoints[2][n-1].value;
+  Scalar diff_x = endpoints[0][0].value - endpoints[0][n-1].value;
+  Scalar diff_y = endpoints[1][0].value - endpoints[1][n-1].value;
+  Scalar diff_z = endpoints[2][0].value - endpoints[2][n-1].value;
 
   int axis = 0;
   if(diff_y > diff_x && diff_y > diff_z)

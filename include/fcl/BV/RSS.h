@@ -449,7 +449,7 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   Matrix3<Scalar> E; // row first eigen-vectors
   Vector3<Scalar> s(0, 0, 0);
 
-  getCovariance<double>(v, NULL, NULL, NULL, 16, M);
+  getCovariance<Scalar>(v, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
 
   int min, mid, max;
@@ -465,7 +465,7 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   bv.axis.col(2) = axis.col(0).cross(axis.col(1));
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<double>(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<Scalar>(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
 
   return bv;
 }

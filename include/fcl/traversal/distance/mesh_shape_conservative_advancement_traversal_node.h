@@ -531,7 +531,7 @@ bool initialize(
   node.nsolver = nsolver;
   node.w = w;
 
-  computeBV<double, BV, S>(
+  computeBV<Scalar, BV, S>(
         model2,
         Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
         node.model2_bv);
@@ -560,7 +560,7 @@ bool initialize(
 
   node.w = w;
 
-  computeBV<double, RSS<Scalar>, S>(
+  computeBV<Scalar, RSS<Scalar>, S>(
         model2,
         Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
         node.model2_bv);
@@ -589,7 +589,7 @@ bool initialize(
 
   node.w = w;
 
-  computeBV<double, OBBRSS<Scalar>, S>(
+  computeBV<Scalar, OBBRSS<Scalar>, S>(
         model2,
         Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
         node.model2_bv);

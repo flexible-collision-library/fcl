@@ -117,9 +117,9 @@ public:
       const kIOS<ScalarT>& other,
       Vector3<ScalarT>* P = NULL, Vector3<ScalarT>* Q = NULL) const;
 
-  static constexpr double ratio() { return 1.5; }
-  static constexpr double invSinA() { return 2; }
-  static double cosA() { return std::sqrt(3.0) / 2.0; }
+  static constexpr Scalar ratio() { return 1.5; }
+  static constexpr Scalar invSinA() { return 2; }
+  static Scalar cosA() { return std::sqrt(3.0) / 2.0; }
 };
 
 using kIOSf = kIOS<float>;

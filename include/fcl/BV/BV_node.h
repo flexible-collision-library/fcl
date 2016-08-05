@@ -164,9 +164,9 @@ struct GetOrientationImpl
 
 //==============================================================================
 template <typename BV>
-Matrix3<typename BVNode<BV>::Scalar> BVNode<BV>::getOrientation() const
+Matrix3<typename BV::Scalar> BVNode<BV>::getOrientation() const
 {
-  GetOrientationImpl<double, BV> getOrientationImpl;
+  GetOrientationImpl<typename BV::Scalar, BV> getOrientationImpl;
   return getOrientationImpl(bv);
 }
 

@@ -316,7 +316,7 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
   for(int i = 0; i < 16; ++i)
     vertex_proj[i] = vertex[i] - b.axis.col(0) * vertex[i].dot(b.axis.col(0));
 
-  getCovariance<double>(vertex_proj, NULL, NULL, NULL, 16, M);
+  getCovariance<Scalar>(vertex_proj, NULL, NULL, NULL, 16, M);
   eigen(M, s, E);
 
   int min, mid, max;
@@ -351,7 +351,7 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
 
   // set obb centers and extensions
   Vector3<Scalar> center, extent;
-  getExtentAndCenter<double>(vertex, NULL, NULL, NULL, 16, b.axis, center, extent);
+  getExtentAndCenter<Scalar>(vertex, NULL, NULL, NULL, 16, b.axis, center, extent);
 
   b.To = center;
   b.extent = extent;

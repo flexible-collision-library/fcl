@@ -109,7 +109,7 @@ void fit3(Vector3<Scalar>* ps, OBB<Scalar>& bv)
   bv.axis.col(0).normalize();
   bv.axis.col(1) = bv.axis.col(2).cross(bv.axis.col(0));
 
-  getExtentAndCenter<double>(ps, NULL, NULL, NULL, 3, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, 3, bv.axis, bv.To, bv.extent);
 }
 
 template <typename Scalar>
@@ -128,12 +128,12 @@ void fitn(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
   Matrix3<Scalar> E;
   Vector3<Scalar> s = Vector3<Scalar>::Zero(); // three eigen values
 
-  getCovariance<double>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
   axisFromEigen(E, s, bv.axis);
 
   // set obb centers and extensions
-  getExtentAndCenter<double>(ps, NULL, NULL, NULL, n, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, n, bv.axis, bv.To, bv.extent);
 }
 
 } // namespace OBB_fit_functions
@@ -192,7 +192,7 @@ void fit3(Vector3<Scalar>* ps, RSSd& bv)
   bv.axis.col(0) = e[imax].normalized();
   bv.axis.col(1) = bv.axis.col(2).cross(bv.axis.col(0));
 
-  getRadiusAndOriginAndRectangleSize<double>(ps, NULL, NULL, NULL, 3, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<Scalar>(ps, NULL, NULL, NULL, 3, bv.axis, bv.Tr, bv.l, bv.r);
 }
 
 template <typename Scalar>
@@ -211,12 +211,12 @@ void fitn(Vector3<Scalar>* ps, int n, RSSd& bv)
   Matrix3<Scalar> E; // row first eigen-vectors
   Vector3<Scalar> s = Vector3<Scalar>::Zero();
 
-  getCovariance<double>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
   axisFromEigen(E, s, bv.axis);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<double>(ps, NULL, NULL, NULL, n, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<Scalar>(ps, NULL, NULL, NULL, n, bv.axis, bv.Tr, bv.l, bv.r);
 }
 
 } // namespace RSS_fit_functions
@@ -296,7 +296,7 @@ void fit3(Vector3<Scalar>* ps, kIOSd& bv)
   bv.obb.axis.col(0) = e[imax].normalized();
   bv.obb.axis.col(1) = bv.obb.axis.col(2).cross(bv.obb.axis.col(0));
 
-  getExtentAndCenter<double>(ps, NULL, NULL, NULL, 3, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, 3, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   // compute radius and center
   Scalar r0;
@@ -322,17 +322,17 @@ void fitn(Vector3<Scalar>* ps, int n, kIOSd& bv)
   Matrix3<Scalar> E;
   Vector3<Scalar> s = Vector3<Scalar>::Zero(); // three eigen values;
 
-  getCovariance<double>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
   eigen(M, s, E);
 
   axisFromEigen(E, s, bv.obb.axis);
 
-  getExtentAndCenter<double>(ps, NULL, NULL, NULL, n, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, n, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   // get center and extension
   const Vector3<Scalar>& center = bv.obb.To;
   const Vector3<Scalar>& extent = bv.obb.extent;
-  Scalar r0 = maximumDistance<double>(ps, NULL, NULL, NULL, n, center);
+  Scalar r0 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, center);
 
   // decide the k in kIOSd
   if(extent[0] > kIOSd::ratio() * extent[2])
@@ -354,8 +354,8 @@ void fitn(Vector3<Scalar>* ps, int n, kIOSd& bv)
     bv.spheres[2].o = center + delta;
 
     Scalar r11 = 0, r12 = 0;
-    r11 = maximumDistance<double>(ps, NULL, NULL, NULL, n, bv.spheres[1].o);
-    r12 = maximumDistance<double>(ps, NULL, NULL, NULL, n, bv.spheres[2].o);
+    r11 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[1].o);
+    r12 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[2].o);
     bv.spheres[1].o += bv.obb.axis.col(2) * (-r10 + r11);
     bv.spheres[2].o += bv.obb.axis.col(2) * (r10 - r12);
 
@@ -371,8 +371,8 @@ void fitn(Vector3<Scalar>* ps, int n, kIOSd& bv)
     bv.spheres[4].o = bv.spheres[0].o + delta;
 
     Scalar r21 = 0, r22 = 0;
-    r21 = maximumDistance<double>(ps, NULL, NULL, NULL, n, bv.spheres[3].o);
-    r22 = maximumDistance<double>(ps, NULL, NULL, NULL, n, bv.spheres[4].o);
+    r21 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[3].o);
+    r22 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[4].o);
 
     bv.spheres[3].o += bv.obb.axis.col(1) * (-r10 + r21);
     bv.spheres[4].o += bv.obb.axis.col(1) * (r10 - r22);

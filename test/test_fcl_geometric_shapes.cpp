@@ -37,7 +37,8 @@
 
 #include <gtest/gtest.h>
 
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 #include "fcl/collision.h"
 #include "test_fcl_utility.h"
 #include "fcl/ccd/motion.h"
@@ -48,8 +49,8 @@ using namespace fcl;
 
 FCL_REAL extents [6] = {0, 0, 0, 10, 10, 10};
 
-GJKSolver_libccd solver1;
-GJKSolver_indep solver2;
+GJKSolver_libccdd solver1;
+GJKSolver_indepd solver2;
 
 #define EXPECT_TRUE_FALSE(p) EXPECT_TRUE(!(p))
 

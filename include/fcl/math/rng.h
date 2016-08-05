@@ -128,8 +128,8 @@ private:
 
 };
 
+using RNGf = RNG<float>;
 using RNGd = RNG<double>;
-using RNGf = RNG<double>;
 
 //============================================================================//
 //                                                                            //

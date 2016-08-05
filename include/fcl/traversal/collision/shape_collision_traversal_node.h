@@ -118,7 +118,7 @@ leafTesting(int, int) const
     bool is_collision = false;
     if(this->request.enable_contact)
     {
-      std::vector<ContactPointd> contacts;
+      std::vector<ContactPoint<Scalar>> contacts;
       if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, &contacts))
       {
         is_collision = true;
@@ -130,7 +130,7 @@ leafTesting(int, int) const
           // If the free space is not enough to add all the new contacts, we add contacts in descent order of penetration depth.
           if (free_space < contacts.size())
           {
-            std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<double>, std::placeholders::_2, std::placeholders::_1));
+            std::partial_sort(contacts.begin(), contacts.begin() + free_space, contacts.end(), std::bind(comparePenDepth<Scalar>, std::placeholders::_2, std::placeholders::_1));
             num_adding_contacts = free_space;
           }
           else

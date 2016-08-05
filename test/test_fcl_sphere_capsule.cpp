@@ -40,13 +40,14 @@
 #include "fcl/math/constants.h"
 #include "fcl/collision.h"
 #include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 
 using namespace fcl;
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
 	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
@@ -60,7 +61,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negative)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
 	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
@@ -74,7 +75,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negativ
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
 	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
@@ -88,7 +89,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_rotated)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
 	Sphered sphere1 (50);
 	Transform3d sphere1_transform;
@@ -109,7 +110,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_r
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
 {
-  GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
   Sphered sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
@@ -133,7 +134,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotated)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
 	Sphered sphere1 (50);
   Transform3d sphere1_transform = Transform3d::Identity();
@@ -163,7 +164,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
 	Sphered sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));
@@ -179,7 +180,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_separated)
 {
-	GJKSolver_libccd solver;
+  GJKSolver_libccdd solver;
 
 	Sphered sphere1 (50);
   Transform3d sphere1_transform(Eigen::Translation3d(Vector3d(0., 0., -50)));

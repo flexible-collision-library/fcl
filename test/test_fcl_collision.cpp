@@ -41,7 +41,8 @@
 #include "fcl/collision.h"
 #include "fcl/BV/BV.h"
 #include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -109,7 +110,7 @@ GTEST_TEST(FCL_COLLISION, OBB_Box_test)
     Transform3d box2_tf;
     constructBox(aabb, transforms[i], box2, box2_tf);
 
-    GJKSolver_libccd solver;
+    GJKSolver_libccdd solver;
 
     bool overlap_obb = obb1.overlap(obb2);
     bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, NULL);
@@ -144,7 +145,7 @@ GTEST_TEST(FCL_COLLISION, OBB_shape_test)
   {
     FCL_REAL len = (aabb1.max_[0] - aabb1.min_[0]) * 0.5;
     OBBd obb2;
-    GJKSolver_libccd solver;
+    GJKSolver_libccdd solver;
  
     {  
       Sphered sphere(len);

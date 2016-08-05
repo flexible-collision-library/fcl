@@ -37,7 +37,8 @@
 
 #include <gtest/gtest.h>
 
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
 #include "fcl/distance.h"
 #include "fcl/collision.h"

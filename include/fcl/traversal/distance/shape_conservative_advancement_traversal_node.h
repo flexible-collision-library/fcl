@@ -133,18 +133,20 @@ bool initialize(
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver)
 {
+  using Scalar = typename S1::Scalar;
+
   node.model1 = &shape1;
   node.tf1 = tf1;
   node.model2 = &shape2;
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  computeBV<double, RSS<typename NarrowPhaseSolver::Scalar>, S1>(
+  computeBV<Scalar, RSS<typename NarrowPhaseSolver::Scalar>, S1>(
         shape1,
         Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
         node.model1_bv);
 
-  computeBV<double, RSS<typename NarrowPhaseSolver::Scalar>, S2>(
+  computeBV<Scalar, RSS<typename NarrowPhaseSolver::Scalar>, S2>(
         shape2,
         Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
         node.model2_bv);

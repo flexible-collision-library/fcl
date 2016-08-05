@@ -42,7 +42,8 @@
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
 #include "fcl/collision_func_matrix.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 
 namespace fcl
 {
@@ -52,7 +53,7 @@ namespace fcl
 /// performs the collision between them. 
 /// Return value is the number of contacts generated between the two objects.
 template <typename Scalar>
-std::size_t collide(const CollisionObjectd* o1, const CollisionObjectd* o2,
+std::size_t collide(const CollisionObject<Scalar>* o1, const CollisionObject<Scalar>* o2,
                     const CollisionRequest<Scalar>& request,
                     CollisionResult<Scalar>& result);
 
@@ -78,8 +79,8 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 
 template <typename Scalar, typename NarrowPhaseSolver>
 std::size_t collide(
-    const CollisionObjectd* o1,
-    const CollisionObjectd* o2,
+    const CollisionObject<Scalar>* o1,
+    const CollisionObject<Scalar>* o2,
     const NarrowPhaseSolver* nsolver,
     const CollisionRequest<Scalar>& request,
     CollisionResult<Scalar>& result)
@@ -147,20 +148,20 @@ std::size_t collide(
 
 //==============================================================================
 template <typename Scalar>
-std::size_t collide(const CollisionObjectd* o1, const CollisionObjectd* o2,
+std::size_t collide(const CollisionObject<Scalar>* o1, const CollisionObject<Scalar>* o2,
                     const CollisionRequest<Scalar>& request, CollisionResult<Scalar>& result)
 {
   switch(request.gjk_solver_type)
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd solver;
-      return collide<Scalar, GJKSolver_libccd>(o1, o2, &solver, request, result);
+      GJKSolver_libccd<Scalar> solver;
+      return collide<Scalar, GJKSolver_libccd<Scalar>>(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return collide<Scalar, GJKSolver_indep>(o1, o2, &solver, request, result);
+      GJKSolver_indep<Scalar> solver;
+      return collide<Scalar, GJKSolver_indep<Scalar>>(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -181,14 +182,14 @@ std::size_t collide(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd solver;
-      return collide<Scalar, GJKSolver_libccd>(
+      GJKSolver_libccd<Scalar> solver;
+      return collide<Scalar, GJKSolver_libccd<Scalar>>(
           o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return collide<Scalar, GJKSolver_indep>(
+      GJKSolver_indep<Scalar> solver;
+      return collide<Scalar, GJKSolver_indep<Scalar>>(
           o1, tf1, o2, tf2, &solver, request, result);
     }
   default:

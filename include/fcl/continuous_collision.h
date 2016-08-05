@@ -136,8 +136,8 @@ Scalar continuousCollideNaive(
     motion1->getCurrentTransform(cur_tf1);
     motion2->getCurrentTransform(cur_tf2);
 
-    CollisionRequestd c_request;
-    CollisionResultd c_result;
+    CollisionRequest<Scalar> c_request;
+    CollisionResult<Scalar> c_result;
 
     if(collide(o1, cur_tf1, o2, cur_tf2, c_request, c_result))
     {
@@ -190,7 +190,7 @@ typename BV::Scalar continuousCollideBVHPolynomial(
   o2->endUpdateModel(true, true);
 
   MeshContinuousCollisionTraversalNode<BV> node;
-  CollisionRequestd c_request;
+  CollisionRequest<Scalar> c_request;
 
   motion1->integrate(0);
   motion2->integrate(0);
@@ -291,7 +291,7 @@ typename NarrowPhaseSolver::Scalar continuousCollideConservativeAdvancement(
   if(!nsolver_)
     nsolver = new NarrowPhaseSolver();
 
-  const ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>& looktable = getConservativeAdvancementFunctionLookTable<NarrowPhaseSolver>();
+  const auto& looktable = getConservativeAdvancementFunctionLookTable<NarrowPhaseSolver>();
 
   NODE_TYPE node_type1 = o1->getNodeType();
   NODE_TYPE node_type2 = o2->getNodeType();
@@ -340,12 +340,12 @@ Scalar continuousCollideConservativeAdvancement(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd solver;
+      GJKSolver_libccd<Scalar> solver;
       return details::continuousCollideConservativeAdvancement(o1, motion1, o2, motion2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
+      GJKSolver_indep<Scalar> solver;
       return details::continuousCollideConservativeAdvancement(o1, motion1, o2, motion2, &solver, request, result);
     }
   default:

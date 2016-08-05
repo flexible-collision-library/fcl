@@ -268,7 +268,7 @@ KDOP<Scalar, N>& KDOP<Scalar, N>::operator += (const Vector3<Scalar>& p)
   }
 
   Scalar pd[(N - 6) / 2];
-  getDistances<double, (N - 6) / 2>(p, pd);
+  getDistances<Scalar, (N - 6) / 2>(p, pd);
   for(std::size_t i = 0; i < (N - 6) / 2; ++i)
   {
     minmax(pd[i], dist_[3 + i], dist_[3 + N / 2 + i]);

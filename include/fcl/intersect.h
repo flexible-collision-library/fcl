@@ -130,7 +130,7 @@ public:
 
   static bool intersect_Triangle(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3,
                                  const Vector3<Scalar>& Q1, const Vector3<Scalar>& Q2, const Vector3<Scalar>& Q3,
-                                 const Transform3d& tf,
+                                 const Transform3<Scalar>& tf,
                                  Vector3<Scalar>* contact_points = NULL,
                                  unsigned int* num_contact_points = NULL,
                                  Scalar* penetration_depth = NULL,
@@ -336,7 +336,7 @@ public:
                               Vector3<Scalar>& P, Vector3<Scalar>& Q);
 
   static Scalar triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3],
-                              const Transform3d& tf,
+                              const Transform3<Scalar>& tf,
                               Vector3<Scalar>& P, Vector3<Scalar>& Q);
 
   static Scalar triDistance(const Vector3<Scalar>& S1, const Vector3<Scalar>& S2, const Vector3<Scalar>& S3,
@@ -346,7 +346,7 @@ public:
 
   static Scalar triDistance(const Vector3<Scalar>& S1, const Vector3<Scalar>& S2, const Vector3<Scalar>& S3,
                               const Vector3<Scalar>& T1, const Vector3<Scalar>& T2, const Vector3<Scalar>& T3,
-                              const Transform3d& tf,
+                              const Transform3<Scalar>& tf,
                               Vector3<Scalar>& P, Vector3<Scalar>& Q);
 
 };
@@ -1060,7 +1060,7 @@ bool Intersect<Scalar>::intersect_Triangle(const Vector3<Scalar>& P1, const Vect
 template <typename Scalar>
 bool Intersect<Scalar>::intersect_Triangle(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3,
                                    const Vector3<Scalar>& Q1, const Vector3<Scalar>& Q2, const Vector3<Scalar>& Q3,
-                                   const Transform3d& tf,
+                                   const Transform3<Scalar>& tf,
                                    Vector3<Scalar>* contact_points,
                                    unsigned int* num_contact_points,
                                    Scalar* penetration_depth,
@@ -1917,7 +1917,7 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
 //==============================================================================
 template <typename Scalar>
 Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3],
-                                       const Transform3d& tf,
+                                       const Transform3<Scalar>& tf,
                                        Vector3<Scalar>& P, Vector3<Scalar>& Q)
 {
   Vector3<Scalar> T_transformed[3];
@@ -1945,7 +1945,7 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar>& S1, const Ve
 template <typename Scalar>
 Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar>& S1, const Vector3<Scalar>& S2, const Vector3<Scalar>& S3,
                                        const Vector3<Scalar>& T1, const Vector3<Scalar>& T2, const Vector3<Scalar>& T3,
-                                       const Transform3d& tf,
+                                       const Transform3<Scalar>& tf,
                                        Vector3<Scalar>& P, Vector3<Scalar>& Q)
 {
   Vector3<Scalar> T1_transformed = tf * T1;

@@ -40,7 +40,8 @@
 #include "fcl/math/constants.h"
 #include "fcl/collision.h"
 #include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 
 #include <cmath>
 using namespace fcl;
@@ -48,7 +49,7 @@ using namespace fcl;
 GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
 {
 
-  GJKSolver_indep solver;
+  GJKSolver_indepd solver;
   Capsuled s1(5, 10);
   Capsuled s2(5, 10);
 
@@ -74,7 +75,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
 GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
 {
 
-  GJKSolver_indep solver;
+  GJKSolver_indepd solver;
   Capsuled s1(5, 10);
   Capsuled s2(5, 10);
 
@@ -100,7 +101,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
 GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
 {
 
-  GJKSolver_indep solver;
+  GJKSolver_indepd solver;
   Capsuled s1(5, 10);
   Capsuled s2(5, 10);
 
@@ -127,7 +128,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
 {
   const FCL_REAL Pi = constants::pi;
 
-  GJKSolver_indep solver;
+  GJKSolver_indepd solver;
   Capsuled s1(5, 10);
   Capsuled s2(5, 10);
 

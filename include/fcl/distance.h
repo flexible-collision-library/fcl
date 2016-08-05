@@ -41,7 +41,8 @@
 #include "fcl/collision_object.h"
 #include "fcl/collision_data.h"
 #include "fcl/distance_func_matrix.h"
-#include "fcl/narrowphase/narrowphase.h"
+#include "fcl/narrowphase/gjk_solver_indep.h"
+#include "fcl/narrowphase/gjk_solver_libccd.h"
 
 namespace fcl
 {
@@ -50,7 +51,7 @@ namespace fcl
 /// Return value is the minimum distance generated between the two objects.
 template <typename Scalar>
 Scalar distance(
-    const CollisionObjectd* o1, const CollisionObjectd* o2,
+    const CollisionObject<Scalar>* o1, const CollisionObject<Scalar>* o2,
     const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result);
 
 template <typename Scalar>
@@ -75,8 +76,8 @@ DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
 
 template <typename NarrowPhaseSolver>
 typename NarrowPhaseSolver::Scalar distance(
-    const CollisionObjectd* o1,
-    const CollisionObjectd* o2,
+    const CollisionObject<typename NarrowPhaseSolver::Scalar>* o1,
+    const CollisionObject<typename NarrowPhaseSolver::Scalar>* o2,
     const NarrowPhaseSolver* nsolver,
     const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
     DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
@@ -148,8 +149,8 @@ typename NarrowPhaseSolver::Scalar distance(
 //==============================================================================
 template <typename Scalar>
 Scalar distance(
-    const CollisionObjectd* o1,
-    const CollisionObjectd* o2,
+    const CollisionObject<Scalar>* o1,
+    const CollisionObject<Scalar>* o2,
     const DistanceRequest<Scalar>& request,
     DistanceResult<Scalar>& result)
 {
@@ -157,13 +158,13 @@ Scalar distance(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd solver;
-      return distance<GJKSolver_libccd>(o1, o2, &solver, request, result);
+      GJKSolver_libccd<Scalar> solver;
+      return distance<GJKSolver_libccd<Scalar>>(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return distance<GJKSolver_indep>(o1, o2, &solver, request, result);
+      GJKSolver_indep<Scalar> solver;
+      return distance<GJKSolver_indep<Scalar>>(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -181,13 +182,13 @@ Scalar distance(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd solver;
-      return distance<GJKSolver_libccd>(o1, tf1, o2, tf2, &solver, request, result);
+      GJKSolver_libccd<Scalar> solver;
+      return distance<GJKSolver_libccd<Scalar>>(o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep solver;
-      return distance<GJKSolver_indep>(o1, tf1, o2, tf2, &solver, request, result);
+      GJKSolver_indep<Scalar> solver;
+      return distance<GJKSolver_indep<Scalar>>(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     return -1;

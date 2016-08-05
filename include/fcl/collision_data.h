@@ -76,6 +76,13 @@ struct ContactPoint
 using ContactPointf = ContactPoint<float>;
 using ContactPointd = ContactPoint<double>;
 
+template <typename Scalar>
+void flipNormal(std::vector<ContactPoint<Scalar>>& contacts)
+{
+  for (auto& contact : contacts)
+    contact.normal *= -1.0;
+}
+
 /// @brief Return true if _cp1's penentration depth is less than _cp2's.
 template <typename Scalar>
 bool comparePenDepth(
