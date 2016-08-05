@@ -56,7 +56,7 @@ public:
   {
   }
 
-  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>>& cgeom_, const std::shared_ptr<MotionBase>& motion_) :
+  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>>& cgeom_, const std::shared_ptr<MotionBased>& motion_) :
     cgeom(cgeom_), cgeom_const(cgeom), motion(motion_)
   {
   }
@@ -84,9 +84,9 @@ public:
   /// @brief compute the AABB<Scalar> in the world space for the motion
   void computeAABB()
   {
-    IVector3 box;
-    TMatrix3 R;
-    TVector3 T;
+    IVector3<Scalar> box;
+    TMatrix3<Scalar> R;
+    TVector3<Scalar> T;
     motion->getTaylorModel(R, T);
 
     Vector3<Scalar> p = cgeom->aabb_local.min_;
@@ -134,7 +134,7 @@ public:
   }
 
   /// @brief get motion from the object instance
-  MotionBase* getMotion() const
+  MotionBased* getMotion() const
   {
     return motion.get();
   }
@@ -157,7 +157,7 @@ protected:
   std::shared_ptr<CollisionGeometry<Scalar>> cgeom;
   std::shared_ptr<const CollisionGeometry<Scalar>> cgeom_const;
 
-  std::shared_ptr<MotionBase> motion;
+  std::shared_ptr<MotionBased> motion;
 
   /// @brief AABB<Scalar> in the global coordinate for the motion
   mutable AABB<Scalar> aabb;

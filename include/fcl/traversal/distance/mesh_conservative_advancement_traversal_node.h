@@ -82,8 +82,8 @@ public:
   mutable Scalar delta_t;
 
   /// @brief Motions for the two objects in query
-  const MotionBase* motion1;
-  const MotionBase* motion2;
+  const MotionBased* motion1;
+  const MotionBased* motion2;
 
   mutable std::vector<ConservativeAdvancementStackData<Scalar>> stack;
 
@@ -179,8 +179,8 @@ bool meshConservativeAdvancementTraversalNodeCanStop(
     typename BV::Scalar w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const MotionBase* motion1,
-    const MotionBase* motion2,
+    const MotionBased* motion1,
+    const MotionBased* motion2,
     std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
     typename BV::Scalar& delta_t);
 
@@ -193,8 +193,8 @@ bool meshConservativeAdvancementOrientedNodeCanStop(
     typename BV::Scalar w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const MotionBase* motion1,
-    const MotionBase* motion2,
+    const MotionBased* motion1,
+    const MotionBased* motion2,
     std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
     typename BV::Scalar& delta_t);
 
@@ -210,8 +210,8 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
     const Vector3<typename BV::Scalar>* vertices2,
     const Matrix3<typename BV::Scalar>& R,
     const Vector3<typename BV::Scalar>& T,
-    const MotionBase* motion1,
-    const MotionBase* motion2,
+    const MotionBased* motion1,
+    const MotionBased* motion2,
     bool enable_statistics,
     typename BV::Scalar& min_distance,
     Vector3<typename BV::Scalar>& p1,
@@ -303,7 +303,7 @@ void MeshConservativeAdvancementTraversalNode<BV>::leafTesting(int b1, int b2) c
   Vector3<Scalar> n = P2 - P1;
   n.normalize();
   // here n is already in global frame as we assume the body is in original configuration (I, 0) for general BVH
-  TriangleMotionBoundVisitor mb_visitor1(p1, p2, p3, n), mb_visitor2(q1, q2, q3, n);
+  TriangleMotionBoundVisitor<Scalar> mb_visitor1(p1, p2, p3, n), mb_visitor2(q1, q2, q3, n);
   Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
   Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
 
@@ -702,8 +702,8 @@ bool meshConservativeAdvancementTraversalNodeCanStop(
     typename BV::Scalar w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const MotionBase* motion1,
-    const MotionBase* motion2,
+    const MotionBased* motion1,
+    const MotionBased* motion2,
     std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
     typename BV::Scalar& delta_t)
 {
@@ -780,8 +780,8 @@ bool meshConservativeAdvancementOrientedNodeCanStop(
     typename BV::Scalar w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const MotionBase* motion1,
-    const MotionBase* motion2,
+    const MotionBased* motion1,
+    const MotionBased* motion2,
     std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
     typename BV::Scalar& delta_t)
 {
@@ -866,8 +866,8 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
     const Vector3<typename BV::Scalar>* vertices2,
     const Matrix3<typename BV::Scalar>& R,
     const Vector3<typename BV::Scalar>& T,
-    const MotionBase* motion1,
-    const MotionBase* motion2,
+    const MotionBased* motion1,
+    const MotionBased* motion2,
     bool enable_statistics,
     typename BV::Scalar& min_distance,
     Vector3<typename BV::Scalar>& p1,
@@ -925,7 +925,7 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
   Vector3<Scalar> n_transformed = R0 * n;
   n_transformed.normalize(); // normalized here
 
-  TriangleMotionBoundVisitor mb_visitor1(t11, t12, t13, n_transformed), mb_visitor2(t21, t22, t23, -n_transformed);
+  TriangleMotionBoundVisitor<Scalar> mb_visitor1(t11, t12, t13, n_transformed), mb_visitor2(t21, t22, t23, -n_transformed);
   Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
   Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
 

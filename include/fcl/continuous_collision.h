@@ -92,7 +92,7 @@ ConservativeAdvancementFunctionMatrix<GJKSolver>& getConservativeAdvancementFunc
 }
 
 template <typename Scalar>
-MotionBasePtr getMotionBase(
+MotionBasePtr<Scalar> getMotionBase(
     const Transform3<Scalar>& tf_beg,
     const Transform3<Scalar>& tf_end,
     CCDMotionType motion_type)
@@ -100,28 +100,28 @@ MotionBasePtr getMotionBase(
   switch(motion_type)
   {
   case CCDM_TRANS:
-    return MotionBasePtr(new TranslationMotion(tf_beg, tf_end));
+    return MotionBasePtr<Scalar>(new TranslationMotion<Scalar>(tf_beg, tf_end));
     break;
   case CCDM_LINEAR:
-    return MotionBasePtr(new InterpMotion(tf_beg, tf_end));
+    return MotionBasePtr<Scalar>(new InterpMotion<Scalar>(tf_beg, tf_end));
     break;
   case CCDM_SCREW:
-    return MotionBasePtr(new ScrewMotion(tf_beg, tf_end));
+    return MotionBasePtr<Scalar>(new ScrewMotion<Scalar>(tf_beg, tf_end));
     break;
   case CCDM_SPLINE:
-    return MotionBasePtr(new SplineMotion(tf_beg, tf_end));
+    return MotionBasePtr<Scalar>(new SplineMotion<Scalar>(tf_beg, tf_end));
     break;
   default:
-    return MotionBasePtr();
+    return MotionBasePtr<Scalar>();
   }
 }
 
 template <typename Scalar>
 Scalar continuousCollideNaive(
     const CollisionGeometry<Scalar>* o1,
-    const MotionBase* motion1,
+    const MotionBased* motion1,
     const CollisionGeometry<Scalar>* o2,
-    const MotionBase* motion2,
+    const MotionBased* motion2,
     const ContinuousCollisionRequest<Scalar>& request,
     ContinuousCollisionResult<Scalar>& result)
 {
@@ -159,9 +159,9 @@ namespace details
 template<typename BV>
 typename BV::Scalar continuousCollideBVHPolynomial(
     const CollisionGeometry<typename BV::Scalar>* o1_,
-    const TranslationMotion* motion1,
+    const TranslationMotion<typename BV::Scalar>* motion1,
     const CollisionGeometry<typename BV::Scalar>* o2_,
-    const TranslationMotion* motion2,
+    const TranslationMotion<typename BV::Scalar>* motion2,
     const ContinuousCollisionRequest<typename BV::Scalar>& request,
     ContinuousCollisionResult<typename BV::Scalar>& result)
 {
@@ -223,9 +223,9 @@ typename BV::Scalar continuousCollideBVHPolynomial(
 template <typename Scalar>
 Scalar continuousCollideBVHPolynomial(
     const CollisionGeometry<Scalar>* o1,
-    const TranslationMotion* motion1,
+    const TranslationMotion<Scalar>* motion1,
     const CollisionGeometry<Scalar>* o2,
-    const TranslationMotion* motion2,
+    const TranslationMotion<Scalar>* motion2,
     const ContinuousCollisionRequest<Scalar>& request,
     ContinuousCollisionResult<Scalar>& result)
 {
@@ -278,9 +278,9 @@ namespace details
 template<typename NarrowPhaseSolver>
 typename NarrowPhaseSolver::Scalar continuousCollideConservativeAdvancement(
     const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o1,
-    const MotionBase* motion1,
+    const MotionBased* motion1,
     const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o2,
-    const MotionBase* motion2,
+    const MotionBased* motion2,
     const NarrowPhaseSolver* nsolver_,
     const ContinuousCollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
     ContinuousCollisionResult<typename NarrowPhaseSolver::Scalar>& result)
@@ -330,9 +330,9 @@ typename NarrowPhaseSolver::Scalar continuousCollideConservativeAdvancement(
 template <typename Scalar>
 Scalar continuousCollideConservativeAdvancement(
     const CollisionGeometry<Scalar>* o1,
-    const MotionBase* motion1,
+    const MotionBased* motion1,
     const CollisionGeometry<Scalar>* o2,
-    const MotionBase* motion2,
+    const MotionBased* motion2,
     const ContinuousCollisionRequest<Scalar>& request,
     ContinuousCollisionResult<Scalar>& result)
 {
@@ -356,9 +356,9 @@ Scalar continuousCollideConservativeAdvancement(
 template <typename Scalar>
 Scalar continuousCollide(
     const CollisionGeometry<Scalar>* o1,
-    const MotionBase* motion1,
+    const MotionBased* motion1,
     const CollisionGeometry<Scalar>* o2,
-    const MotionBase* motion2,
+    const MotionBased* motion2,
     const ContinuousCollisionRequest<Scalar>& request,
     ContinuousCollisionResult<Scalar>& result)
 {
@@ -387,8 +387,8 @@ Scalar continuousCollide(
   case CCDC_POLYNOMIAL_SOLVER:
     if(o1->getObjectType() == OT_BVH && o2->getObjectType() == OT_BVH && request.ccd_motion_type == CCDM_TRANS)
     {
-      return continuousCollideBVHPolynomial(o1, (const TranslationMotion*)motion1,
-                                            o2, (const TranslationMotion*)motion2,
+      return continuousCollideBVHPolynomial(o1, (const TranslationMotion<Scalar>*)motion1,
+                                            o2, (const TranslationMotion<Scalar>*)motion2,
                                             request, result);
     }
     else
@@ -412,8 +412,8 @@ Scalar continuousCollide(
     const ContinuousCollisionRequest<Scalar>& request,
     ContinuousCollisionResult<Scalar>& result)
 {
-  MotionBasePtr motion1 = getMotionBase(tf1_beg, tf1_end, request.ccd_motion_type);
-  MotionBasePtr motion2 = getMotionBase(tf2_beg, tf2_end, request.ccd_motion_type);
+  MotionBasePtr<Scalar> motion1 = getMotionBase(tf1_beg, tf1_end, request.ccd_motion_type);
+  MotionBasePtr<Scalar> motion2 = getMotionBase(tf2_beg, tf2_end, request.ccd_motion_type);
 
   return continuousCollide(o1, motion1.get(), o2, motion2.get(), request, result);
 }

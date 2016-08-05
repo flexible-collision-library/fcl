@@ -62,8 +62,8 @@ public:
   mutable FCL_REAL delta_t;
 
   /// @brief Motions for the two objects in query
-  const MotionBase* motion1;
-  const MotionBase* motion2;
+  const MotionBased* motion1;
+  const MotionBased* motion2;
 
   RSSd model1_bv, model2_bv; // local bv for the two shapes
 };

@@ -81,8 +81,8 @@ public:
   mutable Scalar delta_t;
 
   /// @brief Motions for the two objects in query
-  const MotionBase* motion1;
-  const MotionBase* motion2;
+  const MotionBased* motion1;
+  const MotionBased* motion2;
 
   mutable std::vector<ConservativeAdvancementStackData<Scalar>> stack;
 };
@@ -113,8 +113,8 @@ void meshShapeConservativeAdvancementOrientedNodeLeafTesting(
     Triangle* tri_indices,
     const Transform3<typename BV::Scalar>& tf1,
     const Transform3<typename BV::Scalar>& tf2,
-    const MotionBase* motion1,
-    const MotionBase* motion2,
+    const MotionBased* motion1,
+    const MotionBased* motion2,
     const NarrowPhaseSolver* nsolver,
     bool enable_statistics,
     typename BV::Scalar& min_distance,
@@ -154,7 +154,7 @@ void meshShapeConservativeAdvancementOrientedNodeLeafTesting(
   // n is in global frame
   Vector3<Scalar> n = P2 - P1; n.normalize();
 
-  TriangleMotionBoundVisitor mb_visitor1(t1, t2, t3, n);
+  TriangleMotionBoundVisitor<Scalar> mb_visitor1(t1, t2, t3, n);
   TBVMotionBoundVisitor<BV> mb_visitor2(model2_bv, -n);
   Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
   Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
@@ -180,7 +180,7 @@ bool meshShapeConservativeAdvancementOrientedNodeCanStop(
     const BVHModel<BV>* model1,
     const S& model2,
     const BV& model2_bv,
-    const MotionBase* motion1, const MotionBase* motion2,
+    const MotionBased* motion1, const MotionBased* motion2,
     std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
     typename BV::Scalar& delta_t)
 {
@@ -438,7 +438,7 @@ leafTesting(int b1, int b2) const
 
   Vector3<Scalar> n = this->tf2 * p2 - P1; n.normalize();
   // here n should be in global frame
-  TriangleMotionBoundVisitor mb_visitor1(p1, p2, p3, n);
+  TriangleMotionBoundVisitor<Scalar> mb_visitor1(p1, p2, p3, n);
   TBVMotionBoundVisitor<BV> mb_visitor2(this->model2_bv, -n);
   Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
   Scalar bound2 = motion2->computeMotionBound(mb_visitor2);

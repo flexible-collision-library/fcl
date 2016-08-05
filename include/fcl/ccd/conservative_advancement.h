@@ -61,7 +61,7 @@ namespace fcl
 template<typename NarrowPhaseSolver>
 struct ConservativeAdvancementFunctionMatrix
 {
-  typedef FCL_REAL (*ConservativeAdvancementFunc)(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result);
+  typedef FCL_REAL (*ConservativeAdvancementFunc)(const CollisionGeometryd* o1, const MotionBased* motion1, const CollisionGeometryd* o2, const MotionBased* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result);
 
   ConservativeAdvancementFunc conservative_advancement_matrix[NODE_COUNT][NODE_COUNT];
 
@@ -77,9 +77,9 @@ struct ConservativeAdvancementFunctionMatrix
 //==============================================================================
 template<typename BV>
 bool conservativeAdvancement(const BVHModel<BV>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<BV>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
                              FCL_REAL& toc)
@@ -152,9 +152,9 @@ namespace details
 
 template<typename BV, typename ConservativeAdvancementOrientedNode>
 bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
-                                         const MotionBase* motion1,
+                                         const MotionBased* motion1,
                                          const BVHModel<BV>& o2,
-                                         const MotionBase* motion2,
+                                         const MotionBased* motion2,
                                          const CollisionRequestd& request,
                                          CollisionResultd& result,
                                          FCL_REAL& toc)
@@ -224,9 +224,9 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
 
 template<>
 bool conservativeAdvancement(const BVHModel<RSSd>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<RSSd>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
                              FCL_REAL& toc);
@@ -234,18 +234,18 @@ bool conservativeAdvancement(const BVHModel<RSSd>& o1,
 
 template<>
 bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<OBBRSSd>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
                              FCL_REAL& toc);
 
 template<typename S1, typename S2, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const S1& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const S2& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const NarrowPhaseSolver* solver,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
@@ -309,9 +309,9 @@ bool conservativeAdvancement(const S1& o1,
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const BVHModel<BV>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const S& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
@@ -379,9 +379,9 @@ namespace details
 
 template<typename BV, typename S, typename NarrowPhaseSolver, typename ConservativeAdvancementOrientedNode>
 bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
-                                              const MotionBase* motion1,
+                                              const MotionBased* motion1,
                                               const S& o2,
-                                              const MotionBase* motion2,
+                                              const MotionBased* motion2,
                                               const NarrowPhaseSolver* nsolver,
                                               const CollisionRequestd& request,
                                               CollisionResultd& result,
@@ -447,9 +447,9 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
 
 template<typename S, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const BVHModel<RSSd>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const S& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
@@ -460,9 +460,9 @@ bool conservativeAdvancement(const BVHModel<RSSd>& o1,
 
 template<typename S, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const S& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
@@ -473,9 +473,9 @@ bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
 
 template<typename S, typename BV, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const S& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<BV>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
@@ -543,9 +543,9 @@ namespace details
 
 template<typename S, typename BV, typename NarrowPhaseSolver, typename ConservativeAdvancementOrientedNode>
 bool conservativeAdvancementShapeMeshOriented(const S& o1,
-                                              const MotionBase* motion1,
+                                              const MotionBased* motion1,
                                               const BVHModel<BV>& o2,
-                                              const MotionBase* motion2,
+                                              const MotionBased* motion2,
                                               const NarrowPhaseSolver* nsolver,
                                               const CollisionRequestd& request,
                                               CollisionResultd& result,
@@ -610,9 +610,9 @@ bool conservativeAdvancementShapeMeshOriented(const S& o1,
 
 template<typename S, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const S& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<RSSd>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
@@ -624,9 +624,9 @@ bool conservativeAdvancement(const S& o1,
 
 template<typename S, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const S& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<OBBRSSd>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const NarrowPhaseSolver* nsolver,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
@@ -639,9 +639,9 @@ bool conservativeAdvancement(const S& o1,
 
 template<>
 bool conservativeAdvancement(const BVHModel<RSSd>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<RSSd>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
                              FCL_REAL& toc)
@@ -651,9 +651,9 @@ bool conservativeAdvancement(const BVHModel<RSSd>& o1,
 
 template<>
 bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
-                             const MotionBase* motion1,
+                             const MotionBased* motion1,
                              const BVHModel<OBBRSSd>& o2,
-                             const MotionBase* motion2,
+                             const MotionBased* motion2,
                              const CollisionRequestd& request,
                              CollisionResultd& result,
                              FCL_REAL& toc)
@@ -663,7 +663,7 @@ bool conservativeAdvancement(const BVHModel<OBBRSSd>& o1,
 
 
 template<typename BV, typename NarrowPhaseSolver>
-FCL_REAL BVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
+FCL_REAL BVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBased* motion1, const CollisionGeometryd* o2, const MotionBased* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
   const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>*>(o2);
@@ -680,7 +680,7 @@ FCL_REAL BVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBa
 }
 
 template<typename S1, typename S2, typename NarrowPhaseSolver>
-FCL_REAL ShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
+FCL_REAL ShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBased* motion1, const CollisionGeometryd* o2, const MotionBased* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const S1* obj1 = static_cast<const S1*>(o1);
   const S2* obj2 = static_cast<const S2*>(o2);
@@ -697,7 +697,7 @@ FCL_REAL ShapeConservativeAdvancement(const CollisionGeometryd* o1, const Motion
 }
 
 template<typename S, typename BV, typename NarrowPhaseSolver>
-FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
+FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometryd* o1, const MotionBased* motion1, const CollisionGeometryd* o2, const MotionBased* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const S* obj1 = static_cast<const S*>(o1);
   const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>*>(o2);
@@ -715,7 +715,7 @@ FCL_REAL ShapeBVHConservativeAdvancement(const CollisionGeometryd* o1, const Mot
 }
 
 template<typename BV, typename S, typename NarrowPhaseSolver>
-FCL_REAL BVHShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBase* motion1, const CollisionGeometryd* o2, const MotionBase* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
+FCL_REAL BVHShapeConservativeAdvancement(const CollisionGeometryd* o1, const MotionBased* motion1, const CollisionGeometryd* o2, const MotionBased* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequestd& request, ContinuousCollisionResultd& result)
 {
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
   const S* obj2 = static_cast<const S*>(o2);

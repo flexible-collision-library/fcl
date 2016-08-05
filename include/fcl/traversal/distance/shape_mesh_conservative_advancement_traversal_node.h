@@ -81,8 +81,8 @@ public:
   mutable Scalar delta_t;
 
   /// @brief Motions for the two objects in query
-  const MotionBase* motion1;
-  const MotionBase* motion2;
+  const MotionBased* motion1;
+  const MotionBased* motion2;
 
   mutable std::vector<ConservativeAdvancementStackData<Scalar>> stack;
 };
@@ -223,7 +223,7 @@ void ShapeMeshConservativeAdvancementTraversalNode<S, BV, NarrowPhaseSolver>::le
   Vector3<Scalar> n = P2 - this->tf1 * p1; n.normalize();
   // here n should be in global frame
   TBVMotionBoundVisitor<BV> mb_visitor1(this->model1_bv, n);
-  TriangleMotionBoundVisitor mb_visitor2(p1, p2, p3, -n);
+  TriangleMotionBoundVisitor<Scalar> mb_visitor2(p1, p2, p3, -n);
   Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
   Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
 
