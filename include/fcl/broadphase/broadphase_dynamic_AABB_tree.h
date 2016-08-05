@@ -219,9 +219,9 @@ bool collisionRecurse_(
     }
     else
     {
-      if(collisionRecurse_(root1->children[0], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<Scalar>(root1->children[0], tree2, NULL, root2_bv, tf2, cdata, callback))
         return true;
-      if(collisionRecurse_(root1->children[1], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<Scalar>(root1->children[1], tree2, NULL, root2_bv, tf2, cdata, callback))
         return true;
     }
 
@@ -284,7 +284,7 @@ bool collisionRecurse_(
       {
         AABB<Scalar> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_(root1, tree2, NULL, child_bv, tf2, cdata, callback))
+        if(collisionRecurse_<Scalar>(root1, tree2, NULL, child_bv, tf2, cdata, callback))
           return true;
       }
     }
@@ -293,13 +293,13 @@ bool collisionRecurse_(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename Scalar, typename Derived>
 bool collisionRecurse_(
     typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
     const OcTree<Scalar>* tree2,
     const typename OcTree<Scalar>::OcTreeNode* root2,
     const AABB<Scalar>& root2_bv,
-    const Vector3d& translation2,
+    const Eigen::MatrixBase<Derived>& translation2,
     void* cdata,
     CollisionCallBack<Scalar> callback)
 {
@@ -329,9 +329,9 @@ bool collisionRecurse_(
     }
     else
     {
-      if(collisionRecurse_(root1->children[0], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<Scalar>(root1->children[0], tree2, NULL, root2_bv, translation2, cdata, callback))
         return true;
-      if(collisionRecurse_(root1->children[1], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<Scalar>(root1->children[1], tree2, NULL, root2_bv, translation2, cdata, callback))
         return true;
     }
 
@@ -390,7 +390,7 @@ bool collisionRecurse_(
       {
         AABB<Scalar> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_(root1, tree2, NULL, child_bv, translation2, cdata, callback))
+        if(collisionRecurse_<Scalar>(root1, tree2, NULL, child_bv, translation2, cdata, callback))
           return true;
       }
     }
@@ -506,13 +506,13 @@ bool collisionRecurse(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename Scalar, typename Derived>
 bool distanceRecurse_(
     typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
     const OcTree<Scalar>* tree2,
     const typename OcTree<Scalar>::OcTreeNode* root2,
     const AABB<Scalar>& root2_bv,
-    const Vector3d& translation2,
+    const Eigen::MatrixBase<Derived>& translation2,
     void* cdata,
     DistanceCallBack<Scalar> callback,
     Scalar& min_dist)

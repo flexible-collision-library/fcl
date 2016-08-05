@@ -47,8 +47,10 @@
 namespace fcl
 {
 
+template <typename Scalar>
 class Joint;
 
+template <typename Scalar>
 class Link
 {
 public:
@@ -78,6 +80,66 @@ protected:
   std::shared_ptr<Joint> parent_joint_;
 };
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+Link<Scalar>::Link(const std::string& name) : name_(name)
+{}
+
+//==============================================================================
+template <typename Scalar>
+const std::string& Link<Scalar>::getName() const
+{
+  return name_;
 }
+
+//==============================================================================
+template <typename Scalar>
+void Link<Scalar>::setName(const std::string& name)
+{
+  name_ = name;
+}
+
+//==============================================================================
+template <typename Scalar>
+void Link<Scalar>::addChildJoint(const std::shared_ptr<Joint>& joint)
+{
+  children_joints_.push_back(joint);
+}
+
+//==============================================================================
+template <typename Scalar>
+void Link<Scalar>::setParentJoint(const std::shared_ptr<Joint>& joint)
+{
+  parent_joint_ = joint;
+}
+
+//==============================================================================
+template <typename Scalar>
+void Link<Scalar>::addObject(const std::shared_ptr<CollisionObjectd>& object)
+{
+  objects_.push_back(object);
+}
+
+//==============================================================================
+template <typename Scalar>
+std::size_t Link<Scalar>::getNumChildJoints() const
+{
+  return children_joints_.size();
+}
+
+//==============================================================================
+template <typename Scalar>
+std::size_t Link<Scalar>::getNumObjects() const
+{
+  return objects_.size();
+}
+
+} // namespace fcl
 
 #endif

@@ -45,8 +45,10 @@
 namespace fcl
 {
 
+template <typename Scalar>
 class Joint;
 
+template <typename Scalar>
 class JointConfig
 {
 public:
@@ -55,46 +57,133 @@ public:
   JointConfig(const JointConfig& joint_cfg);
 
   JointConfig(const std::shared_ptr<Joint>& joint,
-              FCL_REAL default_value = 0,
-              FCL_REAL default_value_min = 0,
-              FCL_REAL default_value_max = 0);
+              Scalar default_value = 0,
+              Scalar default_value_min = 0,
+              Scalar default_value_max = 0);
 
   std::size_t getDim() const;
 
-  inline FCL_REAL operator [] (std::size_t i) const
+  inline Scalar operator [] (std::size_t i) const
   {
     return values_[i];
   }
 
-  inline FCL_REAL& operator [] (std::size_t i)
+  inline Scalar& operator [] (std::size_t i)
   {
     return values_[i];
   }
 
-  FCL_REAL getValue(std::size_t i) const;
+  Scalar getValue(std::size_t i) const;
 
-  FCL_REAL& getValue(std::size_t i);
+  Scalar& getValue(std::size_t i);
   
-  FCL_REAL getLimitMin(std::size_t i) const;
+  Scalar getLimitMin(std::size_t i) const;
   
-  FCL_REAL& getLimitMin(std::size_t i);
+  Scalar& getLimitMin(std::size_t i);
   
-  FCL_REAL getLimitMax(std::size_t i) const;
+  Scalar getLimitMax(std::size_t i) const;
   
-  FCL_REAL& getLimitMax(std::size_t i);
+  Scalar& getLimitMax(std::size_t i);
   
   std::shared_ptr<Joint> getJoint() const;
 
 private:
   std::weak_ptr<Joint> joint_;
   
-  std::vector<FCL_REAL> values_;
-  std::vector<FCL_REAL> limits_min_;
-  std::vector<FCL_REAL> limits_max_;
+  std::vector<Scalar> values_;
+  std::vector<Scalar> limits_min_;
+  std::vector<Scalar> limits_max_;
 };
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+JointConfig<Scalar>::JointConfig() {}
+
+//==============================================================================
+template <typename Scalar>
+JointConfig<Scalar>::JointConfig(const JointConfig& joint_cfg) :
+  joint_(joint_cfg.joint_),
+  values_(joint_cfg.values_),
+  limits_min_(joint_cfg.limits_min_),
+  limits_max_(joint_cfg.limits_max_)
+{
 }
 
+//==============================================================================
+template <typename Scalar>
+JointConfig<Scalar>::JointConfig(const std::shared_ptr<Joint>& joint,
+                         Scalar default_value,
+                         Scalar default_value_min,
+                         Scalar default_value_max) :
+  joint_(joint)
+{
+  values_.resize(joint->getNumDofs(), default_value);
+  limits_min_.resize(joint->getNumDofs(), default_value_min);
+  limits_max_.resize(joint->getNumDofs(), default_value_max);
+}
 
+//==============================================================================
+template <typename Scalar>
+std::size_t JointConfig<Scalar>::getDim() const
+{
+  return values_.size();
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar JointConfig<Scalar>::getValue(std::size_t i) const
+{
+  return values_[i];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar& JointConfig<Scalar>::getValue(std::size_t i)
+{
+  return values_[i];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar JointConfig<Scalar>::getLimitMin(std::size_t i) const
+{
+  return limits_min_[i];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar& JointConfig<Scalar>::getLimitMin(std::size_t i)
+{
+  return limits_min_[i];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar JointConfig<Scalar>::getLimitMax(std::size_t i) const
+{
+  return limits_max_[i];
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar& JointConfig<Scalar>::getLimitMax(std::size_t i)
+{
+  return limits_max_[i];
+}
+
+//==============================================================================
+template <typename Scalar>
+std::shared_ptr<Joint> JointConfig<Scalar>::getJoint() const
+{
+  return joint_.lock();
+}
+
+} // namespace fcl
 
 #endif

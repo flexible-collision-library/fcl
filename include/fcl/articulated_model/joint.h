@@ -55,12 +55,13 @@ class Link;
 enum JointType {JT_UNKNOWN, JT_PRISMATIC, JT_REVOLUTE, JT_BALLEULER};
 
 /// @brief Base Joint
+template <typename Scalar>
 class Joint
 {
 public:
 
   Joint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-        const Transform3d& transform_to_parent,
+        const Transform3<Scalar>& transform_to_parent,
         const std::string& name);
 
   Joint(const std::string& name);
@@ -70,7 +71,7 @@ public:
   const std::string& getName() const;
   void setName(const std::string& name);
 
-  virtual Transform3d getLocalTransform() const = 0;
+  virtual Transform3<Scalar> getLocalTransform() const = 0;
 
   virtual std::size_t getNumDofs() const = 0;
 
@@ -85,8 +86,8 @@ public:
 
   JointType getJointType() const;
 
-  const Transform3d& getTransformToParent() const;
-  void setTransformToParent(const Transform3d& t);
+  const Transform3<Scalar>& getTransformToParent() const;
+  void setTransformToParent(const Transform3<Scalar>& t);
   
 protected:
 
@@ -99,67 +100,273 @@ protected:
   
   std::shared_ptr<JointConfig> joint_cfg_;
 
-  Transform3d transform_to_parent_;
+  Transform3<Scalar> transform_to_parent_;
 };
 
-
+template <typename Scalar>
 class PrismaticJoint : public Joint
 {
 public:
   PrismaticJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                 const Transform3d& transform_to_parent,
+                 const Transform3<Scalar>& transform_to_parent,
                  const std::string& name,
-                 const Vector3d& axis);
+                 const Vector3<Scalar>& axis);
 
   virtual ~PrismaticJoint() {}
 
-  Transform3d getLocalTransform() const;
+  Transform3<Scalar> getLocalTransform() const;
 
   std::size_t getNumDofs() const;
 
-  const Vector3d& getAxis() const;
+  const Vector3<Scalar>& getAxis() const;
 
 protected:
-  Vector3d axis_;
+  Vector3<Scalar> axis_;
 };
 
+template <typename Scalar>
 class RevoluteJoint : public Joint
 {
 public:
   RevoluteJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                const Transform3d& transform_to_parent,
+                const Transform3<Scalar>& transform_to_parent,
                 const std::string& name,
-                const Vector3d& axis);
+                const Vector3<Scalar>& axis);
 
   virtual ~RevoluteJoint() {}
 
-  Transform3d getLocalTransform() const;
+  Transform3<Scalar> getLocalTransform() const;
 
   std::size_t getNumDofs() const;
 
-  const Vector3d& getAxis() const;
+  const Vector3<Scalar>& getAxis() const;
 
 protected:
-  Vector3d axis_;
+  Vector3<Scalar> axis_;
 };
 
-
-
+template <typename Scalar>
 class BallEulerJoint : public Joint
 {
 public:
   BallEulerJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                 const Transform3d& transform_to_parent,
+                 const Transform3<Scalar>& transform_to_parent,
                  const std::string& name);
 
   virtual ~BallEulerJoint() {}
 
   std::size_t getNumDofs() const;
 
-  Transform3d getLocalTransform() const; 
+  Transform3<Scalar> getLocalTransform() const;
 };
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
 
+//==============================================================================
+template <typename Scalar>
+Joint<Scalar>::Joint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
+             const Transform3<Scalar>& transform_to_parent,
+             const std::string& name) :
+  link_parent_(link_parent), link_child_(link_child),
+  name_(name),
+  transform_to_parent_(transform_to_parent)
+{}
+
+//==============================================================================
+template <typename Scalar>
+Joint<Scalar>::Joint(const std::string& name) :
+  name_(name)
+{
 }
+
+//==============================================================================
+template <typename Scalar>
+const std::string& Joint<Scalar>::getName() const
+{
+  return name_;
+}
+
+//==============================================================================
+template <typename Scalar>
+void Joint<Scalar>::setName(const std::string& name)
+{
+  name_ = name;
+}
+
+//==============================================================================
+template <typename Scalar>
+std::shared_ptr<JointConfig> Joint<Scalar>::getJointConfig() const
+{
+  return joint_cfg_;
+}
+
+//==============================================================================
+template <typename Scalar>
+void Joint<Scalar>::setJointConfig(const std::shared_ptr<JointConfig>& joint_cfg)
+{
+  joint_cfg_ = joint_cfg;
+}
+
+//==============================================================================
+template <typename Scalar>
+std::shared_ptr<Link> Joint<Scalar>::getParentLink() const
+{
+  return link_parent_.lock();
+}
+
+//==============================================================================
+template <typename Scalar>
+std::shared_ptr<Link> Joint<Scalar>::getChildLink() const
+{
+  return link_child_.lock();
+}
+
+//==============================================================================
+template <typename Scalar>
+void Joint<Scalar>::setParentLink(const std::shared_ptr<Link>& link)
+{
+  link_parent_ = link;
+}
+
+//==============================================================================
+template <typename Scalar>
+void Joint<Scalar>::setChildLink(const std::shared_ptr<Link>& link)
+{
+  link_child_ = link;
+}
+
+//==============================================================================
+template <typename Scalar>
+JointType Joint<Scalar>::getJointType() const
+{
+  return type_;
+}
+
+//==============================================================================
+template <typename Scalar>
+const Transform3<Scalar>& Joint<Scalar>::getTransformToParent() const
+{
+  return transform_to_parent_;
+}
+
+//==============================================================================
+template <typename Scalar>
+void Joint<Scalar>::setTransformToParent(const Transform3<Scalar>& t)
+{
+  transform_to_parent_ = t;
+}
+
+//==============================================================================
+template <typename Scalar>
+PrismaticJoint<Scalar>::PrismaticJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
+                               const Transform3<Scalar>& transform_to_parent,
+                               const std::string& name,
+                               const Vector3<Scalar>& axis) :
+  Joint(link_parent, link_child, transform_to_parent, name),
+  axis_(axis)
+{
+  type_ = JT_PRISMATIC;
+}
+
+//==============================================================================
+template <typename Scalar>
+const Vector3<Scalar>& PrismaticJoint<Scalar>::getAxis() const
+{
+  return axis_;
+}
+
+//==============================================================================
+template <typename Scalar>
+std::size_t PrismaticJoint<Scalar>::getNumDofs() const
+{
+  return 1;
+}
+
+//==============================================================================
+template <typename Scalar>
+Transform3<Scalar> PrismaticJoint<Scalar>::getLocalTransform() const
+{
+  const Quaternion3d quat(transform_to_parent_.linear());
+  const Vector3<Scalar>& transl = transform_to_parent_.translation();
+
+  Transform3<Scalar> tf = Transform3<Scalar>::Identity();
+  tf.linear() = quat.toRotationMatrix();
+  tf.translation() = quat * (axis_ * (*joint_cfg_)[0]) + transl;
+
+  return tf;
+}
+
+//==============================================================================
+template <typename Scalar>
+RevoluteJoint<Scalar>::RevoluteJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
+                             const Transform3<Scalar>& transform_to_parent,
+                             const std::string& name,
+                             const Vector3<Scalar>& axis) :
+  Joint(link_parent, link_child, transform_to_parent, name),
+  axis_(axis)
+{
+  type_ = JT_REVOLUTE;
+}
+
+//==============================================================================
+template <typename Scalar>
+const Vector3<Scalar>& RevoluteJoint<Scalar>::getAxis() const
+{
+  return axis_;
+}
+
+//==============================================================================
+template <typename Scalar>
+std::size_t RevoluteJoint<Scalar>::getNumDofs() const
+{
+  return 1;
+}
+
+//==============================================================================
+template <typename Scalar>
+Transform3<Scalar> RevoluteJoint<Scalar>::getLocalTransform() const
+{
+  Transform3<Scalar> tf = Transform3<Scalar>::Identity();
+  tf.linear() = transform_to_parent_.linear() * Eigen::AngleAxisd((*joint_cfg_)[0], axis_);
+  tf.translation() = transform_to_parent_.translation();
+
+  return tf;
+}
+
+//==============================================================================
+template <typename Scalar>
+BallEulerJoint<Scalar>::BallEulerJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
+                               const Transform3<Scalar>& transform_to_parent,
+                               const std::string& name) :
+  Joint(link_parent, link_child, transform_to_parent, name)
+{}
+
+//==============================================================================
+template <typename Scalar>
+std::size_t BallEulerJoint<Scalar>::getNumDofs() const
+{
+  return 3;
+}
+
+//==============================================================================
+template <typename Scalar>
+Transform3<Scalar> BallEulerJoint<Scalar>::getLocalTransform() const
+{
+  Matrix3d rot(
+      Eigen::AngleAxisd((*joint_cfg_)[0], Eigen::Vector3<Scalar>::UnitX())
+        * Eigen::AngleAxisd((*joint_cfg_)[1], Eigen::Vector3<Scalar>::UnitY())
+        * Eigen::AngleAxisd((*joint_cfg_)[2], Eigen::Vector3<Scalar>::UnitZ()));
+
+  Transform3<Scalar> tf = Transform3<Scalar>::Identity();
+  tf.linear() = rot;
+
+  return transform_to_parent_ * tf;
+}
+
+} // namespace fcl
 
 #endif
