@@ -38,7 +38,6 @@
 #ifndef FCL_ARTICULATED_MODEL_JOINT_H
 #define FCL_ARTICULATED_MODEL_JOINT_H
 
-#include "fcl/math/transform.h"
 #include "fcl/data_types.h"
 
 #include <string>
@@ -61,7 +60,7 @@ class Joint
 public:
 
   Joint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-        const Transform3f& transform_to_parent,
+        const Transform3d& transform_to_parent,
         const std::string& name);
 
   Joint(const std::string& name);
@@ -71,7 +70,7 @@ public:
   const std::string& getName() const;
   void setName(const std::string& name);
 
-  virtual Transform3f getLocalTransform() const = 0;
+  virtual Transform3d getLocalTransform() const = 0;
 
   virtual std::size_t getNumDofs() const = 0;
 
@@ -86,8 +85,8 @@ public:
 
   JointType getJointType() const;
 
-  const Transform3f& getTransformToParent() const;
-  void setTransformToParent(const Transform3f& t);
+  const Transform3d& getTransformToParent() const;
+  void setTransformToParent(const Transform3d& t);
   
 protected:
 
@@ -100,7 +99,7 @@ protected:
   
   std::shared_ptr<JointConfig> joint_cfg_;
 
-  Transform3f transform_to_parent_;
+  Transform3d transform_to_parent_;
 };
 
 
@@ -108,40 +107,40 @@ class PrismaticJoint : public Joint
 {
 public:
   PrismaticJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                 const Transform3f& transform_to_parent,
+                 const Transform3d& transform_to_parent,
                  const std::string& name,
-                 const Vec3f& axis);
+                 const Vector3d& axis);
 
   virtual ~PrismaticJoint() {}
 
-  Transform3f getLocalTransform() const;
+  Transform3d getLocalTransform() const;
 
   std::size_t getNumDofs() const;
 
-  const Vec3f& getAxis() const;
+  const Vector3d& getAxis() const;
 
 protected:
-  Vec3f axis_;
+  Vector3d axis_;
 };
 
 class RevoluteJoint : public Joint
 {
 public:
   RevoluteJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                const Transform3f& transform_to_parent,
+                const Transform3d& transform_to_parent,
                 const std::string& name,
-                const Vec3f& axis);
+                const Vector3d& axis);
 
   virtual ~RevoluteJoint() {}
 
-  Transform3f getLocalTransform() const;
+  Transform3d getLocalTransform() const;
 
   std::size_t getNumDofs() const;
 
-  const Vec3f& getAxis() const;
+  const Vector3d& getAxis() const;
 
 protected:
-  Vec3f axis_;
+  Vector3d axis_;
 };
 
 
@@ -150,14 +149,14 @@ class BallEulerJoint : public Joint
 {
 public:
   BallEulerJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                 const Transform3f& transform_to_parent,
+                 const Transform3d& transform_to_parent,
                  const std::string& name);
 
   virtual ~BallEulerJoint() {}
 
   std::size_t getNumDofs() const;
 
-  Transform3f getLocalTransform() const; 
+  Transform3d getLocalTransform() const; 
 };
 
 

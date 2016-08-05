@@ -35,6 +35,7 @@
 
 /** \author Jia Pan */
 
+#include "fcl/math/geometry.h"
 #include "fcl/narrowphase/gjk.h"
 #include "fcl/intersect.h"
 
@@ -44,7 +45,7 @@ namespace fcl
 namespace details
 {
 
-Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
+Vector3d getSupport(const ShapeBase* shape, const Vector3d& dir)
 {
   switch(shape->getNodeType())
   {
@@ -73,7 +74,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
   case GEOM_BOX:
     {
       const Box* box = static_cast<const Box*>(shape);
-      return Vec3f((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
+      return Vector3d((dir[0]>0)?(box->side[0]/2):(-box->side[0]/2),
                    (dir[1]>0)?(box->side[1]/2):(-box->side[1]/2),
                    (dir[2]>0)?(box->side[2]/2):(-box->side[2]/2));
     }
@@ -92,7 +93,7 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       const FCL_REAL b2 = ellipsoid->radii[1] * ellipsoid->radii[1];
       const FCL_REAL c2 = ellipsoid->radii[2] * ellipsoid->radii[2];
 
-      const Vec3f v(a2 * dir[0], b2 * dir[1], c2 * dir[2]);
+      const Vector3d v(a2 * dir[0], b2 * dir[1], c2 * dir[2]);
       const FCL_REAL d = std::sqrt(v.dot(dir));
 
       return v / d;
@@ -102,9 +103,9 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
     {
       const Capsule* capsule = static_cast<const Capsule*>(shape);
       FCL_REAL half_h = capsule->lz * 0.5;
-      Vec3f pos1(0, 0, half_h);
-      Vec3f pos2(0, 0, -half_h);
-      Vec3f v = dir * capsule->radius;
+      Vector3d pos1(0, 0, half_h);
+      Vector3d pos2(0, 0, -half_h);
+      Vector3d v = dir * capsule->radius;
       pos1 += v;
       pos2 += v;
       if(dir.dot(pos1) > dir.dot(pos2))
@@ -125,14 +126,14 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       FCL_REAL sin_a = radius / std::sqrt(radius * radius + 4 * half_h * half_h);
 
       if(dir[2] > len * sin_a)
-        return Vec3f(0, 0, half_h);
+        return Vector3d(0, 0, half_h);
       else if(zdist > 0)
       {
         FCL_REAL rad = radius / zdist;
-        return Vec3f(rad * dir[0], rad * dir[1], -half_h);
+        return Vector3d(rad * dir[0], rad * dir[1], -half_h);
       }
       else
-        return Vec3f(0, 0, -half_h);
+        return Vector3d(0, 0, -half_h);
     }
     break;
   case GEOM_CYLINDER:
@@ -142,12 +143,12 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
       FCL_REAL half_h = cylinder->lz * 0.5;
       if(zdist == 0.0)
       {
-        return Vec3f(0, 0, (dir[2]>0)? half_h:-half_h);
+        return Vector3d(0, 0, (dir[2]>0)? half_h:-half_h);
       }
       else
       {
         FCL_REAL d = cylinder->radius / zdist;
-        return Vec3f(d * dir[0], d * dir[1], (dir[2]>0)?half_h:-half_h);
+        return Vector3d(d * dir[0], d * dir[1], (dir[2]>0)?half_h:-half_h);
       }
     }
     break;
@@ -155,8 +156,8 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
     {
       const Convex* convex = static_cast<const Convex*>(shape);
       FCL_REAL maxdot = - std::numeric_limits<FCL_REAL>::max();
-      Vec3f* curp = convex->points;
-      Vec3f bestv;
+      Vector3d* curp = convex->points;
+      Vector3d bestv = Vector3d::Zero();
       for(int i = 0; i < convex->num_points; ++i, curp+=1)
       {
         FCL_REAL dot = dir.dot(*curp);
@@ -175,12 +176,12 @@ Vec3f getSupport(const ShapeBase* shape, const Vec3f& dir)
     ; // nothing
   }
 
-  return Vec3f(0, 0, 0);
+  return Vector3d::Zero();
 }
 
 void GJK::initialize()
 {
-  ray = Vec3f();
+  ray.setZero();
   nfree = 0;
   status = Failed;
   current = 0;
@@ -189,17 +190,17 @@ void GJK::initialize()
 }
 
 
-Vec3f GJK::getGuessFromSimplex() const
+Vector3d GJK::getGuessFromSimplex() const
 {
   return ray;
 }
 
 
-GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
+GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vector3d& guess)
 {
   size_t iterations = 0;
   FCL_REAL alpha = 0;
-  Vec3f lastw[4];
+  Vector3d lastw[4];
   size_t clastw = 0;
     
   free_v[0] = &store_v[0];
@@ -215,7 +216,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplices[0].rank = 0;
   ray = guess;
 
-  appendVertex(simplices[0], (ray.sqrLength() > 0) ? -ray : Vec3f(1, 0, 0));
+  appendVertex(simplices[0], (ray.squaredNorm() > 0) ? (-ray).eval() : Vector3d::UnitX());
   simplices[0].p[0] = 1;
   ray = simplices[0].c[0]->w;
   lastw[0] = lastw[1] = lastw[2] = lastw[3] = ray; // cache previous support points, the new support point will compare with it to avoid too close support points
@@ -227,7 +228,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     Simplex& next_simplex = simplices[next];
 
     // check A: when origin is near the existing simplex, stop
-    FCL_REAL rl = ray.length();
+    FCL_REAL rl = ray.norm();
     if(rl < tolerance) // mean origin is near the face of original simplex, return touch
     {
       status = Inside;
@@ -237,11 +238,11 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     appendVertex(curr_simplex, -ray); // see below, ray points away from origin
 
     // check B: when the new support point is close to previous support points, stop (as the new simplex is degenerated)
-    Vec3f& w = curr_simplex.c[curr_simplex.rank - 1]->w;
+    Vector3d& w = curr_simplex.c[curr_simplex.rank - 1]->w;
     bool found = false;
     for(size_t i = 0; i < 4; ++i)
     {
-      if((w - lastw[i]).sqrLength() < tolerance)
+      if((w - lastw[i]).squaredNorm() < tolerance)
       {
         found = true; break;
       }
@@ -280,7 +281,7 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
     if(project_res.sqr_distance >= 0)
     {
       next_simplex.rank = 0;
-      ray = Vec3f();
+      ray.setZero();
       current = next;
       for(size_t i = 0; i < curr_simplex.rank; ++i)
       {
@@ -308,22 +309,22 @@ GJK::Status GJK::evaluate(const MinkowskiDiff& shape_, const Vec3f& guess)
   simplex = &simplices[current];
   switch(status)
   {
-  case Valid: distance = ray.length(); break;
+  case Valid: distance = ray.norm(); break;
   case Inside: distance = 0; break;
   default: break;
   }
   return status;
 }
 
-void GJK::getSupport(const Vec3f& d, SimplexV& sv) const
+void GJK::getSupport(const Vector3d& d, SimplexV& sv) const
 {
-  sv.d = normalize(d);
+  sv.d = d.normalized();
   sv.w = shape.support(sv.d);
 }
 
-void GJK::getSupport(const Vec3f& d, const Vec3f& v, SimplexV& sv) const
+void GJK::getSupport(const Vector3d& d, const Vector3d& v, SimplexV& sv) const
 {
-  sv.d = normalize(d);
+  sv.d = d.normalized();
   sv.w = shape.support(sv.d, v);
 }
 
@@ -332,7 +333,7 @@ void GJK::removeVertex(Simplex& simplex)
   free_v[nfree++] = simplex.c[--simplex.rank];
 }
 
-void GJK::appendVertex(Simplex& simplex, const Vec3f& v)
+void GJK::appendVertex(Simplex& simplex, const Vector3d& v)
 {
   simplex.p[simplex.rank] = 0; // initial weight 0
   simplex.c[simplex.rank] = free_v[--nfree]; // set the memory
@@ -347,7 +348,7 @@ bool GJK::encloseOrigin()
     {
       for(size_t i = 0; i < 3; ++i)
       {
-        Vec3f axis;
+        Vector3d axis;
         axis[i] = 1;
         appendVertex(*simplex, axis);
         if(encloseOrigin()) return true;
@@ -360,13 +361,13 @@ bool GJK::encloseOrigin()
     break;
   case 2:
     {
-      Vec3f d = simplex->c[1]->w - simplex->c[0]->w;
+      Vector3d d = simplex->c[1]->w - simplex->c[0]->w;
       for(size_t i = 0; i < 3; ++i)
       {
-        Vec3f axis;
+        Vector3d axis;
         axis[i] = 1;
-        Vec3f p = d.cross(axis);
-        if(p.sqrLength() > 0)
+        Vector3d p = d.cross(axis);
+        if(p.squaredNorm() > 0)
         {
           appendVertex(*simplex, p);
           if(encloseOrigin()) return true;
@@ -380,8 +381,8 @@ bool GJK::encloseOrigin()
     break;
   case 3:
     {
-      Vec3f n = (simplex->c[1]->w - simplex->c[0]->w).cross(simplex->c[2]->w - simplex->c[0]->w);
-      if(n.sqrLength() > 0)
+      Vector3d n = (simplex->c[1]->w - simplex->c[0]->w).cross(simplex->c[2]->w - simplex->c[0]->w);
+      if(n.squaredNorm() > 0)
       {
         appendVertex(*simplex, n);
         if(encloseOrigin()) return true;
@@ -409,7 +410,7 @@ void EPA::initialize()
   sv_store = new SimplexV[max_vertex_num];
   fc_store = new SimplexF[max_face_num];
   status = Failed;
-  normal = Vec3f(0, 0, 0);
+  normal = Vector3d(0, 0, 0);
   depth = 0;
   nextsv = 0;
   for(size_t i = 0; i < max_face_num; ++i)
@@ -418,8 +419,8 @@ void EPA::initialize()
 
 bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist)
 {
-  Vec3f ba = b->w - a->w;
-  Vec3f n_ab = ba.cross(face->n);
+  Vector3d ba = b->w - a->w;
+  Vector3d n_ab = ba.cross(face->n);
   FCL_REAL a_dot_nab = a->w.dot(n_ab);
 
   if(a_dot_nab < 0) // the origin is on the outside part of ab
@@ -430,13 +431,13 @@ bool EPA::getEdgeDist(SimplexF* face, SimplexV* a, SimplexV* b, FCL_REAL& dist)
     FCL_REAL b_dot_ba = b->w.dot(ba);
 
     if(a_dot_ba > 0) 
-      dist = a->w.length();
+      dist = a->w.norm();
     else if(b_dot_ba < 0)
-      dist = b->w.length();
+      dist = b->w.norm();
     else
     {
       FCL_REAL a_dot_b = a->w.dot(b->w);
-      dist = std::sqrt(std::max(a->w.sqrLength() * b->w.sqrLength() - a_dot_b * a_dot_b, (FCL_REAL)0));
+      dist = std::sqrt(std::max(a->w.squaredNorm() * b->w.squaredNorm() - a_dot_b * a_dot_b, (FCL_REAL)0));
     }
 
     return true;
@@ -457,7 +458,7 @@ EPA::SimplexF* EPA::newFace(SimplexV* a, SimplexV* b, SimplexV* c, bool forced)
     face->c[1] = b;
     face->c[2] = c;
     face->n = (b->w - a->w).cross(c->w - a->w);
-    FCL_REAL l = face->n.length();
+    FCL_REAL l = face->n.norm();
       
     if(l > tolerance)
     {
@@ -503,7 +504,7 @@ EPA::SimplexF* EPA::findBest()
   return minf;
 }
 
-EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
+EPA::Status EPA::evaluate(GJK& gjk, const Vector3d& guess)
 {
   GJK::Simplex& simplex = *gjk.getSimplex();
   if((simplex.rank > 1) && gjk.encloseOrigin())
@@ -593,16 +594,16 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
         }
       }
 
-      Vec3f projection = outer.n * outer.d;
+      Vector3d projection = outer.n * outer.d;
       normal = outer.n;
       depth = outer.d;
       result.rank = 3;
       result.c[0] = outer.c[0];
       result.c[1] = outer.c[1];
       result.c[2] = outer.c[2];
-      result.p[0] = ((outer.c[1]->w - projection).cross(outer.c[2]->w - projection)).length();
-      result.p[1] = ((outer.c[2]->w - projection).cross(outer.c[0]->w - projection)).length();
-      result.p[2] = ((outer.c[0]->w - projection).cross(outer.c[1]->w - projection)).length();
+      result.p[0] = ((outer.c[1]->w - projection).cross(outer.c[2]->w - projection)).norm();
+      result.p[1] = ((outer.c[2]->w - projection).cross(outer.c[0]->w - projection)).norm();
+      result.p[2] = ((outer.c[0]->w - projection).cross(outer.c[1]->w - projection)).norm();
 
       FCL_REAL sum = result.p[0] + result.p[1] + result.p[2];
       result.p[0] /= sum;
@@ -614,9 +615,9 @@ EPA::Status EPA::evaluate(GJK& gjk, const Vec3f& guess)
 
   status = FallBack;
   normal = -guess;
-  FCL_REAL nl = normal.length();
+  FCL_REAL nl = normal.norm();
   if(nl > 0) normal /= nl;
-  else normal = Vec3f(1, 0, 0);
+  else normal = Vector3d(1, 0, 0);
   depth = 0;
   result.rank = 1;
   result.c[0] = simplex.c[0];

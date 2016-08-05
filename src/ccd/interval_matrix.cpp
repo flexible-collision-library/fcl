@@ -50,11 +50,11 @@ IMatrix3::IMatrix3(FCL_REAL v)
   v_[2].setValue(v);
 }
 
-IMatrix3::IMatrix3(const Matrix3f& m)
+IMatrix3::IMatrix3(const Matrix3d& m)
 {
-  v_[0] = m.getRow(0);
-  v_[1] = m.getRow(1);
-  v_[2] = m.getRow(2);
+  v_[0].setValue(m.row(0)[0], m.row(0)[1], m.row(0)[2]);
+  v_[1].setValue(m.row(1)[0], m.row(1)[1], m.row(1)[2]);
+  v_[2].setValue(m.row(2)[0], m.row(2)[1], m.row(2)[2]);
 }
 
 IMatrix3::IMatrix3(FCL_REAL m[3][3][2])
@@ -102,52 +102,52 @@ const IVector3& IMatrix3::getRow(size_t i) const
   return v_[i];
 }
 
-Vec3f IMatrix3::getColumnLow(size_t i) const
+Vector3d IMatrix3::getColumnLow(size_t i) const
 {
-  return Vec3f(v_[0][i][0], v_[1][i][0], v_[2][i][0]);
+  return Vector3d(v_[0][i][0], v_[1][i][0], v_[2][i][0]);
 }
 
-Vec3f IMatrix3::getRowLow(size_t i) const
+Vector3d IMatrix3::getRowLow(size_t i) const
 {
-  return Vec3f(v_[i][0][0], v_[i][1][0], v_[i][2][0]);
+  return Vector3d(v_[i][0][0], v_[i][1][0], v_[i][2][0]);
 }
 
-Vec3f IMatrix3::getColumnHigh(size_t i) const
+Vector3d IMatrix3::getColumnHigh(size_t i) const
 {
-  return Vec3f(v_[0][i][1], v_[1][i][1], v_[2][i][1]);
+  return Vector3d(v_[0][i][1], v_[1][i][1], v_[2][i][1]);
 }
 
-Vec3f IMatrix3::getRowHigh(size_t i) const
+Vector3d IMatrix3::getRowHigh(size_t i) const
 {
-  return Vec3f(v_[i][0][1], v_[i][1][1], v_[i][2][1]);
+  return Vector3d(v_[i][0][1], v_[i][1][1], v_[i][2][1]);
 }
 
-Matrix3f IMatrix3::getLow() const
+Matrix3d IMatrix3::getLow() const
 {
-  return Matrix3f(v_[0][0][0], v_[0][1][0], v_[0][2][0],
-                  v_[1][0][0], v_[1][1][0], v_[1][2][0],
-                  v_[2][0][0], v_[2][1][0], v_[2][2][0]);
+  Matrix3d m;
+  m << v_[0][0][1], v_[0][1][1], v_[0][2][1],
+       v_[1][0][1], v_[1][1][1], v_[1][2][1],
+       v_[2][0][1], v_[2][1][1], v_[2][2][1];
+  return m;
 }
 
-Matrix3f IMatrix3::getHigh() const
+Matrix3d IMatrix3::getHigh() const
 {
-  return Matrix3f(v_[0][0][1], v_[0][1][1], v_[0][2][1],
-                  v_[1][0][1], v_[1][1][1], v_[1][2][1],
-                  v_[2][0][1], v_[2][1][1], v_[2][2][1]);
+  Matrix3d m;
+  m << v_[0][0][1], v_[0][1][1], v_[0][2][1],
+       v_[1][0][1], v_[1][1][1], v_[1][2][1],
+       v_[2][0][1], v_[2][1][1], v_[2][2][1];
+  return m;
 }
 
-IMatrix3 IMatrix3::operator * (const Matrix3f& m) const
+IMatrix3 IMatrix3::operator * (const Matrix3d& m) const
 {
-  const Vec3f& mc0 = m.getColumn(0);
-  const Vec3f& mc1 = m.getColumn(1);
-  const Vec3f& mc2 = m.getColumn(2);
-
-  return IMatrix3(IVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
-                  IVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
-                  IVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
+  return IMatrix3(IVector3(v_[0].dot(m.col(0)), v_[0].dot(m.col(1)), v_[0].dot(m.col(2))),
+                  IVector3(v_[1].dot(m.col(0)), v_[1].dot(m.col(1)), v_[1].dot(m.col(2))),
+                  IVector3(v_[2].dot(m.col(0)), v_[2].dot(m.col(1)), v_[2].dot(m.col(2))));
 }
 
-IVector3 IMatrix3::operator * (const Vec3f& v) const
+IVector3 IMatrix3::operator * (const Vector3d& v) const
 {
   return IVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
@@ -168,15 +168,11 @@ IMatrix3 IMatrix3::operator * (const IMatrix3& m) const
                   IVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
 }
 
-IMatrix3& IMatrix3::operator *= (const Matrix3f& m)
+IMatrix3& IMatrix3::operator *= (const Matrix3d& m)
 {
-  const Vec3f& mc0 = m.getColumn(0);
-  const Vec3f& mc1 = m.getColumn(1);
-  const Vec3f& mc2 = m.getColumn(2);
-
-  v_[0].setValue(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
-  v_[1].setValue(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
-  v_[2].setValue(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+  v_[0].setValue(v_[0].dot(m.col(0)), v_[0].dot(m.col(1)), v_[0].dot(m.col(2)));
+  v_[1].setValue(v_[1].dot(m.col(0)), v_[1].dot(m.col(1)), v_[1].dot(m.col(2)));
+  v_[2].setValue(v_[2].dot(m.col(0)), v_[2].dot(m.col(1)), v_[2].dot(m.col(2)));
   return *this;
 }
 

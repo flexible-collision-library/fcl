@@ -167,12 +167,12 @@ public:
     const Triangle& tri_id1 = tri_indices1[primitive_id1];
     const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-    const Vec3f& p1 = vertices1[tri_id1[0]];
-    const Vec3f& p2 = vertices1[tri_id1[1]];
-    const Vec3f& p3 = vertices1[tri_id1[2]];
-    const Vec3f& q1 = vertices2[tri_id2[0]];
-    const Vec3f& q2 = vertices2[tri_id2[1]];
-    const Vec3f& q3 = vertices2[tri_id2[2]];
+    const Vector3d& p1 = vertices1[tri_id1[0]];
+    const Vector3d& p2 = vertices1[tri_id1[1]];
+    const Vector3d& p3 = vertices1[tri_id1[2]];
+    const Vector3d& q1 = vertices2[tri_id2[0]];
+    const Vector3d& q2 = vertices2[tri_id2[1]];
+    const Vector3d& q3 = vertices2[tri_id2[2]];
     
     if(this->model1->isOccupied() && this->model2->isOccupied())
     {
@@ -190,9 +190,9 @@ public:
       else // need compute the contact information
       {
         FCL_REAL penetration;
-        Vec3f normal;
+        Vector3d normal;
         unsigned int n_contacts;
-        Vec3f contacts[2];
+        Vector3d contacts[2];
 
         if(Intersect::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                          contacts,
@@ -236,8 +236,8 @@ public:
     return this->request.isSatisfied(*(this->result));
   }
 
-  Vec3f* vertices1;
-  Vec3f* vertices2;
+  Vector3d* vertices1;
+  Vector3d* vertices2;
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
@@ -256,12 +256,12 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  bool BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+  bool BVTesting(int b1, int b2, const Matrix3d& Rc, const Vector3d& Tc) const;
 
-  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+  void leafTesting(int b1, int b2, const Matrix3d& Rc, const Vector3d& Tc) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 class MeshCollisionTraversalNodeRSS : public MeshCollisionTraversalNode<RSS>
@@ -273,12 +273,12 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  bool BVTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+  bool BVTesting(int b1, int b2, const Matrix3d& Rc, const Vector3d& Tc) const;
 
-  void leafTesting(int b1, int b2, const Matrix3f& Rc, const Vec3f& Tc) const;
+  void leafTesting(int b1, int b2, const Matrix3d& Rc, const Vector3d& Tc) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 class MeshCollisionTraversalNodekIOS : public MeshCollisionTraversalNode<kIOS>
@@ -290,8 +290,8 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 class MeshCollisionTraversalNodeOBBRSS : public MeshCollisionTraversalNode<OBBRSS>
@@ -303,8 +303,8 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 /// @brief Traversal node for continuous collision between BVH models
@@ -352,7 +352,7 @@ public:
     const BVNode<BV>& node2 = this->model2->getBV(b2);
 
     FCL_REAL collision_time = 2;
-    Vec3f collision_pos;
+    Vector3d collision_pos;
 
     int primitive_id1 = node1.primitiveId();
     int primitive_id2 = node2.primitiveId();
@@ -360,10 +360,10 @@ public:
     const Triangle& tri_id1 = tri_indices1[primitive_id1];
     const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-    Vec3f* S0[3];
-    Vec3f* S1[3];
-    Vec3f* T0[3];
-    Vec3f* T1[3];
+    Vector3d* S0[3];
+    Vector3d* S1[3];
+    Vector3d* T0[3];
+    Vector3d* T1[3];
 
 
     for(int i = 0; i < 3; ++i)
@@ -375,7 +375,7 @@ public:
     }
 
     FCL_REAL tmp;
-    Vec3f tmpv;
+    Vector3d tmpv;
 
     // 6 VF checks
     for(int i = 0; i < 3; ++i)
@@ -435,14 +435,14 @@ public:
     return (pairs.size() > 0) && (this->request.num_max_contacts <= pairs.size());
   }
 
-  Vec3f* vertices1;
-  Vec3f* vertices2;
+  Vector3d* vertices1;
+  Vector3d* vertices2;
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
 
-  Vec3f* prev_vertices1;
-  Vec3f* prev_vertices2;
+  Vector3d* prev_vertices1;
+  Vector3d* prev_vertices2;
 
   mutable int num_vf_tests;
   mutable int num_ee_tests;
@@ -568,16 +568,16 @@ public:
     const Triangle& tri_id1 = tri_indices1[primitive_id1];
     const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-    const Vec3f& t11 = vertices1[tri_id1[0]];
-    const Vec3f& t12 = vertices1[tri_id1[1]];
-    const Vec3f& t13 = vertices1[tri_id1[2]];
+    const Vector3d& t11 = vertices1[tri_id1[0]];
+    const Vector3d& t12 = vertices1[tri_id1[1]];
+    const Vector3d& t13 = vertices1[tri_id1[2]];
 
-    const Vec3f& t21 = vertices2[tri_id2[0]];
-    const Vec3f& t22 = vertices2[tri_id2[1]];
-    const Vec3f& t23 = vertices2[tri_id2[2]];
+    const Vector3d& t21 = vertices2[tri_id2[0]];
+    const Vector3d& t22 = vertices2[tri_id2[1]];
+    const Vector3d& t23 = vertices2[tri_id2[2]];
 
     // nearest point pair
-    Vec3f P1, P2;
+    Vector3d P1, P2;
 
     FCL_REAL d = TriangleDistance::triDistance(t11, t12, t13, t21, t22, t23,
                                                P1, P2);
@@ -600,8 +600,8 @@ public:
     return false;
   }
 
-  Vec3f* vertices1;
-  Vec3f* vertices2;
+  Vector3d* vertices1;
+  Vector3d* vertices2;
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
@@ -625,8 +625,8 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 
@@ -643,8 +643,8 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 class MeshDistanceTraversalNodeOBBRSS : public MeshDistanceTraversalNode<OBBRSS>
@@ -660,8 +660,8 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 
@@ -687,7 +687,7 @@ public:
   FCL_REAL BVTesting(int b1, int b2) const
   {
     if(this->enable_statistics) this->num_bv_tests++;
-    Vec3f P1, P2;
+    Vector3d P1, P2;
     FCL_REAL d = this->model1->getBV(b1).distance(this->model2->getBV(b2), &P1, &P2);
 
     stack.push_back(ConservativeAdvancementStackData(P1, P2, b1, b2, d));
@@ -709,16 +709,16 @@ public:
     const Triangle& tri_id1 = this->tri_indices1[primitive_id1];
     const Triangle& tri_id2 = this->tri_indices2[primitive_id2];
 
-    const Vec3f& p1 = this->vertices1[tri_id1[0]];
-    const Vec3f& p2 = this->vertices1[tri_id1[1]];
-    const Vec3f& p3 = this->vertices1[tri_id1[2]];
+    const Vector3d& p1 = this->vertices1[tri_id1[0]];
+    const Vector3d& p2 = this->vertices1[tri_id1[1]];
+    const Vector3d& p3 = this->vertices1[tri_id1[2]];
 
-    const Vec3f& q1 = this->vertices2[tri_id2[0]];
-    const Vec3f& q2 = this->vertices2[tri_id2[1]];
-    const Vec3f& q3 = this->vertices2[tri_id2[2]];
+    const Vector3d& q1 = this->vertices2[tri_id2[0]];
+    const Vector3d& q2 = this->vertices2[tri_id2[1]];
+    const Vector3d& q3 = this->vertices2[tri_id2[2]];
 
     // nearest point pair
-    Vec3f P1, P2;
+    Vector3d P1, P2;
 
     FCL_REAL d = TriangleDistance::triDistance(p1, p2, p3, q1, q2, q3,
                                                P1, P2);
@@ -735,7 +735,7 @@ public:
     }
 
 
-    Vec3f n = P2 - P1;
+    Vector3d n = P2 - P1;
     n.normalize();
     // here n is already in global frame as we assume the body is in original configuration (I, 0) for general BVH
     TriangleMotionBoundVisitor mb_visitor1(p1, p2, p3, n), mb_visitor2(q1, q2, q3, n);
@@ -759,7 +759,7 @@ public:
     {
       const ConservativeAdvancementStackData& data = stack.back();
       FCL_REAL d = data.d;
-      Vec3f n;
+      Vector3d n;
       int c1, c2;
 
       if(d > c)
@@ -813,7 +813,7 @@ public:
 
   mutable FCL_REAL min_distance;
  
-  mutable Vec3f closest_p1, closest_p2;
+  mutable Vector3d closest_p1, closest_p2;
   
   mutable int last_tri_id1, last_tri_id2;
 
@@ -841,15 +841,15 @@ namespace details
 {
 
 template<typename BV>
-const Vec3f& getBVAxis(const BV& bv, int i)
+const Vector3d getBVAxis(const BV& bv, int i)
 {
-  return bv.axis[i];
+  return bv.axis.col(i);
 }
 
 template<>
-inline const Vec3f& getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
+inline const Vector3d getBVAxis<OBBRSS>(const OBBRSS& bv, int i)
 {
-  return bv.obb.axis[i];
+  return bv.obb.axis.col(i);
 }
 
 
@@ -866,7 +866,7 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
   {
     const ConservativeAdvancementStackData& data = stack.back();
     FCL_REAL d = data.d;
-    Vec3f n;
+    Vector3d n;
     int c1, c2;
 
     if(d > c)
@@ -887,7 +887,7 @@ bool meshConservativeAdvancementTraversalNodeCanStop(FCL_REAL c,
 
     assert(c == d);
 
-    Vec3f n_transformed =
+    Vector3d n_transformed =
       getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
       getBVAxis(model1->getBV(c1).bv, 1) * n[1] +
       getBVAxis(model1->getBV(c1).bv, 2) * n[2];
@@ -968,8 +968,8 @@ public:
 
   bool canStop(FCL_REAL c) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 
 class MeshConservativeAdvancementTraversalNodeOBBRSS : public MeshConservativeAdvancementTraversalNode<OBBRSS>
@@ -983,8 +983,8 @@ public:
 
   bool canStop(FCL_REAL c) const;
 
-  Matrix3f R;
-  Vec3f T;
+  Matrix3d R;
+  Vector3d T;
 };
 }
 

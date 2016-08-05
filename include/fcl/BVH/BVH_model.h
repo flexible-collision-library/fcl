@@ -132,16 +132,16 @@ public:
   int beginModel(int num_tris = 0, int num_vertices = 0);
 
   /// @brief Add one point in the new BVH model
-  int addVertex(const Vec3f& p);
+  int addVertex(const Vector3d& p);
 
   /// @brief Add one triangle in the new BVH model
-  int addTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
+  int addTriangle(const Vector3d& p1, const Vector3d& p2, const Vector3d& p3);
 
   /// @brief Add a set of triangles in the new BVH model
-  int addSubModel(const std::vector<Vec3f>& ps, const std::vector<Triangle>& ts);
+  int addSubModel(const std::vector<Vector3d>& ps, const std::vector<Triangle>& ts);
 
   /// @brief Add a set of points in the new BVH model
-  int addSubModel(const std::vector<Vec3f>& ps);
+  int addSubModel(const std::vector<Vector3d>& ps);
 
   /// @brief End BVH model construction, will build the bounding volume hierarchy
   int endModel();
@@ -151,13 +151,13 @@ public:
   int beginReplaceModel();
 
   /// @brief Replace one point in the old BVH model
-  int replaceVertex(const Vec3f& p);
+  int replaceVertex(const Vector3d& p);
 
   /// @brief Replace one triangle in the old BVH model
-  int replaceTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
+  int replaceTriangle(const Vector3d& p1, const Vector3d& p2, const Vector3d& p3);
 
   /// @brief Replace a set of points in the old BVH model
-  int replaceSubModel(const std::vector<Vec3f>& ps);
+  int replaceSubModel(const std::vector<Vector3d>& ps);
 
   /// @brief End BVH model replacement, will also refit or rebuild the bounding volume hierarchy
   int endReplaceModel(bool refit = true, bool bottomup = true);
@@ -168,13 +168,13 @@ public:
   int beginUpdateModel();
 
   /// @brief Update one point in the old BVH model
-  int updateVertex(const Vec3f& p);
+  int updateVertex(const Vector3d& p);
 
   /// @brief Update one triangle in the old BVH model
-  int updateTriangle(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);
+  int updateTriangle(const Vector3d& p1, const Vector3d& p2, const Vector3d& p3);
 
   /// @brief Update a set of points in the old BVH model
-  int updateSubModel(const std::vector<Vec3f>& ps);
+  int updateSubModel(const std::vector<Vector3d>& ps);
 
   /// @brief End BVH model update, will also refit or rebuild the bounding volume hierarchy
   int endUpdateModel(bool refit = true, bool bottomup = true);
@@ -186,14 +186,13 @@ public:
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative()
   {
-    Vec3f I[3] = {Vec3f(1, 0, 0), Vec3f(0, 1, 0), Vec3f(0, 0, 1)};
-    makeParentRelativeRecurse(0, I, Vec3f());
+    makeParentRelativeRecurse(0, Matrix3d::Identity(), Vector3d::Zero());
   }
 
-  Vec3f computeCOM() const
+  Vector3d computeCOM() const
   {
     FCL_REAL vol = 0;
-    Vec3f com;
+    Vector3d com = Vector3d::Zero();
     for(int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
@@ -218,43 +217,48 @@ public:
     return vol / 6;
   }
 
-  Matrix3f computeMomentofInertia() const
+  Matrix3d computeMomentofInertia() const
   {
-    Matrix3f C(0, 0, 0,
-               0, 0, 0,
-               0, 0, 0);
+    Matrix3d C = Matrix3d::Zero();
 
-    Matrix3f C_canonical(1/60.0, 1/120.0, 1/120.0,
-                         1/120.0, 1/60.0, 1/120.0,
-                         1/120.0, 1/120.0, 1/60.0);
+    Matrix3d C_canonical;
+    C_canonical << 1/ 60.0, 1/120.0, 1/120.0,
+                   1/120.0, 1/ 60.0, 1/120.0,
+                   1/120.0, 1/120.0, 1/ 60.0;
 
     for(int i = 0; i < num_tris; ++i)
     {
       const Triangle& tri = tri_indices[i];
-      const Vec3f& v1 = vertices[tri[0]];
-      const Vec3f& v2 = vertices[tri[1]];
-      const Vec3f& v3 = vertices[tri[2]];
+      const Vector3d& v1 = vertices[tri[0]];
+      const Vector3d& v2 = vertices[tri[1]];
+      const Vector3d& v3 = vertices[tri[2]];
       FCL_REAL d_six_vol = (v1.cross(v2)).dot(v3);
-      Matrix3f A(v1, v2, v3);
-      C += transpose(A) * C_canonical * A * d_six_vol;
+      Matrix3d A;
+      A.row(0) = v1;
+      A.row(1) = v2;
+      A.row(2) = v3;
+      C += A.transpose() * C_canonical * A * d_six_vol;
     }
 
     FCL_REAL trace_C = C(0, 0) + C(1, 1) + C(2, 2);
 
-    return Matrix3f(trace_C - C(0, 0), -C(0, 1), -C(0, 2),
-                    -C(1, 0), trace_C - C(1, 1), -C(1, 2),
-                    -C(2, 0), -C(2, 1), trace_C - C(2, 2));
+    Matrix3d m;
+    m << trace_C - C(0, 0), -C(0, 1), -C(0, 2),
+        -C(1, 0), trace_C - C(1, 1), -C(1, 2),
+        -C(2, 0), -C(2, 1), trace_C - C(2, 2);
+
+    return m;
   }
 
 public:
   /// @brief Geometry point data
-  Vec3f* vertices;
+  Vector3d* vertices;
 
   /// @brief Geometry triangle index data, will be NULL for point clouds
   Triangle* tri_indices;
 
   /// @brief Geometry point data in previous frame
-  Vec3f* prev_vertices;
+  Vector3d* prev_vertices;
 
   /// @brief Number of triangles
   int num_tris;
@@ -307,7 +311,7 @@ private:
 
   /// @recursively compute each bv's transform related to its parent. For default BV, only the translation works. 
   /// For oriented BV (OBB, RSS, OBBRSS), special implementation is provided.
-  void makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c)
+  void makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c)
   {
     if(!bvs[bv_id].isLeaf())
     {
@@ -322,13 +326,13 @@ private:
 
 
 template<>
-void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<OBB>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
 
 template<>
-void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<RSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
 
 template<>
-void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, Vec3f parent_axis[], const Vec3f& parent_c);
+void BVHModel<OBBRSS>::makeParentRelativeRecurse(int bv_id, const Matrix3d& parent_axis, const Vector3d& parent_c);
 
 
 /// @brief Specialization of getNodeType() for BVHModel with different BV types

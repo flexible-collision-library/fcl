@@ -43,7 +43,6 @@
 #include "fcl/collision.h"
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
-#include "fcl/math/transform.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -77,142 +76,177 @@ void generateBoxesFromOctomap(std::vector<CollisionObject*>& env, OcTree& tree);
 void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& env, OcTree& tree);
 
 /// @brief Generate an octree
-octomap::OcTree* generateOcTree();
+octomap::OcTree* generateOcTree(double resolution = 0.1);
 
 /// @brief Octomap collision with an environment with 3 * env_size objects
-void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaustive, std::size_t num_max_contacts, bool use_mesh, bool use_mesh_octomap);
+void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaustive, std::size_t num_max_contacts, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
 /// @brief Octomap collision with an environment with 3 * env_size objects, compute cost
-void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap);
+void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
 /// @brief Octomap distance with an environment with 3 * env_size objects
-void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap);
+void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
 /// @brief Octomap collision with an environment mesh with 3 * env_size objects, asserting that correct triangle ids
 /// are returned when performing collision tests
-void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts);
+void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts, double resolution = 0.1);
 
 
 template<typename BV>
-void octomap_collision_test_BVH(std::size_t n, bool exhaustive);
+void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolution = 0.1);
 
 
 template<typename BV>
-void octomap_distance_test_BVH(std::size_t n);
+void octomap_distance_test_BVH(std::size_t n, double resolution = 0.1);
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_cost)
 {
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_cost_test(200, 10, 10, false, false, 0.1);
+  octomap_cost_test(200, 100, 10, false, false, 0.1);
+#else
   octomap_cost_test(200, 100, 10, false, false);
   octomap_cost_test(200, 1000, 10, false, false);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_cost_mesh)
 {
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_cost_test(200, 2, 4, true, false, 1.0);
+  octomap_cost_test(200, 5, 4, true, false, 1.0);
+#else
   octomap_cost_test(200, 100, 10, true, false);
   octomap_cost_test(200, 1000, 10, true, false);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision)
 {
-  octomap_collision_test(200, 100, false, 10, false, false);
-  octomap_collision_test(200, 1000, false, 10, false, false);
-  octomap_collision_test(200, 100, true, 1, false, false);
-  octomap_collision_test(200, 1000, true, 1, false, false);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test(200, 10, false, 10, false, false, 0.1);
+  octomap_collision_test(200, 100, false, 10, false, false, 0.1);
+  octomap_collision_test(200, 10, true, 1, false, false, 0.1);
+  octomap_collision_test(200, 100, true, 1, false, false, 0.1);
+#else
+  octomap_collision_test(200, 100, false, 10, false, false, 0.1);
+  octomap_collision_test(200, 1000, false, 10, false, false, 0.1);
+  octomap_collision_test(200, 100, true, 1, false, false, 0.1);
+  octomap_collision_test(200, 1000, true, 1, false, false, 0.1);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test(200, 10, false, 10, true, true);
-  octomap_collision_test(200, 100, false, 10, true, true);
-  octomap_collision_test(200, 10, true, 1, true, true);
-  octomap_collision_test(200, 100, true, 1, true, true);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test(200, 4, false, 1, true, true, 1.0);
+  octomap_collision_test(200, 4, true, 1, true, true, 1.0);
 #else
-  octomap_collision_test(200, 100, false, 10, true, true);
-  octomap_collision_test(200, 1000, false, 10, true, true);
-  octomap_collision_test(200, 100, true, 1, true, true);
-  octomap_collision_test(200, 1000, true, 1, true, true);
+  octomap_collision_test(200, 100, false, 10, true, true, 0.1);
+  octomap_collision_test(200, 1000, false, 10, true, true, 0.1);
+  octomap_collision_test(200, 100, true, 1, true, true, 0.1);
+  octomap_collision_test(200, 1000, true, 1, true, true, 0.1);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_triangle_id)
 {
-  octomap_collision_test_mesh_triangle_id(1, 30, 100000);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test_mesh_triangle_id(1, 10, 10000, 1.0);
+#else
+  octomap_collision_test_mesh_triangle_id(1, 30, 100000, 0.1);
+#endif
 }
 
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_octomap_box)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test(200, 10, false, 10, true, false);
-  octomap_collision_test(200, 100, false, 10, true, false);
-  octomap_collision_test(200, 10, true, 1, true, false);
-  octomap_collision_test(200, 100, true, 1, true, false);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test(200, 4, false, 4, true, false, 1.0);
+  octomap_collision_test(200, 4, true, 1, true, false, 1.0);
 #else
-  octomap_collision_test(200, 100, false, 10, true, false);
-  octomap_collision_test(200, 1000, false, 10, true, false);
-  octomap_collision_test(200, 100, true, 1, true, false);
-  octomap_collision_test(200, 1000, true, 1, true, false);
+  octomap_collision_test(200, 100, false, 10, true, false, 0.1);
+  octomap_collision_test(200, 1000, false, 10, true, false, 0.1);
+  octomap_collision_test(200, 100, true, 1, true, false, 0.1);
+  octomap_collision_test(200, 1000, true, 1, true, false, 0.1);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance)
 {
-  octomap_distance_test(200, 100, false, false);
-  octomap_distance_test(200, 1000, false, false);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test(200, 2, false, false, 1.0);
+  octomap_distance_test(200, 10, false, false, 1.0);
+#else
+  octomap_distance_test(200, 100, false, false, 0.1);
+  octomap_distance_test(200, 1000, false, false, 0.1);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test(200, 5, true, true);
-  octomap_distance_test(200, 50, true, true);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test(200, 2, true, true, 1.0);
+  octomap_distance_test(200, 5, true, true, 1.0);
 #else
-  octomap_distance_test(200, 100, true, true);
-  octomap_distance_test(200, 1000, true, true);
+  octomap_distance_test(200, 100, true, true, 0.1);
+  octomap_distance_test(200, 1000, true, true, 0.1);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh_octomap_box)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test(200, 10, true, false);
-  octomap_distance_test(200, 100, true, false);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test(200, 2, true, false, 1.0);
+  octomap_distance_test(200, 5, true, false, 1.0);
 #else
-  octomap_distance_test(200, 100, true, false);
-  octomap_distance_test(200, 1000, true, false);
+  octomap_distance_test(200, 100, true, false, 0.1);
+  octomap_distance_test(200, 1000, true, false, 0.1);
 #endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_collision_obb)
 {
-  octomap_collision_test_BVH<OBB>(5, false);
-  octomap_collision_test_BVH<OBB>(5, true);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_collision_test_BVH<OBB>(1, false, 1.0);
+  octomap_collision_test_BVH<OBB>(1, true, 1.0);
+#else
+  octomap_collision_test_BVH<OBB>(5, false, 0.1);
+  octomap_collision_test_BVH<OBB>(5, true, 0.1);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_rss_d_distance_rss)
 {
-  octomap_distance_test_BVH<RSS>(5);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test_BVH<RSS>(1, 1.0);
+#else
+  octomap_distance_test_BVH<RSS>(5, 0.1);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_d_distance_obb)
 {
-  octomap_distance_test_BVH<OBBRSS>(5);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test_BVH<OBBRSS>(1, 1.0);
+#else
+  octomap_distance_test_BVH<OBBRSS>(5, 0.1);
+#endif
 }
 
 GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_kios_d_distance_kios)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<kIOS>(2);
+#if FCL_BUILD_TYPE_DEBUG
+  octomap_distance_test_BVH<kIOS>(1, 1.0);
 #else
-  octomap_distance_test_BVH<kIOS>(5);
+  octomap_distance_test_BVH<kIOS>(5, 0.1);
 #endif
 }
 
 template<typename BV>
-void octomap_collision_test_BVH(std::size_t n, bool exhaustive)
+void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolution)
 {
-  std::vector<Vec3f> p1;
+  std::vector<Vector3d> p1;
   std::vector<Triangle> t1;
 
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
@@ -224,17 +258,17 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive)
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry> tree_ptr(tree);
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   FCL_REAL extents[] = {-10, -10, 10, 10, 10, 10};
 
   generateRandomTransforms(extents, transforms, n);
   
   for(std::size_t i = 0; i < n; ++i)
   {
-    Transform3f tf(transforms[i]);
+    Transform3d tf(transforms[i]);
 
     CollisionObject obj1(m1_ptr, tf);
     CollisionObject obj2(tree_ptr, tf);
@@ -276,9 +310,9 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive)
 
 
 template<typename BV>
-void octomap_distance_test_BVH(std::size_t n)
+void octomap_distance_test_BVH(std::size_t n, double resolution)
 {
-  std::vector<Vec3f> p1;
+  std::vector<Vector3d> p1;
   std::vector<Triangle> t1;
 
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
@@ -290,17 +324,17 @@ void octomap_distance_test_BVH(std::size_t n)
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree* tree = new OcTree(std::shared_ptr<octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(std::shared_ptr<octomap::OcTree>(generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry> tree_ptr(tree);
 
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
   FCL_REAL extents[] = {-10, -10, 10, 10, 10, 10};
 
   generateRandomTransforms(extents, transforms, n);
   
   for(std::size_t i = 0; i < n; ++i)
   {
-    Transform3f tf(transforms[i]);
+    Transform3d tf(transforms[i]);
 
     CollisionObject obj1(m1_ptr, tf);
     CollisionObject obj2(tree_ptr, tf);
@@ -332,7 +366,7 @@ void octomap_distance_test_BVH(std::size_t n)
 }
 
 
-void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap)
+void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution)
 {
   std::vector<CollisionObject*> env;
   if(use_mesh)
@@ -340,7 +374,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
   CollisionObject tree_obj((std::shared_ptr<CollisionGeometry>(tree)));
 
   DynamicAABBTreeCollisionManager* manager = new DynamicAABBTreeCollisionManager();
@@ -409,7 +443,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
     cdata.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {
-      std::cout << cost_sources[i].aabb_min << " " << cost_sources[i].aabb_max << " " << cost_sources[i].cost_density << std::endl;
+      std::cout << cost_sources[i].aabb_min.transpose() << " " << cost_sources[i].aabb_max.transpose() << " " << cost_sources[i].cost_density << std::endl;
     }
 
     std::cout << std::endl;
@@ -417,7 +451,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
     cdata3.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {
-      std::cout << cost_sources[i].aabb_min << " " << cost_sources[i].aabb_max << " " << cost_sources[i].cost_density << std::endl;
+      std::cout << cost_sources[i].aabb_min.transpose() << " " << cost_sources[i].aabb_max.transpose() << " " << cost_sources[i].cost_density << std::endl;
     }
 
     std::cout << std::endl;
@@ -425,7 +459,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
     cdata2.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {
-      std::cout << cost_sources[i].aabb_min << " " << cost_sources[i].aabb_max << " " << cost_sources[i].cost_density << std::endl;
+      std::cout << cost_sources[i].aabb_min.transpose() << " " << cost_sources[i].aabb_max.transpose() << " " << cost_sources[i].cost_density << std::endl;
     }
 
     std::cout << std::endl;
@@ -451,7 +485,7 @@ void octomap_cost_test(double env_scale, std::size_t env_size, std::size_t num_m
 }
 
 
-void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaustive, std::size_t num_max_contacts, bool use_mesh, bool use_mesh_octomap)
+void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaustive, std::size_t num_max_contacts, bool use_mesh, bool use_mesh_octomap, double resolution)
 {
   // srand(1);
   std::vector<CollisionObject*> env;
@@ -460,7 +494,7 @@ void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaust
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
   CollisionObject tree_obj((std::shared_ptr<CollisionGeometry>(tree)));
 
   DynamicAABBTreeCollisionManager* manager = new DynamicAABBTreeCollisionManager();
@@ -549,12 +583,12 @@ void octomap_collision_test(double env_scale, std::size_t env_size, bool exhaust
   std::cout << "Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside" << std::endl;
 }
 
-void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts)
+void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_size, std::size_t num_max_contacts, double resolution)
 {
   std::vector<CollisionObject*> env;
   generateEnvironmentsMesh(env, env_scale, env_size);
 
-  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
   CollisionObject tree_obj((std::shared_ptr<CollisionGeometry>(tree)));
 
   std::vector<CollisionObject*> boxes;
@@ -574,7 +608,7 @@ void octomap_collision_test_mesh_triangle_id(double env_scale, std::size_t env_s
   }
 }
 
-void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap)
+void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution)
 {
   // srand(1);
   std::vector<CollisionObject*> env;
@@ -583,7 +617,7 @@ void octomap_distance_test(double env_scale, std::size_t env_size, bool use_mesh
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree()));
+  OcTree* tree = new OcTree(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
   CollisionObject tree_obj((std::shared_ptr<CollisionGeometry>(tree)));
 
   DynamicAABBTreeCollisionManager* manager = new DynamicAABBTreeCollisionManager();
@@ -678,7 +712,7 @@ void generateBoxesFromOctomap(std::vector<CollisionObject*>& boxes, OcTree& tree
     Box* box = new Box(size, size, size);
     box->cost_density = cost;
     box->threshold_occupied = threshold;
-    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(box), Transform3f(Vec3f(x, y, z)));
+    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(box), Transform3d(Eigen::Translation3d(Vector3d(x, y, z))));
     boxes.push_back(obj);
   }
 
@@ -689,7 +723,7 @@ void generateBoxesFromOctomap(std::vector<CollisionObject*>& boxes, OcTree& tree
 void generateEnvironments(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
 {
   FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
@@ -730,10 +764,10 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& boxes, OcTree& 
 
     Box box(size, size, size);
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f());
+    generateBVHModel(*model, box, Transform3d::Identity());
     model->cost_density = cost;
     model->threshold_occupied = threshold;
-    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(model), Transform3f(Vec3f(x, y, z)));
+    CollisionObject* obj = new CollisionObject(std::shared_ptr<CollisionGeometry>(model), Transform3d(Eigen::Translation3d(Vector3d(x, y, z))));
     boxes.push_back(obj);    
   }
 
@@ -743,14 +777,14 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject*>& boxes, OcTree& 
 void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_scale, std::size_t n)
 {
   FCL_REAL extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  std::vector<Transform3f> transforms;
+  std::vector<Transform3d> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   Box box(5, 10, 20);
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, box, Transform3f());
+    generateBVHModel(*model, box, Transform3d::Identity());
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
@@ -759,7 +793,7 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, sphere, Transform3f(), 16, 16);
+    generateBVHModel(*model, sphere, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 
@@ -768,15 +802,15 @@ void generateEnvironmentsMesh(std::vector<CollisionObject*>& env, double env_sca
   for(std::size_t i = 0; i < n; ++i)
   {
     BVHModel<OBBRSS>* model = new BVHModel<OBBRSS>();
-    generateBVHModel(*model, cylinder, Transform3f(), 16, 16);
+    generateBVHModel(*model, cylinder, Transform3d::Identity(), 16, 16);
     env.push_back(new CollisionObject(std::shared_ptr<CollisionGeometry>(model), transforms[i]));
   }
 }
 
 
-octomap::OcTree* generateOcTree()
+octomap::OcTree* generateOcTree(double resolution)
 {
-  octomap::OcTree* tree = new octomap::OcTree(0.1);
+  octomap::OcTree* tree = new octomap::OcTree(resolution);
 
   // insert some measurements of occupied cells
   for(int x = -20; x < 20; x++) 

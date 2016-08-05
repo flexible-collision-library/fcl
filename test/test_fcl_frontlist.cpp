@@ -47,38 +47,42 @@
 using namespace fcl;
 
 template<typename BV>
-bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
-                             const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                             const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+bool collide_front_list_Test(const Transform3d& tf1, const Transform3d& tf2,
+                             const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                             const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2,
                              SplitMethodType split_method,
                              bool refit_bottomup, bool verbose);
 
 template<typename BV, typename TraversalNode>
-bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f& tf2,
-                                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+bool collide_front_list_Test_Oriented(const Transform3d& tf1, const Transform3d& tf2,
+                                      const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                                      const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2,
                                       SplitMethodType split_method, bool verbose);
 
 
 template<typename BV>
-bool collide_Test(const Transform3f& tf,
-                  const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                  const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
+bool collide_Test(const Transform3d& tf,
+                  const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                  const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
 
 // TODO: randomly still have some runtime error
 GTEST_TEST(FCL_FRONT_LIST, front_list)
 {
-  std::vector<Vec3f> p1, p2;
+  std::vector<Vector3d> p1, p2;
   std::vector<Triangle> t1, t2;
 
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
   loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
-  std::vector<Transform3f> transforms; // t0
-  std::vector<Transform3f> transforms2; // t1
+  std::vector<Transform3d> transforms; // t0
+  std::vector<Transform3d> transforms2; // t1
   FCL_REAL extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   FCL_REAL delta_trans[] = {1, 1, 1};
+#if FCL_BUILD_TYPE_DEBUG
+  std::size_t n = 1;
+#else
   std::size_t n = 10;
+#endif
   bool verbose = false;
 
   generateRandomTransforms(extents, delta_trans, 0.005 * 2 * 3.1415, transforms, transforms2, n);
@@ -193,9 +197,9 @@ GTEST_TEST(FCL_FRONT_LIST, front_list)
 }
 
 template<typename BV>
-bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
-                             const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                             const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+bool collide_front_list_Test(const Transform3d& tf1, const Transform3d& tf2,
+                             const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                             const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2,
                              SplitMethodType split_method,
                              bool refit_bottomup, bool verbose)
 {
@@ -207,10 +211,10 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   BVHFrontList front_list;
 
 
-  std::vector<Vec3f> vertices1_new(vertices1.size());
+  std::vector<Vector3d> vertices1_new(vertices1.size());
   for(std::size_t i = 0; i < vertices1_new.size(); ++i)
   {
-    vertices1_new[i] = tf1.transform(vertices1[i]);
+    vertices1_new[i] = tf1 * vertices1[i];
   }
 
   m1.beginModel();
@@ -221,9 +225,10 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1, pose2;
+  Transform3d pose1 = Transform3d::Identity();
+  Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;	
+  CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,
@@ -240,7 +245,7 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
   // update the mesh
   for(std::size_t i = 0; i < vertices1.size(); ++i)
   {
-    vertices1_new[i] = tf2.transform(vertices1[i]);
+    vertices1_new[i] = tf2 * vertices1[i];
   }
 
   m1.beginReplaceModel();
@@ -264,9 +269,9 @@ bool collide_front_list_Test(const Transform3f& tf1, const Transform3f& tf2,
 
 
 template<typename BV, typename TraversalNode>
-bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f& tf2,
-                                      const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                                      const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2,
+bool collide_front_list_Test_Oriented(const Transform3d& tf1, const Transform3d& tf2,
+                                      const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                                      const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2,
                                       SplitMethodType split_method, bool verbose)
 {
   BVHModel<BV> m1;
@@ -284,9 +289,10 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf1), pose2;
+  Transform3d pose1(tf1);
+  Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;	
+  CollisionResult local_result;
   TraversalNode node;
 
   if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2,
@@ -316,9 +322,9 @@ bool collide_front_list_Test_Oriented(const Transform3f& tf1, const Transform3f&
 
 
 template<typename BV>
-bool collide_Test(const Transform3f& tf,
-                  const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                  const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+bool collide_Test(const Transform3d& tf,
+                  const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                  const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
 {
   BVHModel<BV> m1;
   BVHModel<BV> m2;
@@ -333,9 +339,10 @@ bool collide_Test(const Transform3f& tf,
   m2.addSubModel(vertices2, triangles2);
   m2.endModel();
 
-  Transform3f pose1(tf), pose2;
+  Transform3d pose1(tf);
+  Transform3d pose2 = Transform3d::Identity();
 
-  CollisionResult local_result;	
+  CollisionResult local_result;
   MeshCollisionTraversalNode<BV> node;
 
   if(!initialize<BV>(node, m1, pose1, m2, pose2,

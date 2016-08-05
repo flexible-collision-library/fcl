@@ -38,8 +38,7 @@
 #ifndef FCL_AABB_H
 #define FCL_AABB_H
 
-
-#include "fcl/math/vec_3f.h"
+#include "fcl/data_types.h"
 
 namespace fcl
 {
@@ -49,46 +48,44 @@ class AABB
 {
 public:
   /// @brief The min point in the AABB
-  Vec3f min_;
+  Vector3d min_;
   /// @brief The max point in the AABB
-  Vec3f max_;
+  Vector3d max_;
 
   /// @brief Creating an AABB with zero size (low bound +inf, upper bound -inf)
   AABB();
 
   /// @brief Creating an AABB at position v with zero size
-  AABB(const Vec3f& v) : min_(v), max_(v)
+  AABB(const Vector3d& v) : min_(v), max_(v)
   {
   }
 
   /// @brief Creating an AABB with two endpoints a and b
-  AABB(const Vec3f& a, const Vec3f&b) : min_(min(a, b)),
-                                        max_(max(a, b))
+  AABB(const Vector3d& a, const Vector3d&b) : min_(a.cwiseMin(b)),
+                                        max_(a.cwiseMax(b))
   {
   }
 
   /// @brief Creating an AABB centered as core and is of half-dimension delta
-  AABB(const AABB& core, const Vec3f& delta) : min_(core.min_ - delta),
+  AABB(const AABB& core, const Vector3d& delta) : min_(core.min_ - delta),
                                                max_(core.max_ + delta)
   {
   }
 
   /// @brief Creating an AABB contains three points
-  AABB(const Vec3f& a, const Vec3f& b, const Vec3f& c) : min_(min(min(a, b), c)),
-                                                         max_(max(max(a, b), c))
+  AABB(const Vector3d& a, const Vector3d& b, const Vector3d& c) : min_(a.cwiseMin(b).cwiseMin(c)),
+                                                         max_(a.cwiseMax(b).cwiseMax(c))
   {
   }
 
   /// @brief Check whether two AABB are overlap
   inline bool overlap(const AABB& other) const
   {
-    if(min_[0] > other.max_[0]) return false;
-    if(min_[1] > other.max_[1]) return false;
-    if(min_[2] > other.max_[2]) return false;
+    if ((min_.array() > other.max_.array()).any())
+      return false;
 
-    if(max_[0] < other.min_[0]) return false;
-    if(max_[1] < other.min_[1]) return false;
-    if(max_[2] < other.min_[2]) return false;
+    if ((max_.array() < other.min_.array()).any())
+      return false;
 
     return true;
   }    
@@ -96,7 +93,13 @@ public:
   /// @brief Check whether the AABB contains another AABB
   inline bool contain(const AABB& other) const
   {
-    return (other.min_[0] >= min_[0]) && (other.max_[0] <= max_[0]) && (other.min_[1] >= min_[1]) && (other.max_[1] <= max_[1]) && (other.min_[2] >= min_[2]) && (other.max_[2] <= max_[2]);
+    if ((min_.array() > other.min_.array()).any())
+      return false;
+
+    if ((max_.array() < other.max_.array()).any())
+      return false;
+
+    return true;
   }
 
 
@@ -118,35 +121,37 @@ public:
       return false;
     }
     
-    overlap_part.min_ = max(min_, other.min_);
-    overlap_part.max_ = min(max_, other.max_);
+    overlap_part.min_ = min_.cwiseMax(other.min_);
+    overlap_part.max_ = max_.cwiseMin(other.max_);
     return true;
   }
 
 
   /// @brief Check whether the AABB contains a point
-  inline bool contain(const Vec3f& p) const
+  inline bool contain(const Vector3d& p) const
   {
-    if(p[0] < min_[0] || p[0] > max_[0]) return false;
-    if(p[1] < min_[1] || p[1] > max_[1]) return false;
-    if(p[2] < min_[2] || p[2] > max_[2]) return false;
+    if ((min_.array() > p.array()).any())
+      return false;
+
+    if ((max_.array() < p.array()).any())
+      return false;
 
     return true;
   }
 
   /// @brief Merge the AABB and a point
-  inline AABB& operator += (const Vec3f& p)
+  inline AABB& operator += (const Vector3d& p)
   {
-    min_.ubound(p);
-    max_.lbound(p);
+    min_ = min_.cwiseMin(p);
+    max_ = max_.cwiseMax(p);
     return *this;
   }
 
   /// @brief Merge the AABB and another AABB
   inline AABB& operator += (const AABB& other)
   {
-    min_.ubound(other.min_);
-    max_.lbound(other.max_);
+    min_ = min_.cwiseMin(other.min_);
+    max_ = max_.cwiseMax(other.max_);
     return *this;
   }
 
@@ -184,23 +189,23 @@ public:
   /// @brief Size of the AABB (used in BV_Splitter to order two AABBs)
   inline FCL_REAL size() const
   {
-    return (max_ - min_).sqrLength();
+    return (max_ - min_).squaredNorm();
   }
 
   /// @brief Radius of the AABB
   inline FCL_REAL radius() const
   {
-    return (max_ - min_).length() / 2;
+    return (max_ - min_).norm() / 2;
   }
 
   /// @brief Center of the AABB
-  inline  Vec3f center() const
+  inline  Vector3d center() const
   {
     return (min_ + max_) * 0.5;
   }
 
   /// @brief Distance between two AABBs; P and Q, should not be NULL, return the nearest points 
-  FCL_REAL distance(const AABB& other, Vec3f* P, Vec3f* Q) const;
+  FCL_REAL distance(const AABB& other, Vector3d* P, Vector3d* Q) const;
 
   /// @brief Distance between two AABBs
   FCL_REAL distance(const AABB& other) const;
@@ -208,11 +213,12 @@ public:
   /// @brief whether two AABB are equal
   inline bool equal(const AABB& other) const
   {
-    return min_.equal(other.min_) && max_.equal(other.max_);
+    return min_.isApprox(other.min_, std::numeric_limits<Vector3d::Scalar>::epsilon() * 100)
+        && max_.isApprox(other.max_, std::numeric_limits<Vector3d::Scalar>::epsilon() * 100);
   }
 
   /// @brief expand the half size of the AABB by delta, and keep the center unchanged.
-  inline AABB& expand(const Vec3f& delta)
+  inline AABB& expand(const Vector3d& delta)
   {
     min_ -= delta;
     max_ += delta;
@@ -229,7 +235,7 @@ public:
 };
 
 /// @brief translate the center of AABB by t
-static inline AABB translate(const AABB& aabb, const Vec3f& t)
+static inline AABB translate(const AABB& aabb, const Vector3d& t)
 {
   AABB res(aabb);
   res.min_ += t;

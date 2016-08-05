@@ -38,9 +38,7 @@
 #ifndef FCL_OBB_H
 #define FCL_OBB_H
 
-
-#include "fcl/math/vec_3f.h"
-#include "fcl/math/matrix_3f.h"
+#include "fcl/data_types.h"
 
 namespace fcl
 {
@@ -51,13 +49,13 @@ class OBB
 public:
   /// @brief Orientation of OBB. axis[i] is the ith column of the orientation matrix for the box; it is also the i-th principle direction of the box. 
   /// We assume that axis[0] corresponds to the axis with the longest box edge, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Vec3f axis[3];
+  Matrix3d axis;
 
   /// @brief Center of OBB
-  Vec3f To;
+  Vector3d To;
   
   /// @brief Half dimensions of OBB
-  Vec3f extent;
+  Vector3d extent;
 
   /// @brief Check collision between two OBB, return true if collision happens. 
   bool overlap(const OBB& other) const;
@@ -70,10 +68,10 @@ public:
   }
 
   /// @brief Check whether the OBB contains a point.
-  bool contain(const Vec3f& p) const;
+  bool contain(const Vector3d& p) const;
 
   /// @brief A simple way to merge the OBB and a point (the result is not compact).
-  OBB& operator += (const Vec3f& p);
+  OBB& operator += (const Vector3d& p);
 
   /// @brief Merge the OBB and another OBB (the result is not compact).
   OBB& operator += (const OBB& other)
@@ -112,31 +110,31 @@ public:
   /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
   inline FCL_REAL size() const
   {
-    return extent.sqrLength();
+    return extent.squaredNorm();
   }
 
   /// @brief Center of the OBB
-  inline const Vec3f& center() const
+  inline const Vector3d& center() const
   {
     return To;
   }
 
 
   /// @brief Distance between two OBBs, not implemented.
-  FCL_REAL distance(const OBB& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  FCL_REAL distance(const OBB& other, Vector3d* P = NULL, Vector3d* Q = NULL) const;
 };
 
 
 /// @brief Translate the OBB bv
-OBB translate(const OBB& bv, const Vec3f& t);
+OBB translate(const OBB& bv, const Vector3d& t);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const OBB& b1, const OBB& b2);
+bool overlap(const Matrix3d& R0, const Vector3d& T0, const OBB& b1, const OBB& b2);
 
 
 /// @brief Check collision between two boxes: the first box is in configuration (R, T) and its half dimension is set by a;
 /// the second box is in identity configuration and its half dimension is set by b.
-bool obbDisjoint(const Matrix3f& B, const Vec3f& T, const Vec3f& a, const Vec3f& b);
+bool obbDisjoint(const Matrix3d& B, const Vector3d& T, const Vector3d& a, const Vector3d& b);
 }
 
 #endif

@@ -39,9 +39,6 @@
 #define FCL_RSS_H
 
 #include "fcl/math/constants.h"
-#include "fcl/math/vec_3f.h"
-#include "fcl/math/matrix_3f.h"
-
 
 namespace fcl
 {
@@ -52,16 +49,19 @@ class RSS
 public:
   /// @brief Orientation of RSS. axis[i] is the ith column of the orientation matrix for the RSS; it is also the i-th principle direction of the RSS.
   /// We assume that axis[0] corresponds to the axis with the longest length, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Vec3f axis[3];
+  Matrix3d axis;
 
   /// @brief Origin of the rectangle in RSS
-  Vec3f Tr;
+  Vector3d Tr;
 
   /// @brief Side lengths of rectangle
   FCL_REAL l[2];
 
   /// @brief Radius of sphere summed with rectangle to form RSS
   FCL_REAL r;
+
+  /// Constructor
+  RSS();
 
   /// @brief Check collision between two RSS
   bool overlap(const RSS& other) const;
@@ -74,11 +74,11 @@ public:
   }
 
   /// @brief Check whether the RSS contains a point
-  inline bool contain(const Vec3f& p) const;
+  inline bool contain(const Vector3d& p) const;
 
   /// @brief A simple way to merge the RSS and a point, not compact.
   /// @todo This function may have some bug.
-  RSS& operator += (const Vec3f& p);
+  RSS& operator += (const Vector3d& p);
 
   /// @brief Merge the RSS and another RSS
   inline RSS& operator += (const RSS& other)
@@ -121,28 +121,28 @@ public:
   }
 
   /// @brief The RSS center
-  inline const Vec3f& center() const
+  inline const Vector3d& center() const
   {
     return Tr;
   }
 
   /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
-  FCL_REAL distance(const RSS& other, Vec3f* P = NULL, Vec3f* Q = NULL) const;
+  FCL_REAL distance(const RSS& other, Vector3d* P = NULL, Vector3d* Q = NULL) const;
 
 };
 
 
 /// @brief Translate the RSS bv
-RSS translate(const RSS& bv, const Vec3f& t);
+RSS translate(const RSS& bv, const Vector3d& t);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles, not the RSS. But the direction P - Q is the correct direction for cloest points
 /// Notice that P and Q are both in the local frame of the first RSS (not global frame and not even the local frame of object 1)
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2, Vec3f* P = NULL, Vec3f* Q = NULL);
+FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2, Vector3d* P = NULL, Vector3d* Q = NULL);
 
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and b2 is in identity.
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const RSS& b1, const RSS& b2);
+bool overlap(const Matrix3d& R0, const Vector3d& T0, const RSS& b1, const RSS& b2);
 
 
 }

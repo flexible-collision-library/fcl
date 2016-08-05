@@ -41,7 +41,6 @@
 
 #include "fcl/ccd/interval.h"
 #include "fcl/ccd/interval_vector.h"
-#include "fcl/math/matrix_3f.h"
 
 namespace fcl
 {
@@ -52,7 +51,7 @@ struct IMatrix3
 
   IMatrix3();
   IMatrix3(FCL_REAL v);
-  IMatrix3(const Matrix3f& m);
+  IMatrix3(const Matrix3d& m);
   IMatrix3(FCL_REAL m[3][3][2]);
   IMatrix3(FCL_REAL m[3][3]);
   IMatrix3(Interval m[3][3]);
@@ -63,14 +62,14 @@ struct IMatrix3
   IVector3 getColumn(size_t i) const;
   const IVector3& getRow(size_t i) const;
 
-  Vec3f getColumnLow(size_t i) const;
-  Vec3f getRowLow(size_t i) const;
+  Vector3d getColumnLow(size_t i) const;
+  Vector3d getRowLow(size_t i) const;
 
-  Vec3f getColumnHigh(size_t i) const;
-  Vec3f getRowHigh(size_t i) const;
+  Vector3d getColumnHigh(size_t i) const;
+  Vector3d getRowHigh(size_t i) const;
 
-  Matrix3f getLow() const;
-  Matrix3f getHigh() const;
+  Matrix3d getLow() const;
+  Matrix3d getHigh() const;
 
   inline const Interval& operator () (size_t i, size_t j) const
   {
@@ -88,13 +87,13 @@ struct IMatrix3
   IMatrix3 operator - (const IMatrix3& m) const;
   IMatrix3& operator -= (const IMatrix3& m);
 
-  IVector3 operator * (const Vec3f& v) const;
+  IVector3 operator * (const Vector3d& v) const;
   IVector3 operator * (const IVector3& v) const;
   IMatrix3 operator * (const IMatrix3& m) const;
-  IMatrix3 operator * (const Matrix3f& m) const;
+  IMatrix3 operator * (const Matrix3d& m) const;
 
   IMatrix3& operator *= (const IMatrix3& m);
-  IMatrix3& operator *= (const Matrix3f& m);
+  IMatrix3& operator *= (const Matrix3d& m);
 
   IMatrix3& rotationConstrain();
 

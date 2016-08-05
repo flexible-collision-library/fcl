@@ -35,25 +35,64 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_DISTANCE_H
-#define FCL_DISTANCE_H
+#ifndef FCL_VARIANCE_H
+#define FCL_VARIANCE_H
 
-#include "fcl/collision_object.h"
-#include "fcl/collision_data.h"
+#include <cmath>
+
+#include "fcl/config.h"
+#include "fcl/data_types.h"
+#include "fcl/math/geometry.h"
 
 namespace fcl
 {
 
-/// @brief Main distance interface: given two collision objects, and the requirements for contacts, including whether return the nearest points, this function performs the distance between them. 
-/// Return value is the minimum distance generated between the two objects.
+/// @brief Class for variance matrix in 3d
+class Variance3f
+{
+public:
+  /// @brief Variation matrix
+  Matrix3d Sigma;
 
-FCL_REAL distance(const CollisionObject* o1, const CollisionObject* o2,
-                  const DistanceRequest& request, DistanceResult& result);
+  /// @brief Variations along the eign axes
+  Vector3d sigma;
 
-FCL_REAL distance(const CollisionGeometry* o1, const Transform3d& tf1,
-                  const CollisionGeometry* o2, const Transform3d& tf2,
-                  const DistanceRequest& request, DistanceResult& result);
+  /// @brief Matrix whose columns are eigenvectors of Sigma
+  Matrix3d axis;
 
-}
+  Variance3f() {}
+
+  Variance3f(const Matrix3d& S) : Sigma(S)
+  {
+    init();
+  }
+
+  /// @brief init the Variance
+  void init()
+  {
+    eigen(Sigma, sigma, axis);
+  }
+
+  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized as a square variation matrix
+  Variance3f& sqrt()
+  {
+    for(std::size_t i = 0; i < 3; ++i)
+    {
+      if(sigma[i] < 0) sigma[i] = 0;
+      sigma[i] = std::sqrt(sigma[i]);
+    }
+
+    Sigma.noalias()
+        =  sigma[0] * axis.col(0) * axis.col(0).transpose();
+    Sigma.noalias()
+        += sigma[1] * axis.col(1) * axis.col(1).transpose();
+    Sigma.noalias()
+        += sigma[2] * axis.col(2) * axis.col(2).transpose();
+
+    return *this;
+  }
+};
+
+} // namespace fcl
 
 #endif

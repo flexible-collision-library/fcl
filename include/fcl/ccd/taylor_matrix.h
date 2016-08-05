@@ -38,8 +38,6 @@
 #ifndef FCL_CCD_TAYLOR_MATRIX_H
 #define FCL_CCD_TAYLOR_MATRIX_H
 
-
-#include "fcl/math/matrix_3f.h"
 #include "fcl/ccd/taylor_vector.h"
 #include "fcl/ccd/interval_matrix.h"
 
@@ -55,7 +53,7 @@ public:
   TMatrix3(const std::shared_ptr<TimeInterval>& time_interval);
   TMatrix3(TaylorModel m[3][3]);
   TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3);
-  TMatrix3(const Matrix3f& m, const std::shared_ptr<TimeInterval>& time_interval);
+  TMatrix3(const Matrix3d& m, const std::shared_ptr<TimeInterval>& time_interval);
 
   TVector3 getColumn(size_t i) const;
   const TVector3& getRow(size_t i) const;
@@ -63,27 +61,27 @@ public:
   const TaylorModel& operator () (size_t i, size_t j) const;
   TaylorModel& operator () (size_t i, size_t j);
 
-  TVector3 operator * (const Vec3f& v) const;
+  TVector3 operator * (const Vector3d& v) const;
   TVector3 operator * (const TVector3& v) const;
-  TMatrix3 operator * (const Matrix3f& m) const;
+  TMatrix3 operator * (const Matrix3d& m) const;
   TMatrix3 operator * (const TMatrix3& m) const;
   TMatrix3 operator * (const TaylorModel& d) const;
   TMatrix3 operator * (FCL_REAL d) const;
 
-  TMatrix3& operator *= (const Matrix3f& m);
+  TMatrix3& operator *= (const Matrix3d& m);
   TMatrix3& operator *= (const TMatrix3& m);
   TMatrix3& operator *= (const TaylorModel& d);
   TMatrix3& operator *= (FCL_REAL d);
 
   TMatrix3 operator + (const TMatrix3& m) const;
   TMatrix3& operator += (const TMatrix3& m);
-  TMatrix3 operator + (const Matrix3f& m) const;
-  TMatrix3& operator += (const Matrix3f& m);
+  TMatrix3 operator + (const Matrix3d& m) const;
+  TMatrix3& operator += (const Matrix3d& m);
 
   TMatrix3 operator - (const TMatrix3& m) const;
   TMatrix3& operator -= (const TMatrix3& m);
-  TMatrix3 operator - (const Matrix3f& m) const;
-  TMatrix3& operator -= (const Matrix3f& m);
+  TMatrix3 operator - (const Matrix3d& m) const;
+  TMatrix3& operator -= (const Matrix3d& m);
   TMatrix3 operator - () const;
 
   IMatrix3 getBound() const;
@@ -109,12 +107,12 @@ public:
 
 TMatrix3 rotationConstrain(const TMatrix3& m);
 
-TMatrix3 operator * (const Matrix3f& m, const TaylorModel& a);
-TMatrix3 operator * (const TaylorModel& a, const Matrix3f& m);
+TMatrix3 operator * (const Matrix3d& m, const TaylorModel& a);
+TMatrix3 operator * (const TaylorModel& a, const Matrix3d& m);
 TMatrix3 operator * (const TaylorModel& a, const TMatrix3& m);
 TMatrix3 operator * (FCL_REAL d, const TMatrix3& m);
-TMatrix3 operator + (const Matrix3f& m1, const TMatrix3& m2);
-TMatrix3 operator - (const Matrix3f& m1, const TMatrix3& m2);
+TMatrix3 operator + (const Matrix3d& m1, const TMatrix3& m2);
+TMatrix3 operator - (const Matrix3d& m1, const TMatrix3& m2);
 
 }
 

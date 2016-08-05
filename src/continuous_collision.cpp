@@ -55,7 +55,7 @@ ConservativeAdvancementFunctionMatrix<GJKSolver>& getConservativeAdvancementFunc
   return table;
 }
 
-MotionBasePtr getMotionBase(const Transform3f& tf_beg, const Transform3f& tf_end, CCDMotionType motion_type)
+MotionBasePtr getMotionBase(const Transform3d& tf_beg, const Transform3d& tf_end, CCDMotionType motion_type)
 {
   switch(motion_type)
   {
@@ -83,7 +83,7 @@ FCL_REAL continuousCollideNaive(const CollisionGeometry* o1, const MotionBase* m
                                 ContinuousCollisionResult& result)
 {
   std::size_t n_iter = std::min(request.num_max_iterations, (std::size_t)ceil(1 / request.toc_err));
-  Transform3f cur_tf1, cur_tf2;
+  Transform3d cur_tf1, cur_tf2;
   for(std::size_t i = 0; i < n_iter; ++i)
   {
     FCL_REAL t = i / (FCL_REAL) (n_iter - 1);
@@ -125,8 +125,8 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1_, const Tran
   // ugly, but lets do it now.
   BVHModel<BV>* o1 = const_cast<BVHModel<BV>*>(o1__);
   BVHModel<BV>* o2 = const_cast<BVHModel<BV>*>(o2__);
-  std::vector<Vec3f> new_v1(o1->num_vertices);
-  std::vector<Vec3f> new_v2(o2->num_vertices);
+  std::vector<Vector3d> new_v1(o1->num_vertices);
+  std::vector<Vector3d> new_v2(o2->num_vertices);
 
   for(std::size_t i = 0; i < new_v1.size(); ++i)
     new_v1[i] = o1->vertices[i] + motion1->getVelocity();
@@ -146,7 +146,7 @@ FCL_REAL continuousCollideBVHPolynomial(const CollisionGeometry* o1_, const Tran
 
   motion1->integrate(0);
   motion2->integrate(0);
-  Transform3f tf1, tf2;
+  Transform3d tf1, tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
   if(!initialize<BV>(node, *o1, tf1, *o2, tf2, c_request))
@@ -258,7 +258,7 @@ FCL_REAL continuousCollideConservativeAdvancement(const CollisionGeometry* o1, c
     motion1->integrate(result.time_of_contact);
     motion2->integrate(result.time_of_contact);
 
-    Transform3f tf1, tf2;
+    Transform3d tf1, tf2;
     motion1->getCurrentTransform(tf1);
     motion2->getCurrentTransform(tf2);
     result.contact_tf1 = tf1;
@@ -338,8 +338,8 @@ FCL_REAL continuousCollide(const CollisionGeometry* o1, const MotionBase* motion
   return -1;
 }
 
-FCL_REAL continuousCollide(const CollisionGeometry* o1, const Transform3f& tf1_beg, const Transform3f& tf1_end,
-                           const CollisionGeometry* o2, const Transform3f& tf2_beg, const Transform3f& tf2_end,
+FCL_REAL continuousCollide(const CollisionGeometry* o1, const Transform3d& tf1_beg, const Transform3d& tf1_end,
+                           const CollisionGeometry* o2, const Transform3d& tf2_beg, const Transform3d& tf2_end,
                            const ContinuousCollisionRequest& request,
                            ContinuousCollisionResult& result)
 {
@@ -350,8 +350,8 @@ FCL_REAL continuousCollide(const CollisionGeometry* o1, const Transform3f& tf1_b
 }
 
 
-FCL_REAL continuousCollide(const CollisionObject* o1, const Transform3f& tf1_end,
-                           const CollisionObject* o2, const Transform3f& tf2_end,
+FCL_REAL continuousCollide(const CollisionObject* o1, const Transform3d& tf1_end,
+                           const CollisionObject* o2, const Transform3d& tf2_end,
                            const ContinuousCollisionRequest& request,
                            ContinuousCollisionResult& result)
 {

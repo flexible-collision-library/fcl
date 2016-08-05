@@ -151,29 +151,33 @@ protected:
     EndPoint* next[3];
 
     /// @brief get the value of the end point
-    inline const Vec3f& getVal() const
+    inline const Vector3d& getVal() const
     {
       if(minmax) return aabb->cached.max_;
       else return aabb->cached.min_;
     }
 
     /// @brief set the value of the end point
-    inline Vec3f& getVal()
+    inline Vector3d& getVal()
     {
       if(minmax) return aabb->cached.max_;
       else return aabb->cached.min_;
     }
 
-    inline Vec3f::U getVal(size_t i) const
+    inline Vector3d::Scalar getVal(size_t i) const
     {
-      if(minmax) return aabb->cached.max_[i];
-      else return aabb->cached.min_[i];
+      if(minmax)
+        return aabb->cached.max_[i];
+      else
+        return aabb->cached.min_[i];
     }
 
-    inline Vec3f::U& getVal(size_t i)
+    inline Vector3d::Scalar& getVal(size_t i)
     {
-      if(minmax) return aabb->cached.max_[i];
-      else return aabb->cached.min_[i];
+      if(minmax)
+        return aabb->cached.max_[i];
+      else
+        return aabb->cached.min_[i];
     }
 
   };

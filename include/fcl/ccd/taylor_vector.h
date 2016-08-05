@@ -54,19 +54,19 @@ public:
   TVector3(const std::shared_ptr<TimeInterval>& time_interval);
   TVector3(TaylorModel v[3]);
   TVector3(const TaylorModel& v0, const TaylorModel& v1, const TaylorModel& v2);
-  TVector3(const Vec3f& v, const std::shared_ptr<TimeInterval>& time_interval);
+  TVector3(const Vector3d& v, const std::shared_ptr<TimeInterval>& time_interval);
   
   TVector3 operator + (const TVector3& other) const;
   TVector3& operator += (const TVector3& other);
 
-  TVector3 operator + (const Vec3f& other) const;
-  TVector3& operator += (const Vec3f& other);
+  TVector3 operator + (const Vector3d& other) const;
+  TVector3& operator += (const Vector3d& other);
 
   TVector3 operator - (const TVector3& other) const;
   TVector3& operator -= (const TVector3& other);
 
-  TVector3 operator - (const Vec3f& other) const;
-  TVector3& operator -= (const Vec3f& other);
+  TVector3 operator - (const Vector3d& other) const;
+  TVector3& operator -= (const Vector3d& other);
 
   TVector3 operator - () const;
 
@@ -80,8 +80,8 @@ public:
 
   TaylorModel dot(const TVector3& other) const;
   TVector3 cross(const TVector3& other) const;
-  TaylorModel dot(const Vec3f& other) const;
-  TVector3 cross(const Vec3f& other) const;
+  TaylorModel dot(const Vector3d& other) const;
+  TVector3 cross(const Vector3d& other) const;
 
   IVector3 getBound() const;
   IVector3 getBound(FCL_REAL l, FCL_REAL r) const;
@@ -102,12 +102,12 @@ public:
   const std::shared_ptr<TimeInterval>& getTimeInterval() const;
 };
 
-void generateTVector3ForLinearFunc(TVector3& v, const Vec3f& position, const Vec3f& velocity);
+void generateTVector3ForLinearFunc(TVector3& v, const Vector3d& position, const Vector3d& velocity);
 
 
-TVector3 operator * (const Vec3f& v, const TaylorModel& a);
-TVector3 operator + (const Vec3f& v1, const TVector3& v2);
-TVector3 operator - (const Vec3f& v1, const TVector3& v2);
+TVector3 operator * (const Vector3d& v, const TaylorModel& a);
+TVector3 operator + (const Vector3d& v1, const TVector3& v2);
+TVector3 operator - (const Vector3d& v1, const TVector3& v2);
 
 }
 

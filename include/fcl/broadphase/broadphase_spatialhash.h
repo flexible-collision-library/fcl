@@ -94,7 +94,7 @@ template<typename HashTable = SimpleHashTable<AABB, CollisionObject*, SpatialHas
 class SpatialHashingCollisionManager : public BroadPhaseCollisionManager
 {
 public:
-  SpatialHashingCollisionManager(FCL_REAL cell_size, const Vec3f& scene_min, const Vec3f& scene_max, unsigned int default_table_size = 1000) : scene_limit(AABB(scene_min, scene_max)),
+  SpatialHashingCollisionManager(FCL_REAL cell_size, const Vector3d& scene_min, const Vector3d& scene_max, unsigned int default_table_size = 1000) : scene_limit(AABB(scene_min, scene_max)),
                                                                                                                                                hash_table(new HashTable(SpatialHash(scene_limit, cell_size)))
   {
     hash_table->init(default_table_size);
@@ -154,7 +154,7 @@ public:
   size_t size() const;
 
   /// @brief compute the bound for the environent
-  static void computeBound(std::vector<CollisionObject*>& objs, Vec3f& l, Vec3f& u)
+  static void computeBound(std::vector<CollisionObject*>& objs, Vector3d& l, Vector3d& u)
   {
     AABB bound;
     for(unsigned int i = 0; i < objs.size(); ++i)

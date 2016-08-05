@@ -39,9 +39,6 @@
 #ifndef FCL_BV_NODE_H
 #define FCL_BV_NODE_H
 
-#include "fcl/math/vec_3f.h"
-#include "fcl/math/matrix_3f.h"
-
 #include "fcl/BV/BV.h"
 #include <iostream>
 
@@ -91,40 +88,34 @@ struct BVNode : public BVNodeBase
   }
 
   /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and the underlying BV supports distance, return the nearest points.
-  FCL_REAL distance(const BVNode& other, Vec3f* P1 = NULL, Vec3f* P2 = NULL) const
+  FCL_REAL distance(const BVNode& other, Vector3d* P1 = NULL, Vector3d* P2 = NULL) const
   {
     return bv.distance(other.bv, P1, P2);
   }
 
   /// @brief Access the center of the BV
-  Vec3f getCenter() const { return bv.center(); }
+  Vector3d getCenter() const { return bv.center(); }
 
   /// @brief Access the orientation of the BV
-  Matrix3f getOrientation() const { return Matrix3f::getIdentity(); }
+  Matrix3d getOrientation() const { return Matrix3d::Identity(); }
 };
 
 template<>
-inline Matrix3f BVNode<OBB>::getOrientation() const 
+inline Matrix3d BVNode<OBB>::getOrientation() const 
 {
-  return Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-                  bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
+  return bv.axis;
 }
 
 template<>
-inline Matrix3f BVNode<RSS>::getOrientation() const 
+inline Matrix3d BVNode<RSS>::getOrientation() const 
 {
-  return Matrix3f(bv.axis[0][0], bv.axis[1][0], bv.axis[2][0],
-                  bv.axis[0][1], bv.axis[1][1], bv.axis[2][1],
-                  bv.axis[0][2], bv.axis[1][2], bv.axis[2][2]);
+  return bv.axis;
 }
 
 template<>
-inline Matrix3f BVNode<OBBRSS>::getOrientation() const 
+inline Matrix3d BVNode<OBBRSS>::getOrientation() const 
 {
-  return Matrix3f(bv.obb.axis[0][0], bv.obb.axis[1][0], bv.obb.axis[2][0],
-                  bv.obb.axis[0][1], bv.obb.axis[1][1], bv.obb.axis[2][1],
-                  bv.obb.axis[0][2], bv.obb.axis[1][2], bv.obb.axis[2][2]);
+  return bv.obb.axis;
 }
 
 

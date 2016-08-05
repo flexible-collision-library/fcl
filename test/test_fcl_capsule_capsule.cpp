@@ -52,17 +52,17 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_origin)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform;
-  Transform3f transform2;
-  transform2 = Transform3f(Vec3f(20.1, 0,0));
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(20.1, 0,0);
 
   bool res;
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   EXPECT_TRUE(std::abs(dist - 10.1) < 0.001);
@@ -78,17 +78,17 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformXY)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform;
-  Transform3f transform2;
-  transform2 = Transform3f(Vec3f(20, 20,0));
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(20, 20,0);
 
   bool res;
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   FCL_REAL expected = std::sqrt(FCL_REAL(800)) - 10;
@@ -104,17 +104,17 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform;
-  Transform3f transform2;
-  transform2 = Transform3f(Vec3f(0,0,20.1));
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(0,0,20.1);
 
   bool res;
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   EXPECT_TRUE(std::abs(dist - 0.1) < 0.001);
@@ -131,22 +131,23 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
   Capsule s1(5, 10);
   Capsule s2(5, 10);
 
-  Vec3f closest_p1, closest_p2;
+  Vector3d closest_p1, closest_p2;
 
-  Transform3f transform;
-  Transform3f transform2;
-  transform2 = Transform3f(Vec3f(0,0,25.1));
-  Matrix3f rot2;
-
-  rot2.setEulerZYX(0,Pi/2,0);
-  transform2.setRotation(rot2);
+  Transform3d transform = Transform3d::Identity();
+  Transform3d transform2 = Transform3d::Identity();
+  transform2.translation() = Vector3d(0,0,25.1);
+  Matrix3d rot2(
+        Eigen::AngleAxisd(0, Vector3d::UnitX())
+        * Eigen::AngleAxisd(Pi/2, Vector3d::UnitY())
+        * Eigen::AngleAxisd(0, Vector3d::UnitZ()));
+  transform2.linear() = rot2;
 
   bool res;
   FCL_REAL dist;
 
   res = solver.shapeDistance<Capsule, Capsule>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
-  std::cerr << "applied transformation of two caps: " << transform.getTranslation() << " & " << transform2.getTranslation() << std::endl;
-  std::cerr << "applied transformation of two caps: " << transform.getRotation() << " & " << transform2.getRotation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
+  std::cerr << "applied transformation of two caps: " << transform.linear() << " & " << transform2.linear() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
   EXPECT_TRUE(std::abs(dist - 5.1) < 0.001);

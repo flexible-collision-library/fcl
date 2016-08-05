@@ -37,7 +37,6 @@
 
 #include "fcl/BV/kIOS.h"
 #include "fcl/BVH/BVH_utility.h"
-#include "fcl/math/transform.h"
 
 #include <iostream>
 #include <limits>
@@ -51,7 +50,7 @@ bool kIOS::overlap(const kIOS& other) const
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
     {
-      FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).sqrLength();
+      FCL_REAL o_dist = (spheres[i].o - other.spheres[j].o).squaredNorm();
       FCL_REAL sum_r = spheres[i].r + other.spheres[j].r;
       if(o_dist > sum_r * sum_r)
         return false;
@@ -64,24 +63,24 @@ bool kIOS::overlap(const kIOS& other) const
 }
 
 
-bool kIOS::contain(const Vec3f& p) const
+bool kIOS::contain(const Vector3d& p) const
 {
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
     FCL_REAL r = spheres[i].r;
-    if((spheres[i].o - p).sqrLength() > r * r)
+    if((spheres[i].o - p).squaredNorm() > r * r)
       return false;
   }
 
   return true;
 }
 
-kIOS& kIOS::operator += (const Vec3f& p)
+kIOS& kIOS::operator += (const Vector3d& p)
 {
   for(unsigned int i = 0; i < num_spheres; ++i)
   {
     FCL_REAL r = spheres[i].r;
-    FCL_REAL new_r_sqr = (p - spheres[i].o).sqrLength();
+    FCL_REAL new_r_sqr = (p - spheres[i].o).squaredNorm();
     if(new_r_sqr > r * r)
     {
       spheres[i].r = sqrt(new_r_sqr);
@@ -133,7 +132,7 @@ FCL_REAL kIOS::size() const
   return volume();
 }
 
-FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
+FCL_REAL kIOS::distance(const kIOS& other, Vector3d* P, Vector3d* Q) const
 {
   FCL_REAL d_max = 0;
   int id_a = -1, id_b = -1;
@@ -141,7 +140,7 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
   {
     for(unsigned int j = 0; j < other.num_spheres; ++j)
     {
-      FCL_REAL d = (spheres[i].o - other.spheres[j].o).length() - (spheres[i].r + other.spheres[j].r);
+      FCL_REAL d = (spheres[i].o - other.spheres[j].o).norm() - (spheres[i].r + other.spheres[j].r);
       if(d_max < d)
       {
         d_max = d;
@@ -157,8 +156,8 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
   {
     if(id_a != -1 && id_b != -1)
     {
-      Vec3f v = spheres[id_a].o - spheres[id_b].o;
-      FCL_REAL len_v = v.length();
+      Vector3d v = spheres[id_a].o - spheres[id_b].o;
+      FCL_REAL len_v = v.norm();
       *P = spheres[id_a].o - v * (spheres[id_a].r / len_v);
       *Q = spheres[id_b].o + v * (spheres[id_b].r / len_v);
     }
@@ -168,7 +167,7 @@ FCL_REAL kIOS::distance(const kIOS& other, Vec3f* P, Vec3f* Q) const
 }
 
   
-bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2)
+bool overlap(const Matrix3d& R0, const Vector3d& T0, const kIOS& b1, const kIOS& b2)
 {
   kIOS b2_temp = b2;
   for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
@@ -178,14 +177,12 @@ bool overlap(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2
 
   
   b2_temp.obb.To = R0 * b2_temp.obb.To + T0;
-  b2_temp.obb.axis[0] = R0 * b2_temp.obb.axis[0];
-  b2_temp.obb.axis[1] = R0 * b2_temp.obb.axis[1];
-  b2_temp.obb.axis[2] = R0 * b2_temp.obb.axis[2];
+  b2_temp.obb.axis = R0 * b2_temp.obb.axis;
 
   return b1.overlap(b2_temp);
 }
 
-FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIOS& b2, Vec3f* P, Vec3f* Q)
+FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const kIOS& b1, const kIOS& b2, Vector3d* P, Vector3d* Q)
 {
   kIOS b2_temp = b2;
   for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
@@ -197,7 +194,7 @@ FCL_REAL distance(const Matrix3f& R0, const Vec3f& T0, const kIOS& b1, const kIO
 }
 
 
-kIOS translate(const kIOS& bv, const Vec3f& t)
+kIOS translate(const kIOS& bv, const Vector3d& t)
 {
   kIOS res(bv);
   for(size_t i = 0; i < res.num_spheres; ++i)

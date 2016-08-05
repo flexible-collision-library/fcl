@@ -36,8 +36,10 @@
 /** \author Jia Pan */
 
 #include "fcl/math/sampling.h"
+
 #include <mutex>
 #include <chrono>
+#include <iostream>
 
 namespace fcl
 {

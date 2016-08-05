@@ -43,7 +43,7 @@ namespace fcl
 {
 
 Joint::Joint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-             const Transform3f& transform_to_parent,
+             const Transform3d& transform_to_parent,
              const std::string& name) :
   link_parent_(link_parent), link_child_(link_child),
   name_(name),
@@ -100,28 +100,28 @@ JointType Joint::getJointType() const
   return type_;
 }
 
-const Transform3f& Joint::getTransformToParent() const
+const Transform3d& Joint::getTransformToParent() const
 {
   return transform_to_parent_;
 }
 
-void Joint::setTransformToParent(const Transform3f& t)
+void Joint::setTransformToParent(const Transform3d& t)
 {
   transform_to_parent_ = t;
 }
 
 
 PrismaticJoint::PrismaticJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                               const Transform3f& transform_to_parent,
+                               const Transform3d& transform_to_parent,
                                const std::string& name,
-                               const Vec3f& axis) :
+                               const Vector3d& axis) :
   Joint(link_parent, link_child, transform_to_parent, name),
   axis_(axis)
 {
   type_ = JT_PRISMATIC;
 }
 
-const Vec3f& PrismaticJoint::getAxis() const
+const Vector3d& PrismaticJoint::getAxis() const
 {
   return axis_;
 }
@@ -131,25 +131,30 @@ std::size_t PrismaticJoint::getNumDofs() const
   return 1;
 }
 
-Transform3f PrismaticJoint::getLocalTransform() const
+Transform3d PrismaticJoint::getLocalTransform() const
 {
-  const Quaternion3f& quat = transform_to_parent_.getQuatRotation();
-  const Vec3f& transl = transform_to_parent_.getTranslation();
-  return Transform3f(quat, quat.transform(axis_ * (*joint_cfg_)[0]) + transl);
+  const Quaternion3d quat(transform_to_parent_.linear());
+  const Vector3d& transl = transform_to_parent_.translation();
+
+  Transform3d tf = Transform3d::Identity();
+  tf.linear() = quat.toRotationMatrix();
+  tf.translation() = quat * (axis_ * (*joint_cfg_)[0]) + transl;
+
+  return tf;
 }
 
 
 RevoluteJoint::RevoluteJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                             const Transform3f& transform_to_parent,
+                             const Transform3d& transform_to_parent,
                              const std::string& name,
-                             const Vec3f& axis) :
+                             const Vector3d& axis) :
   Joint(link_parent, link_child, transform_to_parent, name),
   axis_(axis)
 {
   type_ = JT_REVOLUTE;
 }
 
-const Vec3f& RevoluteJoint::getAxis() const
+const Vector3d& RevoluteJoint::getAxis() const
 {
   return axis_;
 }
@@ -159,16 +164,18 @@ std::size_t RevoluteJoint::getNumDofs() const
   return 1;
 }
 
-Transform3f RevoluteJoint::getLocalTransform() const
+Transform3d RevoluteJoint::getLocalTransform() const
 {
-  Quaternion3f quat;
-  quat.fromAxisAngle(axis_, (*joint_cfg_)[0]);
-  return Transform3f(transform_to_parent_.getQuatRotation() * quat, transform_to_parent_.getTranslation());
+  Transform3d tf = Transform3d::Identity();
+  tf.linear() = transform_to_parent_.linear() * Eigen::AngleAxisd((*joint_cfg_)[0], axis_);
+  tf.translation() = transform_to_parent_.translation();
+
+  return tf;
 }
 
 
 BallEulerJoint::BallEulerJoint(const std::shared_ptr<Link>& link_parent, const std::shared_ptr<Link>& link_child,
-                               const Transform3f& transform_to_parent,
+                               const Transform3d& transform_to_parent,
                                const std::string& name) :
   Joint(link_parent, link_child, transform_to_parent, name)
 {}
@@ -178,11 +185,17 @@ std::size_t BallEulerJoint::getNumDofs() const
   return 3;
 }
 
-Transform3f BallEulerJoint::getLocalTransform() const
+Transform3d BallEulerJoint::getLocalTransform() const
 {
-  Matrix3f rot;
-  rot.setEulerYPR((*joint_cfg_)[0], (*joint_cfg_)[1], (*joint_cfg_)[2]);
-  return transform_to_parent_ * Transform3f(rot);
+  Matrix3d rot(
+      Eigen::AngleAxisd((*joint_cfg_)[0], Eigen::Vector3d::UnitX())
+        * Eigen::AngleAxisd((*joint_cfg_)[1], Eigen::Vector3d::UnitY())
+        * Eigen::AngleAxisd((*joint_cfg_)[2], Eigen::Vector3d::UnitZ()));
+
+  Transform3d tf = Transform3d::Identity();
+  tf.linear() = rot;
+
+  return transform_to_parent_ * tf;
 }
 
 

@@ -36,11 +36,6 @@
 
 #include <gtest/gtest.h>
 
-#if FCL_HAVE_SSE
-  #include "fcl/simd/math_simd_details.h"
-#endif
-#include "fcl/math/vec_3f.h"
-#include "fcl/math/matrix_3f.h"
 #include "fcl/broadphase/morton.h"
 #include "fcl/config.h"
 
@@ -48,7 +43,8 @@ using namespace fcl;
 
 GTEST_TEST(FCL_MATH, vec_test_basic_vec32)
 {
-  typedef Vec3fX<details::Vec3Data<float> > Vec3f32;
+  using Vec3f32 = Vector3<float>;
+
   Vec3f32 v1(1.0f, 2.0f, 3.0f);
   EXPECT_TRUE(v1[0] == 1.0f);
   EXPECT_TRUE(v1[1] == 2.0f);
@@ -57,53 +53,54 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec32)
   Vec3f32 v2 = v1;
   Vec3f32 v3(3.3f, 4.3f, 5.3f);
   v1 += v3;
-  EXPECT_TRUE(v1.equal(v2 + v3));
+  EXPECT_TRUE(v1.isApprox(v2 + v3));
   v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2));
+  EXPECT_TRUE(v1.isApprox(v2));
   v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2 - v3));
+  EXPECT_TRUE(v1.isApprox(v2 - v3));
   v1 += v3;
 
-  v1 *= v3;
-  EXPECT_TRUE(v1.equal(v2 * v3));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2 / v3));
-  v1 *= v3;
+  v1.array() *= v3.array();
+  EXPECT_TRUE(v1.array().isApprox(v2.array() * v3.array()));
+  v1.array() /= v3.array();
+  EXPECT_TRUE(v1.isApprox(v2));
+  v1.array() /= v3.array();
+  EXPECT_TRUE(v1.array().isApprox(v2.array() / v3.array()));
+  v1.array() *= v3.array();
 
   v1 *= 2.0f;
-  EXPECT_TRUE(v1.equal(v2 * 2.0f));
+  EXPECT_TRUE(v1.isApprox(v2 * 2.0f));
   v1 /= 2.0f;
-  EXPECT_TRUE(v1.equal(v2));
+  EXPECT_TRUE(v1.isApprox(v2));
   v1 /= 2.0f;
-  EXPECT_TRUE(v1.equal(v2 / 2.0f));
+  EXPECT_TRUE(v1.isApprox(v2 / 2.0f));
   v1 *= 2.0f;
 
-  v1 += 2.0f;
-  EXPECT_TRUE(v1.equal(v2 + 2.0f));
-  v1 -= 2.0f;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 -= 2.0f;
-  EXPECT_TRUE(v1.equal(v2 - 2.0f));
-  v1 += 2.0f;
-  
-  EXPECT_TRUE((-Vec3f32(1.0f, 2.0f, 3.0f)).equal(Vec3f32(-1.0f, -2.0f, -3.0f)));
+  v1.array() += 2.0f;
+  EXPECT_TRUE(v1.array().isApprox(v2.array() + 2.0f));
+  v1.array() -= 2.0f;
+  EXPECT_TRUE(v1.isApprox(v2));
+  v1.array() -= 2.0f;
+  EXPECT_TRUE(v1.array().isApprox(v2.array() - 2.0f));
+  v1.array() += 2.0f;
+
+  EXPECT_TRUE((-Vec3f32(1.0f, 2.0f, 3.0f)).isApprox(Vec3f32(-1.0f, -2.0f, -3.0f)));
 
   v1 = Vec3f32(1.0f, 2.0f, 3.0f);
   v2 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE((v1.cross(v2)).equal(Vec3f32(-2.0f, 4.0f, -2.0f)));
+  EXPECT_TRUE((v1.cross(v2)).isApprox(Vec3f32(-2.0f, 4.0f, -2.0f)));
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50.0) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
+  EXPECT_TRUE(v1.normalized().isApprox(v1 / v1.norm()));
 }
 
 GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
 {
-  typedef Vec3fX<details::Vec3Data<double> > Vec3f64;
+  using Vec3f64 = Vector3<double>;
+
   Vec3f64 v1(1.0, 2.0, 3.0);
   EXPECT_TRUE(v1[0] == 1.0);
   EXPECT_TRUE(v1[1] == 2.0);
@@ -112,528 +109,64 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
   Vec3f64 v2 = v1;
   Vec3f64 v3(3.3, 4.3, 5.3);
   v1 += v3;
-  EXPECT_TRUE(v1.equal(v2 + v3));
+  EXPECT_TRUE(v1.isApprox(v2 + v3));
   v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2));
+  EXPECT_TRUE(v1.isApprox(v2));
   v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2 - v3));
+  EXPECT_TRUE(v1.isApprox(v2 - v3));
   v1 += v3;
 
-  v1 *= v3;
-  EXPECT_TRUE(v1.equal(v2 * v3));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2 / v3));
-  v1 *= v3;
+  v1.array() *= v3.array();
+  EXPECT_TRUE(v1.array().isApprox(v2.array() * v3.array()));
+  v1.array() /= v3.array();
+  EXPECT_TRUE(v1.isApprox(v2));
+  v1.array() /= v3.array();
+  EXPECT_TRUE(v1.array().isApprox(v2.array() / v3.array()));
+  v1.array() *= v3.array();
 
   v1 *= 2.0;
-  EXPECT_TRUE(v1.equal(v2 * 2.0));
+  EXPECT_TRUE(v1.isApprox(v2 * 2.0));
   v1 /= 2.0;
-  EXPECT_TRUE(v1.equal(v2));
+  EXPECT_TRUE(v1.isApprox(v2));
   v1 /= 2.0;
-  EXPECT_TRUE(v1.equal(v2 / 2.0));
+  EXPECT_TRUE(v1.isApprox(v2 / 2.0));
   v1 *= 2.0;
 
-  v1 += 2.0;
-  EXPECT_TRUE(v1.equal(v2 + 2.0));
-  v1 -= 2.0;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 -= 2.0;
-  EXPECT_TRUE(v1.equal(v2 - 2.0));
-  v1 += 2.0;
+  v1.array() += 2.0;
+  EXPECT_TRUE(v1.array().isApprox(v2.array() + 2.0));
+  v1.array() -= 2.0;
+  EXPECT_TRUE(v1.isApprox(v2));
+  v1.array() -= 2.0;
+  EXPECT_TRUE(v1.array().isApprox(v2.array() - 2.0));
+  v1.array() += 2.0;
 
-  EXPECT_TRUE((-Vec3f64(1.0, 2.0, 3.0)).equal(Vec3f64(-1.0, -2.0, -3.0)));
+  EXPECT_TRUE((-Vec3f64(1.0, 2.0, 3.0)) == (Vec3f64(-1.0, -2.0, -3.0)));
 
   v1 = Vec3f64(1.0, 2.0, 3.0);
   v2 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).equal(Vec3f64(-2.0, 4.0, -2.0)));
+  EXPECT_TRUE((v1.cross(v2)).isApprox(Vec3f64(-2.0, 4.0, -2.0)));
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
   v1 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50.0) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50.0)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
-
+  EXPECT_TRUE(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
+  EXPECT_TRUE(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
+  EXPECT_TRUE(v1.normalized().isApprox(v1 / v1.norm()));
 
   v1 = Vec3f64(1.0, 2.0, 3.0);
   v2 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).equal(Vec3f64(-2.0, 4.0, -2.0)));
+  EXPECT_TRUE((v1.cross(v2)).isApprox(Vec3f64(-2.0, 4.0, -2.0)));
   EXPECT_TRUE(v1.dot(v2) == 26);
 }
-
-#if FCL_HAVE_SSE
-
-GTEST_TEST(FCL_MATH, vec_test_sse_vec32)
-{
-  typedef Vec3fX<details::sse_meta_f4> Vec3f32;
-  Vec3f32 v1(1.0f, 2.0f, 3.0f);
-  EXPECT_TRUE(v1[0] == 1.0f);
-  EXPECT_TRUE(v1[1] == 2.0f);
-  EXPECT_TRUE(v1[2] == 3.0f);
-
-  Vec3f32 v2 = v1;
-  Vec3f32 v3(3.3f, 4.3f, 5.3f);
-  v1 += v3;
-  EXPECT_TRUE(v1.equal(v2 + v3));
-  v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2 - v3));
-  v1 += v3;
-
-  v1 *= v3;
-  EXPECT_TRUE(v1.equal(v2 * v3));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2 / v3));
-  v1 *= v3;
-
-  v1 *= 2.0f;
-  EXPECT_TRUE(v1.equal(v2 * 2.0f));
-  v1 /= 2.0f;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 /= 2.0f;
-  EXPECT_TRUE(v1.equal(v2 / 2.0f));
-  v1 *= 2.0f;
-
-  v1 += 2.0f;
-  EXPECT_TRUE(v1.equal(v2 + 2.0f));
-  v1 -= 2.0f;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 -= 2.0f;
-  EXPECT_TRUE(v1.equal(v2 - 2.0f));
-  v1 += 2.0f;
-  
-  EXPECT_TRUE((-Vec3f32(1.0f, 2.0f, 3.0f)).equal(Vec3f32(-1.0f, -2.0f, -3.0f)));
-
-  v1 = Vec3f32(1.0f, 2.0f, 3.0f);
-  v2 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE((v1.cross(v2)).equal(Vec3f32(-2.0f, 4.0f, -2.0f)));
-  EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
-
-  v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
-}
-
-GTEST_TEST(FCL_MATH, vec_test_sse_vec64)
-{
-  typedef Vec3fX<details::sse_meta_d4> Vec3f64;
-  Vec3f64 v1(1.0, 2.0, 3.0);
-  EXPECT_TRUE(v1[0] == 1.0);
-  EXPECT_TRUE(v1[1] == 2.0);
-  EXPECT_TRUE(v1[2] == 3.0);
-
-  Vec3f64 v2 = v1;
-  Vec3f64 v3(3.3, 4.3, 5.3);
-  v1 += v3;
-  EXPECT_TRUE(v1.equal(v2 + v3));
-  v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 -= v3;
-  EXPECT_TRUE(v1.equal(v2 - v3));
-  v1 += v3;
-
-  v1 *= v3;
-  EXPECT_TRUE(v1.equal(v2 * v3));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 /= v3;
-  EXPECT_TRUE(v1.equal(v2 / v3));
-  v1 *= v3;
-
-  v1 *= 2.0;
-  EXPECT_TRUE(v1.equal(v2 * 2.0));
-  v1 /= 2.0;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 /= 2.0;
-  EXPECT_TRUE(v1.equal(v2 / 2.0));
-  v1 *= 2.0;
-
-  v1 += 2.0;
-  EXPECT_TRUE(v1.equal(v2 + 2.0));
-  v1 -= 2.0;
-  EXPECT_TRUE(v1.equal(v2));
-  v1 -= 2.0;
-  EXPECT_TRUE(v1.equal(v2 - 2.0));
-  v1 += 2.0;
-
-  EXPECT_TRUE((-Vec3f64(1.0, 2.0, 3.0)).equal(Vec3f64(-1.0, -2.0, -3.0)));
-
-  v1 = Vec3f64(1.0, 2.0, 3.0);
-  v2 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).equal(Vec3f64(-2.0, 4.0, -2.0)));
-  EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
-
-  v1 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - 50) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.length() - sqrt(50)) < 1e-5);
-  EXPECT_TRUE(normalize(v1).equal(v1 / v1.length()));
-
-
-  v1 = Vec3f64(1.0, 2.0, 3.0);
-  v2 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).equal(Vec3f64(-2.0, 4.0, -2.0)));
-  EXPECT_TRUE(v1.dot(v2) == 26);
-}
-
-GTEST_TEST(FCL_MATH, sse_mat32_consistent)
-{
-  typedef Vec3fX<details::Vec3Data<float> > Vec3f32;
-  typedef Vec3fX<details::sse_meta_f4> Vec3f32SSE;
-
-  typedef Matrix3fX<details::Matrix3Data<float> > Matrix3f32;
-  typedef Matrix3fX<details::sse_meta_f12> Matrix3f32SSE;
-
-  Vec3f32 v1(1, 2, 3);
-  Vec3f32SSE v2(1, 2, 3);
-
-  Matrix3f32 m1(-1, 3, -3, 0, -6, 6, -5, -3, 1);
-  Matrix3f32SSE m2(-1, 3, -3, 0, -6, 6, -5, -3, 1);
-
-  for(size_t i = 0; i < 3; ++i)
-    for(size_t j = 0; j < 3; ++j)
-      EXPECT_TRUE((m1(i, j) - m2(i, j) < 1e-1));
-  
-  Matrix3f32 m3(transpose(m1));
-  Matrix3f32SSE m4(transpose(m2));
-        
-  for(size_t i = 0; i < 3; ++i)
-    for(size_t j = 0; j < 3; ++j)
-      EXPECT_TRUE((m3(i, j) - m4(i, j) < 1e-1));
-
-  m3 = m1; m3.transpose();
-  m4 = m2; m4.transpose();
-
-  for(size_t i = 0; i < 3; ++i)
-    for(size_t j = 0; j < 3; ++j)
-      EXPECT_TRUE((m3(i, j) - m4(i, j) < 1e-1));
-
-  m3 = inverse(m1);
-  m4 = inverse(m2);
-  
-  for(size_t i = 0; i < 3; ++i)
-    for(size_t j = 0; j < 3; ++j)
-      EXPECT_TRUE((m3(i, j) - m4(i, j) < 1e-1));
-
-  m3 = m1; m3.inverse();
-  m4 = m2; m4.inverse();
-
-  for(size_t i = 0; i < 3; ++i)
-    for(size_t j = 0; j < 3; ++j)
-      EXPECT_TRUE((m3(i, j) - m4(i, j) < 1e-1));
-}
-
-GTEST_TEST(FCL_MATH, vec_test_sse_vec32_consistent)
-{
-  typedef Vec3fX<details::Vec3Data<float> > Vec3f32;
-  typedef Vec3fX<details::sse_meta_f4> Vec3f32SSE;
-
-  Vec3f32 v1(3.4f, 4.2f, 10.5f), v2(3.1f, 0.1f, -50.4f);
-  Vec3f32SSE v3(3.4f, 4.2f, 10.5f), v4(3.1f, 0.1f, -50.4f);
-  Vec3f32 v12 = v1 + v2;
-  Vec3f32SSE v34 = v3 + v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 - v2;
-  v34 = v3 - v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 * v2;
-  v34 = v3 * v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 / v2;
-  v34 = v3 / v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  float t = 1234.433f;
-  v12 = v1 + t;
-  v34 = v3 + t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 - t;
-  v34 = v3 - t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 * t;
-  v34 = v3 * t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 / t;
-  v34 = v3 / t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = v1; v12 += v2;
-  v34 = v3; v34 += v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 -= v2;
-  v34 = v3; v34 -= v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 *= v2;
-  v34 = v3; v34 *= v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 /= v2;
-  v34 = v3; v34 /= v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 += t;
-  v34 = v3; v34 += t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 -= t;
-  v34 = v3; v34 -= t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 *= t;
-  v34 = v3; v34 *= t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 /= t;
-  v34 = v3; v34 /= t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = -v1;
-  v34 = -v3;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = v1.cross(v2);
-  v34 = v3.cross(v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  EXPECT_TRUE(std::abs(v1.dot(v2) - v3.dot(v4)) < 1e-5);
-
-  v12 = min(v1, v2);
-  v34 = min(v3, v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = max(v1, v2);
-  v34 = max(v3, v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = abs(v2);
-  v34 = abs(v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  Vec3f32 delta1(1e-9f, 1e-9f, 1e-9f);
-  Vec3f32SSE delta2(1e-9f, 1e-9f, 1e-9f);
-  EXPECT_TRUE((v1 + delta1).equal(v1));
-  EXPECT_TRUE((v3 + delta2).equal(v3));
-
-  EXPECT_TRUE(std::abs(v1.length() - v3.length()) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
- 
-  v12 = v1; v12.negate();
-  v34 = v3; v34.negate();
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = v1; v12.normalize();
-  v34 = v3; v34.normalize();
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  
-  v12 = normalize(v1);
-  v34 = normalize(v3);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-}
-
-GTEST_TEST(FCL_MATH, vec_test_sse_vec64_consistent)
-{
-  typedef Vec3fX<details::Vec3Data<double> > Vec3f64;
-  typedef Vec3fX<details::sse_meta_d4> Vec3f64SSE;
-
-  Vec3f64 v1(3.4, 4.2, 10.5), v2(3.1, 0.1, -50.4);
-  Vec3f64SSE v3(3.4, 4.2, 10.5), v4(3.1, 0.1, -50.4);
-  Vec3f64 v12 = v1 + v2;
-  Vec3f64SSE v34 = v3 + v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 - v2;
-  v34 = v3 - v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 * v2;
-  v34 = v3 * v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 / v2;
-  v34 = v3 / v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  double t = 1234.433;
-  v12 = v1 + t;
-  v34 = v3 + t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 - t;
-  v34 = v3 - t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 * t;
-  v34 = v3 * t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1 / t;
-  v34 = v3 / t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = v1; v12 += v2;
-  v34 = v3; v34 += v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 -= v2;
-  v34 = v3; v34 -= v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 *= v2;
-  v34 = v3; v34 *= v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 /= v2;
-  v34 = v3; v34 /= v4;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 += t;
-  v34 = v3; v34 += t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 -= t;
-  v34 = v3; v34 -= t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 *= t;
-  v34 = v3; v34 *= t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = v1; v12 /= t;
-  v34 = v3; v34 /= t;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = -v1;
-  v34 = -v3;
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = v1.cross(v2);
-  v34 = v3.cross(v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  EXPECT_TRUE(std::abs(v1.dot(v2) - v3.dot(v4)) < 1e-5);
-
-  v12 = min(v1, v2);
-  v34 = min(v3, v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  v12 = max(v1, v2);
-  v34 = max(v3, v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = abs(v2);
-  v34 = abs(v4);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  Vec3f64 delta1(1e-15, 1e-15, 1e-15);
-  Vec3f64SSE delta2(1e-15, 1e-15, 1e-15);
-  EXPECT_TRUE((v1 + delta1).equal(v1));
-  EXPECT_TRUE((v3 + delta2).equal(v3));
-
-  EXPECT_TRUE(std::abs(v1.length() - v3.length()) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.sqrLength() - v3.sqrLength()) < 1e-5);
- 
-  v12 = v1; v12.negate();
-  v34 = v3; v34.negate();
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-
-  v12 = v1; v12.normalize();
-  v34 = v3; v34.normalize();
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-  
-  v12 = normalize(v1);
-  v34 = normalize(v3);
-  EXPECT_TRUE(std::abs(v12[0] - v34[0]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[1] - v34[1]) < 1e-5);
-  EXPECT_TRUE(std::abs(v12[2] - v34[2]) < 1e-5);
-}
-
-#endif
 
 GTEST_TEST(FCL_MATH, morton)
 {
-  AABB bbox(Vec3f(0, 0, 0), Vec3f(1000, 1000, 1000));
+  AABB bbox(Vector3d(0, 0, 0), Vector3d(1000, 1000, 1000));
   morton_functor<std::bitset<30>> F1(bbox);
   morton_functor<std::bitset<60>> F2(bbox);
   morton_functor<FCL_UINT64> F3(bbox); // 60 bits
   morton_functor<FCL_UINT32> F4(bbox); // 30 bits
 
-  Vec3f p(254, 873, 674);
+  Vector3d p(254, 873, 674);
 
   EXPECT_TRUE(F1(p).to_ulong() == F4(p));
   EXPECT_TRUE(F2(p).to_ullong() == F3(p));

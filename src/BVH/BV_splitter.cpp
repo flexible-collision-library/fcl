@@ -42,23 +42,23 @@ namespace fcl
 
 
 template<typename BV>
-void computeSplitVector(const BV& bv, Vec3f& split_vector)
+void computeSplitVector(const BV& bv, Vector3d& split_vector)
 {
-  split_vector = bv.axis[0];
+  split_vector = bv.axis.col(0);
 }
 
 template<>
-void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
+void computeSplitVector<kIOS>(const kIOS& bv, Vector3d& split_vector)
 {
   /*
     switch(bv.num_spheres)
     {
     case 1:
-    split_vector = Vec3f(1, 0, 0);
+    split_vector = Vector3d(1, 0, 0);
     break;
     case 3:
     {
-    Vec3f v[3];
+    Vector3d v[3];
     v[0] = bv.spheres[1].o - bv.spheres[0].o;
     v[0].normalize();
     generateCoordinateSystem(v[0], v[1], v[2]);
@@ -67,7 +67,7 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
     break;
     case 5:
     {
-    Vec3f v[2];
+    Vector3d v[2];
     v[0] = bv.spheres[1].o - bv.spheres[0].o;
     v[1] = bv.spheres[3].o - bv.spheres[0].o;
     split_vector = v[0].cross(v[1]);
@@ -78,24 +78,24 @@ void computeSplitVector<kIOS>(const kIOS& bv, Vec3f& split_vector)
     ;
     }
   */
-  split_vector = bv.obb.axis[0];
+  split_vector = bv.obb.axis.col(0);
 }
 
 template<>
-void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vec3f& split_vector)
+void computeSplitVector<OBBRSS>(const OBBRSS& bv, Vector3d& split_vector)
 {
-  split_vector = bv.obb.axis[0];
+  split_vector = bv.obb.axis.col(0);
 }
 
 template<typename BV>
 void computeSplitValue_bvcenter(const BV& bv, FCL_REAL& split_value)
 {
-  Vec3f center = bv.center();
+  Vector3d center = bv.center();
   split_value = center[0];
 }
 
 template<typename BV>
-void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
+void computeSplitValue_mean(const BV& bv, Vector3d* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vector3d& split_vector, FCL_REAL& split_value)
 {
   FCL_REAL sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
@@ -105,9 +105,9 @@ void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, 
     for(int i = 0; i < num_primitives; ++i)
     {
       const Triangle& t = triangles[primitive_indices[i]];
-      const Vec3f& p1 = vertices[t[0]];
-      const Vec3f& p2 = vertices[t[1]];
-      const Vec3f& p3 = vertices[t[2]];
+      const Vector3d& p1 = vertices[t[0]];
+      const Vector3d& p2 = vertices[t[1]];
+      const Vector3d& p3 = vertices[t[2]];
 
       c[0] += (p1[0] + p2[0] + p3[0]);
       c[1] += (p1[1] + p2[1] + p3[1]);
@@ -119,8 +119,8 @@ void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, 
   {
     for(int i = 0; i < num_primitives; ++i)
     {
-      const Vec3f& p = vertices[primitive_indices[i]];
-      Vec3f v(p[0], p[1], p[2]);
+      const Vector3d& p = vertices[primitive_indices[i]];
+      Vector3d v(p[0], p[1], p[2]);
       sum += v.dot(split_vector);
     }
 
@@ -129,7 +129,7 @@ void computeSplitValue_mean(const BV& bv, Vec3f* vertices, Triangle* triangles, 
 }
 
 template<typename BV>
-void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vec3f& split_vector, FCL_REAL& split_value)
+void computeSplitValue_median(const BV& bv, Vector3d* vertices, Triangle* triangles, unsigned int* primitive_indices, int num_primitives, BVHModelType type, const Vector3d& split_vector, FCL_REAL& split_value)
 {
   std::vector<FCL_REAL> proj(num_primitives);
 
@@ -138,10 +138,10 @@ void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles
     for(int i = 0; i < num_primitives; ++i)
     {
       const Triangle& t = triangles[primitive_indices[i]];
-      const Vec3f& p1 = vertices[t[0]];
-      const Vec3f& p2 = vertices[t[1]];
-      const Vec3f& p3 = vertices[t[2]];
-      Vec3f centroid3(p1[0] + p2[0] + p3[0],
+      const Vector3d& p1 = vertices[t[0]];
+      const Vector3d& p2 = vertices[t[1]];
+      const Vector3d& p3 = vertices[t[2]];
+      Vector3d centroid3(p1[0] + p2[0] + p3[0],
                       p1[1] + p2[1] + p3[1],
                       p1[2] + p2[2] + p3[2]);
 
@@ -152,8 +152,8 @@ void computeSplitValue_median(const BV& bv, Vec3f* vertices, Triangle* triangles
   {
     for(int i = 0; i < num_primitives; ++i)
     {
-      const Vec3f& p = vertices[primitive_indices[i]];
-      Vec3f v(p[0], p[1], p[2]);
+      const Vector3d& p = vertices[primitive_indices[i]];
+      Vector3d v(p[0], p[1], p[2]);
       proj[i] = v.dot(split_vector);
     }
   }
@@ -256,27 +256,27 @@ void BVSplitter<OBBRSS>::computeRule_median(const OBBRSS& bv, unsigned int* prim
 
 
 template<>
-bool BVSplitter<OBB>::apply(const Vec3f& q) const
+bool BVSplitter<OBB>::apply(const Vector3d& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 template<>
-bool BVSplitter<RSS>::apply(const Vec3f& q) const
+bool BVSplitter<RSS>::apply(const Vector3d& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 template<>
-bool BVSplitter<kIOS>::apply(const Vec3f& q) const
+bool BVSplitter<kIOS>::apply(const Vector3d& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 template<>
-bool BVSplitter<OBBRSS>::apply(const Vec3f& q) const
+bool BVSplitter<OBBRSS>::apply(const Vector3d& q) const
 {
-  return split_vector.dot(Vec3f(q[0], q[1], q[2])) > split_value;
+  return split_vector.dot(q) > split_value;
 }
 
 

@@ -9,6 +9,8 @@ endif()
 
 project(fcl CXX C)
 
+option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+
 # set the default build type
 if (NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE Release)
@@ -64,9 +66,43 @@ if(FCL_COVERALLS)
   coveralls_turn_on_coverage()
 endif()
 
-# Find Octomap (optional)
 find_package(PkgConfig QUIET)
 
+# Find Eigen3
+find_package(Eigen3 3.0.5 QUIET)
+if(EIGEN3_FOUND)
+  set(FCL_HAVE_EIGEN TRUE)
+  include_directories(${EIGEN3_INCLUDE_DIR})
+else()
+  message(SEND_ERROR "EIGEN3 (>= 3.0.5) is required by FCL")
+  set(FCL_HAVE_EIGEN FALSE)
+endif()
+
+# Find libccd
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(CCD ccd)
+  # check to see if the pkg is installed under the libccd name
+  if(NOT CCD_FOUND)
+    pkg_check_modules(CCD libccd)
+  endif()
+endif()
+
+if(NOT CCD_FOUND)
+    # if pkgconfig is not installed, then fall back on more fragile detection
+    # of ccd
+    find_path(CCD_INCLUDE_DIRS ccd/ccd.h)
+    find_library(CCD_LIBRARY
+        ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
+    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY)
+        set(CCD_LIBRARIES "${CCD_LIBRARY}")
+    else()
+        message(FATAL_ERROR "Libccd is required by FCL")
+    endif()
+endif()
+include_directories(${CCD_INCLUDE_DIRS})
+link_directories(${CCD_LIBRARY_DIRS})
+
+# Find Octomap (optional)
 option(FCL_WITH_OCTOMAP "octomap library support" ON)
 set(FCL_HAVE_OCTOMAP 0)
 if(FCL_WITH_OCTOMAP)
@@ -115,29 +151,6 @@ endif()
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
 include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
-
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(CCD ccd)
-  # check to see if the pkg is installed under the libccd name
-  if(NOT CCD_FOUND)
-    pkg_check_modules(CCD libccd)
-  endif()
-endif()
-
-if(NOT CCD_FOUND)
-    # if pkgconfig is not installed, then fall back on more fragile detection
-    # of ccd
-    find_path(CCD_INCLUDE_DIRS ccd/ccd.h)
-    find_library(CCD_LIBRARY
-        ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
-    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY)
-        set(CCD_LIBRARIES "${CCD_LIBRARY}")
-    else()
-        message(FATAL_ERROR "Libccd is required by FCL")
-    endif()
-endif()
-include_directories(${CCD_INCLUDE_DIRS})
-link_directories(${CCD_LIBRARY_DIRS})
 
 add_subdirectory(include/fcl)
 add_subdirectory(src)

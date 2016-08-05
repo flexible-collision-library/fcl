@@ -169,7 +169,7 @@ public:
   void leafTesting(int, int) const
   {
     FCL_REAL distance;
-    Vec3f closest_p1, closest_p2;
+    Vector3d closest_p1, closest_p2;
     nsolver->shapeDistance(*model1, tf1, *model2, tf2, &distance, &closest_p1, &closest_p2);
     result->update(distance, model1, model2, DistanceResult::NONE, DistanceResult::NONE, closest_p1, closest_p2);
   }
@@ -197,10 +197,11 @@ public:
   void leafTesting(int, int) const
   {
     FCL_REAL distance;
-    Vec3f closest_p1, closest_p2;
+    Vector3d closest_p1, closest_p2;
     this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
 
-    Vec3f n = this->tf2.transform(closest_p2) - this->tf1.transform(closest_p1); n.normalize();
+    Vector3d n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
+    n.normalize();
     TBVMotionBoundVisitor<RSS> mb_visitor1(model1_bv, n);
     TBVMotionBoundVisitor<RSS> mb_visitor2(model2_bv, -n);
     FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);

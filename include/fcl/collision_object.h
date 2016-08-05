@@ -41,7 +41,6 @@
 
 #include <fcl/deprecated.h>
 #include "fcl/BV/AABB.h"
-#include "fcl/math/transform.h"
 #include "fcl/ccd/motion_base.h"
 #include <memory>
 
@@ -98,7 +97,7 @@ public:
   inline bool isUncertain() const { return !isOccupied() && !isFree(); }
 
   /// @brief AABB center in local coordinate
-  Vec3f aabb_center;
+  Vector3d aabb_center;
 
   /// @brief AABB radius
   FCL_REAL aabb_radius;
@@ -119,30 +118,33 @@ public:
   FCL_REAL threshold_free;
 
   /// @brief compute center of mass
-  virtual Vec3f computeCOM() const { return Vec3f(); }
+  virtual Vector3d computeCOM() const { return Vector3d::Zero(); }
 
   /// @brief compute the inertia matrix, related to the origin
-  virtual Matrix3f computeMomentofInertia() const { return Matrix3f(); }
+  virtual Matrix3d computeMomentofInertia() const { return Matrix3d::Zero(); }
 
   /// @brief compute the volume
   virtual FCL_REAL computeVolume() const { return 0; }
 
   /// @brief compute the inertia matrix, related to the com
-  virtual Matrix3f computeMomentofInertiaRelatedToCOM() const
+  virtual Matrix3d computeMomentofInertiaRelatedToCOM() const
   {
-    Matrix3f C = computeMomentofInertia();
-    Vec3f com = computeCOM();
+    Matrix3d C = computeMomentofInertia();
+    Vector3d com = computeCOM();
     FCL_REAL V = computeVolume();
 
-    return Matrix3f(C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
-                    C(0, 1) + V * com[0] * com[1],
-                    C(0, 2) + V * com[0] * com[2],
-                    C(1, 0) + V * com[1] * com[0],
-                    C(1, 1) - V * (com[0] * com[0] + com[2] * com[2]),
-                    C(1, 2) + V * com[1] * com[2],
-                    C(2, 0) + V * com[2] * com[0],
-                    C(2, 1) + V * com[2] * com[1],
-                    C(2, 2) - V * (com[0] * com[0] + com[1] * com[1]));
+    Matrix3d m;
+    m << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
+         C(0, 1) + V * com[0] * com[1],
+         C(0, 2) + V * com[0] * com[2],
+         C(1, 0) + V * com[1] * com[0],
+         C(1, 1) - V * (com[0] * com[0] + com[2] * com[2]),
+         C(1, 2) + V * com[1] * com[2],
+         C(2, 0) + V * com[2] * com[0],
+         C(2, 1) + V * com[2] * com[1],
+         C(2, 2) - V * (com[0] * com[0] + com[1] * com[1]);
+
+    return m;
   }
 
 };
@@ -152,7 +154,7 @@ class CollisionObject
 {
 public:
  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_) :
-    cgeom(cgeom_), cgeom_const(cgeom_)
+    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
     if (cgeom)
     {
@@ -161,16 +163,18 @@ public:
     }
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Transform3f& tf) :
+  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Transform3d& tf) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3f& R, const Vec3f& T):
-      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3f(R, T))
+  CollisionObject(const std::shared_ptr<CollisionGeometry> &cgeom_, const Matrix3d& R, const Vector3d& T):
+      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
   {
+    t.linear() = R;
+    t.translation() = T;
     cgeom->computeLocalAABB();
     computeAABB();
   }
@@ -200,14 +204,14 @@ public:
   /// @brief compute the AABB in world space
   inline void computeAABB()
   {
-    if(t.getQuatRotation().isIdentity())
+    if(t.linear().isIdentity())
     {
-      aabb = translate(cgeom->aabb_local, t.getTranslation());
+      aabb = translate(cgeom->aabb_local, t.translation());
     }
     else
     {
-      Vec3f center = t.transform(cgeom->aabb_center);
-      Vec3f delta(cgeom->aabb_radius);
+      Vector3d center = t * cgeom->aabb_center;
+      Vector3d delta = Vector3d::Constant(cgeom->aabb_radius);
       aabb.min_ = center - delta;
       aabb.max_ = center + delta;
     }
@@ -226,61 +230,63 @@ public:
   }
 
   /// @brief get translation of the object
-  inline const Vec3f& getTranslation() const
+  inline const Vector3d getTranslation() const
   {
-    return t.getTranslation();
+    return t.translation();
   }
 
   /// @brief get matrix rotation of the object
-  inline const Matrix3f& getRotation() const
+  inline const Matrix3d getRotation() const
   {
-    return t.getRotation();
+    return t.linear();
   }
 
   /// @brief get quaternion rotation of the object
-  inline const Quaternion3f& getQuatRotation() const
+  inline const Quaternion3d getQuatRotation() const
   {
-    return t.getQuatRotation();
+    return Quaternion3d(t.linear());
   }
 
   /// @brief get object's transform
-  inline const Transform3f& getTransform() const
+  inline const Transform3d& getTransform() const
   {
     return t;
   }
 
   /// @brief set object's rotation matrix
-  void setRotation(const Matrix3f& R)
+  void setRotation(const Matrix3d& R)
   {
-    t.setRotation(R);
+    t.linear() = R;
   }
 
   /// @brief set object's translation
-  void setTranslation(const Vec3f& T)
+  void setTranslation(const Vector3d& T)
   {
-    t.setTranslation(T);
+    t.translation() = T;
   }
 
   /// @brief set object's quatenrion rotation
-  void setQuatRotation(const Quaternion3f& q)
+  void setQuatRotation(const Quaternion3d& q)
   {
-    t.setQuatRotation(q);
+    t.linear() = q.toRotationMatrix();
   }
 
   /// @brief set object's transform
-  void setTransform(const Matrix3f& R, const Vec3f& T)
+  void setTransform(const Matrix3d& R, const Vector3d& T)
   {
-    t.setTransform(R, T);
+    setRotation(R);
+    setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Quaternion3f& q, const Vec3f& T)
+  void setTransform(const Quaternion3d& q, const Vector3d& T)
   {
-    t.setTransform(q, T);
+    setQuatRotation(q);
+    setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Transform3f& tf)
+  void setTransform(const Transform3d& tf)
   {
     t = tf;
   }
@@ -288,7 +294,7 @@ public:
   /// @brief whether the object is in local coordinate
   bool isIdentityTransform() const
   {
-    return t.isIdentity();
+    return (t.linear().isIdentity() && t.translation().isZero());
   }
 
   /// @brief set the object in local coordinate
@@ -345,7 +351,7 @@ protected:
   std::shared_ptr<CollisionGeometry> cgeom;
   std::shared_ptr<const CollisionGeometry> cgeom_const;
 
-  Transform3f t;
+  Transform3d t;
 
   /// @brief AABB in global coordinate
   mutable AABB aabb;
@@ -397,7 +403,7 @@ public:
     TVector3 T;
     motion->getTaylorModel(R, T);
 
-    Vec3f p = cgeom->aabb_local.min_;
+    Vector3d p = cgeom->aabb_local.min_;
     box = (R * p + T).getTightBound();
 
     p[2] = cgeom->aabb_local.max_[2];

@@ -40,7 +40,6 @@
 #define FCL_CCD_INTERVAL_VECTOR_H
 
 #include "fcl/ccd/interval.h"
-#include "fcl/math/vec_3f.h"
 
 namespace fcl
 {
@@ -56,7 +55,7 @@ struct IVector3
   IVector3(Interval v[3]);
   IVector3(FCL_REAL v[3][2]);
   IVector3(const Interval& v1, const Interval& v2, const Interval& v3);
-  IVector3(const Vec3f& v);
+  IVector3(const Vector3d& v);
 
   inline void setValue(FCL_REAL v)
   {
@@ -100,7 +99,7 @@ struct IVector3
     i_[2] = v3;
   }
 
-  inline void setValue(const Vec3f& v)
+  inline void setValue(const Vector3d& v)
   {
     i_[0].setValue(v[0]);
     i_[1].setValue(v[1]);
@@ -123,8 +122,8 @@ struct IVector3
   Interval dot(const IVector3& other) const;
   IVector3 cross(const IVector3& other) const;
 
-  Interval dot(const Vec3f& other) const;
-  IVector3 cross(const Vec3f& other) const;
+  Interval dot(const Vector3d& other) const;
+  IVector3 cross(const Vector3d& other) const;
 
   inline const Interval& operator [] (size_t i) const
   {
@@ -136,29 +135,29 @@ struct IVector3
     return i_[i];
   }
 
-  inline Vec3f getLow() const 
+  inline Vector3d getLow() const 
   {
-    return Vec3f(i_[0][0], i_[1][0], i_[2][0]);
+    return Vector3d(i_[0][0], i_[1][0], i_[2][0]);
   }
   
-  inline Vec3f getHigh() const
+  inline Vector3d getHigh() const
   {
-    return Vec3f(i_[0][1], i_[1][1], i_[2][1]);
+    return Vector3d(i_[0][1], i_[1][1], i_[2][1]);
   }
 
   void print() const;
-  Vec3f center() const;
+  Vector3d center() const;
   FCL_REAL volumn() const;
   void setZero();
 
-  void bound(const Vec3f& v);
+  void bound(const Vector3d& v);
   void bound(const IVector3& v);
 
   bool overlap(const IVector3& v) const;
   bool contain(const IVector3& v) const;
 };
 
-IVector3 bound(const IVector3& i, const Vec3f& v);
+IVector3 bound(const IVector3& i, const Vector3d& v);
 
 IVector3 bound(const IVector3& i, const IVector3& v);
 

@@ -64,11 +64,11 @@ TMatrix3::TMatrix3(const TVector3& v1, const TVector3& v2, const TVector3& v3)
 }
 
 
-TMatrix3::TMatrix3(const Matrix3f& m, const std::shared_ptr<TimeInterval>& time_interval)
+TMatrix3::TMatrix3(const Matrix3d& m, const std::shared_ptr<TimeInterval>& time_interval)
 {
-  v_[0] = TVector3(m.getRow(0), time_interval);
-  v_[1] = TVector3(m.getRow(1), time_interval);
-  v_[2] = TVector3(m.getRow(2), time_interval);
+  v_[0] = TVector3(m.row(0), time_interval);
+  v_[1] = TVector3(m.row(1), time_interval);
+  v_[2] = TVector3(m.row(2), time_interval);
 }
 
 void TMatrix3::setIdentity()
@@ -107,11 +107,11 @@ TaylorModel& TMatrix3::operator () (size_t i, size_t j)
   return v_[i][j];
 }
 
-TMatrix3 TMatrix3::operator * (const Matrix3f& m) const
+TMatrix3 TMatrix3::operator * (const Matrix3d& m) const
 {
-  const Vec3f& mc0 = m.getColumn(0);
-  const Vec3f& mc1 = m.getColumn(1);
-  const Vec3f& mc2 = m.getColumn(2);
+  const Vector3d& mc0 = m.col(0);
+  const Vector3d& mc1 = m.col(1);
+  const Vector3d& mc2 = m.col(2);
 
   return TMatrix3(TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
                   TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
@@ -119,7 +119,7 @@ TMatrix3 TMatrix3::operator * (const Matrix3f& m) const
 }
 
 
-TVector3 TMatrix3::operator * (const Vec3f& v) const
+TVector3 TMatrix3::operator * (const Vector3d& v) const
 {
   return TVector3(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
@@ -151,11 +151,11 @@ TMatrix3 TMatrix3::operator * (FCL_REAL d) const
 }
 
 
-TMatrix3& TMatrix3::operator *= (const Matrix3f& m)
+TMatrix3& TMatrix3::operator *= (const Matrix3d& m)
 {
-  const Vec3f& mc0 = m.getColumn(0);
-  const Vec3f& mc1 = m.getColumn(1);
-  const Vec3f& mc2 = m.getColumn(2);
+  const Vector3d& mc0 = m.col(0);
+  const Vector3d& mc1 = m.col(1);
+  const Vector3d& mc2 = m.col(2);
   
   v_[0] = TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
   v_[1] = TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
@@ -168,10 +168,11 @@ TMatrix3& TMatrix3::operator *= (const TMatrix3& m)
   const TVector3& mc0 = m.getColumn(0);
   const TVector3& mc1 = m.getColumn(1);
   const TVector3& mc2 = m.getColumn(2);
-  
+
   v_[0] = TVector3(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
   v_[1] = TVector3(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
   v_[2] = TVector3(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+
   return *this;
 }
 
@@ -204,14 +205,14 @@ TMatrix3& TMatrix3::operator += (const TMatrix3& m)
   return *this;
 }
 
-TMatrix3 TMatrix3::operator + (const Matrix3f& m) const
+TMatrix3 TMatrix3::operator + (const Matrix3d& m) const
 {
   TMatrix3 res = *this;
   res += m;
   return res;
 }
 
-TMatrix3& TMatrix3::operator += (const Matrix3f& m)
+TMatrix3& TMatrix3::operator += (const Matrix3d& m)
 {
   for(std::size_t i = 0; i < 3; ++i)
   {
@@ -235,14 +236,14 @@ TMatrix3& TMatrix3::operator -= (const TMatrix3& m)
   return *this;
 }
 
-TMatrix3 TMatrix3::operator - (const Matrix3f& m) const
+TMatrix3 TMatrix3::operator - (const Matrix3d& m) const
 {
   TMatrix3 res = *this;
   res -= m;
   return res;
 }
 
-TMatrix3& TMatrix3::operator -= (const Matrix3f& m)
+TMatrix3& TMatrix3::operator -= (const Matrix3d& m)
 {
   for(std::size_t i = 0; i < 3; ++i)
   {
@@ -392,7 +393,7 @@ TMatrix3 rotationConstrain(const TMatrix3& m)
   return res;
 }
 
-TMatrix3 operator * (const Matrix3f& m, const TaylorModel& a)
+TMatrix3 operator * (const Matrix3d& m, const TaylorModel& a)
 {
   TMatrix3 res(a.getTimeInterval());
   res(0, 0) = a * m(0, 0);
@@ -410,7 +411,7 @@ TMatrix3 operator * (const Matrix3f& m, const TaylorModel& a)
   return res;
 }
 
-TMatrix3 operator * (const TaylorModel& a, const Matrix3f& m)
+TMatrix3 operator * (const TaylorModel& a, const Matrix3d& m)
 {
   return m * a;
 }
@@ -425,12 +426,12 @@ TMatrix3 operator * (FCL_REAL d, const TMatrix3& m)
   return m * d;
 }
 
-TMatrix3 operator + (const Matrix3f& m1, const TMatrix3& m2)
+TMatrix3 operator + (const Matrix3d& m1, const TMatrix3& m2)
 {
   return m2 + m1;
 }
 
-TMatrix3 operator - (const Matrix3f& m1, const TMatrix3& m2)
+TMatrix3 operator - (const Matrix3d& m1, const TMatrix3& m2)
 {
   return -m2 + m1;
 }

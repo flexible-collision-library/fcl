@@ -38,6 +38,7 @@
 #ifndef FCL_BV_FITTER_H
 #define FCL_BV_FITTER_H
 
+#include "fcl/math/triangle.h"
 #include "fcl/BVH/BVH_internal.h"
 #include "fcl/BV/kIOS.h"
 #include "fcl/BV/OBBRSS.h"
@@ -48,7 +49,7 @@ namespace fcl
 
 /// @brief Compute a bounding volume that fits a set of n points.
 template<typename BV>
-void fit(Vec3f* ps, int n, BV& bv)
+void fit(Vector3d* ps, int n, BV& bv)
 {
   for(int i = 0; i < n; ++i)
   {
@@ -57,16 +58,16 @@ void fit(Vec3f* ps, int n, BV& bv)
 }
 
 template<>
-void fit<OBB>(Vec3f* ps, int n, OBB& bv);
+void fit<OBB>(Vector3d* ps, int n, OBB& bv);
 
 template<>
-void fit<RSS>(Vec3f* ps, int n, RSS& bv);
+void fit<RSS>(Vector3d* ps, int n, RSS& bv);
 
 template<>
-void fit<kIOS>(Vec3f* ps, int n, kIOS& bv);
+void fit<kIOS>(Vector3d* ps, int n, kIOS& bv);
 
 template<>
-void fit<OBBRSS>(Vec3f* ps, int n, OBBRSS& bv);
+void fit<OBBRSS>(Vector3d* ps, int n, OBBRSS& bv);
 
 
 /// @brief Interface for fitting a bv given the triangles or points inside it.
@@ -75,10 +76,10 @@ class BVFitterBase
 {
 public:
   /// @brief Set the primitives to be processed by the fitter
-  virtual void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+  virtual void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
   /// @brief Set the primitives to be processed by the fitter, for deformable mesh.
-  virtual void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+  virtual void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
   /// @brief Compute the fitting BV
   virtual BV fit(unsigned int* primitive_indices, int num_primitives) = 0;
@@ -96,7 +97,7 @@ public:
   virtual ~BVFitter() {}
 
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = NULL;
@@ -105,7 +106,7 @@ public:
   }
 
   /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = prev_vertices_;
@@ -163,8 +164,8 @@ public:
 
 private:
 
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
+  Vector3d* vertices;
+  Vector3d* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 };
@@ -176,7 +177,7 @@ class BVFitter<OBB> : public BVFitterBase<OBB>
 {
 public:
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = NULL;
@@ -185,7 +186,7 @@ public:
   }
 
   /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = prev_vertices_;
@@ -208,8 +209,8 @@ public:
 
 private:
 
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
+  Vector3d* vertices;
+  Vector3d* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 };
@@ -221,7 +222,7 @@ class BVFitter<RSS> : public BVFitterBase<RSS>
 {
 public:
   /// brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = NULL;
@@ -230,7 +231,7 @@ public:
   }
 
   /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = prev_vertices_;
@@ -253,8 +254,8 @@ public:
 
 private:
 
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
+  Vector3d* vertices;
+  Vector3d* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 };
@@ -266,7 +267,7 @@ class BVFitter<kIOS> : public BVFitterBase<kIOS>
 {
 public:
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = NULL;
@@ -275,7 +276,7 @@ public:
   }
 
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = prev_vertices_;
@@ -297,8 +298,8 @@ public:
   }
 
 private:
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
+  Vector3d* vertices;
+  Vector3d* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 };
@@ -310,7 +311,7 @@ class BVFitter<OBBRSS> : public BVFitterBase<OBBRSS>
 {
 public:
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = NULL;
@@ -319,7 +320,7 @@ public:
   }
 
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vec3f* vertices_, Vec3f* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
+  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
   {
     vertices = vertices_;
     prev_vertices = prev_vertices_;
@@ -342,8 +343,8 @@ public:
 
 private:
 
-  Vec3f* vertices;
-  Vec3f* prev_vertices;
+  Vector3d* vertices;
+  Vector3d* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 };

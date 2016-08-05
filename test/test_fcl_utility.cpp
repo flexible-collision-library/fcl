@@ -42,6 +42,7 @@
 #include <cstdio>
 #include <cstddef>
 #include <fstream>
+#include <iostream>
 
 namespace fcl
 {
@@ -136,7 +137,7 @@ FCL_REAL rand_interval(FCL_REAL rmin, FCL_REAL rmax)
   return (t * (rmax - rmin) + rmin);
 }
 
-void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles)
+void loadOBJFile(const char* filename, std::vector<Vector3d>& points, std::vector<Triangle>& triangles)
 {
 
   FILE* file = fopen(filename, "rb");
@@ -177,7 +178,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
           FCL_REAL x = (FCL_REAL)atof(strtok(NULL, "\t "));
           FCL_REAL y = (FCL_REAL)atof(strtok(NULL, "\t "));
           FCL_REAL z = (FCL_REAL)atof(strtok(NULL, "\t "));
-          Vec3f p(x, y, z);
+          Vector3d p(x, y, z);
           points.push_back(p);
         }
       }
@@ -223,7 +224,7 @@ void loadOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 }
 
 
-void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<Triangle>& triangles)
+void saveOBJFile(const char* filename, std::vector<Vector3d>& points, std::vector<Triangle>& triangles)
 {
   std::ofstream os(filename);
   if(!os)
@@ -246,7 +247,7 @@ void saveOBJFile(const char* filename, std::vector<Vec3f>& points, std::vector<T
 }
 
 
-void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R)
+void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3d& R)
 {
   FCL_REAL c1 = cos(a);
   FCL_REAL c2 = cos(b);
@@ -255,12 +256,12 @@ void eulerToMatrix(FCL_REAL a, FCL_REAL b, FCL_REAL c, Matrix3f& R)
   FCL_REAL s2 = sin(b);
   FCL_REAL s3 = sin(c);
 
-  R.setValue(c1 * c2, - c2 * s1, s2,
-             c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
-             s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3);
+  R << c1 * c2, - c2 * s1, s2,
+      c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
+      s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3;
 }
 
-void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform)
+void generateRandomTransform(FCL_REAL extents[6], Transform3d& transform)
 {
   FCL_REAL x = rand_interval(extents[0], extents[3]);
   FCL_REAL y = rand_interval(extents[1], extents[4]);
@@ -271,14 +272,15 @@ void generateRandomTransform(FCL_REAL extents[6], Transform3f& transform)
   FCL_REAL b = rand_interval(0, 2 * pi);
   FCL_REAL c = rand_interval(0, 2 * pi);
 
-  Matrix3f R;
+  Matrix3d R;
   eulerToMatrix(a, b, c, R);
-  Vec3f T(x, y, z);
-  transform.setTransform(R, T);
+  Vector3d T(x, y, z);
+  transform.linear() = R;
+  transform.translation() = T;
 }
 
 
-void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::size_t n)
+void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3d>& transforms, std::size_t n)
 {
   transforms.resize(n);
   for(std::size_t i = 0; i < n; ++i)
@@ -293,16 +295,18 @@ void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3f>& tra
     FCL_REAL c = rand_interval(0, 2 * pi);
 
     {
-      Matrix3f R;
+      Matrix3d R;
       eulerToMatrix(a, b, c, R);
-      Vec3f T(x, y, z);
-      transforms[i].setTransform(R, T);
+      Vector3d T(x, y, z);
+      transforms[i].setIdentity();
+      transforms[i].linear() = R;
+      transforms[i].translation() = T;
     }
   }
 }
 
 
-void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, std::size_t n)
+void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::vector<Transform3d>& transforms, std::vector<Transform3d>& transforms2, std::size_t n)
 {
   transforms.resize(n);
   transforms2.resize(n);
@@ -318,10 +322,12 @@ void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_
     FCL_REAL c = rand_interval(0, 2 * pi);
 
     {
-      Matrix3f R;
+      Matrix3d R;
       eulerToMatrix(a, b, c, R);
-      Vec3f T(x, y, z);
-      transforms[i].setTransform(R, T);
+      Vector3d T(x, y, z);
+      transforms[i].setIdentity();
+      transforms[i].linear() = R;
+      transforms[i].translation() = T;
     }
 
     FCL_REAL deltax = rand_interval(-delta_trans[0], delta_trans[0]);
@@ -333,17 +339,19 @@ void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_
     FCL_REAL deltac = rand_interval(-delta_rot, delta_rot);
 
     {
-      Matrix3f R;
+      Matrix3d R;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R);
-      Vec3f T(x + deltax, y + deltay, z + deltaz);
-      transforms2[i].setTransform(R, T);
+      Vector3d T(x + deltax, y + deltay, z + deltaz);
+      transforms2[i].setIdentity();
+      transforms2[i].linear() = R;
+      transforms2[i].translation() = T;
     }
   }
 }
 
-void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3f>& transforms, std::vector<Transform3f>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
-                                 const std::vector<Vec3f>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vec3f>& vertices2, const std::vector<Triangle>& triangles2)
+void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3d>& transforms, std::vector<Transform3d>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
+                                 const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
+                                 const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2)
 {
   transforms.resize(n);
   transforms2.resize(n);
@@ -360,10 +368,12 @@ void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3f>& 
     FCL_REAL c = rand_interval(0, 2 * pi);
 
 
-    Matrix3f R;
+    Matrix3d R;
     eulerToMatrix(a, b, c, R);
-    Vec3f T(x, y, z);    
-    Transform3f tf(R, T);
+    Vector3d T(x, y, z);    
+    Transform3d tf(Transform3d::Identity());
+    tf.linear() = R;
+    tf.translation() = T;
 
     std::vector<std::pair<int, int> > results;
     {
@@ -377,10 +387,11 @@ void generateRandomTransform_ccd(FCL_REAL extents[6], std::vector<Transform3f>& 
       FCL_REAL deltab = rand_interval(-delta_rot, delta_rot);
       FCL_REAL deltac = rand_interval(-delta_rot, delta_rot);
 
-      Matrix3f R2;
+      Matrix3d R2;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R2);
-      Vec3f T2(x + deltax, y + deltay, z + deltaz);
-      transforms2[i].setTransform(R2, T2);
+      Vector3d T2(x + deltax, y + deltay, z + deltaz);
+      transforms2[i].linear() = R2;
+      transforms2[i].translation() = T2;
       ++i;
     }
   }

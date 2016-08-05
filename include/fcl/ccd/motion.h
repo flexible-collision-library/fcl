@@ -39,6 +39,7 @@
 #ifndef FCL_CCD_MOTION_H
 #define FCL_CCD_MOTION_H
 
+#include "fcl/math/geometry.h"
 #include "fcl/ccd/motion_base.h"
 #include "fcl/intersect.h"
 #include <iostream>
@@ -51,27 +52,33 @@ class TranslationMotion : public MotionBase
 {
 public:
   /// @brief Construct motion from intial and goal transform
-  TranslationMotion(const Transform3f& tf1,
-                    const Transform3f& tf2) : MotionBase(),
-                                              rot(tf1.getQuatRotation()),
-                                              trans_start(tf1.getTranslation()),
-                                              trans_range(tf2.getTranslation() - tf1.getTranslation()),
+  TranslationMotion(const Transform3d& tf1,
+                    const Transform3d& tf2) : MotionBase(),
+                                              rot(tf1.linear()),
+                                              trans_start(tf1.translation()),
+                                              trans_range(tf2.translation() - tf1.translation()),
                                               tf(tf1)
   {
   }
 
-  TranslationMotion(const Matrix3f& R, const Vec3f& T1, const Vec3f& T2) : MotionBase()
+  TranslationMotion(const Matrix3d& R, const Vector3d& T1, const Vector3d& T2) : MotionBase(),
+                                                                           tf(Transform3d::Identity())
   {
-    rot.fromRotation(R);
+    rot = R;
     trans_start = T1;
     trans_range = T2 - T1;
-    tf = Transform3f(rot, trans_start);
+    tf.linear() = R;
+    tf.translation() = trans_start;
   }
 
   bool integrate(FCL_REAL dt) const
   {
-    if(dt > 1) dt = 1;
-    tf = Transform3f(rot, trans_start + trans_range * dt);
+    if(dt > 1)
+      dt = 1;
+
+    tf.linear() = rot.toRotationMatrix(); // TODO(JS): necessary?
+    tf.translation() = trans_start + trans_range * dt;
+
     return true;
   }
 
@@ -85,7 +92,7 @@ public:
     return mb_visitor.visit(*this);
   }
 
-  void getCurrentTransform(Transform3f& tf_) const
+  void getCurrentTransform(Transform3d& tf_) const
   {
     tf_ = tf;
   }
@@ -94,35 +101,35 @@ public:
   {
   }
 
-  Vec3f getVelocity() const
+  Vector3d getVelocity() const
   {
     return trans_range;
   }
 
  private:
   /// @brief initial and goal transforms
-  Quaternion3f rot;
-  Vec3f trans_start, trans_range;
+  Quaternion3d rot;
+  Vector3d trans_start, trans_range;
 
-  mutable Transform3f tf;
+  mutable Transform3d tf;
 };
 
 class SplineMotion : public MotionBase
 {
 public:
   /// @brief Construct motion from 4 deBoor points
-  SplineMotion(const Vec3f& Td0, const Vec3f& Td1, const Vec3f& Td2, const Vec3f& Td3,
-               const Vec3f& Rd0, const Vec3f& Rd1, const Vec3f& Rd2, const Vec3f& Rd3);
+  SplineMotion(const Vector3d& Td0, const Vector3d& Td1, const Vector3d& Td2, const Vector3d& Td3,
+               const Vector3d& Rd0, const Vector3d& Rd1, const Vector3d& Rd2, const Vector3d& Rd3);
 
   // @brief Construct motion from initial and goal transform
-  SplineMotion(const Matrix3f& R1, const Vec3f& T1,
-               const Matrix3f& R2, const Vec3f& T2) : MotionBase()
+  SplineMotion(const Matrix3d& R1, const Vector3d& T1,
+               const Matrix3d& R2, const Vector3d& T2) : MotionBase()
   {
     // TODO
   }
 
-  SplineMotion(const Transform3f& tf1,
-               const Transform3f& tf2) : MotionBase()
+  SplineMotion(const Transform3d& tf1,
+               const Transform3d& tf2) : MotionBase()
   {
     // TODO
   }
@@ -145,7 +152,7 @@ public:
   }
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Transform3f& tf_) const
+  void getCurrentTransform(Transform3d& tf_) const
   {
     tf_ = tf;
   }
@@ -153,7 +160,7 @@ public:
   void getTaylorModel(TMatrix3& tm, TVector3& tv) const
   {
     // set tv
-    Vec3f c[4];
+    Vector3d c[4];
     c[0] = (Td[0] + Td[1] * 4 + Td[2] + Td[3]) * (1/6.0);
     c[1] = (-Td[0] + Td[2]) * (1/2.0);
     c[2] = (Td[0] - Td[1] * 2 + Td[2]) * (1/2.0);
@@ -168,11 +175,11 @@ public:
     }
 
     // set tm
-    Matrix3f I(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    Matrix3d I = Matrix3d::Identity();
     // R(t) = R(t0) + R'(t0) (t-t0) + 1/2 R''(t0)(t-t0)^2 + 1 / 6 R'''(t0) (t-t0)^3 + 1 / 24 R''''(l)(t-t0)^4; t0 = 0.5
     /// 1. compute M(1/2)
-    Vec3f Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
-    FCL_REAL Rt0_len = Rt0.length();
+    Vector3d Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
+    FCL_REAL Rt0_len = Rt0.norm();
     FCL_REAL inv_Rt0_len = 1.0 / Rt0_len;
     FCL_REAL inv_Rt0_len_3 = inv_Rt0_len * inv_Rt0_len * inv_Rt0_len;
     FCL_REAL inv_Rt0_len_5 = inv_Rt0_len_3 * inv_Rt0_len * inv_Rt0_len;
@@ -180,30 +187,31 @@ public:
     FCL_REAL costheta0 = cos(theta0);
     FCL_REAL sintheta0 = sin(theta0);
     
-    Vec3f Wt0 = Rt0 * inv_Rt0_len;
-    Matrix3f hatWt0;
+    Vector3d Wt0 = Rt0 * inv_Rt0_len;
+    Matrix3d hatWt0;
     hat(hatWt0, Wt0);
-    Matrix3f hatWt0_sqr = hatWt0 * hatWt0;
-    Matrix3f Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
+    Matrix3d hatWt0_sqr = hatWt0 * hatWt0;
+    Matrix3d Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
+    // TODO(JS): this could be improved by using exp(Wt0)
 
     /// 2. compute M'(1/2)
-    Vec3f dRt0 = (-Rd[0] - Rd[1] * 5 + Rd[2] * 5 + Rd[3]) * (1 / 8.0);
+    Vector3d dRt0 = (-Rd[0] - Rd[1] * 5 + Rd[2] * 5 + Rd[3]) * (1 / 8.0);
     FCL_REAL Rt0_dot_dRt0 = Rt0.dot(dRt0);
     FCL_REAL dtheta0 = Rt0_dot_dRt0 * inv_Rt0_len;
-    Vec3f dWt0 = dRt0 * inv_Rt0_len - Rt0 * (Rt0_dot_dRt0 * inv_Rt0_len_3);
-    Matrix3f hatdWt0;
+    Vector3d dWt0 = dRt0 * inv_Rt0_len - Rt0 * (Rt0_dot_dRt0 * inv_Rt0_len_3);
+    Matrix3d hatdWt0;
     hat(hatdWt0, dWt0);
-    Matrix3f dMt0 = hatdWt0 * sintheta0 + hatWt0 * (costheta0 * dtheta0) + hatWt0_sqr * (sintheta0 * dtheta0) + (hatWt0 * hatdWt0 + hatdWt0 * hatWt0) * (1 - costheta0);
+    Matrix3d dMt0 = hatdWt0 * sintheta0 + hatWt0 * (costheta0 * dtheta0) + hatWt0_sqr * (sintheta0 * dtheta0) + (hatWt0 * hatdWt0 + hatdWt0 * hatWt0) * (1 - costheta0);
 
     /// 3.1. compute M''(1/2)
-    Vec3f ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
+    Vector3d ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
     FCL_REAL Rt0_dot_ddRt0 = Rt0.dot(ddRt0);
-    FCL_REAL dRt0_dot_dRt0 = dRt0.sqrLength();
+    FCL_REAL dRt0_dot_dRt0 = dRt0.squaredNorm();
     FCL_REAL ddtheta0 = (Rt0_dot_ddRt0 + dRt0_dot_dRt0) * inv_Rt0_len - Rt0_dot_dRt0 * Rt0_dot_dRt0 * inv_Rt0_len_3;
-    Vec3f ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
-    Matrix3f hatddWt0;
+    Vector3d ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
+    Matrix3d hatddWt0;
     hat(hatddWt0, ddWt0);
-    Matrix3f ddMt0 =
+    Matrix3d ddMt0 =
       hatddWt0 * sintheta0 +
       hatWt0 * (costheta0 * dtheta0 - sintheta0 * dtheta0 * dtheta0 + costheta0 * ddtheta0) +
       hatdWt0 * (costheta0 * dtheta0) +
@@ -238,21 +246,21 @@ protected:
   FCL_REAL getWeight2(FCL_REAL t) const;
   FCL_REAL getWeight3(FCL_REAL t) const;
   
-  Vec3f Td[4];
-  Vec3f Rd[4];
+  Vector3d Td[4];
+  Vector3d Rd[4];
 
-  Vec3f TA, TB, TC;
-  Vec3f RA, RB, RC;
+  Vector3d TA, TB, TC;
+  Vector3d RA, RB, RC;
 
   FCL_REAL Rd0Rd0, Rd0Rd1, Rd0Rd2, Rd0Rd3, Rd1Rd1, Rd1Rd2, Rd1Rd3, Rd2Rd2, Rd2Rd3, Rd3Rd3;
   //// @brief The transformation at current time t
-  mutable Transform3f tf;
+  mutable Transform3d tf;
 
   /// @brief The time related with tf
   mutable FCL_REAL tf_t;
 
 public:
-  FCL_REAL computeTBound(const Vec3f& n) const;
+  FCL_REAL computeTBound(const Vector3d& n) const;
   
   FCL_REAL computeDWMax() const;
 
@@ -267,10 +275,9 @@ class ScrewMotion : public MotionBase
 {
 public:
   /// @brief Default transformations are all identities
-  ScrewMotion() : MotionBase()
+  ScrewMotion() : MotionBase(), axis(Vector3d::UnitX())
   {
     // Default angular velocity is zero
-    axis.setValue(1, 0, 0);
     angular_vel = 0;
 
     // Default reference point is local zero point
@@ -280,18 +287,25 @@ public:
   }
 
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation
-  ScrewMotion(const Matrix3f& R1, const Vec3f& T1,
-              const Matrix3f& R2, const Vec3f& T2) : MotionBase(),
-                                                     tf1(R1, T1),
-                                                     tf2(R2, T2),
-                                                     tf(tf1)
+  ScrewMotion(const Matrix3d& R1, const Vector3d& T1,
+              const Matrix3d& R2, const Vector3d& T2) : MotionBase(),
+                                                     tf1(Transform3d::Identity()),
+                                                     tf2(Transform3d::Identity())
   {
+    tf1.linear() = R1;
+    tf1.translation() = T1;
+
+    tf2.linear() = R2;
+    tf2.translation() = T2;
+
+    tf = tf1;
+
     computeScrewParameter();
   }
 
   /// @brief Construct motion from the initial transform and goal transform
-  ScrewMotion(const Transform3f& tf1_,
-              const Transform3f& tf2_) : tf1(tf1_),
+  ScrewMotion(const Transform3d& tf1_,
+              const Transform3d& tf2_) : tf1(tf1_),
                                          tf2(tf2_),
                                          tf(tf1)
   {
@@ -304,10 +318,10 @@ public:
   {
     if(dt > 1) dt = 1;
     
-    tf.setQuatRotation(absoluteRotation(dt));
+    tf.linear() = absoluteRotation(dt).toRotationMatrix();
     
-    Quaternion3f delta_rot = deltaRotation(dt);
-    tf.setTranslation(p + axis * (dt * linear_vel) + delta_rot.transform(tf1.getTranslation() - p));
+    Quaternion3d delta_rot = deltaRotation(dt);
+    tf.translation() = p + axis * (dt * linear_vel) + delta_rot * (tf1.translation() - p);
 
     return true;
   }
@@ -326,14 +340,14 @@ public:
 
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Transform3f& tf_) const
+  void getCurrentTransform(Transform3d& tf_) const
   {
     tf_ = tf;
   }
 
   void getTaylorModel(TMatrix3& tm, TVector3& tv) const
   {
-    Matrix3f hat_axis;
+    Matrix3d hat_axis;
     hat(hat_axis, axis);
 
     TaylorModel cos_model(getTimeInterval());
@@ -342,7 +356,9 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_axis * sin_model - hat_axis * hat_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    TMatrix3 delta_R = hat_axis * sin_model
+        - (hat_axis * hat_axis).eval() * (cos_model - 1)
+        + Matrix3d::Identity();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel * axis[0]);
@@ -350,15 +366,18 @@ public:
     generateTaylorModelForLinearFunc(c, 0, linear_vel * axis[2]);
     TVector3 delta_T = p - delta_R * p + TVector3(a, b, c);
 
-    tm = delta_R * tf1.getRotation();
-    tv = delta_R * tf1.getTranslation() + delta_T;
+    tm = delta_R * tf1.linear().eval();
+    tv = delta_R * tf1.translation().eval() + delta_T;
   }
 
 protected:
   void computeScrewParameter()
   {
-    Quaternion3f deltaq = tf2.getQuatRotation() * inverse(tf1.getQuatRotation());
-    deltaq.toAxisAngle(axis, angular_vel);
+    const Eigen::AngleAxisd aa(tf2.linear() * tf1.linear().transpose());
+
+    axis = aa.axis();
+    angular_vel = aa.angle();
+
     if(angular_vel < 0)
     {
       angular_vel = -angular_vel;
@@ -368,45 +387,44 @@ protected:
     if(angular_vel < 1e-10)
     {
       angular_vel = 0;
-      axis = tf2.getTranslation() - tf1.getTranslation();
-      linear_vel = axis.length();
-      p = tf1.getTranslation();
+      axis = tf2.translation() - tf1.translation();
+      linear_vel = axis.norm();
+      p = tf1.translation();
     }
     else
     {
-      Vec3f o = tf2.getTranslation() - tf1.getTranslation();
-      p = (tf1.getTranslation() + tf2.getTranslation() + axis.cross(o) * (1.0 / tan(angular_vel / 2.0))) * 0.5;
+      Vector3d o = tf2.translation() - tf1.translation();
+      p = (tf1.translation() + tf2.translation() + axis.cross(o) * (1.0 / tan(angular_vel / 2.0))) * 0.5;
       linear_vel = o.dot(axis);
     }
   }
 
-  Quaternion3f deltaRotation(FCL_REAL dt) const
+  Quaternion3d deltaRotation(FCL_REAL dt) const
   {
-    Quaternion3f res;
-    res.fromAxisAngle(axis, (FCL_REAL)(dt * angular_vel));
-    return res;
+    return Quaternion3d(Eigen::AngleAxisd((FCL_REAL)(dt * angular_vel), axis));
   }
 
-  Quaternion3f absoluteRotation(FCL_REAL dt) const
+  Quaternion3d absoluteRotation(FCL_REAL dt) const
   {
-    Quaternion3f delta_t = deltaRotation(dt);
-    return delta_t * tf1.getQuatRotation();
+    Quaternion3d delta_t = deltaRotation(dt);
+
+    return delta_t * Quaternion3d(tf1.linear());
   }
 
   /// @brief The transformation at time 0
-  Transform3f tf1;
+  Transform3d tf1;
 
   /// @brief The transformation at time 1
-  Transform3f tf2;
+  Transform3d tf2;
 
   /// @brief The transformation at current time t
-  mutable Transform3f tf;
+  mutable Transform3d tf;
 
   /// @brief screw axis
-  Vec3f axis;
+  Vector3d axis;
 
   /// @brief A point on the axis S
-  Vec3f p;
+  Vector3d p;
 
   /// @brief linear velocity along the axis
   FCL_REAL linear_vel;
@@ -426,12 +444,12 @@ public:
     return angular_vel;
   }
 
-  inline const Vec3f& getAxis() const
+  inline const Vector3d& getAxis() const
   {
     return axis;
   }
 
-  inline const Vec3f& getAxisOrigin() const
+  inline const Vector3d& getAxisOrigin() const
   {
     return p;
   }
@@ -452,17 +470,17 @@ public:
   InterpMotion();
 
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation
-  InterpMotion(const Matrix3f& R1, const Vec3f& T1,
-               const Matrix3f& R2, const Vec3f& T2);
+  InterpMotion(const Matrix3d& R1, const Vector3d& T1,
+               const Matrix3d& R2, const Vector3d& T2);
 
-  InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_);
+  InterpMotion(const Transform3d& tf1_, const Transform3d& tf2_);
 
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation related to some rotation center
-  InterpMotion(const Matrix3f& R1, const Vec3f& T1,
-               const Matrix3f& R2, const Vec3f& T2,
-               const Vec3f& O);
+  InterpMotion(const Matrix3d& R1, const Vector3d& T1,
+               const Matrix3d& R2, const Vector3d& T2,
+               const Vector3d& O);
 
-  InterpMotion(const Transform3f& tf1_, const Transform3f& tf2_, const Vec3f& O);
+  InterpMotion(const Transform3d& tf1_, const Transform3d& tf2_, const Vector3d& O);
 
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
@@ -481,14 +499,14 @@ public:
   }
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Transform3f& tf_) const
+  void getCurrentTransform(Transform3d& tf_) const
   {
     tf_ = tf;
   }
 
   void getTaylorModel(TMatrix3& tm, TVector3& tv) const
   {
-    Matrix3f hat_angular_axis;
+    Matrix3d hat_angular_axis;
     hat(hat_angular_axis, angular_axis);
 
     TaylorModel cos_model(getTimeInterval());
@@ -496,7 +514,9 @@ public:
     TaylorModel sin_model(getTimeInterval());
     generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
 
-    TMatrix3 delta_R = hat_angular_axis * sin_model - hat_angular_axis * hat_angular_axis * (cos_model - 1) + Matrix3f(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    TMatrix3 delta_R = hat_angular_axis * sin_model
+        - (hat_angular_axis * hat_angular_axis).eval() * (cos_model - 1)
+        + Matrix3d::Identity();
 
     TaylorModel a(getTimeInterval()), b(getTimeInterval()), c(getTimeInterval());
     generateTaylorModelForLinearFunc(a, 0, linear_vel[0]);
@@ -504,46 +524,48 @@ public:
     generateTaylorModelForLinearFunc(c, 0, linear_vel[2]);
     TVector3 delta_T(a, b, c);
     
-    tm = delta_R * tf1.getRotation();
-    tv = tf1.transform(reference_p) + delta_T - delta_R * tf1.getQuatRotation().transform(reference_p);
+    tm = delta_R * tf1.linear().eval();
+    tv = tf1 * reference_p
+        + delta_T
+        - delta_R * (tf1.linear() * reference_p).eval();
   }
 
 protected:
 
   void computeVelocity();
 
-  Quaternion3f deltaRotation(FCL_REAL dt) const;
+  Quaternion3d deltaRotation(FCL_REAL dt) const;
   
-  Quaternion3f absoluteRotation(FCL_REAL dt) const;
+  Quaternion3d absoluteRotation(FCL_REAL dt) const;
   
   /// @brief The transformation at time 0
-  Transform3f tf1;
+  Transform3d tf1;
 
   /// @brief The transformation at time 1
-  Transform3f tf2;
+  Transform3d tf2;
 
   /// @brief The transformation at current time t
-  mutable Transform3f tf;
+  mutable Transform3d tf;
 
   /// @brief Linear velocity
-  Vec3f linear_vel;
+  Vector3d linear_vel;
 
   /// @brief Angular speed
   FCL_REAL angular_vel;
 
   /// @brief Angular velocity axis
-  Vec3f angular_axis;
+  Vector3d angular_axis;
 
   /// @brief Reference point for the motion (in the object's local frame)
-  Vec3f reference_p;
+  Vector3d reference_p;
 
 public:
-  const Vec3f& getReferencePoint() const
+  const Vector3d& getReferencePoint() const
   {
     return reference_p;
   }
 
-  const Vec3f& getAngularAxis() const
+  const Vector3d& getAngularAxis() const
   {
     return angular_axis;
   }
@@ -553,7 +575,7 @@ public:
     return angular_vel;
   }
 
-  const Vec3f& getLinearVelocity() const
+  const Vector3d& getLinearVelocity() const
   {
     return linear_vel;
   }
