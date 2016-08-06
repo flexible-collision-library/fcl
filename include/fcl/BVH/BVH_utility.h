@@ -39,7 +39,7 @@
 #ifndef FCL_BVH_UTILITY_H
 #define FCL_BVH_UTILITY_H
 
-#include "fcl/math/variance.h"
+#include "fcl/math/variance3.h"
 #include "fcl/BVH/BVH_model.h"
 
 namespace fcl

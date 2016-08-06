@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -35,35 +35,36 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATH_TRIANGLE_H
-#define FCL_MATH_TRIANGLE_H
+#ifndef FCL_MATH_SAMPLERSE3EULERBALL_H
+#define FCL_MATH_SAMPLERSE3EULERBALL_H
 
-#include <cstddef>
+#include "fcl/data_types.h"
+#include "fcl/math/sampler_base.h"
 
 namespace fcl
 {
 
-/// @brief Triangle with 3 indices for points
-class Triangle
+template <typename Scalar>
+class SamplerSE3Euler_ball : public SamplerBase<Scalar>
 {
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
-
 public:
-  /// @brief Default constructor
-  Triangle();
+  SamplerSE3Euler_ball();
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3);
+  SamplerSE3Euler_ball(Scalar r_);
 
-  /// @brief Set the vertex indices of the triangle
-  void set(std::size_t p1, std::size_t p2, std::size_t p3);
+  void setBound(const Scalar& r_);
+  
+  void getBound(Scalar& r_) const;
 
-  /// @access the triangle index
-  std::size_t operator[](int i) const;
+  VectorN<Scalar, 6> sample() const;
 
-  std::size_t& operator[](int i);
+protected:
+  Scalar r;
+
 };
+
+using SamplerSE3Euler_ballf = SamplerSE3Euler_ball<float>;
+using SamplerSE3Euler_balld = SamplerSE3Euler_ball<double>;
 
 //============================================================================//
 //                                                                            //
@@ -72,33 +73,50 @@ public:
 //============================================================================//
 
 //==============================================================================
-inline Triangle::Triangle()
+template <typename Scalar>
+SamplerSE3Euler_ball<Scalar>::SamplerSE3Euler_ball() {}
+
+//==============================================================================
+template <typename Scalar>
+SamplerSE3Euler_ball<Scalar>::SamplerSE3Euler_ball(Scalar r_) : r(r_)
 {
-  // Do nothing
 }
 
 //==============================================================================
-inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+void SamplerSE3Euler_ball<Scalar>::setBound(const Scalar& r_)
 {
-  set(p1, p2, p3);
+  r = r_;
 }
 
 //==============================================================================
-inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+void SamplerSE3Euler_ball<Scalar>::getBound(Scalar& r_) const
 {
-  vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  r_ = r;
 }
 
 //==============================================================================
-inline std::size_t Triangle::operator[](int i) const
+template <typename Scalar>
+VectorN<Scalar, 6> SamplerSE3Euler_ball<Scalar>::sample() const
 {
-  return vids[i];
-}
+  VectorN<Scalar, 6> q;
+  Scalar x, y, z;
+  this->rng.ball(0, r, x, y, z);
+  q[0] = x;
+  q[1] = y;
+  q[2] = z;
 
-//==============================================================================
-inline std::size_t& Triangle::operator[](int i)
-{
-  return vids[i];
+  Scalar s[4];
+  this->rng.quaternion(s);
+
+  Quaternion3<Scalar> quat(s[0], s[1], s[2], s[3]);
+  Vector3<Scalar> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+  q[3] = angles[0];
+  q[4] = angles[1];
+  q[5] = angles[2];
+
+  return q;
 }
 
 } // namespace fcl

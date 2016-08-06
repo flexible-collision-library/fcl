@@ -35,35 +35,47 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATH_TRIANGLE_H
-#define FCL_MATH_TRIANGLE_H
+#ifndef FCL_MATH_VARIANCE3_H
+#define FCL_MATH_VARIANCE3_H
 
-#include <cstddef>
+#include <cmath>
+
+#include "fcl/config.h"
+#include "fcl/data_types.h"
+#include "fcl/math/geometry.h"
 
 namespace fcl
 {
 
-/// @brief Triangle with 3 indices for points
-class Triangle
+/// @brief Class for variance matrix in 3d
+template <typename Scalar>
+class Variance3
 {
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
-
 public:
-  /// @brief Default constructor
-  Triangle();
+  /// @brief Variation matrix
+  Matrix3<Scalar> Sigma;
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3);
+  /// @brief Variations along the eign axes
+  Vector3<Scalar> sigma;
 
-  /// @brief Set the vertex indices of the triangle
-  void set(std::size_t p1, std::size_t p2, std::size_t p3);
+  /// @brief Matrix whose columns are eigenvectors of Sigma
+  Matrix3<Scalar> axis;
 
-  /// @access the triangle index
-  std::size_t operator[](int i) const;
+  Variance3();
 
-  std::size_t& operator[](int i);
+  Variance3(const Matrix3<Scalar>& S);
+
+  /// @brief init the Variance
+  void init();
+
+  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition
+  /// result, this is useful when the uncertainty matrix is initialized as a
+  /// square variation matrix
+  Variance3<Scalar>& sqrt();
 };
+
+using Variance3f = Variance3<float>;
+using Variance3d = Variance3<double>;
 
 //============================================================================//
 //                                                                            //
@@ -72,33 +84,46 @@ public:
 //============================================================================//
 
 //==============================================================================
-inline Triangle::Triangle()
+template <typename Scalar>
+Variance3<Scalar>::Variance3()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+Variance3<Scalar>::Variance3(const Matrix3<Scalar>& S) : Sigma(S)
 {
-  set(p1, p2, p3);
+  init();
 }
 
 //==============================================================================
-inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+void Variance3<Scalar>::init()
 {
-  vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  eigen(Sigma, sigma, axis);
 }
 
 //==============================================================================
-inline std::size_t Triangle::operator[](int i) const
+template <typename Scalar>
+Variance3<Scalar>& Variance3<Scalar>::sqrt()
 {
-  return vids[i];
-}
+  for(std::size_t i = 0; i < 3; ++i)
+  {
+    if(sigma[i] < 0)
+      sigma[i] = 0;
 
-//==============================================================================
-inline std::size_t& Triangle::operator[](int i)
-{
-  return vids[i];
+    sigma[i] = std::sqrt(sigma[i]);
+  }
+
+  Sigma.noalias()
+      =  sigma[0] * axis.col(0) * axis.col(0).transpose();
+  Sigma.noalias()
+      += sigma[1] * axis.col(1) * axis.col(1).transpose();
+  Sigma.noalias()
+      += sigma[2] * axis.col(2) * axis.col(2).transpose();
+
+  return *this;
 }
 
 } // namespace fcl

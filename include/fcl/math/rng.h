@@ -306,6 +306,6 @@ uint_fast32_t RNG<Scalar>::getSeed()
   return detail::Seed::getFirstSeed();
 }
 
-}
+} // namespace fcl
 
 #endif

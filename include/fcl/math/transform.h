@@ -35,9 +35,8 @@
 
 /** \author Jia Pan */
 
-
-#ifndef FCL_TRANSFORM_H
-#define FCL_TRANSFORM_H
+#ifndef FCL_MATH_TRANSFORM_H
+#define FCL_MATH_TRANSFORM_H
 
 #warning "This header has been deprecated in FCL 0.6. "\
   "Please include fcl/data_types.h and fcl/math/geometry.h instead."

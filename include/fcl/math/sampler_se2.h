@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -35,35 +35,44 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATH_TRIANGLE_H
-#define FCL_MATH_TRIANGLE_H
+#ifndef FCL_MATH_SAMPLERSE2_H
+#define FCL_MATH_SAMPLERSE2_H
 
-#include <cstddef>
+#include "fcl/data_types.h"
+#include "fcl/math/sampler_base.h"
 
 namespace fcl
 {
 
-/// @brief Triangle with 3 indices for points
-class Triangle
+template <typename Scalar>
+class SamplerSE2 : public SamplerBase<Scalar>
 {
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
-
 public:
-  /// @brief Default constructor
-  Triangle();
+  SamplerSE2();
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3);
+  SamplerSE2(const VectorN<Scalar, 2>& lower_bound_,
+             const VectorN<Scalar, 2>& upper_bound_);
 
-  /// @brief Set the vertex indices of the triangle
-  void set(std::size_t p1, std::size_t p2, std::size_t p3);
+  SamplerSE2(Scalar x_min, Scalar x_max,
+             Scalar y_min, Scalar y_max);
 
-  /// @access the triangle index
-  std::size_t operator[](int i) const;
 
-  std::size_t& operator[](int i);
+  void setBound(const VectorN<Scalar, 2>& lower_bound_,
+                const VectorN<Scalar, 2>& upper_bound_);
+
+  void getBound(VectorN<Scalar, 2>& lower_bound_,
+                VectorN<Scalar, 2>& upper_bound_) const;
+
+
+  VectorN<Scalar, 3> sample() const;
+
+protected:
+  VectorN<Scalar, 2> lower_bound;
+  VectorN<Scalar, 2> upper_bound;
 };
+
+using SamplerSE2f = SamplerSE2<float>;
+using SamplerSE2d = SamplerSE2<double>;
 
 //============================================================================//
 //                                                                            //
@@ -72,33 +81,54 @@ public:
 //============================================================================//
 
 //==============================================================================
-inline Triangle::Triangle()
+template <typename Scalar>
+SamplerSE2<Scalar>::SamplerSE2()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+SamplerSE2<Scalar>::SamplerSE2(const VectorN<Scalar, 2>& lower_bound_, const VectorN<Scalar, 2>& upper_bound_) : lower_bound(lower_bound_),
+  upper_bound(upper_bound_)
 {
-  set(p1, p2, p3);
+  // Do nothing
 }
 
 //==============================================================================
-inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+SamplerSE2<Scalar>::SamplerSE2(Scalar x_min, Scalar x_max, Scalar y_min, Scalar y_max) : lower_bound(VectorN<Scalar, 2>(x_min, y_min)),
+  upper_bound(VectorN<Scalar, 2>(x_max, y_max))
 {
-  vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  // Do nothing
 }
 
 //==============================================================================
-inline std::size_t Triangle::operator[](int i) const
+template <typename Scalar>
+void SamplerSE2<Scalar>::getBound(VectorN<Scalar, 2>& lower_bound_, VectorN<Scalar, 2>& upper_bound_) const
 {
-  return vids[i];
+  lower_bound_ = lower_bound;
+  upper_bound_ = upper_bound;
 }
 
 //==============================================================================
-inline std::size_t& Triangle::operator[](int i)
+template <typename Scalar>
+void SamplerSE2<Scalar>::setBound(const VectorN<Scalar, 2>& lower_bound_, const VectorN<Scalar, 2>& upper_bound_)
 {
-  return vids[i];
+  lower_bound = lower_bound_;
+  upper_bound = upper_bound_;
+}
+
+//==============================================================================
+template <typename Scalar>
+VectorN<Scalar, 3> SamplerSE2<Scalar>::sample() const
+{
+  VectorN<Scalar, 3> q;
+  q[0] = this->rng.uniformReal(lower_bound[0], lower_bound[1]);
+  q[1] = this->rng.uniformReal(lower_bound[1], lower_bound[2]);
+  q[2] = this->rng.uniformReal(-constants<Scalar>::pi(), constants<Scalar>::pi());
+
+  return q;
 }
 
 } // namespace fcl

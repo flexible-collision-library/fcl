@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -35,10 +35,21 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATH_VARIANCE_H
-#define FCL_MATH_VARIANCE_H
+#ifndef FCL_MATH_SAMPLERBASE_H
+#define FCL_MATH_SAMPLERBASE_H
 
-#warning "This header has been deprecated in FCL 0.6. "\
-  "Please include fcl/data_types.h and fcl/math/variance3.h instead."
+#include "fcl/math/rng.h"
+
+namespace fcl
+{
+
+template <typename Scalar>
+class SamplerBase
+{
+public:
+  mutable RNG<Scalar> rng;
+};
+
+} // namespace fcl
 
 #endif

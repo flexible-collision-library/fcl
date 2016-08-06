@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_GEOMETRY_H
-#define FCL_GEOMETRY_H
+#ifndef FCL_MATH_GEOMETRY_H
+#define FCL_MATH_GEOMETRY_H
 
 #include <cmath>
 #include <iostream>

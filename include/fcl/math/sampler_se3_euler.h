@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -35,35 +35,40 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATH_TRIANGLE_H
-#define FCL_MATH_TRIANGLE_H
+#ifndef FCL_MATH_SAMPLERSE3EULER_H
+#define FCL_MATH_SAMPLERSE3EULER_H
 
-#include <cstddef>
+#include "fcl/data_types.h"
+#include "fcl/math/sampler_base.h"
 
 namespace fcl
 {
 
-/// @brief Triangle with 3 indices for points
-class Triangle
+template <typename Scalar>
+class SamplerSE3Euler : public SamplerBase<Scalar>
 {
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
-
 public:
-  /// @brief Default constructor
-  Triangle();
+  SamplerSE3Euler();
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3);
+  SamplerSE3Euler(const VectorN<Scalar, 3>& lower_bound_,
+                  const VectorN<Scalar, 3>& upper_bound_);
 
-  /// @brief Set the vertex indices of the triangle
-  void set(std::size_t p1, std::size_t p2, std::size_t p3);
+  void setBound(const VectorN<Scalar, 3>& lower_bound_,
+                const VectorN<Scalar, 3>& upper_bound_);
 
-  /// @access the triangle index
-  std::size_t operator[](int i) const;
+  void getBound(VectorN<Scalar, 3>& lower_bound_,
+                VectorN<Scalar, 3>& upper_bound_) const;
 
-  std::size_t& operator[](int i);
+  VectorN<Scalar, 6> sample() const;
+
+protected:
+  VectorN<Scalar, 3> lower_bound;
+  VectorN<Scalar, 3> upper_bound;
+  
 };
+
+using SamplerSE3Eulerf = SamplerSE3Euler<float>;
+using SamplerSE3Eulerd = SamplerSE3Euler<double>;
 
 //============================================================================//
 //                                                                            //
@@ -72,33 +77,57 @@ public:
 //============================================================================//
 
 //==============================================================================
-inline Triangle::Triangle()
+template <typename Scalar>
+SamplerSE3Euler<Scalar>::SamplerSE3Euler()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+SamplerSE3Euler<Scalar>::SamplerSE3Euler(const VectorN<Scalar, 3>& lower_bound_, const VectorN<Scalar, 3>& upper_bound_) : lower_bound(lower_bound_),
+  upper_bound(upper_bound_)
 {
-  set(p1, p2, p3);
+  // Do nothing
 }
 
 //==============================================================================
-inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+VectorN<Scalar, 6> SamplerSE3Euler<Scalar>::sample() const
 {
-  vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  VectorN<Scalar, 6> q;
+  q[0] = this->rng.uniformReal(lower_bound[0], upper_bound[0]);
+  q[1] = this->rng.uniformReal(lower_bound[1], upper_bound[1]);
+  q[2] = this->rng.uniformReal(lower_bound[2], upper_bound[2]);
+
+  Scalar s[4];
+  this->rng.quaternion(s);
+
+  Quaternion3<Scalar> quat(s[0], s[1], s[2], s[3]);
+  Vector3<Scalar> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+
+  q[3] = angles[0];
+  q[4] = angles[1];
+  q[5] = angles[2];
+
+  return q;
 }
 
 //==============================================================================
-inline std::size_t Triangle::operator[](int i) const
+template <typename Scalar>
+void SamplerSE3Euler<Scalar>::getBound(VectorN<Scalar, 3>& lower_bound_, VectorN<Scalar, 3>& upper_bound_) const
 {
-  return vids[i];
+  lower_bound_ = lower_bound;
+  upper_bound_ = upper_bound;
 }
 
 //==============================================================================
-inline std::size_t& Triangle::operator[](int i)
+template <typename Scalar>
+void SamplerSE3Euler<Scalar>::setBound(const VectorN<Scalar, 3>& lower_bound_, const VectorN<Scalar, 3>& upper_bound_)
+
 {
-  return vids[i];
+  lower_bound = lower_bound_;
+  upper_bound = upper_bound_;
 }
 
 } // namespace fcl

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -35,35 +35,39 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATH_TRIANGLE_H
-#define FCL_MATH_TRIANGLE_H
+#ifndef FCL_MATH_SAMPLERSE2DISK_H
+#define FCL_MATH_SAMPLERSE2DISK_H
 
-#include <cstddef>
+#include "fcl/data_types.h"
+#include "fcl/math/sampler_base.h"
 
 namespace fcl
 {
 
-/// @brief Triangle with 3 indices for points
-class Triangle
+template <typename Scalar>
+class SamplerSE2_disk : public SamplerBase<Scalar>
 {
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
-
 public:
-  /// @brief Default constructor
-  Triangle();
+  SamplerSE2_disk();
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3);
+  SamplerSE2_disk(Scalar cx, Scalar cy,
+                  Scalar r1, Scalar r2,
+                  Scalar crefx, Scalar crefy);
 
-  /// @brief Set the vertex indices of the triangle
-  void set(std::size_t p1, std::size_t p2, std::size_t p3);
+  void setBound(Scalar cx, Scalar cy,
+                Scalar r1, Scalar r2,
+                Scalar crefx, Scalar crefy);
 
-  /// @access the triangle index
-  std::size_t operator[](int i) const;
+  VectorN<Scalar, 3> sample() const;
 
-  std::size_t& operator[](int i);
+protected:
+  Scalar c[2];
+  Scalar cref[2];
+  Scalar r_min, r_max;
 };
+
+using SamplerSE2_diskf = SamplerSE2_disk<float>;
+using SamplerSE2_diskd = SamplerSE2_disk<double>;
 
 //============================================================================//
 //                                                                            //
@@ -72,33 +76,38 @@ public:
 //============================================================================//
 
 //==============================================================================
-inline Triangle::Triangle()
+template <typename Scalar>
+SamplerSE2_disk<Scalar>::SamplerSE2_disk() {}
+
+//==============================================================================
+template <typename Scalar>
+SamplerSE2_disk<Scalar>::SamplerSE2_disk(Scalar cx, Scalar cy, Scalar r1, Scalar r2, Scalar crefx, Scalar crefy)
 {
-  // Do nothing
+  setBound(cx, cy, r1, r2, crefx, crefy);
 }
 
 //==============================================================================
-inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+void SamplerSE2_disk<Scalar>::setBound(Scalar cx, Scalar cy, Scalar r1, Scalar r2, Scalar crefx, Scalar crefy)
 {
-  set(p1, p2, p3);
+  c[0] = cx; c[1] = cy;
+  cref[0] = crefx; cref[1] = crefy;
+  r_min = r1;
+  r_max = r2;
 }
 
 //==============================================================================
-inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+VectorN<Scalar, 3> SamplerSE2_disk<Scalar>::sample() const
 {
-  vids[0] = p1; vids[1] = p2; vids[2] = p3;
-}
+  VectorN<Scalar, 3> q;
+  Scalar x, y;
+  this->rng.disk(r_min, r_max, x, y);
+  q[0] = x + c[0] - cref[0];
+  q[1] = y + c[1] - cref[1];
+  q[2] = this->rng.uniformReal(-constants<Scalar>::pi(), constants<Scalar>::pi());
 
-//==============================================================================
-inline std::size_t Triangle::operator[](int i) const
-{
-  return vids[i];
-}
-
-//==============================================================================
-inline std::size_t& Triangle::operator[](int i)
-{
-  return vids[i];
+  return q;
 }
 
 } // namespace fcl

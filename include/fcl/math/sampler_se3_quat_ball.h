@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -35,35 +35,36 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_MATH_TRIANGLE_H
-#define FCL_MATH_TRIANGLE_H
+#ifndef FCL_MATH_SAMPLERSE3QUATBALL_H
+#define FCL_MATH_SAMPLERSE3QUATBALL_H
 
-#include <cstddef>
+#include "fcl/data_types.h"
+#include "fcl/math/sampler_base.h"
+
 
 namespace fcl
 {
 
-/// @brief Triangle with 3 indices for points
-class Triangle
+template <typename Scalar>
+class SamplerSE3Quat_ball : public SamplerBase<Scalar>
 {
-  /// @brief indices for each vertex of triangle
-  std::size_t vids[3];
-
 public:
-  /// @brief Default constructor
-  Triangle();
+  SamplerSE3Quat_ball();
 
-  /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3);
+  SamplerSE3Quat_ball(Scalar r_);
 
-  /// @brief Set the vertex indices of the triangle
-  void set(std::size_t p1, std::size_t p2, std::size_t p3);
+  void setBound(const Scalar& r_);
 
-  /// @access the triangle index
-  std::size_t operator[](int i) const;
+  void getBound(Scalar& r_) const;
 
-  std::size_t& operator[](int i);
+  VectorN<Scalar, 7> sample() const;
+
+protected:
+  Scalar r;
 };
+
+using SamplerSE3Quat_ballf = SamplerSE3Quat_ball<float>;
+using SamplerSE3Quat_balld = SamplerSE3Quat_ball<double>;
 
 //============================================================================//
 //                                                                            //
@@ -72,33 +73,52 @@ public:
 //============================================================================//
 
 //==============================================================================
-inline Triangle::Triangle()
+template <typename Scalar>
+SamplerSE3Quat_ball<Scalar>::SamplerSE3Quat_ball()
 {
   // Do nothing
 }
 
 //==============================================================================
-inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+SamplerSE3Quat_ball<Scalar>::SamplerSE3Quat_ball(Scalar r_) : r(r_)
 {
-  set(p1, p2, p3);
+  // Do nothing
 }
 
 //==============================================================================
-inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+template <typename Scalar>
+void SamplerSE3Quat_ball<Scalar>::setBound(const Scalar& r_)
 {
-  vids[0] = p1; vids[1] = p2; vids[2] = p3;
+  r = r_;
 }
 
 //==============================================================================
-inline std::size_t Triangle::operator[](int i) const
+template <typename Scalar>
+void SamplerSE3Quat_ball<Scalar>::getBound(Scalar& r_) const
 {
-  return vids[i];
+  r_ = r;
 }
 
 //==============================================================================
-inline std::size_t& Triangle::operator[](int i)
+template <typename Scalar>
+VectorN<Scalar, 7> SamplerSE3Quat_ball<Scalar>::sample() const
 {
-  return vids[i];
+  VectorN<Scalar, 7> q;
+  Scalar x, y, z;
+  this->rng.ball(0, r, x, y, z);
+  q[0] = x;
+  q[1] = y;
+  q[2] = z;
+
+  Scalar s[4];
+  this->rng.quaternion(s);
+
+  q[3] = s[0];
+  q[4] = s[1];
+  q[5] = s[2];
+  q[6] = s[3];
+  return q;
 }
 
 } // namespace fcl
