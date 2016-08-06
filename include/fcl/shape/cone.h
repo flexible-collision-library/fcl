@@ -76,66 +76,14 @@ public:
   // Documentation inherited
   Vector3<ScalarT> computeCOM() const override;
 
+  /// @brief get the vertices of some convex shape which can bound this shape in
+  /// a specific configuration
   std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const
-  {
-    std::vector<Vector3<ScalarT>> result(7);
-
-    auto hl = lz * 0.5;
-    auto r2 = radius * 2 / std::sqrt(3.0);
-    auto a = 0.5 * r2;
-    auto b = radius;
-
-    result[0] = tf * Vector3<ScalarT>(r2, 0, -hl);
-    result[1] = tf * Vector3<ScalarT>(a, b, -hl);
-    result[2] = tf * Vector3<ScalarT>(-a, b, -hl);
-    result[3] = tf * Vector3<ScalarT>(-r2, 0, -hl);
-    result[4] = tf * Vector3<ScalarT>(-a, -b, -hl);
-    result[5] = tf * Vector3<ScalarT>(a, -b, -hl);
-
-    result[6] = tf * Vector3<ScalarT>(0, 0, hl);
-
-    return result;
-  }
+      const Transform3<ScalarT>& tf) const;
 };
 
 using Conef = Cone<float>;
 using Coned = Cone<double>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Cone<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Cone<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Cone<ScalarT>>
-{
-  void operator()(const Cone<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
-  {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
-
-    ScalarT x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
-    ScalarT y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
-    ScalarT z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
-
-    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
-    bv.max_ = T + v_delta;
-    bv.min_ = T - v_delta;
-  }
-};
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Cone<ScalarT>>
-{
-  void operator()(const Cone<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
-  {
-    bv.To = tf.translation();
-    bv.axis = tf.linear();
-    bv.extent << s.radius, s.radius, s.lz / 2;
-  }
-};
 
 //============================================================================//
 //                                                                            //
@@ -155,7 +103,7 @@ Cone<ScalarT>::Cone(ScalarT radius, ScalarT lz)
 template <typename ScalarT>
 void Cone<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -192,6 +140,32 @@ Vector3<ScalarT> Cone<ScalarT>::computeCOM() const
   return Vector3<ScalarT>(0, 0, -0.25 * lz);
 }
 
-} // namespace
+//==============================================================================
+template <typename ScalarT>
+std::vector<Vector3<ScalarT>> Cone<ScalarT>::getBoundVertices(
+    const Transform3<ScalarT>& tf) const
+{
+  std::vector<Vector3<ScalarT>> result(7);
+
+  auto hl = lz * 0.5;
+  auto r2 = radius * 2 / std::sqrt(3.0);
+  auto a = 0.5 * r2;
+  auto b = radius;
+
+  result[0] = tf * Vector3<ScalarT>(r2, 0, -hl);
+  result[1] = tf * Vector3<ScalarT>(a, b, -hl);
+  result[2] = tf * Vector3<ScalarT>(-a, b, -hl);
+  result[3] = tf * Vector3<ScalarT>(-r2, 0, -hl);
+  result[4] = tf * Vector3<ScalarT>(-a, -b, -hl);
+  result[5] = tf * Vector3<ScalarT>(a, -b, -hl);
+
+  result[6] = tf * Vector3<ScalarT>(0, 0, hl);
+
+  return result;
+}
+
+} // namespace fcl
+
+#include "fcl/shape/detail/bv_computer_cone.h"
 
 #endif

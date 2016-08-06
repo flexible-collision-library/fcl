@@ -75,83 +75,14 @@ public:
   // Documentation inherited
   ScalarT computeVolume() const override;
 
+  /// @brief get the vertices of some convex shape which can bound this shape in
+  /// a specific configuration
   std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const
-  {
-    // we use scaled icosahedron to bound the ellipsoid
-
-    std::vector<Vector3<ScalarT>> result(12);
-
-    const auto phi = (1.0 + std::sqrt(5.0)) / 2.0;  // golden ratio
-
-    const auto a = std::sqrt(3.0) / (phi * phi);
-    const auto b = phi * a;
-
-    const auto& A = radii[0];
-    const auto& B = radii[1];
-    const auto& C = radii[2];
-
-    const auto Aa = A * a;
-    const auto Ab = A * b;
-    const auto Ba = B * a;
-    const auto Bb = B * b;
-    const auto Ca = C * a;
-    const auto Cb = C * b;
-
-    result[0] = tf * Vector3<ScalarT>(0, Ba, Cb);
-    result[1] = tf * Vector3<ScalarT>(0, -Ba, Cb);
-    result[2] = tf * Vector3<ScalarT>(0, Ba, -Cb);
-    result[3] = tf * Vector3<ScalarT>(0, -Ba, -Cb);
-    result[4] = tf * Vector3<ScalarT>(Aa, Bb, 0);
-    result[5] = tf * Vector3<ScalarT>(-Aa, Bb, 0);
-    result[6] = tf * Vector3<ScalarT>(Aa, -Bb, 0);
-    result[7] = tf * Vector3<ScalarT>(-Aa, -Bb, 0);
-    result[8] = tf * Vector3<ScalarT>(Ab, 0, Ca);
-    result[9] = tf * Vector3<ScalarT>(Ab, 0, -Ca);
-    result[10] = tf * Vector3<ScalarT>(-Ab, 0, Ca);
-    result[11] = tf * Vector3<ScalarT>(-Ab, 0, -Ca);
-
-    return result;
-  }
+      const Transform3<ScalarT>& tf) const;
 };
 
 using Ellipsoidf = Ellipsoid<float>;
 using Ellipsoidd = Ellipsoid<double>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Ellipsoid<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Ellipsoid<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Ellipsoid<ScalarT>>
-{
-  void operator()(const Ellipsoid<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
-  {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
-
-    ScalarT x_range = (fabs(R(0, 0) * s.radii[0]) + fabs(R(0, 1) * s.radii[1]) + fabs(R(0, 2) * s.radii[2]));
-    ScalarT y_range = (fabs(R(1, 0) * s.radii[0]) + fabs(R(1, 1) * s.radii[1]) + fabs(R(1, 2) * s.radii[2]));
-    ScalarT z_range = (fabs(R(2, 0) * s.radii[0]) + fabs(R(2, 1) * s.radii[1]) + fabs(R(2, 2) * s.radii[2]));
-
-    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
-    bv.max_ = T + v_delta;
-    bv.min_ = T - v_delta;
-  }
-};
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Ellipsoid<ScalarT>>
-{
-  void operator()(const Ellipsoid<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
-  {
-    bv.To = tf.translation();
-    bv.axis = tf.linear();
-    bv.extent = s.radii;
-  }
-};
 
 //============================================================================//
 //                                                                            //
@@ -179,7 +110,7 @@ Ellipsoid<ScalarT>::Ellipsoid(const Vector3<ScalarT>& radii)
 template <typename ScalarT>
 void Ellipsoid<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -212,6 +143,49 @@ ScalarT Ellipsoid<ScalarT>::computeVolume() const
   return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
 }
 
+//==============================================================================
+template <typename ScalarT>
+std::vector<Vector3<ScalarT>> Ellipsoid<ScalarT>::getBoundVertices(
+    const Transform3<ScalarT>& tf) const
+{
+  // we use scaled icosahedron to bound the ellipsoid
+
+  std::vector<Vector3<ScalarT>> result(12);
+
+  const auto phi = (1.0 + std::sqrt(5.0)) / 2.0;  // golden ratio
+
+  const auto a = std::sqrt(3.0) / (phi * phi);
+  const auto b = phi * a;
+
+  const auto& A = radii[0];
+  const auto& B = radii[1];
+  const auto& C = radii[2];
+
+  const auto Aa = A * a;
+  const auto Ab = A * b;
+  const auto Ba = B * a;
+  const auto Bb = B * b;
+  const auto Ca = C * a;
+  const auto Cb = C * b;
+
+  result[0] = tf * Vector3<ScalarT>(0, Ba, Cb);
+  result[1] = tf * Vector3<ScalarT>(0, -Ba, Cb);
+  result[2] = tf * Vector3<ScalarT>(0, Ba, -Cb);
+  result[3] = tf * Vector3<ScalarT>(0, -Ba, -Cb);
+  result[4] = tf * Vector3<ScalarT>(Aa, Bb, 0);
+  result[5] = tf * Vector3<ScalarT>(-Aa, Bb, 0);
+  result[6] = tf * Vector3<ScalarT>(Aa, -Bb, 0);
+  result[7] = tf * Vector3<ScalarT>(-Aa, -Bb, 0);
+  result[8] = tf * Vector3<ScalarT>(Ab, 0, Ca);
+  result[9] = tf * Vector3<ScalarT>(Ab, 0, -Ca);
+  result[10] = tf * Vector3<ScalarT>(-Ab, 0, Ca);
+  result[11] = tf * Vector3<ScalarT>(-Ab, 0, -Ca);
+
+  return result;
 }
+
+} // namespace fcl
+
+#include "fcl/shape/detail/bv_computer_ellipsoid.h"
 
 #endif

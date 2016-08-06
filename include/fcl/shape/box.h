@@ -38,9 +38,8 @@
 #ifndef FCL_SHAPE_BOX_H
 #define FCL_SHAPE_BOX_H
 
-#include "fcl/BVH/BV_fitter.h"
 #include "fcl/shape/shape_base.h"
-#include "fcl/shape/compute_bv.h"
+#include "fcl/shape/detail/bv_computer.h"
 
 namespace fcl
 {
@@ -85,41 +84,6 @@ public:
 
 using Boxf = Box<float>;
 using Boxd = Box<double>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Box<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Box<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Box<ScalarT>>
-{
-  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
-  {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
-
-    ScalarT x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
-    ScalarT y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
-    ScalarT z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
-
-    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
-    bv.max_ = T + v_delta;
-    bv.min_ = T - v_delta;
-  }
-};
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Box<ScalarT>>
-{
-  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
-  {
-    bv.To = tf.translation();
-    bv.axis = tf.linear();
-    bv.extent = s.side * (ScalarT)0.5;
-  }
-};
 
 //============================================================================//
 //                                                                            //
@@ -211,5 +175,7 @@ std::vector<Vector3<ScalarT>> Box<ScalarT>::getBoundVertices(
 }
 
 } // namespace fcl
+
+#include "fcl/shape/detail/bv_computer_box.h"
 
 #endif

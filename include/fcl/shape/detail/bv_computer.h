@@ -35,9 +35,29 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
-#define FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTER_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTER_H
 
-#warning "This header has been deprecated in FCL 0.6."
+#include <vector>
+#include "fcl/data_types.h"
+#include "fcl/BV/fit.h"
+
+namespace fcl
+{
+namespace detail
+{
+
+template <typename Scalar, typename BV, typename S>
+struct BVComputer
+{
+  static void compute(const S& s, const Transform3<Scalar>& tf, BV& bv)
+  {
+    std::vector<Vector3<Scalar>> convex_bound_vertices = s.getBoundVertices(tf);
+    fit(&convex_bound_vertices[0], (int)convex_bound_vertices.size(), bv);
+  }
+};
+
+} // namespace detail
+} // namespace fcl
 
 #endif

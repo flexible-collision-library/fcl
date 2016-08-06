@@ -66,32 +66,14 @@ public:
   Vector3<ScalarT> b;
   Vector3<ScalarT> c;
 
+  /// @brief get the vertices of some convex shape which can bound this shape in
+  /// a specific configuration
   std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const
-  {
-    std::vector<Vector3<ScalarT>> result(3);
-    result[0] = tf * a;
-    result[1] = tf * b;
-    result[2] = tf * c;
-
-    return result;
-  }
+      const Transform3<ScalarT>& tf) const;
 };
 
 using TrianglePf = TriangleP<float>;
 using TrianglePd = TriangleP<double>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, TrianglePd>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, TrianglePd>
-{
-  void operator()(const TrianglePd& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
-  {
-    bv = AABB<ScalarT>(tf * s.a, tf * s.b, tf * s.c);
-  }
-};
 
 //============================================================================//
 //                                                                            //
@@ -114,7 +96,7 @@ TriangleP<ScalarT>::TriangleP(
 template <typename ScalarT>
 void TriangleP<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -126,6 +108,21 @@ NODE_TYPE TriangleP<ScalarT>::getNodeType() const
   return GEOM_TRIANGLE;
 }
 
+//==============================================================================
+template <typename ScalarT>
+std::vector<Vector3<ScalarT>> TriangleP<ScalarT>::getBoundVertices(
+    const Transform3<ScalarT>& tf) const
+{
+  std::vector<Vector3<ScalarT>> result(3);
+  result[0] = tf * a;
+  result[1] = tf * b;
+  result[2] = tf * c;
+
+  return result;
+}
+
 } // namespace fcl
+
+#include "fcl/shape/detail/bv_computer_triangle_p.h"
 
 #endif

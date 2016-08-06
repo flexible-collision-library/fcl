@@ -35,9 +35,36 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
-#define FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERTRIANGLEP_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERTRIANGLEP_H
 
-#warning "This header has been deprecated in FCL 0.6."
+#include "fcl/BV/AABB.h"
+
+namespace fcl
+{
+namespace detail
+{
+
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, TrianglePd>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, TrianglePd>
+{
+  static void compute(const TrianglePd& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  {
+    bv = AABB<ScalarT>(tf * s.a, tf * s.b, tf * s.c);
+  }
+};
+
+} // namespace detail
+} // namespace fcl
 
 #endif

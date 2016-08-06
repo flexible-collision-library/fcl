@@ -38,12 +38,6 @@
 #ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
 #define FCL_SHAPE_GEOMETRIC_SHAPES_H
 
-//#warning "This header has been deprecated in FCL 0.6. "
-//  "Please include fcl/shape/shape_base.h and fcl/math/geometry.h instead."
-// TODO(JS): deprecate this header and remove inclusions of shape headers
-
-#include "fcl/shape/shape_base.h"
-
 #include "fcl/shape/box.h"
 #include "fcl/shape/capsule.h"
 #include "fcl/shape/cone.h"

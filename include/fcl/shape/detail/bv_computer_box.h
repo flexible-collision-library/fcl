@@ -35,18 +35,21 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_COMPUTEBV_H
-#define FCL_SHAPE_COMPUTEBV_H
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERBOX_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERBOX_H
 
-#include "fcl/data_types.h"
-#include "fcl/shape/detail/bv_computer.h"
+#include "fcl/BV/AABB.h"
 
 namespace fcl
 {
+namespace detail
+{
 
-/// @brief calculate a bounding volume for a shape in a specific configuration
-template <typename BV, typename S>
-void computeBV(const S& s, const Transform3<typename BV::Scalar>& tf, BV& bv);
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, Box<ScalarT>>;
+
+template <typename ScalarT>
+struct BVComputer<ScalarT, OBB<ScalarT>, Box<ScalarT>>;
 
 //============================================================================//
 //                                                                            //
@@ -55,14 +58,37 @@ void computeBV(const S& s, const Transform3<typename BV::Scalar>& tf, BV& bv);
 //============================================================================//
 
 //==============================================================================
-template <typename BV, typename S>
-void computeBV(const S& s, const Transform3<typename BV::Scalar>& tf, BV& bv)
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, Box<ScalarT>>
 {
-  using Scalar = typename BV::Scalar;
+  static void compute(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  {
+    const Matrix3<ScalarT>& R = tf.linear();
+    const Vector3<ScalarT>& T = tf.translation();
 
-  detail::BVComputer<Scalar, BV, S>::compute(s, tf, bv);
-}
+    ScalarT x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
+    ScalarT y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
+    ScalarT z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
 
+    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
+    bv.max_ = T + v_delta;
+    bv.min_ = T - v_delta;
+  }
+};
+
+//==============================================================================
+template <typename ScalarT>
+struct BVComputer<ScalarT, OBB<ScalarT>, Box<ScalarT>>
+{
+  static void compute(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  {
+    bv.To = tf.translation();
+    bv.axis = tf.linear();
+    bv.extent = s.side * (ScalarT)0.5;
+  }
+};
+
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -35,9 +35,54 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
-#define FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERSPHERE_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERSPHERE_H
 
-#warning "This header has been deprecated in FCL 0.6."
+#include "fcl/BV/AABB.h"
+#include "fcl/BV/OBB.h"
+
+namespace fcl
+{
+namespace detail
+{
+
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, Sphere<ScalarT>>;
+
+template <typename ScalarT>
+struct BVComputer<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, Sphere<ScalarT>>
+{
+  static void compute(const Sphere<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  {
+    const Vector3<ScalarT> v_delta = Vector3<ScalarT>::Constant(s.radius);
+    bv.max_ = tf.translation() + v_delta;
+    bv.min_ = tf.translation() - v_delta;
+  }
+};
+
+//==============================================================================
+template <typename ScalarT>
+struct BVComputer<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>
+{
+  static void compute(const Sphere<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  {
+    bv.To = tf.translation();
+    bv.axis.setIdentity();
+    bv.extent.setConstant(s.radius);
+  }
+};
+
+} // namespace detail
+} // namespace fcl
 
 #endif

@@ -77,100 +77,11 @@ public:
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
   std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const
-  {
-    std::vector<Vector3<ScalarT>> result(36);
-    const auto m = (1 + std::sqrt(5.0)) / 2.0;
-
-    auto hl = lz * 0.5;
-    auto edge_size = radius * 6 / (std::sqrt(27.0) + std::sqrt(15.0));
-    auto a = edge_size;
-    auto b = m * edge_size;
-    auto r2 = radius * 2 / std::sqrt(3.0);
-
-    result[0] = tf * Vector3<ScalarT>(0, a, b + hl);
-    result[1] = tf * Vector3<ScalarT>(0, -a, b + hl);
-    result[2] = tf * Vector3<ScalarT>(0, a, -b + hl);
-    result[3] = tf * Vector3<ScalarT>(0, -a, -b + hl);
-    result[4] = tf * Vector3<ScalarT>(a, b, hl);
-    result[5] = tf * Vector3<ScalarT>(-a, b, hl);
-    result[6] = tf * Vector3<ScalarT>(a, -b, hl);
-    result[7] = tf * Vector3<ScalarT>(-a, -b, hl);
-    result[8] = tf * Vector3<ScalarT>(b, 0, a + hl);
-    result[9] = tf * Vector3<ScalarT>(b, 0, -a + hl);
-    result[10] = tf * Vector3<ScalarT>(-b, 0, a + hl);
-    result[11] = tf * Vector3<ScalarT>(-b, 0, -a + hl);
-
-    result[12] = tf * Vector3<ScalarT>(0, a, b - hl);
-    result[13] = tf * Vector3<ScalarT>(0, -a, b - hl);
-    result[14] = tf * Vector3<ScalarT>(0, a, -b - hl);
-    result[15] = tf * Vector3<ScalarT>(0, -a, -b - hl);
-    result[16] = tf * Vector3<ScalarT>(a, b, -hl);
-    result[17] = tf * Vector3<ScalarT>(-a, b, -hl);
-    result[18] = tf * Vector3<ScalarT>(a, -b, -hl);
-    result[19] = tf * Vector3<ScalarT>(-a, -b, -hl);
-    result[20] = tf * Vector3<ScalarT>(b, 0, a - hl);
-    result[21] = tf * Vector3<ScalarT>(b, 0, -a - hl);
-    result[22] = tf * Vector3<ScalarT>(-b, 0, a - hl);
-    result[23] = tf * Vector3<ScalarT>(-b, 0, -a - hl);
-
-    auto c = 0.5 * r2;
-    auto d = radius;
-    result[24] = tf * Vector3<ScalarT>(r2, 0, hl);
-    result[25] = tf * Vector3<ScalarT>(c, d, hl);
-    result[26] = tf * Vector3<ScalarT>(-c, d, hl);
-    result[27] = tf * Vector3<ScalarT>(-r2, 0, hl);
-    result[28] = tf * Vector3<ScalarT>(-c, -d, hl);
-    result[29] = tf * Vector3<ScalarT>(c, -d, hl);
-
-    result[30] = tf * Vector3<ScalarT>(r2, 0, -hl);
-    result[31] = tf * Vector3<ScalarT>(c, d, -hl);
-    result[32] = tf * Vector3<ScalarT>(-c, d, -hl);
-    result[33] = tf * Vector3<ScalarT>(-r2, 0, -hl);
-    result[34] = tf * Vector3<ScalarT>(-c, -d, -hl);
-    result[35] = tf * Vector3<ScalarT>(c, -d, -hl);
-
-    return result;
-  }
+      const Transform3<ScalarT>& tf) const;
 };
 
 using Capsulef = Capsule<float>;
 using Capsuled = Capsule<double>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Capsule<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Capsule<ScalarT>>
-{
-  void operator()(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
-  {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
-
-    ScalarT x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
-    ScalarT y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
-    ScalarT z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
-
-    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
-    bv.max_ = T + v_delta;
-    bv.min_ = T - v_delta;
-  }
-};
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>
-{
-  void operator()(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
-  {
-    bv.To = tf.translation();
-    bv.axis = tf.linear();
-    bv.extent << s.radius, s.radius, s.lz / 2 + s.radius;
-  }
-};
 
 //============================================================================//
 //                                                                            //
@@ -190,7 +101,7 @@ Capsule<ScalarT>::Capsule(ScalarT radius, ScalarT lz)
 template <typename ScalarT>
 void Capsule<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -222,6 +133,67 @@ Matrix3<ScalarT> Capsule<ScalarT>::computeMomentofInertia() const
   return Vector3<ScalarT>(ix, ix, iz).asDiagonal();
 }
 
+//==============================================================================
+template <typename ScalarT>
+std::vector<Vector3<ScalarT>> Capsule<ScalarT>::getBoundVertices(
+    const Transform3<ScalarT>& tf) const
+{
+  std::vector<Vector3<ScalarT>> result(36);
+  const auto m = (1 + std::sqrt(5.0)) / 2.0;
+
+  auto hl = lz * 0.5;
+  auto edge_size = radius * 6 / (std::sqrt(27.0) + std::sqrt(15.0));
+  auto a = edge_size;
+  auto b = m * edge_size;
+  auto r2 = radius * 2 / std::sqrt(3.0);
+
+  result[0] = tf * Vector3<ScalarT>(0, a, b + hl);
+  result[1] = tf * Vector3<ScalarT>(0, -a, b + hl);
+  result[2] = tf * Vector3<ScalarT>(0, a, -b + hl);
+  result[3] = tf * Vector3<ScalarT>(0, -a, -b + hl);
+  result[4] = tf * Vector3<ScalarT>(a, b, hl);
+  result[5] = tf * Vector3<ScalarT>(-a, b, hl);
+  result[6] = tf * Vector3<ScalarT>(a, -b, hl);
+  result[7] = tf * Vector3<ScalarT>(-a, -b, hl);
+  result[8] = tf * Vector3<ScalarT>(b, 0, a + hl);
+  result[9] = tf * Vector3<ScalarT>(b, 0, -a + hl);
+  result[10] = tf * Vector3<ScalarT>(-b, 0, a + hl);
+  result[11] = tf * Vector3<ScalarT>(-b, 0, -a + hl);
+
+  result[12] = tf * Vector3<ScalarT>(0, a, b - hl);
+  result[13] = tf * Vector3<ScalarT>(0, -a, b - hl);
+  result[14] = tf * Vector3<ScalarT>(0, a, -b - hl);
+  result[15] = tf * Vector3<ScalarT>(0, -a, -b - hl);
+  result[16] = tf * Vector3<ScalarT>(a, b, -hl);
+  result[17] = tf * Vector3<ScalarT>(-a, b, -hl);
+  result[18] = tf * Vector3<ScalarT>(a, -b, -hl);
+  result[19] = tf * Vector3<ScalarT>(-a, -b, -hl);
+  result[20] = tf * Vector3<ScalarT>(b, 0, a - hl);
+  result[21] = tf * Vector3<ScalarT>(b, 0, -a - hl);
+  result[22] = tf * Vector3<ScalarT>(-b, 0, a - hl);
+  result[23] = tf * Vector3<ScalarT>(-b, 0, -a - hl);
+
+  auto c = 0.5 * r2;
+  auto d = radius;
+  result[24] = tf * Vector3<ScalarT>(r2, 0, hl);
+  result[25] = tf * Vector3<ScalarT>(c, d, hl);
+  result[26] = tf * Vector3<ScalarT>(-c, d, hl);
+  result[27] = tf * Vector3<ScalarT>(-r2, 0, hl);
+  result[28] = tf * Vector3<ScalarT>(-c, -d, hl);
+  result[29] = tf * Vector3<ScalarT>(c, -d, hl);
+
+  result[30] = tf * Vector3<ScalarT>(r2, 0, -hl);
+  result[31] = tf * Vector3<ScalarT>(c, d, -hl);
+  result[32] = tf * Vector3<ScalarT>(-c, d, -hl);
+  result[33] = tf * Vector3<ScalarT>(-r2, 0, -hl);
+  result[34] = tf * Vector3<ScalarT>(-c, -d, -hl);
+  result[35] = tf * Vector3<ScalarT>(c, -d, -hl);
+
+  return result;
 }
+
+} // namespace fcl
+
+#include "fcl/shape/detail/bv_computer_capsule.h"
 
 #endif

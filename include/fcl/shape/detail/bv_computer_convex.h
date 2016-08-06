@@ -35,9 +35,63 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
-#define FCL_SHAPE_GEOMETRICSHAPESUTILITY_H
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERCONVEX_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERCONVEX_H
 
-#warning "This header has been deprecated in FCL 0.6."
+#include "fcl/BV/AABB.h"
+#include "fcl/BV/OBB.h"
+
+namespace fcl
+{
+namespace detail
+{
+
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, Convex<ScalarT>>;
+
+template <typename ScalarT>
+struct BVComputer<ScalarT, OBB<ScalarT>, Convex<ScalarT>>;
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename ScalarT>
+struct BVComputer<ScalarT, AABB<ScalarT>, Convex<ScalarT>>
+{
+  static void compute(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  {
+    const Matrix3<ScalarT>& R = tf.linear();
+    const Vector3<ScalarT>& T = tf.translation();
+
+    AABB<ScalarT> bv_;
+    for(int i = 0; i < s.num_points; ++i)
+    {
+      Vector3<ScalarT> new_p = R * s.points[i] + T;
+      bv_ += new_p;
+    }
+
+    bv = bv_;
+  }
+};
+
+//==============================================================================
+template <typename ScalarT>
+struct BVComputer<ScalarT, OBB<ScalarT>, Convex<ScalarT>>
+{
+  static void compute(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  {
+    fit(s.points, s.num_points, bv);
+
+    bv.axis = tf.linear();
+    bv.To = tf * bv.To;
+  }
+};
+
+} // namespace detail
+} // namespace fcl
 
 #endif

@@ -143,12 +143,12 @@ bool initialize(
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  computeBV<Scalar, RSS<Scalar>, S1>(
+  computeBV(
         shape1,
         Transform3<Scalar>::Identity(),
         node.model1_bv);
 
-  computeBV<Scalar, RSS<Scalar>, S2>(
+  computeBV(
         shape2,
         Transform3<Scalar>::Identity(),
         node.model2_bv);

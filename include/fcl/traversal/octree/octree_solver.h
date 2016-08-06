@@ -319,7 +319,7 @@ void OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersect(
   cresult = &result_;
 
   AABB<Scalar> bv2;
-  computeBV<Scalar, AABB<Scalar>>(s, Transform3<Scalar>::Identity(), bv2);
+  computeBV(s, Transform3<Scalar>::Identity(), bv2);
   OBB<Scalar> obb2;
   convertBV(bv2, tf2, obb2);
   OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
@@ -344,7 +344,7 @@ void OcTreeSolver<NarrowPhaseSolver>::ShapeOcTreeIntersect(
   cresult = &result_;
 
   AABB<Scalar> bv1;
-  computeBV<Scalar, AABB<Scalar>>(s, Transform3<Scalar>::Identity(), bv1);
+  computeBV(s, Transform3<Scalar>::Identity(), bv1);
   OBB<Scalar> obb1;
   convertBV(bv1, tf1, obb1);
   OcTreeShapeIntersectRecurse(tree, tree->getRoot(), tree->getRootBV(),
@@ -368,7 +368,7 @@ void OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistance(
   dresult = &result_;
 
   AABB<Scalar> aabb2;
-  computeBV<Scalar, AABB<Scalar>>(s, tf2, aabb2);
+  computeBV(s, tf2, aabb2);
   OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                              s, aabb2,
                              tf1, tf2);
@@ -390,7 +390,7 @@ void OcTreeSolver<NarrowPhaseSolver>::ShapeOcTreeDistance(
   dresult = &result_;
 
   AABB<Scalar> aabb1;
-  computeBV<Scalar, AABB<Scalar>>(s, tf1, aabb1);
+  computeBV(s, tf1, aabb1);
   OcTreeShapeDistanceRecurse(tree, tree->getRoot(), tree->getRootBV(),
                              s, aabb1,
                              tf2, tf1);
@@ -468,8 +468,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
       {
         AABB<Scalar> overlap_part;
         AABB<Scalar> aabb1, aabb2;
-        computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box, box_tf, aabb1);
-        computeBV<Scalar, AABB<Scalar>, S>(s, tf2, aabb2);
+        computeBV(box, box_tf, aabb1);
+        computeBV(s, tf2, aabb2);
         aabb1.overlap(aabb2, overlap_part);
         cresult->addCostSource(CostSource<Scalar>(overlap_part, tree1->getOccupancyThres() * s.cost_density), crequest->num_max_cost_sources);
       }
@@ -531,8 +531,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
         {
           AABB<Scalar> overlap_part;
           AABB<Scalar> aabb1, aabb2;
-          computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box, box_tf, aabb1);
-          computeBV<Scalar, AABB<Scalar>, S>(s, tf2, aabb2);
+          computeBV(box, box_tf, aabb1);
+          computeBV(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
         }
 
@@ -554,8 +554,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
         {
           AABB<Scalar> overlap_part;
           AABB<Scalar> aabb1, aabb2;
-          computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box, box_tf, aabb1);
-          computeBV<Scalar, AABB<Scalar>, S>(s, tf2, aabb2);
+          computeBV(box, box_tf, aabb1);
+          computeBV(s, tf2, aabb2);
           aabb1.overlap(aabb2, overlap_part);
         }
       }
@@ -720,7 +720,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Sc
         {
           AABB<Scalar> overlap_part;
           AABB<Scalar> aabb1;
-          computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box, box_tf, aabb1);
+          computeBV(box, box_tf, aabb1);
           AABB<Scalar> aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
           aabb1.overlap(aabb2, overlap_part);
           cresult->addCostSource(CostSource<Scalar>(overlap_part, tree1->getOccupancyThres() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -787,7 +787,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Sc
         {
           AABB<Scalar> overlap_part;
           AABB<Scalar> aabb1;
-          computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box, box_tf, aabb1);
+          computeBV(box, box_tf, aabb1);
           AABB<Scalar> aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
           aabb1.overlap(aabb2, overlap_part);
     cresult->addCostSource(CostSource<Scalar>(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -819,7 +819,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Sc
         {
           AABB<Scalar> overlap_part;
           AABB<Scalar> aabb1;
-          computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box, box_tf, aabb1);
+          computeBV(box, box_tf, aabb1);
           AABB<Scalar> aabb2(tf2 * p1, tf2 * p2, tf2 * p3);
           aabb1.overlap(aabb2, overlap_part);
     cresult->addCostSource(CostSource<Scalar>(overlap_part, root1->getOccupancy() * tree2->cost_density), crequest->num_max_cost_sources);
@@ -980,8 +980,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<Scalar
 
       AABB<Scalar> overlap_part;
       AABB<Scalar> aabb1, aabb2;
-      computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box1, box1_tf, aabb1);
-      computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box2, box2_tf, aabb2);
+      computeBV(box1, box1_tf, aabb1);
+      computeBV(box2, box2_tf, aabb2);
       aabb1.overlap(aabb2, overlap_part);
       cresult->addCostSource(CostSource<Scalar>(overlap_part, tree1->getOccupancyThres() * tree2->getOccupancyThres()), crequest->num_max_cost_sources);
     }
@@ -1110,8 +1110,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<Scalar
 
         AABB<Scalar> overlap_part;
         AABB<Scalar> aabb1, aabb2;
-        computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box1, box1_tf, aabb1);
-        computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box2, box2_tf, aabb2);
+        computeBV(box1, box1_tf, aabb1);
+        computeBV(box2, box2_tf, aabb2);
         aabb1.overlap(aabb2, overlap_part);
         cresult->addCostSource(CostSource<Scalar>(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
       }
@@ -1133,8 +1133,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<Scalar
 
         AABB<Scalar> overlap_part;
         AABB<Scalar> aabb1, aabb2;
-        computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box1, box1_tf, aabb1);
-        computeBV<Scalar, AABB<Scalar>, Box<Scalar>>(box2, box2_tf, aabb2);
+        computeBV(box1, box1_tf, aabb1);
+        computeBV(box2, box2_tf, aabb2);
         aabb1.overlap(aabb2, overlap_part);
         cresult->addCostSource(CostSource<Scalar>(overlap_part, root1->getOccupancy() * root2->getOccupancy()), crequest->num_max_cost_sources);
       }

@@ -280,7 +280,7 @@ void MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>::leafTesting(int 
     {
       AABB<Scalar> overlap_part;
       AABB<Scalar> shape_aabb;
-      computeBV<Scalar, AABB<Scalar>, S>(*(this->model2), this->tf2, shape_aabb);
+      computeBV(*(this->model2), this->tf2, shape_aabb);
       AABB<Scalar>(p1, p2, p3).overlap(shape_aabb, overlap_part);
       this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);
     }
@@ -291,7 +291,7 @@ void MeshShapeCollisionTraversalNode<BV, S, NarrowPhaseSolver>::leafTesting(int 
     {
       AABB<Scalar> overlap_part;
       AABB<Scalar> shape_aabb;
-      computeBV<Scalar, AABB<Scalar>, S>(*(this->model2), this->tf2, shape_aabb);
+      computeBV(*(this->model2), this->tf2, shape_aabb);
       AABB<Scalar>(p1, p2, p3).overlap(shape_aabb, overlap_part);
       this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);
     }
@@ -423,7 +423,7 @@ void meshShapeCollisionOrientedNodeLeafTesting(
     {
       AABB<Scalar> overlap_part;
       AABB<Scalar> shape_aabb;
-      computeBV<Scalar, AABB<Scalar>, S>(model2, tf2, shape_aabb);
+      computeBV(model2, tf2, shape_aabb);
       /* bool res = */ AABB<Scalar>(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource<Scalar>(overlap_part, cost_density), request.num_max_cost_sources);
     }
@@ -434,7 +434,7 @@ void meshShapeCollisionOrientedNodeLeafTesting(
     {
       AABB<Scalar> overlap_part;
       AABB<Scalar> shape_aabb;
-      computeBV<Scalar, AABB<Scalar>, S>(model2, tf2, shape_aabb);
+      computeBV(model2, tf2, shape_aabb);
       /* bool res = */ AABB<Scalar>(tf1 * p1, tf1 * p2, tf1 * p3).overlap(shape_aabb, overlap_part);
       result.addCostSource(CostSource<Scalar>(overlap_part, cost_density), request.num_max_cost_sources);
     }

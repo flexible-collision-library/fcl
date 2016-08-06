@@ -156,8 +156,8 @@ leafTesting(int, int) const
     if(is_collision && this->request.enable_cost)
     {
       AABB<Scalar> aabb1, aabb2;
-      computeBV<Scalar, AABB<Scalar>, S1>(*model1, this->tf1, aabb1);
-      computeBV<Scalar, AABB<Scalar>, S2>(*model2, this->tf2, aabb2);
+      computeBV(*model1, this->tf1, aabb1);
+      computeBV(*model2, this->tf2, aabb2);
       AABB<Scalar> overlap_part;
       aabb1.overlap(aabb2, overlap_part);
       this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);
@@ -168,8 +168,8 @@ leafTesting(int, int) const
     if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, NULL))
     {
       AABB<Scalar> aabb1, aabb2;
-      computeBV<Scalar, AABB<Scalar>, S1>(*model1, this->tf1, aabb1);
-      computeBV<Scalar, AABB<Scalar>, S2>(*model2, this->tf2, aabb2);
+      computeBV(*model1, this->tf1, aabb1);
+      computeBV(*model2, this->tf2, aabb2);
       AABB<Scalar> overlap_part;
       aabb1.overlap(aabb2, overlap_part);
       this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);

@@ -35,9 +35,8 @@
 
 /** \author Jia Pan */
 
-
-#ifndef GEOMETRIC_SHAPE_TO_BVH_MODEL_H
-#define GEOMETRIC_SHAPE_TO_BVH_MODEL_H
+#ifndef FCL_SHAPE_GEOMETRICSHAPETOBVHMODEL_H
+#define FCL_SHAPE_GEOMETRICSHAPETOBVHMODEL_H
 
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/BVH/BVH_model.h"
@@ -46,6 +45,57 @@ namespace fcl
 {
 
 /// @brief Generate BVH model from box
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose);
+
+/// @brief Generate BVH model from sphere, given the number of segments along longitude and number of rings along latitude.
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring);
+
+/// @brief Generate BVH model from sphere
+/// The difference between generateBVHModel is that it gives the number of triangles faces N for a sphere with unit radius. For sphere of radius r,
+/// then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_sphere);
+
+/// @brief Generate BVH model from ellipsoid, given the number of segments along longitude and number of rings along latitude.
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring);
+
+/// @brief Generate BVH model from ellipsoid
+/// The difference between generateBVHModel is that it gives the number of triangles faces N for an ellipsoid with unit radii (1, 1, 1). For ellipsoid of radii (a, b, c),
+/// then the number of triangles is ((a^p * b^p + b^p * c^p + c^p * a^p)/3)^(1/p) * N, where p is 1.6075, so that the area represented by a single triangle is approximately the same.
+/// Reference: https://en.wikipedia.org/wiki/Ellipsoid<Scalar>#Approximate_formula
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_ellipsoid);
+
+/// @brief Generate BVH model from cylinder, given the number of segments along circle and the number of segments along axis.
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num);
+
+/// @brief Generate BVH model from cylinder
+/// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cylinder with
+/// larger radius, the number of circle split number is r * tot.
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cylinder);
+
+/// @brief Generate BVH model from cone, given the number of segments along circle and the number of segments along axis.
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num);
+
+/// @brief Generate BVH model from cone
+/// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cone with
+/// larger radius, the number of circle split number is r * tot.
+template<typename BV>
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cone);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose)
 {
@@ -89,7 +139,7 @@ void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::Scalar>& shape
   model.computeLocalAABB();
 }
 
-/// @brief Generate BVH model from sphere, given the number of segments along longitude and number of rings along latitude.
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring)
 {
@@ -156,9 +206,7 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& sh
   model.computeLocalAABB();
 }
 
-/// @brief Generate BVH model from sphere
-/// The difference between generateBVHModel is that it gives the number of triangles faces N for a sphere with unit radius. For sphere of radius r,
-/// then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_sphere)
 {
@@ -169,10 +217,10 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& sh
   unsigned int ring = ceil(n_low_bound);
   unsigned int seg = ceil(n_low_bound);
 
-  generateBVHModel(model, shape, pose, seg, ring);  
+  generateBVHModel(model, shape, pose, seg, ring);
 }
 
-/// @brief Generate BVH model from ellipsoid, given the number of segments along longitude and number of rings along latitude.
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring)
 {
@@ -242,10 +290,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>&
   model.computeLocalAABB();
 }
 
-/// @brief Generate BVH model from ellipsoid
-/// The difference between generateBVHModel is that it gives the number of triangles faces N for an ellipsoid with unit radii (1, 1, 1). For ellipsoid of radii (a, b, c),
-/// then the number of triangles is ((a^p * b^p + b^p * c^p + c^p * a^p)/3)^(1/p) * N, where p is 1.6075, so that the area represented by a single triangle is approximately the same.
-/// Reference: https://en.wikipedia.org/wiki/Ellipsoid<Scalar>#Approximate_formula
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_ellipsoid)
 {
@@ -266,7 +311,7 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>&
   generateBVHModel(model, shape, pose, seg, ring);
 }
 
-/// @brief Generate BVH model from cylinder, given the number of segments along circle and the number of segments along axis.
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num)
 {
@@ -340,9 +385,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& 
   model.computeLocalAABB();
 }
 
-/// @brief Generate BVH model from cylinder
-/// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cylinder with
-/// larger radius, the number of circle split number is r * tot.
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cylinder)
 {
@@ -357,12 +400,12 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& 
 
   Scalar circle_edge = phid * r;
   unsigned int h_num = ceil(h / circle_edge);
-  
+
   generateBVHModel(model, shape, pose, tot, h_num);
 }
 
 
-/// @brief Generate BVH model from cone, given the number of segments along circle and the number of segments along axis.
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num)
 {
@@ -436,9 +479,7 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shap
   model.computeLocalAABB();
 }
 
-/// @brief Generate BVH model from cone
-/// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cone with
-/// larger radius, the number of circle split number is r * tot.
+//==============================================================================
 template<typename BV>
 void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cone)
 {
@@ -457,6 +498,6 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shap
   generateBVHModel(model, shape, pose, tot, h_num);
 }
 
-}
+} // namespace fcl
 
 #endif

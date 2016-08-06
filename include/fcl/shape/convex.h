@@ -105,17 +105,10 @@ public:
   // Documentation inherited
   ScalarT computeVolume() const override;
 
+  /// @brief get the vertices of some convex shape which can bound this shape in
+  /// a specific configuration
   std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const
-  {
-    std::vector<Vector3<ScalarT>> result(num_points);
-    for(int i = 0; i < num_points; ++i)
-    {
-      result[i] = tf * points[i];
-    }
-
-    return result;
-  }
+      const Transform3<ScalarT>& tf) const;
 
 protected:
 
@@ -125,43 +118,6 @@ protected:
 
 using Convexf = Convex<float>;
 using Convexd = Convex<double>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Convex<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Convex<ScalarT>>;
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Convex<ScalarT>>
-{
-  void operator()(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
-  {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
-
-    AABB<ScalarT> bv_;
-    for(int i = 0; i < s.num_points; ++i)
-    {
-      Vector3<ScalarT> new_p = R * s.points[i] + T;
-      bv_ += new_p;
-    }
-
-    bv = bv_;
-  }
-};
-
-template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Convex<ScalarT>>
-{
-  void operator()(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
-  {
-    fit(s.points, s.num_points, bv);
-
-    bv.axis = tf.linear();
-    bv.To = tf * bv.To;
-  }
-};
 
 //============================================================================//
 //                                                                            //
@@ -220,7 +176,7 @@ Convex<ScalarT>::~Convex()
 template <typename ScalarT>
 void Convex<ScalarT>::computeLocalAABB()
 {
-  computeBV<AABB<ScalarT>>(*this, Transform3<Scalar>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<Scalar>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -414,6 +370,22 @@ void Convex<ScalarT>::fillEdges()
   }
 }
 
+//==============================================================================
+template <typename ScalarT>
+std::vector<Vector3<ScalarT>> Convex<ScalarT>::getBoundVertices(
+    const Transform3<ScalarT>& tf) const
+{
+  std::vector<Vector3<ScalarT>> result(num_points);
+  for(int i = 0; i < num_points; ++i)
+  {
+    result[i] = tf * points[i];
+  }
+
+  return result;
 }
+
+} // namespace fcl
+
+#include "fcl/shape/detail/bv_computer_convex.h"
 
 #endif
