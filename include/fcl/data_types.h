@@ -80,6 +80,12 @@ using Transform3 = Eigen::Transform<Scalar, 3, Eigen::Isometry>;
 template <typename Scalar>
 using Isometry3 = Eigen::Transform<Scalar, 3, Eigen::Isometry>;
 
+template <typename Scalar>
+using Translation3 = Eigen::Translation<Scalar, 3>;
+
+template <typename Scalar>
+using AngleAxis = Eigen::AngleAxis<Scalar>;
+
 // float types
 using Vector3f = Vector3<float>;
 template <int N>
@@ -89,6 +95,8 @@ using Matrix3f = Matrix3<float>;
 using Quaternion3f = Quaternion3<float>;
 using Isometry3f = Isometry3<float>;
 using Transform3f = Isometry3f;
+using Translation3f = Translation3<float>;
+using AngleAxisf = AngleAxis<float>;
 
 // double types
 using Vector3d = Vector3<double>;
@@ -99,6 +107,8 @@ using Matrix3d = Matrix3<double>;
 using Quaternion3d = Quaternion3<double>;
 using Isometry3d = Isometry3<double>;
 using Transform3d = Isometry3d;
+using Translation3d = Translation3<double>;
+using AngleAxisd = AngleAxis<double>;
 
 } // namespace fcl
 

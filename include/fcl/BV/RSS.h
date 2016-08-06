@@ -495,7 +495,7 @@ Scalar RSS<Scalar>::depth() const
 template <typename Scalar>
 Scalar RSS<Scalar>::volume() const
 {
-  return (l[0] * l[1] * 2 * r + 4 * constants::pi * r * r * r);
+  return (l[0] * l[1] * 2 * r + 4 * constants<Scalar>::pi() * r * r * r);
 }
 
 //==============================================================================
@@ -549,7 +549,7 @@ void segCoords(Scalar& t, Scalar& u, Scalar a, Scalar b, Scalar A_dot_B, Scalar 
   else
   {
     t = (A_dot_T - B_dot_T * A_dot_B) / denom;
-    clipToRange(t, 0.0, a);
+    clipToRange(t, (Scalar)0.0, a);
   }
 
   u = t * A_dot_B - B_dot_T;
@@ -557,13 +557,13 @@ void segCoords(Scalar& t, Scalar& u, Scalar a, Scalar b, Scalar A_dot_B, Scalar 
   {
     u = 0;
     t = A_dot_T;
-    clipToRange(t, 0.0, a);
+    clipToRange(t, (Scalar)0.0, a);
   }
   else if(u > b)
   {
     u = b;
     t = u * A_dot_B + A_dot_T;
-    clipToRange(t, 0.0, a);
+    clipToRange(t, (Scalar)0.0, a);
   }
 }
 
@@ -576,10 +576,10 @@ bool inVoronoi(Scalar a, Scalar b, Scalar Anorm_dot_B, Scalar Anorm_dot_T, Scala
   Scalar t, u, v;
 
   u = -Anorm_dot_T / Anorm_dot_B;
-  clipToRange(u, 0.0, b);
+  clipToRange(u, (Scalar)0.0, b);
 
   t = u * A_dot_B + A_dot_T;
-  clipToRange(t, 0.0, a);
+  clipToRange(t, (Scalar)0.0, a);
 
   v = t * A_dot_B - B_dot_T;
 

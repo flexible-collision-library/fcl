@@ -411,8 +411,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistanceRecurse(const OcTree<Sc
       Transform3<Scalar> box_tf;
       constructBox(bv1, tf1, box, box_tf);
 
-      FCL_REAL dist;
-      Vector3d closest_p1, closest_p2;
+      Scalar dist;
+      Vector3<Scalar> closest_p1, closest_p2;
       solver->shapeDistance(box, box_tf, s, tf2, &dist, &closest_p1, &closest_p2);
 
       dresult->update(dist, tree1, &s, root1 - tree1->getRoot(), DistanceResult<Scalar>::NONE, closest_p1, closest_p2);
@@ -435,7 +435,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistanceRecurse(const OcTree<Sc
 
       AABB<Scalar> aabb1;
       convertBV(child_bv, tf1, aabb1);
-      FCL_REAL d = aabb1.distance(aabb2);
+      Scalar d = aabb1.distance(aabb2);
       if(d < dresult->min_distance)
       {
         if(OcTreeShapeDistanceRecurse(tree1, child, child_bv, s, aabb2, tf1, tf2))
@@ -619,12 +619,12 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree<Sca
 
       int primitive_id = tree2->getBV(root2).primitiveId();
       const Triangle& tri_id = tree2->tri_indices[primitive_id];
-      const Vector3d& p1 = tree2->vertices[tri_id[0]];
-      const Vector3d& p2 = tree2->vertices[tri_id[1]];
-      const Vector3d& p3 = tree2->vertices[tri_id[2]];
+      const Vector3<Scalar>& p1 = tree2->vertices[tri_id[0]];
+      const Vector3<Scalar>& p2 = tree2->vertices[tri_id[1]];
+      const Vector3<Scalar>& p3 = tree2->vertices[tri_id[2]];
 
-      FCL_REAL dist;
-      Vector3d closest_p1, closest_p2;
+      Scalar dist;
+      Vector3<Scalar> closest_p1, closest_p2;
       solver->shapeTriangleDistance(box, box_tf, p1, p2, p3, tf2, &dist, &closest_p1, &closest_p2);
 
       dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), primitive_id);
@@ -647,7 +647,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree<Sca
         AABB<Scalar> child_bv;
         computeChildBV(bv1, i, child_bv);
 
-        FCL_REAL d;
+        Scalar d;
         AABB<Scalar> aabb1, aabb2;
         convertBV(child_bv, tf1, aabb1);
         convertBV(tree2->getBV(root2).bv, tf2, aabb2);
@@ -663,7 +663,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshDistanceRecurse(const OcTree<Sca
   }
   else
   {
-    FCL_REAL d;
+    Scalar d;
     AABB<Scalar> aabb1, aabb2;
     convertBV(bv1, tf1, aabb1);
     int child = tree2->getBV(root2).leftChild();
@@ -712,9 +712,9 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Sc
 
         int primitive_id = tree2->getBV(root2).primitiveId();
         const Triangle& tri_id = tree2->tri_indices[primitive_id];
-        const Vector3d& p1 = tree2->vertices[tri_id[0]];
-        const Vector3d& p2 = tree2->vertices[tri_id[1]];
-        const Vector3d& p3 = tree2->vertices[tri_id[2]];
+        const Vector3<Scalar>& p1 = tree2->vertices[tri_id[0]];
+        const Vector3<Scalar>& p2 = tree2->vertices[tri_id[1]];
+        const Vector3<Scalar>& p3 = tree2->vertices[tri_id[2]];
 
         if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
         {
@@ -755,9 +755,9 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Sc
 
         int primitive_id = tree2->getBV(root2).primitiveId();
         const Triangle& tri_id = tree2->tri_indices[primitive_id];
-        const Vector3d& p1 = tree2->vertices[tri_id[0]];
-        const Vector3d& p2 = tree2->vertices[tri_id[1]];
-        const Vector3d& p3 = tree2->vertices[tri_id[2]];
+        const Vector3<Scalar>& p1 = tree2->vertices[tri_id[0]];
+        const Vector3<Scalar>& p2 = tree2->vertices[tri_id[1]];
+        const Vector3<Scalar>& p3 = tree2->vertices[tri_id[2]];
 
         bool is_intersect = false;
         if(!crequest->enable_contact)
@@ -771,9 +771,9 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Sc
         }
         else
         {
-          Vector3d contact;
-          FCL_REAL depth;
-          Vector3d normal;
+          Vector3<Scalar> contact;
+          Scalar depth;
+          Vector3<Scalar> normal;
 
           if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, &contact, &depth, &normal))
           {
@@ -811,9 +811,9 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<Sc
 
         int primitive_id = tree2->getBV(root2).primitiveId();
         const Triangle& tri_id = tree2->tri_indices[primitive_id];
-        const Vector3d& p1 = tree2->vertices[tri_id[0]];
-        const Vector3d& p2 = tree2->vertices[tri_id[1]];
-        const Vector3d& p3 = tree2->vertices[tri_id[2]];
+        const Vector3<Scalar>& p1 = tree2->vertices[tri_id[0]];
+        const Vector3<Scalar>& p2 = tree2->vertices[tri_id[1]];
+        const Vector3<Scalar>& p3 = tree2->vertices[tri_id[2]];
 
         if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
         {
@@ -894,8 +894,8 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree<Scalar>
       constructBox(bv1, tf1, box1, box1_tf);
       constructBox(bv2, tf2, box2, box2_tf);
 
-      FCL_REAL dist;
-      Vector3d closest_p1, closest_p2;
+      Scalar dist;
+      Vector3<Scalar> closest_p1, closest_p2;
       solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist, &closest_p1, &closest_p2);
 
       dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), closest_p1, closest_p2);
@@ -918,7 +918,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree<Scalar>
         AABB<Scalar> child_bv;
         computeChildBV(bv1, i, child_bv);
 
-        FCL_REAL d;
+        Scalar d;
         AABB<Scalar> aabb1, aabb2;
         convertBV(bv1, tf1, aabb1);
         convertBV(bv2, tf2, aabb2);
@@ -943,7 +943,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree<Scalar>
         AABB<Scalar> child_bv;
         computeChildBV(bv2, i, child_bv);
 
-        FCL_REAL d;
+        Scalar d;
         AABB<Scalar> aabb1, aabb2;
         convertBV(bv1, tf1, aabb1);
         convertBV(bv2, tf2, aabb2);

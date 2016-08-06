@@ -51,9 +51,10 @@ namespace fcl
 namespace details
 {
 
-static inline FCL_UINT32 quantize(FCL_REAL x, FCL_UINT32 n)
+template <typename Scalar>
+FCL_UINT32 quantize(Scalar x, FCL_UINT32 n)
 {
-  return std::max(std::min((FCL_UINT32)(x * (FCL_REAL)n), FCL_UINT32(n-1)), FCL_UINT32(0));
+  return std::max(std::min((FCL_UINT32)(x * (Scalar)n), FCL_UINT32(n-1)), FCL_UINT32(0));
 }
 
 /// @brief compute 30 bit morton code
@@ -94,25 +95,25 @@ static inline FCL_UINT64 morton_code60(FCL_UINT32 x, FCL_UINT32 y, FCL_UINT32 z)
 /// @endcond
 
 
-/// @brief Functor to compute the morton code for a given AABBd
+/// @brief Functor to compute the morton code for a given AABB<Scalar>
 /// This is specialized for 32- and 64-bit unsigned integers giving
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
 /// N is the length of the code and must be a multiple of 3.
-template<typename T>
+template<typename Scalar, typename T>
 struct morton_functor {};
 
 
-/// @brief Functor to compute 30 bit morton code for a given AABBd
-template<>
-struct morton_functor<FCL_UINT32>
+/// @brief Functor to compute 30 bit morton code for a given AABB<Scalar>
+template<typename Scalar>
+struct morton_functor<Scalar, FCL_UINT32>
 {
-  morton_functor(const AABBd& bbox) : base(bbox.min_), 
+  morton_functor(const AABB<Scalar>& bbox) : base(bbox.min_),
                                      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
                                          1.0 / (bbox.max_[1] - bbox.min_[1]),
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
   {}
 
-  FCL_UINT32 operator() (const Vector3d& point) const
+  FCL_UINT32 operator() (const Vector3<Scalar>& point) const
   {
     FCL_UINT32 x = details::quantize((point[0] - base[0]) * inv[0], 1024u);
     FCL_UINT32 y = details::quantize((point[1] - base[1]) * inv[1], 1024u);
@@ -121,24 +122,24 @@ struct morton_functor<FCL_UINT32>
     return details::morton_code(x, y, z);
   }
 
-  const Vector3d base;
-  const Vector3d inv;
+  const Vector3<Scalar> base;
+  const Vector3<Scalar> inv;
 
   static constexpr size_t bits() { return 30; }
 };
 
 
-/// @brief Functor to compute 60 bit morton code for a given AABBd
-template<>
-struct morton_functor<FCL_UINT64>
+/// @brief Functor to compute 60 bit morton code for a given AABB<Scalar>
+template<typename Scalar>
+struct morton_functor<Scalar, FCL_UINT64>
 {
-  morton_functor(const AABBd& bbox) : base(bbox.min_),
+  morton_functor(const AABB<Scalar>& bbox) : base(bbox.min_),
                                      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
                                          1.0 / (bbox.max_[1] - bbox.min_[1]),
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
   {}
 
-  FCL_UINT64 operator() (const Vector3d& point) const
+  FCL_UINT64 operator() (const Vector3<Scalar>& point) const
   {
     FCL_UINT32 x = details::quantize((point[0] - base[0]) * inv[0], 1u << 20);
     FCL_UINT32 y = details::quantize((point[1] - base[1]) * inv[1], 1u << 20);
@@ -147,31 +148,31 @@ struct morton_functor<FCL_UINT64>
     return details::morton_code60(x, y, z);
   }
 
-  const Vector3d base;
-  const Vector3d inv;
+  const Vector3<Scalar> base;
+  const Vector3<Scalar> inv;
 
   static constexpr size_t bits() { return 60; }
 };
 
 
-/// @brief Functor to compute N bit morton code for a given AABBd
+/// @brief Functor to compute N bit morton code for a given AABB<Scalar>
 /// N must be a multiple of 3.
-template<size_t N>
-struct morton_functor<std::bitset<N>> 
+template<typename Scalar, size_t N>
+struct morton_functor<Scalar, std::bitset<N>>
 {
   static_assert(N%3==0, "Number of bits must be a multiple of 3");
 
-  morton_functor(const AABBd& bbox) : base(bbox.min_),
+  morton_functor(const AABB<Scalar>& bbox) : base(bbox.min_),
                                      inv(1.0 / (bbox.max_[0] - bbox.min_[0]),
                                          1.0 / (bbox.max_[1] - bbox.min_[1]),
                                          1.0 / (bbox.max_[2] - bbox.min_[2]))
   {}
 
-  std::bitset<N> operator() (const Vector3d& point) const
+  std::bitset<N> operator() (const Vector3<Scalar>& point) const
   {
-    FCL_REAL x = (point[0] - base[0]) * inv[0];
-    FCL_REAL y = (point[1] - base[1]) * inv[1];
-    FCL_REAL z = (point[2] - base[2]) * inv[2];
+    Scalar x = (point[0] - base[0]) * inv[0];
+    Scalar y = (point[1] - base[1]) * inv[1];
+    Scalar z = (point[2] - base[2]) * inv[2];
     int start_bit = bits() - 1;
     std::bitset<N> bset;
 
@@ -192,8 +193,8 @@ struct morton_functor<std::bitset<N>>
     return bset;
   }
 
-  const Vector3d base;
-  const Vector3d inv;
+  const Vector3<Scalar> base;
+  const Vector3<Scalar> inv;
 
   static constexpr size_t bits() { return N; }
 };

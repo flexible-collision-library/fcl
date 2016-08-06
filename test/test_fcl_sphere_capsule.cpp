@@ -97,7 +97,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_r
 
 	Capsuled capsule (50, 200.);
   Matrix3d rotation(
-        Eigen::AngleAxisd(constants::pi * 0.5, Vector3d::UnitX())
+        Eigen::AngleAxisd(constants<Scalar>::pi() * 0.5, Vector3d::UnitX())
       * Eigen::AngleAxisd(0.0, Vector3d::UnitY())
       * Eigen::AngleAxisd(0.0, Vector3d::UnitZ()));
 
@@ -141,7 +141,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
 
 	Capsuled capsule (50, 200.);
   Matrix3d rotation(
-        Eigen::AngleAxisd(constants::pi * 0.5, Vector3d::UnitX())
+        Eigen::AngleAxisd(constants<Scalar>::pi() * 0.5, Vector3d::UnitX())
       * Eigen::AngleAxisd(0.0, Vector3d::UnitY())
       * Eigen::AngleAxisd(0.0, Vector3d::UnitZ()));
   Transform3d capsule_transform = Transform3d::Identity();

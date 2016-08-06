@@ -212,7 +212,7 @@ template <typename BV>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Vector3d* vertices1,
+    const Vector3<typename BV::Scalar>* vertices1,
     Vector3<typename BV::Scalar>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
@@ -313,16 +313,18 @@ bool initialize(
     bool use_refit,
     bool refit_bottomup)
 {
+  using Scalar = typename BV::Scalar;
+
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf1.matrix().isIdentity())
   {
-    std::vector<Vector3d> vertices_transformed1(model1.num_vertices);
+    std::vector<Vector3<Scalar>> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vector3d& p = model1.vertices[i];
-      Vector3d new_v = tf1 * p;
+      Vector3<Scalar>& p = model1.vertices[i];
+      Vector3<Scalar> new_v = tf1 * p;
       vertices_transformed1[i] = new_v;
     }
 
@@ -335,11 +337,11 @@ bool initialize(
 
   if(!tf2.matrix().isIdentity())
   {
-    std::vector<Vector3d> vertices_transformed2(model2.num_vertices);
+    std::vector<Vector3<Scalar>> vertices_transformed2(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vector3d& p = model2.vertices[i];
-      Vector3d new_v = tf2 * p;
+      Vector3<Scalar>& p = model2.vertices[i];
+      Vector3<Scalar> new_v = tf2 * p;
       vertices_transformed2[i] = new_v;
     }
 
@@ -642,7 +644,7 @@ template <typename BV>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Vector3d* vertices1,
+    const Vector3<typename BV::Scalar>* vertices1,
     Vector3<typename BV::Scalar>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
@@ -704,8 +706,8 @@ namespace details
 template <typename BV, typename OrientedNode>
 static inline bool setupMeshDistanceOrientedNode(
     OrientedNode& node,
-    const BVHModel<BV>& model1, const Transform3d& tf1,
-    const BVHModel<BV>& model2, const Transform3d& tf2,
+    const BVHModel<BV>& model1, const Transform3<typename BV::Scalar>& tf1,
+    const BVHModel<BV>& model2, const Transform3<typename BV::Scalar>& tf2,
     const DistanceRequest<typename BV::Scalar>& request,
     DistanceResult<typename BV::Scalar>& result)
 {

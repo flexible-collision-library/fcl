@@ -349,17 +349,19 @@ bool initialize(
     bool use_refit,
     bool refit_bottomup)
 {
+  using Scalar = typename BV::Scalar;
+
   if(model1.getModelType() != BVH_MODEL_TRIANGLES
      || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf1.matrix().isIdentity())
   {
-    std::vector<Vector3d> vertices_transformed1(model1.num_vertices);
+    std::vector<Vector3<Scalar>> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vector3d& p = model1.vertices[i];
-      Vector3d new_v = tf1 * p;
+      Vector3<Scalar>& p = model1.vertices[i];
+      Vector3<Scalar> new_v = tf1 * p;
       vertices_transformed1[i] = new_v;
     }
 
@@ -372,11 +374,11 @@ bool initialize(
 
   if(!tf2.matrix().isIdentity())
   {
-    std::vector<Vector3d> vertices_transformed2(model2.num_vertices);
+    std::vector<Vector3<Scalar>> vertices_transformed2(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vector3d& p = model2.vertices[i];
-      Vector3d new_v = tf2 * p;
+      Vector3<Scalar>& p = model2.vertices[i];
+      Vector3<Scalar> new_v = tf2 * p;
       vertices_transformed2[i] = new_v;
     }
 
@@ -670,10 +672,10 @@ void meshCollisionOrientedNodeLeafTesting(
     }
     else // need compute the contact information
     {
-      FCL_REAL penetration;
-      Vector3d normal;
+      Scalar penetration;
+      Vector3<Scalar> normal;
       unsigned int n_contacts;
-      Vector3d contacts[2];
+      Vector3<Scalar> contacts[2];
 
       if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3,
                                        R, T,

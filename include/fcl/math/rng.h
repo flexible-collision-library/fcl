@@ -223,8 +223,8 @@ void RNG<Scalar>::quaternion(Scalar value[])
 {
   auto x0 = uniDist_(generator_);
   auto r1 = std::sqrt(1.0 - x0), r2 = std::sqrt(x0);
-  auto t1 = 2.0 * constants::pi * uniDist_(generator_);
-  auto t2 = 2.0 * constants::pi * uniDist_(generator_);
+  auto t1 = 2.0 * constants<Scalar>::pi() * uniDist_(generator_);
+  auto t2 = 2.0 * constants<Scalar>::pi() * uniDist_(generator_);
   auto c1 = std::cos(t1);
   auto s1 = std::sin(t1);
   auto c2 = std::cos(t2);
@@ -239,9 +239,9 @@ void RNG<Scalar>::quaternion(Scalar value[])
 template <typename Scalar>
 void RNG<Scalar>::eulerRPY(Scalar value[])
 {
-  value[0] = constants::pi * (2.0 * uniDist_(generator_) - 1.0);
-  value[1] = std::acos(1.0 - 2.0 * uniDist_(generator_)) - constants::pi / 2.0;
-  value[2] = constants::pi * (2.0 * uniDist_(generator_) - 1.0);
+  value[0] = constants<Scalar>::pi() * (2.0 * uniDist_(generator_) - 1.0);
+  value[1] = std::acos(1.0 - 2.0 * uniDist_(generator_)) - constants<Scalar>::pi() / 2.0;
+  value[2] = constants<Scalar>::pi() * (2.0 * uniDist_(generator_) - 1.0);
 }
 
 //==============================================================================
@@ -251,7 +251,7 @@ void RNG<Scalar>::disk(Scalar r_min, Scalar r_max, Scalar& x, Scalar& y)
   auto a = uniform01();
   auto b = uniform01();
   auto r = std::sqrt(a * r_max * r_max + (1 - a) * r_min * r_min);
-  auto theta = 2 * constants::pi * b;
+  auto theta = 2 * constants<Scalar>::pi() * b;
   x = r * std::cos(theta);
   y = r * std::sin(theta);
 }
@@ -266,7 +266,7 @@ void RNG<Scalar>::ball(
   auto c = uniform01();
   auto r = std::pow(a*std::pow(r_max, 3) + (1 - a)*std::pow(r_min, 3), 1/3.0);
   auto theta = std::acos(1 - 2 * b);
-  auto phi = 2 * constants::pi * c;
+  auto phi = 2 * constants<Scalar>::pi() * c;
 
   auto costheta = std::cos(theta);
   auto sintheta = std::sin(theta);

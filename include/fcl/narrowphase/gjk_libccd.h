@@ -238,9 +238,10 @@ struct ccd_ellipsoid_t : public ccd_obj_t
   ccd_real_t radii[3];
 };
 
+template <typename Scalar>
 struct ccd_convex_t : public ccd_obj_t
 {
-  const Convexd* convex;
+  const Convex<Scalar>* convex;
 };
 
 struct ccd_triangle_t : public ccd_obj_t
@@ -665,9 +666,9 @@ static ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *c
 
 /** Basic shape to ccd shape */
 template <typename Scalar>
-static void shapeToGJK(const ShapeBased& s, const Transform3<Scalar>& tf, ccd_obj_t* o)
+static void shapeToGJK(const ShapeBase<Scalar>& s, const Transform3<Scalar>& tf, ccd_obj_t* o)
 {
-  const Quaternion3d q(tf.linear());
+  const Quaternion3<Scalar> q(tf.linear());
   const Vector3<Scalar>& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
@@ -724,7 +725,7 @@ static void ellipsoidToGJK(const Ellipsoid<Scalar>& s, const Transform3<Scalar>&
 }
 
 template <typename Scalar>
-static void convexToGJK(const Convex<Scalar>& s, const Transform3<Scalar>& tf, ccd_convex_t* conv)
+static void convexToGJK(const Convex<Scalar>& s, const Transform3<Scalar>& tf, ccd_convex_t<Scalar>* conv)
 {
   shapeToGJK(s, tf, conv);
   conv->convex = &s;
@@ -870,14 +871,15 @@ static void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t
   ccdVec3Add(v, &s->pos);
 }
 
+template <typename Scalar>
 static void supportConvex(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const ccd_convex_t* c = (const ccd_convex_t*)obj;
+  const auto* c = (const ccd_convex_t<Scalar>*)obj;
   ccd_vec3_t dir, p;
   ccd_real_t maxdot, dot;
   int i;
-  Vector3d* curp;
-  const Vector3d& center = c->convex->center;
+  Vector3<Scalar>* curp;
+  const auto& center = c->convex->center;
 
   ccdVec3Copy(&dir, dir_);
   ccdQuatRotVec(&dir, &c->rot_inv);
@@ -935,9 +937,10 @@ static void centerShape(const void* obj, ccd_vec3_t* c)
   ccdVec3Copy(c, &o->pos);
 }
 
+template <typename Scalar>
 static void centerConvex(const void* obj, ccd_vec3_t* c)
 {
-  const ccd_convex_t *o = static_cast<const ccd_convex_t*>(obj);
+  const auto *o = static_cast<const ccd_convex_t<Scalar>*>(obj);
   ccdVec3Set(c, o->convex->center[0], o->convex->center[1], o->convex->center[2]);
   ccdQuatRotVec(c, &o->rot);
   ccdVec3Add(c, &o->pos);
@@ -1182,7 +1185,7 @@ void GJKInitializer<Scalar, Cone<Scalar>>::deleteGJKObject(void* o_)
 template <typename Scalar>
 GJKSupportFunction GJKInitializer<Scalar, Convex<Scalar>>::getSupportFunction()
 {
-  return &supportConvex;
+  return &supportConvex<Scalar>;
 }
 
 template <typename Scalar>
@@ -1194,7 +1197,7 @@ GJKCenterFunction GJKInitializer<Scalar, Convex<Scalar>>::getCenterFunction()
 template <typename Scalar>
 void* GJKInitializer<Scalar, Convex<Scalar>>::createGJKObject(const Convex<Scalar>& s, const Transform3<Scalar>& tf)
 {
-  ccd_convex_t* o = new ccd_convex_t;
+  auto* o = new ccd_convex_t<Scalar>;
   convexToGJK(s, tf, o);
   return o;
 }
@@ -1202,7 +1205,7 @@ void* GJKInitializer<Scalar, Convex<Scalar>>::createGJKObject(const Convex<Scala
 template <typename Scalar>
 void GJKInitializer<Scalar, Convex<Scalar>>::deleteGJKObject(void* o_)
 {
-  ccd_convex_t* o = static_cast<ccd_convex_t*>(o_);
+  auto* o = static_cast<ccd_convex_t<Scalar>*>(o_);
   delete o;
 }
 
@@ -1243,7 +1246,7 @@ void* triCreateGJKObject(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, c
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
   ccdVec3Set(&o->p[2], P3[0], P3[1], P3[2]);
   ccdVec3Set(&o->c, center[0], center[1], center[2]);
-  const Quaternion3d q(tf.linear());
+  const Quaternion3<Scalar> q(tf.linear());
   const Vector3<Scalar>& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());

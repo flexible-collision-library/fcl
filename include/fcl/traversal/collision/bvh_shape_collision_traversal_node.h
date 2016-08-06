@@ -74,7 +74,7 @@ public:
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable FCL_REAL query_time_seconds;
+  mutable Scalar query_time_seconds;
 };
 
 //============================================================================//

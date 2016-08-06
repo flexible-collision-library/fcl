@@ -58,7 +58,7 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
 {
   const double tol = 1e-12;
   const double radius = 5.0;
-  const double pi = constants::pi;
+  const double pi = constants<Scalar>::pi();
 
   Sphered s(radius);
 

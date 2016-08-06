@@ -275,7 +275,7 @@ protected:
 
   std::map<CollisionObject<Scalar>*, SaPAABB*> obj_aabb_map;
 
-  bool distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, FCL_REAL& min_dist) const;
+  bool distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const;
 
   bool collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
 
@@ -398,7 +398,7 @@ void SaPCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObj
     }
 
 
-    FCL_REAL scale[3];
+    Scalar scale[3];
     for(size_t coord = 0; coord < 3; ++coord)
     {
       std::sort(endpoints.begin(), endpoints.end(),
@@ -485,7 +485,7 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
     else // otherwise, find the correct location in the list and insert
     {
       EndPoint* curr_lo = curr->lo;
-      FCL_REAL curr_lo_val = curr_lo->getVal()[coord];
+      Scalar curr_lo_val = curr_lo->getVal()[coord];
       while((current->getVal()[coord] < curr_lo_val) && (current->next[coord] != NULL))
         current = current->next[coord];
 
@@ -512,7 +512,7 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
     current = curr->lo;
 
     EndPoint* curr_hi = curr->hi;
-    FCL_REAL curr_hi_val = curr_hi->getVal()[coord];
+    Scalar curr_hi_val = curr_hi->getVal()[coord];
 
     if(coord == 0)
     {
@@ -563,7 +563,7 @@ void SaPCollisionManager<Scalar>::setup()
 {
   if(size() == 0) return;
 
-  FCL_REAL scale[3];
+  Scalar scale[3];
   scale[0] = (velist[0].back())->getVal(0) - velist[0][0]->getVal(0);
   scale[1] = (velist[1].back())->getVal(1) - velist[1][0]->getVal(1);;
   scale[2] = (velist[2].back())->getVal(2) - velist[2][0]->getVal(2);
@@ -799,8 +799,8 @@ bool SaPCollisionManager<Scalar>::collide_(CollisionObject<Scalar>* obj, void* c
   size_t axis = optimal_axis;
   const AABB<Scalar>& obj_aabb = obj->getAABB();
 
-  FCL_REAL min_val = obj_aabb.min_[axis];
-  //  FCL_REAL max_val = obj_aabb.max_[axis];
+  Scalar min_val = obj_aabb.min_[axis];
+  //  Scalar max_val = obj_aabb.max_[axis];
 
   EndPoint dummy;
   SaPAABB dummy_aabb;
@@ -848,12 +848,12 @@ void SaPCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* cd
 
 //==============================================================================
 template <typename Scalar>
-bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, FCL_REAL& min_dist) const
+bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const
 {
   Vector3<Scalar> delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
   AABB<Scalar> aabb = obj->getAABB();
 
-  if(min_dist < std::numeric_limits<FCL_REAL>::max())
+  if(min_dist < std::numeric_limits<Scalar>::max())
   {
     Vector3<Scalar> min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
@@ -862,15 +862,15 @@ bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* 
   size_t axis = optimal_axis;
 
   int status = 1;
-  FCL_REAL old_min_distance;
+  Scalar old_min_distance;
 
   EndPoint* start_pos = elist[axis];
 
   while(1)
   {
     old_min_distance = min_dist;
-    FCL_REAL min_val = aabb.min_[axis];
-    //    FCL_REAL max_val = aabb.max_[axis];
+    Scalar min_val = aabb.min_[axis];
+    //    Scalar max_val = aabb.max_[axis];
 
     EndPoint dummy;
     SaPAABB dummy_aabb;
@@ -928,7 +928,7 @@ bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* 
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<FCL_REAL>::max())
+      if(old_min_distance < std::numeric_limits<Scalar>::max())
         break;
       else
       {
@@ -960,7 +960,7 @@ void SaPCollisionManager<Scalar>::distance(CollisionObject<Scalar>* obj, void* c
 {
   if(size() == 0) return;
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  Scalar min_dist = std::numeric_limits<Scalar>::max();
 
   distance_(obj, cdata, callback, min_dist);
 }
@@ -990,7 +990,7 @@ void SaPCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scalar>
   this->enable_tested_set_ = true;
   this->tested_set.clear();
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  Scalar min_dist = std::numeric_limits<Scalar>::max();
 
   for(auto it = AABB_arr.cbegin(), end = AABB_arr.cend(); it != end; ++it)
   {
@@ -1048,7 +1048,7 @@ void SaPCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* o
     return;
   }
 
-  FCL_REAL min_dist = std::numeric_limits<FCL_REAL>::max();
+  Scalar min_dist = std::numeric_limits<Scalar>::max();
 
   if(this->size() < other_manager->size())
   {

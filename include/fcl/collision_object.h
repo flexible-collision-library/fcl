@@ -53,7 +53,7 @@ class CollisionObject
 {
 public:
  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_) :
-    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
+    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3<Scalar>::Identity())
   {
     if (cgeom)
     {
@@ -62,15 +62,15 @@ public:
     }
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Transform3d& tf) :
+  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Transform3<Scalar>& tf) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Matrix3d& R, const Vector3d& T):
-      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3d::Identity())
+  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Matrix3<Scalar>& R, const Vector3<Scalar>& T):
+      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3<Scalar>::Identity())
   {
     t.linear() = R;
     t.translation() = T;
@@ -94,13 +94,13 @@ public:
     return cgeom->getNodeType();
   }
 
-  /// @brief get the AABBd in world space
-  const AABBd& getAABB() const
+  /// @brief get the AABB<Scalar> in world space
+  const AABB<Scalar>& getAABB() const
   {
     return aabb;
   }
 
-  /// @brief compute the AABBd in world space
+  /// @brief compute the AABB<Scalar> in world space
   void computeAABB()
   {
     if(t.linear().isIdentity())
@@ -109,8 +109,8 @@ public:
     }
     else
     {
-      Vector3d center = t * cgeom->aabb_center;
-      Vector3d delta = Vector3d::Constant(cgeom->aabb_radius);
+      Vector3<Scalar> center = t * cgeom->aabb_center;
+      Vector3<Scalar> delta = Vector3<Scalar>::Constant(cgeom->aabb_radius);
       aabb.min_ = center - delta;
       aabb.max_ = center + delta;
     }
@@ -129,63 +129,63 @@ public:
   }
 
   /// @brief get translation of the object
-  const Vector3d getTranslation() const
+  const Vector3<Scalar> getTranslation() const
   {
     return t.translation();
   }
 
   /// @brief get matrix rotation of the object
-  const Matrix3d getRotation() const
+  const Matrix3<Scalar> getRotation() const
   {
     return t.linear();
   }
 
   /// @brief get quaternion rotation of the object
-  const Quaternion3d getQuatRotation() const
+  const Quaternion3<Scalar> getQuatRotation() const
   {
-    return Quaternion3d(t.linear());
+    return Quaternion3<Scalar>(t.linear());
   }
 
   /// @brief get object's transform
-  const Transform3d& getTransform() const
+  const Transform3<Scalar>& getTransform() const
   {
     return t;
   }
 
   /// @brief set object's rotation matrix
-  void setRotation(const Matrix3d& R)
+  void setRotation(const Matrix3<Scalar>& R)
   {
     t.linear() = R;
   }
 
   /// @brief set object's translation
-  void setTranslation(const Vector3d& T)
+  void setTranslation(const Vector3<Scalar>& T)
   {
     t.translation() = T;
   }
 
   /// @brief set object's quatenrion rotation
-  void setQuatRotation(const Quaternion3d& q)
+  void setQuatRotation(const Quaternion3<Scalar>& q)
   {
     t.linear() = q.toRotationMatrix();
   }
 
   /// @brief set object's transform
-  void setTransform(const Matrix3d& R, const Vector3d& T)
+  void setTransform(const Matrix3<Scalar>& R, const Vector3<Scalar>& T)
   {
     setRotation(R);
     setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Quaternion3d& q, const Vector3d& T)
+  void setTransform(const Quaternion3<Scalar>& q, const Vector3<Scalar>& T)
   {
     setQuatRotation(q);
     setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Transform3d& tf)
+  void setTransform(const Transform3<Scalar>& tf)
   {
     t = tf;
   }
@@ -250,10 +250,10 @@ protected:
   std::shared_ptr<CollisionGeometry<Scalar>> cgeom;
   std::shared_ptr<const CollisionGeometry<Scalar>> cgeom_const;
 
-  Transform3d t;
+  Transform3<Scalar> t;
 
-  /// @brief AABBd in global coordinate
-  mutable AABBd aabb;
+  /// @brief AABB<Scalar> in global coordinate
+  mutable AABB<Scalar> aabb;
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;

@@ -182,7 +182,7 @@ void constructBox(const AABB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<S
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.max_ - bv.min_);
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf = tf_bv * Eigen::Translation3d(bv.center());
+  tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 
 //==============================================================================
@@ -239,7 +239,7 @@ void constructBox(const KDOP<Scalar, 16>& bv, const Transform3<Scalar>& tf_bv, B
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf = tf_bv * Eigen::Translation3d(bv.center());
+  tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 
 //==============================================================================
@@ -249,7 +249,7 @@ void constructBox(const KDOP<Scalar, 18>& bv, const Transform3<Scalar>& tf_bv, B
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf = tf_bv * Eigen::Translation3d(bv.center());
+  tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 
 //==============================================================================
@@ -259,7 +259,7 @@ void constructBox(const KDOP<Scalar, 24>& bv, const Transform3<Scalar>& tf_bv, B
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf = tf_bv * Eigen::Translation3d(bv.center());
+  tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 
 } // namespace fcl

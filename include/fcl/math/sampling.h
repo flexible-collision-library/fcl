@@ -139,7 +139,7 @@ public:
     VectorN<Scalar, 3> q;
     q[0] = this->rng.uniformReal(lower_bound[0], lower_bound[1]);
     q[1] = this->rng.uniformReal(lower_bound[1], lower_bound[2]);
-    q[2] = this->rng.uniformReal(-constants::pi, constants::pi);
+    q[2] = this->rng.uniformReal(-constants<Scalar>::pi(), constants<Scalar>::pi());
 
     return q;
   }
@@ -182,7 +182,7 @@ public:
     this->rng.disk(r_min, r_max, x, y);
     q[0] = x + c[0] - cref[0];
     q[1] = y + c[1] - cref[1];
-    q[2] = this->rng.uniformReal(-constants::pi, constants::pi);
+    q[2] = this->rng.uniformReal(-constants<Scalar>::pi(), constants<Scalar>::pi());
 
     return q;
   }

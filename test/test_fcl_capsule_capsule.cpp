@@ -126,7 +126,7 @@ GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ)
 
 GTEST_TEST(FCL_CAPSULE_CAPSULE, distance_capsulecapsule_transformZ2)
 {
-  const FCL_REAL Pi = constants::pi;
+  const FCL_REAL Pi = constants<Scalar>::pi();
 
   GJKSolver_indepd solver;
   Capsuled s1(5, 10);

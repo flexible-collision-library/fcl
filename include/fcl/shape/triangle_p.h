@@ -56,7 +56,7 @@ public:
             const Vector3<ScalarT>& b,
             const Vector3<ScalarT>& c);
 
-  /// @brief virtual function of compute AABBd in local coordinate
+  /// @brief virtual function of compute AABB<ScalarT> in local coordinate
   void computeLocalAABB() override;
   
   // Documentation inherited
@@ -82,14 +82,14 @@ using TrianglePf = TriangleP<float>;
 using TrianglePd = TriangleP<double>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, TrianglePd>;
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, TrianglePd>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, TrianglePd>
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, TrianglePd>
 {
-  void operator()(const TrianglePd& s, const Transform3<ScalarT>& tf, AABBd& bv)
+  void operator()(const TrianglePd& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
   {
-    bv = AABBd(tf * s.a, tf * s.b, tf * s.c);
+    bv = AABB<ScalarT>(tf * s.a, tf * s.b, tf * s.c);
   }
 };
 
@@ -114,7 +114,7 @@ TriangleP<ScalarT>::TriangleP(
 template <typename ScalarT>
 void TriangleP<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -126,6 +126,6 @@ NODE_TYPE TriangleP<ScalarT>::getNodeType() const
   return GEOM_TRIANGLE;
 }
 
-}
+} // namespace fcl
 
 #endif

@@ -38,6 +38,7 @@
 #ifndef FCL_TRAVERSAL_SHAPEDISTANCETRAVERSALNODE_H
 #define FCL_TRAVERSAL_SHAPEDISTANCETRAVERSALNODE_H
 
+#include "fcl/common/warning.h"
 #include "fcl/traversal/traversal_node_base.h"
 #include "fcl/traversal/distance/distance_traversal_node_base.h"
 
@@ -50,10 +51,12 @@ class ShapeDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
 {
 public:
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   ShapeDistanceTraversalNode();
 
   /// @brief BV culling test in one BVTT node
-  FCL_REAL BVTesting(int, int) const;
+  Scalar BVTesting(int, int) const;
 
   /// @brief Distance testing between leaves (two shapes)
   void leafTesting(int, int) const;
@@ -95,8 +98,8 @@ ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSol
 
 //==============================================================================
 template <typename S1, typename S2, typename NarrowPhaseSolver>
-FCL_REAL ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::BVTesting(
-    int, int) const
+typename NarrowPhaseSolver::Scalar
+ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::BVTesting(int, int) const
 {
   return -1; // should not be used
 }
@@ -106,18 +109,29 @@ template <typename S1, typename S2, typename NarrowPhaseSolver>
 void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
     int, int) const
 {
-  FCL_REAL distance;
-  Vector3d closest_p1, closest_p2;
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
+  Scalar distance;
+  FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
+  // Note(JS): The maybe-uninitialized warning is disabled here because it seems
+  // gjk_solver_indep allows uninitialized closest points when the status is
+  // invalid. If it's untrue, then please remove the warning suppression macros
+  // and resolve the warning in other way.
+  Vector3<Scalar> closest_p1;
+  Vector3<Scalar> closest_p2;
+
   nsolver->shapeDistance(
         *model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
+
   this->result->update(
         distance,
         model1,
         model2,
-        DistanceResult<typename NarrowPhaseSolver::Scalar>::NONE,
-        DistanceResult<typename NarrowPhaseSolver::Scalar>::NONE,
+        DistanceResult<Scalar>::NONE,
+        DistanceResult<Scalar>::NONE,
         closest_p1,
         closest_p2);
+  FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
 }
 
 //==============================================================================

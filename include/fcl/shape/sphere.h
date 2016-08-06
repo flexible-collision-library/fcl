@@ -169,7 +169,7 @@ Matrix3<ScalarT> Sphere<ScalarT>::computeMomentofInertia() const
 template <typename ScalarT>
 ScalarT Sphere<ScalarT>::computeVolume() const
 {
-  return 4.0 * constants::pi * radius * radius * radius / 3.0;
+  return 4.0 * constants<Scalar>::pi() * radius * radius * radius / 3.0;
 }
 
 }

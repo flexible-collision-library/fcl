@@ -38,6 +38,8 @@
 #ifndef TEST_FCL_UTILITY_H
 #define TEST_FCL_UTILITY_H
 
+#include <fstream>
+#include <iostream>
 #include "fcl/math/triangle.h"
 #include "fcl/collision_data.h"
 #include "fcl/collision_object.h"
@@ -81,37 +83,49 @@ private:
 #endif
 };
 
-
 /// @brief Load an obj mesh file
-void loadOBJFile(const char* filename, std::vector<Vector3d>& points, std::vector<Triangle>& triangles);
+template <typename Scalar>
+void loadOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles);
 
-void saveOBJFile(const char* filename, std::vector<Vector3d>& points, std::vector<Triangle>& triangles);
+template <typename Scalar>
+void saveOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles);
+
+template <typename Scalar>
+Scalar rand_interval(Scalar rmin, Scalar rmax);
+
+template <typename Scalar>
+void eulerToMatrix(Scalar a, Scalar b, Scalar c, Matrix3<Scalar>& R);
 
 /// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 
 /// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
-void generateRandomTransform(FCL_REAL extents[6], Transform3d& transform);
+template <typename Scalar>
+void generateRandomTransform(Scalar extents[6], Transform3<Scalar>& transform);
 
 /// @brief Generate n random transforms whose translations are constrained by extents.
-void generateRandomTransforms(FCL_REAL extents[6], std::vector<Transform3d>& transforms, std::size_t n);
+template <typename Scalar>
+void generateRandomTransforms(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::size_t n);
 
 /// @brief Generate n random transforms whose translations are constrained by extents. Also generate another transforms2 which have additional random translation & rotation to the transforms generated.
-void generateRandomTransforms(FCL_REAL extents[6], FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::vector<Transform3d>& transforms, std::vector<Transform3d>& transforms2, std::size_t n);
+template <typename Scalar>
+void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, std::size_t n);
 
 /// @brief Generate n random tranforms and transform2 with addtional random translation/rotation. The transforms and transform2 are used as initial and goal configurations for the first mesh. The second mesh is in I. This is used for continuous collision detection checking.
-void generateRandomTransforms_ccd(FCL_REAL extents[6], std::vector<Transform3d>& transforms, std::vector<Transform3d>& transforms2, FCL_REAL delta_trans[3], FCL_REAL delta_rot, std::size_t n,
-                                 const std::vector<Vector3d>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vector3d>& vertices2, const std::vector<Triangle>& triangles2);
-
+template <typename Scalar>
+void generateRandomTransforms_ccd(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
+                                 const std::vector<Vector3<Scalar>>& vertices1, const std::vector<Triangle>& triangles1,
+                                 const std::vector<Vector3<Scalar>>& vertices2, const std::vector<Triangle>& triangles2);
 
 /// @ brief Structure for minimum distance between two meshes and the corresponding nearest point pair
+template <typename Scalar>
 struct DistanceRes
 {
-  double distance;
-  Vector3d p1;
-  Vector3d p2;
+  Scalar distance;
+  Vector3<Scalar> p1;
+  Vector3<Scalar> p2;
 };
 
 /// @brief Collision data stores the collision request and the result given by collision algorithm. 
+template <typename Scalar>
 struct CollisionData
 {
   CollisionData()
@@ -120,10 +134,10 @@ struct CollisionData
   }
 
   /// @brief Collision request
-  CollisionRequestd request;
+  CollisionRequest<Scalar> request;
 
   /// @brief Collision result
-  CollisionResultd result;
+  CollisionResult<Scalar> result;
 
   /// @brief Whether the collision iteration can stop
   bool done;
@@ -131,6 +145,7 @@ struct CollisionData
 
 
 /// @brief Distance data stores the distance request and the result given by distance algorithm. 
+template <typename Scalar>
 struct DistanceData
 {
   DistanceData()
@@ -139,10 +154,10 @@ struct DistanceData
   }
 
   /// @brief Distance request
-  DistanceRequestd request;
+  DistanceRequest<Scalar> request;
 
   /// @brief Distance result
-  DistanceResultd result;
+  DistanceResult<Scalar> result;
 
   /// @brief Whether the distance iteration can stop
   bool done;
@@ -150,6 +165,7 @@ struct DistanceData
 };
 
 /// @brief Continuous collision data stores the continuous collision request and result given the continuous collision algorithm.
+template <typename Scalar>
 struct ContinuousCollisionData
 {
   ContinuousCollisionData()
@@ -158,36 +174,376 @@ struct ContinuousCollisionData
   }
 
   /// @brief Continuous collision request
-  ContinuousCollisionRequestd request;
+  ContinuousCollisionRequest<Scalar> request;
 
   /// @brief Continuous collision result
-  ContinuousCollisionResultd result;
+  ContinuousCollisionResult<Scalar> result;
 
   /// @brief Whether the continuous collision iteration can stop
   bool done;
 };
 
-
-
 /// @brief Default collision callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now.
-bool defaultCollisionFunction(CollisionObjectd* o1, CollisionObjectd* o2, void* cdata);
+template <typename Scalar>
+bool defaultCollisionFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_);
 
 /// @brief Default distance callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now
-bool defaultDistanceFunction(CollisionObjectd* o1, CollisionObjectd* o2, void* cdata, FCL_REAL& dist);
+template <typename Scalar>
+bool defaultDistanceFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_, Scalar& dist);
 
+template <typename Scalar>
+bool defaultContinuousCollisionFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_);
 
-
-
-
-bool defaultContinuousCollisionFunction(ContinuousCollisionObjectd* o1, ContinuousCollisionObjectd* o2, void* cdata_);
-
-bool defaultContinuousDistanceFunction(ContinuousCollisionObjectd* o1, ContinuousCollisionObjectd* o2, void* cdata_, FCL_REAL& dist);
-
+template <typename Scalar>
+bool defaultContinuousDistanceFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_, Scalar& dist);
 
 std::string getNodeTypeName(NODE_TYPE node_type);
 
 std::string getGJKSolverName(GJKSolverType solver_type);
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename Scalar>
+void loadOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles)
+{
+
+  FILE* file = fopen(filename, "rb");
+  if(!file)
+  {
+    std::cerr << "file not exist" << std::endl;
+    return;
+  }
+
+  bool has_normal = false;
+  bool has_texture = false;
+  char line_buffer[2000];
+  while(fgets(line_buffer, 2000, file))
+  {
+    char* first_token = strtok(line_buffer, "\r\n\t ");
+    if(!first_token || first_token[0] == '#' || first_token[0] == 0)
+      continue;
+
+    switch(first_token[0])
+    {
+    case 'v':
+      {
+        if(first_token[1] == 'n')
+        {
+          strtok(NULL, "\t ");
+          strtok(NULL, "\t ");
+          strtok(NULL, "\t ");
+          has_normal = true;
+        }
+        else if(first_token[1] == 't')
+        {
+          strtok(NULL, "\t ");
+          strtok(NULL, "\t ");
+          has_texture = true;
+        }
+        else
+        {
+          Scalar x = (Scalar)atof(strtok(NULL, "\t "));
+          Scalar y = (Scalar)atof(strtok(NULL, "\t "));
+          Scalar z = (Scalar)atof(strtok(NULL, "\t "));
+          Vector3<Scalar> p(x, y, z);
+          points.push_back(p);
+        }
+      }
+      break;
+    case 'f':
+      {
+        Triangle tri;
+        char* data[30];
+        int n = 0;
+        while((data[n] = strtok(NULL, "\t \r\n")) != NULL)
+        {
+          if(strlen(data[n]))
+            n++;
+        }
+
+        for(int t = 0; t < (n - 2); ++t)
+        {
+          if((!has_texture) && (!has_normal))
+          {
+            tri[0] = atoi(data[0]) - 1;
+            tri[1] = atoi(data[1]) - 1;
+            tri[2] = atoi(data[2]) - 1;
+          }
+          else
+          {
+            const char *v1;
+            for(int i = 0; i < 3; i++)
+            {
+              // vertex ID
+              if(i == 0)
+                v1 = data[0];
+              else
+                v1 = data[t + i];
+
+              tri[i] = atoi(v1) - 1;
+            }
+          }
+          triangles.push_back(tri);
+        }
+      }
+    }
+  }
 }
+
+//==============================================================================
+template <typename Scalar>
+void saveOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles)
+{
+  std::ofstream os(filename);
+  if(!os)
+  {
+    std::cerr << "file not exist" << std::endl;
+    return;
+  }
+
+  for(std::size_t i = 0; i < points.size(); ++i)
+  {
+    os << "v " << points[i][0] << " " << points[i][1] << " " << points[i][2] << std::endl;
+  }
+
+  for(std::size_t i = 0; i < triangles.size(); ++i)
+  {
+    os << "f " << triangles[i][0] + 1 << " " << triangles[i][1] + 1 << " " << triangles[i][2] + 1 << std::endl;
+  }
+
+  os.close();
+}
+
+//==============================================================================
+template <typename Scalar>
+Scalar rand_interval(Scalar rmin, Scalar rmax)
+{
+  Scalar t = rand() / ((Scalar)RAND_MAX + 1);
+  return (t * (rmax - rmin) + rmin);
+}
+
+//==============================================================================
+template <typename Scalar>
+void eulerToMatrix(Scalar a, Scalar b, Scalar c, Matrix3<Scalar>& R)
+{
+  Scalar c1 = cos(a);
+  Scalar c2 = cos(b);
+  Scalar c3 = cos(c);
+  Scalar s1 = sin(a);
+  Scalar s2 = sin(b);
+  Scalar s3 = sin(c);
+
+  R << c1 * c2, - c2 * s1, s2,
+      c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
+      s1 * s3 - c1 * c3 * s2, c3 * s1 * s2 + c1 * s3, c2 * c3;
+}
+
+//==============================================================================
+template <typename Scalar>
+void generateRandomTransform(Scalar extents[6], Transform3<Scalar>& transform)
+{
+  Scalar x = rand_interval(extents[0], extents[3]);
+  Scalar y = rand_interval(extents[1], extents[4]);
+  Scalar z = rand_interval(extents[2], extents[5]);
+
+  const Scalar pi = 3.1415926;
+  Scalar a = rand_interval(0, 2 * pi);
+  Scalar b = rand_interval(0, 2 * pi);
+  Scalar c = rand_interval(0, 2 * pi);
+
+  Matrix3<Scalar> R;
+  eulerToMatrix(a, b, c, R);
+  Vector3<Scalar> T(x, y, z);
+  transform.linear() = R;
+  transform.translation() = T;
+}
+
+//==============================================================================
+template <typename Scalar>
+void generateRandomTransforms(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::size_t n)
+{
+  transforms.resize(n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Scalar x = rand_interval(extents[0], extents[3]);
+    Scalar y = rand_interval(extents[1], extents[4]);
+    Scalar z = rand_interval(extents[2], extents[5]);
+
+    const Scalar pi = 3.1415926;
+    Scalar a = rand_interval(0, 2 * pi);
+    Scalar b = rand_interval(0, 2 * pi);
+    Scalar c = rand_interval(0, 2 * pi);
+
+    {
+      Matrix3<Scalar> R;
+      eulerToMatrix(a, b, c, R);
+      Vector3<Scalar> T(x, y, z);
+      transforms[i].setIdentity();
+      transforms[i].linear() = R;
+      transforms[i].translation() = T;
+    }
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, std::size_t n)
+{
+  transforms.resize(n);
+  transforms2.resize(n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Scalar x = rand_interval(extents[0], extents[3]);
+    Scalar y = rand_interval(extents[1], extents[4]);
+    Scalar z = rand_interval(extents[2], extents[5]);
+
+    const Scalar pi = 3.1415926;
+    Scalar a = rand_interval(0, 2 * pi);
+    Scalar b = rand_interval(0, 2 * pi);
+    Scalar c = rand_interval(0, 2 * pi);
+
+    {
+      Matrix3<Scalar> R;
+      eulerToMatrix(a, b, c, R);
+      Vector3<Scalar> T(x, y, z);
+      transforms[i].setIdentity();
+      transforms[i].linear() = R;
+      transforms[i].translation() = T;
+    }
+
+    Scalar deltax = rand_interval(-delta_trans[0], delta_trans[0]);
+    Scalar deltay = rand_interval(-delta_trans[1], delta_trans[1]);
+    Scalar deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
+
+    Scalar deltaa = rand_interval(-delta_rot, delta_rot);
+    Scalar deltab = rand_interval(-delta_rot, delta_rot);
+    Scalar deltac = rand_interval(-delta_rot, delta_rot);
+
+    {
+      Matrix3<Scalar> R;
+      eulerToMatrix(a + deltaa, b + deltab, c + deltac, R);
+      Vector3<Scalar> T(x + deltax, y + deltay, z + deltaz);
+      transforms2[i].setIdentity();
+      transforms2[i].linear() = R;
+      transforms2[i].translation() = T;
+    }
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void generateRandomTransforms_ccd(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
+                                 const std::vector<Vector3<Scalar>>& vertices1, const std::vector<Triangle>& triangles1,
+                                 const std::vector<Vector3<Scalar>>& vertices2, const std::vector<Triangle>& triangles2)
+{
+  transforms.resize(n);
+  transforms2.resize(n);
+
+  for(std::size_t i = 0; i < n;)
+  {
+    Scalar x = rand_interval(extents[0], extents[3]);
+    Scalar y = rand_interval(extents[1], extents[4]);
+    Scalar z = rand_interval(extents[2], extents[5]);
+
+    const Scalar pi = 3.1415926;
+    Scalar a = rand_interval(0, 2 * pi);
+    Scalar b = rand_interval(0, 2 * pi);
+    Scalar c = rand_interval(0, 2 * pi);
+
+
+    Matrix3<Scalar> R;
+    eulerToMatrix(a, b, c, R);
+    Vector3<Scalar> T(x, y, z);
+    Transform3<Scalar> tf(Transform3<Scalar>::Identity());
+    tf.linear() = R;
+    tf.translation() = T;
+
+    std::vector<std::pair<int, int> > results;
+    {
+      transforms[i] = tf;
+
+      Scalar deltax = rand_interval(-delta_trans[0], delta_trans[0]);
+      Scalar deltay = rand_interval(-delta_trans[1], delta_trans[1]);
+      Scalar deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
+
+      Scalar deltaa = rand_interval(-delta_rot, delta_rot);
+      Scalar deltab = rand_interval(-delta_rot, delta_rot);
+      Scalar deltac = rand_interval(-delta_rot, delta_rot);
+
+      Matrix3<Scalar> R2;
+      eulerToMatrix(a + deltaa, b + deltab, c + deltac, R2);
+      Vector3<Scalar> T2(x + deltax, y + deltay, z + deltaz);
+      transforms2[i].linear() = R2;
+      transforms2[i].translation() = T2;
+      ++i;
+    }
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+bool defaultCollisionFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_)
+{
+  auto* cdata = static_cast<CollisionData<Scalar>*>(cdata_);
+  const auto& request = cdata->request;
+  auto& result = cdata->result;
+
+  if(cdata->done) return true;
+
+  collide(o1, o2, request, result);
+
+  if(!request.enable_cost && (result.isCollision()) && (result.numContacts() >= request.num_max_contacts))
+    cdata->done = true;
+
+  return cdata->done;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool defaultDistanceFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_, Scalar& dist)
+{
+  auto* cdata = static_cast<DistanceData<Scalar>*>(cdata_);
+  const DistanceRequest<Scalar>& request = cdata->request;
+  DistanceResult<Scalar>& result = cdata->result;
+
+  if(cdata->done) { dist = result.min_distance; return true; }
+
+  distance(o1, o2, request, result);
+
+  dist = result.min_distance;
+
+  if(dist <= 0) return true; // in collision or in touch
+
+  return cdata->done;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool defaultContinuousCollisionFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_)
+{
+  auto* cdata = static_cast<ContinuousCollisionData<Scalar>*>(cdata_);
+  const ContinuousCollisionRequest<Scalar>& request = cdata->request;
+  ContinuousCollisionResult<Scalar>& result = cdata->result;
+
+  if(cdata->done) return true;
+
+  collide(o1, o2, request, result);
+
+  return cdata->done;
+}
+
+//==============================================================================
+template <typename Scalar>
+bool defaultContinuousDistanceFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_, Scalar& dist)
+{
+  return true;
+}
+
+} // namespace fcl
 
 #endif

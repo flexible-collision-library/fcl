@@ -90,34 +90,34 @@ template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, AABBd, Box<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBBd, Box<ScalarT>>;
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Box<ScalarT>>;
 
 template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, AABBd, Box<ScalarT>>
 {
   void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
-    const Matrix3d& R = tf.linear();
-    const Vector3d& T = tf.translation();
+    const Matrix3<ScalarT>& R = tf.linear();
+    const Vector3<ScalarT>& T = tf.translation();
 
-    FCL_REAL x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
-    FCL_REAL y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
-    FCL_REAL z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
+    ScalarT x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
+    ScalarT y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
+    ScalarT z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
 
-    Vector3d v_delta(x_range, y_range, z_range);
+    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
     bv.max_ = T + v_delta;
     bv.min_ = T - v_delta;
   }
 };
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBBd, Box<ScalarT>>
+struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Box<ScalarT>>
 {
-  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, OBBd& bv)
+  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
     bv.To = tf.translation();
     bv.axis = tf.linear();
-    bv.extent = s.side * (FCL_REAL)0.5;
+    bv.extent = s.side * (ScalarT)0.5;
   }
 };
 

@@ -50,6 +50,8 @@ class ShapeMeshCollisionTraversalNode
     : public ShapeBVHCollisionTraversalNode<S, BV>
 {
 public:
+  using Scalar = typename BV::Scalar;
+
   ShapeMeshCollisionTraversalNode();
 
   /// @brief Intersection testing between leaves (one shape and one triangle)
@@ -58,10 +60,10 @@ public:
   /// @brief Whether the traversal process can stop early
   bool canStop() const;
 
-  Vector3d* vertices;
+  Vector3<Scalar>* vertices;
   Triangle* tri_indices;
 
-  FCL_REAL cost_density;
+  Scalar cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };
@@ -215,9 +217,9 @@ void ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>::leafTesting(int 
 
   const Triangle& tri_id = tri_indices[primitive_id];
 
-  const Vector3d& p1 = vertices[tri_id[0]];
-  const Vector3d& p2 = vertices[tri_id[1]];
-  const Vector3d& p3 = vertices[tri_id[2]];
+  const Vector3<Scalar>& p1 = vertices[tri_id[0]];
+  const Vector3<Scalar>& p2 = vertices[tri_id[1]];
+  const Vector3<Scalar>& p3 = vertices[tri_id[2]];
 
   if(this->model1->isOccupied() && this->model2->isOccupied())
   {
@@ -234,9 +236,9 @@ void ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>::leafTesting(int 
     }
     else
     {
-      FCL_REAL penetration;
-      Vector3d normal;
-      Vector3d contactp;
+      Scalar penetration;
+      Vector3<Scalar> normal;
+      Vector3<Scalar> contactp;
 
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
       {
@@ -289,16 +291,18 @@ bool initialize(
     bool use_refit,
     bool refit_bottomup)
 {
+  using Scalar = typename BV::Scalar;
+
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf2.matrix().isIdentity())
   {
-    std::vector<Vector3d> vertices_transformed(model2.num_vertices);
+    std::vector<Vector3<Scalar>> vertices_transformed(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vector3d& p = model2.vertices[i];
-      Vector3d new_v = tf2 * p;
+      Vector3<Scalar>& p = model2.vertices[i];
+      Vector3<Scalar> new_v = tf2 * p;
       vertices_transformed[i] = new_v;
     }
 

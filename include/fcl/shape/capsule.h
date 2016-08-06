@@ -62,7 +62,7 @@ public:
   /// @brief Length along z axis 
   ScalarT lz;
 
-  /// @brief Compute AABBd
+  /// @brief Compute AABB<ScalarT>
   void computeLocalAABB() override;
 
   /// @brief Get node type: a capsule 
@@ -138,24 +138,24 @@ using Capsulef = Capsule<float>;
 using Capsuled = Capsule<double>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Capsule<ScalarT>>;
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Capsule<ScalarT>>;
 
 template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Capsule<ScalarT>>
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Capsule<ScalarT>>
 {
-  void operator()(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
+  void operator()(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
   {
-    const Matrix3d& R = tf.linear();
-    const Vector3d& T = tf.translation();
+    const Matrix3<ScalarT>& R = tf.linear();
+    const Vector3<ScalarT>& T = tf.translation();
 
-    FCL_REAL x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
-    FCL_REAL y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
-    FCL_REAL z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
+    ScalarT x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
+    ScalarT y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
+    ScalarT z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
 
-    Vector3d v_delta(x_range, y_range, z_range);
+    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
     bv.max_ = T + v_delta;
     bv.min_ = T - v_delta;
   }
@@ -181,7 +181,7 @@ struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>
 //==============================================================================
 template <typename ScalarT>
 Capsule<ScalarT>::Capsule(ScalarT radius, ScalarT lz)
-  : ShapeBased(), radius(radius), lz(lz)
+  : ShapeBase<ScalarT>(), radius(radius), lz(lz)
 {
   // Do nothing
 }
@@ -190,7 +190,7 @@ Capsule<ScalarT>::Capsule(ScalarT radius, ScalarT lz)
 template <typename ScalarT>
 void Capsule<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -206,15 +206,15 @@ NODE_TYPE Capsule<ScalarT>::getNodeType() const
 template <typename ScalarT>
 ScalarT Capsule<ScalarT>::computeVolume() const
 {
-  return constants::pi * radius * radius *(lz + radius * 4/3.0);
+  return constants<Scalar>::pi() * radius * radius *(lz + radius * 4/3.0);
 }
 
 //==============================================================================
 template <typename ScalarT>
 Matrix3<ScalarT> Capsule<ScalarT>::computeMomentofInertia() const
 {
-  ScalarT v_cyl = radius * radius * lz * constants::pi;
-  ScalarT v_sph = radius * radius * radius * constants::pi * 4 / 3.0;
+  ScalarT v_cyl = radius * radius * lz * constants<Scalar>::pi();
+  ScalarT v_sph = radius * radius * radius * constants<Scalar>::pi() * 4 / 3.0;
 
   ScalarT ix = v_cyl * lz * lz / 12.0 + 0.25 * v_cyl * radius + 0.4 * v_sph * radius * radius + 0.25 * v_sph * lz * lz;
   ScalarT iz = (0.5 * v_cyl + 0.4 * v_sph) * radius * radius;

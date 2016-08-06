@@ -575,8 +575,8 @@ void generateTaylorModelForCosFunc(TaylorModel<Scalar>& tm, Scalar w, Scalar q0)
     // cos reaches maximum if there exists an integer k in [(w*t0+q0)/2pi, (w*t1+q0)/2pi];
     // cos reaches minimum if there exists an integer k in [(w*t0+q0-pi)/2pi, (w*t1+q0-pi)/2pi]
 
-    Scalar k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * constants::pi);
-    Scalar k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * constants::pi);
+    Scalar k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * constants<Scalar>::pi());
+    Scalar k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * constants<Scalar>::pi());
 
 
     if(w > 0)
@@ -648,8 +648,8 @@ void generateTaylorModelForSinFunc(TaylorModel<Scalar>& tm, Scalar w, Scalar q0)
     // sin reaches maximum if there exists an integer k in [(w*t0+q0-pi/2)/2pi, (w*t1+q0-pi/2)/2pi];
     // sin reaches minimum if there exists an integer k in [(w*t0+q0-pi-pi/2)/2pi, (w*t1+q0-pi-pi/2)/2pi]
 
-    Scalar k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * constants::pi) - 0.25;
-    Scalar k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * constants::pi) - 0.25;
+    Scalar k1 = (tm.getTimeInterval()->t_[0] * w + q0) / (2 * constants<Scalar>::pi()) - 0.25;
+    Scalar k2 = (tm.getTimeInterval()->t_[1] * w + q0) / (2 * constants<Scalar>::pi()) - 0.25;
 
     if(w > 0)
     {

@@ -48,24 +48,26 @@ class ShapeConservativeAdvancementTraversalNode
     : public ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>
 {
 public:
+  using Scalar = typename NarrowPhaseSolver::Scalar;
+
   ShapeConservativeAdvancementTraversalNode();
 
   void leafTesting(int, int) const;
 
-  mutable FCL_REAL min_distance;
+  mutable Scalar min_distance;
 
   /// @brief The time from beginning point
-  FCL_REAL toc;
-  FCL_REAL t_err;
+  Scalar toc;
+  Scalar t_err;
 
   /// @brief The delta_t each step
-  mutable FCL_REAL delta_t;
+  mutable Scalar delta_t;
 
   /// @brief Motions for the two objects in query
-  const MotionBased* motion1;
-  const MotionBased* motion2;
+  const MotionBase<Scalar>* motion1;
+  const MotionBase<Scalar>* motion2;
 
-  RSSd model1_bv, model2_bv; // local bv for the two shapes
+  RSS<Scalar> model1_bv, model2_bv; // local bv for the two shapes
 };
 
 template <typename S1, typename S2, typename NarrowPhaseSolver>
@@ -91,7 +93,7 @@ ShapeConservativeAdvancementTraversalNode()
 {
   delta_t = 1;
   toc = 0;
-  t_err = (FCL_REAL)0.0001;
+  t_err = (Scalar)0.0001;
 
   motion1 = NULL;
   motion2 = NULL;
@@ -102,20 +104,20 @@ template <typename S1, typename S2, typename NarrowPhaseSolver>
 void ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
-  FCL_REAL distance;
-  Vector3d closest_p1, closest_p2;
+  Scalar distance;
+  Vector3<Scalar> closest_p1, closest_p2;
   this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
 
-  Vector3d n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
+  Vector3<Scalar> n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
   n.normalize();
-  TBVMotionBoundVisitor<RSSd> mb_visitor1(model1_bv, n);
-  TBVMotionBoundVisitor<RSSd> mb_visitor2(model2_bv, -n);
-  FCL_REAL bound1 = motion1->computeMotionBound(mb_visitor1);
-  FCL_REAL bound2 = motion2->computeMotionBound(mb_visitor2);
+  TBVMotionBoundVisitor<RSS<Scalar>> mb_visitor1(model1_bv, n);
+  TBVMotionBoundVisitor<RSS<Scalar>> mb_visitor2(model2_bv, -n);
+  Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
+  Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
 
-  FCL_REAL bound = bound1 + bound2;
+  Scalar bound = bound1 + bound2;
 
-  FCL_REAL cur_delta_t;
+  Scalar cur_delta_t;
   if(bound <= distance) cur_delta_t = 1;
   else cur_delta_t = distance / bound;
 
@@ -133,7 +135,7 @@ bool initialize(
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver)
 {
-  using Scalar = typename S1::Scalar;
+  using Scalar = typename NarrowPhaseSolver::Scalar;
 
   node.model1 = &shape1;
   node.tf1 = tf1;
@@ -141,14 +143,14 @@ bool initialize(
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  computeBV<Scalar, RSS<typename NarrowPhaseSolver::Scalar>, S1>(
+  computeBV<Scalar, RSS<Scalar>, S1>(
         shape1,
-        Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
+        Transform3<Scalar>::Identity(),
         node.model1_bv);
 
-  computeBV<Scalar, RSS<typename NarrowPhaseSolver::Scalar>, S2>(
+  computeBV<Scalar, RSS<Scalar>, S2>(
         shape2,
-        Transform3<typename NarrowPhaseSolver::Scalar>::Identity(),
+        Transform3<Scalar>::Identity(),
         node.model2_bv);
 
   return true;

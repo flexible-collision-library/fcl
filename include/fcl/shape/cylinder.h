@@ -116,14 +116,14 @@ struct ComputeBVImpl<ScalarT, AABBd, Cylinder<ScalarT>>
 {
   void operator()(const Cylinder<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
   {
-    const Matrix3d& R = tf.linear();
-    const Vector3d& T = tf.translation();
+    const Matrix3<ScalarT>& R = tf.linear();
+    const Vector3<ScalarT>& T = tf.translation();
 
-    FCL_REAL x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
-    FCL_REAL y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
-    FCL_REAL z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
+    ScalarT x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
+    ScalarT y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
+    ScalarT z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
-    Vector3d v_delta(x_range, y_range, z_range);
+    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
     bv.max_ = T + v_delta;
     bv.min_ = T - v_delta;
   }
@@ -174,7 +174,7 @@ NODE_TYPE Cylinder<ScalarT>::getNodeType() const
 template <typename ScalarT>
 ScalarT Cylinder<ScalarT>::computeVolume() const
 {
-  return constants::pi * radius * radius * lz;
+  return constants<Scalar>::pi() * radius * radius * lz;
 }
 
 //==============================================================================

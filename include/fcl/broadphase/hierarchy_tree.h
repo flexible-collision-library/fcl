@@ -1102,7 +1102,7 @@ void HierarchyTree<BV>::init_1(std::vector<NodeType*>& leaves)
   for(size_t i = 1; i < leaves.size(); ++i)
     bound_bv += leaves[i]->bv;
 
-  morton_functor<FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < leaves.size(); ++i)
     leaves[i]->code = coder(leaves[i]->bv.center());
 
@@ -1127,7 +1127,7 @@ void HierarchyTree<BV>::init_2(std::vector<NodeType*>& leaves)
   for(size_t i = 1; i < leaves.size(); ++i)
     bound_bv += leaves[i]->bv;
 
-  morton_functor<FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < leaves.size(); ++i)
     leaves[i]->code = coder(leaves[i]->bv.center());
 
@@ -1152,7 +1152,7 @@ void HierarchyTree<BV>::init_3(std::vector<NodeType*>& leaves)
   for(size_t i = 1; i < leaves.size(); ++i)
     bound_bv += leaves[i]->bv;
 
-  morton_functor<FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < leaves.size(); ++i)
     leaves[i]->code = coder(leaves[i]->bv.center());
 
@@ -1644,7 +1644,7 @@ void HierarchyTree<BV>::init_1(NodeType* leaves, int n_leaves_)
   for(size_t i = 1; i < n_leaves; ++i)
     bound_bv += nodes[i].bv;
 
-  morton_functor<FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < n_leaves; ++i)
     nodes[i].code = coder(nodes[i].bv.center());
 
@@ -1690,7 +1690,7 @@ void HierarchyTree<BV>::init_2(NodeType* leaves, int n_leaves_)
   for(size_t i = 1; i < n_leaves; ++i)
     bound_bv += nodes[i].bv;
 
-  morton_functor<FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < n_leaves; ++i)
     nodes[i].code = coder(nodes[i].bv.center());
 
@@ -1736,7 +1736,7 @@ void HierarchyTree<BV>::init_3(NodeType* leaves, int n_leaves_)
   for(size_t i = 1; i < n_leaves; ++i)
     bound_bv += nodes[i].bv;
 
-  morton_functor<FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < n_leaves; ++i)
     nodes[i].code = coder(nodes[i].bv.center());
 

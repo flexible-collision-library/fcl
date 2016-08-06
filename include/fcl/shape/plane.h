@@ -70,7 +70,7 @@ public:
 
   ScalarT distance(const Vector3<ScalarT>& p) const;
 
-  /// @brief Compute AABBd 
+  /// @brief Compute AABB
   void computeLocalAABB() override;
 
   /// @brief Get node type: a plane 
@@ -107,54 +107,54 @@ Plane<ScalarT> transform(const Plane<ScalarT>& a, const Transform3<ScalarT>& tf)
 }
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Plane<ScalarT>>;
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Plane<ScalarT>>;
 
 template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Plane<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, RSSd, Plane<ScalarT>>;
+struct ComputeBVImpl<ScalarT, RSS<ScalarT>, Plane<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBBRSSd, Plane<ScalarT>>;
+struct ComputeBVImpl<ScalarT, OBBRSS<ScalarT>, Plane<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, kIOSd, Plane<ScalarT>>;
+struct ComputeBVImpl<ScalarT, kIOS<ScalarT>, Plane<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, KDOPd<16>, Plane<ScalarT>>;
+struct ComputeBVImpl<ScalarT, KDOP<ScalarT, 16>, Plane<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, KDOPd<18>, Plane<ScalarT>>;
+struct ComputeBVImpl<ScalarT, KDOP<ScalarT, 18>, Plane<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, KDOPd<24>, Plane<ScalarT>>;
+struct ComputeBVImpl<ScalarT, KDOP<ScalarT, 24>, Plane<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Plane<ScalarT>>
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Plane<ScalarT>>
 {
-  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
   {
     Plane<ScalarT> new_s = transform(s, tf);
-    const Vector3d& n = new_s.n;
-    const FCL_REAL& d = new_s.d;
+    const Vector3<ScalarT>& n = new_s.n;
+    const ScalarT& d = new_s.d;
 
-    AABBd bv_;
-    bv_.min_ = Vector3d::Constant(-std::numeric_limits<FCL_REAL>::max());
-    bv_.max_ = Vector3d::Constant(std::numeric_limits<FCL_REAL>::max());
-    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    AABB<ScalarT> bv_;
+    bv_.min_ = Vector3<ScalarT>::Constant(-std::numeric_limits<ScalarT>::max());
+    bv_.max_ = Vector3<ScalarT>::Constant(std::numeric_limits<ScalarT>::max());
+    if(n[1] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       // normal aligned with x axis
       if(n[0] < 0) { bv_.min_[0] = bv_.max_[0] = -d; }
       else if(n[0] > 0) { bv_.min_[0] = bv_.max_[0] = d; }
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       // normal aligned with y axis
       if(n[1] < 0) { bv_.min_[1] = bv_.max_[1] = -d; }
       else if(n[1] > 0) { bv_.min_[1] = bv_.max_[1] = d; }
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[1] == (ScalarT)0.0)
     {
       // normal aligned with z axis
       if(n[2] < 0) { bv_.min_[2] = bv_.max_[2] = -d; }
@@ -170,107 +170,107 @@ struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Plane<ScalarT>>
 {
   void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    Vector3d n = tf.linear() * s.n;
+    Vector3<ScalarT> n = tf.linear() * s.n;
     bv.axis.col(0) = n;
     generateCoordinateSystem(bv.axis);
 
-    bv.extent << 0, std::numeric_limits<FCL_REAL>::max(), std::numeric_limits<FCL_REAL>::max();
+    bv.extent << 0, std::numeric_limits<ScalarT>::max(), std::numeric_limits<ScalarT>::max();
 
-    Vector3d p = s.n * s.d;
+    Vector3<ScalarT> p = s.n * s.d;
     bv.To = tf * p; /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
   }
 };
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, RSSd, Plane<ScalarT>>
+struct ComputeBVImpl<ScalarT, RSS<ScalarT>, Plane<ScalarT>>
 {
-  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, RSSd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, RSS<ScalarT>& bv)
   {
-    Vector3d n = tf.linear() * s.n;
+    Vector3<ScalarT> n = tf.linear() * s.n;
 
     bv.axis.col(0) = n;
     generateCoordinateSystem(bv.axis);
 
-    bv.l[0] = std::numeric_limits<FCL_REAL>::max();
-    bv.l[1] = std::numeric_limits<FCL_REAL>::max();
+    bv.l[0] = std::numeric_limits<ScalarT>::max();
+    bv.l[1] = std::numeric_limits<ScalarT>::max();
 
     bv.r = 0;
 
-    Vector3d p = s.n * s.d;
+    Vector3<ScalarT> p = s.n * s.d;
     bv.Tr = tf * p;
   }
 };
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, OBBRSSd, Plane<ScalarT>>
+struct ComputeBVImpl<ScalarT, OBBRSS<ScalarT>, Plane<ScalarT>>
 {
-  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, OBBRSSd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, OBBRSS<ScalarT>& bv)
   {
     computeBV<ScalarT, OBB<ScalarT>, Plane<ScalarT>>(s, tf, bv.obb);
-    computeBV<ScalarT, RSSd, Plane<ScalarT>>(s, tf, bv.rss);
+    computeBV<ScalarT, RSS<ScalarT>, Plane<ScalarT>>(s, tf, bv.rss);
   }
 };
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, kIOSd, Plane<ScalarT>>
+struct ComputeBVImpl<ScalarT, kIOS<ScalarT>, Plane<ScalarT>>
 {
-  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, kIOSd& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, kIOS<ScalarT>& bv)
   {
     bv.num_spheres = 1;
     computeBV<ScalarT, OBB<ScalarT>, Plane<ScalarT>>(s, tf, bv.obb);
     bv.spheres[0].o.setZero();
-    bv.spheres[0].r = std::numeric_limits<FCL_REAL>::max();
+    bv.spheres[0].r = std::numeric_limits<ScalarT>::max();
   }
 };
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, KDOPd<16>, Plane<ScalarT>>
+struct ComputeBVImpl<ScalarT, KDOP<ScalarT, 16>, Plane<ScalarT>>
 {
-  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<16>& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOP<ScalarT, 16>& bv)
   {
     Plane<ScalarT> new_s = transform(s, tf);
-    const Vector3d& n = new_s.n;
-    const FCL_REAL& d = new_s.d;
+    const Vector3<ScalarT>& n = new_s.n;
+    const ScalarT& d = new_s.d;
 
     const std::size_t D = 8;
 
     for(std::size_t i = 0; i < D; ++i)
-      bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+      bv.dist(i) = -std::numeric_limits<ScalarT>::max();
     for(std::size_t i = D; i < 2 * D; ++i)
-      bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+      bv.dist(i) = std::numeric_limits<ScalarT>::max();
 
-    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    if(n[1] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
       else bv.dist(0) = bv.dist(D) = -d;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
       else bv.dist(1) = bv.dist(D + 1) = -d;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[1] == (ScalarT)0.0)
     {
       if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
       else bv.dist(2) = bv.dist(D + 2) = -d;
     }
-    else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+    else if(n[2] == (ScalarT)0.0 && n[0] == n[1])
     {
       bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
     }
-    else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+    else if(n[1] == (ScalarT)0.0 && n[0] == n[2])
     {
       bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+    else if(n[0] == (ScalarT)0.0 && n[1] == n[2])
     {
       bv.dist(6) = bv.dist(D + 5) = n[1] * d * 2;
     }
-    else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    else if(n[2] == (ScalarT)0.0 && n[0] + n[1] == (ScalarT)0.0)
     {
       bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
     }
-    else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    else if(n[1] == (ScalarT)0.0 && n[0] + n[2] == (ScalarT)0.0)
     {
       bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
     }
@@ -278,57 +278,57 @@ struct ComputeBVImpl<ScalarT, KDOPd<16>, Plane<ScalarT>>
 };
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, KDOPd<18>, Plane<ScalarT>>
+struct ComputeBVImpl<ScalarT, KDOP<ScalarT, 18>, Plane<ScalarT>>
 {
-  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<18>& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOP<ScalarT, 18>& bv)
   {
     Plane<ScalarT> new_s = transform(s, tf);
-    const Vector3d& n = new_s.n;
-    const FCL_REAL& d = new_s.d;
+    const Vector3<ScalarT>& n = new_s.n;
+    const ScalarT& d = new_s.d;
 
     const std::size_t D = 9;
 
     for(std::size_t i = 0; i < D; ++i)
-      bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+      bv.dist(i) = -std::numeric_limits<ScalarT>::max();
     for(std::size_t i = D; i < 2 * D; ++i)
-      bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+      bv.dist(i) = std::numeric_limits<ScalarT>::max();
 
-    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    if(n[1] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
       else bv.dist(0) = bv.dist(D) = -d;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
       else bv.dist(1) = bv.dist(D + 1) = -d;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[1] == (ScalarT)0.0)
     {
       if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
       else bv.dist(2) = bv.dist(D + 2) = -d;
     }
-    else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+    else if(n[2] == (ScalarT)0.0 && n[0] == n[1])
     {
       bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
     }
-    else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+    else if(n[1] == (ScalarT)0.0 && n[0] == n[2])
     {
       bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+    else if(n[0] == (ScalarT)0.0 && n[1] == n[2])
     {
       bv.dist(5) = bv.dist(D + 5) = n[1] * d * 2;
     }
-    else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    else if(n[2] == (ScalarT)0.0 && n[0] + n[1] == (ScalarT)0.0)
     {
       bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
     }
-    else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    else if(n[1] == (ScalarT)0.0 && n[0] + n[2] == (ScalarT)0.0)
     {
       bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[1] + n[2] == (ScalarT)0.0)
     {
       bv.dist(8) = bv.dist(D + 8) = n[1] * d * 2;
     }
@@ -336,69 +336,69 @@ struct ComputeBVImpl<ScalarT, KDOPd<18>, Plane<ScalarT>>
 };
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, KDOPd<24>, Plane<ScalarT>>
+struct ComputeBVImpl<ScalarT, KDOP<ScalarT, 24>, Plane<ScalarT>>
 {
-  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOPd<24>& bv)
+  void operator()(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, KDOP<ScalarT, 24>& bv)
   {
     Plane<ScalarT> new_s = transform(s, tf);
-    const Vector3d& n = new_s.n;
-    const FCL_REAL& d = new_s.d;
+    const Vector3<ScalarT>& n = new_s.n;
+    const ScalarT& d = new_s.d;
 
     const std::size_t D = 12;
 
     for(std::size_t i = 0; i < D; ++i)
-      bv.dist(i) = -std::numeric_limits<FCL_REAL>::max();
+      bv.dist(i) = -std::numeric_limits<ScalarT>::max();
     for(std::size_t i = D; i < 2 * D; ++i)
-      bv.dist(i) = std::numeric_limits<FCL_REAL>::max();
+      bv.dist(i) = std::numeric_limits<ScalarT>::max();
 
-    if(n[1] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    if(n[1] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       if(n[0] > 0) bv.dist(0) = bv.dist(D) = d;
       else bv.dist(0) = bv.dist(D) = -d;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[2] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[2] == (ScalarT)0.0)
     {
       if(n[1] > 0) bv.dist(1) = bv.dist(D + 1) = d;
       else bv.dist(1) = bv.dist(D + 1) = -d;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[1] == (ScalarT)0.0)
     {
       if(n[2] > 0) bv.dist(2) = bv.dist(D + 2) = d;
       else bv.dist(2) = bv.dist(D + 2) = -d;
     }
-    else if(n[2] == (FCL_REAL)0.0 && n[0] == n[1])
+    else if(n[2] == (ScalarT)0.0 && n[0] == n[1])
     {
       bv.dist(3) = bv.dist(D + 3) = n[0] * d * 2;
     }
-    else if(n[1] == (FCL_REAL)0.0 && n[0] == n[2])
+    else if(n[1] == (ScalarT)0.0 && n[0] == n[2])
     {
       bv.dist(4) = bv.dist(D + 4) = n[0] * d * 2;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] == n[2])
+    else if(n[0] == (ScalarT)0.0 && n[1] == n[2])
     {
       bv.dist(5) = bv.dist(D + 5) = n[1] * d * 2;
     }
-    else if(n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    else if(n[2] == (ScalarT)0.0 && n[0] + n[1] == (ScalarT)0.0)
     {
       bv.dist(6) = bv.dist(D + 6) = n[0] * d * 2;
     }
-    else if(n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    else if(n[1] == (ScalarT)0.0 && n[0] + n[2] == (ScalarT)0.0)
     {
       bv.dist(7) = bv.dist(D + 7) = n[0] * d * 2;
     }
-    else if(n[0] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+    else if(n[0] == (ScalarT)0.0 && n[1] + n[2] == (ScalarT)0.0)
     {
       bv.dist(8) = bv.dist(D + 8) = n[1] * d * 2;
     }
-    else if(n[0] + n[2] == (FCL_REAL)0.0 && n[0] + n[1] == (FCL_REAL)0.0)
+    else if(n[0] + n[2] == (ScalarT)0.0 && n[0] + n[1] == (ScalarT)0.0)
     {
       bv.dist(9) = bv.dist(D + 9) = n[0] * d * 3;
     }
-    else if(n[0] + n[1] == (FCL_REAL)0.0 && n[1] + n[2] == (FCL_REAL)0.0)
+    else if(n[0] + n[1] == (ScalarT)0.0 && n[1] + n[2] == (ScalarT)0.0)
     {
       bv.dist(10) = bv.dist(D + 10) = n[0] * d * 3;
     }
-    else if(n[0] + n[1] == (FCL_REAL)0.0 && n[0] + n[2] == (FCL_REAL)0.0)
+    else if(n[0] + n[1] == (ScalarT)0.0 && n[0] + n[2] == (ScalarT)0.0)
     {
       bv.dist(11) = bv.dist(D + 11) = n[1] * d * 3;
     }
@@ -452,7 +452,7 @@ ScalarT Plane<ScalarT>::distance(const Vector3<ScalarT>& p) const
 template <typename ScalarT>
 void Plane<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABBd>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -482,7 +482,6 @@ void Plane<ScalarT>::unitNormalTest()
   }
 }
 
-
-}
+} // namespace fcl
 
 #endif

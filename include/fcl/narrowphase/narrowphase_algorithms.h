@@ -91,13 +91,13 @@ Scalar closestPtSegmentSegment(
     // First segment degenerates into a point
     s = 0.0;
     t = f / e; // s = 0 => t = (b*s + f) / e = f / e
-    t = clamp(t, 0.0, 1.0);
+    t = clamp(t, (Scalar)0.0, (Scalar)1.0);
   } else {
     Scalar c = d1.dot(r);
     if (e <= EPSILON) {
 // Second segment degenerates into a point
 t = 0.0;
-s = clamp(-c / a, 0.0, 1.0); // t = 0 => s = (b*t - c) / a = -c / a
+s = clamp(-c / a, (Scalar)0.0, (Scalar)1.0); // t = 0 => s = (b*t - c) / a = -c / a
     } else {
 // The general nondegenerate case starts here
 Scalar b = d1.dot(d2);
@@ -106,7 +106,7 @@ Scalar denom = a*e-b*b; // Always nonnegative
 // clamp to segment S1. Else pick arbitrary s (here 0)
 if (denom != 0.0) {
   std::cerr << "denominator equals zero, using 0 as reference" << std::endl;
-  s = clamp((b*f - c*e) / denom, 0.0, 1.0);
+  s = clamp((b*f - c*e) / denom, (Scalar)0.0, (Scalar)1.0);
 } else s = 0.0;
 // Compute point on L2 closest to S1(s) using
 // t = Dot((P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e
@@ -118,10 +118,10 @@ t = (b*s + f) / e;
 //and clamp s to [0, 1]
 if(t < 0.0) {
   t = 0.0;
-  s = clamp(-c / a, 0.0, 1.0);
+  s = clamp(-c / a, (Scalar)0.0, (Scalar)1.0);
 } else if (t > 1.0) {
   t = 1.0;
-  s = clamp((b - c) / a, 0.0, 1.0);
+  s = clamp((b - c) / a, (Scalar)0.0, (Scalar)1.0);
 }
     }
   }
@@ -148,10 +148,10 @@ bool capsuleCapsuleDistance(const Capsule<Scalar>& s1, const Transform3<Scalar>&
 
   // line segment composes two points. First point is given by the origin, second point is computed by the origin transformed along z.
   // extension along z-axis means transformation with identity matrix and translation vector z pos
-  Transform3<Scalar> transformQ1 = tf1 * Eigen::Translation3d(Vector3<Scalar>(0,0,s1.lz));
+  Transform3<Scalar> transformQ1 = tf1 * Translation3<Scalar>(Vector3<Scalar>(0,0,s1.lz));
   Vector3<Scalar> q1 = transformQ1.translation();
 
-  Transform3<Scalar> transformQ2 = tf2 * Eigen::Translation3d(Vector3<Scalar>(0,0,s2.lz));
+  Transform3<Scalar> transformQ2 = tf2 * Translation3<Scalar>(Vector3<Scalar>(0,0,s2.lz));
   Vector3<Scalar> q2 = transformQ2.translation();
 
   // s and t correspont to the length of the line segment
@@ -893,7 +893,7 @@ static inline void cullPoints2(int n, Scalar p[], int m, int i0, int iret[])
   avail[i0] = 0;
   iret[0] = i0;
   iret++;
-  const Scalar pi = constants::pi;
+  const Scalar pi = constants<Scalar>::pi();
   for(int j = 1; j < m; ++j)
   {
     a = j*(2*pi/m) + A[i0];
