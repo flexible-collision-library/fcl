@@ -136,7 +136,7 @@ struct Contact
 using Contactf = Contact<float>;
 using Contactd = Contact<double>;
 
-/// @brief Cost source describes an area with a cost. The area is described by an AABBd region.
+/// @brief Cost source describes an area with a cost. The area is described by an AABB<Scalar> region.
 template <typename Scalar>
 struct CostSource
 {
@@ -146,14 +146,14 @@ struct CostSource
   /// @brief aabb upper bound
   Vector3<Scalar> aabb_max;
 
-  /// @brief cost density in the AABBd region
+  /// @brief cost density in the AABB<Scalar> region
   Scalar cost_density;
 
   Scalar total_cost;
 
   CostSource(const Vector3<Scalar>& aabb_min_, const Vector3<Scalar>& aabb_max_, Scalar cost_density_);
 
-  CostSource(const AABBd& aabb, Scalar cost_density_);
+  CostSource(const AABB<Scalar>& aabb, Scalar cost_density_);
 
   CostSource();
 
@@ -501,7 +501,7 @@ CostSource<Scalar>::CostSource(const Vector3<Scalar>& aabb_min_, const Vector3<S
 
 //==============================================================================
 template <typename Scalar>
-CostSource<Scalar>::CostSource(const AABBd& aabb, Scalar cost_density_) : aabb_min(aabb.min_),
+CostSource<Scalar>::CostSource(const AABB<Scalar>& aabb, Scalar cost_density_) : aabb_min(aabb.min_),
   aabb_max(aabb.max_),
   cost_density(cost_density_)
 {

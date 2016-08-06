@@ -41,73 +41,16 @@
 
 using namespace fcl;
 
-GTEST_TEST(FCL_MATH, vec_test_basic_vec32)
+template <typename Scalar>
+void test_vec_test_basic_vector()
 {
-  using Vec3f32 = Vector3<float>;
+  Vector3<Scalar> v1(1.0, 2.0, 3.0);
+  EXPECT_TRUE(v1[0] == (Scalar)1.0);
+  EXPECT_TRUE(v1[1] == (Scalar)2.0);
+  EXPECT_TRUE(v1[2] == (Scalar)3.0);
 
-  Vec3f32 v1(1.0f, 2.0f, 3.0f);
-  EXPECT_TRUE(v1[0] == 1.0f);
-  EXPECT_TRUE(v1[1] == 2.0f);
-  EXPECT_TRUE(v1[2] == 3.0f);
-
-  Vec3f32 v2 = v1;
-  Vec3f32 v3(3.3f, 4.3f, 5.3f);
-  v1 += v3;
-  EXPECT_TRUE(v1.isApprox(v2 + v3));
-  v1 -= v3;
-  EXPECT_TRUE(v1.isApprox(v2));
-  v1 -= v3;
-  EXPECT_TRUE(v1.isApprox(v2 - v3));
-  v1 += v3;
-
-  v1.array() *= v3.array();
-  EXPECT_TRUE(v1.array().isApprox(v2.array() * v3.array()));
-  v1.array() /= v3.array();
-  EXPECT_TRUE(v1.isApprox(v2));
-  v1.array() /= v3.array();
-  EXPECT_TRUE(v1.array().isApprox(v2.array() / v3.array()));
-  v1.array() *= v3.array();
-
-  v1 *= 2.0f;
-  EXPECT_TRUE(v1.isApprox(v2 * 2.0f));
-  v1 /= 2.0f;
-  EXPECT_TRUE(v1.isApprox(v2));
-  v1 /= 2.0f;
-  EXPECT_TRUE(v1.isApprox(v2 / 2.0f));
-  v1 *= 2.0f;
-
-  v1.array() += 2.0f;
-  EXPECT_TRUE(v1.array().isApprox(v2.array() + 2.0f));
-  v1.array() -= 2.0f;
-  EXPECT_TRUE(v1.isApprox(v2));
-  v1.array() -= 2.0f;
-  EXPECT_TRUE(v1.array().isApprox(v2.array() - 2.0f));
-  v1.array() += 2.0f;
-
-  EXPECT_TRUE((-Vec3f32(1.0f, 2.0f, 3.0f)).isApprox(Vec3f32(-1.0f, -2.0f, -3.0f)));
-
-  v1 = Vec3f32(1.0f, 2.0f, 3.0f);
-  v2 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE((v1.cross(v2)).isApprox(Vec3f32(-2.0f, 4.0f, -2.0f)));
-  EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
-
-  v1 = Vec3f32(3.0f, 4.0f, 5.0f);
-  EXPECT_TRUE(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
-  EXPECT_TRUE(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
-  EXPECT_TRUE(v1.normalized().isApprox(v1 / v1.norm()));
-}
-
-GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
-{
-  using Vec3f64 = Vector3<double>;
-
-  Vec3f64 v1(1.0, 2.0, 3.0);
-  EXPECT_TRUE(v1[0] == 1.0);
-  EXPECT_TRUE(v1[1] == 2.0);
-  EXPECT_TRUE(v1[2] == 3.0);
-
-  Vec3f64 v2 = v1;
-  Vec3f64 v3(3.3, 4.3, 5.3);
+  Vector3<Scalar> v2 = v1;
+  Vector3<Scalar> v3(3.3, 4.3, 5.3);
   v1 += v3;
   EXPECT_TRUE(v1.isApprox(v2 + v3));
   v1 -= v3;
@@ -140,36 +83,49 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vec64)
   EXPECT_TRUE(v1.array().isApprox(v2.array() - 2.0));
   v1.array() += 2.0;
 
-  EXPECT_TRUE((-Vec3f64(1.0, 2.0, 3.0)) == (Vec3f64(-1.0, -2.0, -3.0)));
+  EXPECT_TRUE((-Vector3<Scalar>(1.0, 2.0, 3.0)) == (Vector3<Scalar>(-1.0, -2.0, -3.0)));
 
-  v1 = Vec3f64(1.0, 2.0, 3.0);
-  v2 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).isApprox(Vec3f64(-2.0, 4.0, -2.0)));
+  v1 = Vector3<Scalar>(1.0, 2.0, 3.0);
+  v2 = Vector3<Scalar>(3.0, 4.0, 5.0);
+  EXPECT_TRUE((v1.cross(v2)).isApprox(Vector3<Scalar>(-2.0, 4.0, -2.0)));
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
-  v1 = Vec3f64(3.0, 4.0, 5.0);
+  v1 = Vector3<Scalar>(3.0, 4.0, 5.0);
   EXPECT_TRUE(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
   EXPECT_TRUE(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
   EXPECT_TRUE(v1.normalized().isApprox(v1 / v1.norm()));
 
-  v1 = Vec3f64(1.0, 2.0, 3.0);
-  v2 = Vec3f64(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).isApprox(Vec3f64(-2.0, 4.0, -2.0)));
+  v1 = Vector3<Scalar>(1.0, 2.0, 3.0);
+  v2 = Vector3<Scalar>(3.0, 4.0, 5.0);
+  EXPECT_TRUE((v1.cross(v2)).isApprox(Vector3<Scalar>(-2.0, 4.0, -2.0)));
   EXPECT_TRUE(v1.dot(v2) == 26);
+}
+
+GTEST_TEST(FCL_MATH, vec_test_basic_vector3)
+{
+  test_vec_test_basic_vector<float>();
+  test_vec_test_basic_vector<double>();
+}
+
+template <typename Scalar>
+void test_morton()
+{
+  AABB<Scalar> bbox(Vector3<Scalar>(0, 0, 0), Vector3<Scalar>(1000, 1000, 1000));
+  morton_functor<Scalar, std::bitset<30>> F1(bbox);
+  morton_functor<Scalar, std::bitset<60>> F2(bbox);
+  morton_functor<Scalar, FCL_UINT64> F3(bbox); // 60 bits
+  morton_functor<Scalar, FCL_UINT32> F4(bbox); // 30 bits
+
+  Vector3<Scalar> p(254, 873, 674);
+
+  EXPECT_TRUE(F1(p).to_ulong() == F4(p));
+  EXPECT_TRUE(F2(p).to_ullong() == F3(p));
 }
 
 GTEST_TEST(FCL_MATH, morton)
 {
-  AABBd bbox(Vector3d(0, 0, 0), Vector3d(1000, 1000, 1000));
-  morton_functor<std::bitset<30>> F1(bbox);
-  morton_functor<std::bitset<60>> F2(bbox);
-  morton_functor<FCL_UINT64> F3(bbox); // 60 bits
-  morton_functor<FCL_UINT32> F4(bbox); // 30 bits
-
-  Vector3d p(254, 873, 674);
-
-  EXPECT_TRUE(F1(p).to_ulong() == F4(p));
-  EXPECT_TRUE(F2(p).to_ullong() == F3(p));
+  test_morton<float>();
+  test_morton<double>();
 }
 
 //==============================================================================

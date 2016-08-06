@@ -40,7 +40,10 @@
 
 #include <fstream>
 #include <iostream>
+#include "fcl/math/constants.h"
 #include "fcl/math/triangle.h"
+#include "fcl/collision.h"
+#include "fcl/distance.h"
 #include "fcl/collision_data.h"
 #include "fcl/collision_object.h"
 #include "fcl/continuous_collision_object.h"
@@ -331,12 +334,12 @@ Scalar rand_interval(Scalar rmin, Scalar rmax)
 template <typename Scalar>
 void eulerToMatrix(Scalar a, Scalar b, Scalar c, Matrix3<Scalar>& R)
 {
-  Scalar c1 = cos(a);
-  Scalar c2 = cos(b);
-  Scalar c3 = cos(c);
-  Scalar s1 = sin(a);
-  Scalar s2 = sin(b);
-  Scalar s3 = sin(c);
+  auto c1 = std::cos(a);
+  auto c2 = std::cos(b);
+  auto c3 = std::cos(c);
+  auto s1 = std::sin(a);
+  auto s2 = std::sin(b);
+  auto s3 = std::sin(c);
 
   R << c1 * c2, - c2 * s1, s2,
       c3 * s1 + c1 * s2 * s3, c1 * c3 - s1 * s2 * s3, - c2 * s3,
@@ -345,16 +348,16 @@ void eulerToMatrix(Scalar a, Scalar b, Scalar c, Matrix3<Scalar>& R)
 
 //==============================================================================
 template <typename Scalar>
-void generateRandomTransform(Scalar extents[6], Transform3<Scalar>& transform)
+void generateRandomTransform(const std::array<Scalar, 6>& extents, Transform3<Scalar>& transform)
 {
-  Scalar x = rand_interval(extents[0], extents[3]);
-  Scalar y = rand_interval(extents[1], extents[4]);
-  Scalar z = rand_interval(extents[2], extents[5]);
+  auto x = rand_interval(extents[0], extents[3]);
+  auto y = rand_interval(extents[1], extents[4]);
+  auto z = rand_interval(extents[2], extents[5]);
 
-  const Scalar pi = 3.1415926;
-  Scalar a = rand_interval(0, 2 * pi);
-  Scalar b = rand_interval(0, 2 * pi);
-  Scalar c = rand_interval(0, 2 * pi);
+  const auto pi = constants<Scalar>::pi();
+  auto a = rand_interval((Scalar)0, 2 * pi);
+  auto b = rand_interval((Scalar)0, 2 * pi);
+  auto c = rand_interval((Scalar)0, 2 * pi);
 
   Matrix3<Scalar> R;
   eulerToMatrix(a, b, c, R);
@@ -370,14 +373,14 @@ void generateRandomTransforms(Scalar extents[6], std::vector<Transform3<Scalar>>
   transforms.resize(n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Scalar x = rand_interval(extents[0], extents[3]);
-    Scalar y = rand_interval(extents[1], extents[4]);
-    Scalar z = rand_interval(extents[2], extents[5]);
+    auto x = rand_interval(extents[0], extents[3]);
+    auto y = rand_interval(extents[1], extents[4]);
+    auto z = rand_interval(extents[2], extents[5]);
 
-    const Scalar pi = 3.1415926;
-    Scalar a = rand_interval(0, 2 * pi);
-    Scalar b = rand_interval(0, 2 * pi);
-    Scalar c = rand_interval(0, 2 * pi);
+    const auto pi = constants<Scalar>::pi();
+    auto a = rand_interval((Scalar)0, 2 * pi);
+    auto b = rand_interval((Scalar)0, 2 * pi);
+    auto c = rand_interval((Scalar)0, 2 * pi);
 
     {
       Matrix3<Scalar> R;
@@ -398,14 +401,14 @@ void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar d
   transforms2.resize(n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Scalar x = rand_interval(extents[0], extents[3]);
-    Scalar y = rand_interval(extents[1], extents[4]);
-    Scalar z = rand_interval(extents[2], extents[5]);
+    auto x = rand_interval(extents[0], extents[3]);
+    auto y = rand_interval(extents[1], extents[4]);
+    auto z = rand_interval(extents[2], extents[5]);
 
-    const Scalar pi = 3.1415926;
-    Scalar a = rand_interval(0, 2 * pi);
-    Scalar b = rand_interval(0, 2 * pi);
-    Scalar c = rand_interval(0, 2 * pi);
+    const auto pi = constants<Scalar>::pi();
+    auto a = rand_interval((Scalar)0, 2 * pi);
+    auto b = rand_interval((Scalar)0, 2 * pi);
+    auto c = rand_interval((Scalar)0, 2 * pi);
 
     {
       Matrix3<Scalar> R;
@@ -416,13 +419,13 @@ void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar d
       transforms[i].translation() = T;
     }
 
-    Scalar deltax = rand_interval(-delta_trans[0], delta_trans[0]);
-    Scalar deltay = rand_interval(-delta_trans[1], delta_trans[1]);
-    Scalar deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
+    auto deltax = rand_interval(-delta_trans[0], delta_trans[0]);
+    auto deltay = rand_interval(-delta_trans[1], delta_trans[1]);
+    auto deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
 
-    Scalar deltaa = rand_interval(-delta_rot, delta_rot);
-    Scalar deltab = rand_interval(-delta_rot, delta_rot);
-    Scalar deltac = rand_interval(-delta_rot, delta_rot);
+    auto deltaa = rand_interval(-delta_rot, delta_rot);
+    auto deltab = rand_interval(-delta_rot, delta_rot);
+    auto deltac = rand_interval(-delta_rot, delta_rot);
 
     {
       Matrix3<Scalar> R;
@@ -446,14 +449,14 @@ void generateRandomTransforms_ccd(Scalar extents[6], std::vector<Transform3<Scal
 
   for(std::size_t i = 0; i < n;)
   {
-    Scalar x = rand_interval(extents[0], extents[3]);
-    Scalar y = rand_interval(extents[1], extents[4]);
-    Scalar z = rand_interval(extents[2], extents[5]);
+    auto x = rand_interval(extents[0], extents[3]);
+    auto y = rand_interval(extents[1], extents[4]);
+    auto z = rand_interval(extents[2], extents[5]);
 
-    const Scalar pi = 3.1415926;
-    Scalar a = rand_interval(0, 2 * pi);
-    Scalar b = rand_interval(0, 2 * pi);
-    Scalar c = rand_interval(0, 2 * pi);
+    const auto pi = constants<Scalar>::pi();
+    auto a = rand_interval(0, 2 * pi);
+    auto b = rand_interval(0, 2 * pi);
+    auto c = rand_interval(0, 2 * pi);
 
 
     Matrix3<Scalar> R;
@@ -467,13 +470,13 @@ void generateRandomTransforms_ccd(Scalar extents[6], std::vector<Transform3<Scal
     {
       transforms[i] = tf;
 
-      Scalar deltax = rand_interval(-delta_trans[0], delta_trans[0]);
-      Scalar deltay = rand_interval(-delta_trans[1], delta_trans[1]);
-      Scalar deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
+      auto deltax = rand_interval(-delta_trans[0], delta_trans[0]);
+      auto deltay = rand_interval(-delta_trans[1], delta_trans[1]);
+      auto deltaz = rand_interval(-delta_trans[2], delta_trans[2]);
 
-      Scalar deltaa = rand_interval(-delta_rot, delta_rot);
-      Scalar deltab = rand_interval(-delta_rot, delta_rot);
-      Scalar deltac = rand_interval(-delta_rot, delta_rot);
+      auto deltaa = rand_interval(-delta_rot, delta_rot);
+      auto deltab = rand_interval(-delta_rot, delta_rot);
+      auto deltac = rand_interval(-delta_rot, delta_rot);
 
       Matrix3<Scalar> R2;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R2);

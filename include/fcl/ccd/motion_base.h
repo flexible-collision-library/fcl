@@ -127,7 +127,7 @@ public:
   virtual ~MotionBase() {}
 
   /** \brief Integrate the motion from 0 to dt */
-  virtual bool integrate(double dt) const = 0;
+  virtual bool integrate(Scalar dt) const = 0;
 
   /** \brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects */
   virtual Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const = 0;

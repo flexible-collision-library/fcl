@@ -87,15 +87,15 @@ using Boxf = Box<float>;
 using Boxd = Box<double>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Box<ScalarT>>;
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Box<ScalarT>>;
 
 template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Box<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Box<ScalarT>>
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Box<ScalarT>>
 {
-  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
+  void operator()(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
   {
     const Matrix3<ScalarT>& R = tf.linear();
     const Vector3<ScalarT>& T = tf.translation();

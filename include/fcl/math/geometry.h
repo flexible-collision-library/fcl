@@ -358,8 +358,8 @@ void relativeTransform(
 //==============================================================================
 template <typename Scalar, typename DerivedA, typename DerivedB>
 void relativeTransform(
-    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T1,
-    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
+    const Transform3<Scalar>& T1,
+    const Transform3<Scalar>& T2,
     Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t)
 {
   EIGEN_STATIC_ASSERT(

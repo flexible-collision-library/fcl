@@ -58,7 +58,7 @@ public:
   /// @brief Radius of the sphere
   ScalarT radius;
 
-  /// @brief Compute AABBd
+  /// @brief Compute AABB<ScalarT>
   void computeLocalAABB() override;
 
   /// @brief Get node type: a sphere
@@ -100,21 +100,19 @@ using Spheref = Sphere<float>;
 using Sphered = Sphere<double>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Sphere<ScalarT>>;
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Sphere<ScalarT>>;
 
 template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Sphere<ScalarT>>
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Sphere<ScalarT>>
 {
-  void operator()(const Sphere<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
+  void operator()(const Sphere<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
   {
-    const Vector3d& T = tf.translation();
-
-    Vector3d v_delta = Vector3d::Constant(s.radius);
-    bv.max_ = T + v_delta;
-    bv.min_ = T - v_delta;
+    const Vector3<ScalarT> v_delta = Vector3<ScalarT>::Constant(s.radius);
+    bv.max_ = tf.translation() + v_delta;
+    bv.min_ = tf.translation() - v_delta;
   }
 };
 
@@ -137,7 +135,7 @@ struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>
 
 //==============================================================================
 template <typename ScalarT>
-Sphere<ScalarT>::Sphere(ScalarT radius) : ShapeBased(), radius(radius)
+Sphere<ScalarT>::Sphere(ScalarT radius) : ShapeBase<ScalarT>(), radius(radius)
 {
 }
 
@@ -145,7 +143,7 @@ Sphere<ScalarT>::Sphere(ScalarT radius) : ShapeBased(), radius(radius)
 template <typename ScalarT>
 void Sphere<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = radius;
 }

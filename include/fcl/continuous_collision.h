@@ -173,8 +173,8 @@ typename BV::Scalar continuousCollideBVHPolynomial(
   // ugly, but lets do it now.
   BVHModel<BV>* o1 = const_cast<BVHModel<BV>*>(o1__);
   BVHModel<BV>* o2 = const_cast<BVHModel<BV>*>(o2__);
-  std::vector<Vector3d> new_v1(o1->num_vertices);
-  std::vector<Vector3d> new_v2(o2->num_vertices);
+  std::vector<Vector3<Scalar>> new_v1(o1->num_vertices);
+  std::vector<Vector3<Scalar>> new_v2(o2->num_vertices);
 
   for(std::size_t i = 0; i < new_v1.size(); ++i)
     new_v1[i] = o1->vertices[i] + motion1->getVelocity();
@@ -233,7 +233,7 @@ Scalar continuousCollideBVHPolynomial(
   {
   case BV_AABB:
     if(o2->getNodeType() == BV_AABB)
-      return details::continuousCollideBVHPolynomial<AABBd>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<AABB<Scalar>>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_OBB:
     if(o2->getNodeType() == BV_OBB)
@@ -241,7 +241,7 @@ Scalar continuousCollideBVHPolynomial(
     break;
   case BV_RSS:
     if(o2->getNodeType() == BV_RSS)
-      return details::continuousCollideBVHPolynomial<RSSd>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<RSS<Scalar>>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_kIOS:
     if(o2->getNodeType() == BV_kIOS)
@@ -249,19 +249,19 @@ Scalar continuousCollideBVHPolynomial(
     break;
   case BV_OBBRSS:
     if(o2->getNodeType() == BV_OBBRSS)
-      return details::continuousCollideBVHPolynomial<OBBRSSd>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<OBBRSS<Scalar>>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_KDOP16:
     if(o2->getNodeType() == BV_KDOP16)
-      return details::continuousCollideBVHPolynomial<KDOPd<16> >(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<KDOP<Scalar, 16> >(o1, motion1, o2, motion2, request, result);
     break;
   case BV_KDOP18:
     if(o2->getNodeType() == BV_KDOP18)
-      return details::continuousCollideBVHPolynomial<KDOPd<18> >(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<KDOP<Scalar, 18> >(o1, motion1, o2, motion2, request, result);
     break;
   case BV_KDOP24:
     if(o2->getNodeType() == BV_KDOP24)
-      return details::continuousCollideBVHPolynomial<KDOPd<24> >(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<KDOP<Scalar, 24> >(o1, motion1, o2, motion2, request, result);
     break;
   default:
     ;

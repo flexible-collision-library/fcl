@@ -1191,7 +1191,7 @@ GJKSupportFunction GJKInitializer<Scalar, Convex<Scalar>>::getSupportFunction()
 template <typename Scalar>
 GJKCenterFunction GJKInitializer<Scalar, Convex<Scalar>>::getCenterFunction()
 {
-  return &centerConvex;
+  return &centerConvex<Scalar>;
 }
 
 template <typename Scalar>

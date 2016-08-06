@@ -198,10 +198,10 @@ void NaiveCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scala
 {
   if(size() == 0) return;
 
-  for(typename std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end = objs.end();
+  for(typename std::list<CollisionObject<Scalar>*>::const_iterator it1 = objs.begin(), end = objs.end();
       it1 != end; ++it1)
   {
-    typename std::list<CollisionObjectd*>::const_iterator it2 = it1; it2++;
+    typename std::list<CollisionObject<Scalar>*>::const_iterator it2 = it1; it2++;
     for(; it2 != end; ++it2)
     {
       if((*it1)->getAABB().overlap((*it2)->getAABB()))
@@ -220,9 +220,9 @@ void NaiveCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scala
   if(size() == 0) return;
 
   Scalar min_dist = std::numeric_limits<Scalar>::max();
-  for(typename std::list<CollisionObjectd*>::const_iterator it1 = objs.begin(), end = objs.end(); it1 != end; ++it1)
+  for(typename std::list<CollisionObject<Scalar>*>::const_iterator it1 = objs.begin(), end = objs.end(); it1 != end; ++it1)
   {
-    typename std::list<CollisionObjectd*>::const_iterator it2 = it1; it2++;
+    typename std::list<CollisionObject<Scalar>*>::const_iterator it2 = it1; it2++;
     for(; it2 != end; ++it2)
     {
       if((*it1)->getAABB().distance((*it2)->getAABB()) < min_dist)

@@ -46,30 +46,39 @@
 
 using namespace fcl;
 
-static FCL_REAL epsilon = 1e-6;
-
-static bool approx(FCL_REAL x, FCL_REAL y)
+template <typename Scalar>
+Scalar epsilon()
 {
-  return std::abs(x - y) < epsilon;
+  return 1e-6;
 }
 
-
-
-template<std::size_t N>
-double distance_Vecnf(const VectorNd<N>& a, const VectorNd<N>& b)
+template <>
+float epsilon()
 {
-  double d = 0;
+  return 1e-4;
+}
+
+template <typename Scalar>
+bool approx(Scalar x, Scalar y)
+{
+  return std::abs(x - y) < epsilon<Scalar>();
+}
+
+template<typename Scalar, std::size_t N>
+Scalar distance_Vecnf(const VectorN<Scalar, N>& a, const VectorN<Scalar, N>& b)
+{
+  Scalar d = 0;
   for(std::size_t i = 0; i < N; ++i)
     d += (a[i] - b[i]) * (a[i] - b[i]);
 
   return d;
 }
 
-
-GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
+template <typename Scalar>
+void test_Vec_nf_test()
 {
-  VectorNd<4> a;
-  VectorNd<4> b;
+  VectorN<Scalar, 4> a;
+  VectorN<Scalar, 4> b;
   for(auto i = 0; i < a.size(); ++i)
     a[i] = i;
   for(auto i = 0; i < b.size(); ++i)
@@ -87,17 +96,17 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
   std::cout << (a /= 2).transpose() << std::endl;
   std::cout << a.dot(b) << std::endl;
 
-  VectorNd<8> c = combine(a, b);
+  VectorN<Scalar, 8> c = combine(a, b);
   std::cout << c.transpose() << std::endl;
 
-  VectorNd<4> upper, lower;
+  VectorN<Scalar, 4> upper, lower;
   for(int i = 0; i < 4; ++i)
     upper[i] = 1;
 
-  VectorNd<4> aa = VectorNd<4>(1, 2, 1, 2);
+  VectorN<Scalar, 4> aa = VectorN<Scalar, 4>(1, 2, 1, 2);
   std::cout << aa.transpose() << std::endl;
 
-  SamplerRd<4> sampler(lower, upper);
+  SamplerR<Scalar, 4> sampler(lower, upper);
   for(std::size_t i = 0; i < 10; ++i)
     std::cout << sampler.sample().transpose() << std::endl;
 
@@ -106,246 +115,272 @@ GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
   // for(std::size_t i = 0; i < 10; ++i)
   //   std::cout << sampler2.sample() << std::endl;
 
-  SamplerSE3Eulerd sampler3(Vector3d(0, 0, 0), Vector3d(1, 1, 1));
+  SamplerSE3Euler<Scalar> sampler3(Vector3<Scalar>(0, 0, 0), Vector3<Scalar>(1, 1, 1));
   for(std::size_t i = 0; i < 10; ++i)
     std::cout << sampler3.sample().transpose() << std::endl;
   
 }
 
+GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
+{
+  test_Vec_nf_test<float>();
+  test_Vec_nf_test<double>();
+}
+
+template <typename Scalar>
+void test_projection_test_line()
+{
+  Vector3<Scalar> v1(0, 0, 0);
+  Vector3<Scalar> v2(2, 0, 0);
+    
+  Vector3<Scalar> p(1, 0, 0);
+  auto res = Project<Scalar>::projectLine(v1, v2, p);
+  EXPECT_TRUE(res.encode == 3);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0.5));
+    
+  p = Vector3<Scalar>(-1, 0, 0);
+  res = Project<Scalar>::projectLine(v1, v2, p);
+  EXPECT_TRUE(res.encode == 1);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+
+  p = Vector3<Scalar>(3, 0, 0);
+  res = Project<Scalar>::projectLine(v1, v2, p);
+  EXPECT_TRUE(res.encode == 2);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)1));
+
+}
 
 GTEST_TEST(FCL_SIMPLE, projection_test_line)
 {
-  Vector3d v1(0, 0, 0);
-  Vector3d v2(2, 0, 0);
-    
-  Vector3d p(1, 0, 0);
-  Projectd::ProjectResult res = Projectd::projectLine(v1, v2, p);
-  EXPECT_TRUE(res.encode == 3);
-  EXPECT_TRUE(approx(res.sqr_distance, 0));
-  EXPECT_TRUE(approx(res.parameterization[0], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[1], 0.5));
-    
-  p = Vector3d(-1, 0, 0);
-  res = Projectd::projectLine(v1, v2, p);
+  test_projection_test_line<float>();
+  test_projection_test_line<double>();
+}
+
+template <typename Scalar>
+void test_projection_test_triangle()
+{
+  Vector3<Scalar> v1(0, 0, 1);
+  Vector3<Scalar> v2(0, 1, 0);
+  Vector3<Scalar> v3(1, 0, 0);
+
+  Vector3<Scalar> p(1, 1, 1);
+  auto res = Project<Scalar>::projectTriangle(v1, v2, v3, p);
+  EXPECT_TRUE(res.encode == 7);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)(4/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)(1/3.0)));
+  
+  p = Vector3<Scalar>(0, 0, 1.5);
+  res = Project<Scalar>::projectTriangle(v1, v2, v3, p);
   EXPECT_TRUE(res.encode == 1);
-  EXPECT_TRUE(approx(res.sqr_distance, 1));
-  EXPECT_TRUE(approx(res.parameterization[0], 1));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
 
-  p = Vector3d(3, 0, 0);
-  res = Projectd::projectLine(v1, v2, p);
+  p = Vector3<Scalar>(1.5, 0, 0);
+  res = Project<Scalar>::projectTriangle(v1, v2, v3, p);
+  EXPECT_TRUE(res.encode == 4);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)1));
+
+  p = Vector3<Scalar>(0, 1.5, 0);
+  res = Project<Scalar>::projectTriangle(v1, v2, v3, p);
   EXPECT_TRUE(res.encode == 2);
-  EXPECT_TRUE(approx(res.sqr_distance, 1));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 1));
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
 
+  p = Vector3<Scalar>(1, 1, 0);
+  res = Project<Scalar>::projectTriangle(v1, v2, v3, p);
+  EXPECT_TRUE(res.encode == 6);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0.5));
+
+  p = Vector3<Scalar>(1, 0, 1);
+  res = Project<Scalar>::projectTriangle(v1, v2, v3, p);
+  EXPECT_TRUE(res.encode == 5);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0.5));
+
+  p = Vector3<Scalar>(0, 1, 1);
+  res = Project<Scalar>::projectTriangle(v1, v2, v3, p);
+  EXPECT_TRUE(res.encode == 3);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
 }
 
 GTEST_TEST(FCL_SIMPLE, projection_test_triangle)
 {
-  Vector3d v1(0, 0, 1);
-  Vector3d v2(0, 1, 0);
-  Vector3d v3(1, 0, 0);
+  test_projection_test_triangle<float>();
+  test_projection_test_triangle<double>();
+}
 
-  Vector3d p(1, 1, 1);
-  Projectd::ProjectResult res = Projectd::projectTriangle(v1, v2, v3, p);
+template <typename Scalar>
+void test_projection_test_tetrahedron()
+{
+  Vector3<Scalar> v1(0, 0, 1);
+  Vector3<Scalar> v2(0, 1, 0);
+  Vector3<Scalar> v3(1, 0, 0);
+  Vector3<Scalar> v4(1, 1, 1);
+
+  Vector3<Scalar> p(0.5, 0.5, 0.5);
+  auto res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 15);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0.25));
+
+  p = Vector3<Scalar>(0, 0, 0);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
   EXPECT_TRUE(res.encode == 7);
-  EXPECT_TRUE(approx(res.sqr_distance, 4/3.0));
-  EXPECT_TRUE(approx(res.parameterization[0], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[1], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[2], 1/3.0));
-  
-  p = Vector3d(0, 0, 1.5);
-  res = Projectd::projectTriangle(v1, v2, v3, p);
-  EXPECT_TRUE(res.encode == 1);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 1));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0));
 
-  p = Vector3d(1.5, 0, 0);
-  res = Projectd::projectTriangle(v1, v2, v3, p);
+  p = Vector3<Scalar>(0, 1, 1);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 11);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)(1/3.0)));
+
+  p = Vector3<Scalar>(1, 1, 0);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 14);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)(1/3.0)));
+
+  p = Vector3<Scalar>(1, 0, 1);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 13);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)(1/3.0)));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)(1/3.0)));
+
+  p = Vector3<Scalar>(1.5, 1.5, 1.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 8);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.75));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)1));
+
+  p = Vector3<Scalar>(1.5, -0.5, -0.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
   EXPECT_TRUE(res.encode == 4);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 1));
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.75));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0));
 
-  p = Vector3d(0, 1.5, 0);
-  res = Projectd::projectTriangle(v1, v2, v3, p);
+  p = Vector3<Scalar>(-0.5, -0.5, 1.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 1);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.75));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0));
+
+  p = Vector3<Scalar>(-0.5, 1.5, -0.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
   EXPECT_TRUE(res.encode == 2);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 1));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.75));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)1));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0));
 
-  p = Vector3d(1, 1, 0);
-  res = Projectd::projectTriangle(v1, v2, v3, p);
-  EXPECT_TRUE(res.encode == 6);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.5));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[2], 0.5));
-
-  p = Vector3d(1, 0, 1);
-  res = Projectd::projectTriangle(v1, v2, v3, p);
+  p = Vector3<Scalar>(0.5, -0.5, 0.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
   EXPECT_TRUE(res.encode == 5);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.5));
-  EXPECT_TRUE(approx(res.parameterization[0], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0.5));
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0));
 
-  p = Vector3d(0, 1, 1);
-  res = Projectd::projectTriangle(v1, v2, v3, p);
+  p = Vector3<Scalar>(0.5, 1.5, 0.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 10);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0.5));
+
+  p = Vector3<Scalar>(1.5, 0.5, 0.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 12);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0.5));
+    
+  p = Vector3<Scalar>(-0.5, 0.5, 0.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
   EXPECT_TRUE(res.encode == 3);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.5));
-  EXPECT_TRUE(approx(res.parameterization[0], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[1], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0));
+
+  p = Vector3<Scalar>(0.5, 0.5, 1.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 9);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0.5));
+    
+  p = Vector3<Scalar>(0.5, 0.5, -0.5);
+  res = Project<Scalar>::projectTetrahedra(v1, v2, v3, v4, p);
+  EXPECT_TRUE(res.encode == 6);
+  EXPECT_TRUE(approx(res.sqr_distance, (Scalar)0.25));
+  EXPECT_TRUE(approx(res.parameterization[0], (Scalar)0));
+  EXPECT_TRUE(approx(res.parameterization[1], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[2], (Scalar)0.5));
+  EXPECT_TRUE(approx(res.parameterization[3], (Scalar)0));
+
 }
 
 GTEST_TEST(FCL_SIMPLE, projection_test_tetrahedron)
 {
-  Vector3d v1(0, 0, 1);
-  Vector3d v2(0, 1, 0);
-  Vector3d v3(1, 0, 0);
-  Vector3d v4(1, 1, 1);
-
-  Vector3d p(0.5, 0.5, 0.5);
-  Projectd::ProjectResult res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 15);
-  EXPECT_TRUE(approx(res.sqr_distance, 0));
-  EXPECT_TRUE(approx(res.parameterization[0], 0.25));
-  EXPECT_TRUE(approx(res.parameterization[1], 0.25));
-  EXPECT_TRUE(approx(res.parameterization[2], 0.25));
-  EXPECT_TRUE(approx(res.parameterization[3], 0.25));
-
-  p = Vector3d(0, 0, 0);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 7);
-  EXPECT_TRUE(approx(res.sqr_distance, 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[0], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[1], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[2], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[3], 0));
-
-  p = Vector3d(0, 1, 1);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 11);
-  EXPECT_TRUE(approx(res.sqr_distance, 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[0], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[1], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
-  EXPECT_TRUE(approx(res.parameterization[3], 1/3.0));
-
-  p = Vector3d(1, 1, 0);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 14);
-  EXPECT_TRUE(approx(res.sqr_distance, 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[2], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[3], 1/3.0));
-
-  p = Vector3d(1, 0, 1);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 13);
-  EXPECT_TRUE(approx(res.sqr_distance, 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[0], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 1/3.0));
-  EXPECT_TRUE(approx(res.parameterization[3], 1/3.0));
-
-  p = Vector3d(1.5, 1.5, 1.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 8);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.75));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
-  EXPECT_TRUE(approx(res.parameterization[3], 1));
-
-  p = Vector3d(1.5, -0.5, -0.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 4);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.75));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 1));
-  EXPECT_TRUE(approx(res.parameterization[3], 0));
-
-  p = Vector3d(-0.5, -0.5, 1.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 1);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.75));
-  EXPECT_TRUE(approx(res.parameterization[0], 1));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
-  EXPECT_TRUE(approx(res.parameterization[3], 0));
-
-  p = Vector3d(-0.5, 1.5, -0.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 2);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.75));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 1));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
-  EXPECT_TRUE(approx(res.parameterization[3], 0));
-
-  p = Vector3d(0.5, -0.5, 0.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 5);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[3], 0));
-
-  p = Vector3d(0.5, 1.5, 0.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 10);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
-  EXPECT_TRUE(approx(res.parameterization[3], 0.5));
-
-  p = Vector3d(1.5, 0.5, 0.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 12);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[3], 0.5));
-    
-  p = Vector3d(-0.5, 0.5, 0.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 3);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[1], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
-  EXPECT_TRUE(approx(res.parameterization[3], 0));
-
-  p = Vector3d(0.5, 0.5, 1.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 9);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[1], 0));
-  EXPECT_TRUE(approx(res.parameterization[2], 0));
-  EXPECT_TRUE(approx(res.parameterization[3], 0.5));
-    
-  p = Vector3d(0.5, 0.5, -0.5);
-  res = Projectd::projectTetrahedra(v1, v2, v3, v4, p);
-  EXPECT_TRUE(res.encode == 6);
-  EXPECT_TRUE(approx(res.sqr_distance, 0.25));
-  EXPECT_TRUE(approx(res.parameterization[0], 0));
-  EXPECT_TRUE(approx(res.parameterization[1], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[2], 0.5));
-  EXPECT_TRUE(approx(res.parameterization[3], 0));
-
+  test_projection_test_tetrahedron<float>();
+  test_projection_test_tetrahedron<double>();
 }
 
 //==============================================================================

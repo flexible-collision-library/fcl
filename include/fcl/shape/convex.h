@@ -67,7 +67,7 @@ public:
 
   ~Convex();
 
-  /// @brief Compute AABBd 
+  /// @brief Compute AABB<ScalarT>
   void computeLocalAABB() override;
 
   /// @brief Get node type: a conex polytope 
@@ -127,23 +127,23 @@ using Convexf = Convex<float>;
 using Convexd = Convex<double>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Convex<ScalarT>>;
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Convex<ScalarT>>;
 
 template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Convex<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Convex<ScalarT>>
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Convex<ScalarT>>
 {
-  void operator()(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
+  void operator()(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
   {
-    const Matrix3d& R = tf.linear();
-    const Vector3d& T = tf.translation();
+    const Matrix3<ScalarT>& R = tf.linear();
+    const Vector3<ScalarT>& T = tf.translation();
 
-    AABBd bv_;
+    AABB<ScalarT> bv_;
     for(int i = 0; i < s.num_points; ++i)
     {
-      Vector3d new_p = R * s.points[i] + T;
+      Vector3<ScalarT> new_p = R * s.points[i] + T;
       bv_ += new_p;
     }
 
@@ -174,7 +174,7 @@ template <typename ScalarT>
 Convex<ScalarT>::Convex(
     Vector3<ScalarT>* plane_normals, ScalarT* plane_dis, int num_planes,
     Vector3<ScalarT>* points, int num_points, int* polygons)
-  : ShapeBased()
+  : ShapeBase<ScalarT>()
 {
   plane_normals = plane_normals;
   plane_dis = plane_dis;
@@ -220,7 +220,7 @@ Convex<ScalarT>::~Convex()
 template <typename ScalarT>
 void Convex<ScalarT>::computeLocalAABB()
 {
-  computeBV<AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<AABB<ScalarT>>(*this, Transform3<Scalar>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -302,7 +302,7 @@ Vector3<ScalarT> Convex<ScalarT>::computeCOM() const
     plane_center = plane_center * (1.0 / *points_in_poly);
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-    const Vector3d& v3 = plane_center;
+    const Vector3<Scalar>& v3 = plane_center;
     for(int j = 0; j < *points_in_poly; ++j)
     {
       int e_first = index[j];
@@ -338,7 +338,7 @@ ScalarT Convex<ScalarT>::computeVolume() const
     plane_center = plane_center * (1.0 / *points_in_poly);
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
-    const Vector3d& v3 = plane_center;
+    const Vector3<Scalar>& v3 = plane_center;
     for(int j = 0; j < *points_in_poly; ++j)
     {
       int e_first = index[j];

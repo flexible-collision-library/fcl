@@ -72,7 +72,7 @@ public:
     tf.translation() = trans_start;
   }
 
-  bool integrate(Scalar dt) const
+  bool integrate(Scalar dt) const override
   {
     if(dt > 1)
       dt = 1;
@@ -142,27 +142,27 @@ public:
   
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
-  bool integrate(double dt) const;
+  bool integrate(Scalar dt) const;
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
-  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const
+  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
   /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor
-  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const
+  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Transform3<Scalar>& tf_) const
+  void getCurrentTransform(Transform3<Scalar>& tf_) const override
   {
     tf_ = tf;
   }
 
-  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const
+  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const override
   {
     // set tv
     Vector3<Scalar> c[4];
@@ -379,7 +379,7 @@ public:
 protected:
   void computeScrewParameter()
   {
-    const Eigen::AngleAxisd aa(tf2.linear() * tf1.linear().transpose());
+    const AngleAxis<Scalar> aa(tf2.linear() * tf1.linear().transpose());
 
     axis = aa.axis();
     angular_vel = aa.angle();
@@ -407,7 +407,7 @@ protected:
 
   Quaternion3<Scalar> deltaRotation(Scalar dt) const
   {
-    return Quaternion3<Scalar>(Eigen::AngleAxisd((Scalar)(dt * angular_vel), axis));
+    return Quaternion3<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), axis));
   }
 
   Quaternion3<Scalar> absoluteRotation(Scalar dt) const
@@ -633,7 +633,7 @@ SplineMotion<Scalar>::SplineMotion(const Vector3<Scalar>& Td0, const Vector3<Sca
 
 //==============================================================================
 template <typename Scalar>
-bool SplineMotion<Scalar>::integrate(double dt) const
+bool SplineMotion<Scalar>::integrate(Scalar dt) const
 {
   if(dt > 1) dt = 1;
 
@@ -642,7 +642,7 @@ bool SplineMotion<Scalar>::integrate(double dt) const
   Scalar cur_angle = cur_w.norm();
   cur_w.normalize();
 
-  tf.linear() = Eigen::AngleAxisd(cur_angle, cur_w).toRotationMatrix();
+  tf.linear() = AngleAxis<Scalar>(cur_angle, cur_w).toRotationMatrix();
   tf.translation() = cur_T;
 
   tf_t = dt;
@@ -892,7 +892,7 @@ void InterpMotion<Scalar>::computeVelocity()
 {
   linear_vel = tf2 * reference_p - tf1 * reference_p;
 
-  const Eigen::AngleAxisd aa(tf2.linear() * tf1.linear().transpose());
+  const AngleAxis<Scalar> aa(tf2.linear() * tf1.linear().transpose());
   angular_axis = aa.axis();
   angular_vel = aa.angle();
 
@@ -907,7 +907,7 @@ void InterpMotion<Scalar>::computeVelocity()
 template <typename Scalar>
 Quaternion3<Scalar> InterpMotion<Scalar>::deltaRotation(Scalar dt) const
 {
-  return Quaternion3<Scalar>(Eigen::AngleAxisd((Scalar)(dt * angular_vel), angular_axis));
+  return Quaternion3<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), angular_axis));
 }
 
 //==============================================================================

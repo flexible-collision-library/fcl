@@ -290,7 +290,7 @@ std::size_t PrismaticJoint<Scalar>::getNumDofs() const
 template <typename Scalar>
 Transform3<Scalar> PrismaticJoint<Scalar>::getLocalTransform() const
 {
-  const Quaternion3d quat(transform_to_parent_.linear());
+  const Quaternion3<Scalar> quat(transform_to_parent_.linear());
   const Vector3<Scalar>& transl = transform_to_parent_.translation();
 
   Transform3<Scalar> tf = Transform3<Scalar>::Identity();
@@ -331,7 +331,7 @@ template <typename Scalar>
 Transform3<Scalar> RevoluteJoint<Scalar>::getLocalTransform() const
 {
   Transform3<Scalar> tf = Transform3<Scalar>::Identity();
-  tf.linear() = transform_to_parent_.linear() * Eigen::AngleAxisd((*joint_cfg_)[0], axis_);
+  tf.linear() = transform_to_parent_.linear() * AngleAxis<Scalar>((*joint_cfg_)[0], axis_);
   tf.translation() = transform_to_parent_.translation();
 
   return tf;
@@ -356,10 +356,10 @@ std::size_t BallEulerJoint<Scalar>::getNumDofs() const
 template <typename Scalar>
 Transform3<Scalar> BallEulerJoint<Scalar>::getLocalTransform() const
 {
-  Matrix3d rot(
-      Eigen::AngleAxisd((*joint_cfg_)[0], Eigen::Vector3<Scalar>::UnitX())
-        * Eigen::AngleAxisd((*joint_cfg_)[1], Eigen::Vector3<Scalar>::UnitY())
-        * Eigen::AngleAxisd((*joint_cfg_)[2], Eigen::Vector3<Scalar>::UnitZ()));
+  Matrix3<Scalar> rot(
+      AngleAxis<Scalar>((*joint_cfg_)[0], Eigen::Vector3<Scalar>::UnitX())
+        * AngleAxis<Scalar>((*joint_cfg_)[1], Eigen::Vector3<Scalar>::UnitY())
+        * AngleAxis<Scalar>((*joint_cfg_)[2], Eigen::Vector3<Scalar>::UnitZ()));
 
   Transform3<Scalar> tf = Transform3<Scalar>::Identity();
   tf.linear() = rot;

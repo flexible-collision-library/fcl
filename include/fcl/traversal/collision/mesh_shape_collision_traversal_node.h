@@ -319,16 +319,18 @@ bool initialize(
     bool use_refit,
     bool refit_bottomup)
 {
+  using Scalar = typename BV::Scalar;
+
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf1.matrix().isIdentity())
   {
-    std::vector<Vector3d> vertices_transformed(model1.num_vertices);
+    std::vector<Vector3<Scalar>> vertices_transformed(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vector3d& p = model1.vertices[i];
-      Vector3d new_v = tf1 * p;
+      Vector3<Scalar>& p = model1.vertices[i];
+      Vector3<Scalar> new_v = tf1 * p;
       vertices_transformed[i] = new_v;
     }
 

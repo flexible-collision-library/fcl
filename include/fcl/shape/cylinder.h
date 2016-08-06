@@ -106,15 +106,15 @@ using Cylinderf = Cylinder<float>;
 using Cylinderd = Cylinder<double>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Cylinder<ScalarT>>;
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Cylinder<ScalarT>>;
 
 template <typename ScalarT>
 struct ComputeBVImpl<ScalarT, OBB<ScalarT>, Cylinder<ScalarT>>;
 
 template <typename ScalarT>
-struct ComputeBVImpl<ScalarT, AABBd, Cylinder<ScalarT>>
+struct ComputeBVImpl<ScalarT, AABB<ScalarT>, Cylinder<ScalarT>>
 {
-  void operator()(const Cylinder<ScalarT>& s, const Transform3<ScalarT>& tf, AABBd& bv)
+  void operator()(const Cylinder<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
   {
     const Matrix3<ScalarT>& R = tf.linear();
     const Vector3<ScalarT>& T = tf.translation();
@@ -158,7 +158,7 @@ Cylinder<ScalarT>::Cylinder(ScalarT radius, ScalarT lz)
 template <typename ScalarT>
 void Cylinder<ScalarT>::computeLocalAABB()
 {
-  computeBV<ScalarT, AABBd>(*this, Transform3d::Identity(), this->aabb_local);
+  computeBV<ScalarT, AABB<ScalarT>>(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }

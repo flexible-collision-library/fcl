@@ -62,7 +62,7 @@ public:
   const TaylorModel<Scalar>& operator () (size_t i, size_t j) const;
   TaylorModel<Scalar>& operator () (size_t i, size_t j);
 
-  TVector3<Scalar> operator * (const Vector3d& v) const;
+  TVector3<Scalar> operator * (const Vector3<Scalar>& v) const;
   TVector3<Scalar> operator * (const TVector3<Scalar>& v) const;
   TMatrix3 operator * (const Matrix3<Scalar>& m) const;
   TMatrix3 operator * (const TMatrix3& m) const;
@@ -224,9 +224,9 @@ TaylorModel<Scalar>& TMatrix3<Scalar>::operator () (size_t i, size_t j)
 template <typename Scalar>
 TMatrix3<Scalar> TMatrix3<Scalar>::operator * (const Matrix3<Scalar>& m) const
 {
-  const Vector3d& mc0 = m.col(0);
-  const Vector3d& mc1 = m.col(1);
-  const Vector3d& mc2 = m.col(2);
+  const Vector3<Scalar>& mc0 = m.col(0);
+  const Vector3<Scalar>& mc1 = m.col(1);
+  const Vector3<Scalar>& mc2 = m.col(2);
 
   return TMatrix3(TVector3<Scalar>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
                   TVector3<Scalar>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
@@ -235,7 +235,7 @@ TMatrix3<Scalar> TMatrix3<Scalar>::operator * (const Matrix3<Scalar>& m) const
 
 //==============================================================================
 template <typename Scalar>
-TVector3<Scalar> TMatrix3<Scalar>::operator * (const Vector3d& v) const
+TVector3<Scalar> TMatrix3<Scalar>::operator * (const Vector3<Scalar>& v) const
 {
   return TVector3<Scalar>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
@@ -278,9 +278,9 @@ TMatrix3<Scalar> TMatrix3<Scalar>::operator * (Scalar d) const
 template <typename Scalar>
 TMatrix3<Scalar>& TMatrix3<Scalar>::operator *= (const Matrix3<Scalar>& m)
 {
-  const Vector3d& mc0 = m.col(0);
-  const Vector3d& mc1 = m.col(1);
-  const Vector3d& mc2 = m.col(2);
+  const Vector3<Scalar>& mc0 = m.col(0);
+  const Vector3<Scalar>& mc1 = m.col(1);
+  const Vector3<Scalar>& mc2 = m.col(2);
 
   v_[0] = TVector3<Scalar>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
   v_[1] = TVector3<Scalar>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));

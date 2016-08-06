@@ -115,7 +115,7 @@ void test_distance_capsule_box()
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
 {
-  test_distance_capsule_box<float>();
+//  test_distance_capsule_box<float>();
   test_distance_capsule_box<double>();
 }
 

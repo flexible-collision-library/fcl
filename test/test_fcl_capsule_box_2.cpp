@@ -57,7 +57,7 @@ void test_distance_capsule_box()
   fcl::DistanceResult<Scalar> distanceResult;
 
   // Rotate capsule around y axis by pi/2 and move it behind box
-  fcl::Transform3<Scalar> tf1 = fcl::Translation3d(fcl::Vector3<Scalar>(-10., 0.8, 1.5))
+  fcl::Transform3<Scalar> tf1 = fcl::Translation3<Scalar>(fcl::Vector3<Scalar>(-10., 0.8, 1.5))
       *fcl::Quaternion3<Scalar>(sqrt(2)/2, 0, sqrt(2)/2, 0);
   fcl::Transform3<Scalar> tf2 = fcl::Transform3<Scalar>::Identity();
   fcl::CollisionObject<Scalar> capsule (capsuleGeometry, tf1);

@@ -385,8 +385,8 @@ void IntervalTreeCollisionManager<Scalar>::update()
 template <typename Scalar>
 void IntervalTreeCollisionManager<Scalar>::update(CollisionObject<Scalar>* updated_obj)
 {
-  AABBd old_aabb;
-  const AABBd& new_aabb = updated_obj->getAABB();
+  AABB<Scalar> old_aabb;
+  const AABB<Scalar>& new_aabb = updated_obj->getAABB();
   for(int i = 0; i < 3; ++i)
   {
     const auto it = obj_interval_maps[i].find(updated_obj);
@@ -539,11 +539,11 @@ bool IntervalTreeCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* ob
 {
   static const unsigned int CUTOFF = 100;
 
-  Vector3d delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  AABBd aabb = obj->getAABB();
+  Vector3<Scalar> delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  AABB<Scalar> aabb = obj->getAABB();
   if(min_dist < std::numeric_limits<Scalar>::max())
   {
-    Vector3d min_dist_delta(min_dist, min_dist, min_dist);
+    Vector3<Scalar> min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
@@ -601,8 +601,8 @@ bool IntervalTreeCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* ob
       {
         if(min_dist < old_min_distance)
         {
-          Vector3d min_dist_delta(min_dist, min_dist, min_dist);
-          aabb = AABBd(obj->getAABB(), min_dist_delta);
+          Vector3<Scalar> min_dist_delta(min_dist, min_dist, min_dist);
+          aabb = AABB<Scalar>(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else
@@ -651,8 +651,8 @@ void IntervalTreeCollisionManager<Scalar>::collide(void* cdata, CollisionCallBac
       for(; iter != end; ++iter)
       {
         CollisionObject<Scalar>* active_index = *iter;
-        const AABBd& b0 = active_index->getAABB();
-        const AABBd& b1 = index->getAABB();
+        const AABB<Scalar>& b0 = active_index->getAABB();
+        const AABB<Scalar>& b1 = index->getAABB();
 
         int axis2 = (axis + 1) % 3;
         int axis3 = (axis + 2) % 3;

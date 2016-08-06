@@ -645,7 +645,7 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<CollisionData> self_data(managers.size());
+  std::vector<CollisionData<Scalar>> self_data(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
     if(exhaustive) self_data[i].request.num_max_contacts = 100000;
@@ -685,7 +685,7 @@ void broad_phase_collision_test(double env_scale, std::size_t env_size, std::siz
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<CollisionData> query_data(managers.size());
+    std::vector<CollisionData<Scalar>> query_data(managers.size());
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       if(exhaustive) query_data[j].request.num_max_contacts = 100000;
@@ -833,7 +833,7 @@ void broad_phase_self_distance_test(double env_scale, std::size_t env_size, bool
   }
  
 
-  std::vector<DistanceData> self_data(managers.size());
+  std::vector<DistanceData<Scalar>> self_data(managers.size());
                                       
   for(size_t i = 0; i < self_data.size(); ++i)
   {
@@ -911,7 +911,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size, std::size
 
     for(std::size_t i = 0; i < candidates.size(); ++i)
     {
-      CollisionData query_data;
+      CollisionData<Scalar> query_data;
       manager->collide(candidates[i], &query_data, defaultCollisionFunction);
       if(query_data.result.numContacts() == 0)
         query.push_back(candidates[i]);
@@ -978,7 +978,7 @@ void broad_phase_distance_test(double env_scale, std::size_t env_size, std::size
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<DistanceData> query_data(managers.size());
+    std::vector<DistanceData<Scalar>> query_data(managers.size());
     for(size_t j = 0; j < managers.size(); ++j)
     {
       timers[j].start();
@@ -1138,7 +1138,7 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<CollisionData> self_data(managers.size());
+  std::vector<CollisionData<Scalar>> self_data(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
     if(exhaustive) self_data[i].request.num_max_contacts = 100000;
@@ -1179,7 +1179,7 @@ void broad_phase_update_collision_test(double env_scale, std::size_t env_size, s
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<CollisionData> query_data(managers.size());
+    std::vector<CollisionData<Scalar>> query_data(managers.size());
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       if(exhaustive) query_data[j].request.num_max_contacts = 100000;

@@ -429,7 +429,7 @@ Plane<ScalarT>::Plane(ScalarT a, ScalarT b, ScalarT c, ScalarT d)
 
 //==============================================================================
 template <typename ScalarT>
-Plane<ScalarT>::Plane() : ShapeBased(), n(1, 0, 0), d(0)
+Plane<ScalarT>::Plane() : ShapeBase<ScalarT>(), n(1, 0, 0), d(0)
 {
   // Do nothing
 }

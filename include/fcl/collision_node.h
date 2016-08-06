@@ -99,8 +99,8 @@ void collide2(MeshCollisionTraversalNodeOBB<Scalar>* node, BVHFrontList* front_l
   }
   else
   {
-    Matrix3d Rtemp, R;
-    Vector3d Ttemp, T;
+    Matrix3<Scalar> Rtemp, R;
+    Vector3<Scalar> Ttemp, T;
     Rtemp = node->R * node->model2->getBV(0).getOrientation();
     R = node->model1->getBV(0).getOrientation().transpose() * Rtemp;
     Ttemp = node->R * node->model2->getBV(0).getCenter() + node->T;

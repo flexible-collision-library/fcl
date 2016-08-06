@@ -943,8 +943,8 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
 template <typename BV, typename OrientedDistanceNode>
 bool setupMeshConservativeAdvancementOrientedDistanceNode(
     OrientedDistanceNode& node,
-    const BVHModel<BV>& model1, const Transform3d& tf1,
-    const BVHModel<BV>& model2, const Transform3d& tf2,
+    const BVHModel<BV>& model1, const Transform3<typename BV::Scalar>& tf1,
+    const BVHModel<BV>& model2, const Transform3<typename BV::Scalar>& tf2,
     typename BV::Scalar w)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)

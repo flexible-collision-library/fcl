@@ -64,7 +64,7 @@ public:
   
   void setParentJoint(const std::shared_ptr<Joint>& joint);
   
-  void addObject(const std::shared_ptr<CollisionObjectd>& object);
+  void addObject(const std::shared_ptr<CollisionObject<Scalar>>& object);
   
   std::size_t getNumChildJoints() const;
   
@@ -73,7 +73,7 @@ public:
 protected:
   std::string name_;
 
-  std::vector<std::shared_ptr<CollisionObjectd> > objects_;
+  std::vector<std::shared_ptr<CollisionObject<Scalar>> > objects_;
 
   std::vector<std::shared_ptr<Joint> > children_joints_;
 
@@ -121,7 +121,7 @@ void Link<Scalar>::setParentJoint(const std::shared_ptr<Joint>& joint)
 
 //==============================================================================
 template <typename Scalar>
-void Link<Scalar>::addObject(const std::shared_ptr<CollisionObjectd>& object)
+void Link<Scalar>::addObject(const std::shared_ptr<CollisionObject<Scalar>>& object)
 {
   objects_.push_back(object);
 }

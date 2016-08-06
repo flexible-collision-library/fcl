@@ -103,7 +103,7 @@ std::size_t collide(
   if(!nsolver_)
     nsolver = new NarrowPhaseSolver();
 
-  const CollisionFunctionMatrix<NarrowPhaseSolver>& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
+  const auto& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
 
   std::size_t res;
   if(request.num_max_contacts == 0)
