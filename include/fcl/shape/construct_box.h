@@ -42,7 +42,7 @@
 #include <vector>
 
 #include "fcl/common/warning.h"
-#include "fcl/BV/BV.h"
+#include "fcl/BV/convert_bv.h"
 #include "fcl/shape/box.h"
 
 namespace fcl

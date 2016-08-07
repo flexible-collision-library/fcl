@@ -35,14 +35,13 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_OBB_H
-#define FCL_OBB_H
+#ifndef FCL_BV_OBB_H
+#define FCL_BV_OBB_H
 
 #include <iostream>
 
 #include "fcl/data_types.h"
 #include "fcl/math/geometry.h"
-#include "fcl/BV/bv_utility.h"
 
 namespace fcl
 {

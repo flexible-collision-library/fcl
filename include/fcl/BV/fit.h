@@ -38,17 +38,26 @@
 #ifndef FCL_BV_FIT_H
 #define FCL_BV_FIT_H
 
-#include "fcl/BV/detail/fit.h"
+#include "fcl/BV/detail/fitter.h"
 
 namespace fcl
 {
 
 /// @brief Compute a bounding volume that fits a set of n points.
 template <typename BV>
+void fit(Vector3<typename BV::Scalar>* ps, int n, BV& bv);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename BV>
 void fit(Vector3<typename BV::Scalar>* ps, int n, BV& bv)
 {
-  detail::FitImpl<typename BV::Scalar, BV> fitImpl;
-  fitImpl(ps, n, bv);
+  detail::Fitter<typename BV::Scalar, BV>::fit(ps, n, bv);
 }
 
 } // namespace fcl

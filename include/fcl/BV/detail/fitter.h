@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_DETAIL_FIT_H
-#define FCL_BV_DETAIL_FIT_H
+#ifndef FCL_BV_DETAIL_FITTER_H
+#define FCL_BV_DETAIL_FITTER_H
 
 #include "fcl/BV/OBB.h"
 #include "fcl/BV/RSS.h"
@@ -48,9 +48,9 @@ namespace detail {
 
 //==============================================================================
 template <typename Scalar, typename BV>
-struct FitImpl
+struct Fitter
 {
-  void operator()(Vector3<Scalar>* ps, int n, BV& bv)
+  static void fit(Vector3<Scalar>* ps, int n, BV& bv)
   {
     for(int i = 0; i < n; ++i)
       bv += ps[i];
@@ -418,9 +418,9 @@ void fitn(Vector3<Scalar>* ps, int n, OBBRSS<Scalar>& bv)
 
 //==============================================================================
 template <typename Scalar>
-struct FitImpl<Scalar, OBB<Scalar>>
+struct Fitter<Scalar, OBB<Scalar>>
 {
-  void operator()(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
+  static void fit(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
   {
     switch(n)
     {
@@ -444,9 +444,9 @@ struct FitImpl<Scalar, OBB<Scalar>>
 
 //==============================================================================
 template <typename Scalar>
-struct FitImpl<Scalar, RSS<Scalar>>
+struct Fitter<Scalar, RSS<Scalar>>
 {
-  void operator()(Vector3<Scalar>* ps, int n, RSS<Scalar>& bv)
+  static void fit(Vector3<Scalar>* ps, int n, RSS<Scalar>& bv)
   {
     switch(n)
     {
@@ -467,9 +467,9 @@ struct FitImpl<Scalar, RSS<Scalar>>
 
 //==============================================================================
 template <typename Scalar>
-struct FitImpl<Scalar, kIOS<Scalar>>
+struct Fitter<Scalar, kIOS<Scalar>>
 {
-  void operator()(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
+  static void fit(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
   {
     switch(n)
     {
@@ -490,9 +490,9 @@ struct FitImpl<Scalar, kIOS<Scalar>>
 
 //==============================================================================
 template <typename Scalar>
-struct FitImpl<Scalar, OBBRSS<Scalar>>
+struct Fitter<Scalar, OBBRSS<Scalar>>
 {
-  void operator()(Vector3<Scalar>* ps, int n, OBBRSS<Scalar>& bv)
+  static void fit(Vector3<Scalar>* ps, int n, OBBRSS<Scalar>& bv)
   {
     switch(n)
     {

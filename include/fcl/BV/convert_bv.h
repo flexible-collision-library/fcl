@@ -35,19 +35,38 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_DETAIL_OBB_H
-#define FCL_BV_DETAIL_OBB_H
+#ifndef FCL_BV_CONVERTBV_H
+#define FCL_BV_CONVERTBV_H
 
-#include <iostream>
+#include "fcl/BV/detail/converter.h"
 
-#include "fcl/data_types.h"
+/** \brief Main namespace */
+namespace fcl
+{
 
-namespace fcl {
-namespace detail {
+/// @brief Convert a bounding volume of type BV1 in configuration tf1 to
+/// bounding volume of type BV2 in identity configuration.
+template <typename BV1, typename BV2>
+void convertBV(
+    const BV1& bv1, const Transform3<typename BV1::Scalar>& tf1, BV2& bv2);
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
 
+//==============================================================================
+template <typename BV1, typename BV2>
+void convertBV(
+    const BV1& bv1, const Transform3<typename BV1::Scalar>& tf1, BV2& bv2)
+{
+  static_assert(std::is_same<typename BV1::Scalar, typename BV2::Scalar>::value,
+                "The scalar type of BV1 and BV2 should be the same");
 
-} // namespace detail
+  detail::Converter<typename BV1::Scalar, BV1, BV2>::convert(bv1, tf1, bv2);
+}
+
 } // namespace fcl
 
 #endif

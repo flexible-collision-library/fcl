@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_AABB_H
-#define FCL_AABB_H
+#ifndef FCL_BV_AABB_H
+#define FCL_BV_AABB_H
 
 #include "fcl/data_types.h"
 

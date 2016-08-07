@@ -35,11 +35,10 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_KIOS_H
-#define FCL_KIOS_H
+#ifndef FCL_BV_KIOS_H
+#define FCL_BV_KIOS_H
 
 #include "fcl/BV/OBB.h"
-
 
 namespace fcl
 {

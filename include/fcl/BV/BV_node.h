@@ -36,10 +36,10 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_BV_NODE_H
-#define FCL_BV_NODE_H
+#ifndef FCL_BV_BVNODE_H
+#define FCL_BV_BVNODE_H
 
-#include "fcl/BV/BV.h"
+#include "fcl/BV/convert_bv.h"
 #include <iostream>
 
 namespace fcl

@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BV_DETAIL_BV_H
-#define FCL_BV_DETAIL_BV_H
+#ifndef FCL_BV_DETAIL_CONVERTER_H
+#define FCL_BV_DETAIL_CONVERTER_H
 
 #include "fcl/BV/kDOP.h"
 #include "fcl/BV/AABB.h"
@@ -50,7 +50,7 @@ namespace fcl
 {
 
 /// @cond IGNORE
-namespace details
+namespace detail
 {
 
 /// @brief Convert a bounding volume of type BV1 in configuration tf1 to a bounding volume of type BV2 in I configuration.
@@ -63,7 +63,6 @@ private:
     // should only use the specialized version, so it is private.
   }
 };
-
 
 /// @brief Convert from AABB to AABB, not very tight but is fast.
 template <typename Scalar>
@@ -86,7 +85,7 @@ class Converter<Scalar, AABB<Scalar>, OBB<Scalar>>
 {
 public:
   static void convert(const AABB<Scalar>& bv1, const Transform3<Scalar>& tf1, OBB<Scalar>& bv2)
-  {    
+  {
     /*
     bv2.To = tf1 * bv1.center());
 
@@ -199,7 +198,7 @@ public:
   {
     bv2.Tr = tf1 * bv1.To;
     bv2.axis = tf1.linear() * bv1.axis;
- 
+
     bv2.r = bv1.extent[2];
     bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
     bv2.l[1] = 2 * (bv1.extent[1] - bv2.r);
@@ -278,6 +277,7 @@ public:
     bv2.axis.col(2) = R.col(id[2]);
   }
 };
+
 
 } // namespace detail
 

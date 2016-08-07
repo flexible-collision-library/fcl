@@ -45,7 +45,7 @@
 #include "fcl/shape/construct_box.h"
 #include "fcl/broadphase/broadphase.h"
 #include "fcl/broadphase/hierarchy_tree.h"
-#include "fcl/BV/BV.h"
+#include "fcl/BV/convert_bv.h"
 #if FCL_HAVE_OCTOMAP
 #include "fcl/octree.h"
 #endif

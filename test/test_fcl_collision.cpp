@@ -39,7 +39,7 @@
 
 #include "fcl/collision_node.h"
 #include "fcl/collision.h"
-#include "fcl/BV/BV.h"
+#include "fcl/BV/convert_bv.h"
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/narrowphase/gjk_solver_indep.h"
 #include "fcl/narrowphase/gjk_solver_libccd.h"

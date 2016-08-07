@@ -35,12 +35,12 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_RSS_H
-#define FCL_RSS_H
+#ifndef FCL_BV_RSS_H
+#define FCL_BV_RSS_H
 
 #include "fcl/math/constants.h"
 #include "fcl/math/geometry.h"
-#include "fcl/BV/bv_utility.h"
+#include "fcl/BV/utility.h"
 
 namespace fcl
 {

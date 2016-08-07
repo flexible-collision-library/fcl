@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_OBBRSS_H
-#define FCL_OBBRSS_H
+#ifndef FCL_BV_OBBRSS_H
+#define FCL_BV_OBBRSS_H
 
 #include "fcl/BV/OBB.h"
 #include "fcl/BV/RSS.h"

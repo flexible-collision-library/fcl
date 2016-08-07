@@ -36,40 +36,16 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_BV_UTILITY_H
-#define FCL_BV_UTILITY_H
+#ifndef FCL_BV_DETAILUTILITY_H
+#define FCL_BV_DETAILUTILITY_H
 
 #include "fcl/data_types.h"
 #include "fcl/math/triangle.h"
 
 namespace fcl
 {
-
-/// @brief Compute the bounding volume extent and center for a set or subset of points, given the BV axises.
-template <typename Scalar>
-void getExtentAndCenter(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent);
-
-/// @brief Compute the covariance matrix for a set or subset of points. if
-/// ts = null, then indices refer to points directly; otherwise refer to
-/// triangles
-template <typename Scalar>
-void getCovariance(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    Matrix3<Scalar>& M);
-
-namespace detail {
+namespace detail
+{
 
 /// \brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
@@ -88,15 +64,11 @@ void getExtentAndCenter_mesh(
     const Matrix3<Scalar>& axis, Vector3<Scalar>& center,
     Vector3<Scalar>& extent);
 
-} // namespace detail
-
 //============================================================================//
 //                                                                            //
 //                              Implementations                               //
 //                                                                            //
 //============================================================================//
-
-namespace detail {
 
 //==============================================================================
 template <typename Scalar>
@@ -220,117 +192,6 @@ void getExtentAndCenter_mesh(Vector3<Scalar>* ps,
 }
 
 } // namespace detail
-
-//==============================================================================
-template <typename Scalar>
-void getExtentAndCenter(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent)
-{
-  if(ts)
-    detail::getExtentAndCenter_mesh(ps, ps2, ts, indices, n, axis, center, extent);
-  else
-    detail::getExtentAndCenter_pointcloud(ps, ps2, indices, n, axis, center, extent);
-}
-
-//==============================================================================
-template <typename Scalar>
-void getCovariance(Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n, Matrix3<Scalar>& M)
-{
-  Vector3<Scalar> S1 = Vector3<Scalar>::Zero();
-  Vector3<Scalar> S2[3] = {
-    Vector3<Scalar>::Zero(), Vector3<Scalar>::Zero(), Vector3<Scalar>::Zero()
-  };
-
-  if(ts)
-  {
-    for(int i = 0; i < n; ++i)
-    {
-      const Triangle& t = (indices) ? ts[indices[i]] : ts[i];
-
-      const Vector3<Scalar>& p1 = ps[t[0]];
-      const Vector3<Scalar>& p2 = ps[t[1]];
-      const Vector3<Scalar>& p3 = ps[t[2]];
-
-      S1[0] += (p1[0] + p2[0] + p3[0]);
-      S1[1] += (p1[1] + p2[1] + p3[1]);
-      S1[2] += (p1[2] + p2[2] + p3[2]);
-      S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
-      S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
-      S2[2][2] += (p1[2] * p1[2] + p2[2] * p2[2] + p3[2] * p3[2]);
-      S2[0][1] += (p1[0] * p1[1] + p2[0] * p2[1] + p3[0] * p3[1]);
-      S2[0][2] += (p1[0] * p1[2] + p2[0] * p2[2] + p3[0] * p3[2]);
-      S2[1][2] += (p1[1] * p1[2] + p2[1] * p2[2] + p3[1] * p3[2]);
-
-      if(ps2)
-      {
-        const Vector3<Scalar>& p1 = ps2[t[0]];
-        const Vector3<Scalar>& p2 = ps2[t[1]];
-        const Vector3<Scalar>& p3 = ps2[t[2]];
-
-        S1[0] += (p1[0] + p2[0] + p3[0]);
-        S1[1] += (p1[1] + p2[1] + p3[1]);
-        S1[2] += (p1[2] + p2[2] + p3[2]);
-
-        S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
-        S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
-        S2[2][2] += (p1[2] * p1[2] + p2[2] * p2[2] + p3[2] * p3[2]);
-        S2[0][1] += (p1[0] * p1[1] + p2[0] * p2[1] + p3[0] * p3[1]);
-        S2[0][2] += (p1[0] * p1[2] + p2[0] * p2[2] + p3[0] * p3[2]);
-        S2[1][2] += (p1[1] * p1[2] + p2[1] * p2[2] + p3[1] * p3[2]);
-      }
-    }
-  }
-  else
-  {
-    for(int i = 0; i < n; ++i)
-    {
-      const Vector3<Scalar>& p = (indices) ? ps[indices[i]] : ps[i];
-      S1 += p;
-      S2[0][0] += (p[0] * p[0]);
-      S2[1][1] += (p[1] * p[1]);
-      S2[2][2] += (p[2] * p[2]);
-      S2[0][1] += (p[0] * p[1]);
-      S2[0][2] += (p[0] * p[2]);
-      S2[1][2] += (p[1] * p[2]);
-
-      if(ps2) // another frame
-      {
-        const Vector3<Scalar>& p = (indices) ? ps2[indices[i]] : ps2[i];
-        S1 += p;
-        S2[0][0] += (p[0] * p[0]);
-        S2[1][1] += (p[1] * p[1]);
-        S2[2][2] += (p[2] * p[2]);
-        S2[0][1] += (p[0] * p[1]);
-        S2[0][2] += (p[0] * p[2]);
-        S2[1][2] += (p[1] * p[2]);
-      }
-    }
-  }
-
-  int n_points = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
-
-  M(0, 0) = S2[0][0] - S1[0]*S1[0] / n_points;
-  M(1, 1) = S2[1][1] - S1[1]*S1[1] / n_points;
-  M(2, 2) = S2[2][2] - S1[2]*S1[2] / n_points;
-  M(0, 1) = S2[0][1] - S1[0]*S1[1] / n_points;
-  M(1, 2) = S2[1][2] - S1[1]*S1[2] / n_points;
-  M(0, 2) = S2[0][2] - S1[0]*S1[2] / n_points;
-  M(1, 0) = M(0, 1);
-  M(2, 0) = M(0, 2);
-  M(2, 1) = M(1, 2);
-}
-
 } // namespace fcl
 
 #endif

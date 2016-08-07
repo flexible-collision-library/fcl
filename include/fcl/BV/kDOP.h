@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_KDOP_H
-#define FCL_KDOP_H
+#ifndef FCL_BV_KDOP_H
+#define FCL_BV_KDOP_H
 
 #include <cstddef>
 #include <iostream>
