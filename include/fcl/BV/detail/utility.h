@@ -36,8 +36,8 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_BV_DETAILUTILITY_H
-#define FCL_BV_DETAILUTILITY_H
+#ifndef FCL_BV_DETAIL_UTILITY_H
+#define FCL_BV_DETAIL_UTILITY_H
 
 #include "fcl/data_types.h"
 #include "fcl/math/triangle.h"

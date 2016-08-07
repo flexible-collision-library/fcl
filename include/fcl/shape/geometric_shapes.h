@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRIC_SHAPES_H
-#define FCL_SHAPE_GEOMETRIC_SHAPES_H
+#ifndef FCL_SHAPE_GEOMETRICSHAPES_H
+#define FCL_SHAPE_GEOMETRICSHAPES_H
 
 #include "fcl/shape/box.h"
 #include "fcl/shape/capsule.h"
