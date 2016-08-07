@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_GJK_H
-#define FCL_GJK_H
+#ifndef FCL_NARROWPHASE_DETAIL_GJK_H
+#define FCL_NARROWPHASE_DETAIL_GJK_H
 
 #include "fcl/shape/geometric_shapes.h"
 #include "fcl/intersect.h"

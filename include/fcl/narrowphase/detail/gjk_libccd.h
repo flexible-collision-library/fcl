@@ -35,16 +35,15 @@
 
 /** \author Jia Pan */
 
-
-#ifndef FCL_GJK_LIBCCD_H
-#define FCL_GJK_LIBCCD_H
+#ifndef FCL_NARROWPHASE_DETAIL_GJKLIBCCD_H
+#define FCL_NARROWPHASE_DETAIL_GJKLIBCCD_H
 
 #include "fcl/shape/geometric_shapes.h"
 
 #include <ccd/ccd.h>
 #include <ccd/quat.h>
 #include <ccd/vec3.h>
-#include "fcl/narrowphase/gjk_libccd.h"
+#include "fcl/narrowphase/detail/gjk_libccd.h"
 #include "fcl/ccd/simplex.h"
 
 namespace fcl

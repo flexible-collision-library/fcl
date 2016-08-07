@@ -41,8 +41,8 @@
 #include <algorithm>
 
 #include "fcl/collision_data.h"
-#include "fcl/narrowphase/gjk_libccd.h"
-#include "fcl/narrowphase/narrowphase_algorithms.h"
+#include "fcl/narrowphase/detail/gjk_libccd.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithms.h"
 
 namespace fcl
 {
