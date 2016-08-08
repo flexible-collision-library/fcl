@@ -310,8 +310,8 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_self_distance_mesh)
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_binary)
 {
 #if FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test(2000, 2, 5, 1, false, true);
-  broad_phase_collision_test(2000, 5, 5, 1, false, true);
+  broad_phase_collision_test(2000, 10, 100, 1, false, true);
+  broad_phase_collision_test(2000, 100, 100, 1, false, true);
 #else
   broad_phase_collision_test(2000, 100, 1000, 1, false, true);
   broad_phase_collision_test(2000, 1000, 1000, 1, false, true);
