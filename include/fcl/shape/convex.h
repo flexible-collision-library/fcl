@@ -128,16 +128,16 @@ using Convexd = Convex<double>;
 //==============================================================================
 template <typename ScalarT>
 Convex<ScalarT>::Convex(
-    Vector3<ScalarT>* plane_normals, ScalarT* plane_dis, int num_planes,
-    Vector3<ScalarT>* points, int num_points, int* polygons)
+    Vector3<ScalarT>* plane_normals, ScalarT* plane_dis, int num_planes_,
+    Vector3<ScalarT>* points, int num_points_, int* polygons_)
   : ShapeBase<ScalarT>()
 {
   plane_normals = plane_normals;
   plane_dis = plane_dis;
-  num_planes = num_planes;
+  num_planes = num_planes_;
   points = points;
-  num_points = num_points;
-  polygons = polygons;
+  num_points = num_points_;
+  polygons = polygons_;
   edges = NULL;
 
   Vector3<ScalarT> sum = Vector3<ScalarT>::Zero();

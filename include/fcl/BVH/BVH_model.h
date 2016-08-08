@@ -85,10 +85,10 @@ public:
   int getNumBVs() const;
 
   /// @brief Get the object type: it is a BVH
-  OBJECT_TYPE getObjectType() const;
+  OBJECT_TYPE getObjectType() const override;
 
   /// @brief Get the BV type: default is unknown
-  NODE_TYPE getNodeType() const;
+  NODE_TYPE getNodeType() const override;
 
   /// @brief Compute the AABB for the BVH, used for broad-phase collision
   void computeLocalAABB() override;
@@ -151,11 +151,11 @@ public:
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative();
 
-  Vector3<Scalar> computeCOM() const;
+  Vector3<Scalar> computeCOM() const override;
 
-  Scalar computeVolume() const;
+  Scalar computeVolume() const override;
 
-  Matrix3<Scalar> computeMomentofInertia() const;
+  Matrix3<Scalar> computeMomentofInertia() const override;
 
 public:
   /// @brief Geometry point data

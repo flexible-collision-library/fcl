@@ -577,7 +577,7 @@ static int __ccdGJK(const void *obj1, const void *obj2,
 }
 
 /// change the libccd distance to add two closest points
-static ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
+static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
 {
   unsigned long iterations;
   ccd_simplex_t simplex;
@@ -731,7 +731,7 @@ static void convexToGJK(const Convex<Scalar>& s, const Transform3<Scalar>& tf, c
 }
 
 /** Support functions */
-static void supportBox(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportBox(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
   const ccd_box_t* o = static_cast<const ccd_box_t*>(obj);
   ccd_vec3_t dir;
@@ -744,7 +744,7 @@ static void supportBox(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
   ccdVec3Add(v, &o->pos);
 }
 
-static void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
   const ccd_cap_t* o = static_cast<const ccd_cap_t*>(obj);
   ccd_vec3_t dir, pos1, pos2;
@@ -771,7 +771,7 @@ static void supportCap(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
   ccdVec3Add(v, &o->pos);
 }
 
-static void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
   const ccd_cyl_t* cyl = static_cast<const ccd_cyl_t*>(obj);
   ccd_vec3_t dir;
@@ -798,7 +798,7 @@ static void supportCyl(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
   ccdVec3Add(v, &cyl->pos);
 }
 
-static void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
   const ccd_cone_t* cone = static_cast<const ccd_cone_t*>(obj);
   ccd_vec3_t dir;
@@ -829,7 +829,7 @@ static void supportCone(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
   ccdVec3Add(v, &cone->pos);
 }
 
-static void supportSphere(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportSphere(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
   const ccd_sphere_t* s = static_cast<const ccd_sphere_t*>(obj);
   ccd_vec3_t dir;
@@ -846,7 +846,7 @@ static void supportSphere(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v
   ccdVec3Add(v, &s->pos);
 }
 
-static void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
+static inline void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
   const ccd_ellipsoid_t* s = static_cast<const ccd_ellipsoid_t*>(obj);
   ccd_vec3_t dir;
@@ -930,7 +930,7 @@ static void supportTriangle(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t*
   ccdVec3Add(v, &tri->pos);
 }
 
-static void centerShape(const void* obj, ccd_vec3_t* c)
+static inline void centerShape(const void* obj, ccd_vec3_t* c)
 {
   const ccd_obj_t *o = static_cast<const ccd_obj_t*>(obj);
   ccdVec3Copy(c, &o->pos);

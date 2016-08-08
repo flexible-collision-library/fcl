@@ -83,22 +83,22 @@ public:
     return true;
   }
 
-  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const
+  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
-  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const
+  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
-  void getCurrentTransform(Transform3<Scalar>& tf_) const
+  void getCurrentTransform(Transform3<Scalar>& tf_) const override
   {
     tf_ = tf;
   }
 
-  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const
+  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const override
   {
   }
 
@@ -144,7 +144,7 @@ public:
   
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
-  bool integrate(Scalar dt) const;
+  bool integrate(Scalar dt) const override;
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
   Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const override

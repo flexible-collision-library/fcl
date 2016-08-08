@@ -38,6 +38,7 @@
 #ifndef TEST_FCL_UTILITY_H
 #define TEST_FCL_UTILITY_H
 
+#include <array>
 #include <fstream>
 #include <iostream>
 #include "fcl/math/constants.h"
