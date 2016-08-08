@@ -95,7 +95,7 @@ void test_distance_capsule_box()
 
   // Rotate capsule around y axis by pi/2 and move it behind box
   tf1.translation() = fcl::Vector3<Scalar>(-10., 0., 0.);
-  tf1.linear() = fcl::Quaternion3<Scalar>(sqrt(2)/2, 0, sqrt(2)/2, 0).toRotationMatrix();
+  tf1.linear() = fcl::Quaternion<Scalar>(sqrt(2)/2, 0, sqrt(2)/2, 0).toRotationMatrix();
   capsule.setTransform (tf1);
 
   // test distance

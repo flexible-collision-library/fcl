@@ -82,8 +82,7 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Box<ScalarT>>
 {
   static void compute(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    bv.To = tf.translation();
-    bv.axis = tf.linear();
+    bv.frame = tf;
     bv.extent = s.side * (ScalarT)0.5;
   }
 };

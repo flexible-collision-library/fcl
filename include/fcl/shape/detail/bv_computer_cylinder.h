@@ -84,8 +84,7 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Cylinder<ScalarT>>
 {
   static void compute(const Cylinder<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    bv.To = tf.translation();
-    bv.axis = tf.linear();
+    bv.frame = tf;
     bv.extent << s.radius, s.radius, s.lz / 2;
   }
 };

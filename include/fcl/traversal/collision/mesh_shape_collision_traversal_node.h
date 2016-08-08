@@ -456,7 +456,7 @@ template <typename S, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodeOBB<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
+  return !overlap(this->tf1, this->model2_bv, this->model1->getBV(b1).bv);
 }
 
 //==============================================================================
@@ -479,7 +479,7 @@ template <typename S, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodeRSS<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
+  return !overlap(this->tf1, this->model2_bv, this->model1->getBV(b1).bv);
 }
 
 //==============================================================================
@@ -503,7 +503,7 @@ template <typename S, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodekIOS<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
+  return !overlap(this->tf1, this->model2_bv, this->model1->getBV(b1).bv);
 }
 
 //==============================================================================
@@ -527,7 +527,7 @@ template <typename S, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
+  return !overlap(this->tf1, this->model2_bv, this->model1->getBV(b1).bv);
 }
 
 //==============================================================================

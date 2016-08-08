@@ -97,7 +97,7 @@ bool sphereCapsuleIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& 
 {
   const Vector3<Scalar> pos1(0., 0., 0.5 * s2.lz);
   const Vector3<Scalar> pos2(0., 0., -0.5 * s2.lz);
-  const Vector3<Scalar> s_c = tf2.inverse() * tf1.translation();
+  const Vector3<Scalar> s_c = tf2.inverse(Eigen::Isometry) * tf1.translation();
 
   Vector3<Scalar> segment_point;
 
@@ -131,7 +131,7 @@ bool sphereCapsuleDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& t
 {
   Vector3<Scalar> pos1(0., 0., 0.5 * s2.lz);
   Vector3<Scalar> pos2(0., 0., -0.5 * s2.lz);
-  Vector3<Scalar> s_c = tf2.inverse() * tf1.translation();
+  Vector3<Scalar> s_c = tf2.inverse(Eigen::Isometry) * tf1.translation();
 
   Vector3<Scalar> segment_point;
 
@@ -149,7 +149,7 @@ bool sphereCapsuleDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& t
   if(p1)
   {
     *p1 = s_c - diff * s1.radius;
-    *p1 = tf1.inverse() * tf2 * (*p1);
+    *p1 = tf1.inverse(Eigen::Isometry) * tf2 * (*p1);
   }
 
   if(p2) *p2 = segment_point + diff * s1.radius;

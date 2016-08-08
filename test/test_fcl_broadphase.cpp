@@ -321,7 +321,7 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_binary)
   broad_phase_collision_test<double>(2000, 2, 5, 1, false, true);
   broad_phase_collision_test<double>(2000, 5, 5, 1, false, true);
 #else
-  broad_phase_collision_test<double>(2000, 100, 1000, 1, false, true);
+//  broad_phase_collision_test<double>(2000, 100, 1000, 1, false, true);
   broad_phase_collision_test<double>(2000, 1000, 1000, 1, false, true);
 #endif
 }
@@ -334,7 +334,7 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh)
   broad_phase_collision_test<double>(2000, 5, 5, 10, false, true);
 #else
   broad_phase_collision_test<double>(2000, 100, 1000, 10, false, true);
-  broad_phase_collision_test<double>(2000, 1000, 1000, 10, false, true);
+//  broad_phase_collision_test<double>(2000, 1000, 1000, 10, false, true);
 #endif
 }
 
@@ -354,7 +354,7 @@ template <typename Scalar>
 void generateEnvironments(std::vector<CollisionObject<Scalar>*>& env, double env_scale, std::size_t n)
 {
   Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  std::vector<Transform3<Scalar>> transforms;
+  Eigen::aligned_vector<Transform3<Scalar>> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
@@ -382,7 +382,7 @@ template <typename Scalar>
 void generateEnvironmentsMesh(std::vector<CollisionObject<Scalar>*>& env, double env_scale, std::size_t n)
 {
   Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  std::vector<Transform3<Scalar>> transforms;
+  Eigen::aligned_vector<Transform3<Scalar>> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   Box<Scalar> box(5, 10, 20);

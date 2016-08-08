@@ -661,10 +661,10 @@ struct ShapeDistanceLibccdImpl
           p2);
 
     if (p1)
-      *p1 = tf1.inverse() * *p1;
+      *p1 = tf1.inverse(Eigen::Isometry) * *p1;
 
     if (p2)
-      *p2 = tf2.inverse() * *p2;
+      *p2 = tf2.inverse(Eigen::Isometry) * *p2;
 
     details::GJKInitializer<Scalar, S1>::deleteGJKObject(o1);
     details::GJKInitializer<Scalar, S2>::deleteGJKObject(o2);
@@ -812,7 +812,7 @@ struct ShapeTriangleDistanceLibccdImpl
           dist,
           p1,
           p2);
-    if(p1) *p1 = tf.inverse() * *p1;
+    if(p1) *p1 = tf.inverse(Eigen::Isometry) * *p1;
 
     details::GJKInitializer<Scalar, S>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
@@ -887,8 +887,8 @@ struct ShapeTransformedTriangleDistanceLibccdImpl
           dist,
           p1,
           p2);
-    if(p1) *p1 = tf1.inverse() * *p1;
-    if(p2) *p2 = tf2.inverse() * *p2;
+    if(p1) *p1 = tf1.inverse(Eigen::Isometry) * *p1;
+    if(p2) *p2 = tf2.inverse(Eigen::Isometry) * *p2;
 
     details::GJKInitializer<Scalar, S>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);

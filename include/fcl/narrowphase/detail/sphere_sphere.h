@@ -99,8 +99,8 @@ bool sphereSphereDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf
   if(len > s1.radius + s2.radius)
   {
     if(dist) *dist = len - (s1.radius + s2.radius);
-    if(p1) *p1 = tf1.inverse() * (o1 - diff * (s1.radius / len));
-    if(p2) *p2 = tf2.inverse() * (o2 + diff * (s2.radius / len));
+    if(p1) *p1 = tf1.inverse(Eigen::Isometry) * (o1 - diff * (s1.radius / len));
+    if(p2) *p2 = tf2.inverse(Eigen::Isometry) * (o2 + diff * (s2.radius / len));
     return true;
   }
 

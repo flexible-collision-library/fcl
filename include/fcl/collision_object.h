@@ -94,13 +94,13 @@ public:
     return cgeom->getNodeType();
   }
 
-  /// @brief get the AABB<Scalar> in world space
+  /// @brief get the AABB in world space
   const AABB<Scalar>& getAABB() const
   {
     return aabb;
   }
 
-  /// @brief compute the AABB<Scalar> in world space
+  /// @brief compute the AABB in world space
   void computeAABB()
   {
     if(t.linear().isIdentity())
@@ -141,9 +141,9 @@ public:
   }
 
   /// @brief get quaternion rotation of the object
-  const Quaternion3<Scalar> getQuatRotation() const
+  const Quaternion<Scalar> getQuatRotation() const
   {
-    return Quaternion3<Scalar>(t.linear());
+    return Quaternion<Scalar>(t.linear());
   }
 
   /// @brief get object's transform
@@ -165,7 +165,7 @@ public:
   }
 
   /// @brief set object's quatenrion rotation
-  void setQuatRotation(const Quaternion3<Scalar>& q)
+  void setQuatRotation(const Quaternion<Scalar>& q)
   {
     t.linear() = q.toRotationMatrix();
   }
@@ -178,7 +178,7 @@ public:
   }
 
   /// @brief set object's transform
-  void setTransform(const Quaternion3<Scalar>& q, const Vector3<Scalar>& T)
+  void setTransform(const Quaternion<Scalar>& q, const Vector3<Scalar>& T)
   {
     setQuatRotation(q);
     setTranslation(T);
@@ -193,7 +193,7 @@ public:
   /// @brief whether the object is in local coordinate
   bool isIdentityTransform() const
   {
-    return (t.linear().isIdentity() && t.translation().isZero());
+    return t.matrix().isIdentity();
   }
 
   /// @brief set the object in local coordinate
@@ -257,6 +257,10 @@ protected:
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;
+
+public:
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using CollisionObjectf = CollisionObject<float>;

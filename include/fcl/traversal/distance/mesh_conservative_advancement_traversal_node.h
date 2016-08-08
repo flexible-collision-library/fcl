@@ -117,8 +117,9 @@ public:
 
   bool canStop(Scalar c) const;
 
-  Matrix3<Scalar> R;
-  Vector3<Scalar> T;
+  Transform3<Scalar> tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MeshConservativeAdvancementTraversalNodeRSSf = MeshConservativeAdvancementTraversalNodeRSS<float>;
@@ -148,8 +149,9 @@ public:
 
   bool canStop(Scalar c) const;
 
-  Matrix3<Scalar> R;
-  Vector3<Scalar> T;
+  Transform3<Scalar> tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MeshConservativeAdvancementTraversalNodeOBBRSSf = MeshConservativeAdvancementTraversalNodeOBBRSS<float>;
@@ -517,7 +519,7 @@ template <typename Scalar>
 MeshConservativeAdvancementTraversalNodeRSS<Scalar>::MeshConservativeAdvancementTraversalNodeRSS(Scalar w_)
   : MeshConservativeAdvancementTraversalNode<RSS<Scalar>>(w_)
 {
-  R.setIdentity();
+  tf.linear().setIdentity();
 }
 
 //==============================================================================
@@ -529,8 +531,8 @@ Scalar MeshConservativeAdvancementTraversalNodeRSS<Scalar>::BVTesting(int b1, in
 
   Vector3<Scalar> P1, P2;
   Scalar d = distance(
-        R,
-        T,
+        tf.linear(),
+        tf.translation(),
         this->model1->getBV(b1).bv,
         this->model2->getBV(b2).bv, &P1, &P2);
 
@@ -553,8 +555,8 @@ void MeshConservativeAdvancementTraversalNodeRSS<Scalar>::leafTesting(int b1, in
         this->tri_indices2,
         this->vertices1,
         this->vertices2,
-        R,
-        T,
+        tf.linear(),
+        tf.translation(),
         this->motion1,
         this->motion2,
         this->enable_statistics,
@@ -591,7 +593,7 @@ MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>::
 MeshConservativeAdvancementTraversalNodeOBBRSS(Scalar w_)
   : MeshConservativeAdvancementTraversalNode<OBBRSS<Scalar>>(w_)
 {
-  R.setIdentity();
+  tf.linear().setIdentity();
 }
 
 //==============================================================================
@@ -604,8 +606,8 @@ BVTesting(int b1, int b2) const
 
   Vector3<Scalar> P1, P2;
   Scalar d = distance(
-        R,
-        T,
+        tf.linear(),
+        tf.translation(),
         this->model1->getBV(b1).bv,
         this->model2->getBV(b2).bv, &P1, &P2);
 
@@ -628,8 +630,8 @@ leafTesting(int b1, int b2) const
         this->tri_indices2,
         this->vertices1,
         this->vertices2,
-        this->R,
-        this->T,
+        this->tf.linear(),
+        this->tf.translation(),
         this->motion1,
         this->motion2,
         this->enable_statistics,
@@ -688,7 +690,7 @@ struct GetBVAxisImpl<Scalar, OBBRSS<Scalar>>
 {
   const Vector3<Scalar> operator()(const OBBRSS<Scalar>& bv, int i)
   {
-    return bv.obb.axis.col(i);
+    return bv.obb.frame.linear().col(i);
   }
 };
 
@@ -817,7 +819,7 @@ bool meshConservativeAdvancementOrientedNodeCanStop(
       getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
       getBVAxis(model1->getBV(c1).bv, 1) * n[2] +  // TODO(JS): not n[1]?
       getBVAxis(model1->getBV(c1).bv, 2) * n[2];
-    Quaternion3<Scalar> R0;
+    Quaternion<Scalar> R0;
     motion1->getCurrentRotation(R0);
     n_transformed = R0 * n_transformed;
     n_transformed.normalize();
@@ -920,7 +922,7 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
   /// n is the local frame of object 1, pointing from object 1 to object2
   Vector3<Scalar> n = P2 - P1;
   /// turn n into the global frame, pointing from object 1 to object 2
-  Quaternion3<Scalar> R0;
+  Quaternion<Scalar> R0;
   motion1->getCurrentRotation(R0);
   Vector3<Scalar> n_transformed = R0 * n;
   n_transformed.normalize(); // normalized here
@@ -961,7 +963,7 @@ bool setupMeshConservativeAdvancementOrientedDistanceNode(
 
   node.w = w;
 
-  relativeTransform(tf1, tf2, node.R, node.T);
+  node.tf = tf1.inverse(Eigen::Isometry) * tf2;
 
   return true;
 }

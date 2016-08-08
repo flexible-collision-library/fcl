@@ -50,21 +50,21 @@ class SamplerSE3Euler : public SamplerBase<Scalar>
 public:
   SamplerSE3Euler();
 
-  SamplerSE3Euler(const VectorN<Scalar, 3>& lower_bound_,
-                  const VectorN<Scalar, 3>& upper_bound_);
+  SamplerSE3Euler(const Vector3<Scalar>& lower_bound_,
+                  const Vector3<Scalar>& upper_bound_);
 
-  void setBound(const VectorN<Scalar, 3>& lower_bound_,
-                const VectorN<Scalar, 3>& upper_bound_);
+  void setBound(const Vector3<Scalar>& lower_bound_,
+                const Vector3<Scalar>& upper_bound_);
 
-  void getBound(VectorN<Scalar, 3>& lower_bound_,
-                VectorN<Scalar, 3>& upper_bound_) const;
+  void getBound(Vector3<Scalar>& lower_bound_,
+                Vector3<Scalar>& upper_bound_) const;
 
-  VectorN<Scalar, 6> sample() const;
+  Vector6<Scalar> sample() const;
 
 protected:
-  VectorN<Scalar, 3> lower_bound;
-  VectorN<Scalar, 3> upper_bound;
-  
+  Vector3<Scalar> lower_bound;
+  Vector3<Scalar> upper_bound;
+
 };
 
 using SamplerSE3Eulerf = SamplerSE3Euler<float>;
@@ -85,7 +85,7 @@ SamplerSE3Euler<Scalar>::SamplerSE3Euler()
 
 //==============================================================================
 template <typename Scalar>
-SamplerSE3Euler<Scalar>::SamplerSE3Euler(const VectorN<Scalar, 3>& lower_bound_, const VectorN<Scalar, 3>& upper_bound_) : lower_bound(lower_bound_),
+SamplerSE3Euler<Scalar>::SamplerSE3Euler(const Vector3<Scalar>& lower_bound_, const Vector3<Scalar>& upper_bound_) : lower_bound(lower_bound_),
   upper_bound(upper_bound_)
 {
   // Do nothing
@@ -93,9 +93,9 @@ SamplerSE3Euler<Scalar>::SamplerSE3Euler(const VectorN<Scalar, 3>& lower_bound_,
 
 //==============================================================================
 template <typename Scalar>
-VectorN<Scalar, 6> SamplerSE3Euler<Scalar>::sample() const
+Vector6<Scalar> SamplerSE3Euler<Scalar>::sample() const
 {
-  VectorN<Scalar, 6> q;
+  Vector6<Scalar> q;
   q[0] = this->rng.uniformReal(lower_bound[0], upper_bound[0]);
   q[1] = this->rng.uniformReal(lower_bound[1], upper_bound[1]);
   q[2] = this->rng.uniformReal(lower_bound[2], upper_bound[2]);
@@ -103,7 +103,7 @@ VectorN<Scalar, 6> SamplerSE3Euler<Scalar>::sample() const
   Scalar s[4];
   this->rng.quaternion(s);
 
-  Quaternion3<Scalar> quat(s[0], s[1], s[2], s[3]);
+  Quaternion<Scalar> quat(s[0], s[1], s[2], s[3]);
   Vector3<Scalar> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
 
   q[3] = angles[0];
@@ -115,7 +115,7 @@ VectorN<Scalar, 6> SamplerSE3Euler<Scalar>::sample() const
 
 //==============================================================================
 template <typename Scalar>
-void SamplerSE3Euler<Scalar>::getBound(VectorN<Scalar, 3>& lower_bound_, VectorN<Scalar, 3>& upper_bound_) const
+void SamplerSE3Euler<Scalar>::getBound(Vector3<Scalar>& lower_bound_, Vector3<Scalar>& upper_bound_) const
 {
   lower_bound_ = lower_bound;
   upper_bound_ = upper_bound;
@@ -123,7 +123,7 @@ void SamplerSE3Euler<Scalar>::getBound(VectorN<Scalar, 3>& lower_bound_, VectorN
 
 //==============================================================================
 template <typename Scalar>
-void SamplerSE3Euler<Scalar>::setBound(const VectorN<Scalar, 3>& lower_bound_, const VectorN<Scalar, 3>& upper_bound_)
+void SamplerSE3Euler<Scalar>::setBound(const Vector3<Scalar>& lower_bound_, const Vector3<Scalar>& upper_bound_)
 
 {
   lower_bound = lower_bound_;

@@ -117,8 +117,8 @@ template <typename Scalar>
 void constructBox(const OBB<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
   box = Box<Scalar>(bv.extent * 2);
-  tf.linear() = bv.axis;
-  tf.translation() = bv.To;
+  tf.linear() = bv.frame.linear();
+  tf.translation() = bv.frame.translation();
 }
 
 //==============================================================================
@@ -126,8 +126,8 @@ template <typename Scalar>
 void constructBox(const OBBRSS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
   box = Box<Scalar>(bv.obb.extent * 2);
-  tf.linear() = bv.obb.axis;
-  tf.translation() = bv.obb.To;
+  tf.linear() = bv.obb.frame.linear();
+  tf.translation() = bv.obb.frame.translation();
 }
 
 //==============================================================================
@@ -135,8 +135,8 @@ template <typename Scalar>
 void constructBox(const kIOS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
   box = Box<Scalar>(bv.obb.extent * 2);
-  tf.linear() = bv.obb.axis;
-  tf.translation() = bv.obb.To;
+  tf.linear() = bv.obb.frame.linear();
+  tf.translation() = bv.obb.frame.translation();
 }
 
 //==============================================================================
@@ -144,8 +144,8 @@ template <typename Scalar>
 void constructBox(const RSS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  tf.linear() = bv.axis;
-  tf.translation() = bv.Tr;
+  tf.linear() = bv.frame.linear();
+  tf.translation() = bv.frame.translation();
 }
 
 //==============================================================================
@@ -192,8 +192,7 @@ void constructBox(const OBB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Sc
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.extent * 2);
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf.linear() = bv.axis;
-  tf.translation() = bv.To;
+  tf = bv.frame;
 }
 
 //==============================================================================
@@ -203,9 +202,7 @@ void constructBox(const OBBRSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.obb.extent * 2);
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf.linear() = bv.obb.axis;
-  tf.translation() = bv.obb.To;
-  tf = tf_bv * tf;
+  tf = tf_bv * bv.obb.frame;
 }
 
 //==============================================================================
@@ -215,9 +212,7 @@ void constructBox(const kIOS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<S
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.obb.extent * 2);
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf.linear() = bv.obb.axis;
-  tf.translation() = bv.obb.To;
-  tf = tf_bv * tf;
+  tf = tf_bv * bv.obb.frame;
 }
 
 //==============================================================================
@@ -227,9 +222,7 @@ void constructBox(const RSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Sc
   FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
   FCL_SUPPRESS_UNINITIALIZED_END
-  tf.linear() = bv.axis;
-  tf.translation() = bv.Tr;
-  tf = tf_bv * tf;
+  tf = tf_bv * bv.frame;
 }
 
 //==============================================================================

@@ -122,9 +122,8 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Halfspace<ScalarT>>
 {
   static void compute(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    /// Half space can only have very rough OBB<ScalarT>
-    bv.axis.setIdentity();
-    bv.To.setZero();
+    /// Half space can only have very rough OBB
+    bv.frame.setIdentity();
     bv.extent.setConstant(std::numeric_limits<ScalarT>::max());
   }
 };
@@ -135,9 +134,8 @@ struct BVComputer<ScalarT, RSS<ScalarT>, Halfspace<ScalarT>>
 {
   static void compute(const Halfspace<ScalarT>& s, const Transform3<ScalarT>& tf, RSS<ScalarT>& bv)
   {
-    /// Half space can only have very rough RSS<ScalarT>
-    bv.axis.setIdentity();
-    bv.Tr.setZero();
+    /// Half space can only have very rough RSS
+    bv.frame.setIdentity();
     bv.l[0] = bv.l[1] = bv.r = std::numeric_limits<ScalarT>::max();
   }
 };

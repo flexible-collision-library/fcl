@@ -65,7 +65,7 @@ public:
   {
   }
 
-  ///@ brief Init the number of bins in the hash table
+  /// @brief Init the number of bins in the hash table
   void init(size_t size)
   {
     if(size == 0) 

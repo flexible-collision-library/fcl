@@ -176,7 +176,7 @@ struct GetOrientationImpl<Scalar, OBB<Scalar>>
 {
   Matrix3<Scalar> operator()(const OBB<Scalar>& bv)
   {
-    return bv.axis;
+    return bv.frame.linear();
   }
 };
 
@@ -186,7 +186,7 @@ struct GetOrientationImpl<Scalar, RSS<Scalar>>
 {
   Matrix3<Scalar> operator()(const RSS<Scalar>& bv)
   {
-    return bv.axis;
+    return bv.frame.linear();
   }
 };
 
@@ -196,7 +196,7 @@ struct GetOrientationImpl<Scalar, OBBRSS<Scalar>>
 {
   Matrix3<Scalar> operator()(const OBBRSS<Scalar>& bv)
   {
-    return bv.obb.axis;
+    return bv.obb.frame.linear();
   }
 };
 

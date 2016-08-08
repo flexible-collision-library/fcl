@@ -480,7 +480,7 @@ bool sphereTriangleDistance(const Sphere<Scalar>& sp, const Transform3<Scalar>& 
       Vector3<Scalar> project_p = P1 * result.parameterization[0] + P2 * result.parameterization[1] + P3 * result.parameterization[2];
       Vector3<Scalar> dir = o - project_p;
       dir.normalize();
-      if(p1) { *p1 = o - dir * sp.radius; *p1 = tf.inverse() * (*p1); }
+      if(p1) { *p1 = o - dir * sp.radius; *p1 = tf.inverse(Eigen::Isometry) * (*p1); }
       if(p2) *p2 = project_p;
       return true;
     }
@@ -500,7 +500,7 @@ bool sphereTriangleDistance(const Sphere<Scalar>& sp, const Transform3<Scalar>& 
                             Scalar* dist, Vector3<Scalar>* p1, Vector3<Scalar>* p2)
 {
   bool res = details::sphereTriangleDistance(sp, tf1, tf2 * P1, tf2 * P2, tf2 * P3, dist, p1, p2);
-  if(p2) *p2 = tf2.inverse() * (*p2);
+  if(p2) *p2 = tf2.inverse(Eigen::Isometry) * (*p2);
 
   return res;
 }

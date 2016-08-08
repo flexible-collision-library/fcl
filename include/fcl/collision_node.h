@@ -101,9 +101,9 @@ void collide2(MeshCollisionTraversalNodeOBB<Scalar>* node, BVHFrontList* front_l
   {
     Matrix3<Scalar> Rtemp, R;
     Vector3<Scalar> Ttemp, T;
-    Rtemp = node->R * node->model2->getBV(0).getOrientation();
+    Rtemp = node->tf.linear() * node->model2->getBV(0).getOrientation();
     R = node->model1->getBV(0).getOrientation().transpose() * Rtemp;
-    Ttemp = node->R * node->model2->getBV(0).getCenter() + node->T;
+    Ttemp = node->tf.linear() * node->model2->getBV(0).getCenter() + node->tf.translation();
     Ttemp -= node->model1->getBV(0).getCenter();
     T = node->model1->getBV(0).getOrientation().transpose() * Ttemp;
 
@@ -121,7 +121,7 @@ void collide2(MeshCollisionTraversalNodeRSS<Scalar>* node, BVHFrontList* front_l
   }
   else
   {
-    collisionRecurse(node, 0, 0, node->R, node->T, front_list);
+    collisionRecurse(node, 0, 0, node->tf.linear(), node->tf.translation(), front_list);
   }
 }
 

@@ -119,7 +119,7 @@ bool planeHalfspaceIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& 
                              Scalar& penetration_depth,
                              int& ret);
 
-///@ brief return whether two halfspace intersect
+/// @brief return whether two halfspace intersect
 /// if the separation planes of the two halfspaces are parallel
 ///    return code 1, if two halfspaces' normal are same and s1 is in s2, also return s1 in s;
 ///    return code 2, if two halfspaces' normal are same and s2 is in s1, also return s2 in s;
@@ -200,7 +200,7 @@ bool ellipsoidHalfspaceIntersect(const Ellipsoid<Scalar>& s1, const Transform3<S
   // We first compute a single contact in the ellipsoid coordinates, tf1, then
   // will transform it to the world frame. So we use a new halfspace that is
   // expressed in the ellipsoid coordinates.
-  const Halfspace<Scalar>& new_s2 = transform(s2, tf1.inverse() * tf2);
+  const Halfspace<Scalar>& new_s2 = transform(s2, tf1.inverse(Eigen::Isometry) * tf2);
 
   // Compute distance between the ellipsoid's center and a contact plane, whose
   // normal is equal to the halfspace's normal.

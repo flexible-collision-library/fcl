@@ -446,7 +446,7 @@ MeshShapeDistanceTraversalNodeRSS<S, NarrowPhaseSolver>::BVTesting(
     int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
+  return distance(this->tf1, this->model2_bv, this->model1->getBV(b1).bv);
 }
 
 //==============================================================================
@@ -495,7 +495,7 @@ template <typename S, typename NarrowPhaseSolver>
 typename NarrowPhaseSolver::Scalar MeshShapeDistanceTraversalNodekIOS<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
+  return distance(this->tf1, this->model2_bv, this->model1->getBV(b1).bv);
 }
 
 //==============================================================================
@@ -534,7 +534,7 @@ MeshShapeDistanceTraversalNodeOBBRSS<S, NarrowPhaseSolver>::
 BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
+  return distance(this->tf1, this->model2_bv, this->model1->getBV(b1).bv);
 }
 
 //==============================================================================

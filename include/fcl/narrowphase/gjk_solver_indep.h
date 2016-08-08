@@ -236,7 +236,7 @@ struct ShapeIntersectIndepImpl
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
-    shape.toshape0 = tf1.inverse() * tf2;
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
     typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -469,7 +469,7 @@ struct ShapeTriangleIntersectIndepImpl
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf.linear();
-    shape.toshape0 = tf.inverse();
+    shape.toshape0 = tf.inverse(Eigen::Isometry);
 
     details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
     typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -567,7 +567,7 @@ struct ShapeTransformedTriangleIntersectIndepImpl
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
-    shape.toshape0 = tf1.inverse() * tf2;
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
     typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -708,7 +708,7 @@ struct ShapeDistanceIndepImpl
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
-    shape.toshape0 = tf1.inverse() * tf2;
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
     typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -874,7 +874,7 @@ struct ShapeTriangleDistanceIndepImpl
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf.linear();
-    shape.toshape0 = tf.inverse();
+    shape.toshape0 = tf.inverse(Eigen::Isometry);
 
     details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
     typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
@@ -965,7 +965,7 @@ struct ShapeTransformedTriangleDistanceIndepImpl
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
-    shape.toshape0 = tf1.inverse() * tf2;
+    shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
     typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);

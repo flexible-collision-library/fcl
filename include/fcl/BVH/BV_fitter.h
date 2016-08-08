@@ -336,10 +336,10 @@ OBB<Scalar> BVFitter<OBB<Scalar>>::fit(
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
 
-  axisFromEigen(E, s, bv.axis);
+  axisFromEigen(E, s, bv.frame);
 
   // set obb centers and extensions
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.frame, bv.extent);
 
   return bv;
 }
@@ -391,16 +391,14 @@ RSS<Scalar> BVFitter<RSS<Scalar>>::fit(
   Vector3<Scalar> s; // three eigen values
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
-  axisFromEigen(E, s, bv.axis);
+  axisFromEigen(E, s, bv.frame);
 
   // set rss origin, rectangle size and radius
 
-  Vector3<Scalar> origin;
   Scalar l[2];
   Scalar r;
-  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.axis, origin, l, r);
+  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.frame, l, r);
 
-  bv.Tr = origin;
   bv.l[0] = l[0];
   bv.l[1] = l[1];
   bv.r = r;
@@ -458,12 +456,12 @@ kIOS<Scalar> BVFitter<kIOS<Scalar>>::fit(
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
 
-  axisFromEigen(E, s, bv.obb.axis);
+  axisFromEigen(E, s, bv.obb.frame);
 
   // get centers and extensions
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
 
-  const Vector3<Scalar>& center = bv.obb.To;
+  const Vector3<Scalar>& center = bv.obb.frame.translation();
   const Vector3<Scalar>& extent = bv.obb.extent;
   Scalar r0 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, center);
 
@@ -481,15 +479,15 @@ kIOS<Scalar> BVFitter<kIOS<Scalar>>::fit(
   if(bv.num_spheres >= 3)
   {
     Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<Scalar>::invSinA();
-    Vector3<Scalar> delta = bv.obb.axis.col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
+    Vector3<Scalar> delta = bv.obb.frame.linear().col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 
     Scalar r11 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[1].o);
     Scalar r12 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[2].o);
 
-    bv.spheres[1].o += bv.obb.axis.col(2) * (-r10 + r11);
-    bv.spheres[2].o += bv.obb.axis.col(2) * (r10 - r12);
+    bv.spheres[1].o += bv.obb.frame.linear().col(2) * (-r10 + r11);
+    bv.spheres[2].o += bv.obb.frame.linear().col(2) * (r10 - r12);
 
     bv.spheres[1].r = r10;
     bv.spheres[2].r = r10;
@@ -498,7 +496,7 @@ kIOS<Scalar> BVFitter<kIOS<Scalar>>::fit(
   if(bv.num_spheres >= 5)
   {
     Scalar r10 = bv.spheres[1].r;
-    Vector3<Scalar> delta = bv.obb.axis.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+    Vector3<Scalar> delta = bv.obb.frame.linear().col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
 
@@ -506,8 +504,8 @@ kIOS<Scalar> BVFitter<kIOS<Scalar>>::fit(
     r21 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[3].o);
     r22 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[4].o);
 
-    bv.spheres[3].o += bv.obb.axis.col(1) * (-r10 + r21);
-    bv.spheres[4].o += bv.obb.axis.col(1) * (r10 - r22);
+    bv.spheres[3].o += bv.obb.frame.linear().col(1) * (-r10 + r21);
+    bv.spheres[4].o += bv.obb.frame.linear().col(1) * (r10 - r22);
 
     bv.spheres[3].r = r10;
     bv.spheres[4].r = r10;
@@ -564,17 +562,15 @@ OBBRSS<Scalar> BVFitter<OBBRSS<Scalar>>::fit(
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen(M, s, E);
 
-  axisFromEigen(E, s, bv.obb.axis);
-  bv.rss.axis = bv.obb.axis;
+  axisFromEigen(E, s, bv.obb.frame);
+  bv.rss.frame.linear() = bv.obb.frame.linear();
 
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
 
-  Vector3<Scalar> origin;
   Scalar l[2];
   Scalar r;
-  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.axis, origin, l, r);
+  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.frame, l, r);
 
-  bv.rss.Tr = origin;
   bv.rss.l[0] = l[0];
   bv.rss.l[1] = l[1];
   bv.rss.r = r;

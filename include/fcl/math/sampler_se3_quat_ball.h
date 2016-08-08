@@ -57,7 +57,7 @@ public:
 
   void getBound(Scalar& r_) const;
 
-  VectorN<Scalar, 7> sample() const;
+  Vector6<Scalar> sample() const;
 
 protected:
   Scalar r;
@@ -102,9 +102,9 @@ void SamplerSE3Quat_ball<Scalar>::getBound(Scalar& r_) const
 
 //==============================================================================
 template <typename Scalar>
-VectorN<Scalar, 7> SamplerSE3Quat_ball<Scalar>::sample() const
+Vector6<Scalar> SamplerSE3Quat_ball<Scalar>::sample() const
 {
-  VectorN<Scalar, 7> q;
+  Vector6<Scalar> q;
   Scalar x, y, z;
   this->rng.ball(0, r, x, y, z);
   q[0] = x;

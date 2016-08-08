@@ -398,7 +398,7 @@ struct PenetrationDepthRequest
   /// @brief gjk solver type
   GJKSolverType gjk_solver_type;
 
-  std::vector<Transform3<Scalar>> contact_vectors;
+  Eigen::aligned_vector<Transform3<Scalar>> contact_vectors;
 
   PenetrationDepthRequest(void* classifier_,
                           PenetrationDepthType pd_type_ = PDT_TRANSLATIONAL,

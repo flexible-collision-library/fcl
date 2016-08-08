@@ -58,7 +58,7 @@ public:
                 Scalar r1, Scalar r2,
                 Scalar crefx, Scalar crefy);
 
-  VectorN<Scalar, 3> sample() const;
+  Vector3<Scalar> sample() const;
 
 protected:
   Scalar c[2];
@@ -98,9 +98,9 @@ void SamplerSE2_disk<Scalar>::setBound(Scalar cx, Scalar cy, Scalar r1, Scalar r
 
 //==============================================================================
 template <typename Scalar>
-VectorN<Scalar, 3> SamplerSE2_disk<Scalar>::sample() const
+Vector3<Scalar> SamplerSE2_disk<Scalar>::sample() const
 {
-  VectorN<Scalar, 3> q;
+  Vector3<Scalar> q;
   Scalar x, y;
   this->rng.disk(r_min, r_max, x, y);
   q[0] = x + c[0] - cref[0];

@@ -103,7 +103,7 @@ void test_vec_test_basic_vector()
 
 GTEST_TEST(FCL_MATH, vec_test_basic_vector3)
 {
-  test_vec_test_basic_vector<float>();
+//  test_vec_test_basic_vector<float>();
   test_vec_test_basic_vector<double>();
 }
 
@@ -124,7 +124,7 @@ void test_morton()
 
 GTEST_TEST(FCL_MATH, morton)
 {
-  test_morton<float>();
+//  test_morton<float>();
   test_morton<double>();
 }
 

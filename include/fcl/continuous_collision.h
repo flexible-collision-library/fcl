@@ -237,7 +237,7 @@ Scalar continuousCollideBVHPolynomial(
     break;
   case BV_OBB:
     if(o2->getNodeType() == BV_OBB)
-      return details::continuousCollideBVHPolynomial<OBBd>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<OBB<Scalar>>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_RSS:
     if(o2->getNodeType() == BV_RSS)
@@ -245,7 +245,7 @@ Scalar continuousCollideBVHPolynomial(
     break;
   case BV_kIOS:
     if(o2->getNodeType() == BV_kIOS)
-      return details::continuousCollideBVHPolynomial<kIOSd>(o1, motion1, o2, motion2, request, result);
+      return details::continuousCollideBVHPolynomial<kIOS<Scalar>>(o1, motion1, o2, motion2, request, result);
     break;
   case BV_OBBRSS:
     if(o2->getNodeType() == BV_OBBRSS)

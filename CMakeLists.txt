@@ -53,7 +53,8 @@ set(FCL_HAVE_SSE 0)
 if(FCL_USE_SSE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(FCL_HAVE_SSE 0) #always disable, for now
-    add_definitions(-march=native)
+#    add_definitions(-march=native)
+    add_definitions(-msse2)
   endif()
   # TODO: do something similar for other compilers
 endif()

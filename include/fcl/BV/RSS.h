@@ -53,12 +53,13 @@ public:
 
   using Scalar = ScalarT;
 
-  /// @brief Orientation of RSS. axis[i] is the ith column of the orientation matrix for the RSS; it is also the i-th principle direction of the RSS.
-  /// We assume that axis[0] corresponds to the axis with the longest length, axis[1] corresponds to the shorter one and axis[2] corresponds to the shortest one.
-  Matrix3<ScalarT> axis;
-
-  /// @brief Origin of the rectangle in RSS
-  Vector3<ScalarT> Tr;
+  /// @brief Orientation and center of OBB. Rotation part of frame represents
+  /// the orientation of the box; the axes of the rotation matrix are the
+  /// principle directions of the box. We assume that the first column
+  /// corresponds to the axis with the longest box edge, second column
+  /// corresponds to the shorter one and the third coulumn corresponds to the
+  /// shortest one.
+  Transform3<ScalarT> frame;
 
   /// @brief Side lengths of rectangle
   ScalarT l[2];
@@ -67,7 +68,7 @@ public:
   ScalarT r;
 
   /// Constructor
-  RSS<ScalarT>();
+  RSS();
 
   /// @brief Check collision between two RSS
   bool overlap(const RSS<ScalarT>& other) const;
@@ -105,12 +106,14 @@ public:
   ScalarT size() const;
 
   /// @brief The RSS center
-  const Vector3<ScalarT>& center() const;
+  const Vector3<ScalarT> center() const;
 
   /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
   ScalarT distance(const RSS<ScalarT>& other,
                   Vector3<ScalarT>* P = NULL,
                   Vector3<ScalarT>* Q = NULL) const;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 };
 
@@ -150,20 +153,46 @@ bool inVoronoi(Scalar a, Scalar b,
 /// @brief Distance between two oriented rectangles; P and Q (optional return
 /// values) are the closest points in the rectangles, both are in the local
 /// frame of the first rectangle.
+//template <typename Scalar>
+//FCL_DEPRECATED
+//Scalar rectDistance(const Matrix3<Scalar>& Rab, const Vector3<Scalar>& Tab,
+//                    const Scalar a[2], const Scalar b[2],
+//                    Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL);
+
+/// @brief Distance between two oriented rectangles; P and Q (optional return
+/// values) are the closest points in the rectangles, both are in the local
+/// frame of the first rectangle.
 template <typename Scalar>
-Scalar rectDistance(const Matrix3<Scalar>& Rab, const Vector3<Scalar>& Tab,
-                    const Scalar a[2], const Scalar b[2],
-                    Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL);
+Scalar rectDistance(
+    const Transform3<Scalar>& tfab,
+    const Scalar a[2],
+    const Scalar b[2],
+    Vector3<Scalar>* P = NULL,
+    Vector3<Scalar>* Q = NULL);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles,
 /// not the RSS. But the direction P - Q is the correct direction for cloest
 /// points. Notice that P and Q are both in the local frame of the first RSS
 /// (not global frame and not even the local frame of object 1)
-template <typename Scalar, typename DerivedA, typename DerivedB>
+//template <typename Scalar, typename DerivedA, typename DerivedB>
+//FCL_DEPRECATED
+//Scalar distance(
+//    const Eigen::MatrixBase<DerivedA>& R0,
+//    const Eigen::MatrixBase<DerivedB>& T0,
+//    const RSS<Scalar>& b1,
+//    const RSS<Scalar>& b2,
+//    Vector3<Scalar>* P = NULL,
+//    Vector3<Scalar>* Q = NULL);
+
+/// @brief distance between two RSS bounding volumes
+/// P and Q (optional return values) are the closest points in the rectangles,
+/// not the RSS. But the direction P - Q is the correct direction for cloest
+/// points. Notice that P and Q are both in the local frame of the first RSS
+/// (not global frame and not even the local frame of object 1)
+template <typename Scalar>
 Scalar distance(
-    const Eigen::MatrixBase<DerivedA>& R0,
-    const Eigen::MatrixBase<DerivedB>& T0,
+    const Transform3<Scalar>& tf,
     const RSS<Scalar>& b1,
     const RSS<Scalar>& b2,
     Vector3<Scalar>* P = NULL,
@@ -171,10 +200,19 @@ Scalar distance(
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-template <typename Scalar, typename DerivedA, typename DerivedB>
+//template <typename Scalar, typename DerivedA, typename DerivedB>
+//FCL_DEPRECATED
+//bool overlap(
+//    const Eigen::MatrixBase<DerivedA>& R0,
+//    const Eigen::MatrixBase<DerivedB>& T0,
+//    const RSS<Scalar>& b1,
+//    const RSS<Scalar>& b2);
+
+/// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
+/// b2 is in identity.
+template <typename Scalar>
 bool overlap(
-    const Eigen::MatrixBase<DerivedA>& R0,
-    const Eigen::MatrixBase<DerivedB>& T0,
+    const Transform3<Scalar>& tf,
     const RSS<Scalar>& b1,
     const RSS<Scalar>& b2);
 
@@ -190,8 +228,7 @@ RSS<Scalar> translate(const RSS<Scalar>& bv, const Vector3<Scalar>& t);
 
 //==============================================================================
 template <typename Scalar>
-RSS<Scalar>::RSS()
-  : axis(Matrix3<Scalar>::Identity()), Tr(Vector3<Scalar>::Zero())
+RSS<Scalar>::RSS() : frame(Transform3<Scalar>::Identity())
 {
   // Do nothing
 }
@@ -200,20 +237,7 @@ RSS<Scalar>::RSS()
 template <typename Scalar>
 bool RSS<Scalar>::overlap(const RSS<Scalar>& other) const
 {
-  /// compute what transform [R,T] that takes us from cs1 to cs2.
-  /// [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
-  /// First compute the rotation part, then translation part
-
-  /// First compute T2 - T1
-  Vector3<Scalar> t = other.Tr - Tr;
-
-  /// Then compute R1'(T2 - T1)
-  Vector3<Scalar> T = t.transpose() * axis;
-
-  /// Now compute R1'R2
-  Matrix3<Scalar> R = axis.transpose() * other.axis;
-
-  Scalar dist = rectDistance(R, T, l, other.l);
+  Scalar dist = rectDistance(frame.inverse(Eigen::Isometry) * other.frame, l, other.l);
   return (dist <= (r + other.r));
 }
 
@@ -229,8 +253,8 @@ bool RSS<Scalar>::overlap(const RSS<Scalar>& other,
 template <typename Scalar>
 bool RSS<Scalar>::contain(const Vector3<Scalar>& p) const
 {
-  Vector3<Scalar> local_p = p - Tr;
-  Vector3<Scalar> proj = local_p.transpose() * axis;
+  Vector3<Scalar> local_p = p - frame.translation();
+  Vector3<Scalar> proj = local_p.transpose() * frame.linear();
   Scalar abs_proj2 = fabs(proj[2]);
 
   /// projection is within the rectangle
@@ -264,8 +288,8 @@ template <typename Scalar>
 RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
 
 {
-  Vector3<Scalar> local_p = p - Tr;
-  Vector3<Scalar> proj = local_p.transpose() * axis;
+  Vector3<Scalar> local_p = p - frame.translation();
+  Vector3<Scalar> proj = local_p.transpose() * frame.linear();
   Scalar abs_proj2 = fabs(proj[2]);
 
   // projection is within the rectangle
@@ -278,9 +302,9 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
       r = 0.5 * (r + abs_proj2); // enlarge the r
       // change RSS origin position
       if(proj[2] > 0)
-        Tr[2] += 0.5 * (abs_proj2 - r);
+        frame.translation()[2] += 0.5 * (abs_proj2 - r);
       else
-        Tr[2] -= 0.5 * (abs_proj2 - r);
+        frame.translation()[2] -= 0.5 * (abs_proj2 - r);
     }
   }
   else if((proj[0] < l[0]) && (proj[0] > 0) && ((proj[1] < 0) || (proj[1] > l[1])))
@@ -297,19 +321,19 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
         Scalar delta_y = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[1] - y);
         l[1] += delta_y;
         if(proj[1] < 0)
-          Tr[1] -= delta_y;
+          frame.translation()[1] -= delta_y;
       }
       else
       {
         Scalar delta_y = fabs(proj[1] - y);
         l[1] += delta_y;
         if(proj[1] < 0)
-          Tr[1] -= delta_y;
+          frame.translation()[1] -= delta_y;
 
         if(proj[2] > 0)
-          Tr[2] += 0.5 * (abs_proj2 - r);
+          frame.translation()[2] += 0.5 * (abs_proj2 - r);
         else
-          Tr[2] -= 0.5 * (abs_proj2 - r);
+          frame.translation()[2] -= 0.5 * (abs_proj2 - r);
       }
     }
   }
@@ -327,19 +351,19 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
         Scalar delta_x = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[0] - x);
         l[0] += delta_x;
         if(proj[0] < 0)
-          Tr[0] -= delta_x;
+          frame.translation()[0] -= delta_x;
       }
       else
       {
         Scalar delta_x = fabs(proj[0] - x);
         l[0] += delta_x;
         if(proj[0] < 0)
-          Tr[0] -= delta_x;
+          frame.translation()[0] -= delta_x;
 
         if(proj[2] > 0)
-          Tr[2] += 0.5 * (abs_proj2 - r);
+          frame.translation()[2] += 0.5 * (abs_proj2 - r);
         else
-          Tr[2] -= 0.5 * (abs_proj2 - r);
+          frame.translation()[2] -= 0.5 * (abs_proj2 - r);
       }
     }
   }
@@ -365,8 +389,8 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
 
         if(proj[0] < 0 && proj[1] < 0)
         {
-          Tr[0] -= delta_x;
-          Tr[1] -= delta_y;
+          frame.translation()[0] -= delta_x;
+          frame.translation()[1] -= delta_y;
         }
       }
       else
@@ -379,14 +403,14 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
 
         if(proj[0] < 0 && proj[1] < 0)
         {
-          Tr[0] -= delta_x;
-          Tr[1] -= delta_y;
+          frame.translation()[0] -= delta_x;
+          frame.translation()[1] -= delta_y;
         }
 
         if(proj[2] > 0)
-          Tr[2] += 0.5 * (abs_proj2 - r);
+          frame.translation()[2] += 0.5 * (abs_proj2 - r);
         else
-          Tr[2] -= 0.5 * (abs_proj2 - r);
+          frame.translation()[2] -= 0.5 * (abs_proj2 - r);
       }
     }
   }
@@ -410,39 +434,39 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
 
   Vector3<Scalar> v[16];
 
-  Vector3<Scalar> d0_pos = other.axis.col(0) * (other.l[0] + other.r);
-  Vector3<Scalar> d1_pos = other.axis.col(1) * (other.l[1] + other.r);
+  Vector3<Scalar> d0_pos = other.frame.linear().col(0) * (other.l[0] + other.r);
+  Vector3<Scalar> d1_pos = other.frame.linear().col(1) * (other.l[1] + other.r);
 
-  Vector3<Scalar> d0_neg = other.axis.col(0) * (-other.r);
-  Vector3<Scalar> d1_neg = other.axis.col(1) * (-other.r);
+  Vector3<Scalar> d0_neg = other.frame.linear().col(0) * (-other.r);
+  Vector3<Scalar> d1_neg = other.frame.linear().col(1) * (-other.r);
 
-  Vector3<Scalar> d2_pos = other.axis.col(2) * other.r;
-  Vector3<Scalar> d2_neg = other.axis.col(2) * (-other.r);
+  Vector3<Scalar> d2_pos = other.frame.linear().col(2) * other.r;
+  Vector3<Scalar> d2_neg = other.frame.linear().col(2) * (-other.r);
 
-  v[0] = other.Tr + d0_pos + d1_pos + d2_pos;
-  v[1] = other.Tr + d0_pos + d1_pos + d2_neg;
-  v[2] = other.Tr + d0_pos + d1_neg + d2_pos;
-  v[3] = other.Tr + d0_pos + d1_neg + d2_neg;
-  v[4] = other.Tr + d0_neg + d1_pos + d2_pos;
-  v[5] = other.Tr + d0_neg + d1_pos + d2_neg;
-  v[6] = other.Tr + d0_neg + d1_neg + d2_pos;
-  v[7] = other.Tr + d0_neg + d1_neg + d2_neg;
+  v[0] = other.frame.translation() + d0_pos + d1_pos + d2_pos;
+  v[1] = other.frame.translation() + d0_pos + d1_pos + d2_neg;
+  v[2] = other.frame.translation() + d0_pos + d1_neg + d2_pos;
+  v[3] = other.frame.translation() + d0_pos + d1_neg + d2_neg;
+  v[4] = other.frame.translation() + d0_neg + d1_pos + d2_pos;
+  v[5] = other.frame.translation() + d0_neg + d1_pos + d2_neg;
+  v[6] = other.frame.translation() + d0_neg + d1_neg + d2_pos;
+  v[7] = other.frame.translation() + d0_neg + d1_neg + d2_neg;
 
-  d0_pos = axis.col(0) * (l[0] + r);
-  d1_pos = axis.col(1) * (l[1] + r);
-  d0_neg = axis.col(0) * (-r);
-  d1_neg = axis.col(1) * (-r);
-  d2_pos = axis.col(2) * r;
-  d2_neg = axis.col(2) * (-r);
+  d0_pos = frame.linear().col(0) * (l[0] + r);
+  d1_pos = frame.linear().col(1) * (l[1] + r);
+  d0_neg = frame.linear().col(0) * (-r);
+  d1_neg = frame.linear().col(1) * (-r);
+  d2_pos = frame.linear().col(2) * r;
+  d2_neg = frame.linear().col(2) * (-r);
 
-  v[8] = Tr + d0_pos + d1_pos + d2_pos;
-  v[9] = Tr + d0_pos + d1_pos + d2_neg;
-  v[10] = Tr + d0_pos + d1_neg + d2_pos;
-  v[11] = Tr + d0_pos + d1_neg + d2_neg;
-  v[12] = Tr + d0_neg + d1_pos + d2_pos;
-  v[13] = Tr + d0_neg + d1_pos + d2_neg;
-  v[14] = Tr + d0_neg + d1_neg + d2_pos;
-  v[15] = Tr + d0_neg + d1_neg + d2_neg;
+  v[8] = frame.translation() + d0_pos + d1_pos + d2_pos;
+  v[9] = frame.translation() + d0_pos + d1_pos + d2_neg;
+  v[10] = frame.translation() + d0_pos + d1_neg + d2_pos;
+  v[11] = frame.translation() + d0_pos + d1_neg + d2_neg;
+  v[12] = frame.translation() + d0_neg + d1_pos + d2_pos;
+  v[13] = frame.translation() + d0_neg + d1_pos + d2_neg;
+  v[14] = frame.translation() + d0_neg + d1_neg + d2_pos;
+  v[15] = frame.translation() + d0_neg + d1_neg + d2_neg;
 
 
   Matrix3<Scalar> M; // row first matrix
@@ -460,12 +484,12 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   else { mid = 2; }
 
   // column first matrix, as the axis in RSS
-  bv.axis.col(0) = E.col(max);
-  bv.axis.col(1) = E.col(mid);
-  bv.axis.col(2) = axis.col(0).cross(axis.col(1));
+  bv.frame.linear().col(0) = E.col(max);
+  bv.frame.linear().col(1) = E.col(mid);
+  bv.frame.linear().col(2) = frame.linear().col(0).cross(frame.linear().col(1));
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<Scalar>(v, NULL, NULL, NULL, 16, bv.axis, bv.Tr, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<Scalar>(v, NULL, NULL, NULL, 16, bv.frame, bv.l, bv.r);
 
   return bv;
 }
@@ -507,9 +531,9 @@ Scalar RSS<Scalar>::size() const
 
 //==============================================================================
 template <typename Scalar>
-const Vector3<Scalar>& RSS<Scalar>::center() const
+const Vector3<Scalar> RSS<Scalar>::center() const
 {
-  return Tr;
+  return frame.translation();
 }
 
 //==============================================================================
@@ -519,14 +543,7 @@ Scalar RSS<Scalar>::distance(
     Vector3<Scalar>* P,
     Vector3<Scalar>* Q) const
 {
-  // compute what transform [R,T] that takes us from cs1 to cs2.
-  // [R,T] = [R1,T1]'[R2,T2] = [R1',-R1'T][R2,T2] = [R1'R2, R1'(T2-T1)]
-  // First compute the rotation part, then translation part
-  Vector3<Scalar> t = other.Tr - Tr; // T2 - T1
-  Vector3<Scalar> T = t.transpose() * axis; // R1'(T2-T1)
-  Matrix3<Scalar> R = axis.transpose() * other.axis;
-
-  Scalar dist = rectDistance(R, T, l, other.l, P, Q);
+  Scalar dist = rectDistance(frame.inverse(Eigen::Isometry) * other.frame, l, other.l, P, Q);
   dist -= (r + other.r);
   return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
 }
@@ -594,45 +611,757 @@ bool inVoronoi(Scalar a, Scalar b, Scalar Anorm_dot_B, Scalar Anorm_dot_T, Scala
   return false;
 }
 
+//==============================================================================
+//template <typename Scalar>
+//Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, const Scalar a[2], const Scalar b[2], Vector3<Scalar>* P, Vector3<Scalar>* Q)
+//{
+//  Scalar A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
+
+//  A0_dot_B0 = Rab(0, 0);
+//  A0_dot_B1 = Rab(0, 1);
+//  A1_dot_B0 = Rab(1, 0);
+//  A1_dot_B1 = Rab(1, 1);
+
+//  Scalar aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
+//  Scalar bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
+
+//  aA0_dot_B0 = a[0] * A0_dot_B0;
+//  aA0_dot_B1 = a[0] * A0_dot_B1;
+//  aA1_dot_B0 = a[1] * A1_dot_B0;
+//  aA1_dot_B1 = a[1] * A1_dot_B1;
+//  bA0_dot_B0 = b[0] * A0_dot_B0;
+//  bA1_dot_B0 = b[0] * A1_dot_B0;
+//  bA0_dot_B1 = b[1] * A0_dot_B1;
+//  bA1_dot_B1 = b[1] * A1_dot_B1;
+
+//  Vector3<Scalar> Tba = Rab.transpose() * Tab;
+
+//  Vector3<Scalar> S;
+//  Scalar t, u;
+
+//  // determine if any edge pair contains the closest points
+
+//  Scalar ALL_x, ALU_x, AUL_x, AUU_x;
+//  Scalar BLL_x, BLU_x, BUL_x, BUU_x;
+//  Scalar LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
+
+//  ALL_x = -Tba[0];
+//  ALU_x = ALL_x + aA1_dot_B0;
+//  AUL_x = ALL_x + aA0_dot_B0;
+//  AUU_x = ALU_x + aA0_dot_B0;
+
+//  if(ALL_x < ALU_x)
+//  {
+//    LA1_lx = ALL_x;
+//    LA1_ux = ALU_x;
+//    UA1_lx = AUL_x;
+//    UA1_ux = AUU_x;
+//  }
+//  else
+//  {
+//    LA1_lx = ALU_x;
+//    LA1_ux = ALL_x;
+//    UA1_lx = AUU_x;
+//    UA1_ux = AUL_x;
+//  }
+
+//  BLL_x = Tab[0];
+//  BLU_x = BLL_x + bA0_dot_B1;
+//  BUL_x = BLL_x + bA0_dot_B0;
+//  BUU_x = BLU_x + bA0_dot_B0;
+
+//  if(BLL_x < BLU_x)
+//  {
+//    LB1_lx = BLL_x;
+//    LB1_ux = BLU_x;
+//    UB1_lx = BUL_x;
+//    UB1_ux = BUU_x;
+//  }
+//  else
+//  {
+//    LB1_lx = BLU_x;
+//    LB1_ux = BLL_x;
+//    UB1_lx = BUU_x;
+//    UB1_ux = BUL_x;
+//  }
+
+//  // UA1, UB1
+
+//  if((UA1_ux > b[0]) && (UB1_ux > a[0]))
+//  {
+//    if(((UA1_lx > b[0]) ||
+//        inVoronoi(b[1], a[1], A1_dot_B0, aA0_dot_B0 - b[0] - Tba[0],
+//                  A1_dot_B1, aA0_dot_B1 - Tba[1],
+//                  -Tab[1] - bA1_dot_B0))
+//       &&
+//       ((UB1_lx > a[0]) ||
+//        inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0 - a[0],
+//                  A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1] - aA0_dot_B1)))
+//    {
+//      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0,
+//                Tba[1] - aA0_dot_B1);
+
+//      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - a[0] ;
+//      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
+//      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << a[0], t, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+
+//  // UA1, LB1
+
+//  if((UA1_lx < 0) && (LB1_ux > a[0]))
+//  {
+//    if(((UA1_ux < 0) ||
+//        inVoronoi(b[1], a[1], -A1_dot_B0, Tba[0] - aA0_dot_B0,
+//                  A1_dot_B1, aA0_dot_B1 - Tba[1], -Tab[1]))
+//       &&
+//       ((LB1_lx > a[0]) ||
+//        inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] - a[0],
+//                  A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1)))
+//    {
+//      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1);
+
+//      S[0] = Tab[0] + Rab(0, 1) * u - a[0];
+//      S[1] = Tab[1] + Rab(1, 1) * u - t;
+//      S[2] = Tab[2] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << a[0], t, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA1, UB1
+
+//  if((LA1_ux > b[0]) && (UB1_lx < 0))
+//  {
+//    if(((LA1_lx > b[0]) ||
+//        inVoronoi(b[1], a[1], A1_dot_B0, -Tba[0] - b[0],
+//                  A1_dot_B1, -Tba[1], -Tab[1] - bA1_dot_B0))
+//       &&
+//       ((UB1_ux < 0) ||
+//        inVoronoi(a[1], b[1], -A0_dot_B1, -Tab[0] - bA0_dot_B0,
+//                  A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1])))
+//    {
+//      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1]);
+
+//      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u;
+//      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
+//      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << 0, t, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA1, LB1
+
+//  if((LA1_lx < 0) && (LB1_lx < 0))
+//  {
+//    if (((LA1_ux < 0) ||
+//         inVoronoi(b[1], a[1], -A1_dot_B0, Tba[0], A1_dot_B1,
+//                   -Tba[1], -Tab[1]))
+//        &&
+//        ((LB1_ux < 0) ||
+//         inVoronoi(a[1], b[1], -A0_dot_B1, -Tab[0], A1_dot_B1,
+//                   Tab[1], Tba[1])))
+//    {
+//      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1]);
+
+//      S[0] = Tab[0] + Rab(0, 1) * u;
+//      S[1] = Tab[1] + Rab(1, 1) * u - t;
+//      S[2] = Tab[2] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << 0, t, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  Scalar ALL_y, ALU_y, AUL_y, AUU_y;
+
+//  ALL_y = -Tba[1];
+//  ALU_y = ALL_y + aA1_dot_B1;
+//  AUL_y = ALL_y + aA0_dot_B1;
+//  AUU_y = ALU_y + aA0_dot_B1;
+
+//  Scalar LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
+
+//  if(ALL_y < ALU_y)
+//  {
+//    LA1_ly = ALL_y;
+//    LA1_uy = ALU_y;
+//    UA1_ly = AUL_y;
+//    UA1_uy = AUU_y;
+//  }
+//  else
+//  {
+//    LA1_ly = ALU_y;
+//    LA1_uy = ALL_y;
+//    UA1_ly = AUU_y;
+//    UA1_uy = AUL_y;
+//  }
+
+//  if(BLL_x < BUL_x)
+//  {
+//    LB0_lx = BLL_x;
+//    LB0_ux = BUL_x;
+//    UB0_lx = BLU_x;
+//    UB0_ux = BUU_x;
+//  }
+//  else
+//  {
+//    LB0_lx = BUL_x;
+//    LB0_ux = BLL_x;
+//    UB0_lx = BUU_x;
+//    UB0_ux = BLU_x;
+//  }
+
+//  // UA1, UB0
+
+//  if((UA1_uy > b[1]) && (UB0_ux > a[0]))
+//  {
+//    if(((UA1_ly > b[1]) ||
+//        inVoronoi(b[0], a[1], A1_dot_B1, aA0_dot_B1 - Tba[1] - b[1],
+//                  A1_dot_B0, aA0_dot_B0 - Tba[0], -Tab[1] - bA1_dot_B1))
+//       &&
+//       ((UB0_lx > a[0]) ||
+//        inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0] + bA0_dot_B1,
+//                  A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0] - aA0_dot_B0)))
+//    {
+//      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1,
+//                Tba[0] - aA0_dot_B0);
+
+//      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - a[0] ;
+//      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
+//      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+
+//      if(P && Q)
+//      {
+//        *P << a[0], t, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // UA1, LB0
+
+//  if((UA1_ly < 0) && (LB0_ux > a[0]))
+//  {
+//    if(((UA1_uy < 0) ||
+//        inVoronoi(b[0], a[1], -A1_dot_B1, Tba[1] - aA0_dot_B1, A1_dot_B0,
+//                  aA0_dot_B0 - Tba[0], -Tab[1]))
+//       &&
+//       ((LB0_lx > a[0]) ||
+//        inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0],
+//                  A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0)))
+//    {
+//      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0);
+
+//      S[0] = Tab[0] + Rab(0, 0) * u - a[0];
+//      S[1] = Tab[1] + Rab(1, 0) * u - t;
+//      S[2] = Tab[2] + Rab(2, 0) * u;
+
+//      if(P && Q)
+//      {
+//        *P << a[0], t, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA1, UB0
+
+//  if((LA1_uy > b[1]) && (UB0_lx < 0))
+//  {
+//    if(((LA1_ly > b[1]) ||
+//        inVoronoi(b[0], a[1], A1_dot_B1, -Tba[1] - b[1],
+//                  A1_dot_B0, -Tba[0], -Tab[1] - bA1_dot_B1))
+//       &&
+
+//       ((UB0_ux < 0) ||
+//        inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0] - bA0_dot_B1, A1_dot_B0,
+//                  Tab[1] + bA1_dot_B1, Tba[0])))
+//    {
+//      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0]);
+
+//      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u;
+//      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
+//      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+
+//      if(P && Q)
+//      {
+//        *P << 0, t, 0;
+//        *Q = S + (*P);
+//      }
+
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA1, LB0
+
+//  if((LA1_ly < 0) && (LB0_lx < 0))
+//  {
+//    if(((LA1_uy < 0) ||
+//        inVoronoi(b[0], a[1], -A1_dot_B1, Tba[1], A1_dot_B0,
+//                  -Tba[0], -Tab[1]))
+//       &&
+//       ((LB0_ux < 0) ||
+//        inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0], A1_dot_B0,
+//                  Tab[1], Tba[0])))
+//    {
+//      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0]);
+
+//      S[0] = Tab[0] + Rab(0, 0) * u;
+//      S[1] = Tab[1] + Rab(1, 0) * u - t;
+//      S[2] = Tab[2] + Rab(2, 0) * u;
+
+//      if(P&& Q)
+//      {
+//        *P << 0, t, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  Scalar BLL_y, BLU_y, BUL_y, BUU_y;
+
+//  BLL_y = Tab[1];
+//  BLU_y = BLL_y + bA1_dot_B1;
+//  BUL_y = BLL_y + bA1_dot_B0;
+//  BUU_y = BLU_y + bA1_dot_B0;
+
+//  Scalar LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
+
+//  if(ALL_x < AUL_x)
+//  {
+//    LA0_lx = ALL_x;
+//    LA0_ux = AUL_x;
+//    UA0_lx = ALU_x;
+//    UA0_ux = AUU_x;
+//  }
+//  else
+//  {
+//    LA0_lx = AUL_x;
+//    LA0_ux = ALL_x;
+//    UA0_lx = AUU_x;
+//    UA0_ux = ALU_x;
+//  }
+
+//  if(BLL_y < BLU_y)
+//  {
+//    LB1_ly = BLL_y;
+//    LB1_uy = BLU_y;
+//    UB1_ly = BUL_y;
+//    UB1_uy = BUU_y;
+//  }
+//  else
+//  {
+//    LB1_ly = BLU_y;
+//    LB1_uy = BLL_y;
+//    UB1_ly = BUU_y;
+//    UB1_uy = BUL_y;
+//  }
+
+//  // UA0, UB1
+
+//  if((UA0_ux > b[0]) && (UB1_uy > a[1]))
+//  {
+//    if(((UA0_lx > b[0]) ||
+//        inVoronoi(b[1], a[0], A0_dot_B0, aA1_dot_B0 - Tba[0] - b[0],
+//                  A0_dot_B1, aA1_dot_B1 - Tba[1], -Tab[0] - bA0_dot_B0))
+//       &&
+//       ((UB1_ly > a[1]) ||
+//        inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1] + bA1_dot_B0,
+//                  A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1] - aA1_dot_B1)))
+//    {
+//      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0,
+//                Tba[1] - aA1_dot_B1);
+
+//      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
+//      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - a[1];
+//      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, a[1], 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // UA0, LB1
+
+//  if((UA0_lx < 0) && (LB1_uy > a[1]))
+//  {
+//    if(((UA0_ux < 0) ||
+//        inVoronoi(b[1], a[0], -A0_dot_B0, Tba[0] - aA1_dot_B0, A0_dot_B1,
+//                  aA1_dot_B1 - Tba[1], -Tab[0]))
+//       &&
+//       ((LB1_ly > a[1]) ||
+//        inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1], A0_dot_B1, Tab[0],
+//                  Tba[1] - aA1_dot_B1)))
+//    {
+//      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1] - aA1_dot_B1);
+
+//      S[0] = Tab[0] + Rab(0, 1) * u - t;
+//      S[1] = Tab[1] + Rab(1, 1) * u - a[1];
+//      S[2] = Tab[2] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, a[1], 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA0, UB1
+
+//  if((LA0_ux > b[0]) && (UB1_ly < 0))
+//  {
+//    if(((LA0_lx > b[0]) ||
+//        inVoronoi(b[1], a[0], A0_dot_B0, -b[0] - Tba[0], A0_dot_B1, -Tba[1],
+//                  -bA0_dot_B0 - Tab[0]))
+//       &&
+//       ((UB1_uy < 0) ||
+//        inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1] - bA1_dot_B0, A0_dot_B1,
+//                  Tab[0] + bA0_dot_B0, Tba[1])))
+//    {
+//      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1]);
+
+//      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
+//      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u;
+//      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, 0, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA0, LB1
+
+//  if((LA0_lx < 0) && (LB1_ly < 0))
+//  {
+//    if(((LA0_ux < 0) ||
+//        inVoronoi(b[1], a[0], -A0_dot_B0, Tba[0], A0_dot_B1, -Tba[1],
+//                  -Tab[0]))
+//       &&
+//       ((LB1_uy < 0) ||
+//        inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1], A0_dot_B1,
+//                  Tab[0], Tba[1])))
+//    {
+//      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1]);
+
+//      S[0] = Tab[0] + Rab(0, 1) * u - t;
+//      S[1] = Tab[1] + Rab(1, 1) * u;
+//      S[2] = Tab[2] + Rab(2, 1) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, 0, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  Scalar LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
+
+//  if(ALL_y < AUL_y)
+//  {
+//    LA0_ly = ALL_y;
+//    LA0_uy = AUL_y;
+//    UA0_ly = ALU_y;
+//    UA0_uy = AUU_y;
+//  }
+//  else
+//  {
+//    LA0_ly = AUL_y;
+//    LA0_uy = ALL_y;
+//    UA0_ly = AUU_y;
+//    UA0_uy = ALU_y;
+//  }
+
+//  if(BLL_y < BUL_y)
+//  {
+//    LB0_ly = BLL_y;
+//    LB0_uy = BUL_y;
+//    UB0_ly = BLU_y;
+//    UB0_uy = BUU_y;
+//  }
+//  else
+//  {
+//    LB0_ly = BUL_y;
+//    LB0_uy = BLL_y;
+//    UB0_ly = BUU_y;
+//    UB0_uy = BLU_y;
+//  }
+
+//  // UA0, UB0
+
+//  if((UA0_uy > b[1]) && (UB0_uy > a[1]))
+//  {
+//    if(((UA0_ly > b[1]) ||
+//        inVoronoi(b[0], a[0], A0_dot_B1, aA1_dot_B1 - Tba[1] - b[1],
+//                  A0_dot_B0, aA1_dot_B0 - Tba[0], -Tab[0] - bA0_dot_B1))
+//       &&
+//       ((UB0_ly > a[1]) ||
+//        inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1] + bA1_dot_B1, A0_dot_B0,
+//                  Tab[0] + bA0_dot_B1, Tba[0] - aA1_dot_B0)))
+//    {
+//      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1,
+//                Tba[0] - aA1_dot_B0);
+
+//      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
+//      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - a[1];
+//      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, a[1], 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // UA0, LB0
+
+//  if((UA0_ly < 0) && (LB0_uy > a[1]))
+//  {
+//    if(((UA0_uy < 0) ||
+//        inVoronoi(b[0], a[0], -A0_dot_B1, Tba[1] - aA1_dot_B1, A0_dot_B0,
+//                  aA1_dot_B0 - Tba[0], -Tab[0]))
+//       &&
+//       ((LB0_ly > a[1]) ||
+//        inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1],
+//                  A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0)))
+//    {
+//      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0);
+
+//      S[0] = Tab[0] + Rab(0, 0) * u - t;
+//      S[1] = Tab[1] + Rab(1, 0) * u - a[1];
+//      S[2] = Tab[2] + Rab(2, 0) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, a[1], 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA0, UB0
+
+//  if((LA0_uy > b[1]) && (UB0_ly < 0))
+//  {
+//    if(((LA0_ly > b[1]) ||
+//        inVoronoi(b[0], a[0], A0_dot_B1, -Tba[1] - b[1], A0_dot_B0, -Tba[0],
+//                  -Tab[0] - bA0_dot_B1))
+//       &&
+
+//       ((UB0_uy < 0) ||
+//        inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1] - bA1_dot_B1, A0_dot_B0,
+//                  Tab[0] + bA0_dot_B1, Tba[0])))
+//    {
+//      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1, Tba[0]);
+
+//      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
+//      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u;
+//      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, 0, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // LA0, LB0
+
+//  if((LA0_ly < 0) && (LB0_ly < 0))
+//  {
+//    if(((LA0_uy < 0) ||
+//        inVoronoi(b[0], a[0], -A0_dot_B1, Tba[1], A0_dot_B0,
+//                  -Tba[0], -Tab[0]))
+//       &&
+//       ((LB0_uy < 0) ||
+//        inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1], A0_dot_B0,
+//                  Tab[0], Tba[0])))
+//    {
+//      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0]);
+
+//      S[0] = Tab[0] + Rab(0, 0) * u - t;
+//      S[1] = Tab[1] + Rab(1, 0) * u;
+//      S[2] = Tab[2] + Rab(2, 0) * u;
+
+//      if(P && Q)
+//      {
+//        *P << t, 0, 0;
+//        *Q = S + (*P);
+//      }
+
+//      return S.norm();
+//    }
+//  }
+
+//  // no edges passed, take max separation along face normals
+
+//  Scalar sep1, sep2;
+
+//  if(Tab[2] > 0.0)
+//  {
+//    sep1 = Tab[2];
+//    if (Rab(2, 0) < 0.0) sep1 += b[0] * Rab(2, 0);
+//    if (Rab(2, 1) < 0.0) sep1 += b[1] * Rab(2, 1);
+//  }
+//  else
+//  {
+//    sep1 = -Tab[2];
+//    if (Rab(2, 0) > 0.0) sep1 -= b[0] * Rab(2, 0);
+//    if (Rab(2, 1) > 0.0) sep1 -= b[1] * Rab(2, 1);
+//  }
+
+//  if(Tba[2] < 0)
+//  {
+//    sep2 = -Tba[2];
+//    if (Rab(0, 2) < 0.0) sep2 += a[0] * Rab(0, 2);
+//    if (Rab(1, 2) < 0.0) sep2 += a[1] * Rab(1, 2);
+//  }
+//  else
+//  {
+//    sep2 = Tba[2];
+//    if (Rab(0, 2) > 0.0) sep2 -= a[0] * Rab(0, 2);
+//    if (Rab(1, 2) > 0.0) sep2 -= a[1] * Rab(1, 2);
+//  }
+
+//  if(sep1 >= sep2 && sep1 >= 0)
+//  {
+//    if(Tab[2] > 0)
+//      S << 0, 0, sep1;
+//    else
+//      S << 0, 0, -sep1;
+
+//    if(P && Q)
+//    {
+//      *Q = S;
+//      P->setZero();
+//    }
+//  }
+
+//  if(sep2 >= sep1 && sep2 >= 0)
+//  {
+//    Vector3<Scalar> Q_(Tab[0], Tab[1], Tab[2]);
+//    Vector3<Scalar> P_;
+//    if(Tba[2] < 0)
+//    {
+//      P_[0] = Rab(0, 2) * sep2 + Tab[0];
+//      P_[1] = Rab(1, 2) * sep2 + Tab[1];
+//      P_[2] = Rab(2, 2) * sep2 + Tab[2];
+//    }
+//    else
+//    {
+//      P_[0] = -Rab(0, 2) * sep2 + Tab[0];
+//      P_[1] = -Rab(1, 2) * sep2 + Tab[1];
+//      P_[2] = -Rab(2, 2) * sep2 + Tab[2];
+//    }
+
+//    S = Q_ - P_;
+
+//    if(P && Q)
+//    {
+//      *P = P_;
+//      *Q = Q_;
+//    }
+//  }
+
+//  Scalar sep = (sep1 > sep2 ? sep1 : sep2);
+//  return (sep > 0 ? sep : 0);
+//}
 
 //==============================================================================
 template <typename Scalar>
-Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, const Scalar a[2], const Scalar b[2], Vector3<Scalar>* P, Vector3<Scalar>* Q)
+Scalar rectDistance(
+    const Transform3<Scalar>& tfab,
+    const Scalar a[2],
+    const Scalar b[2],
+    Vector3<Scalar>* P,
+    Vector3<Scalar>* Q)
 {
-  Scalar A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
+  Scalar A0_dot_B0 = tfab.linear()(0, 0);
+  Scalar A0_dot_B1 = tfab.linear()(0, 1);
+  Scalar A1_dot_B0 = tfab.linear()(1, 0);
+  Scalar A1_dot_B1 = tfab.linear()(1, 1);
 
-  A0_dot_B0 = Rab(0, 0);
-  A0_dot_B1 = Rab(0, 1);
-  A1_dot_B0 = Rab(1, 0);
-  A1_dot_B1 = Rab(1, 1);
+  Scalar aA0_dot_B0 = a[0] * A0_dot_B0;
+  Scalar aA0_dot_B1 = a[0] * A0_dot_B1;
+  Scalar aA1_dot_B0 = a[1] * A1_dot_B0;
+  Scalar aA1_dot_B1 = a[1] * A1_dot_B1;
+  Scalar bA0_dot_B0 = b[0] * A0_dot_B0;
+  Scalar bA1_dot_B0 = b[0] * A1_dot_B0;
+  Scalar bA0_dot_B1 = b[1] * A0_dot_B1;
+  Scalar bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Scalar aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
-  Scalar bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
-
-  aA0_dot_B0 = a[0] * A0_dot_B0;
-  aA0_dot_B1 = a[0] * A0_dot_B1;
-  aA1_dot_B0 = a[1] * A1_dot_B0;
-  aA1_dot_B1 = a[1] * A1_dot_B1;
-  bA0_dot_B0 = b[0] * A0_dot_B0;
-  bA1_dot_B0 = b[0] * A1_dot_B0;
-  bA0_dot_B1 = b[1] * A0_dot_B1;
-  bA1_dot_B1 = b[1] * A1_dot_B1;
-
-  Vector3<Scalar> Tba = Rab.transpose() * Tab;
+  Vector3<Scalar> Tba = tfab.linear().transpose() * tfab.translation();
 
   Vector3<Scalar> S;
   Scalar t, u;
 
   // determine if any edge pair contains the closest points
 
-  Scalar ALL_x, ALU_x, AUL_x, AUU_x;
-  Scalar BLL_x, BLU_x, BUL_x, BUU_x;
   Scalar LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
 
-  ALL_x = -Tba[0];
-  ALU_x = ALL_x + aA1_dot_B0;
-  AUL_x = ALL_x + aA0_dot_B0;
-  AUU_x = ALU_x + aA0_dot_B0;
+  Scalar ALL_x = -Tba[0];
+  Scalar ALU_x = ALL_x + aA1_dot_B0;
+  Scalar AUL_x = ALL_x + aA0_dot_B0;
+  Scalar AUU_x = ALU_x + aA0_dot_B0;
 
   if(ALL_x < ALU_x)
   {
@@ -649,10 +1378,10 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     UA1_ux = AUL_x;
   }
 
-  BLL_x = Tab[0];
-  BLU_x = BLL_x + bA0_dot_B1;
-  BUL_x = BLL_x + bA0_dot_B0;
-  BUU_x = BLU_x + bA0_dot_B0;
+  Scalar BLL_x = tfab.translation()[0];
+  Scalar BLU_x = BLL_x + bA0_dot_B1;
+  Scalar BUL_x = BLL_x + bA0_dot_B0;
+  Scalar BUU_x = BLU_x + bA0_dot_B0;
 
   if(BLL_x < BLU_x)
   {
@@ -676,18 +1405,18 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     if(((UA1_lx > b[0]) ||
         inVoronoi(b[1], a[1], A1_dot_B0, aA0_dot_B0 - b[0] - Tba[0],
                   A1_dot_B1, aA0_dot_B1 - Tba[1],
-                  -Tab[1] - bA1_dot_B0))
+                  -tfab.translation()[1] - bA1_dot_B0))
        &&
        ((UB1_lx > a[0]) ||
-        inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0 - a[0],
-                  A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1] - aA0_dot_B1)))
+        inVoronoi(a[1], b[1], A0_dot_B1, tfab.translation()[0] + bA0_dot_B0 - a[0],
+                  A1_dot_B1, tfab.translation()[1] + bA1_dot_B0, Tba[1] - aA0_dot_B1)))
     {
-      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0,
+      segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1] + bA1_dot_B0,
                 Tba[1] - aA0_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - a[0] ;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - a[0] ;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -706,17 +1435,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((UA1_ux < 0) ||
         inVoronoi(b[1], a[1], -A1_dot_B0, Tba[0] - aA0_dot_B0,
-                  A1_dot_B1, aA0_dot_B1 - Tba[1], -Tab[1]))
+                  A1_dot_B1, aA0_dot_B1 - Tba[1], -tfab.translation()[1]))
        &&
        ((LB1_lx > a[0]) ||
-        inVoronoi(a[1], b[1], A0_dot_B1, Tab[0] - a[0],
-                  A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1)))
+        inVoronoi(a[1], b[1], A0_dot_B1, tfab.translation()[0] - a[0],
+                  A1_dot_B1, tfab.translation()[1], Tba[1] - aA0_dot_B1)))
     {
-      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1);
+      segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1], Tba[1] - aA0_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 1) * u - a[0];
-      S[1] = Tab[1] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - a[0];
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -734,17 +1463,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((LA1_lx > b[0]) ||
         inVoronoi(b[1], a[1], A1_dot_B0, -Tba[0] - b[0],
-                  A1_dot_B1, -Tba[1], -Tab[1] - bA1_dot_B0))
+                  A1_dot_B1, -Tba[1], -tfab.translation()[1] - bA1_dot_B0))
        &&
        ((UB1_ux < 0) ||
-        inVoronoi(a[1], b[1], -A0_dot_B1, -Tab[0] - bA0_dot_B0,
-                  A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1])))
+        inVoronoi(a[1], b[1], -A0_dot_B1, -tfab.translation()[0] - bA0_dot_B0,
+                  A1_dot_B1, tfab.translation()[1] + bA1_dot_B0, Tba[1])))
     {
-      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1]);
+      segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1] + bA1_dot_B0, Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -762,17 +1491,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if (((LA1_ux < 0) ||
          inVoronoi(b[1], a[1], -A1_dot_B0, Tba[0], A1_dot_B1,
-                   -Tba[1], -Tab[1]))
+                   -Tba[1], -tfab.translation()[1]))
         &&
         ((LB1_ux < 0) ||
-         inVoronoi(a[1], b[1], -A0_dot_B1, -Tab[0], A1_dot_B1,
-                   Tab[1], Tba[1])))
+         inVoronoi(a[1], b[1], -A0_dot_B1, -tfab.translation()[0], A1_dot_B1,
+                   tfab.translation()[1], Tba[1])))
     {
-      segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1]);
+      segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1], Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 1) * u;
-      S[1] = Tab[1] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -829,18 +1558,18 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((UA1_ly > b[1]) ||
         inVoronoi(b[0], a[1], A1_dot_B1, aA0_dot_B1 - Tba[1] - b[1],
-                  A1_dot_B0, aA0_dot_B0 - Tba[0], -Tab[1] - bA1_dot_B1))
+                  A1_dot_B0, aA0_dot_B0 - Tba[0], -tfab.translation()[1] - bA1_dot_B1))
        &&
        ((UB0_lx > a[0]) ||
-        inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0] + bA0_dot_B1,
-                  A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0] - aA0_dot_B0)))
+        inVoronoi(a[1], b[0], A0_dot_B0, tfab.translation()[0] - a[0] + bA0_dot_B1,
+                  A1_dot_B0, tfab.translation()[1] + bA1_dot_B1, Tba[0] - aA0_dot_B0)))
     {
-      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1,
+      segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1] + bA1_dot_B1,
                 Tba[0] - aA0_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - a[0] ;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - a[0] ;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
@@ -858,17 +1587,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((UA1_uy < 0) ||
         inVoronoi(b[0], a[1], -A1_dot_B1, Tba[1] - aA0_dot_B1, A1_dot_B0,
-                  aA0_dot_B0 - Tba[0], -Tab[1]))
+                  aA0_dot_B0 - Tba[0], -tfab.translation()[1]))
        &&
        ((LB0_lx > a[0]) ||
-        inVoronoi(a[1], b[0], A0_dot_B0, Tab[0] - a[0],
-                  A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0)))
+        inVoronoi(a[1], b[0], A0_dot_B0, tfab.translation()[0] - a[0],
+                  A1_dot_B0, tfab.translation()[1], Tba[0] - aA0_dot_B0)))
     {
-      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0);
+      segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1], Tba[0] - aA0_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 0) * u - a[0];
-      S[1] = Tab[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - a[0];
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
@@ -886,18 +1615,18 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((LA1_ly > b[1]) ||
         inVoronoi(b[0], a[1], A1_dot_B1, -Tba[1] - b[1],
-                  A1_dot_B0, -Tba[0], -Tab[1] - bA1_dot_B1))
+                  A1_dot_B0, -Tba[0], -tfab.translation()[1] - bA1_dot_B1))
        &&
 
        ((UB0_ux < 0) ||
-        inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0] - bA0_dot_B1, A1_dot_B0,
-                  Tab[1] + bA1_dot_B1, Tba[0])))
+        inVoronoi(a[1], b[0], -A0_dot_B0, -tfab.translation()[0] - bA0_dot_B1, A1_dot_B0,
+                  tfab.translation()[1] + bA1_dot_B1, Tba[0])))
     {
-      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0]);
+      segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1] + bA1_dot_B1, Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
@@ -916,17 +1645,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((LA1_uy < 0) ||
         inVoronoi(b[0], a[1], -A1_dot_B1, Tba[1], A1_dot_B0,
-                  -Tba[0], -Tab[1]))
+                  -Tba[0], -tfab.translation()[1]))
        &&
        ((LB0_ux < 0) ||
-        inVoronoi(a[1], b[0], -A0_dot_B0, -Tab[0], A1_dot_B0,
-                  Tab[1], Tba[0])))
+        inVoronoi(a[1], b[0], -A0_dot_B0, -tfab.translation()[0], A1_dot_B0,
+                  tfab.translation()[1], Tba[0])))
     {
-      segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0]);
+      segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1], Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 0) * u;
-      S[1] = Tab[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - t;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P&& Q)
       {
@@ -940,7 +1669,7 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
 
   Scalar BLL_y, BLU_y, BUL_y, BUU_y;
 
-  BLL_y = Tab[1];
+  BLL_y = tfab.translation()[1];
   BLU_y = BLL_y + bA1_dot_B1;
   BUL_y = BLL_y + bA1_dot_B0;
   BUU_y = BLU_y + bA1_dot_B0;
@@ -983,18 +1712,18 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((UA0_lx > b[0]) ||
         inVoronoi(b[1], a[0], A0_dot_B0, aA1_dot_B0 - Tba[0] - b[0],
-                  A0_dot_B1, aA1_dot_B1 - Tba[1], -Tab[0] - bA0_dot_B0))
+                  A0_dot_B1, aA1_dot_B1 - Tba[1], -tfab.translation()[0] - bA0_dot_B0))
        &&
        ((UB1_ly > a[1]) ||
-        inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1] + bA1_dot_B0,
-                  A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1] - aA1_dot_B1)))
+        inVoronoi(a[0], b[1], A1_dot_B1, tfab.translation()[1] - a[1] + bA1_dot_B0,
+                  A0_dot_B1, tfab.translation()[0] + bA0_dot_B0, Tba[1] - aA1_dot_B1)))
     {
-      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0,
+      segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0] + bA0_dot_B0,
                 Tba[1] - aA1_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - a[1];
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -1012,17 +1741,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((UA0_ux < 0) ||
         inVoronoi(b[1], a[0], -A0_dot_B0, Tba[0] - aA1_dot_B0, A0_dot_B1,
-                  aA1_dot_B1 - Tba[1], -Tab[0]))
+                  aA1_dot_B1 - Tba[1], -tfab.translation()[0]))
        &&
        ((LB1_ly > a[1]) ||
-        inVoronoi(a[0], b[1], A1_dot_B1, Tab[1] - a[1], A0_dot_B1, Tab[0],
+        inVoronoi(a[0], b[1], A1_dot_B1, tfab.translation()[1] - a[1], A0_dot_B1, tfab.translation()[0],
                   Tba[1] - aA1_dot_B1)))
     {
-      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1] - aA1_dot_B1);
+      segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0], Tba[1] - aA1_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - a[1];
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -1040,17 +1769,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((LA0_lx > b[0]) ||
         inVoronoi(b[1], a[0], A0_dot_B0, -b[0] - Tba[0], A0_dot_B1, -Tba[1],
-                  -bA0_dot_B0 - Tab[0]))
+                  -bA0_dot_B0 - tfab.translation()[0]))
        &&
        ((UB1_uy < 0) ||
-        inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1] - bA1_dot_B0, A0_dot_B1,
-                  Tab[0] + bA0_dot_B0, Tba[1])))
+        inVoronoi(a[0], b[1], -A1_dot_B1, -tfab.translation()[1] - bA1_dot_B0, A0_dot_B1,
+                  tfab.translation()[0] + bA0_dot_B0, Tba[1])))
     {
-      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1]);
+      segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0] + bA0_dot_B0, Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u;
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -1068,17 +1797,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((LA0_ux < 0) ||
         inVoronoi(b[1], a[0], -A0_dot_B0, Tba[0], A0_dot_B1, -Tba[1],
-                  -Tab[0]))
+                  -tfab.translation()[0]))
        &&
        ((LB1_uy < 0) ||
-        inVoronoi(a[0], b[1], -A1_dot_B1, -Tab[1], A0_dot_B1,
-                  Tab[0], Tba[1])))
+        inVoronoi(a[0], b[1], -A1_dot_B1, -tfab.translation()[1], A0_dot_B1,
+                  tfab.translation()[0], Tba[1])))
     {
-      segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1]);
+      segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0], Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * u;
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
@@ -1128,18 +1857,18 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((UA0_ly > b[1]) ||
         inVoronoi(b[0], a[0], A0_dot_B1, aA1_dot_B1 - Tba[1] - b[1],
-                  A0_dot_B0, aA1_dot_B0 - Tba[0], -Tab[0] - bA0_dot_B1))
+                  A0_dot_B0, aA1_dot_B0 - Tba[0], -tfab.translation()[0] - bA0_dot_B1))
        &&
        ((UB0_ly > a[1]) ||
-        inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1] + bA1_dot_B1, A0_dot_B0,
-                  Tab[0] + bA0_dot_B1, Tba[0] - aA1_dot_B0)))
+        inVoronoi(a[0], b[0], A1_dot_B0, tfab.translation()[1] - a[1] + bA1_dot_B1, A0_dot_B0,
+                  tfab.translation()[0] + bA0_dot_B1, Tba[0] - aA1_dot_B0)))
     {
-      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1,
+      segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0] + bA0_dot_B1,
                 Tba[0] - aA1_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - a[1];
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
@@ -1157,17 +1886,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((UA0_uy < 0) ||
         inVoronoi(b[0], a[0], -A0_dot_B1, Tba[1] - aA1_dot_B1, A0_dot_B0,
-                  aA1_dot_B0 - Tba[0], -Tab[0]))
+                  aA1_dot_B0 - Tba[0], -tfab.translation()[0]))
        &&
        ((LB0_ly > a[1]) ||
-        inVoronoi(a[0], b[0], A1_dot_B0, Tab[1] - a[1],
-                  A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0)))
+        inVoronoi(a[0], b[0], A1_dot_B0, tfab.translation()[1] - a[1],
+                  A0_dot_B0, tfab.translation()[0], Tba[0] - aA1_dot_B0)))
     {
-      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0);
+      segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0], Tba[0] - aA1_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - a[1];
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
@@ -1185,18 +1914,18 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((LA0_ly > b[1]) ||
         inVoronoi(b[0], a[0], A0_dot_B1, -Tba[1] - b[1], A0_dot_B0, -Tba[0],
-                  -Tab[0] - bA0_dot_B1))
+                  -tfab.translation()[0] - bA0_dot_B1))
        &&
 
        ((UB0_uy < 0) ||
-        inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1] - bA1_dot_B1, A0_dot_B0,
-                  Tab[0] + bA0_dot_B1, Tba[0])))
+        inVoronoi(a[0], b[0], -A1_dot_B0, -tfab.translation()[1] - bA1_dot_B1, A0_dot_B0,
+                  tfab.translation()[0] + bA0_dot_B1, Tba[0])))
     {
-      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1, Tba[0]);
+      segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0] + bA0_dot_B1, Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u;
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
@@ -1214,17 +1943,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   {
     if(((LA0_uy < 0) ||
         inVoronoi(b[0], a[0], -A0_dot_B1, Tba[1], A0_dot_B0,
-                  -Tba[0], -Tab[0]))
+                  -Tba[0], -tfab.translation()[0]))
        &&
        ((LB0_uy < 0) ||
-        inVoronoi(a[0], b[0], -A1_dot_B0, -Tab[1], A0_dot_B0,
-                  Tab[0], Tba[0])))
+        inVoronoi(a[0], b[0], -A1_dot_B0, -tfab.translation()[1], A0_dot_B0,
+                  tfab.translation()[0], Tba[0])))
     {
-      segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0]);
+      segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0], Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * u;
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - t;
+      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u;
+      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
@@ -1240,35 +1969,35 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
 
   Scalar sep1, sep2;
 
-  if(Tab[2] > 0.0)
+  if(tfab.translation()[2] > 0.0)
   {
-    sep1 = Tab[2];
-    if (Rab(2, 0) < 0.0) sep1 += b[0] * Rab(2, 0);
-    if (Rab(2, 1) < 0.0) sep1 += b[1] * Rab(2, 1);
+    sep1 = tfab.translation()[2];
+    if (tfab.linear()(2, 0) < 0.0) sep1 += b[0] * tfab.linear()(2, 0);
+    if (tfab.linear()(2, 1) < 0.0) sep1 += b[1] * tfab.linear()(2, 1);
   }
   else
   {
-    sep1 = -Tab[2];
-    if (Rab(2, 0) > 0.0) sep1 -= b[0] * Rab(2, 0);
-    if (Rab(2, 1) > 0.0) sep1 -= b[1] * Rab(2, 1);
+    sep1 = -tfab.translation()[2];
+    if (tfab.linear()(2, 0) > 0.0) sep1 -= b[0] * tfab.linear()(2, 0);
+    if (tfab.linear()(2, 1) > 0.0) sep1 -= b[1] * tfab.linear()(2, 1);
   }
 
   if(Tba[2] < 0)
   {
     sep2 = -Tba[2];
-    if (Rab(0, 2) < 0.0) sep2 += a[0] * Rab(0, 2);
-    if (Rab(1, 2) < 0.0) sep2 += a[1] * Rab(1, 2);
+    if (tfab.linear()(0, 2) < 0.0) sep2 += a[0] * tfab.linear()(0, 2);
+    if (tfab.linear()(1, 2) < 0.0) sep2 += a[1] * tfab.linear()(1, 2);
   }
   else
   {
     sep2 = Tba[2];
-    if (Rab(0, 2) > 0.0) sep2 -= a[0] * Rab(0, 2);
-    if (Rab(1, 2) > 0.0) sep2 -= a[1] * Rab(1, 2);
+    if (tfab.linear()(0, 2) > 0.0) sep2 -= a[0] * tfab.linear()(0, 2);
+    if (tfab.linear()(1, 2) > 0.0) sep2 -= a[1] * tfab.linear()(1, 2);
   }
 
   if(sep1 >= sep2 && sep1 >= 0)
   {
-    if(Tab[2] > 0)
+    if(tfab.translation()[2] > 0)
       S << 0, 0, sep1;
     else
       S << 0, 0, -sep1;
@@ -1282,19 +2011,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
 
   if(sep2 >= sep1 && sep2 >= 0)
   {
-    Vector3<Scalar> Q_(Tab[0], Tab[1], Tab[2]);
+    Vector3<Scalar> Q_(tfab.translation());
     Vector3<Scalar> P_;
     if(Tba[2] < 0)
     {
-      P_[0] = Rab(0, 2) * sep2 + Tab[0];
-      P_[1] = Rab(1, 2) * sep2 + Tab[1];
-      P_[2] = Rab(2, 2) * sep2 + Tab[2];
+      P_.noalias() = tfab.linear().col(2) * sep2;
+      P_.noalias() += tfab.translation();
     }
     else
     {
-      P_[0] = -Rab(0, 2) * sep2 + Tab[0];
-      P_[1] = -Rab(1, 2) * sep2 + Tab[1];
-      P_[2] = -Rab(2, 2) * sep2 + Tab[2];
+      P_.noalias() = tfab.linear().col(2) * -sep2;
+      P_.noalias() += tfab.translation();
     }
 
     S = Q_ - P_;
@@ -1311,40 +2038,67 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
 }
 
 //==============================================================================
-template <typename Scalar, typename DerivedA, typename DerivedB>
+//template <typename Scalar, typename DerivedA, typename DerivedB>
+//bool overlap(
+//    const Eigen::MatrixBase<DerivedA>& R0,
+//    const Eigen::MatrixBase<DerivedB>& T0,
+//    const RSS<Scalar>& b1,
+//    const RSS<Scalar>& b2)
+//{
+//  Matrix3<Scalar> R0b2 = R0 * b2.frame.linear();
+//  Matrix3<Scalar> R = b1.frame.linear().transpose() * R0b2;
+
+//  Vector3<Scalar> Ttemp = R0 * b2.frame.translation() + T0 - b1.frame.translation();
+//  Vector3<Scalar> T = Ttemp.transpose() * b1.frame.linear();
+
+//  Scalar dist = rectDistance(R, T, b1.l, b2.l);
+//  return (dist <= (b1.r + b2.r));
+//}
+
+//==============================================================================
+template <typename Scalar>
 bool overlap(
-    const Eigen::MatrixBase<DerivedA>& R0,
-    const Eigen::MatrixBase<DerivedB>& T0,
+    const Transform3<Scalar>& tf,
     const RSS<Scalar>& b1,
     const RSS<Scalar>& b2)
 {
-  Matrix3<Scalar> R0b2 = R0 * b2.axis;
-  Matrix3<Scalar> R = b1.axis.transpose() * R0b2;
-
-  Vector3<Scalar> Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vector3<Scalar> T = Ttemp.transpose() * b1.axis;
-
-  Scalar dist = rectDistance(R, T, b1.l, b2.l);
+  Scalar dist = rectDistance(b1.frame.inverse(Eigen::Isometry) * tf * b2.frame, b1.l, b2.l);
   return (dist <= (b1.r + b2.r));
 }
 
 //==============================================================================
-template <typename Scalar, typename DerivedA, typename DerivedB>
+//template <typename Scalar, typename DerivedA, typename DerivedB>
+//Scalar distance(
+//    const Eigen::MatrixBase<DerivedA>& R0,
+//    const Eigen::MatrixBase<DerivedB>& T0,
+//    const RSS<Scalar>& b1,
+//    const RSS<Scalar>& b2,
+//    Vector3<Scalar>* P,
+//    Vector3<Scalar>* Q)
+//{
+//  Matrix3<Scalar> R0b2 = R0 * b2.frame.linear();
+//  Matrix3<Scalar> R = b1.frame.linear().transpose() * R0b2;
+
+//  Vector3<Scalar> Ttemp = R0 * b2.frame.translation() + T0 - b1.frame.translation();
+//  Vector3<Scalar> T = Ttemp.transpose() * b1.frame.linear();
+
+//  Scalar dist = rectDistance(R, T, b1.l, b2.l, P, Q);
+//  dist -= (b1.r + b2.r);
+//  return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
+//}
+
+//==============================================================================
+template <typename Scalar>
 Scalar distance(
-    const Eigen::MatrixBase<DerivedA>& R0,
-    const Eigen::MatrixBase<DerivedB>& T0,
+    const Transform3<Scalar>& tf,
     const RSS<Scalar>& b1,
     const RSS<Scalar>& b2,
     Vector3<Scalar>* P,
     Vector3<Scalar>* Q)
 {
-  Matrix3<Scalar> R0b2 = R0 * b2.axis;
-  Matrix3<Scalar> R = b1.axis.transpose() * R0b2;
+  const Transform3<Scalar> tf1 = b1.frame.inverse(Eigen::Isometry) * tf * b2.frame;
 
-  Vector3<Scalar> Ttemp = R0 * b2.Tr + T0 - b1.Tr;
-  Vector3<Scalar> T = Ttemp.transpose() * b1.axis;
-
-  Scalar dist = rectDistance(R, T, b1.l, b2.l, P, Q);
+  Scalar dist = rectDistance(tf1, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);
   return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
 }
@@ -1354,7 +2108,7 @@ template <typename Scalar>
 RSS<Scalar> translate(const RSS<Scalar>& bv, const Vector3<Scalar>& t)
 {
   RSS<Scalar> res(bv);
-  res.Tr += t;
+  res.frame.translation() += t;
   return res;
 }
 

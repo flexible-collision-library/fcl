@@ -194,7 +194,7 @@ bool ellipsoidPlaneIntersect(const Ellipsoid<Scalar>& s1, const Transform3<Scala
   // We first compute a single contact in the ellipsoid coordinates, tf1, then
   // will transform it to the world frame. So we use a new plane that is
   // expressed in the ellipsoid coordinates.
-  const Plane<Scalar>& new_s2 = transform(s2, tf1.inverse() * tf2);
+  const Plane<Scalar>& new_s2 = transform(s2, tf1.inverse(Eigen::Isometry) * tf2);
 
   // Compute distance between the ellipsoid's center and a contact plane, whose
   // normal is equal to the plane's normal.

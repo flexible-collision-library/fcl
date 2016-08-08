@@ -58,6 +58,18 @@ void getExtentAndCenter(
     Vector3<Scalar>& center,
     Vector3<Scalar>& extent);
 
+/// @brief Compute the bounding volume extent and center for a set or subset of
+/// points, given the BV axises.
+template <typename Scalar>
+void getExtentAndCenter(
+    Vector3<Scalar>* ps,
+    Vector3<Scalar>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    Transform3<Scalar>& tf,
+    Vector3<Scalar>& extent);
+
 /// @brief Compute the covariance matrix for a set or subset of points. if
 /// ts = null, then indices refer to points directly; otherwise refer to
 /// triangles
@@ -96,6 +108,23 @@ void getExtentAndCenter(
 
 //==============================================================================
 template <typename Scalar>
+void getExtentAndCenter(
+    Vector3<Scalar>* ps,
+    Vector3<Scalar>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    Transform3<Scalar>& tf,
+    Vector3<Scalar>& extent)
+{
+  if(ts)
+    detail::getExtentAndCenter_mesh(ps, ps2, ts, indices, n, tf, extent);
+  else
+    detail::getExtentAndCenter_pointcloud(ps, ps2, indices, n, tf, extent);
+}
+
+//==============================================================================
+template <typename Scalar>
 void getCovariance(Vector3<Scalar>* ps,
     Vector3<Scalar>* ps2,
     Triangle* ts,
@@ -117,9 +146,8 @@ void getCovariance(Vector3<Scalar>* ps,
       const Vector3<Scalar>& p2 = ps[t[1]];
       const Vector3<Scalar>& p3 = ps[t[2]];
 
-      S1[0] += (p1[0] + p2[0] + p3[0]);
-      S1[1] += (p1[1] + p2[1] + p3[1]);
-      S1[2] += (p1[2] + p2[2] + p3[2]);
+      S1 += p1 + p2 + p3;
+
       S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
       S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
       S2[2][2] += (p1[2] * p1[2] + p2[2] * p2[2] + p3[2] * p3[2]);
@@ -133,9 +161,7 @@ void getCovariance(Vector3<Scalar>* ps,
         const Vector3<Scalar>& p2 = ps2[t[1]];
         const Vector3<Scalar>& p3 = ps2[t[2]];
 
-        S1[0] += (p1[0] + p2[0] + p3[0]);
-        S1[1] += (p1[1] + p2[1] + p3[1]);
-        S1[2] += (p1[2] + p2[2] + p3[2]);
+        S1 += p1 + p2 + p3;
 
         S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
         S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);

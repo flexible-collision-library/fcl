@@ -667,7 +667,7 @@ static ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *c
 template <typename Scalar>
 static void shapeToGJK(const ShapeBase<Scalar>& s, const Transform3<Scalar>& tf, ccd_obj_t* o)
 {
-  const Quaternion3<Scalar> q(tf.linear());
+  const Quaternion<Scalar> q(tf.linear());
   const Vector3<Scalar>& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
@@ -1245,7 +1245,7 @@ void* triCreateGJKObject(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, c
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
   ccdVec3Set(&o->p[2], P3[0], P3[1], P3[2]);
   ccdVec3Set(&o->c, center[0], center[1], center[2]);
-  const Quaternion3<Scalar> q(tf.linear());
+  const Quaternion<Scalar> q(tf.linear());
   const Vector3<Scalar>& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());

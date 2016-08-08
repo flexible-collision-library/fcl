@@ -109,10 +109,12 @@ public:
 
  private:
   /// @brief initial and goal transforms
-  Quaternion3<Scalar> rot;
+  Quaternion<Scalar> rot;
   Vector3<Scalar> trans_start, trans_range;
 
   mutable Transform3<Scalar> tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using TranslationMotionf = TranslationMotion<float>;
@@ -274,6 +276,7 @@ public:
     return tf_t;
   }
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 template <typename Scalar>
@@ -326,7 +329,7 @@ public:
     
     tf.linear() = absoluteRotation(dt).toRotationMatrix();
     
-    Quaternion3<Scalar> delta_rot = deltaRotation(dt);
+    Quaternion<Scalar> delta_rot = deltaRotation(dt);
     tf.translation() = p + axis * (dt * linear_vel) + delta_rot * (tf1.translation() - p);
 
     return true;
@@ -405,16 +408,16 @@ protected:
     }
   }
 
-  Quaternion3<Scalar> deltaRotation(Scalar dt) const
+  Quaternion<Scalar> deltaRotation(Scalar dt) const
   {
-    return Quaternion3<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), axis));
+    return Quaternion<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), axis));
   }
 
-  Quaternion3<Scalar> absoluteRotation(Scalar dt) const
+  Quaternion<Scalar> absoluteRotation(Scalar dt) const
   {
-    Quaternion3<Scalar> delta_t = deltaRotation(dt);
+    Quaternion<Scalar> delta_t = deltaRotation(dt);
 
-    return delta_t * Quaternion3<Scalar>(tf1.linear());
+    return delta_t * Quaternion<Scalar>(tf1.linear());
   }
 
   /// @brief The transformation at time 0
@@ -459,6 +462,8 @@ public:
   {
     return p;
   }
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 
@@ -541,9 +546,9 @@ protected:
 
   void computeVelocity();
 
-  Quaternion3<Scalar> deltaRotation(Scalar dt) const;
+  Quaternion<Scalar> deltaRotation(Scalar dt) const;
   
-  Quaternion3<Scalar> absoluteRotation(Scalar dt) const;
+  Quaternion<Scalar> absoluteRotation(Scalar dt) const;
   
   /// @brief The transformation at time 0
   Transform3<Scalar> tf1;
@@ -586,6 +591,8 @@ public:
   {
     return linear_vel;
   }
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 //============================================================================//
@@ -905,17 +912,17 @@ void InterpMotion<Scalar>::computeVelocity()
 
 //==============================================================================
 template <typename Scalar>
-Quaternion3<Scalar> InterpMotion<Scalar>::deltaRotation(Scalar dt) const
+Quaternion<Scalar> InterpMotion<Scalar>::deltaRotation(Scalar dt) const
 {
-  return Quaternion3<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), angular_axis));
+  return Quaternion<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), angular_axis));
 }
 
 //==============================================================================
 template <typename Scalar>
-Quaternion3<Scalar> InterpMotion<Scalar>::absoluteRotation(Scalar dt) const
+Quaternion<Scalar> InterpMotion<Scalar>::absoluteRotation(Scalar dt) const
 {
-  Quaternion3<Scalar> delta_t = deltaRotation(dt);
-  return delta_t * Quaternion3<Scalar>(tf1.linear());
+  Quaternion<Scalar> delta_t = deltaRotation(dt);
+  return delta_t * Quaternion<Scalar>(tf1.linear());
 }
 
 } // namespace fcl

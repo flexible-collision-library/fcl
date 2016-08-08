@@ -290,7 +290,7 @@ std::size_t PrismaticJoint<Scalar>::getNumDofs() const
 template <typename Scalar>
 Transform3<Scalar> PrismaticJoint<Scalar>::getLocalTransform() const
 {
-  const Quaternion3<Scalar> quat(transform_to_parent_.linear());
+  const Quaternion<Scalar> quat(transform_to_parent_.linear());
   const Vector3<Scalar>& transl = transform_to_parent_.translation();
 
   Transform3<Scalar> tf = Transform3<Scalar>::Identity();

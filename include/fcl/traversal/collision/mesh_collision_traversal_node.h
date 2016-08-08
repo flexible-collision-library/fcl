@@ -40,6 +40,10 @@
 
 #include "fcl/intersect.h"
 #include "fcl/traversal/collision/bvh_collision_traversal_node.h"
+#include "fcl/BV/OBB.h"
+#include "fcl/BV/RSS.h"
+#include "fcl/BV/OBBRSS.h"
+#include "fcl/BV/kIOS.h"
 
 namespace fcl
 {
@@ -95,12 +99,19 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  bool BVTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
+//  FCL_DEPRECATED
+//  bool BVTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
 
-  void leafTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
+  bool BVTesting(int b1, int b2, const Transform3<Scalar>& tf) const;
 
-  Matrix3<Scalar> R;
-  Vector3<Scalar> T;
+//  FCL_DEPRECATED
+//  void leafTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
+
+  void leafTesting(int b1, int b2, const Transform3<Scalar>& tf) const;
+
+  Transform3<Scalar> tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MeshCollisionTraversalNodeOBBf = MeshCollisionTraversalNodeOBB<float>;
@@ -128,12 +139,19 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  bool BVTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
+//  FCL_DEPRECATED
+//  bool BVTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
 
-  void leafTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
+  bool BVTesting(int b1, int b2, const Transform3<Scalar>& tf) const;
 
-  Matrix3<Scalar> R;
-  Vector3<Scalar> T;
+//  FCL_DEPRECATED
+//  void leafTesting(int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const;
+
+  void leafTesting(int b1, int b2, const Transform3<Scalar>& tf) const;
+
+  Transform3<Scalar> tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MeshCollisionTraversalNodeRSSf = MeshCollisionTraversalNodeRSS<float>;
@@ -161,8 +179,9 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3<Scalar> R;
-  Vector3<Scalar> T;
+  Transform3<Scalar> tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MeshCollisionTraversalNodekIOSf = MeshCollisionTraversalNodekIOS<float>;
@@ -191,8 +210,9 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3<Scalar> R;
-  Vector3<Scalar> T;
+  Transform3<Scalar> tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MeshCollisionTraversalNodeOBBRSSf = MeshCollisionTraversalNodeOBBRSS<float>;
@@ -213,6 +233,27 @@ bool initialize(
 namespace details
 {
 
+//template <typename BV>
+//FCL_DEPRECATED
+//void meshCollisionOrientedNodeLeafTesting(
+//    int b1,
+//    int b2,
+//    const BVHModel<BV>* model1,
+//    const BVHModel<BV>* model2,
+//    Vector3<typename BV::Scalar>* vertices1,
+//    Vector3<typename BV::Scalar>* vertices2,
+//    Triangle* tri_indices1,
+//    Triangle* tri_indices2,
+//    const Matrix3<typename BV::Scalar>& R,
+//    const Vector3<typename BV::Scalar>& T,
+//    const Transform3<typename BV::Scalar>& tf1,
+//    const Transform3<typename BV::Scalar>& tf2,
+//    bool enable_statistics,
+//    typename BV::Scalar cost_density,
+//    int& num_leaf_tests,
+//    const CollisionRequest<typename BV::Scalar>& request,
+//    CollisionResult<typename BV::Scalar>& result);
+
 template <typename BV>
 void meshCollisionOrientedNodeLeafTesting(
     int b1,
@@ -223,8 +264,7 @@ void meshCollisionOrientedNodeLeafTesting(
     Vector3<typename BV::Scalar>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
+    const Transform3<typename BV::Scalar>& tf,
     const Transform3<typename BV::Scalar>& tf1,
     const Transform3<typename BV::Scalar>& tf2,
     bool enable_statistics,
@@ -243,7 +283,8 @@ void meshCollisionOrientedNodeLeafTesting(
 
 //==============================================================================
 template <typename BV>
-MeshCollisionTraversalNode<BV>::MeshCollisionTraversalNode() : BVHCollisionTraversalNode<BV>()
+MeshCollisionTraversalNode<BV>::MeshCollisionTraversalNode()
+  : BVHCollisionTraversalNode<BV>()
 {
   vertices1 = NULL;
   vertices2 = NULL;
@@ -410,9 +451,11 @@ bool initialize(
 
 //==============================================================================
 template <typename Scalar>
-MeshCollisionTraversalNodeOBB<Scalar>::MeshCollisionTraversalNodeOBB() : MeshCollisionTraversalNode<OBB<Scalar>>()
+MeshCollisionTraversalNodeOBB<Scalar>::MeshCollisionTraversalNodeOBB()
+  : MeshCollisionTraversalNode<OBB<Scalar>>(),
+    tf(Transform3<Scalar>::Identity())
 {
-  R.setIdentity();
+  // Do nothing
 }
 
 //==============================================================================
@@ -420,7 +463,7 @@ template <typename Scalar>
 bool MeshCollisionTraversalNodeOBB<Scalar>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  return !overlap(R, T, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+  return !overlap(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
@@ -436,8 +479,7 @@ void MeshCollisionTraversalNodeOBB<Scalar>::leafTesting(int b1, int b2) const
         this->vertices2,
         this->tri_indices1,
         this->tri_indices2,
-        R,
-        T,
+        tf,
         this->tf1,
         this->tf2,
         this->enable_statistics,
@@ -448,22 +490,58 @@ void MeshCollisionTraversalNodeOBB<Scalar>::leafTesting(int b1, int b2) const
 }
 
 //==============================================================================
+//template <typename Scalar>
+//bool MeshCollisionTraversalNodeOBB<Scalar>::BVTesting(
+//    int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const
+//{
+//  if(this->enable_statistics) this->num_bv_tests++;
+
+//  return obbDisjoint(
+//        Rc, Tc,
+//        this->model1->getBV(b1).bv.extent,
+//        this->model2->getBV(b2).bv.extent);
+//}
+
+//==============================================================================
 template <typename Scalar>
 bool MeshCollisionTraversalNodeOBB<Scalar>::BVTesting(
-    int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const
+    int b1, int b2, const Transform3<Scalar>& tf) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
 
-  return obbDisjoint(
-        Rc, Tc,
+  return obbDisjoint(tf,
         this->model1->getBV(b1).bv.extent,
         this->model2->getBV(b2).bv.extent);
 }
 
 //==============================================================================
+//template <typename Scalar>
+//void MeshCollisionTraversalNodeOBB<Scalar>::leafTesting(
+//    int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const
+//{
+//  details::meshCollisionOrientedNodeLeafTesting(
+//        b1,
+//        b2,
+//        this->model1,
+//        this->model2,
+//        this->vertices1,
+//        this->vertices2,
+//        this->tri_indices1,
+//        this->tri_indices2,
+//        tf,
+//        this->tf1,
+//        this->tf2,
+//        this->enable_statistics,
+//        this->cost_density,
+//        this->num_leaf_tests,
+//        this->request,
+//        *this->result);
+//}
+
+//==============================================================================
 template <typename Scalar>
 void MeshCollisionTraversalNodeOBB<Scalar>::leafTesting(
-    int b1, int b2, const Matrix3<Scalar>& Rc, const Vector3<Scalar>& Tc) const
+    int b1, int b2, const Transform3<Scalar>& tf) const
 {
   details::meshCollisionOrientedNodeLeafTesting(
         b1,
@@ -474,8 +552,7 @@ void MeshCollisionTraversalNodeOBB<Scalar>::leafTesting(
         this->vertices2,
         this->tri_indices1,
         this->tri_indices2,
-        R,
-        T,
+        tf,
         this->tf1,
         this->tf2,
         this->enable_statistics,
@@ -487,9 +564,11 @@ void MeshCollisionTraversalNodeOBB<Scalar>::leafTesting(
 
 //==============================================================================
 template <typename Scalar>
-MeshCollisionTraversalNodeRSS<Scalar>::MeshCollisionTraversalNodeRSS() : MeshCollisionTraversalNode<RSS<Scalar>>()
+MeshCollisionTraversalNodeRSS<Scalar>::MeshCollisionTraversalNodeRSS()
+  : MeshCollisionTraversalNode<RSS<Scalar>>(),
+    tf(Transform3<Scalar>::Identity())
 {
-  R.setIdentity();
+  // Do nothing
 }
 
 //==============================================================================
@@ -498,10 +577,7 @@ bool MeshCollisionTraversalNodeRSS<Scalar>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
 
-  return !overlap(
-        R, T,
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv);
+  return !overlap(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
@@ -517,8 +593,7 @@ void MeshCollisionTraversalNodeRSS<Scalar>::leafTesting(int b1, int b2) const
         this->vertices2,
         this->tri_indices1,
         this->tri_indices2,
-        R,
-        T,
+        tf,
         this->tf1,
         this->tf2,
         this->enable_statistics,
@@ -530,9 +605,11 @@ void MeshCollisionTraversalNodeRSS<Scalar>::leafTesting(int b1, int b2) const
 
 //==============================================================================
 template <typename Scalar>
-MeshCollisionTraversalNodekIOS<Scalar>::MeshCollisionTraversalNodekIOS() : MeshCollisionTraversalNode<kIOS<Scalar>>()
+MeshCollisionTraversalNodekIOS<Scalar>::MeshCollisionTraversalNodekIOS()
+  : MeshCollisionTraversalNode<kIOS<Scalar>>(),
+    tf(Transform3<Scalar>::Identity())
 {
-  R.setIdentity();
+  // Do nothing
 }
 
 //==============================================================================
@@ -541,10 +618,7 @@ bool MeshCollisionTraversalNodekIOS<Scalar>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
 
-  return !overlap(
-        R, T,
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv);
+  return !overlap(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
@@ -560,8 +634,7 @@ void MeshCollisionTraversalNodekIOS<Scalar>::leafTesting(int b1, int b2) const
         this->vertices2,
         this->tri_indices1,
         this->tri_indices2,
-        R,
-        T,
+        tf,
         this->tf1,
         this->tf2,
         this->enable_statistics,
@@ -574,9 +647,10 @@ void MeshCollisionTraversalNodekIOS<Scalar>::leafTesting(int b1, int b2) const
 //==============================================================================
 template <typename Scalar>
 MeshCollisionTraversalNodeOBBRSS<Scalar>::MeshCollisionTraversalNodeOBBRSS()
-  : MeshCollisionTraversalNode<OBBRSS<Scalar>>()
+  : MeshCollisionTraversalNode<OBBRSS<Scalar>>(),
+    tf(Transform3<Scalar>::Identity())
 {
-  R.setIdentity();
+  // Do nothing
 }
 
 //==============================================================================
@@ -585,10 +659,7 @@ bool MeshCollisionTraversalNodeOBBRSS<Scalar>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
 
-  return !overlap(
-        R, T,
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv);
+  return !overlap(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
@@ -604,8 +675,7 @@ void MeshCollisionTraversalNodeOBBRSS<Scalar>::leafTesting(int b1, int b2) const
         this->vertices2,
         this->tri_indices1,
         this->tri_indices2,
-        R,
-        T,
+        tf,
         this->tf1,
         this->tf2,
         this->enable_statistics,
@@ -618,17 +688,114 @@ void MeshCollisionTraversalNodeOBBRSS<Scalar>::leafTesting(int b1, int b2) const
 namespace details
 {
 
+//template <typename BV>
+//void meshCollisionOrientedNodeLeafTesting(
+//    int b1, int b2,
+//    const BVHModel<BV>* model1,
+//    const BVHModel<BV>* model2,
+//    Vector3<typename BV::Scalar>* vertices1,
+//    Vector3<typename BV::Scalar>* vertices2,
+//    Triangle* tri_indices1,
+//    Triangle* tri_indices2,
+//    const Matrix3<typename BV::Scalar>& R,
+//    const Vector3<typename BV::Scalar>& T,
+//    const Transform3<typename BV::Scalar>& tf1,
+//    const Transform3<typename BV::Scalar>& tf2,
+//    bool enable_statistics,
+//    typename BV::Scalar cost_density,
+//    int& num_leaf_tests,
+//    const CollisionRequest<typename BV::Scalar>& request,
+//    CollisionResult<typename BV::Scalar>& result)
+//{
+//  using Scalar = typename BV::Scalar;
+
+//  if(enable_statistics) num_leaf_tests++;
+
+//  const BVNode<BV>& node1 = model1->getBV(b1);
+//  const BVNode<BV>& node2 = model2->getBV(b2);
+
+//  int primitive_id1 = node1.primitiveId();
+//  int primitive_id2 = node2.primitiveId();
+
+//  const Triangle& tri_id1 = tri_indices1[primitive_id1];
+//  const Triangle& tri_id2 = tri_indices2[primitive_id2];
+
+//  const Vector3<Scalar>& p1 = vertices1[tri_id1[0]];
+//  const Vector3<Scalar>& p2 = vertices1[tri_id1[1]];
+//  const Vector3<Scalar>& p3 = vertices1[tri_id1[2]];
+//  const Vector3<Scalar>& q1 = vertices2[tri_id2[0]];
+//  const Vector3<Scalar>& q2 = vertices2[tri_id2[1]];
+//  const Vector3<Scalar>& q3 = vertices2[tri_id2[2]];
+
+//  if(model1->isOccupied() && model2->isOccupied())
+//  {
+//    bool is_intersect = false;
+
+//    if(!request.enable_contact) // only interested in collision or not
+//    {
+//      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+//      {
+//        is_intersect = true;
+//        if(result.numContacts() < request.num_max_contacts)
+//          result.addContact(Contact<Scalar>(model1, model2, primitive_id1, primitive_id2));
+//      }
+//    }
+//    else // need compute the contact information
+//    {
+//      Scalar penetration;
+//      Vector3<Scalar> normal;
+//      unsigned int n_contacts;
+//      Vector3<Scalar> contacts[2];
+
+//      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3,
+//                                       R, T,
+//                                       contacts,
+//                                       &n_contacts,
+//                                       &penetration,
+//                                       &normal))
+//      {
+//        is_intersect = true;
+
+//        if(request.num_max_contacts < result.numContacts() + n_contacts)
+//          n_contacts = (request.num_max_contacts > result.numContacts()) ? (request.num_max_contacts - result.numContacts()) : 0;
+
+//        for(unsigned int i = 0; i < n_contacts; ++i)
+//        {
+//          result.addContact(Contact<Scalar>(model1, model2, primitive_id1, primitive_id2, tf1 * contacts[i], tf1.linear() * normal, penetration));
+//        }
+//      }
+//    }
+
+//    if(is_intersect && request.enable_cost)
+//    {
+//      AABB<Scalar> overlap_part;
+//      AABB<Scalar>(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB<Scalar>(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
+//      result.addCostSource(CostSource<Scalar>(overlap_part, cost_density), request.num_max_cost_sources);
+//    }
+//  }
+//  else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
+//  {
+//    if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+//    {
+//      AABB<Scalar> overlap_part;
+//      AABB<Scalar>(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB<Scalar>(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
+//      result.addCostSource(CostSource<Scalar>(overlap_part, cost_density), request.num_max_cost_sources);
+//    }
+//  }
+//}
+
+//==============================================================================
 template <typename BV>
 void meshCollisionOrientedNodeLeafTesting(
-    int b1, int b2,
+    int b1,
+    int b2,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
     Vector3<typename BV::Scalar>* vertices1,
     Vector3<typename BV::Scalar>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
+    const Transform3<typename BV::Scalar>& tf,
     const Transform3<typename BV::Scalar>& tf1,
     const Transform3<typename BV::Scalar>& tf2,
     bool enable_statistics,
@@ -663,7 +830,7 @@ void meshCollisionOrientedNodeLeafTesting(
 
     if(!request.enable_contact) // only interested in collision or not
     {
-      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, tf))
       {
         is_intersect = true;
         if(result.numContacts() < request.num_max_contacts)
@@ -677,12 +844,8 @@ void meshCollisionOrientedNodeLeafTesting(
       unsigned int n_contacts;
       Vector3<Scalar> contacts[2];
 
-      if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3,
-                                       R, T,
-                                       contacts,
-                                       &n_contacts,
-                                       &penetration,
-                                       &normal))
+      if(Intersect<Scalar>::intersect_Triangle(
+           p1, p2, p3, q1, q2, q3, tf, contacts, &n_contacts, &penetration, &normal))
       {
         is_intersect = true;
 
@@ -705,7 +868,7 @@ void meshCollisionOrientedNodeLeafTesting(
   }
   else if((!model1->isFree() && !model2->isFree()) && request.enable_cost)
   {
-    if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, R, T))
+    if(Intersect<Scalar>::intersect_Triangle(p1, p2, p3, q1, q2, q3, tf))
     {
       AABB<Scalar> overlap_part;
       AABB<Scalar>(tf1 * p1, tf1 * p2, tf1 * p3).overlap(AABB<Scalar>(tf2 * q1, tf2 * q2, tf2 * q3), overlap_part);
@@ -746,7 +909,7 @@ bool setupMeshCollisionOrientedNode(
 
   node.cost_density = model1.cost_density * model2.cost_density;
 
-  relativeTransform(tf1, tf2, node.R, node.T);
+  node.tf = tf1.inverse(Eigen::Isometry) * tf2;
 
   return true;
 }

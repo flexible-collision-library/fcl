@@ -302,9 +302,9 @@ struct BVHShapeDistancer<RSS<typename T_SH::Scalar>, T_SH, NarrowPhaseSolver>
 };
 
 template <typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeDistancer<kIOS<typename T_SH::ScalarScalar>, T_SH, NarrowPhaseSolver>
+struct BVHShapeDistancer<kIOS<typename T_SH::Scalar>, T_SH, NarrowPhaseSolver>
 {
-  static typename T_SH::ScalarScalar distance(
+  static typename T_SH::Scalar distance(
       const CollisionGeometry<typename T_SH::Scalar>* o1,
       const Transform3<typename T_SH::Scalar>& tf1,
       const CollisionGeometry<typename T_SH::Scalar>* o2,

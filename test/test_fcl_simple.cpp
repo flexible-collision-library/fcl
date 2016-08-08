@@ -129,7 +129,7 @@ void test_Vec_nf_test()
 
 GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
 {
-  test_Vec_nf_test<float>();
+//  test_Vec_nf_test<float>();
   test_Vec_nf_test<double>();
 }
 
@@ -164,7 +164,7 @@ void test_projection_test_line()
 
 GTEST_TEST(FCL_SIMPLE, projection_test_line)
 {
-  test_projection_test_line<float>();
+//  test_projection_test_line<float>();
   test_projection_test_line<double>();
 }
 
@@ -234,7 +234,7 @@ void test_projection_test_triangle()
 
 GTEST_TEST(FCL_SIMPLE, projection_test_triangle)
 {
-  test_projection_test_triangle<float>();
+//  test_projection_test_triangle<float>();
   test_projection_test_triangle<double>();
 }
 
@@ -385,7 +385,7 @@ void test_projection_test_tetrahedron()
 
 GTEST_TEST(FCL_SIMPLE, projection_test_tetrahedron)
 {
-  test_projection_test_tetrahedron<float>();
+//  test_projection_test_tetrahedron<float>();
   test_projection_test_tetrahedron<double>();
 }
 

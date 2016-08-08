@@ -106,19 +106,19 @@ void generateRandomTransform(Scalar extents[6], Transform3<Scalar>& transform);
 
 /// @brief Generate n random transforms whose translations are constrained by extents.
 template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::size_t n);
+void generateRandomTransforms(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, std::size_t n);
 
 /// @brief Generate n random transforms whose translations are constrained by extents. Also generate another transforms2 which have additional random translation & rotation to the transforms generated.
 template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, std::size_t n);
+void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, std::size_t n);
 
 /// @brief Generate n random tranforms and transform2 with addtional random translation/rotation. The transforms and transform2 are used as initial and goal configurations for the first mesh. The second mesh is in I. This is used for continuous collision detection checking.
 template <typename Scalar>
-void generateRandomTransforms_ccd(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
+void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
                                  const std::vector<Vector3<Scalar>>& vertices1, const std::vector<Triangle>& triangles1,
                                  const std::vector<Vector3<Scalar>>& vertices2, const std::vector<Triangle>& triangles2);
 
-/// @ brief Structure for minimum distance between two meshes and the corresponding nearest point pair
+/// @brief Structure for minimum distance between two meshes and the corresponding nearest point pair
 template <typename Scalar>
 struct DistanceRes
 {
@@ -368,7 +368,7 @@ void generateRandomTransform(const std::array<Scalar, 6>& extents, Transform3<Sc
 
 //==============================================================================
 template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::size_t n)
+void generateRandomTransforms(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, std::size_t n)
 {
   transforms.resize(n);
   for(std::size_t i = 0; i < n; ++i)
@@ -395,7 +395,7 @@ void generateRandomTransforms(Scalar extents[6], std::vector<Transform3<Scalar>>
 
 //==============================================================================
 template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, std::size_t n)
+void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, std::size_t n)
 {
   transforms.resize(n);
   transforms2.resize(n);
@@ -440,7 +440,7 @@ void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar d
 
 //==============================================================================
 template <typename Scalar>
-void generateRandomTransforms_ccd(Scalar extents[6], std::vector<Transform3<Scalar>>& transforms, std::vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
+void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
                                  const std::vector<Vector3<Scalar>>& vertices1, const std::vector<Triangle>& triangles1,
                                  const std::vector<Vector3<Scalar>>& vertices2, const std::vector<Triangle>& triangles2)
 {

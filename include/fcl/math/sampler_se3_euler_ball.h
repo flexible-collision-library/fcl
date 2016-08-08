@@ -56,7 +56,7 @@ public:
   
   void getBound(Scalar& r_) const;
 
-  VectorN<Scalar, 6> sample() const;
+  Vector6<Scalar> sample() const;
 
 protected:
   Scalar r;
@@ -98,9 +98,9 @@ void SamplerSE3Euler_ball<Scalar>::getBound(Scalar& r_) const
 
 //==============================================================================
 template <typename Scalar>
-VectorN<Scalar, 6> SamplerSE3Euler_ball<Scalar>::sample() const
+Vector6<Scalar> SamplerSE3Euler_ball<Scalar>::sample() const
 {
-  VectorN<Scalar, 6> q;
+  Vector6<Scalar> q;
   Scalar x, y, z;
   this->rng.ball(0, r, x, y, z);
   q[0] = x;
@@ -110,7 +110,7 @@ VectorN<Scalar, 6> SamplerSE3Euler_ball<Scalar>::sample() const
   Scalar s[4];
   this->rng.quaternion(s);
 
-  Quaternion3<Scalar> quat(s[0], s[1], s[2], s[3]);
+  Quaternion<Scalar> quat(s[0], s[1], s[2], s[3]);
   Vector3<Scalar> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
   q[3] = angles[0];
   q[4] = angles[1];

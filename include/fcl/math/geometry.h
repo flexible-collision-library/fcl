@@ -80,21 +80,29 @@ void axisFromEigen(const Matrix3<Scalar>& eigenV,
                    Matrix3<Scalar>& axis);
 
 template <typename Scalar>
+void axisFromEigen(const Matrix3<Scalar>& eigenV,
+                   const Vector3<Scalar>& eigenS,
+                   Transform3<Scalar>& tf);
+
+template <typename Scalar>
 void generateCoordinateSystem(Matrix3<Scalar>& axis);
 
-template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-void relativeTransform(
-    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
-    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
-    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t);
+template <typename Scalar>
+void generateCoordinateSystem(Transform3<Scalar>& tf);
 
-template <typename Scalar, typename DerivedA, typename DerivedB>
-void relativeTransform(
-    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T1,
-    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
-    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t);
+//template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
+//void relativeTransform(
+//    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
+//    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
+//    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t);
 
-/// @brief Compute the RSSd bounding volume parameters: radius, rectangle size
+//template <typename Scalar, typename DerivedA, typename DerivedB>
+//void relativeTransform(
+//    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T1,
+//    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
+//    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t);
+
+/// @brief Compute the RSS bounding volume parameters: radius, rectangle size
 /// and the origin, given the BV axises.
 template <typename Scalar>
 void getRadiusAndOriginAndRectangleSize(
@@ -105,6 +113,19 @@ void getRadiusAndOriginAndRectangleSize(
     int n,
     const Matrix3<Scalar>& axis,
     Vector3<Scalar>& origin,
+    Scalar l[2],
+    Scalar& r);
+
+/// @brief Compute the RSS bounding volume parameters: radius, rectangle size
+/// and the origin, given the BV axises.
+template <typename Scalar>
+void getRadiusAndOriginAndRectangleSize(
+    Vector3<Scalar>* ps,
+    Vector3<Scalar>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    Transform3<Scalar>& tf,
     Scalar l[2],
     Scalar& r);
 
@@ -281,6 +302,45 @@ void axisFromEigen(const Matrix3<Scalar>& eigenV,
 
 //==============================================================================
 template <typename Scalar>
+void axisFromEigen(const Matrix3<Scalar>& eigenV,
+                   const Vector3<Scalar>& eigenS,
+                   Transform3<Scalar>& tf)
+{
+  int min, mid, max;
+
+  if(eigenS[0] > eigenS[1])
+  {
+    max = 0;
+    min = 1;
+  }
+  else
+  {
+    min = 0;
+    max = 1;
+  }
+
+  if(eigenS[2] < eigenS[min])
+  {
+    mid = min;
+    min = 2;
+  }
+  else if(eigenS[2] > eigenS[max])
+  {
+    mid = max;
+    max = 2;
+  }
+  else
+  {
+    mid = 2;
+  }
+
+  tf.linear().col(0) = eigenV.col(max);
+  tf.linear().col(1) = eigenV.col(mid);
+  tf.linear().col(2) = tf.linear().col(0).cross(tf.linear().col(1));
+}
+
+//==============================================================================
+template <typename Scalar>
 void generateCoordinateSystem(Matrix3<Scalar>& axis)
 {
   // Assum axis.col(0) is closest to z-axis
@@ -325,56 +385,101 @@ void generateCoordinateSystem(Matrix3<Scalar>& axis)
 }
 
 //==============================================================================
-template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-void relativeTransform(
-    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
-    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
-    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t)
+template <typename Scalar>
+void generateCoordinateSystem(Transform3<Scalar>& tf)
 {
-  EIGEN_STATIC_ASSERT(
-        DerivedA::RowsAtCompileTime == 3
-        && DerivedA::ColsAtCompileTime == 3,
-        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+  // Assum axis.col(0) is closest to z-axis
+  assert(tf.linear().col(0).maxCoeff() == 2);
 
-  EIGEN_STATIC_ASSERT(
-        DerivedB::RowsAtCompileTime == 3
-        && DerivedB::ColsAtCompileTime == 1,
-        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+  if(std::abs(tf.linear()(0, 0)) >= std::abs(tf.linear()(1, 0)))
+  {
+    // let axis.col(0) = (x, y, z)
+    // axis.col(1) = (-z, 0, x) / length((-z, 0, x)) // so that axis.col(0) and
+    //                                               // axis.col(1) are
+    //                                               // othorgonal
+    // axis.col(2) = axis.col(0).cross(axis.col(1))
 
-  EIGEN_STATIC_ASSERT(
-        DerivedC::RowsAtCompileTime == 3
-        && DerivedC::ColsAtCompileTime == 3,
-        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+    Scalar inv_length = 1.0 / sqrt(std::pow(tf.linear()(0, 0), 2) + std::pow(tf.linear()(2, 0), 2));
 
-  EIGEN_STATIC_ASSERT(
-        DerivedD::RowsAtCompileTime == 3
-        && DerivedD::ColsAtCompileTime == 1,
-        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+    tf.linear()(0, 1) = -tf.linear()(2, 0) * inv_length;
+    tf.linear()(1, 1) = 0;
+    tf.linear()(2, 1) =  tf.linear()(0, 0) * inv_length;
 
-  R = R1.transpose() * R2;
-  t = R1.transpose() * (t2 - t1);
+    tf.linear()(0, 2) =  tf.linear()(1, 0) * tf.linear()(2, 1);
+    tf.linear()(1, 2) =  tf.linear()(2, 0) * tf.linear()(0, 1) - tf.linear()(0, 0) * tf.linear()(2, 1);
+    tf.linear()(2, 2) = -tf.linear()(1, 0) * tf.linear()(0, 1);
+  }
+  else
+  {
+    // let axis.col(0) = (x, y, z)
+    // axis.col(1) = (0, z, -y) / length((0, z, -y)) // so that axis.col(0) and
+    //                                               // axis.col(1) are
+    //                                               // othorgonal
+    // axis.col(2) = axis.col(0).cross(axis.col(1))
+
+    Scalar inv_length = 1.0 / sqrt(std::pow(tf.linear()(1, 0), 2) + std::pow(tf.linear()(2, 0), 2));
+
+    tf.linear()(0, 1) = 0;
+    tf.linear()(1, 1) =  tf.linear()(2, 0) * inv_length;
+    tf.linear()(2, 1) = -tf.linear()(1, 0) * inv_length;
+
+    tf.linear()(0, 2) =  tf.linear()(1, 0) * tf.linear()(2, 1) - tf.linear()(2, 0) * tf.linear()(1, 1);
+    tf.linear()(1, 2) = -tf.linear()(0, 0) * tf.linear()(2, 1);
+    tf.linear()(2, 2) =  tf.linear()(0, 0) * tf.linear()(1, 1);
+  }
 }
 
-//==============================================================================
-template <typename Scalar, typename DerivedA, typename DerivedB>
-void relativeTransform(
-    const Transform3<Scalar>& T1,
-    const Transform3<Scalar>& T2,
-    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t)
-{
-  EIGEN_STATIC_ASSERT(
-        DerivedA::RowsAtCompileTime == 3
-        && DerivedA::ColsAtCompileTime == 3,
-        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+////==============================================================================
+//template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
+//void relativeTransform(
+//    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
+//    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
+//    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t)
+//{
+//  EIGEN_STATIC_ASSERT(
+//        DerivedA::RowsAtCompileTime == 3
+//        && DerivedA::ColsAtCompileTime == 3,
+//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-  EIGEN_STATIC_ASSERT(
-        DerivedB::RowsAtCompileTime == 3
-        && DerivedB::ColsAtCompileTime == 1,
-        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+//  EIGEN_STATIC_ASSERT(
+//        DerivedB::RowsAtCompileTime == 3
+//        && DerivedB::ColsAtCompileTime == 1,
+//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-  relativeTransform(
-        T1.linear(), T1.translation(), T2.linear(), T2.translation(), R, t);
-}
+//  EIGEN_STATIC_ASSERT(
+//        DerivedC::RowsAtCompileTime == 3
+//        && DerivedC::ColsAtCompileTime == 3,
+//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+//  EIGEN_STATIC_ASSERT(
+//        DerivedD::RowsAtCompileTime == 3
+//        && DerivedD::ColsAtCompileTime == 1,
+//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+//  R = R1.transpose() * R2;
+//  t = R1.transpose() * (t2 - t1);
+//}
+
+////==============================================================================
+//template <typename Scalar, typename DerivedA, typename DerivedB>
+//void relativeTransform(
+//    const Transform3<Scalar>& T1,
+//    const Transform3<Scalar>& T2,
+//    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t)
+//{
+//  EIGEN_STATIC_ASSERT(
+//        DerivedA::RowsAtCompileTime == 3
+//        && DerivedA::ColsAtCompileTime == 3,
+//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+//  EIGEN_STATIC_ASSERT(
+//        DerivedB::RowsAtCompileTime == 3
+//        && DerivedB::ColsAtCompileTime == 1,
+//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+
+//  relativeTransform(
+//        T1.linear(), T1.translation(), T2.linear(), T2.translation(), R, t);
+//}
 
 //==============================================================================
 template <typename Scalar>
@@ -651,6 +756,282 @@ void getRadiusAndOriginAndRectangleSize(
   l[1] = maxy - miny;
   if(l[1] < 0) l[1] = 0;
 
+}
+
+//==============================================================================
+template <typename Scalar>
+void getRadiusAndOriginAndRectangleSize(
+    Vector3<Scalar>* ps,
+    Vector3<Scalar>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    Transform3<Scalar>& tf,
+    Scalar l[2],
+    Scalar& r)
+{
+  bool indirect_index = true;
+  if(!indices) indirect_index = false;
+
+  int size_P = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
+
+//  std::vector<Vector3<Scalar>> P(size_P);
+  Vector3<Scalar>* P = new Vector3<Scalar>[size_P];
+
+  int P_id = 0;
+
+  if(ts)
+  {
+    for(int i = 0; i < n; ++i)
+    {
+      int index = indirect_index ? indices[i] : i;
+      const Triangle& t = ts[index];
+
+      for(int j = 0; j < 3; ++j)
+      {
+        int point_id = t[j];
+        const Vector3<Scalar>& p = ps[point_id];
+        P[P_id].noalias() = tf.linear().transpose() * p;
+        P_id++;
+      }
+
+      if(ps2)
+      {
+        for(int j = 0; j < 3; ++j)
+        {
+          int point_id = t[j];
+          const Vector3<Scalar>& p = ps2[point_id];
+          P[P_id].noalias() = tf.linear().transpose() * p;
+          P_id++;
+        }
+      }
+    }
+  }
+  else
+  {
+    for(int i = 0; i < n; ++i)
+    {
+      int index = indirect_index ? indices[i] : i;
+
+      const Vector3<Scalar>& p = ps[index];
+      P[P_id].noalias() = tf.linear().transpose() * p;
+      P_id++;
+
+      if(ps2)
+      {
+        P[P_id].noalias() = tf.linear().transpose() * ps2[index];
+        P_id++;
+      }
+    }
+  }
+
+  Scalar minx, maxx, miny, maxy, minz, maxz;
+
+  Scalar cz, radsqr;
+
+  minz = maxz = P[0][2];
+
+  for(int i = 1; i < size_P; ++i)
+  {
+    Scalar z_value = P[i][2];
+    if(z_value < minz) minz = z_value;
+    else if(z_value > maxz) maxz = z_value;
+  }
+
+  r = (Scalar)0.5 * (maxz - minz);
+  radsqr = r * r;
+  cz = (Scalar)0.5 * (maxz + minz);
+
+  // compute an initial length of rectangle along x direction
+
+  // find minx and maxx as starting points
+
+  int minindex, maxindex;
+  minindex = maxindex = 0;
+  Scalar mintmp, maxtmp;
+  mintmp = maxtmp = P[0][0];
+
+  for(int i = 1; i < size_P; ++i)
+  {
+    Scalar x_value = P[i][0];
+    if(x_value < mintmp)
+    {
+      minindex = i;
+      mintmp = x_value;
+    }
+    else if(x_value > maxtmp)
+    {
+      maxindex = i;
+      maxtmp = x_value;
+    }
+  }
+
+  Scalar x, dz;
+  dz = P[minindex][2] - cz;
+  minx = P[minindex][0] + std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+  dz = P[maxindex][2] - cz;
+  maxx = P[maxindex][0] - std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+
+
+  // grow minx
+
+  for(int i = 0; i < size_P; ++i)
+  {
+    if(P[i][0] < minx)
+    {
+      dz = P[i][2] - cz;
+      x = P[i][0] + std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+      if(x < minx) minx = x;
+    }
+  }
+
+  // grow maxx
+
+  for(int i = 0; i < size_P; ++i)
+  {
+    if(P[i][0] > maxx)
+    {
+      dz = P[i][2] - cz;
+      x = P[i][0] - std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+      if(x > maxx) maxx = x;
+    }
+  }
+
+  // compute an initial length of rectangle along y direction
+
+  // find miny and maxy as starting points
+
+  minindex = maxindex = 0;
+  mintmp = maxtmp = P[0][1];
+  for(int i = 1; i < size_P; ++i)
+  {
+    Scalar y_value = P[i][1];
+    if(y_value < mintmp)
+    {
+      minindex = i;
+      mintmp = y_value;
+    }
+    else if(y_value > maxtmp)
+    {
+      maxindex = i;
+      maxtmp = y_value;
+    }
+  }
+
+  Scalar y;
+  dz = P[minindex][2] - cz;
+  miny = P[minindex][1] + std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+  dz = P[maxindex][2] - cz;
+  maxy = P[maxindex][1] - std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+
+  // grow miny
+
+  for(int i = 0; i < size_P; ++i)
+  {
+    if(P[i][1] < miny)
+    {
+      dz = P[i][2] - cz;
+      y = P[i][1] + std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+      if(y < miny) miny = y;
+    }
+  }
+
+  // grow maxy
+
+  for(int i = 0; i < size_P; ++i)
+  {
+    if(P[i][1] > maxy)
+    {
+      dz = P[i][2] - cz;
+      y = P[i][1] - std::sqrt(std::max<Scalar>(radsqr - dz * dz, 0));
+      if(y > maxy) maxy = y;
+    }
+  }
+
+  // corners may have some points which are not covered - grow lengths if necessary
+  // quite conservative (can be improved)
+  Scalar dx, dy, u, t;
+  Scalar a = std::sqrt((Scalar)0.5);
+  for(int i = 0; i < size_P; ++i)
+  {
+    if(P[i][0] > maxx)
+    {
+      if(P[i][1] > maxy)
+      {
+        dx = P[i][0] - maxx;
+        dy = P[i][1] - maxy;
+        u = dx * a + dy * a;
+        t = (a*u - dx)*(a*u - dx) +
+            (a*u - dy)*(a*u - dy) +
+            (cz - P[i][2])*(cz - P[i][2]);
+        u = u - std::sqrt(std::max<Scalar>(radsqr - t, 0));
+        if(u > 0)
+        {
+          maxx += u*a;
+          maxy += u*a;
+        }
+      }
+      else if(P[i][1] < miny)
+      {
+        dx = P[i][0] - maxx;
+        dy = P[i][1] - miny;
+        u = dx * a - dy * a;
+        t = (a*u - dx)*(a*u - dx) +
+            (-a*u - dy)*(-a*u - dy) +
+            (cz - P[i][2])*(cz - P[i][2]);
+        u = u - std::sqrt(std::max<Scalar>(radsqr - t, 0));
+        if(u > 0)
+        {
+          maxx += u*a;
+          miny -= u*a;
+        }
+      }
+    }
+    else if(P[i][0] < minx)
+    {
+      if(P[i][1] > maxy)
+      {
+        dx = P[i][0] - minx;
+        dy = P[i][1] - maxy;
+        u = dy * a - dx * a;
+        t = (-a*u - dx)*(-a*u - dx) +
+            (a*u - dy)*(a*u - dy) +
+            (cz - P[i][2])*(cz - P[i][2]);
+        u = u - std::sqrt(std::max<Scalar>(radsqr - t, 0));
+        if(u > 0)
+        {
+          minx -= u*a;
+          maxy += u*a;
+        }
+      }
+      else if(P[i][1] < miny)
+      {
+        dx = P[i][0] - minx;
+        dy = P[i][1] - miny;
+        u = -dx * a - dy * a;
+        t = (-a*u - dx)*(-a*u - dx) +
+            (-a*u - dy)*(-a*u - dy) +
+            (cz - P[i][2])*(cz - P[i][2]);
+        u = u - std::sqrt(std::max<Scalar>(radsqr - t, 0));
+        if (u > 0)
+        {
+          minx -= u*a;
+          miny -= u*a;
+        }
+      }
+    }
+  }
+
+  tf.translation().noalias() = tf.linear().col(0) * minx;
+  tf.translation().noalias() += tf.linear().col(1) * miny;
+  tf.translation().noalias() += tf.linear().col(2) * cz;
+
+  l[0] = maxx - minx;
+  if(l[0] < 0) l[0] = 0;
+  l[1] = maxy - miny;
+  if(l[1] < 0) l[1] = 0;
+
+  delete [] P;
 }
 
 //==============================================================================

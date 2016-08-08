@@ -148,7 +148,7 @@ void test_consistency_distance_spheresphere_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
 {
-  test_consistency_distance_spheresphere_libccd<float>();
+//  test_consistency_distance_spheresphere_libccd<float>();
   test_consistency_distance_spheresphere_libccd<double>();
 }
 
@@ -245,7 +245,7 @@ void test_consistency_distance_ellipsoidellipsoid_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_libccd)
 {
-  test_consistency_distance_ellipsoidellipsoid_libccd<float>();
+//  test_consistency_distance_ellipsoidellipsoid_libccd<float>();
   test_consistency_distance_ellipsoidellipsoid_libccd<double>();
 }
 
@@ -343,7 +343,7 @@ void test_consistency_distance_boxbox_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
 {
-  test_consistency_distance_boxbox_libccd<float>();
+//  test_consistency_distance_boxbox_libccd<float>();
   test_consistency_distance_boxbox_libccd<double>();
 }
 
@@ -441,7 +441,7 @@ void test_consistency_distance_cylindercylinder_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_libccd)
 {
-  test_consistency_distance_cylindercylinder_libccd<float>();
+//  test_consistency_distance_cylindercylinder_libccd<float>();
   test_consistency_distance_cylindercylinder_libccd<double>();
 }
 
@@ -538,7 +538,7 @@ void test_consistency_distance_conecone_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
 {
-  test_consistency_distance_conecone_libccd<float>();
+//  test_consistency_distance_conecone_libccd<float>();
   test_consistency_distance_conecone_libccd<double>();
 }
 
@@ -638,7 +638,7 @@ void test_consistency_distance_spheresphere_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
 {
-  test_consistency_distance_spheresphere_GJK<float>();
+//  test_consistency_distance_spheresphere_GJK<float>();
   test_consistency_distance_spheresphere_GJK<double>();
 }
 
@@ -738,7 +738,7 @@ void test_consistency_distance_ellipsoidellipsoid_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_GJK)
 {
-  test_consistency_distance_ellipsoidellipsoid_GJK<float>();
+//  test_consistency_distance_ellipsoidellipsoid_GJK<float>();
   test_consistency_distance_ellipsoidellipsoid_GJK<double>();
 }
 
@@ -837,7 +837,7 @@ void test_consistency_distance_boxbox_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
 {
-  test_consistency_distance_boxbox_GJK<float>();
+//  test_consistency_distance_boxbox_GJK<float>();
   test_consistency_distance_boxbox_GJK<double>();
 }
 
@@ -945,7 +945,7 @@ void test_consistency_distance_cylindercylinder_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK)
 {
-  test_consistency_distance_cylindercylinder_GJK<float>();
+//  test_consistency_distance_cylindercylinder_GJK<float>();
   test_consistency_distance_cylindercylinder_GJK<double>();
 }
 
@@ -1044,7 +1044,7 @@ void test_consistency_distance_conecone_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
 {
-  test_consistency_distance_conecone_GJK<float>();
+//  test_consistency_distance_conecone_GJK<float>();
   test_consistency_distance_conecone_GJK<double>();
 }
 
@@ -1270,7 +1270,7 @@ void test_consistency_collision_spheresphere_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd)
 {
-  test_consistency_collision_spheresphere_libccd<float>();
+//  test_consistency_collision_spheresphere_libccd<float>();
   test_consistency_collision_spheresphere_libccd<double>();
 }
 
@@ -1498,7 +1498,7 @@ void test_consistency_collision_ellipsoidellipsoid_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_libccd)
 {
-  test_consistency_collision_ellipsoidellipsoid_libccd<float>();
+//  test_consistency_collision_ellipsoidellipsoid_libccd<float>();
   test_consistency_collision_ellipsoidellipsoid_libccd<double>();
 }
 
@@ -1627,7 +1627,7 @@ void test_consistency_collision_boxbox_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
 {
-  test_consistency_collision_boxbox_libccd<float>();
+//  test_consistency_collision_boxbox_libccd<float>();
   test_consistency_collision_boxbox_libccd<double>();
 }
 
@@ -1756,7 +1756,7 @@ void test_consistency_collision_spherebox_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
 {
-  test_consistency_collision_spherebox_libccd<float>();
+//  test_consistency_collision_spherebox_libccd<float>();
   test_consistency_collision_spherebox_libccd<double>();
 }
 
@@ -1852,7 +1852,7 @@ void test_consistency_collision_cylindercylinder_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_libccd)
 {
-  test_consistency_collision_cylindercylinder_libccd<float>();
+//  test_consistency_collision_cylindercylinder_libccd<float>();
   test_consistency_collision_cylindercylinder_libccd<double>();
 }
 
@@ -2012,7 +2012,7 @@ void test_consistency_collision_conecone_libccd()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
 {
-  test_consistency_collision_conecone_libccd<float>();
+//  test_consistency_collision_conecone_libccd<float>();
   test_consistency_collision_conecone_libccd<double>();
 }
 
@@ -2240,7 +2240,7 @@ void test_consistency_collision_spheresphere_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
 {
-  test_consistency_collision_spheresphere_GJK<float>();
+//  test_consistency_collision_spheresphere_GJK<float>();
   test_consistency_collision_spheresphere_GJK<double>();
 }
 
@@ -2468,7 +2468,7 @@ void test_consistency_collision_ellipsoidellipsoid_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_GJK)
 {
-  test_consistency_collision_ellipsoidellipsoid_GJK<float>();
+//  test_consistency_collision_ellipsoidellipsoid_GJK<float>();
   test_consistency_collision_ellipsoidellipsoid_GJK<double>();
 }
 
@@ -2599,7 +2599,7 @@ void test_consistency_collision_boxbox_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
 {
-  test_consistency_collision_boxbox_GJK<float>();
+//  test_consistency_collision_boxbox_GJK<float>();
   test_consistency_collision_boxbox_GJK<double>();
 }
 
@@ -2828,7 +2828,7 @@ void test_consistency_collision_cylindercylinder_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJK)
 {
-  test_consistency_collision_cylindercylinder_GJK<float>();
+//  test_consistency_collision_cylindercylinder_GJK<float>();
   test_consistency_collision_cylindercylinder_GJK<double>();
 }
 
@@ -2990,7 +2990,7 @@ void test_consistency_collision_conecone_GJK()
 
 GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_GJK)
 {
-  test_consistency_collision_conecone_GJK<float>();
+//  test_consistency_collision_conecone_GJK<float>();
   test_consistency_collision_conecone_GJK<double>();
 }
 

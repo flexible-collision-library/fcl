@@ -66,6 +66,9 @@ private:
   VectorN<Scalar, N> lower_bound;
   VectorN<Scalar, N> upper_bound;
 
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(Scalar, N)
+
 };
 
 template <std::size_t N>

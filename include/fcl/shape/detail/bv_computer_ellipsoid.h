@@ -83,8 +83,7 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Ellipsoid<ScalarT>>
 {
   static void compute(const Ellipsoid<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    bv.To = tf.translation();
-    bv.axis = tf.linear();
+    bv.frame = tf;
     bv.extent = s.radii;
   }
 };
