@@ -35,6 +35,8 @@
 
 /** \author Jia Pan */
 
+#include <array>
+
 #include <gtest/gtest.h>
 
 #include "fcl/narrowphase/gjk_solver_indep.h"
@@ -50,7 +52,7 @@ using namespace fcl;
 template <typename Scalar>
 std::array<Scalar, 6>& extents()
 {
-  static std::array<Scalar, 6> static_extents = {0, 0, 0, 10, 10, 10};
+  static std::array<Scalar, 6> static_extents{ {0, 0, 0, 10, 10, 10} };
   return static_extents;
 }
 
