@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(test_octomap_collision)
 
 BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_collision_test(200, 10, false, 10, true, true);
   octomap_collision_test(200, 100, false, 10, true, true);
   octomap_collision_test(200, 10, true, 1, true, true);
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh)
 
 BOOST_AUTO_TEST_CASE(test_octomap_collision_mesh_octomap_box)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_collision_test(200, 10, false, 10, true, false);
   octomap_collision_test(200, 100, false, 10, true, false);
   octomap_collision_test(200, 10, true, 1, true, false);
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(test_octomap_distance)
 
 BOOST_AUTO_TEST_CASE(test_octomap_distance_mesh)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test(200, 5, true, true);
   octomap_distance_test(200, 50, true, true);
 #else
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(test_octomap_distance_mesh)
 
 BOOST_AUTO_TEST_CASE(test_octomap_distance_mesh_octomap_box)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test(200, 10, true, false);
   octomap_distance_test(200, 100, true, false);
 #else
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE(test_octomap_bvh_obb_d_distance_obb)
 
 BOOST_AUTO_TEST_CASE(test_octomap_bvh_kios_d_distance_kios)
 {
-#ifdef FCL_BUILD_TYPE_DEBUG
+#if FCL_BUILD_TYPE_DEBUG
   octomap_distance_test_BVH<kIOS>(2);
 #else
   octomap_distance_test_BVH<kIOS>(5);
