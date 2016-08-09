@@ -103,110 +103,12 @@ private:
   Vector3<Scalar>* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
-};
 
+  template <typename, typename>
+  friend struct SetImpl;
 
-/// @brief Specification of BVFitter for OBB bounding volume
-template <typename Scalar>
-class BVFitter<OBB<Scalar>> : public BVFitterBase<OBB<Scalar>>
-{
-public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vector3<Scalar>* vertices_, Vector3<Scalar>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  OBB<Scalar> fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// brief Clear the geometry primitive data
-  void clear();
-
-private:
-
-  Vector3<Scalar>* vertices;
-  Vector3<Scalar>* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
-};
-
-/// @brief Specification of BVFitter for RSS bounding volume
-template <typename Scalar>
-class BVFitter<RSS<Scalar>> : public BVFitterBase<RSS<Scalar>>
-{
-public:
-  /// brief Prepare the geometry primitive data for fitting
-  void set(Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vector3<Scalar>* vertices_, Vector3<Scalar>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  RSS<Scalar> fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear();
-
-private:
-
-  Vector3<Scalar>* vertices;
-  Vector3<Scalar>* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
-};
-
-/// @brief Specification of BVFitter for kIOS bounding volume
-template <typename Scalar>
-class BVFitter<kIOS<Scalar>> : public BVFitterBase<kIOS<Scalar>>
-{
-public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3<Scalar>* vertices_, Vector3<Scalar>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  kIOS<Scalar> fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear();
-
-private:
-  Vector3<Scalar>* vertices;
-  Vector3<Scalar>* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
-};
-
-/// @brief Specification of BVFitter for OBBRSS bounding volume
-template <typename Scalar>
-class BVFitter<OBBRSS<Scalar>> : public BVFitterBase<OBBRSS<Scalar>>
-{
-public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3<Scalar>* vertices_, Vector3<Scalar>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_);
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  OBBRSS<Scalar> fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear();
-
-private:
-
-  Vector3<Scalar>* vertices;
-  Vector3<Scalar>* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
+  template <typename, typename>
+  friend struct FitImpl;
 };
 
 //============================================================================//
@@ -223,16 +125,17 @@ BVFitter<BV>::~BVFitter()
 }
 
 //==============================================================================
+template <typename Scalar, typename BV>
+struct SetImpl;
+
+//==============================================================================
 template <typename BV>
 void BVFitter<BV>::set(
     Vector3<typename BVFitter<BV>::Scalar>* vertices_,
     Triangle* tri_indices_,
     BVHModelType type_)
 {
-  vertices = vertices_;
-  prev_vertices = NULL;
-  tri_indices = tri_indices_;
-  type = type_;
+  SetImpl<typename BV::Scalar, BV>::run(*this, vertices_, tri_indices_, type_);
 }
 
 //==============================================================================
@@ -243,49 +146,20 @@ void BVFitter<BV>::set(
     Triangle* tri_indices_,
     BVHModelType type_)
 {
-  vertices = vertices_;
-  prev_vertices = prev_vertices_;
-  tri_indices = tri_indices_;
-  type = type_;
+  SetImpl<typename BV::Scalar, BV>::run(
+        *this, vertices_, prev_vertices_, tri_indices_, type_);
 }
+
+//==============================================================================
+template <typename Scalar, typename BV>
+struct FitImpl;
 
 //==============================================================================
 template <typename BV>
 BV BVFitter<BV>::fit(unsigned int* primitive_indices, int num_primitives)
 {
-  BV bv;
-
-  if(type == BVH_MODEL_TRIANGLES)             /// The primitive is triangle
-  {
-    for(int i = 0; i < num_primitives; ++i)
-    {
-      Triangle t = tri_indices[primitive_indices[i]];
-      bv += vertices[t[0]];
-      bv += vertices[t[1]];
-      bv += vertices[t[2]];
-
-      if(prev_vertices)                      /// can fitting both current and previous frame
-      {
-        bv += prev_vertices[t[0]];
-        bv += prev_vertices[t[1]];
-        bv += prev_vertices[t[2]];
-      }
-    }
-  }
-  else if(type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
-  {
-    for(int i = 0; i < num_primitives; ++i)
-    {
-      bv += vertices[primitive_indices[i]];
-
-      if(prev_vertices)                       /// can fitting both current and previous frame
-      {
-        bv += prev_vertices[primitive_indices[i]];
-      }
-    }
-  }
-
-  return bv;
+  return FitImpl<typename BV::Scalar, BV>::run(
+        *this, primitive_indices, num_primitives);
 }
 
 //==============================================================================
@@ -299,279 +173,380 @@ void BVFitter<BV>::clear()
 }
 
 //==============================================================================
-template <typename Scalar>
-void BVFitter<OBB<Scalar>>::set(
-    Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_)
+template <typename Scalar, typename BV>
+struct SetImpl
 {
-  vertices = vertices_;
-  prev_vertices = NULL;
-  tri_indices = tri_indices_;
-  type = type_;
-}
-
-//==============================================================================
-template <typename Scalar>
-void BVFitter<OBB<Scalar>>::set(
-    Vector3<Scalar>* vertices_,
-    Vector3<Scalar>* prev_vertices_,
-    Triangle* tri_indices_, BVHModelType type_)
-{
-  vertices = vertices_;
-  prev_vertices = prev_vertices_;
-  tri_indices = tri_indices_;
-  type = type_;
-}
-
-//==============================================================================
-template <typename Scalar>
-OBB<Scalar> BVFitter<OBB<Scalar>>::fit(
-    unsigned int* primitive_indices, int num_primitives)
-{
-  OBB<Scalar> bv;
-
-  Matrix3<Scalar> M; // row first matrix
-  Matrix3<Scalar> E; // row first eigen-vectors
-  Vector3<Scalar> s; // three eigen values
-  getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen_old(M, s, E);
-  axisFromEigen(E, s, bv.frame);
-
-  // set obb centers and extensions
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.frame, bv.extent);
-
-  return bv;
-}
-
-//==============================================================================
-template <typename Scalar>
-void BVFitter<OBB<Scalar>>::clear()
-{
-  vertices = NULL;
-  prev_vertices = NULL;
-  tri_indices = NULL;
-  type = BVH_MODEL_UNKNOWN;
-}
-
-//==============================================================================
-template <typename Scalar>
-void BVFitter<RSS<Scalar>>::set(
-    Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_)
-{
-  vertices = vertices_;
-  prev_vertices = NULL;
-  tri_indices = tri_indices_;
-  type = type_;
-}
-
-//==============================================================================
-template <typename Scalar>
-void BVFitter<RSS<Scalar>>::set(
-    Vector3<Scalar>* vertices_,
-    Vector3<Scalar>* prev_vertices_,
-    Triangle* tri_indices_,
-    BVHModelType type_)
-{
-  vertices = vertices_;
-  prev_vertices = prev_vertices_;
-  tri_indices = tri_indices_;
-  type = type_;
-}
-
-//==============================================================================
-template <typename Scalar>
-RSS<Scalar> BVFitter<RSS<Scalar>>::fit(
-    unsigned int* primitive_indices, int num_primitives)
-{
-  RSS<Scalar> bv;
-
-  Matrix3<Scalar> M; // row first matrix
-  Matrix3<Scalar> E; // row first eigen-vectors
-  Vector3<Scalar> s; // three eigen values
-  getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen_old(M, s, E);
-  axisFromEigen(E, s, bv.frame);
-
-  // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize(
-        vertices, prev_vertices, tri_indices,
-        primitive_indices, num_primitives, bv.frame, bv.l, bv.r);
-
-  return bv;
-}
-
-//==============================================================================
-template <typename Scalar>
-void BVFitter<RSS<Scalar>>::clear()
-{
-  vertices = NULL;
-  prev_vertices = NULL;
-  tri_indices = NULL;
-  type = BVH_MODEL_UNKNOWN;
-}
-
-//==============================================================================
-template <typename Scalar>
-void BVFitter<kIOS<Scalar>>::set(
-    Vector3<Scalar>* vertices_,
-    Vector3<Scalar>* prev_vertices_,
-    Triangle* tri_indices_,
-    BVHModelType type_)
-{
-  vertices = vertices_;
-  prev_vertices = prev_vertices_;
-  tri_indices = tri_indices_;
-  type = type_;
-}
-
-//==============================================================================
-template <typename Scalar>
-void BVFitter<kIOS<Scalar>>::set(
-    Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_)
-{
-  vertices = vertices_;
-  prev_vertices = NULL;
-  tri_indices = tri_indices_;
-  type = type_;
-}
-
-//==============================================================================
-template <typename Scalar>
-kIOS<Scalar> BVFitter<kIOS<Scalar>>::fit(
-    unsigned int* primitive_indices, int num_primitives)
-{
-  kIOS<Scalar> bv;
-
-  Matrix3<Scalar> M; // row first matrix
-  Matrix3<Scalar> E; // row first eigen-vectors
-  Vector3<Scalar> s;
-  getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen_old(M, s, E);
-  axisFromEigen(E, s, bv.obb.frame);
-
-  // get centers and extensions
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
-
-  const Vector3<Scalar>& center = bv.obb.frame.translation();
-  const Vector3<Scalar>& extent = bv.obb.extent;
-  Scalar r0 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, center);
-
-  // decide k in kIOS
-  if(extent[0] > kIOS<Scalar>::ratio() * extent[2])
+  static void run(
+      BVFitter<BV>& fitter,
+      Vector3<Scalar>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
   {
-    if(extent[0] > kIOS<Scalar>::ratio() * extent[1]) bv.num_spheres = 5;
-    else bv.num_spheres = 3;
-  }
-  else bv.num_spheres = 1;
-
-  bv.spheres[0].o = center;
-  bv.spheres[0].r = r0;
-
-  if(bv.num_spheres >= 3)
-  {
-    Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<Scalar>::invSinA();
-    Vector3<Scalar> delta = bv.obb.frame.linear().col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
-    bv.spheres[1].o = center - delta;
-    bv.spheres[2].o = center + delta;
-
-    Scalar r11 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[1].o);
-    Scalar r12 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[2].o);
-
-    bv.spheres[1].o += bv.obb.frame.linear().col(2) * (-r10 + r11);
-    bv.spheres[2].o += bv.obb.frame.linear().col(2) * (r10 - r12);
-
-    bv.spheres[1].r = r10;
-    bv.spheres[2].r = r10;
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = NULL;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
   }
 
-  if(bv.num_spheres >= 5)
+  static void run(
+      BVFitter<BV>& fitter,
+      Vector3<Scalar>* vertices_,
+      Vector3<Scalar>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
   {
-    Scalar r10 = bv.spheres[1].r;
-    Vector3<Scalar> delta = bv.obb.frame.linear().col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
-    bv.spheres[3].o = bv.spheres[0].o - delta;
-    bv.spheres[4].o = bv.spheres[0].o + delta;
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
 
-    Scalar r21 = 0, r22 = 0;
-    r21 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[3].o);
-    r22 = maximumDistance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.spheres[4].o);
-
-    bv.spheres[3].o += bv.obb.frame.linear().col(1) * (-r10 + r21);
-    bv.spheres[4].o += bv.obb.frame.linear().col(1) * (r10 - r22);
-
-    bv.spheres[3].r = r10;
-    bv.spheres[4].r = r10;
+//==============================================================================
+template <typename Scalar>
+struct SetImpl<Scalar, OBB<Scalar>>
+{
+  static void run(
+      BVFitter<OBB<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = NULL;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
   }
 
-  return bv;
-}
+  static void run(
+      BVFitter<OBB<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Vector3<Scalar>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
 
 //==============================================================================
 template <typename Scalar>
-void BVFitter<kIOS<Scalar>>::clear()
+struct SetImpl<Scalar, RSS<Scalar>>
 {
-  vertices = NULL;
-  prev_vertices = NULL;
-  tri_indices = NULL;
-  type = BVH_MODEL_UNKNOWN;
-}
+  static void run(
+      BVFitter<RSS<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = NULL;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<RSS<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Vector3<Scalar>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
 
 //==============================================================================
 template <typename Scalar>
-void BVFitter<OBBRSS<Scalar>>::set(
-    Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_)
+struct SetImpl<Scalar, kIOS<Scalar>>
 {
-  vertices = vertices_;
-  prev_vertices = NULL;
-  tri_indices = tri_indices_;
-  type = type_;
-}
+  static void run(
+      BVFitter<kIOS<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = NULL;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<kIOS<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Vector3<Scalar>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
 
 //==============================================================================
 template <typename Scalar>
-void BVFitter<OBBRSS<Scalar>>::set(
-    Vector3<Scalar>* vertices_,
-    Vector3<Scalar>* prev_vertices_,
-    Triangle* tri_indices_,
-    BVHModelType type_)
+struct SetImpl<Scalar, OBBRSS<Scalar>>
 {
-  vertices = vertices_;
-  prev_vertices = prev_vertices_;
-  tri_indices = tri_indices_;
-  type = type_;
-}
+  static void run(
+      BVFitter<OBBRSS<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = NULL;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<OBBRSS<Scalar>>& fitter,
+      Vector3<Scalar>* vertices_,
+      Vector3<Scalar>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
+
+//==============================================================================
+template <typename Scalar, typename BV>
+struct FitImpl
+{
+  static BV run(
+      const BVFitter<BV>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
+  {
+    BV bv;
+
+    if(fitter.type == BVH_MODEL_TRIANGLES)             /// The primitive is triangle
+    {
+      for(int i = 0; i < num_primitives; ++i)
+      {
+        Triangle t = fitter.tri_indices[primitive_indices[i]];
+        bv += fitter.vertices[t[0]];
+        bv += fitter.vertices[t[1]];
+        bv += fitter.vertices[t[2]];
+
+        if(fitter.prev_vertices)                      /// can fitting both current and previous frame
+        {
+          bv += fitter.prev_vertices[t[0]];
+          bv += fitter.prev_vertices[t[1]];
+          bv += fitter.prev_vertices[t[2]];
+        }
+      }
+    }
+    else if(fitter.type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
+    {
+      for(int i = 0; i < num_primitives; ++i)
+      {
+        bv += fitter.vertices[primitive_indices[i]];
+
+        if(fitter.prev_vertices)                       /// can fitting both current and previous frame
+        {
+          bv += fitter.prev_vertices[primitive_indices[i]];
+        }
+      }
+    }
+
+    return bv;
+  }
+};
 
 //==============================================================================
 template <typename Scalar>
-OBBRSS<Scalar> BVFitter<OBBRSS<Scalar>>::fit(
-    unsigned int* primitive_indices, int num_primitives)
+struct FitImpl<Scalar, OBB<Scalar>>
 {
-  OBBRSS<Scalar> bv;
-  Matrix3<Scalar> M;
-  Matrix3<Scalar> E;
-  Vector3<Scalar> s;
-  getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen_old(M, s, E);
-  axisFromEigen(E, s, bv.obb.frame);
-  bv.rss.frame.linear() = bv.obb.frame.linear();
+  static OBB<Scalar> run(
+      const BVFitter<OBB<Scalar>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
+  {
+    OBB<Scalar> bv;
 
-  getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
+    Matrix3<Scalar> M; // row first matrix
+    Matrix3<Scalar> E; // row first eigen-vectors
+    Vector3<Scalar> s; // three eigen values
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.frame);
 
-  getRadiusAndOriginAndRectangleSize(
-        vertices, prev_vertices, tri_indices,
-        primitive_indices, num_primitives,
-        bv.rss.frame, bv.rss.l, bv.rss.r);
+    // set obb centers and extensions
+    getExtentAndCenter(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives,
+          bv.frame, bv.extent);
 
-  return bv;
-}
+    return bv;
+  }
+};
 
 //==============================================================================
 template <typename Scalar>
-void BVFitter<OBBRSS<Scalar>>::clear()
+struct FitImpl<Scalar, RSS<Scalar>>
 {
-  vertices = NULL;
-  prev_vertices = NULL;
-  tri_indices = NULL;
-  type = BVH_MODEL_UNKNOWN;
-}
+  static RSS<Scalar> run(
+      const BVFitter<RSS<Scalar>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
+  {
+    RSS<Scalar> bv;
+
+    Matrix3<Scalar> M; // row first matrix
+    Matrix3<Scalar> E; // row first eigen-vectors
+    Vector3<Scalar> s; // three eigen values
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.frame);
+
+    // set rss origin, rectangle size and radius
+    getRadiusAndOriginAndRectangleSize(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, bv.frame, bv.l, bv.r);
+
+    return bv;
+  }
+};
+
+//==============================================================================
+template <typename Scalar>
+struct FitImpl<Scalar, kIOS<Scalar>>
+{
+  static kIOS<Scalar> run(
+      const BVFitter<kIOS<Scalar>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
+  {
+    kIOS<Scalar> bv;
+
+    Matrix3<Scalar> M; // row first matrix
+    Matrix3<Scalar> E; // row first eigen-vectors
+    Vector3<Scalar> s;
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.obb.frame);
+
+    // get centers and extensions
+    getExtentAndCenter(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
+
+    const Vector3<Scalar>& center = bv.obb.frame.translation();
+    const Vector3<Scalar>& extent = bv.obb.extent;
+    Scalar r0 = maximumDistance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, center);
+
+    // decide k in kIOS
+    if(extent[0] > kIOS<Scalar>::ratio() * extent[2])
+    {
+      if(extent[0] > kIOS<Scalar>::ratio() * extent[1]) bv.num_spheres = 5;
+      else bv.num_spheres = 3;
+    }
+    else bv.num_spheres = 1;
+
+    bv.spheres[0].o = center;
+    bv.spheres[0].r = r0;
+
+    if(bv.num_spheres >= 3)
+    {
+      Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<Scalar>::invSinA();
+      Vector3<Scalar> delta = bv.obb.frame.linear().col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
+      bv.spheres[1].o = center - delta;
+      bv.spheres[2].o = center + delta;
+
+      Scalar r11 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[1].o);
+      Scalar r12 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[2].o);
+
+      bv.spheres[1].o += bv.obb.frame.linear().col(2) * (-r10 + r11);
+      bv.spheres[2].o += bv.obb.frame.linear().col(2) * (r10 - r12);
+
+      bv.spheres[1].r = r10;
+      bv.spheres[2].r = r10;
+    }
+
+    if(bv.num_spheres >= 5)
+    {
+      Scalar r10 = bv.spheres[1].r;
+      Vector3<Scalar> delta = bv.obb.frame.linear().col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+      bv.spheres[3].o = bv.spheres[0].o - delta;
+      bv.spheres[4].o = bv.spheres[0].o + delta;
+
+      Scalar r21 = 0, r22 = 0;
+      r21 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[3].o);
+      r22 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[4].o);
+
+      bv.spheres[3].o += bv.obb.frame.linear().col(1) * (-r10 + r21);
+      bv.spheres[4].o += bv.obb.frame.linear().col(1) * (r10 - r22);
+
+      bv.spheres[3].r = r10;
+      bv.spheres[4].r = r10;
+    }
+
+    return bv;
+  }
+};
+
+//==============================================================================
+template <typename Scalar>
+struct FitImpl<Scalar, OBBRSS<Scalar>>
+{
+  static OBBRSS<Scalar> run(
+      const BVFitter<OBBRSS<Scalar>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
+  {
+    OBBRSS<Scalar> bv;
+    Matrix3<Scalar> M;
+    Matrix3<Scalar> E;
+    Vector3<Scalar> s;
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.obb.frame);
+    bv.rss.frame.linear() = bv.obb.frame.linear();
+
+    getExtentAndCenter(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
+
+    getRadiusAndOriginAndRectangleSize(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives,
+          bv.rss.frame, bv.rss.l, bv.rss.r);
+
+    return bv;
+  }
+};
 
 } // namespace fcl
 
