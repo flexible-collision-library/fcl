@@ -548,22 +548,17 @@ OBBRSS<Scalar> BVFitter<OBBRSS<Scalar>>::fit(
   Matrix3<Scalar> M;
   Matrix3<Scalar> E;
   Vector3<Scalar> s;
-
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
   eigen_old(M, s, E);
-
   axisFromEigen(E, s, bv.obb.frame);
   bv.rss.frame.linear() = bv.obb.frame.linear();
 
   getExtentAndCenter(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
 
-  Scalar l[2];
-  Scalar r;
-  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.rss.frame, l, r);
-
-  bv.rss.l[0] = l[0];
-  bv.rss.l[1] = l[1];
-  bv.rss.r = r;
+  getRadiusAndOriginAndRectangleSize(
+        vertices, prev_vertices, tri_indices,
+        primitive_indices, num_primitives,
+        bv.rss.frame, bv.rss.l, bv.rss.r);
 
   return bv;
 }
