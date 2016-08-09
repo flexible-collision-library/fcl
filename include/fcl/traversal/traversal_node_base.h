@@ -83,6 +83,8 @@ public:
 
   /// @brief configuration of second object
   Transform3<Scalar> tf2;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 //============================================================================//

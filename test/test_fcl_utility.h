@@ -87,6 +87,20 @@ private:
 #endif
 };
 
+struct TStruct
+{
+  std::vector<double> records;
+  double overall_time;
+
+  TStruct() { overall_time = 0; }
+
+  void push_back(double t)
+  {
+    records.push_back(t);
+    overall_time += t;
+  }
+};
+
 /// @brief Load an obj mesh file
 template <typename Scalar>
 void loadOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles);
@@ -212,6 +226,21 @@ bool defaultContinuousDistanceFunction(ContinuousCollisionObject<Scalar>* o1, Co
 std::string getNodeTypeName(NODE_TYPE node_type);
 
 std::string getGJKSolverName(GJKSolverType solver_type);
+
+#if FCL_HAVE_OCTOMAP
+
+/// @brief Generate boxes from the octomap
+template <typename Scalar>
+void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& env, OcTree<Scalar>& tree);
+
+/// @brief Generate boxes from the octomap
+template <typename Scalar>
+void generateBoxesFromOctomapMesh(std::vector<CollisionObject<Scalar>*>& env, OcTree<Scalar>& tree);
+
+/// @brief Generate an octree
+octomap::OcTree* generateOcTree(double resolution = 0.1);
+
+#endif
 
 //============================================================================//
 //                                                                            //
@@ -619,6 +648,95 @@ bool defaultContinuousDistanceFunction(ContinuousCollisionObject<Scalar>* o1, Co
 {
   return true;
 }
+
+#if FCL_HAVE_OCTOMAP
+
+//==============================================================================
+template <typename Scalar>
+void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& boxes, OcTree<Scalar>& tree)
+{
+  std::vector<std::array<Scalar, 6> > boxes_ = tree.toBoxes();
+
+  for(std::size_t i = 0; i < boxes_.size(); ++i)
+  {
+    Scalar x = boxes_[i][0];
+    Scalar y = boxes_[i][1];
+    Scalar z = boxes_[i][2];
+    Scalar size = boxes_[i][3];
+    Scalar cost = boxes_[i][4];
+    Scalar threshold = boxes_[i][5];
+
+    Box<Scalar>* box = new Box<Scalar>(size, size, size);
+    box->cost_density = cost;
+    box->threshold_occupied = threshold;
+    CollisionObject<Scalar>* obj = new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(box), Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(x, y, z))));
+    boxes.push_back(obj);
+  }
+
+  std::cout << "boxes size: " << boxes.size() << std::endl;
+
+}
+
+//==============================================================================
+template <typename Scalar>
+void generateBoxesFromOctomapMesh(std::vector<CollisionObject<Scalar>*>& boxes, OcTree<Scalar>& tree)
+{
+  std::vector<std::array<Scalar, 6> > boxes_ = tree.toBoxes();
+
+  for(std::size_t i = 0; i < boxes_.size(); ++i)
+  {
+    Scalar x = boxes_[i][0];
+    Scalar y = boxes_[i][1];
+    Scalar z = boxes_[i][2];
+    Scalar size = boxes_[i][3];
+    Scalar cost = boxes_[i][4];
+    Scalar threshold = boxes_[i][5];
+
+    Box<Scalar> box(size, size, size);
+    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
+    generateBVHModel(*model, box, Transform3<Scalar>::Identity());
+    model->cost_density = cost;
+    model->threshold_occupied = threshold;
+    CollisionObject<Scalar>* obj = new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(x, y, z))));
+    boxes.push_back(obj);
+  }
+
+  std::cout << "boxes size: " << boxes.size() << std::endl;
+}
+
+//==============================================================================
+inline octomap::OcTree* generateOcTree(double resolution)
+{
+  octomap::OcTree* tree = new octomap::OcTree(resolution);
+
+  // insert some measurements of occupied cells
+  for(int x = -20; x < 20; x++)
+  {
+    for(int y = -20; y < 20; y++)
+    {
+      for(int z = -20; z < 20; z++)
+      {
+        tree->updateNode(octomap::point3d(x * 0.05, y * 0.05, z * 0.05), true);
+      }
+    }
+  }
+
+  // insert some measurements of free cells
+  for(int x = -30; x < 30; x++)
+  {
+    for(int y = -30; y < 30; y++)
+    {
+      for(int z = -30; z < 30; z++)
+      {
+        tree->updateNode(octomap::point3d(x*0.02 -1.0, y*0.02-1.0, z*0.02-1.0), false);
+      }
+    }
+  }
+
+  return tree;
+}
+
+#endif // FCL_HAVE_OCTOMAP
 
 } // namespace fcl
 

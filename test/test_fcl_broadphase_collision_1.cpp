@@ -53,20 +53,6 @@
 
 using namespace fcl;
 
-struct TStruct
-{
-  std::vector<double> records;
-  double overall_time;
-
-  TStruct() { overall_time = 0; }
-  
-  void push_back(double t)
-  {
-    records.push_back(t);
-    overall_time += t;
-  }
-};
-
 /// @brief test for broad phase update
 template <typename Scalar>
 void broad_phase_update_collision_test(Scalar env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);

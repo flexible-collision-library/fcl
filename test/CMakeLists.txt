@@ -56,7 +56,9 @@ set(tests
 )
 
 if (FCL_HAVE_OCTOMAP)
-  list(APPEND tests test_fcl_octomap.cpp)
+  list(APPEND tests test_fcl_octomap_cost.cpp)
+  list(APPEND tests test_fcl_octomap_collision.cpp)
+  list(APPEND tests test_fcl_octomap_distance.cpp)
 endif()
 
 macro(add_fcl_test test_file_name)

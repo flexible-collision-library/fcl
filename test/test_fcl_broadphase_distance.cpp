@@ -53,20 +53,6 @@
 
 using namespace fcl;
 
-struct TStruct
-{
-  std::vector<double> records;
-  double overall_time;
-
-  TStruct() { overall_time = 0; }
-  
-  void push_back(double t)
-  {
-    records.push_back(t);
-    overall_time += t;
-  }
-};
-
 /// @brief Generate environment with 3 * n objects for self distance, so we try to make sure none of them collide with each other.
 template <typename Scalar>
 void generateSelfDistanceEnvironments(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n);
