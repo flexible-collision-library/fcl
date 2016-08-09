@@ -16,7 +16,7 @@ endif()
 
 # Visual Studio
 if(MSVC OR MSVC90 OR MSVC10)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /W1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /W1 /bigobj")
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(/WX)
     endif(FCL_TREAT_WARNINGS_AS_ERRORS)
