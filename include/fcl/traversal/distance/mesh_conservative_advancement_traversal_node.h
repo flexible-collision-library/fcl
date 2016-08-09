@@ -257,7 +257,7 @@ MeshConservativeAdvancementTraversalNode<BV>::BVTesting(int b1, int b2) const
   Vector3<Scalar> P1, P2;
   Scalar d = this->model1->getBV(b1).distance(this->model2->getBV(b2), &P1, &P2);
 
-  stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+  stack.emplace_back(P1, P2, b1, b2, d);
 
   return d;
 }
@@ -535,8 +535,7 @@ Scalar MeshConservativeAdvancementTraversalNodeRSS<Scalar>::BVTesting(int b1, in
         this->model1->getBV(b1).bv,
         this->model2->getBV(b2).bv, &P1, &P2);
 
-  this->stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
-  // TODO(JS): use emplace_back()
+  this->stack.emplace_back(P1, P2, b1, b2, d);
 
   return d;
 }
@@ -610,7 +609,7 @@ BVTesting(int b1, int b2) const
         this->model1->getBV(b1).bv,
         this->model2->getBV(b2).bv, &P1, &P2);
 
-  this->stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+  this->stack.emplace_back(P1, P2, b1, b2, d);
 
   return d;
 }

@@ -445,7 +445,7 @@ void SaPCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObj
         {
           if(pos_next == NULL) pos_next = pos_it;
           if(pos_it->aabb->cached.overlap(aabb->cached))
-            overlap_pairs.push_back(SaPPair(pos_it->aabb->obj, aabb->obj));
+            overlap_pairs.emplace_back(pos_it->aabb->obj, aabb->obj);
         }
         pos_it = pos_it->next[axis];
       }
@@ -520,7 +520,7 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
       {
         if(current != curr->lo)
           if(current->aabb->cached.overlap(curr->cached))
-            overlap_pairs.push_back(SaPPair(current->aabb->obj, obj));
+            overlap_pairs.emplace_back(current->aabb->obj, obj);
 
         current = current->next[coord];
       }

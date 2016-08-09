@@ -227,7 +227,7 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
 
   if(!(collision_time > 1)) // collision happens
   {
-    pairs.push_back(BVHContinuousCollisionPair<Scalar>(primitive_id1, primitive_id2, collision_time));
+    pairs.emplace_back(primitive_id1, primitive_id2, collision_time);
     time_of_contact = std::min(time_of_contact, collision_time);
   }
 }

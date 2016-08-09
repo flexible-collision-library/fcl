@@ -163,11 +163,11 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& sh
     Scalar theta_ = theta + thetad * (i + 1);
     for(unsigned int j = 0; j < seg; ++j)
     {
-      points.push_back(Vector3<Scalar>(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_)));
+      points.emplace_back(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_));
     }
   }
-  points.push_back(Vector3<Scalar>(0, 0, r));
-  points.push_back(Vector3<Scalar>(0, 0, -r));
+  points.emplace_back(0, 0, r);
+  points.emplace_back(0, 0, -r);
 
   for(unsigned int i = 0; i < ring - 1; ++i)
   {
@@ -178,8 +178,8 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& sh
        b = (j == seg - 1) ? (i * seg) : (i * seg + j + 1);
        c = (i + 1) * seg + j;
        d = (j == seg - 1) ? ((i + 1) * seg) : ((i + 1) * seg + j + 1);
-       tri_indices.push_back(Triangle(a, c, b));
-       tri_indices.push_back(Triangle(b, c, d));
+       tri_indices.emplace_back(a, c, b);
+       tri_indices.emplace_back(b, c, d);
     }
   }
 
@@ -188,11 +188,11 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& sh
     unsigned int a, b;
     a = j;
     b = (j == seg - 1) ? 0 : (j + 1);
-    tri_indices.push_back(Triangle(ring * seg, a, b));
+    tri_indices.emplace_back(ring * seg, a, b);
 
     a = (ring - 1) * seg + j;
     b = (j == seg - 1) ? (ring - 1) * seg : ((ring - 1) * seg + j + 1);
-    tri_indices.push_back(Triangle(a, ring * seg + 1, b));
+    tri_indices.emplace_back(a, ring * seg + 1, b);
   }
 
   for(unsigned int i = 0; i < points.size(); ++i)
@@ -247,11 +247,11 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>&
     Scalar theta_ = theta + thetad * (i + 1);
     for(unsigned int j = 0; j < seg; ++j)
     {
-      points.push_back(Vector3<Scalar>(a * sin(theta_) * cos(phi + j * phid), b * sin(theta_) * sin(phi + j * phid), c * cos(theta_)));
+      points.emplace_back(a * sin(theta_) * cos(phi + j * phid), b * sin(theta_) * sin(phi + j * phid), c * cos(theta_));
     }
   }
-  points.push_back(Vector3<Scalar>(0, 0, c));
-  points.push_back(Vector3<Scalar>(0, 0, -c));
+  points.emplace_back(0, 0, c);
+  points.emplace_back(0, 0, -c);
 
   for(unsigned int i = 0; i < ring - 1; ++i)
   {
@@ -262,8 +262,8 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>&
        b = (j == seg - 1) ? (i * seg) : (i * seg + j + 1);
        c = (i + 1) * seg + j;
        d = (j == seg - 1) ? ((i + 1) * seg) : ((i + 1) * seg + j + 1);
-       tri_indices.push_back(Triangle(a, c, b));
-       tri_indices.push_back(Triangle(b, c, d));
+       tri_indices.emplace_back(a, c, b);
+       tri_indices.emplace_back(b, c, d);
     }
   }
 
@@ -272,11 +272,11 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>&
     unsigned int a, b;
     a = j;
     b = (j == seg - 1) ? 0 : (j + 1);
-    tri_indices.push_back(Triangle(ring * seg, a, b));
+    tri_indices.emplace_back(ring * seg, a, b);
 
     a = (ring - 1) * seg + j;
     b = (j == seg - 1) ? (ring - 1) * seg : ((ring - 1) * seg + j + 1);
-    tri_indices.push_back(Triangle(a, ring * seg + 1, b));
+    tri_indices.emplace_back(a, ring * seg + 1, b);
   }
 
   for(unsigned int i = 0; i < points.size(); ++i)
@@ -330,33 +330,27 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& 
   Scalar hd = h / h_num;
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vector3<Scalar>(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2));
+    points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2);
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
     for(unsigned int j = 0; j < tot; ++j)
     {
-      points.push_back(Vector3<Scalar>(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd));
+      points.emplace_back(r * cos(phi + phid * j), r * sin(phi + phid * j), h / 2 - (i + 1) * hd);
     }
   }
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vector3<Scalar>(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+    points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2);
 
-  points.push_back(Vector3<Scalar>(0, 0, h / 2));
-  points.push_back(Vector3<Scalar>(0, 0, -h / 2));
-
-  for(unsigned int i = 0; i < tot; ++i)
-  {
-    Triangle tmp((h_num + 1) * tot, i, ((i == tot - 1) ? 0 : (i + 1)));
-    tri_indices.push_back(tmp);
-  }
+  points.emplace_back(0, 0, h / 2);
+  points.emplace_back(0, 0, -h / 2);
 
   for(unsigned int i = 0; i < tot; ++i)
-  {
-    Triangle tmp((h_num + 1) * tot + 1, h_num * tot + ((i == tot - 1) ? 0 : (i + 1)), h_num * tot + i);
-    tri_indices.push_back(tmp);
-  }
+    tri_indices.emplace_back((h_num + 1) * tot, i, ((i == tot - 1) ? 0 : (i + 1)));
+
+  for(unsigned int i = 0; i < tot; ++i)
+    tri_indices.emplace_back((h_num + 1) * tot + 1, h_num * tot + ((i == tot - 1) ? 0 : (i + 1)), h_num * tot + i);
 
   for(unsigned int i = 0; i < h_num; ++i)
   {
@@ -369,8 +363,8 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& 
       d = (j == tot - 1) ? tot : (j + 1 + tot);
 
       int start = i * tot;
-      tri_indices.push_back(Triangle(start + b, start + a, start + c));
-      tri_indices.push_back(Triangle(start + b, start + c, start + d));
+      tri_indices.emplace_back(start + b, start + a, start + c);
+      tri_indices.emplace_back(start + b, start + c, start + d);
     }
   }
 
@@ -430,27 +424,21 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shap
     Scalar rh = r * (0.5 - h_i / h);
     for(unsigned int j = 0; j < tot; ++j)
     {
-      points.push_back(Vector3<Scalar>(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i));
+      points.emplace_back(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i);
     }
   }
 
   for(unsigned int i = 0; i < tot; ++i)
-    points.push_back(Vector3<Scalar>(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2));
+    points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), - h / 2);
 
-  points.push_back(Vector3<Scalar>(0, 0, h / 2));
-  points.push_back(Vector3<Scalar>(0, 0, -h / 2));
-
-  for(unsigned int i = 0; i < tot; ++i)
-  {
-    Triangle tmp(h_num * tot, i, (i == tot - 1) ? 0 : (i + 1));
-    tri_indices.push_back(tmp);
-  }
+  points.emplace_back(0, 0, h / 2);
+  points.emplace_back(0, 0, -h / 2);
 
   for(unsigned int i = 0; i < tot; ++i)
-  {
-    Triangle tmp(h_num * tot + 1, (h_num - 1) * tot + ((i == tot - 1) ? 0 : (i + 1)), (h_num - 1) * tot + i);
-    tri_indices.push_back(tmp);
-  }
+    tri_indices.emplace_back(h_num * tot, i, (i == tot - 1) ? 0 : (i + 1));
+
+  for(unsigned int i = 0; i < tot; ++i)
+    tri_indices.emplace_back(h_num * tot + 1, (h_num - 1) * tot + ((i == tot - 1) ? 0 : (i + 1)), (h_num - 1) * tot + i);
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
@@ -463,8 +451,8 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shap
       d = (j == tot - 1) ? tot : (j + 1 + tot);
 
       int start = i * tot;
-      tri_indices.push_back(Triangle(start + b, start + a, start + c));
-      tri_indices.push_back(Triangle(start + b, start + c, start + d));
+      tri_indices.emplace_back(start + b, start + a, start + c);
+      tri_indices.emplace_back(start + b, start + c, start + d);
     }
   }
 

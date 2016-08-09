@@ -185,7 +185,7 @@ BVTesting(int b1, int b2) const
   Vector3<Scalar> P1, P2;
   Scalar d = this->model1_bv.distance(this->model2->getBV(b2).bv, &P1, &P2);
 
-  stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+  stack.emplace_back(P1, P2, b1, b2, d);
 
   return d;
 }
@@ -342,7 +342,7 @@ BVTesting(int b1, int b2) const
   Vector3<Scalar> P1, P2;
   Scalar d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
 
-  this->stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+  this->stack.emplace_back(P1, P2, b1, b2, d);
 
   return d;
 }
@@ -442,7 +442,7 @@ BVTesting(int b1, int b2) const
   Vector3<Scalar> P1, P2;
   Scalar d = distance(this->tf2.linear(), this->tf2.translation(), this->model2->getBV(b2).bv, this->model1_bv, &P2, &P1);
 
-  this->stack.push_back(ConservativeAdvancementStackData<Scalar>(P1, P2, b1, b2, d));
+  this->stack.emplace_back(P1, P2, b1, b2, d);
 
   return d;
 }
