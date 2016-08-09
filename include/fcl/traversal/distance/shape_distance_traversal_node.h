@@ -38,7 +38,6 @@
 #ifndef FCL_TRAVERSAL_SHAPEDISTANCETRAVERSALNODE_H
 #define FCL_TRAVERSAL_SHAPEDISTANCETRAVERSALNODE_H
 
-#include "fcl/common/warning.h"
 #include "fcl/traversal/traversal_node_base.h"
 #include "fcl/traversal/distance/distance_traversal_node_base.h"
 
@@ -112,13 +111,14 @@ void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
   using Scalar = typename NarrowPhaseSolver::Scalar;
 
   Scalar distance;
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
-  // Note(JS): The maybe-uninitialized warning is disabled here because it seems
-  // gjk_solver_indep allows uninitialized closest points when the status is
-  // invalid. If it's untrue, then please remove the warning suppression macros
-  // and resolve the warning in other way.
-  Vector3<Scalar> closest_p1;
-  Vector3<Scalar> closest_p2;
+  // NOTE(JS): The closest points are set to zeros in order to suppress the
+  // maybe-uninitialized warning. It seems the warnings occur since
+  // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
+  // If this wasn't intentional then please remove the initialization of the
+  // closest points, and change the function NarrowPhaseSolver::shapeDistance()
+  // to always set the closest points.
+  Vector3<Scalar> closest_p1 = Vector3<Scalar>::Zero();
+  Vector3<Scalar> closest_p2 = Vector3<Scalar>::Zero();
 
   nsolver->shapeDistance(
         *model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
@@ -131,7 +131,6 @@ void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
         DistanceResult<Scalar>::NONE,
         closest_p1,
         closest_p2);
-  FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
 }
 
 //==============================================================================

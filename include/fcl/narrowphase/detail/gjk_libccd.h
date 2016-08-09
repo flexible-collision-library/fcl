@@ -1011,6 +1011,13 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
   ccd.dist_tolerance = tolerance;
 
   ccd_vec3_t p1_, p2_;
+  // NOTE(JS): p1_ and p2_ are set to zeros in order to suppress uninitialized
+  // warning. It seems the warnings occur since libccd_extension::ccdGJKDist2
+  // conditionally set p1_ and p2_. If this wasn't intentional then please
+  // remove the initialization of p1_ and p2_, and change the function
+  // libccd_extension::ccdGJKDist2(...) to always set p1_ and p2_.
+  ccdVec3Set(&p1_, 0.0, 0.0, 0.0);
+  ccdVec3Set(&p2_, 0.0, 0.0, 0.0);
   dist = libccd_extension::ccdGJKDist2(obj1, obj2, &ccd, &p1_, &p2_);
   if(p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
   if(p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
