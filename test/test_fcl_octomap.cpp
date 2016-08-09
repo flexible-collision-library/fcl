@@ -464,11 +464,6 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
 
     std::cout << dist1 << " " << dist2 << std::endl;
     EXPECT_TRUE(std::abs(dist1 - dist2) < 0.001);
-    if (std::abs(dist1 - dist2) < 0.001)
-    {
-      std::cout << "dist1: " << dist1 << "\n";
-      std::cout << "dist2: " << dist2 << "\n";
-    }
   }
 }
 

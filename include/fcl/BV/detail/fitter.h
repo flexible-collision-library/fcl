@@ -129,7 +129,7 @@ void fitn(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
   Vector3<Scalar> s = Vector3<Scalar>::Zero(); // three eigen values
 
   getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
-  eigen(M, s, E);
+  eigen_old(M, s, E);
   axisFromEigen(E, s, bv.frame);
 
   // set obb centers and extensions
@@ -212,7 +212,7 @@ void fitn(Vector3<Scalar>* ps, int n, RSS<Scalar>& bv)
   Vector3<Scalar> s = Vector3<Scalar>::Zero();
 
   getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
-  eigen(M, s, E);
+  eigen_old(M, s, E);
   axisFromEigen(E, s, bv.frame);
 
   // set rss origin, rectangle size and radius
@@ -323,7 +323,7 @@ void fitn(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
   Vector3<Scalar> s = Vector3<Scalar>::Zero(); // three eigen values;
 
   getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
-  eigen(M, s, E);
+  eigen_old(M, s, E);
 
   axisFromEigen(E, s, bv.obb.frame);
 

@@ -474,7 +474,7 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   Vector3<Scalar> s(0, 0, 0);
 
   getCovariance<Scalar>(v, NULL, NULL, NULL, 16, M);
-  eigen(M, s, E);
+  eigen_old(M, s, E);
 
   int min, mid, max;
   if(s[0] > s[1]) { max = 0; min = 1; }

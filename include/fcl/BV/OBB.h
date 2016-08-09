@@ -345,7 +345,7 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
     vertex_proj[i] = vertex[i] - b.frame.linear().col(0) * vertex[i].dot(b.frame.linear().col(0));
 
   getCovariance<Scalar>(vertex_proj, NULL, NULL, NULL, 16, M);
-  eigen(M, s, E);
+  eigen_old(M, s, E);
 
   int min, mid, max;
   if (s[0] > s[1])

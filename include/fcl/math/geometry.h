@@ -74,6 +74,11 @@ void hat(Matrix3<Scalar>& mat, const Vector3<Scalar>& vec);
 template <typename Scalar>
 void eigen(const Matrix3<Scalar>& m, Vector3<Scalar>& dout, Matrix3<Scalar>& vout);
 
+/// @brief compute the eigen vector and eigen vector of a matrix. dout is the
+/// eigen values, vout is the eigen vectors
+template<typename Scalar>
+void eigen_old(const Matrix3<Scalar>& m, Vector3<Scalar>& dout, Matrix3<Scalar>& vout);
+
 template <typename Scalar>
 void axisFromEigen(const Matrix3<Scalar>& eigenV,
                    const Vector3<Scalar>& eigenS,
@@ -105,6 +110,7 @@ void generateCoordinateSystem(Transform3<Scalar>& tf);
 /// @brief Compute the RSS bounding volume parameters: radius, rectangle size
 /// and the origin, given the BV axises.
 template <typename Scalar>
+FCL_DEPRECATED
 void getRadiusAndOriginAndRectangleSize(
     Vector3<Scalar>* ps,
     Vector3<Scalar>* ps2,
@@ -259,6 +265,95 @@ void eigen(const Matrix3<Scalar>& m, Vector3<Scalar>& dout, Matrix3<Scalar>& vou
   }
   dout = eigensolver.eigenvalues();
   vout = eigensolver.eigenvectors();
+}
+
+//==============================================================================
+template<typename Scalar>
+void eigen_old(const Matrix3<Scalar>& m, Vector3<Scalar>& dout, Matrix3<Scalar>& vout)
+{
+  Matrix3<Scalar> R(m);
+  int n = 3;
+  int j, iq, ip, i;
+  Scalar tresh, theta, tau, t, sm, s, h, g, c;
+  int nrot;
+  Scalar b[3];
+  Scalar z[3];
+  Scalar v[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+  Scalar d[3];
+
+  for(ip = 0; ip < n; ++ip)
+  {
+    b[ip] = d[ip] = R(ip, ip);
+    z[ip] = 0;
+  }
+
+  nrot = 0;
+
+  for(i = 0; i < 50; ++i)
+  {
+    sm = 0;
+    for(ip = 0; ip < n; ++ip)
+      for(iq = ip + 1; iq < n; ++iq)
+        sm += std::abs(R(ip, iq));
+    if(sm == 0.0)
+    {
+      vout.col(0) << v[0][0], v[0][1], v[0][2];
+      vout.col(1) << v[1][0], v[1][1], v[1][2];
+      vout.col(2) << v[2][0], v[2][1], v[2][2];
+      dout[0] = d[0]; dout[1] = d[1]; dout[2] = d[2];
+      return;
+    }
+
+    if(i < 3) tresh = 0.2 * sm / (n * n);
+    else tresh = 0.0;
+
+    for(ip = 0; ip < n; ++ip)
+    {
+      for(iq= ip + 1; iq < n; ++iq)
+      {
+        g = 100.0 * std::abs(R(ip, iq));
+        if(i > 3 &&
+           std::abs(d[ip]) + g == std::abs(d[ip]) &&
+           std::abs(d[iq]) + g == std::abs(d[iq]))
+          R(ip, iq) = 0.0;
+        else if(std::abs(R(ip, iq)) > tresh)
+        {
+          h = d[iq] - d[ip];
+          if(std::abs(h) + g == std::abs(h)) t = (R(ip, iq)) / h;
+          else
+          {
+            theta = 0.5 * h / (R(ip, iq));
+            t = 1.0 /(std::abs(theta) + std::sqrt(1.0 + theta * theta));
+            if(theta < 0.0) t = -t;
+          }
+          c = 1.0 / std::sqrt(1 + t * t);
+          s = t * c;
+          tau = s / (1.0 + c);
+          h = t * R(ip, iq);
+          z[ip] -= h;
+          z[iq] += h;
+          d[ip] -= h;
+          d[iq] += h;
+          R(ip, iq) = 0.0;
+          for(j = 0; j < ip; ++j) { g = R(j, ip); h = R(j, iq); R(j, ip) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
+          for(j = ip + 1; j < iq; ++j) { g = R(ip, j); h = R(j, iq); R(ip, j) = g - s * (h + g * tau); R(j, iq) = h + s * (g - h * tau); }
+          for(j = iq + 1; j < n; ++j) { g = R(ip, j); h = R(iq, j); R(ip, j) = g - s * (h + g * tau); R(iq, j) = h + s * (g - h * tau); }
+          for(j = 0; j < n; ++j) { g = v[j][ip]; h = v[j][iq]; v[j][ip] = g - s * (h + g * tau); v[j][iq] = h + s * (g - h * tau); }
+          nrot++;
+        }
+      }
+    }
+    for(ip = 0; ip < n; ++ip)
+    {
+      b[ip] += z[ip];
+      d[ip] = b[ip];
+      z[ip] = 0.0;
+    }
+  }
+
+  std::cerr << "eigen: too many iterations in Jacobi transform." << std::endl;
+
+  return;
 }
 
 //==============================================================================
@@ -775,8 +870,7 @@ void getRadiusAndOriginAndRectangleSize(
 
   int size_P = ((ps2) ? 2 : 1) * ((ts) ? 3 : 1) * n;
 
-//  std::vector<Vector3<Scalar>> P(size_P);
-  Vector3<Scalar>* P = new Vector3<Scalar>[size_P];
+  std::vector<Vector3<Scalar>> P(size_P);
 
   int P_id = 0;
 
@@ -1030,8 +1124,6 @@ void getRadiusAndOriginAndRectangleSize(
   if(l[0] < 0) l[0] = 0;
   l[1] = maxy - miny;
   if(l[1] < 0) l[1] = 0;
-
-  delete [] P;
 }
 
 //==============================================================================

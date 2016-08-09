@@ -332,10 +332,8 @@ OBB<Scalar> BVFitter<OBB<Scalar>>::fit(
   Matrix3<Scalar> M; // row first matrix
   Matrix3<Scalar> E; // row first eigen-vectors
   Vector3<Scalar> s; // three eigen values
-
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen(M, s, E);
-
+  eigen_old(M, s, E);
   axisFromEigen(E, s, bv.frame);
 
   // set obb centers and extensions
@@ -390,19 +388,13 @@ RSS<Scalar> BVFitter<RSS<Scalar>>::fit(
   Matrix3<Scalar> E; // row first eigen-vectors
   Vector3<Scalar> s; // three eigen values
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen(M, s, E);
+  eigen_old(M, s, E);
   axisFromEigen(E, s, bv.frame);
 
   // set rss origin, rectangle size and radius
-
-  Scalar l[2];
-  Scalar r;
-  getRadiusAndOriginAndRectangleSize(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, bv.frame, l, r);
-
-  bv.l[0] = l[0];
-  bv.l[1] = l[1];
-  bv.r = r;
-
+  getRadiusAndOriginAndRectangleSize(
+        vertices, prev_vertices, tri_indices,
+        primitive_indices, num_primitives, bv.frame, bv.l, bv.r);
 
   return bv;
 }
@@ -452,10 +444,8 @@ kIOS<Scalar> BVFitter<kIOS<Scalar>>::fit(
   Matrix3<Scalar> M; // row first matrix
   Matrix3<Scalar> E; // row first eigen-vectors
   Vector3<Scalar> s;
-
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen(M, s, E);
-
+  eigen_old(M, s, E);
   axisFromEigen(E, s, bv.obb.frame);
 
   // get centers and extensions
@@ -560,7 +550,7 @@ OBBRSS<Scalar> BVFitter<OBBRSS<Scalar>>::fit(
   Vector3<Scalar> s;
 
   getCovariance(vertices, prev_vertices, tri_indices, primitive_indices, num_primitives, M);
-  eigen(M, s, E);
+  eigen_old(M, s, E);
 
   axisFromEigen(E, s, bv.obb.frame);
   bv.rss.frame.linear() = bv.obb.frame.linear();

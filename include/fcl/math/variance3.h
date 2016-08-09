@@ -101,7 +101,7 @@ Variance3<Scalar>::Variance3(const Matrix3<Scalar>& S) : Sigma(S)
 template <typename Scalar>
 void Variance3<Scalar>::init()
 {
-  eigen(Sigma, sigma, axis);
+  eigen_old(Sigma, sigma, axis);
 }
 
 //==============================================================================
