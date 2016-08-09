@@ -412,7 +412,14 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeDistanceRecurse(const OcTree<Sc
       constructBox(bv1, tf1, box, box_tf);
 
       Scalar dist;
-      Vector3<Scalar> closest_p1, closest_p2;
+      // NOTE(JS): The closest points are set to zeros in order to suppress the
+      // maybe-uninitialized warning. It seems the warnings occur since
+      // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
+      // If this wasn't intentional then please remove the initialization of the
+      // closest points, and change the function NarrowPhaseSolver::shapeDistance()
+      // to always set the closest points.
+      Vector3<Scalar> closest_p1 = Vector3<Scalar>::Zero();
+      Vector3<Scalar> closest_p2 = Vector3<Scalar>::Zero();
       solver->shapeDistance(box, box_tf, s, tf2, &dist, &closest_p1, &closest_p2);
 
       dresult->update(dist, tree1, &s, root1 - tree1->getRoot(), DistanceResult<Scalar>::NONE, closest_p1, closest_p2);
@@ -895,7 +902,14 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeDistanceRecurse(const OcTree<Scalar>
       constructBox(bv2, tf2, box2, box2_tf);
 
       Scalar dist;
-      Vector3<Scalar> closest_p1, closest_p2;
+      // NOTE(JS): The closest points are set to zeros in order to suppress the
+      // maybe-uninitialized warning. It seems the warnings occur since
+      // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
+      // If this wasn't intentional then please remove the initialization of the
+      // closest points, and change the function NarrowPhaseSolver::shapeDistance()
+      // to always set the closest points.
+      Vector3<Scalar> closest_p1 = Vector3<Scalar>::Zero();
+      Vector3<Scalar> closest_p2 = Vector3<Scalar>::Zero();
       solver->shapeDistance(box1, box1_tf, box2, box2_tf, &dist, &closest_p1, &closest_p2);
 
       dresult->update(dist, tree1, tree2, root1 - tree1->getRoot(), root2 - tree2->getRoot(), closest_p1, closest_p2);

@@ -105,7 +105,14 @@ void ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
   Scalar distance;
-  Vector3<Scalar> closest_p1, closest_p2;
+  // NOTE(JS): The closest points are set to zeros in order to suppress the
+  // maybe-uninitialized warning. It seems the warnings occur since
+  // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
+  // If this wasn't intentional then please remove the initialization of the
+  // closest points, and change the function NarrowPhaseSolver::shapeDistance()
+  // to always set the closest points.
+  Vector3<Scalar> closest_p1 = Vector3<Scalar>::Zero();
+  Vector3<Scalar> closest_p2 = Vector3<Scalar>::Zero();
   this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
 
   Vector3<Scalar> n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
