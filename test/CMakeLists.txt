@@ -38,7 +38,9 @@ target_link_libraries(test_fcl_utility fcl)
 # test file list
 set(tests
     test_fcl_auto_diff.cpp
-    test_fcl_broadphase.cpp
+    test_fcl_broadphase_collision_1.cpp
+    test_fcl_broadphase_collision_2.cpp
+    test_fcl_broadphase_distance.cpp
     test_fcl_bvh_models.cpp
     test_fcl_capsule_box_1.cpp
     test_fcl_capsule_box_2.cpp

@@ -119,6 +119,14 @@ void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Trans
                                  const std::vector<Vector3<Scalar>>& vertices1, const std::vector<Triangle>& triangles1,
                                  const std::vector<Vector3<Scalar>>& vertices2, const std::vector<Triangle>& triangles2);
 
+/// @brief Generate environment with 3 * n objects: n boxes, n spheres and n cylinders.
+template <typename Scalar>
+void generateEnvironments(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n);
+
+/// @brief Generate environment with 3 * n objects, but all in meshes.
+template <typename Scalar>
+void generateEnvironmentsMesh(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n);
+
 /// @brief Structure for minimum distance between two meshes and the corresponding nearest point pair
 template <typename Scalar>
 struct DistanceRes
@@ -486,6 +494,70 @@ void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Trans
       transforms2[i].translation() = T2;
       ++i;
     }
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void generateEnvironments(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n)
+{
+  Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
+  Eigen::aligned_vector<Transform3<Scalar>> transforms;
+
+  generateRandomTransforms(extents, transforms, n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Box<Scalar>* box = new Box<Scalar>(5, 10, 20);
+    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(box), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Sphere<Scalar>* sphere = new Sphere<Scalar>(30);
+    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(sphere), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    Cylinder<Scalar>* cylinder = new Cylinder<Scalar>(10, 40);
+    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(cylinder), transforms[i]));
+  }
+}
+
+//==============================================================================
+template <typename Scalar>
+void generateEnvironmentsMesh(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n)
+{
+  Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
+  Eigen::aligned_vector<Transform3<Scalar>> transforms;
+
+  generateRandomTransforms(extents, transforms, n);
+  Box<Scalar> box(5, 10, 20);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
+    generateBVHModel(*model, box, Transform3<Scalar>::Identity());
+    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  Sphere<Scalar> sphere(30);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
+    generateBVHModel(*model, sphere, Transform3<Scalar>::Identity(), 16, 16);
+    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
+  }
+
+  generateRandomTransforms(extents, transforms, n);
+  Cylinder<Scalar> cylinder(10, 40);
+  for(std::size_t i = 0; i < n; ++i)
+  {
+    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
+    generateBVHModel(*model, cylinder, Transform3<Scalar>::Identity(), 16, 16);
+    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
   }
 }
 

@@ -63,14 +63,6 @@ struct TStruct
   }
 };
 
-/// @brief Generate environment with 3 * n objects: n spheres, n boxes and n cylinders
-template <typename Scalar>
-void generateEnvironments(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n);
-
-/// @brief Generate environment with 3 * n objects: n spheres, n boxes and n cylinders, all in mesh
-template <typename Scalar>
-void generateEnvironmentsMesh(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n);
-
 /// @brief Generate boxes from the octomap
 template <typename Scalar>
 void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& env, OcTree<Scalar>& tree);
@@ -824,35 +816,6 @@ void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& boxes, OcTr
 }
 
 template <typename Scalar>
-void generateEnvironments(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n)
-{
-  Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  Eigen::aligned_vector<Transform3<Scalar>> transforms;
-
-  generateRandomTransforms(extents, transforms, n);
-  for(std::size_t i = 0; i < n; ++i)
-  {
-    Box<Scalar>* box = new Box<Scalar>(5, 10, 20);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(box), transforms[i]));
-  }
-
-  generateRandomTransforms(extents, transforms, n);
-  for(std::size_t i = 0; i < n; ++i)
-  {
-    Sphere<Scalar>* sphere = new Sphere<Scalar>(30);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(sphere), transforms[i]));
-  }
-
-  generateRandomTransforms(extents, transforms, n);
-  for(std::size_t i = 0; i < n; ++i)
-  {
-    Cylinder<Scalar>* cylinder = new Cylinder<Scalar>(10, 40);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(cylinder), transforms[i]));
-  }
-
-}
-
-template <typename Scalar>
 void generateBoxesFromOctomapMesh(std::vector<CollisionObject<Scalar>*>& boxes, OcTree<Scalar>& tree)
 {
   std::vector<std::array<Scalar, 6> > boxes_ = tree.toBoxes();
@@ -877,41 +840,6 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject<Scalar>*>& boxes, 
 
   std::cout << "boxes size: " << boxes.size() << std::endl;
 }
-
-template <typename Scalar>
-void generateEnvironmentsMesh(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n)
-{
-  Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  Eigen::aligned_vector<Transform3<Scalar>> transforms;
-
-  generateRandomTransforms(extents, transforms, n);
-  Box<Scalar> box(5, 10, 20);
-  for(std::size_t i = 0; i < n; ++i)
-  {
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, box, Transform3<Scalar>::Identity());
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
-  }
-
-  generateRandomTransforms(extents, transforms, n);
-  Sphere<Scalar> sphere(30);
-  for(std::size_t i = 0; i < n; ++i)
-  {
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, sphere, Transform3<Scalar>::Identity(), 16, 16);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
-  }
-
-  generateRandomTransforms(extents, transforms, n);
-  Cylinder<Scalar> cylinder(10, 40);
-  for(std::size_t i = 0; i < n; ++i)
-  {
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, cylinder, Transform3<Scalar>::Identity(), 16, 16);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
-  }
-}
-
 
 octomap::OcTree* generateOcTree(double resolution)
 {
