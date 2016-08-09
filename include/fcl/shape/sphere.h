@@ -108,7 +108,7 @@ NODE_TYPE Sphere<ScalarT>::getNodeType() const
 template <typename ScalarT>
 Matrix3<ScalarT> Sphere<ScalarT>::computeMomentofInertia() const
 {
-  ScalarT I = 0.4 * radius * radius * computeVolume();
+  ScalarT I = (ScalarT)0.4 * radius * radius * computeVolume();
 
   return Vector3<ScalarT>::Constant(I).asDiagonal();
 }
@@ -117,7 +117,7 @@ Matrix3<ScalarT> Sphere<ScalarT>::computeMomentofInertia() const
 template <typename ScalarT>
 ScalarT Sphere<ScalarT>::computeVolume() const
 {
-  return 4.0 * constants<Scalar>::pi() * radius * radius * radius / 3.0;
+  return (ScalarT)4.0 * constants<ScalarT>::pi() * radius * radius * radius / (ScalarT)3.0;
 }
 
 //==============================================================================

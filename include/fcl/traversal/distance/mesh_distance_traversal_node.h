@@ -100,7 +100,12 @@ public:
 
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const;
+  Scalar BVTesting(int b1, int b2) const
+  {
+    if (this->enable_statistics) this->num_bv_tests++;
+
+    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+  }
 
   void leafTesting(int b1, int b2) const;
 
@@ -135,7 +140,12 @@ public:
   
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const;
+  Scalar BVTesting(int b1, int b2) const
+  {
+    if (this->enable_statistics) this->num_bv_tests++;
+
+    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+  }
 
   void leafTesting(int b1, int b2) const;
 
@@ -170,7 +180,12 @@ public:
 
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const;
+  Scalar BVTesting(int b1, int b2) const
+  {
+    if (this->enable_statistics) this->num_bv_tests++;
+
+    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+  }
 
   void leafTesting(int b1, int b2) const;
 
@@ -330,7 +345,7 @@ void MeshDistanceTraversalNode<BV>::leafTesting(int b1, int b2) const
 
 //==============================================================================
 template <typename BV>
-bool MeshDistanceTraversalNode<BV>::canStop(MeshDistanceTraversalNode<BV>::Scalar c) const
+bool MeshDistanceTraversalNode<BV>::canStop(typename BV::Scalar c) const
 {
   if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
     return true;
@@ -446,15 +461,6 @@ void MeshDistanceTraversalNodeRSS<Scalar>::postprocess()
 
 //==============================================================================
 template <typename Scalar>
-Scalar MeshDistanceTraversalNodeRSS<Scalar>::BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics) this->num_bv_tests++;
-
-  return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
-}
-
-//==============================================================================
-template <typename Scalar>
 void MeshDistanceTraversalNodeRSS<Scalar>::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(
@@ -514,15 +520,6 @@ void MeshDistanceTraversalNodekIOS<Scalar>::postprocess()
 
 //==============================================================================
 template <typename Scalar>
-Scalar MeshDistanceTraversalNodekIOS<Scalar>::BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics) this->num_bv_tests++;
-
-  return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
-}
-
-//==============================================================================
-template <typename Scalar>
 void MeshDistanceTraversalNodekIOS<Scalar>::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(
@@ -578,15 +575,6 @@ void MeshDistanceTraversalNodeOBBRSS<Scalar>::postprocess()
         this->tf1,
         this->request,
         *this->result);
-}
-
-//==============================================================================
-template <typename Scalar>
-Scalar MeshDistanceTraversalNodeOBBRSS<Scalar>::BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics) this->num_bv_tests++;
-
-  return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================

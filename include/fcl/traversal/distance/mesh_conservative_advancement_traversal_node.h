@@ -111,7 +111,21 @@ class MeshConservativeAdvancementTraversalNodeRSS
 public:
   MeshConservativeAdvancementTraversalNodeRSS(Scalar w_ = 1);
 
-  Scalar BVTesting(int b1, int b2) const;
+  Scalar BVTesting(int b1, int b2) const
+  {
+    if (this->enable_statistics)
+      this->num_bv_tests++;
+
+    Vector3<Scalar> P1, P2;
+    Scalar d = distance(
+        tf,
+		this->model1->getBV(b1).bv,
+		this->model2->getBV(b2).bv, &P1, &P2);
+
+    this->stack.emplace_back(P1, P2, b1, b2, d);
+
+    return d;
+  }
 
   void leafTesting(int b1, int b2) const;
 
@@ -143,7 +157,21 @@ class MeshConservativeAdvancementTraversalNodeOBBRSS
 public:
   MeshConservativeAdvancementTraversalNodeOBBRSS(Scalar w_ = 1);
 
-  Scalar BVTesting(int b1, int b2) const;
+  Scalar BVTesting(int b1, int b2) const
+  {
+    if (this->enable_statistics)
+      this->num_bv_tests++;
+
+    Vector3<Scalar> P1, P2;
+    Scalar d = distance(
+        tf,
+        this->model1->getBV(b1).bv,
+        this->model2->getBV(b2).bv, &P1, &P2);
+
+    this->stack.emplace_back(P1, P2, b1, b2, d);
+
+    return d;
+  }
 
   void leafTesting(int b1, int b2) const;
 
@@ -234,8 +262,7 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
 //==============================================================================
 template <typename BV>
 MeshConservativeAdvancementTraversalNode<BV>::
-MeshConservativeAdvancementTraversalNode(
-    MeshConservativeAdvancementTraversalNode<BV>::Scalar w_)
+MeshConservativeAdvancementTraversalNode(typename BV::Scalar w_)
   : MeshDistanceTraversalNode<BV>()
 {
   delta_t = 1;
@@ -250,7 +277,7 @@ MeshConservativeAdvancementTraversalNode(
 
 //==============================================================================
 template <typename BV>
-typename MeshConservativeAdvancementTraversalNode<BV>::Scalar
+typename BV::Scalar
 MeshConservativeAdvancementTraversalNode<BV>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
@@ -387,7 +414,7 @@ struct CanStopImpl
 //==============================================================================
 template <typename BV>
 bool MeshConservativeAdvancementTraversalNode<BV>::canStop(
-    MeshConservativeAdvancementTraversalNode<BV>::Scalar c) const
+    typename BV::Scalar c) const
 {
   return CanStopImpl<typename BV::Scalar, BV>::run(*this, c);
 }
@@ -523,25 +550,6 @@ MeshConservativeAdvancementTraversalNodeRSS<Scalar>::MeshConservativeAdvancement
 
 //==============================================================================
 template <typename Scalar>
-Scalar MeshConservativeAdvancementTraversalNodeRSS<Scalar>::BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics)
-    this->num_bv_tests++;
-
-  Vector3<Scalar> P1, P2;
-  Scalar d = distance(
-        tf.linear(),
-        tf.translation(),
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv, &P1, &P2);
-
-  this->stack.emplace_back(P1, P2, b1, b2, d);
-
-  return d;
-}
-
-//==============================================================================
-template <typename Scalar>
 void MeshConservativeAdvancementTraversalNodeRSS<Scalar>::leafTesting(int b1, int b2) const
 {
   details::meshConservativeAdvancementOrientedNodeLeafTesting(
@@ -592,26 +600,6 @@ MeshConservativeAdvancementTraversalNodeOBBRSS(Scalar w_)
   : MeshConservativeAdvancementTraversalNode<OBBRSS<Scalar>>(w_)
 {
   tf.linear().setIdentity();
-}
-
-//==============================================================================
-template <typename Scalar>
-Scalar MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>::
-BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics)
-    this->num_bv_tests++;
-
-  Vector3<Scalar> P1, P2;
-  Scalar d = distance(
-        tf.linear(),
-        tf.translation(),
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv, &P1, &P2);
-
-  this->stack.emplace_back(P1, P2, b1, b2, d);
-
-  return d;
 }
 
 //==============================================================================

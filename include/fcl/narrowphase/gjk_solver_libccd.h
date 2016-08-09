@@ -953,7 +953,7 @@ void GJKSolver_libccd<Scalar>::enableCachedGuess(bool if_enable) const
 //==============================================================================
 template<typename Scalar>
 void GJKSolver_libccd<Scalar>::setCachedGuess(
-    const Vector3<GJKSolver_libccd<Scalar>::Scalar>& guess) const
+    const Vector3<Scalar>& guess) const
 {
   // TODO: need change libccd to exploit spatial coherence
 }

@@ -477,7 +477,7 @@ leafTesting(int b1, int b2) const
 //==============================================================================
 template <typename S, typename NarrowPhaseSolver>
 bool ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>::
-canStop(ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<S, NarrowPhaseSolver>::Scalar c) const
+canStop(typename NarrowPhaseSolver::Scalar c) const
 {
   return details::meshShapeConservativeAdvancementOrientedNodeCanStop(
         c,

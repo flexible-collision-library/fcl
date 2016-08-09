@@ -179,7 +179,7 @@ Scalar distance(
 //==============================================================================
 template <typename Scalar>
 typename kIOS<Scalar>::kIOS_Sphere kIOS<Scalar>::encloseSphere(
-    const kIOS<Scalar>::kIOS_Sphere& s0, const kIOS<Scalar>::kIOS_Sphere& s1)
+    const typename kIOS<Scalar>::kIOS_Sphere& s0, const typename kIOS<Scalar>::kIOS_Sphere& s1)
 {
   Vector3<Scalar> d = s1.o - s0.o;
   Scalar dist2 = d.squaredNorm();
