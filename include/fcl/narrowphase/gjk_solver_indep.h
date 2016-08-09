@@ -221,7 +221,7 @@ bool GJKSolver_indep<Scalar>::shapeIntersect(const S1& s1, const Transform3<Scal
 template<typename Scalar, typename S1, typename S2>
 struct ShapeIntersectIndepImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& gjkSolver,
       const S1& s1,
       const Transform3<Scalar>& tf1,
@@ -285,8 +285,8 @@ bool GJKSolver_indep<Scalar>::shapeIntersect(
     const Transform3<Scalar>& tf2,
     std::vector<ContactPoint<Scalar>>* contacts) const
 {
-  ShapeIntersectIndepImpl<Scalar, S1, S2> shapeIntersectImpl;
-  return shapeIntersectImpl(*this, s1, tf1, s2, tf2, contacts);
+  return ShapeIntersectIndepImpl<Scalar, S1, S2>::run(
+        *this, s1, tf1, s2, tf2, contacts);
 }
 
 // Shape intersect algorithms not using built-in GJK algorithm
@@ -317,7 +317,7 @@ bool GJKSolver_indep<Scalar>::shapeIntersect(
   template <typename Scalar>\
   struct ShapeIntersectIndepImpl<Scalar, SHAPE1<Scalar>, SHAPE2<Scalar>>\
   {\
-    bool operator()(\
+    static bool run(\
         const GJKSolver_indep<Scalar>& /*gjkSolver*/,\
         const SHAPE1<Scalar>& s1,\
         const Transform3<Scalar>& tf1,\
@@ -333,7 +333,7 @@ bool GJKSolver_indep<Scalar>::shapeIntersect(
   template <typename Scalar>\
   struct ShapeIntersectIndepImpl<Scalar, SHAPE2<Scalar>, SHAPE1<Scalar>>\
   {\
-    bool operator()(\
+    static bool run(\
         const GJKSolver_indep<Scalar>& /*gjkSolver*/,\
         const SHAPE2<Scalar>& s1,\
         const Transform3<Scalar>& tf1,\
@@ -376,7 +376,7 @@ FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Cone, Plane, details::conePlaneIntersect)
 template <typename Scalar>
 struct ShapeIntersectIndepImpl<Scalar, Halfspace<Scalar>, Halfspace<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Halfspace<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -395,7 +395,7 @@ struct ShapeIntersectIndepImpl<Scalar, Halfspace<Scalar>, Halfspace<Scalar>>
 template <typename Scalar>
 struct ShapeIntersectIndepImpl<Scalar, Plane<Scalar>, Plane<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Plane<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -410,7 +410,7 @@ struct ShapeIntersectIndepImpl<Scalar, Plane<Scalar>, Plane<Scalar>>
 template <typename Scalar>
 struct ShapeIntersectIndepImpl<Scalar, Plane<Scalar>, Halfspace<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Plane<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -429,7 +429,7 @@ struct ShapeIntersectIndepImpl<Scalar, Plane<Scalar>, Halfspace<Scalar>>
 template <typename Scalar>
 struct ShapeIntersectIndepImpl<Scalar, Halfspace<Scalar>, Plane<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Halfspace<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -449,7 +449,7 @@ struct ShapeIntersectIndepImpl<Scalar, Halfspace<Scalar>, Plane<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTriangleIntersectIndepImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf,
@@ -516,8 +516,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleIntersect(
     Scalar* penetration_depth,
     Vector3<Scalar>* normal) const
 {
-  ShapeTriangleIntersectIndepImpl<Scalar, S> shapeTriangleIntersectImpl;
-  return shapeTriangleIntersectImpl(
+  return ShapeTriangleIntersectIndepImpl<Scalar, S>::run(
         *this, s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
 }
 
@@ -525,7 +524,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleIntersect(
 template<typename Scalar>
 struct ShapeTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf,
@@ -546,7 +545,7 @@ struct ShapeTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTransformedTriangleIntersectIndepImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf1,
@@ -615,8 +614,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleIntersect(
     Scalar* penetration_depth,
     Vector3<Scalar>* normal) const
 {
-  ShapeTransformedTriangleIntersectIndepImpl<Scalar, S> shapeTriangleIntersectImpl;
-  return shapeTriangleIntersectImpl(
+  return ShapeTransformedTriangleIntersectIndepImpl<Scalar, S>::run(
         *this, s, tf1, P1, P2, P3, tf2,
         contact_points, penetration_depth, normal);
 }
@@ -625,7 +623,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleIntersect(
 template<typename Scalar>
 struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf1,
@@ -647,7 +645,7 @@ struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
 template<typename Scalar>
 struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Halfspace<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Halfspace<Scalar>& s,
       const Transform3<Scalar>& tf1,
@@ -669,7 +667,7 @@ struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Halfspace<Scalar>>
 template<typename Scalar>
 struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Plane<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Plane<Scalar>& s,
       const Transform3<Scalar>& tf1,
@@ -691,7 +689,7 @@ struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Plane<Scalar>>
 template<typename Scalar, typename S1, typename S2>
 struct ShapeDistanceIndepImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& gjkSolver,
       const S1& s1,
       const Transform3<Scalar>& tf1,
@@ -751,8 +749,8 @@ bool GJKSolver_indep<Scalar>::shapeDistance(
     Vector3<Scalar>* p1,
     Vector3<Scalar>* p2) const
 {
-  ShapeDistanceIndepImpl<Scalar, S1, S2> shapeDistanceImpl;
-  return shapeDistanceImpl(*this, s1, tf1, s2, tf2, dist, p1, p2);
+  return ShapeDistanceIndepImpl<Scalar, S1, S2>::run(
+        *this, s1, tf1, s2, tf2, dist, p1, p2);
 }
 
 // Shape distance algorithms not using built-in GJK algorithm
@@ -783,7 +781,7 @@ bool GJKSolver_indep<Scalar>::shapeDistance(
 template<typename Scalar>
 struct ShapeDistanceIndepImpl<Scalar, Sphere<Scalar>, Capsule<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -801,7 +799,7 @@ struct ShapeDistanceIndepImpl<Scalar, Sphere<Scalar>, Capsule<Scalar>>
 template<typename Scalar>
 struct ShapeDistanceIndepImpl<Scalar, Capsule<Scalar>, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Capsule<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -819,7 +817,7 @@ struct ShapeDistanceIndepImpl<Scalar, Capsule<Scalar>, Sphere<Scalar>>
 template<typename Scalar>
 struct ShapeDistanceIndepImpl<Scalar, Sphere<Scalar>, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -837,7 +835,7 @@ struct ShapeDistanceIndepImpl<Scalar, Sphere<Scalar>, Sphere<Scalar>>
 template<typename Scalar>
 struct ShapeDistanceIndepImpl<Scalar, Capsule<Scalar>, Capsule<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Capsule<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -855,7 +853,7 @@ struct ShapeDistanceIndepImpl<Scalar, Capsule<Scalar>, Capsule<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTriangleDistanceIndepImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf,
@@ -917,8 +915,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleDistance(
     Vector3<Scalar>* p1,
     Vector3<Scalar>* p2) const
 {
-  ShapeTriangleDistanceIndepImpl<Scalar, S> shapeTriangleDistanceImpl;
-  return shapeTriangleDistanceImpl(
+  return ShapeTriangleDistanceIndepImpl<Scalar, S>::run(
         *this, s, tf, P1, P2, P3, dist, p1, p2);
 }
 
@@ -926,7 +923,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleDistance(
 template<typename Scalar>
 struct ShapeTriangleDistanceIndepImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf,
@@ -945,7 +942,7 @@ struct ShapeTriangleDistanceIndepImpl<Scalar, Sphere<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTransformedTriangleDistanceIndepImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf1,
@@ -1009,8 +1006,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleDistance(
     Vector3<Scalar>* p1,
     Vector3<Scalar>* p2) const
 {
-  ShapeTransformedTriangleDistanceIndepImpl<Scalar, S> shapeTriangleDistanceImpl;
-  return shapeTriangleDistanceImpl(
+  return ShapeTransformedTriangleDistanceIndepImpl<Scalar, S>::run(
         *this, s, tf1, P1, P2, P3, tf2, dist, p1, p2);
 }
 
@@ -1018,7 +1014,7 @@ bool GJKSolver_indep<Scalar>::shapeTriangleDistance(
 template<typename Scalar>
 struct ShapeTransformedTriangleDistanceIndepImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_indep<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf1,

@@ -610,9 +610,9 @@ bool conservativeAdvancementShapeMeshOriented(const S& o1,
 
 //==============================================================================
 template <typename Scalar, typename S, typename NarrowPhaseSolver>
-struct ConservativeAdvancementImpl1
+struct ConservativeAdvancementImpl
 {
-  bool operator()(
+  static bool run(
       const S& o1,
       const MotionBase<Scalar>* motion1,
       const BVHModel<RSS<Scalar>>& o2,
@@ -620,17 +620,12 @@ struct ConservativeAdvancementImpl1
       const NarrowPhaseSolver* nsolver,
       const CollisionRequest<Scalar>& request,
       CollisionResult<Scalar>& result,
-      typename NarrowPhaseSolver::Scalar& toc)
+      Scalar& toc)
   {
     return details::conservativeAdvancementShapeMeshOriented<S, RSS<Scalar>, NarrowPhaseSolver, ShapeMeshConservativeAdvancementTraversalNodeRSS<S, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
   }
-};
 
-//==============================================================================
-template <typename Scalar, typename S, typename NarrowPhaseSolver>
-struct ConservativeAdvancementImpl2
-{
-  bool operator()(
+  static bool run(
       const S& o1,
       const MotionBase<Scalar>* motion1,
       const BVHModel<OBBRSS<Scalar>>& o2,
@@ -654,8 +649,9 @@ bool conservativeAdvancement(const S& o1,
                              CollisionResult<typename NarrowPhaseSolver::Scalar>& result,
                              typename NarrowPhaseSolver::Scalar& toc)
 {
-  ConservativeAdvancementImpl1<typename NarrowPhaseSolver::Scalar, S, NarrowPhaseSolver> conservativeAdvancementImpl;
-  return conservativeAdvancementImpl(o1, motion1, o2, motion2, nsolver, request, result, toc);
+  return ConservativeAdvancementImpl<
+      typename NarrowPhaseSolver::Scalar, S, NarrowPhaseSolver>::run(
+        o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
 template<typename S, typename NarrowPhaseSolver>
@@ -668,15 +664,16 @@ bool conservativeAdvancement(const S& o1,
                              CollisionResult<typename NarrowPhaseSolver::Scalar>& result,
                              typename NarrowPhaseSolver::Scalar& toc)
 {
-  ConservativeAdvancementImpl2<typename NarrowPhaseSolver::Scalar, S, NarrowPhaseSolver> conservativeAdvancementImpl;
-  return conservativeAdvancementImpl(o1, motion1, o2, motion2, nsolver, request, result, toc);
+  return ConservativeAdvancementImpl<
+      typename NarrowPhaseSolver::Scalar, S, NarrowPhaseSolver>::run(
+        o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
 //==============================================================================
 template <typename Scalar, typename NarrowPhaseSolver>
-struct ConservativeAdvancementImpl1<Scalar, BVHModel<RSS<Scalar>>, NarrowPhaseSolver>
+struct ConservativeAdvancementImpl<Scalar, BVHModel<RSS<Scalar>>, NarrowPhaseSolver>
 {
-  bool operator()(
+  static bool run(
       const BVHModel<RSS<Scalar>>& o1,
       const MotionBase<Scalar>* motion1,
       const BVHModel<RSS<Scalar>>& o2,
@@ -692,9 +689,9 @@ struct ConservativeAdvancementImpl1<Scalar, BVHModel<RSS<Scalar>>, NarrowPhaseSo
 
 //==============================================================================
 template <typename Scalar, typename NarrowPhaseSolver>
-struct ConservativeAdvancementImpl2<Scalar, BVHModel<OBBRSS<Scalar>>, NarrowPhaseSolver>
+struct ConservativeAdvancementImpl<Scalar, BVHModel<OBBRSS<Scalar>>, NarrowPhaseSolver>
 {
-  bool operator()(
+  static bool run(
       const BVHModel<OBBRSS<Scalar>>& o1,
       const MotionBase<Scalar>* motion1,
       const BVHModel<OBBRSS<Scalar>>& o2,

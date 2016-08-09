@@ -412,7 +412,7 @@ void minmax(Scalar p, Scalar& minv, Scalar& maxv)
 template <typename Scalar, std::size_t N>
 struct GetDistancesImpl
 {
-  void operator()(const Vector3<Scalar>& p, Scalar* d)
+  static void run(const Vector3<Scalar>& /*p*/, Scalar* /*d*/)
   {
     // Do nothing
   }
@@ -422,15 +422,14 @@ struct GetDistancesImpl
 template <typename Scalar, std::size_t N>
 void getDistances(const Vector3<Scalar>& p, Scalar* d)
 {
-  GetDistancesImpl<Scalar, N> getDistancesImpl;
-  getDistancesImpl(p, d);
+  GetDistancesImpl<Scalar, N>::run(p, d);
 }
 
 //==============================================================================
 template <typename Scalar>
 struct GetDistancesImpl<Scalar, 5>
 {
-  void operator()(const Vector3<Scalar>& p, Scalar* d)
+  static void run(const Vector3<Scalar>& p, Scalar* d)
   {
     d[0] = p[0] + p[1];
     d[1] = p[0] + p[2];
@@ -444,7 +443,7 @@ struct GetDistancesImpl<Scalar, 5>
 template <typename Scalar>
 struct GetDistancesImpl<Scalar, 6>
 {
-  void operator()(const Vector3<Scalar>& p, Scalar* d)
+  static void run(const Vector3<Scalar>& p, Scalar* d)
   {
     d[0] = p[0] + p[1];
     d[1] = p[0] + p[2];
@@ -459,7 +458,7 @@ struct GetDistancesImpl<Scalar, 6>
 template <typename Scalar>
 struct GetDistancesImpl<Scalar, 9>
 {
-  void operator()(const Vector3<Scalar>& p, Scalar* d)
+  static void run(const Vector3<Scalar>& p, Scalar* d)
   {
     d[0] = p[0] + p[1];
     d[1] = p[0] + p[2];

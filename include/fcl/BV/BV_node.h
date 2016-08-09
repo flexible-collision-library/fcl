@@ -156,7 +156,7 @@ Vector3<typename BVNode<BV>::Scalar> BVNode<BV>::getCenter() const
 template <typename Scalar, typename BV>
 struct GetOrientationImpl
 {
-  Matrix3<Scalar> operator()(/*const BVNode<BV>& node*/)
+  static Matrix3<Scalar> run(const BVNode<BV>& /*node*/)
   {
     return Matrix3<Scalar>::Identity();
   }
@@ -166,15 +166,14 @@ struct GetOrientationImpl
 template <typename BV>
 Matrix3<typename BV::Scalar> BVNode<BV>::getOrientation() const
 {
-  GetOrientationImpl<typename BV::Scalar, BV> getOrientationImpl;
-  return getOrientationImpl(bv);
+  return GetOrientationImpl<typename BV::Scalar, BV>::run(bv);
 }
 
 //==============================================================================
 template <typename Scalar>
 struct GetOrientationImpl<Scalar, OBB<Scalar>>
 {
-  Matrix3<Scalar> operator()(const OBB<Scalar>& bv)
+  static Matrix3<Scalar> run(const OBB<Scalar>& bv)
   {
     return bv.frame.linear();
   }
@@ -184,7 +183,7 @@ struct GetOrientationImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct GetOrientationImpl<Scalar, RSS<Scalar>>
 {
-  Matrix3<Scalar> operator()(const RSS<Scalar>& bv)
+  static Matrix3<Scalar> run(const RSS<Scalar>& bv)
   {
     return bv.frame.linear();
   }
@@ -194,7 +193,7 @@ struct GetOrientationImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct GetOrientationImpl<Scalar, OBBRSS<Scalar>>
 {
-  Matrix3<Scalar> operator()(const OBBRSS<Scalar>& bv)
+  static Matrix3<Scalar> run(const OBBRSS<Scalar>& bv)
   {
     return bv.obb.frame.linear();
   }

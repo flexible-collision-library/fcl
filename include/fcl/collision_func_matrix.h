@@ -529,7 +529,7 @@ struct BVHShapeCollider<OBBRSS<typename NarrowPhaseSolver::Scalar>, T_SH, Narrow
 template <typename Scalar, typename T_BVH>
 struct BVHCollideImpl
 {
-  std::size_t operator()(
+  static std::size_t run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -567,8 +567,8 @@ std::size_t BVHCollide(
     const CollisionRequest<typename T_BVH::Scalar>& request,
     CollisionResult<typename T_BVH::Scalar>& result)
 {
-  BVHCollideImpl<typename T_BVH::Scalar, T_BVH> tmp;
-  return tmp(o1, tf1, o2, tf2, request, result);
+  return BVHCollideImpl<typename T_BVH::Scalar, T_BVH>::run(
+        o1, tf1, o2, tf2, request, result);
 }
 
 namespace details
@@ -602,7 +602,7 @@ std::size_t orientedMeshCollide(
 template <typename Scalar>
 struct BVHCollideImpl<Scalar, OBB<Scalar>>
 {
-  std::size_t operator()(
+  static std::size_t run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -620,7 +620,7 @@ struct BVHCollideImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct BVHCollideImpl<Scalar, OBBRSS<Scalar>>
 {
-  std::size_t operator()(
+  static std::size_t run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -638,7 +638,7 @@ struct BVHCollideImpl<Scalar, OBBRSS<Scalar>>
 template <typename Scalar>
 struct BVHCollideImpl<Scalar, kIOS<Scalar>>
 {
-  std::size_t operator()(
+  static std::size_t run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,

@@ -323,7 +323,7 @@ void MeshConservativeAdvancementTraversalNode<BV>::leafTesting(int b1, int b2) c
 template <typename Scalar, typename BV>
 struct CanStopImpl
 {
-  bool operator()(
+  static bool run(
       const MeshConservativeAdvancementTraversalNode<BV>& node, Scalar c)
   {
     if((c >= node.w * (node.min_distance - node.abs_err))
@@ -389,15 +389,14 @@ template <typename BV>
 bool MeshConservativeAdvancementTraversalNode<BV>::canStop(
     MeshConservativeAdvancementTraversalNode<BV>::Scalar c) const
 {
-  CanStopImpl<typename BV::Scalar, BV> canStopImpl;
-  return canStopImpl(*this, c);
+  return CanStopImpl<typename BV::Scalar, BV>::run(*this, c);
 }
 
 //==============================================================================
 template <typename Scalar>
 struct CanStopImpl<Scalar, OBB<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const MeshConservativeAdvancementTraversalNode<OBB<Scalar>>& node,
       Scalar c)
   {
@@ -420,7 +419,7 @@ struct CanStopImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct CanStopImpl<Scalar, RSS<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const MeshConservativeAdvancementTraversalNode<RSS<Scalar>>& node,
       Scalar c)
   {
@@ -443,7 +442,7 @@ struct CanStopImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct CanStopImpl<Scalar, OBBRSS<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const MeshConservativeAdvancementTraversalNode<OBBRSS<Scalar>>& node,
       Scalar c)
   {

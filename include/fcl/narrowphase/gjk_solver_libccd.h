@@ -213,7 +213,7 @@ bool GJKSolver_libccd<Scalar>::shapeIntersect(
 template<typename Scalar, typename S1, typename S2>
 struct ShapeIntersectLibccdImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& gjkSolver,
       const S1& s1, const Transform3<Scalar>& tf1,
       const S2& s2, const Transform3<Scalar>& tf2,
@@ -273,8 +273,8 @@ bool GJKSolver_libccd<Scalar>::shapeIntersect(
     const S2& s2, const Transform3<Scalar>& tf2,
     std::vector<ContactPoint<Scalar>>* contacts) const
 {
-  ShapeIntersectLibccdImpl<Scalar, S1, S2> shapeIntersectImpl;
-  return shapeIntersectImpl(*this, s1, tf1, s2, tf2, contacts);
+  return ShapeIntersectLibccdImpl<Scalar, S1, S2>::run(
+        *this, s1, tf1, s2, tf2, contacts);
 }
 
 // Shape intersect algorithms not using libccd
@@ -305,7 +305,7 @@ bool GJKSolver_libccd<Scalar>::shapeIntersect(
   template <typename Scalar>\
   struct ShapeIntersectLibccdImpl<Scalar, SHAPE1<Scalar>, SHAPE2<Scalar>>\
   {\
-    bool operator()(\
+    static bool run(\
         const GJKSolver_libccd<Scalar>& /*gjkSolver*/,\
         const SHAPE1<Scalar>& s1,\
         const Transform3<Scalar>& tf1,\
@@ -321,7 +321,7 @@ bool GJKSolver_libccd<Scalar>::shapeIntersect(
   template <typename Scalar>\
   struct ShapeIntersectLibccdImpl<Scalar, SHAPE2<Scalar>, SHAPE1<Scalar>>\
   {\
-    bool operator()(\
+    static bool run(\
         const GJKSolver_libccd<Scalar>& /*gjkSolver*/,\
         const SHAPE2<Scalar>& s1,\
         const Transform3<Scalar>& tf1,\
@@ -364,7 +364,7 @@ FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Cone, Plane, details::conePlaneIntersect)
 template <typename Scalar>
 struct ShapeIntersectLibccdImpl<Scalar, Halfspace<Scalar>, Halfspace<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Halfspace<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -383,7 +383,7 @@ struct ShapeIntersectLibccdImpl<Scalar, Halfspace<Scalar>, Halfspace<Scalar>>
 template <typename Scalar>
 struct ShapeIntersectLibccdImpl<Scalar, Plane<Scalar>, Plane<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Plane<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -398,7 +398,7 @@ struct ShapeIntersectLibccdImpl<Scalar, Plane<Scalar>, Plane<Scalar>>
 template <typename Scalar>
 struct ShapeIntersectLibccdImpl<Scalar, Plane<Scalar>, Halfspace<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Plane<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -417,7 +417,7 @@ struct ShapeIntersectLibccdImpl<Scalar, Plane<Scalar>, Halfspace<Scalar>>
 template <typename Scalar>
 struct ShapeIntersectLibccdImpl<Scalar, Halfspace<Scalar>, Plane<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Halfspace<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -437,7 +437,7 @@ struct ShapeIntersectLibccdImpl<Scalar, Halfspace<Scalar>, Plane<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTriangleIntersectLibccdImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf,
@@ -483,8 +483,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleIntersect(
     Scalar* penetration_depth,
     Vector3<Scalar>* normal) const
 {
-  ShapeTriangleIntersectLibccdImpl<Scalar, S> shapeTriangleIntersectImpl;
-  return shapeTriangleIntersectImpl(
+  return ShapeTriangleIntersectLibccdImpl<Scalar, S>::run(
         *this, s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
 }
 
@@ -492,7 +491,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleIntersect(
 template<typename Scalar>
 struct ShapeTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf,
@@ -512,7 +511,7 @@ struct ShapeTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTransformedTriangleIntersectLibccdImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf1,
@@ -560,8 +559,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleIntersect(
     Scalar* penetration_depth,
     Vector3<Scalar>* normal) const
 {
-  ShapeTransformedTriangleIntersectLibccdImpl<Scalar, S> shapeTriangleIntersectImpl;
-  return shapeTriangleIntersectImpl(
+  return ShapeTransformedTriangleIntersectLibccdImpl<Scalar, S>::run(
         *this, s, tf1, P1, P2, P3, tf2,
         contact_points, penetration_depth, normal);
 }
@@ -570,7 +568,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleIntersect(
 template<typename Scalar>
 struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf1,
@@ -592,7 +590,7 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
 template<typename Scalar>
 struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Halfspace<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Halfspace<Scalar>& s,
       const Transform3<Scalar>& tf1,
@@ -614,7 +612,7 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Halfspace<Scalar>>
 template<typename Scalar>
 struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Plane<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Plane<Scalar>& s,
       const Transform3<Scalar>& tf1,
@@ -636,7 +634,7 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Plane<Scalar>>
 template<typename Scalar, typename S1, typename S2>
 struct ShapeDistanceLibccdImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& gjkSolver,
       const S1& s1,
       const Transform3<Scalar>& tf1,
@@ -684,8 +682,8 @@ bool GJKSolver_libccd<Scalar>::shapeDistance(
     Vector3<Scalar>* p1,
     Vector3<Scalar>* p2) const
 {
-  ShapeDistanceLibccdImpl<Scalar, S1, S2> shapeDistanceImpl;
-  return shapeDistanceImpl(*this, s1, tf1, s2, tf2, dist, p1, p2);
+  return ShapeDistanceLibccdImpl<Scalar, S1, S2>::run(
+        *this, s1, tf1, s2, tf2, dist, p1, p2);
 }
 
 // Shape distance algorithms not using libccd
@@ -716,7 +714,7 @@ bool GJKSolver_libccd<Scalar>::shapeDistance(
 template<typename Scalar>
 struct ShapeDistanceLibccdImpl<Scalar, Sphere<Scalar>, Capsule<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -734,7 +732,7 @@ struct ShapeDistanceLibccdImpl<Scalar, Sphere<Scalar>, Capsule<Scalar>>
 template<typename Scalar>
 struct ShapeDistanceLibccdImpl<Scalar, Capsule<Scalar>, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Capsule<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -752,7 +750,7 @@ struct ShapeDistanceLibccdImpl<Scalar, Capsule<Scalar>, Sphere<Scalar>>
 template<typename Scalar>
 struct ShapeDistanceLibccdImpl<Scalar, Sphere<Scalar>, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -770,7 +768,7 @@ struct ShapeDistanceLibccdImpl<Scalar, Sphere<Scalar>, Sphere<Scalar>>
 template<typename Scalar>
 struct ShapeDistanceLibccdImpl<Scalar, Capsule<Scalar>, Capsule<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Capsule<Scalar>& s1,
       const Transform3<Scalar>& tf1,
@@ -788,7 +786,7 @@ struct ShapeDistanceLibccdImpl<Scalar, Capsule<Scalar>, Capsule<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTriangleDistanceLibccdImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf,
@@ -834,8 +832,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleDistance(
     Vector3<Scalar>* p1,
     Vector3<Scalar>* p2) const
 {
-  ShapeTriangleDistanceLibccdImpl<Scalar, S> shapeTriangleDistanceImpl;
-  return shapeTriangleDistanceImpl(
+  return ShapeTriangleDistanceLibccdImpl<Scalar, S>::run(
         *this, s, tf, P1, P2, P3, dist, p1, p2);
 }
 
@@ -843,7 +840,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleDistance(
 template<typename Scalar>
 struct ShapeTriangleDistanceLibccdImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf,
@@ -862,7 +859,7 @@ struct ShapeTriangleDistanceLibccdImpl<Scalar, Sphere<Scalar>>
 template<typename Scalar, typename S>
 struct ShapeTransformedTriangleDistanceLibccdImpl
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& gjkSolver,
       const S& s,
       const Transform3<Scalar>& tf1,
@@ -911,8 +908,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleDistance(
     Vector3<Scalar>* p1,
     Vector3<Scalar>* p2) const
 {
-  ShapeTransformedTriangleDistanceLibccdImpl<Scalar, S> shapeTriangleDistanceImpl;
-  return shapeTriangleDistanceImpl(
+  return ShapeTransformedTriangleDistanceLibccdImpl<Scalar, S>::run(
         *this, s, tf1, P1, P2, P3, tf2, dist, p1, p2);
 }
 
@@ -920,7 +916,7 @@ bool GJKSolver_libccd<Scalar>::shapeTriangleDistance(
 template<typename Scalar>
 struct ShapeTransformedTriangleDistanceLibccdImpl<Scalar, Sphere<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
       const Sphere<Scalar>& s,
       const Transform3<Scalar>& tf1,

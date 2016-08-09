@@ -246,7 +246,7 @@ void BVSplitter<BV>::computeRule(
 template <typename Scalar, typename BV>
 struct ApplyImpl
 {
-  bool operator()(
+  static bool run(
       const BVSplitter<BV>& splitter, const Vector3<Scalar>& q)
   {
     return q[splitter.split_axis] > splitter.split_value;
@@ -257,15 +257,14 @@ struct ApplyImpl
 template <typename BV>
 bool BVSplitter<BV>::apply(const Vector3<Scalar>& q) const
 {
-  ApplyImpl<Scalar, BV> applyImpl;
-  return applyImpl(*this, q);
+  return ApplyImpl<Scalar, BV>::run(*this, q);
 }
 
 //==============================================================================
 template <typename Scalar, typename BV>
 struct ComputeRuleCenterImpl
 {
-  void operator()(
+  static void run(
       BVSplitter<BV>& splitter,
       const BV& bv,
       unsigned int* /*primitive_indices*/,
@@ -289,15 +288,15 @@ template <typename BV>
 void BVSplitter<BV>::computeRule_bvcenter(
     const BV& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  ComputeRuleCenterImpl<Scalar, BV> computeRuleCenterImpl;
-  computeRuleCenterImpl(*this, bv, primitive_indices, num_primitives);
+  ComputeRuleCenterImpl<Scalar, BV>::run(
+        *this, bv, primitive_indices, num_primitives);
 }
 
 //==============================================================================
 template <typename Scalar, typename BV>
 struct ComputeRuleMeanImpl
 {
-  void operator()(
+  static void run(
       BVSplitter<BV>& splitter,
       const BV& bv,
       unsigned int* primitive_indices,
@@ -342,15 +341,15 @@ template <typename BV>
 void BVSplitter<BV>::computeRule_mean(
     const BV& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  ComputeRuleMeanImpl<Scalar, BV> computeRuleMeanImpl;
-  computeRuleMeanImpl(*this, bv, primitive_indices, num_primitives);
+  ComputeRuleMeanImpl<Scalar, BV>::run(
+        *this, bv, primitive_indices, num_primitives);
 }
 
 //==============================================================================
 template <typename Scalar, typename BV>
 struct ComputeRuleMedianImpl
 {
-  void operator()(
+  static void run(
       BVSplitter<BV>& splitter,
       const BV& bv,
       unsigned int* primitive_indices,
@@ -400,15 +399,15 @@ template <typename BV>
 void BVSplitter<BV>::computeRule_median(
     const BV& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  ComputeRuleMedianImpl<Scalar, BV> computeRuleMedianImpl;
-  computeRuleMedianImpl(*this, bv, primitive_indices, num_primitives);
+  ComputeRuleMedianImpl<Scalar, BV>::run(
+        *this, bv, primitive_indices, num_primitives);
 }
 
 //==============================================================================
 template <typename Scalar>
 struct ComputeRuleCenterImpl<Scalar, OBB<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<OBB<Scalar>>& splitter,
       const OBB<Scalar>& bv,
       unsigned int* /*primitive_indices*/,
@@ -423,7 +422,7 @@ struct ComputeRuleCenterImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMeanImpl<Scalar, OBB<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<OBB<Scalar>>& splitter,
       const OBB<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -440,7 +439,7 @@ struct ComputeRuleMeanImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMedianImpl<Scalar, OBB<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<OBB<Scalar>>& splitter,
       const OBB<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -457,7 +456,7 @@ struct ComputeRuleMedianImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct ComputeRuleCenterImpl<Scalar, RSS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<RSS<Scalar>>& splitter,
       const RSS<Scalar>& bv,
       unsigned int* /*primitive_indices*/,
@@ -472,7 +471,7 @@ struct ComputeRuleCenterImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMeanImpl<Scalar, RSS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<RSS<Scalar>>& splitter,
       const RSS<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -489,7 +488,7 @@ struct ComputeRuleMeanImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMedianImpl<Scalar, RSS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<RSS<Scalar>>& splitter,
       const RSS<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -506,7 +505,7 @@ struct ComputeRuleMedianImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleCenterImpl<Scalar, kIOS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<kIOS<Scalar>>& splitter,
       const kIOS<Scalar>& bv,
       unsigned int* /*primitive_indices*/,
@@ -521,7 +520,7 @@ struct ComputeRuleCenterImpl<Scalar, kIOS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMeanImpl<Scalar, kIOS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<kIOS<Scalar>>& splitter,
       const kIOS<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -538,7 +537,7 @@ struct ComputeRuleMeanImpl<Scalar, kIOS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMedianImpl<Scalar, kIOS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<kIOS<Scalar>>& splitter,
       const kIOS<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -555,7 +554,7 @@ struct ComputeRuleMedianImpl<Scalar, kIOS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleCenterImpl<Scalar, OBBRSS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<OBBRSS<Scalar>>& splitter,
       const OBBRSS<Scalar>& bv,
       unsigned int* /*primitive_indices*/,
@@ -570,7 +569,7 @@ struct ComputeRuleCenterImpl<Scalar, OBBRSS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMeanImpl<Scalar, OBBRSS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<OBBRSS<Scalar>>& splitter,
       const OBBRSS<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -587,7 +586,7 @@ struct ComputeRuleMeanImpl<Scalar, OBBRSS<Scalar>>
 template <typename Scalar>
 struct ComputeRuleMedianImpl<Scalar, OBBRSS<Scalar>>
 {
-  void operator()(
+  static void run(
       BVSplitter<OBBRSS<Scalar>>& splitter,
       const OBBRSS<Scalar>& bv,
       unsigned int* primitive_indices,
@@ -604,7 +603,7 @@ struct ComputeRuleMedianImpl<Scalar, OBBRSS<Scalar>>
 template <typename Scalar>
 struct ApplyImpl<Scalar, OBB<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const BVSplitter<OBB<Scalar>>& splitter,
       const Vector3<Scalar>& q)
   {
@@ -616,7 +615,7 @@ struct ApplyImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct ApplyImpl<Scalar, RSS<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const BVSplitter<RSS<Scalar>>& splitter,
       const Vector3<Scalar>& q)
   {
@@ -628,7 +627,7 @@ struct ApplyImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct ApplyImpl<Scalar, kIOS<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const BVSplitter<kIOS<Scalar>>& splitter,
       const Vector3<Scalar>& q)
   {
@@ -640,7 +639,7 @@ struct ApplyImpl<Scalar, kIOS<Scalar>>
 template <typename Scalar>
 struct ApplyImpl<Scalar, OBBRSS<Scalar>>
 {
-  bool operator()(
+  static bool run(
       const BVSplitter<OBBRSS<Scalar>>& splitter,
       const Vector3<Scalar>& q)
   {
@@ -661,7 +660,7 @@ void BVSplitter<BV>::clear()
 template <typename Scalar, typename BV>
 struct ComputeSplitVectorImpl
 {
-  void operator()(const BV& bv, Vector3<Scalar>& split_vector)
+  static void run(const BV& bv, Vector3<Scalar>& split_vector)
   {
     split_vector = bv.frame.linear().col(0);
   }
@@ -671,15 +670,14 @@ struct ComputeSplitVectorImpl
 template <typename Scalar, typename BV>
 void computeSplitVector(const BV& bv, Vector3<Scalar>& split_vector)
 {
-  ComputeSplitVectorImpl<Scalar, BV> computeSplitVectorImpl;
-  computeSplitVectorImpl(bv, split_vector);
+  ComputeSplitVectorImpl<Scalar, BV>::run(bv, split_vector);
 }
 
 //==============================================================================
 template <typename Scalar>
 struct ComputeSplitVectorImpl<Scalar, kIOS<Scalar>>
 {
-  void operator()(const kIOS<Scalar>& bv, Vector3<Scalar>& split_vector)
+  static void run(const kIOS<Scalar>& bv, Vector3<Scalar>& split_vector)
   {
     /*
       switch(bv.num_spheres)
@@ -717,7 +715,7 @@ struct ComputeSplitVectorImpl<Scalar, kIOS<Scalar>>
 template <typename Scalar>
 struct ComputeSplitVectorImpl<Scalar, OBBRSS<Scalar>>
 {
-  void operator()(const OBBRSS<Scalar>& bv, Vector3<Scalar>& split_vector)
+  static void run(const OBBRSS<Scalar>& bv, Vector3<Scalar>& split_vector)
   {
     split_vector = bv.obb.frame.linear().col(0);
   }

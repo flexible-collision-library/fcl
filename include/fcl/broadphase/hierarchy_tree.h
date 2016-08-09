@@ -94,10 +94,18 @@ bool nodeBaseLess(NodeBase<BV>* a, NodeBase<BV>* b, int d)
 
 //==============================================================================
 template <typename Scalar, typename BV>
-struct SelectImpl1
+struct SelectImpl
 {
-  std::size_t operator()(
+  static std::size_t run(
       const NodeBase<BV>& /*query*/,
+      const NodeBase<BV>& /*node1*/,
+      const NodeBase<BV>& /*node2*/)
+  {
+    return 0;
+  }
+
+  static std::size_t run(
+      const BV& /*query*/,
       const NodeBase<BV>& /*node1*/,
       const NodeBase<BV>& /*node2*/)
   {
@@ -112,22 +120,8 @@ size_t select(
     const NodeBase<BV>& node1,
     const NodeBase<BV>& node2)
 {
-  SelectImpl1<typename BV::Scalar, BV> selectImpl;
-  return selectImpl(query, node1, node2);
+  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2);
 }
-
-//==============================================================================
-template <typename Scalar, typename BV>
-struct SelectImpl2
-{
-  std::size_t operator()(
-      const BV& /*query*/,
-      const NodeBase<BV>& /*node1*/,
-      const NodeBase<BV>& /*node2*/)
-  {
-    return 0;
-  }
-};
 
 /// @brief select from node1 and node2 which is close to a given query bounding volume. 0 for node1 and 1 for node2
 template<typename BV>
@@ -136,30 +130,18 @@ size_t select(
     const NodeBase<BV>& node1,
     const NodeBase<BV>& node2)
 {
-  SelectImpl2<typename BV::Scalar, BV> selectImpl;
-  return selectImpl(query, node1, node2);
+  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2);
 }
 
 /// @brief Class for hierarchy tree structure
 template<typename BV>
 class HierarchyTree
 {
+public:
 
   using Scalar = typename BV::Scalar;
 
   typedef NodeBase<BV> NodeType;
-  typedef typename std::vector<NodeBase<BV>* >::iterator NodeVecIterator;
-  typedef typename std::vector<NodeBase<BV>* >::const_iterator NodeVecConstIterator;
-
-  struct SortByMorton
-  {
-    bool operator() (const NodeType* a, const NodeType* b) const
-    {
-      return a->code < b->code;
-    }
-  };
-
-public:
 
   /// @brief Create hierarchy tree with suitable setting.
   /// bu_threshold decides the height of tree node to start bottom-up construction / optimization;
@@ -229,6 +211,17 @@ public:
   void print(NodeType* root, int depth);
 
 private:
+
+  typedef typename std::vector<NodeBase<BV>* >::iterator NodeVecIterator;
+  typedef typename std::vector<NodeBase<BV>* >::const_iterator NodeVecConstIterator;
+
+  struct SortByMorton
+  {
+    bool operator() (const NodeType* a, const NodeType* b) const
+    {
+      return a->code < b->code;
+    }
+  };
 
   /// @brief construct a tree for a set of leaves from bottom -- very heavy way 
   void bottomup(const NodeVecIterator lbeg, const NodeVecIterator lend);
@@ -388,9 +381,14 @@ private:
 
 //==============================================================================
 template <typename Scalar, typename BV>
-struct SelectImpl3
+struct SelectImpl
 {
-  bool operator()(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
+  static bool run(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
+  {
+    return 0;
+  }
+
+  static bool run(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
   {
     return 0;
   }
@@ -400,26 +398,14 @@ struct SelectImpl3
 template<typename BV> 
 size_t select(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
 {
-  SelectImpl3<typename BV::Scalar, BV> selectImpl;
-  return selectImpl(query, node1, node2, nodes);
+  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2, nodes);
 }
-
-//==============================================================================
-template <typename Scalar, typename BV>
-struct SelectImpl4
-{
-  bool operator()(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
-  {
-    return 0;
-  }
-};
 
 /// @brief select the node from node1 and node2 which is close to the query AABB<Scalar>. 0 for node1 and 1 for node2.
 template<typename BV>
 size_t select(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
 {
-  SelectImpl4<typename BV::Scalar, BV> selectImpl;
-  return selectImpl(query, node1, node2, nodes);
+  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2, nodes);
 }
 
 /// @brief Class for hierarchy tree structure
@@ -732,9 +718,9 @@ bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv)
 
 //==============================================================================
 template <typename Scalar, typename BV>
-struct UpdateImpl1
+struct UpdateImpl
 {
-  bool operator()(
+  static bool run(
       const HierarchyTree<BV>& tree,
       typename HierarchyTree<BV>::NodeType* leaf,
       const BV& bv,
@@ -745,36 +731,29 @@ struct UpdateImpl1
     tree.update_(leaf, bv);
     return true;
   }
-};
 
-template<typename BV>
-bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3<Scalar>& vel, Scalar margin)
-{
-  UpdateImpl1<typename BV::Scalar, BV> updateImpl;
-  return updateImpl(leaf, bv, vel, margin);
-}
-
-//==============================================================================
-template <typename Scalar, typename BV>
-struct UpdateImpl2
-{
-  bool operator()(
+  static bool run(
       const HierarchyTree<BV>& tree,
       typename HierarchyTree<BV>::NodeType* leaf,
       const BV& bv,
-      const Vector3<Scalar>& vel)
+      const Vector3<Scalar>& /*vel*/)
   {
     if(leaf->bv.contain(bv)) return false;
-    update_(leaf, bv);
+    tree.update_(leaf, bv);
     return true;
   }
 };
 
 template<typename BV>
+bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3<Scalar>& vel, Scalar margin)
+{
+  return UpdateImpl<typename BV::Scalar, BV>::run(*this, leaf, bv, vel, margin);
+}
+
+template<typename BV>
 bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3<Scalar>& vel)
 {
-  UpdateImpl2<typename BV::Scalar, BV> updateImpl;
-  return updateImpl(leaf, bv, vel);
+  return UpdateImpl<typename BV::Scalar, BV>::run(*this, leaf, bv, vel);
 }
 
 template<typename BV>
@@ -2504,9 +2483,9 @@ void HierarchyTree<BV>::fetchLeaves(size_t root, NodeType*& leaves, int depth)
 
 //==============================================================================
 template <typename Scalar>
-struct SelectImpl1<Scalar, AABB<Scalar>>
+struct SelectImpl<Scalar, AABB<Scalar>>
 {
-  std::size_t operator()(
+  static std::size_t run(
       const NodeBase<AABB<Scalar>>& node,
       const NodeBase<AABB<Scalar>>& node1,
       const NodeBase<AABB<Scalar>>& node2)
@@ -2521,13 +2500,8 @@ struct SelectImpl1<Scalar, AABB<Scalar>>
     Scalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
   }
-};
 
-//==============================================================================
-template <typename Scalar>
-struct SelectImpl2<Scalar, AABB<Scalar>>
-{
-  std::size_t operator()(
+  static std::size_t run(
       const AABB<Scalar>& query,
       const NodeBase<AABB<Scalar>>& node1,
       const NodeBase<AABB<Scalar>>& node2)
@@ -2542,13 +2516,8 @@ struct SelectImpl2<Scalar, AABB<Scalar>>
     Scalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
   }
-};
 
-//==============================================================================
-template <typename Scalar>
-struct UpdateImpl1<Scalar, AABB<Scalar>>
-{
-  bool operator()(
+  static bool run(
       const HierarchyTree<AABB<Scalar>>& tree,
       typename HierarchyTree<AABB<Scalar>>::NodeType* leaf,
       const AABB<Scalar>& bv_,
@@ -2569,13 +2538,8 @@ struct UpdateImpl1<Scalar, AABB<Scalar>>
     tree.update(leaf, bv);
     return true;
   }
-};
 
-//==============================================================================
-template <typename Scalar>
-struct UpdateImpl2<Scalar, AABB<Scalar>>
-{
-  bool operator()(
+  static bool run(
       const HierarchyTree<AABB<Scalar>>& tree,
       typename HierarchyTree<AABB<Scalar>>::NodeType* leaf,
       const AABB<Scalar>& bv_,
@@ -2599,9 +2563,9 @@ namespace implementation_array
 
 //==============================================================================
 template <typename Scalar>
-struct SelectImpl3<Scalar, AABB<Scalar>>
+struct SelectImpl<Scalar, AABB<Scalar>>
 {
-  bool operator()(size_t query, size_t node1, size_t node2, NodeBase<AABB<Scalar>>* nodes)
+  static bool run(size_t query, size_t node1, size_t node2, NodeBase<AABB<Scalar>>* nodes)
   {
     const AABB<Scalar>& bv = nodes[query].bv;
     const AABB<Scalar>& bv1 = nodes[node1].bv;
@@ -2613,13 +2577,8 @@ struct SelectImpl3<Scalar, AABB<Scalar>>
     Scalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
   }
-};
 
-//==============================================================================
-template <typename Scalar>
-struct SelectImpl4<Scalar, AABB<Scalar>>
-{
-  bool operator()(const AABB<Scalar>& query, size_t node1, size_t node2, NodeBase<AABB<Scalar>>* nodes)
+  static bool run(const AABB<Scalar>& query, size_t node1, size_t node2, NodeBase<AABB<Scalar>>* nodes)
   {
     const AABB<Scalar>& bv = query;
     const AABB<Scalar>& bv1 = nodes[node1].bv;

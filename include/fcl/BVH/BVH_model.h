@@ -378,7 +378,7 @@ OBJECT_TYPE BVHModel<BV>::getObjectType() const
 template <typename BV>
 struct GetNodeTypeImpl
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_UNKNOWN;
   }
@@ -388,8 +388,7 @@ struct GetNodeTypeImpl
 template <typename BV>
 NODE_TYPE BVHModel<BV>::getNodeType() const
 {
-  GetNodeTypeImpl<BV> getNodeTypeImpl;
-  return getNodeTypeImpl();
+  return GetNodeTypeImpl<BV>::run();
 }
 
 //==============================================================================
@@ -1205,7 +1204,7 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
 template <typename Scalar, typename BV>
 struct MakeParentRelativeRecurseImpl
 {
-  void operator()(BVHModel<BV>& model,
+  static void run(BVHModel<BV>& model,
                   int bv_id,
                   const Matrix3<Scalar>& parent_axis,
                   const Vector3<Scalar>& parent_c)
@@ -1230,8 +1229,8 @@ void BVHModel<BV>::makeParentRelativeRecurse(
     const Matrix3<Scalar>& parent_axis,
     const Vector3<Scalar>& parent_c)
 {
-  MakeParentRelativeRecurseImpl<typename BV::Scalar, BV> tmp;
-  tmp(*this, bv_id, parent_axis, parent_c);
+  MakeParentRelativeRecurseImpl<typename BV::Scalar, BV>::run(
+        *this, bv_id, parent_axis, parent_c);
 }
 
 //==============================================================================
@@ -1278,7 +1277,7 @@ void BVHModel<BV>::computeLocalAABB()
 template <typename Scalar>
 struct MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>>
 {
-  void operator()(BVHModel<OBB<Scalar>>& model,
+  static void run(BVHModel<OBB<Scalar>>& model,
                   int bv_id,
                   const Matrix3<Scalar>& parent_axis,
                   const Vector3<Scalar>& parent_c)
@@ -1303,7 +1302,7 @@ struct MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>>
 template <typename Scalar>
 struct MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>>
 {
-  void operator()(BVHModel<RSS<Scalar>>& model,
+  static void run(BVHModel<RSS<Scalar>>& model,
                   int bv_id,
                   const Matrix3<Scalar>& parent_axis,
                   const Vector3<Scalar>& parent_c)
@@ -1328,7 +1327,7 @@ struct MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct MakeParentRelativeRecurseImpl<Scalar, OBBRSS<Scalar>>
 {
-  void operator()(BVHModel<OBBRSS<Scalar>>& model,
+  static void run(BVHModel<OBBRSS<Scalar>>& model,
                   int bv_id,
                   const Matrix3<Scalar>& parent_axis,
                   const Vector3<Scalar>& parent_c)
@@ -1357,7 +1356,7 @@ struct MakeParentRelativeRecurseImpl<Scalar, OBBRSS<Scalar>>
 template <typename Scalar>
 struct GetNodeTypeImpl<AABB<Scalar>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_AABB;
   }
@@ -1367,7 +1366,7 @@ struct GetNodeTypeImpl<AABB<Scalar>>
 template <typename Scalar>
 struct GetNodeTypeImpl<OBB<Scalar>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_OBB;
   }
@@ -1377,7 +1376,7 @@ struct GetNodeTypeImpl<OBB<Scalar>>
 template <typename Scalar>
 struct GetNodeTypeImpl<RSS<Scalar>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_RSS;
   }
@@ -1387,7 +1386,7 @@ struct GetNodeTypeImpl<RSS<Scalar>>
 template <typename Scalar>
 struct GetNodeTypeImpl<kIOS<Scalar>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_kIOS;
   }
@@ -1397,7 +1396,7 @@ struct GetNodeTypeImpl<kIOS<Scalar>>
 template <typename Scalar>
 struct GetNodeTypeImpl<OBBRSS<Scalar>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_OBBRSS;
   }
@@ -1407,7 +1406,7 @@ struct GetNodeTypeImpl<OBBRSS<Scalar>>
 template <typename Scalar>
 struct GetNodeTypeImpl<KDOP<Scalar, 16>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_KDOP16;
   }
@@ -1417,7 +1416,7 @@ struct GetNodeTypeImpl<KDOP<Scalar, 16>>
 template <typename Scalar>
 struct GetNodeTypeImpl<KDOP<Scalar, 18>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_KDOP18;
   }
@@ -1427,7 +1426,7 @@ struct GetNodeTypeImpl<KDOP<Scalar, 18>>
 template <typename Scalar>
 struct GetNodeTypeImpl<KDOP<Scalar, 24>>
 {
-  NODE_TYPE operator()()
+  static NODE_TYPE run()
   {
     return BV_KDOP24;
   }

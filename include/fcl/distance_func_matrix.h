@@ -347,7 +347,7 @@ struct BVHShapeDistancer<OBBRSS<typename T_SH::Scalar>, T_SH, NarrowPhaseSolver>
 template <typename Scalar, typename T_BVH>
 struct BVHDistanceImpl
 {
-  Scalar operator()(
+  static Scalar run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -383,8 +383,8 @@ typename T_BVH::Scalar BVHDistance(
     const DistanceRequest<typename T_BVH::Scalar>& request,
     DistanceResult<typename T_BVH::Scalar>& result)
 {
-  BVHDistanceImpl<typename T_BVH::Scalar, T_BVH> tmp;
-  return tmp(o1, tf1, o2, tf2, request, result);
+  return BVHDistanceImpl<typename T_BVH::Scalar, T_BVH>::run(
+        o1, tf1, o2, tf2, request, result);
 }
 
 namespace details
@@ -416,7 +416,7 @@ typename T_BVH::Scalar orientedMeshDistance(
 template <typename Scalar>
 struct BVHDistanceImpl<Scalar, RSS<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -434,7 +434,7 @@ struct BVHDistanceImpl<Scalar, RSS<Scalar>>
 template <typename Scalar>
 struct BVHDistanceImpl<Scalar, kIOS<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,
@@ -452,7 +452,7 @@ struct BVHDistanceImpl<Scalar, kIOS<Scalar>>
 template <typename Scalar>
 struct BVHDistanceImpl<Scalar, OBBRSS<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const CollisionGeometry<Scalar>* o1,
       const Transform3<Scalar>& tf1,
       const CollisionGeometry<Scalar>* o2,

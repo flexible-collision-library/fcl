@@ -203,7 +203,7 @@ using MotionBasePtr = std::shared_ptr<MotionBase<Scalar>>;
 template <typename Scalar, typename BV, typename MotionT>
 struct TBVMotionBoundVisitorVisitImpl
 {
-  Scalar operator()(
+  static Scalar run(
       const TBVMotionBoundVisitor<BV>& /*visitor*/,
       const MotionT& /*motion*/)
   {
@@ -224,8 +224,9 @@ typename BV::Scalar TBVMotionBoundVisitor<BV>::visit(
     const SplineMotion<Scalar>& motion) const
 {
   using Scalar = typename BV::Scalar;
-  TBVMotionBoundVisitorVisitImpl<Scalar, BV, SplineMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+
+  return TBVMotionBoundVisitorVisitImpl<
+      Scalar, BV, SplineMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
@@ -234,8 +235,9 @@ typename BV::Scalar TBVMotionBoundVisitor<BV>::visit(
     const ScrewMotion<Scalar>& motion) const
 {
   using Scalar = typename BV::Scalar;
-  TBVMotionBoundVisitorVisitImpl<Scalar, BV, ScrewMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+
+  return TBVMotionBoundVisitorVisitImpl<
+      Scalar, BV, ScrewMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
@@ -244,8 +246,9 @@ typename BV::Scalar TBVMotionBoundVisitor<BV>::visit(
     const InterpMotion<Scalar>& motion) const
 {
   using Scalar = typename BV::Scalar;
-  TBVMotionBoundVisitorVisitImpl<Scalar, BV, InterpMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+
+  return TBVMotionBoundVisitorVisitImpl<
+      Scalar, BV, InterpMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
@@ -254,15 +257,16 @@ typename BV::Scalar TBVMotionBoundVisitor<BV>::visit(
     const TranslationMotion<Scalar>& motion) const
 {
   using Scalar = typename BV::Scalar;
-  TBVMotionBoundVisitorVisitImpl<Scalar, BV, TranslationMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+
+  return TBVMotionBoundVisitorVisitImpl<
+      Scalar, BV, TranslationMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
 template <typename Scalar>
 struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, SplineMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TBVMotionBoundVisitor<RSS<Scalar>>& visitor,
       const SplineMotion<Scalar>& motion)
   {
@@ -324,7 +328,7 @@ struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, SplineMotion<Scalar>>
 template <typename Scalar>
 struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, ScrewMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TBVMotionBoundVisitor<RSS<Scalar>>& visitor,
       const ScrewMotion<Scalar>& motion)
   {
@@ -365,7 +369,7 @@ struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, ScrewMotion<Scalar>>
 template <typename Scalar>
 struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, InterpMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TBVMotionBoundVisitor<RSS<Scalar>>& visitor,
       const InterpMotion<Scalar>& motion)
   {
@@ -401,7 +405,7 @@ struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, InterpMotion<Scalar>>
 template <typename Scalar>
 struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, TranslationMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TBVMotionBoundVisitor<RSS<Scalar>>& visitor,
       const TranslationMotion<Scalar>& motion)
   {
@@ -413,7 +417,7 @@ struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, TranslationMotion<Sca
 template <typename Scalar, typename MotionT>
 struct TriangleMotionBoundVisitorVisitImpl
 {
-  Scalar operator()(
+  static Scalar run(
       const TriangleMotionBoundVisitor<Scalar>& /*visitor*/,
       const MotionT& /*motion*/)
   {
@@ -426,8 +430,8 @@ template<typename Scalar>
 Scalar TriangleMotionBoundVisitor<Scalar>::visit(
     const SplineMotion<Scalar>& motion) const
 {
-  TriangleMotionBoundVisitorVisitImpl<Scalar, SplineMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+  return TriangleMotionBoundVisitorVisitImpl<
+      Scalar, SplineMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
@@ -435,8 +439,8 @@ template<typename Scalar>
 Scalar TriangleMotionBoundVisitor<Scalar>::visit(
     const ScrewMotion<Scalar>& motion) const
 {
-  TriangleMotionBoundVisitorVisitImpl<Scalar, ScrewMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+  return TriangleMotionBoundVisitorVisitImpl<
+      Scalar, ScrewMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
@@ -444,8 +448,8 @@ template<typename Scalar>
 Scalar TriangleMotionBoundVisitor<Scalar>::visit(
     const InterpMotion<Scalar>& motion) const
 {
-  TriangleMotionBoundVisitorVisitImpl<Scalar, InterpMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+  return TriangleMotionBoundVisitorVisitImpl<
+      Scalar, InterpMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
@@ -453,8 +457,8 @@ template<typename Scalar>
 Scalar TriangleMotionBoundVisitor<Scalar>::visit(
     const TranslationMotion<Scalar>& motion) const
 {
-  TriangleMotionBoundVisitorVisitImpl<Scalar, TranslationMotion<Scalar>> visitMotionBaseImpl;
-  return visitMotionBaseImpl(*this, motion);
+  return TriangleMotionBoundVisitorVisitImpl<
+      Scalar, TranslationMotion<Scalar>>::run(*this, motion);
 }
 
 //==============================================================================
@@ -465,7 +469,7 @@ Scalar TriangleMotionBoundVisitor<Scalar>::visit(
 template <typename Scalar>
 struct TriangleMotionBoundVisitorVisitImpl<Scalar, ScrewMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TriangleMotionBoundVisitor<Scalar>& visitor,
       const ScrewMotion<Scalar>& motion)
   {
@@ -502,7 +506,7 @@ struct TriangleMotionBoundVisitorVisitImpl<Scalar, ScrewMotion<Scalar>>
 template <typename Scalar>
 struct TriangleMotionBoundVisitorVisitImpl<Scalar, InterpMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TriangleMotionBoundVisitor<Scalar>& visitor,
       const InterpMotion<Scalar>& motion)
   {
@@ -535,7 +539,7 @@ struct TriangleMotionBoundVisitorVisitImpl<Scalar, InterpMotion<Scalar>>
 template <typename Scalar>
 struct TriangleMotionBoundVisitorVisitImpl<Scalar, SplineMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TriangleMotionBoundVisitor<Scalar>& visitor,
       const SplineMotion<Scalar>& motion)
   {
@@ -564,7 +568,7 @@ struct TriangleMotionBoundVisitorVisitImpl<Scalar, SplineMotion<Scalar>>
 template <typename Scalar>
 struct TriangleMotionBoundVisitorVisitImpl<Scalar, TranslationMotion<Scalar>>
 {
-  Scalar operator()(
+  static Scalar run(
       const TriangleMotionBoundVisitor<Scalar>& visitor,
       const TranslationMotion<Scalar>& motion)
   {
