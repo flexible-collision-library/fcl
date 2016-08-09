@@ -41,7 +41,6 @@
 
 #include <vector>
 
-#include "fcl/common/warning.h"
 #include "fcl/BV/convert_bv.h"
 #include "fcl/shape/box.h"
 
@@ -179,9 +178,7 @@ void constructBox(const KDOP<Scalar, 24>& bv, Box<Scalar>& box, Transform3<Scala
 template <typename Scalar>
 void constructBox(const AABB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.max_ - bv.min_);
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 
@@ -189,9 +186,7 @@ void constructBox(const AABB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<S
 template <typename Scalar>
 void constructBox(const OBB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.extent * 2);
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = bv.frame;
 }
 
@@ -199,9 +194,7 @@ void constructBox(const OBB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Sc
 template <typename Scalar>
 void constructBox(const OBBRSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.obb.extent * 2);
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = tf_bv * bv.obb.frame;
 }
 
@@ -209,9 +202,7 @@ void constructBox(const OBBRSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box
 template <typename Scalar>
 void constructBox(const kIOS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.obb.extent * 2);
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = tf_bv * bv.obb.frame;
 }
 
@@ -219,9 +210,7 @@ void constructBox(const kIOS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<S
 template <typename Scalar>
 void constructBox(const RSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = tf_bv * bv.frame;
 }
 
@@ -229,9 +218,7 @@ void constructBox(const RSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Sc
 template <typename Scalar>
 void constructBox(const KDOP<Scalar, 16>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 
@@ -239,9 +226,7 @@ void constructBox(const KDOP<Scalar, 16>& bv, const Transform3<Scalar>& tf_bv, B
 template <typename Scalar>
 void constructBox(const KDOP<Scalar, 18>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 
@@ -249,9 +234,7 @@ void constructBox(const KDOP<Scalar, 18>& bv, const Transform3<Scalar>& tf_bv, B
 template <typename Scalar>
 void constructBox(const KDOP<Scalar, 24>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
 {
-  FCL_SUPPRESS_UNINITIALIZED_BEGIN
   box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  FCL_SUPPRESS_UNINITIALIZED_END
   tf = tf_bv * Translation3<Scalar>(bv.center());
 }
 

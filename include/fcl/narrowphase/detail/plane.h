@@ -408,8 +408,10 @@ bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& 
           const Vector3<Scalar> c = p1 - new_s2.n * d1;
           point = c;
         }
-        else if(abs_d2 <= s1.radius)
+        else // (abs_d2 <= s1.radius)
         {
+          assert(abs_d2 <= s1.radius);
+
           const Vector3<Scalar> c = p2 - new_s2.n * d2;
           point = c;
         }
@@ -633,8 +635,8 @@ bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
         const Scalar penetration_depth = std::min(d_positive, d_negative);
 
         Vector3<Scalar> point;
-        Vector3<Scalar> p[2];
-        Vector3<Scalar> q;
+        Vector3<Scalar> p[2] { Vector3<Scalar>::Zero(), Vector3<Scalar>::Zero() };
+        Vector3<Scalar> q = Vector3<Scalar>::Zero();
 
         Scalar p_d[2];
         Scalar q_d(0);

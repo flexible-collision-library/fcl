@@ -134,9 +134,12 @@ using CollisionGeometryd = CollisionGeometry<double>;
 //==============================================================================
 template <typename Scalar>
 CollisionGeometry<Scalar>::CollisionGeometry()
-  : cost_density(1),
-    threshold_occupied(1),
-    threshold_free(0)
+  : aabb_center(Vector3<Scalar>::Zero()),
+    aabb_radius((Scalar)0),
+    user_data(nullptr),
+    cost_density((Scalar)1),
+    threshold_occupied((Scalar)1),
+    threshold_free((Scalar)0)
 {
   // Do nothing
 }
