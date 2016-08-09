@@ -360,19 +360,19 @@ public:
     hat(hat_axis, axis);
 
     TaylorModel<Scalar> cos_model(this->getTimeInterval());
-    generateTaylorModelForCosFunc(cos_model, angular_vel, 0);
+    generateTaylorModelForCosFunc(cos_model, angular_vel, (Scalar)0);
     
     TaylorModel<Scalar> sin_model(this->getTimeInterval());
-    generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
+    generateTaylorModelForSinFunc(sin_model, angular_vel, (Scalar)0);
 
     TMatrix3<Scalar> delta_R = hat_axis * sin_model
         - (hat_axis * hat_axis).eval() * (cos_model - 1)
         + Matrix3<Scalar>::Identity();
 
     TaylorModel<Scalar> a(this->getTimeInterval()), b(this->getTimeInterval()), c(this->getTimeInterval());
-    generateTaylorModelForLinearFunc(a, 0, linear_vel * axis[0]);
-    generateTaylorModelForLinearFunc(b, 0, linear_vel * axis[1]);
-    generateTaylorModelForLinearFunc(c, 0, linear_vel * axis[2]);
+    generateTaylorModelForLinearFunc(a, (Scalar)0, linear_vel * axis[0]);
+    generateTaylorModelForLinearFunc(b, (Scalar)0, linear_vel * axis[1]);
+    generateTaylorModelForLinearFunc(c, (Scalar)0, linear_vel * axis[2]);
     TVector3<Scalar> delta_T = p - delta_R * p + TVector3<Scalar>(a, b, c);
 
     tm = delta_R * tf1.linear().eval();
@@ -522,18 +522,18 @@ public:
     hat(hat_angular_axis, angular_axis);
 
     TaylorModel<Scalar> cos_model(this->getTimeInterval());
-    generateTaylorModelForCosFunc(cos_model, angular_vel, 0);
+    generateTaylorModelForCosFunc(cos_model, angular_vel, (Scalar)0);
     TaylorModel<Scalar> sin_model(this->getTimeInterval());
-    generateTaylorModelForSinFunc(sin_model, angular_vel, 0);
+    generateTaylorModelForSinFunc(sin_model, angular_vel, (Scalar)0);
 
     TMatrix3<Scalar> delta_R = hat_angular_axis * sin_model
         - (hat_angular_axis * hat_angular_axis).eval() * (cos_model - 1)
         + Matrix3<Scalar>::Identity();
 
     TaylorModel<Scalar> a(this->getTimeInterval()), b(this->getTimeInterval()), c(this->getTimeInterval());
-    generateTaylorModelForLinearFunc(a, 0, linear_vel[0]);
-    generateTaylorModelForLinearFunc(b, 0, linear_vel[1]);
-    generateTaylorModelForLinearFunc(c, 0, linear_vel[2]);
+    generateTaylorModelForLinearFunc(a, (Scalar)0, linear_vel[0]);
+    generateTaylorModelForLinearFunc(b, (Scalar)0, linear_vel[1]);
+    generateTaylorModelForLinearFunc(c, (Scalar)0, linear_vel[2]);
     TVector3<Scalar> delta_T(a, b, c);
     
     tm = delta_R * tf1.linear().eval();
