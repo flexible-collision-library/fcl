@@ -22,11 +22,6 @@ matrix:
     - os: osx
       compiler: gcc
 
-addons:
-  apt:
-    packages:
-      - libboost-all-dev
-
 install:
   # Install dependencies for FCL
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then 'ci/install_linux.sh' ; fi
