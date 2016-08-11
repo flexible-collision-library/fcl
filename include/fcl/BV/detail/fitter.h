@@ -65,7 +65,7 @@ void fit1(Vector3<Scalar>* ps, OBB<Scalar>& bv)
 {
   bv.To = ps[0];
   bv.axis.setIdentity();
-  bv.extent.setConstant(0);
+  bv.extent.setZero();
 }
 
 template <typename Scalar>
@@ -81,7 +81,7 @@ void fit2(Vector3<Scalar>* ps, OBB<Scalar>& bv)
   generateCoordinateSystem(bv.axis);
 
   bv.extent << len_p1p2 * 0.5, 0, 0;
-  bv.To = 0.5 * (p1 + p2);
+  bv.To.noalias() = 0.5 * (p1 + p2);
 }
 
 template <typename Scalar>
@@ -103,7 +103,7 @@ void fit3(Vector3<Scalar>* ps, OBB<Scalar>& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  bv.axis.col(2) = e[0].cross(e[1]);
+  bv.axis.col(2).noalias() = e[0].cross(e[1]);
   bv.axis.col(2).normalize();
   bv.axis.col(0) = e[imax];
   bv.axis.col(0).normalize();
@@ -188,8 +188,8 @@ void fit3(Vector3<Scalar>* ps, RSS<Scalar>& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  bv.axis.col(2) = e[0].cross(e[1]).normalized();
-  bv.axis.col(0) = e[imax].normalized();
+  bv.axis.col(2).noalias() = e[0].cross(e[1]).normalized();
+  bv.axis.col(0).noalias() = e[imax].normalized();
   bv.axis.col(1).noalias() = bv.axis.col(2).cross(bv.axis.col(0));
 
   getRadiusAndOriginAndRectangleSize<Scalar>(ps, NULL, NULL, NULL, 3, bv.axis, bv.To, bv.l, bv.r);
@@ -251,7 +251,7 @@ void fit2(Vector3<Scalar>* ps, kIOS<Scalar>& bv)
 
   Scalar r0 = len_p1p2 * 0.5;
   bv.obb.extent << r0, 0, 0;
-  bv.obb.To = (p1 + p2) * 0.5;
+  bv.obb.To.noalias() = (p1 + p2) * 0.5;
 
   bv.spheres[0].o = bv.obb.To;
   bv.spheres[0].r = r0;
@@ -292,7 +292,7 @@ void fit3(Vector3<Scalar>* ps, kIOS<Scalar>& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  bv.obb.axis.col(2) = e[0].cross(e[1]).normalized();
+  bv.obb.axis.col(2).noalias() = e[0].cross(e[1]).normalized();
   bv.obb.axis.col(0) = e[imax].normalized();
   bv.obb.axis.col(1).noalias() = bv.obb.axis.col(2).cross(bv.obb.axis.col(0));
 

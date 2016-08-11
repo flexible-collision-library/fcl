@@ -67,6 +67,14 @@ public:
   /// @brief Half dimensions of OBB
   Vector3<ScalarT> extent;
 
+  /// @brief Constructor
+  OBB();
+
+  /// @brief Constructor
+  OBB(const Matrix3<ScalarT>& axis,
+      const Vector3<ScalarT>& center,
+      const Vector3<ScalarT>& extent);
+
   /// @brief Check collision between two OBB, return true if collision happens. 
   bool overlap(const OBB<ScalarT>& other) const;
   
@@ -173,6 +181,23 @@ bool obbDisjoint(
 
 //==============================================================================
 template <typename Scalar>
+OBB<Scalar>::OBB()
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
+OBB<Scalar>::OBB(const Matrix3<Scalar>& axis_,
+                 const Vector3<Scalar>& center_,
+                 const Vector3<Scalar>& extent_)
+  : axis(axis_), To(center_), extent(extent_)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename Scalar>
 bool OBB<Scalar>::overlap(const OBB<Scalar>& other) const
 {
   /// compute the relative transform that takes us from this->frame to
@@ -217,12 +242,9 @@ bool OBB<Scalar>::contain(const Vector3<Scalar>& p) const
 template <typename Scalar>
 OBB<Scalar>& OBB<Scalar>::operator +=(const Vector3<Scalar>& p)
 {
-  OBB<Scalar> bvp;
-  bvp.axis = axis;
-  bvp.To = p;
-  bvp.extent.setZero();
-
+  OBB<Scalar> bvp(axis, p, Vector3<Scalar>::Zero());
   *this += bvp;
+
   return *this;
 }
 
@@ -231,6 +253,7 @@ template <typename Scalar>
 OBB<Scalar>& OBB<Scalar>::operator +=(const OBB<Scalar>& other)
 {
   *this = *this + other;
+
   return *this;
 }
 
@@ -327,7 +350,6 @@ void computeVertices(const OBB<Scalar>& b, Vector3<Scalar> vertices[8])
 template <typename Scalar>
 OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
 {
-  OBB<Scalar> b;
   Vector3<Scalar> vertex[16];
   computeVertices(b1, vertex);
   computeVertices(b2, vertex + 8);
@@ -335,12 +357,16 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
   Matrix3<Scalar> E;
   Vector3<Scalar> s(0, 0, 0);
 
+  OBB<Scalar> b;
   b.axis.col(0) = b1.To - b2.To;
   b.axis.col(0).normalize();
 
   Vector3<Scalar> vertex_proj[16];
   for(int i = 0; i < 16; ++i)
-    vertex_proj[i] = vertex[i] - b.axis.col(0) * vertex[i].dot(b.axis.col(0));
+  {
+    vertex_proj[i] = vertex[i];
+    vertex_proj[i].noalias() -= b.axis.col(0) * vertex[i].dot(b.axis.col(0));
+  }
 
   getCovariance<Scalar>(vertex_proj, NULL, NULL, NULL, 16, M);
   eigen_old(M, s, E);
@@ -376,11 +402,8 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
   b.axis.col(2) << E.col(0)[mid], E.col(1)[mid], E.col(2)[mid];
 
   // set obb centers and extensions
-  Vector3<Scalar> center, extent;
-  getExtentAndCenter<Scalar>(vertex, NULL, NULL, NULL, 16, b.axis, center, extent);
-
-  b.To = center;
-  b.extent = extent;
+  getExtentAndCenter<Scalar>(
+        vertex, NULL, NULL, NULL, 16, b.axis, b.To, b.extent);
 
   return b;
 }

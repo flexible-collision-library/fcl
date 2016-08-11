@@ -467,12 +467,12 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   v[6] = other.To + d0_neg + d1_neg + d2_pos;
   v[7] = other.To + d0_neg + d1_neg + d2_neg;
 
-  d0_pos = axis.col(0) * (l[0] + r);
-  d1_pos = axis.col(1) * (l[1] + r);
-  d0_neg = axis.col(0) * (-r);
-  d1_neg = axis.col(1) * (-r);
-  d2_pos = axis.col(2) * r;
-  d2_neg = axis.col(2) * (-r);
+  d0_pos.noalias() = axis.col(0) * (l[0] + r);
+  d1_pos.noalias() = axis.col(1) * (l[1] + r);
+  d0_neg.noalias() = axis.col(0) * (-r);
+  d1_neg.noalias() = axis.col(1) * (-r);
+  d2_pos.noalias() = axis.col(2) * r;
+  d2_neg.noalias() = axis.col(2) * (-r);
 
   v[8] = To + d0_pos + d1_pos + d2_pos;
   v[9] = To + d0_pos + d1_pos + d2_neg;
@@ -501,7 +501,7 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   // column first matrix, as the axis in RSS
   bv.axis.col(0) = E.col(max);
   bv.axis.col(1) = E.col(mid);
-  bv.axis.col(2) = axis.col(0).cross(axis.col(1));
+  bv.axis.col(2).noalias() = axis.col(0).cross(axis.col(1));
 
   // set rss origin, rectangle size and radius
   getRadiusAndOriginAndRectangleSize<Scalar>(v, NULL, NULL, NULL, 16, bv.axis, bv.To, bv.l, bv.r);

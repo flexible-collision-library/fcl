@@ -162,7 +162,7 @@ void getExtentAndCenter_pointcloud(
 
   const Vector3<Scalar> o = (max_coord + min_coord) / 2;
   center.noalias() = axis * o;
-  extent.noalias() = (max_coord - min_coord) / 2;
+  extent.noalias() = (max_coord - min_coord) * 0.5;
 }
 
 //==============================================================================

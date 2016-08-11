@@ -326,7 +326,7 @@ inline void Profiler::clear(void)
 }
 
 //==============================================================================
-inline void Profiler::Event(const std::__cxx11::string& name, const unsigned int times)
+inline void Profiler::Event(const std::string& name, const unsigned int times)
 {
   Instance().event(name, times);
 }
@@ -340,7 +340,7 @@ inline void Profiler::event(const std::string &name, const unsigned int times)
 }
 
 //==============================================================================
-inline void Profiler::Average(const std::__cxx11::string& name, const double value)
+inline void Profiler::Average(const std::string& name, const double value)
 {
   Instance().average(name, value);
 }
@@ -357,13 +357,13 @@ inline void Profiler::average(const std::string &name, const double value)
 }
 
 //==============================================================================
-inline void Profiler::Begin(const std::__cxx11::string& name)
+inline void Profiler::Begin(const std::string& name)
 {
   Instance().begin(name);
 }
 
 //==============================================================================
-inline void Profiler::End(const std::__cxx11::string& name)
+inline void Profiler::End(const std::string& name)
 {
   Instance().end(name);
 }
