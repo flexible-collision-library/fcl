@@ -81,21 +81,21 @@ struct DistanceFunctionMatrix
 
 //==============================================================================
 #if FCL_HAVE_OCTOMAP
-template <typename T_SH, typename NarrowPhaseSolver>
-typename T_SH::Scalar ShapeOcTreeDistance(
-    const CollisionGeometry<typename T_SH::Scalar>* o1,
-    const Transform3<typename T_SH::Scalar>& tf1,
-    const CollisionGeometry<typename T_SH::Scalar>* o2,
-    const Transform3<typename T_SH::Scalar>& tf2,
+template <typename Shape, typename NarrowPhaseSolver>
+typename Shape::Scalar ShapeOcTreeDistance(
+    const CollisionGeometry<typename Shape::Scalar>* o1,
+    const Transform3<typename Shape::Scalar>& tf1,
+    const CollisionGeometry<typename Shape::Scalar>* o2,
+    const Transform3<typename Shape::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename T_SH::Scalar>& request,
-    DistanceResult<typename T_SH::Scalar>& result)
+    const DistanceRequest<typename Shape::Scalar>& request,
+    DistanceResult<typename Shape::Scalar>& result)
 {
-  using Scalar = typename T_SH::Scalar;
+  using Scalar = typename Shape::Scalar;
 
   if(request.isSatisfied(result)) return result.min_distance;
-  ShapeOcTreeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
-  const T_SH* obj1 = static_cast<const T_SH*>(o1);
+  ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver> node;
+  const Shape* obj1 = static_cast<const Shape*>(o1);
   const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
@@ -105,22 +105,22 @@ typename T_SH::Scalar ShapeOcTreeDistance(
   return result.min_distance;
 }
 
-template <typename T_SH, typename NarrowPhaseSolver>
-typename T_SH::Scalar OcTreeShapeDistance(
-    const CollisionGeometry<typename T_SH::Scalar>* o1,
-    const Transform3<typename T_SH::Scalar>& tf1,
-    const CollisionGeometry<typename T_SH::Scalar>* o2,
-    const Transform3<typename T_SH::Scalar>& tf2,
+template <typename Shape, typename NarrowPhaseSolver>
+typename Shape::Scalar OcTreeShapeDistance(
+    const CollisionGeometry<typename Shape::Scalar>* o1,
+    const Transform3<typename Shape::Scalar>& tf1,
+    const CollisionGeometry<typename Shape::Scalar>* o2,
+    const Transform3<typename Shape::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename T_SH::Scalar>& request,
-    DistanceResult<typename T_SH::Scalar>& result)
+    const DistanceRequest<typename Shape::Scalar>& request,
+    DistanceResult<typename Shape::Scalar>& result)
 {
-  using Scalar = typename T_SH::Scalar;
+  using Scalar = typename Shape::Scalar;
 
   if(request.isSatisfied(result)) return result.min_distance;
-  OcTreeShapeDistanceTraversalNode<T_SH, NarrowPhaseSolver> node;
+  OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver> node;
   const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
-  const T_SH* obj2 = static_cast<const T_SH*>(o2);
+  const Shape* obj2 = static_cast<const Shape*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
@@ -153,21 +153,21 @@ typename NarrowPhaseSolver::Scalar OcTreeDistance(
   return result.min_distance;
 }
 
-template <typename T_BVH, typename NarrowPhaseSolver>
-typename T_BVH::Scalar BVHOcTreeDistance(
-    const CollisionGeometry<typename T_BVH::Scalar>* o1,
-    const Transform3<typename T_BVH::Scalar>& tf1,
-    const CollisionGeometry<typename T_BVH::Scalar>* o2,
-    const Transform3<typename T_BVH::Scalar>& tf2,
+template <typename BV, typename NarrowPhaseSolver>
+typename BV::Scalar BVHOcTreeDistance(
+    const CollisionGeometry<typename BV::Scalar>* o1,
+    const Transform3<typename BV::Scalar>& tf1,
+    const CollisionGeometry<typename BV::Scalar>* o2,
+    const Transform3<typename BV::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename T_BVH::Scalar>& request,
-    DistanceResult<typename T_BVH::Scalar>& result)
+    const DistanceRequest<typename BV::Scalar>& request,
+    DistanceResult<typename BV::Scalar>& result)
 {
   using Scalar = typename NarrowPhaseSolver::Scalar;
 
   if(request.isSatisfied(result)) return result.min_distance;
-  MeshOcTreeDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
-  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>*>(o1);
+  MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver> node;
+  const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
   const OcTree<Scalar>* obj2 = static_cast<const OcTree<Scalar>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
@@ -177,22 +177,22 @@ typename T_BVH::Scalar BVHOcTreeDistance(
   return result.min_distance;
 }
 
-template <typename T_BVH, typename NarrowPhaseSolver>
-typename T_BVH::Scalar OcTreeBVHDistance(
-    const CollisionGeometry<typename T_BVH::Scalar>* o1,
-    const Transform3<typename T_BVH::Scalar>& tf1,
-    const CollisionGeometry<typename T_BVH::Scalar>* o2,
-    const Transform3<typename T_BVH::Scalar>& tf2,
+template <typename BV, typename NarrowPhaseSolver>
+typename BV::Scalar OcTreeBVHDistance(
+    const CollisionGeometry<typename BV::Scalar>* o1,
+    const Transform3<typename BV::Scalar>& tf1,
+    const CollisionGeometry<typename BV::Scalar>* o2,
+    const Transform3<typename BV::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename T_BVH::Scalar>& request,
-    DistanceResult<typename T_BVH::Scalar>& result)
+    const DistanceRequest<typename BV::Scalar>& request,
+    DistanceResult<typename BV::Scalar>& result)
 {
   using Scalar = typename NarrowPhaseSolver::Scalar;
 
   if(request.isSatisfied(result)) return result.min_distance;
-  OcTreeMeshDistanceTraversalNode<T_BVH, NarrowPhaseSolver> node;
+  OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver> node;
   const OcTree<Scalar>* obj1 = static_cast<const OcTree<Scalar>*>(o1);
-  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>*>(o2);
+  const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>*>(o2);
   OcTreeSolver<NarrowPhaseSolver> otsolver(nsolver);
 
   initialize(node, *obj1, tf1, *obj2, tf2, &otsolver, request, result);
@@ -203,20 +203,20 @@ typename T_BVH::Scalar OcTreeBVHDistance(
 
 #endif
 
-template <typename T_SH1, typename T_SH2, typename NarrowPhaseSolver>
-typename T_SH1::Scalar ShapeShapeDistance(
-    const CollisionGeometry<typename T_SH1::Scalar>* o1,
-    const Transform3<typename T_SH1::Scalar>& tf1,
-    const CollisionGeometry<typename T_SH1::Scalar>* o2,
-    const Transform3<typename T_SH1::Scalar>& tf2,
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+typename Shape1::Scalar ShapeShapeDistance(
+    const CollisionGeometry<typename Shape1::Scalar>* o1,
+    const Transform3<typename Shape1::Scalar>& tf1,
+    const CollisionGeometry<typename Shape1::Scalar>* o2,
+    const Transform3<typename Shape1::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename T_SH1::Scalar>& request,
-    DistanceResult<typename T_SH1::Scalar>& result)
+    const DistanceRequest<typename Shape1::Scalar>& request,
+    DistanceResult<typename Shape1::Scalar>& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
-  ShapeDistanceTraversalNode<T_SH1, T_SH2, NarrowPhaseSolver> node;
-  const T_SH1* obj1 = static_cast<const T_SH1*>(o1);
-  const T_SH2* obj2 = static_cast<const T_SH2*>(o2);
+  ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver> node;
+  const Shape1* obj1 = static_cast<const Shape1*>(o1);
+  const Shape2* obj2 = static_cast<const Shape2*>(o2);
 
   initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
   distance(&node);
@@ -224,10 +224,10 @@ typename T_SH1::Scalar ShapeShapeDistance(
   return result.min_distance;
 }
 
-template <typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
+template <typename BV, typename Shape, typename NarrowPhaseSolver>
 struct BVHShapeDistancer
 {
-  using Scalar = typename T_BVH::Scalar;
+  using Scalar = typename BV::Scalar;
 
   static Scalar distance(
       const CollisionGeometry<Scalar>* o1,
@@ -239,11 +239,11 @@ struct BVHShapeDistancer
       DistanceResult<Scalar>& result)
   {
     if(request.isSatisfied(result)) return result.min_distance;
-    MeshShapeDistanceTraversalNode<T_BVH, T_SH, NarrowPhaseSolver> node;
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-    BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
+    MeshShapeDistanceTraversalNode<BV, Shape, NarrowPhaseSolver> node;
+    const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>* >(o1);
+    BVHModel<BV>* obj1_tmp = new BVHModel<BV>(*obj1);
     Transform3<Scalar> tf1_tmp = tf1;
-    const T_SH* obj2 = static_cast<const T_SH*>(o2);
+    const Shape* obj2 = static_cast<const Shape*>(o2);
 
     initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
     ::fcl::distance(&node);
@@ -257,20 +257,20 @@ namespace details
 {
 
 template <typename OrientedMeshShapeDistanceTraversalNode,
-          typename T_BVH, typename T_SH, typename NarrowPhaseSolver>
-typename T_SH::Scalar orientedBVHShapeDistance(
-    const CollisionGeometry<typename T_SH::Scalar>* o1,
-    const Transform3<typename T_SH::Scalar>& tf1,
-    const CollisionGeometry<typename T_SH::Scalar>* o2,
-    const Transform3<typename T_SH::Scalar>& tf2,
+          typename BV, typename Shape, typename NarrowPhaseSolver>
+typename Shape::Scalar orientedBVHShapeDistance(
+    const CollisionGeometry<typename Shape::Scalar>* o1,
+    const Transform3<typename Shape::Scalar>& tf1,
+    const CollisionGeometry<typename Shape::Scalar>* o2,
+    const Transform3<typename Shape::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename T_SH::Scalar>&
-    request, DistanceResult<typename T_SH::Scalar>& result)
+    const DistanceRequest<typename Shape::Scalar>&
+    request, DistanceResult<typename Shape::Scalar>& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
   OrientedMeshShapeDistanceTraversalNode node;
-  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-  const T_SH* obj2 = static_cast<const T_SH*>(o2);
+  const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>* >(o1);
+  const Shape* obj2 = static_cast<const Shape*>(o2);
 
   initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
   distance(&node);
@@ -280,71 +280,71 @@ typename T_SH::Scalar orientedBVHShapeDistance(
 
 } // namespace details
 
-template <typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeDistancer<RSS<typename T_SH::Scalar>, T_SH, NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
+struct BVHShapeDistancer<RSS<typename Shape::Scalar>, Shape, NarrowPhaseSolver>
 {
-  static typename T_SH::Scalar distance(
-      const CollisionGeometry<typename T_SH::Scalar>* o1,
-      const Transform3<typename T_SH::Scalar>& tf1,
-      const CollisionGeometry<typename T_SH::Scalar>* o2,
-      const Transform3<typename T_SH::Scalar>& tf2,
+  static typename Shape::Scalar distance(
+      const CollisionGeometry<typename Shape::Scalar>* o1,
+      const Transform3<typename Shape::Scalar>& tf1,
+      const CollisionGeometry<typename Shape::Scalar>* o2,
+      const Transform3<typename Shape::Scalar>& tf2,
       const NarrowPhaseSolver* nsolver,
-      const DistanceRequest<typename T_SH::Scalar>& request,
-      DistanceResult<typename T_SH::Scalar>& result)
+      const DistanceRequest<typename Shape::Scalar>& request,
+      DistanceResult<typename Shape::Scalar>& result)
   {
     return details::orientedBVHShapeDistance<
-        MeshShapeDistanceTraversalNodeRSS<T_SH, NarrowPhaseSolver>,
-        RSS<typename T_SH::Scalar>,
-        T_SH,
+        MeshShapeDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>,
+        RSS<typename Shape::Scalar>,
+        Shape,
         NarrowPhaseSolver>(
           o1, tf1, o2, tf2, nsolver, request, result);
   }
 };
 
-template <typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeDistancer<kIOS<typename T_SH::Scalar>, T_SH, NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
+struct BVHShapeDistancer<kIOS<typename Shape::Scalar>, Shape, NarrowPhaseSolver>
 {
-  static typename T_SH::Scalar distance(
-      const CollisionGeometry<typename T_SH::Scalar>* o1,
-      const Transform3<typename T_SH::Scalar>& tf1,
-      const CollisionGeometry<typename T_SH::Scalar>* o2,
-      const Transform3<typename T_SH::Scalar>& tf2,
+  static typename Shape::Scalar distance(
+      const CollisionGeometry<typename Shape::Scalar>* o1,
+      const Transform3<typename Shape::Scalar>& tf1,
+      const CollisionGeometry<typename Shape::Scalar>* o2,
+      const Transform3<typename Shape::Scalar>& tf2,
       const NarrowPhaseSolver* nsolver,
-      const DistanceRequest<typename T_SH::Scalar>& request,
-      DistanceResult<typename T_SH::Scalar>& result)
+      const DistanceRequest<typename Shape::Scalar>& request,
+      DistanceResult<typename Shape::Scalar>& result)
   {
     return details::orientedBVHShapeDistance<
-        MeshShapeDistanceTraversalNodekIOS<T_SH, NarrowPhaseSolver>,
-        kIOS<typename T_SH::Scalar>,
-        T_SH,
+        MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>,
+        kIOS<typename Shape::Scalar>,
+        Shape,
         NarrowPhaseSolver>(
           o1, tf1, o2, tf2, nsolver, request, result);
   }
 };
 
-template <typename T_SH, typename NarrowPhaseSolver>
-struct BVHShapeDistancer<OBBRSS<typename T_SH::Scalar>, T_SH, NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
+struct BVHShapeDistancer<OBBRSS<typename Shape::Scalar>, Shape, NarrowPhaseSolver>
 {
-  static typename T_SH::Scalar distance(
-      const CollisionGeometry<typename T_SH::Scalar>* o1,
-      const Transform3<typename T_SH::Scalar>& tf1,
-      const CollisionGeometry<typename T_SH::Scalar>* o2,
-      const Transform3<typename T_SH::Scalar>& tf2,
+  static typename Shape::Scalar distance(
+      const CollisionGeometry<typename Shape::Scalar>* o1,
+      const Transform3<typename Shape::Scalar>& tf1,
+      const CollisionGeometry<typename Shape::Scalar>* o2,
+      const Transform3<typename Shape::Scalar>& tf2,
       const NarrowPhaseSolver* nsolver,
-      const DistanceRequest<typename T_SH::Scalar>& request,
-      DistanceResult<typename T_SH::Scalar>& result)
+      const DistanceRequest<typename Shape::Scalar>& request,
+      DistanceResult<typename Shape::Scalar>& result)
   {
     return details::orientedBVHShapeDistance<
-        MeshShapeDistanceTraversalNodeOBBRSS<T_SH, NarrowPhaseSolver>,
-        OBBRSS<typename T_SH::Scalar>,
-        T_SH,
+        MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>,
+        OBBRSS<typename Shape::Scalar>,
+        Shape,
         NarrowPhaseSolver>(
           o1, tf1, o2, tf2, nsolver, request, result);
   }
 };
 
 //==============================================================================
-template <typename Scalar, typename T_BVH>
+template <typename Scalar, typename BV>
 struct BVHDistanceImpl
 {
   static Scalar run(
@@ -356,12 +356,12 @@ struct BVHDistanceImpl
       DistanceResult<Scalar>& result)
   {
     if(request.isSatisfied(result)) return result.min_distance;
-    MeshDistanceTraversalNode<T_BVH> node;
-    const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-    const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
-    BVHModel<T_BVH>* obj1_tmp = new BVHModel<T_BVH>(*obj1);
+    MeshDistanceTraversalNode<BV> node;
+    const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>* >(o1);
+    const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>* >(o2);
+    BVHModel<BV>* obj1_tmp = new BVHModel<BV>(*obj1);
     Transform3<Scalar> tf1_tmp = tf1;
-    BVHModel<T_BVH>* obj2_tmp = new BVHModel<T_BVH>(*obj2);
+    BVHModel<BV>* obj2_tmp = new BVHModel<BV>(*obj2);
     Transform3<Scalar> tf2_tmp = tf2;
 
     initialize(node, *obj1_tmp, tf1_tmp, *obj2_tmp, tf2_tmp, request, result);
@@ -374,35 +374,35 @@ struct BVHDistanceImpl
 };
 
 //==============================================================================
-template <typename T_BVH>
-typename T_BVH::Scalar BVHDistance(
-    const CollisionGeometry<typename T_BVH::Scalar>* o1,
-    const Transform3<typename T_BVH::Scalar>& tf1,
-    const CollisionGeometry<typename T_BVH::Scalar>* o2,
-    const Transform3<typename T_BVH::Scalar>& tf2,
-    const DistanceRequest<typename T_BVH::Scalar>& request,
-    DistanceResult<typename T_BVH::Scalar>& result)
+template <typename BV>
+typename BV::Scalar BVHDistance(
+    const CollisionGeometry<typename BV::Scalar>* o1,
+    const Transform3<typename BV::Scalar>& tf1,
+    const CollisionGeometry<typename BV::Scalar>* o2,
+    const Transform3<typename BV::Scalar>& tf2,
+    const DistanceRequest<typename BV::Scalar>& request,
+    DistanceResult<typename BV::Scalar>& result)
 {
-  return BVHDistanceImpl<typename T_BVH::Scalar, T_BVH>::run(
+  return BVHDistanceImpl<typename BV::Scalar, BV>::run(
         o1, tf1, o2, tf2, request, result);
 }
 
 namespace details
 {
 
-template <typename OrientedMeshDistanceTraversalNode, typename T_BVH>
-typename T_BVH::Scalar orientedMeshDistance(
-    const CollisionGeometry<typename T_BVH::Scalar>* o1,
-    const Transform3<typename T_BVH::Scalar>& tf1,
-    const CollisionGeometry<typename T_BVH::Scalar>* o2,
-    const Transform3<typename T_BVH::Scalar>& tf2,
-    const DistanceRequest<typename T_BVH::Scalar>& request,
-    DistanceResult<typename T_BVH::Scalar>& result)
+template <typename OrientedMeshDistanceTraversalNode, typename BV>
+typename BV::Scalar orientedMeshDistance(
+    const CollisionGeometry<typename BV::Scalar>* o1,
+    const Transform3<typename BV::Scalar>& tf1,
+    const CollisionGeometry<typename BV::Scalar>* o2,
+    const Transform3<typename BV::Scalar>& tf2,
+    const DistanceRequest<typename BV::Scalar>& request,
+    DistanceResult<typename BV::Scalar>& result)
 {
   if(request.isSatisfied(result)) return result.min_distance;
   OrientedMeshDistanceTraversalNode node;
-  const BVHModel<T_BVH>* obj1 = static_cast<const BVHModel<T_BVH>* >(o1);
-  const BVHModel<T_BVH>* obj2 = static_cast<const BVHModel<T_BVH>* >(o2);
+  const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>* >(o1);
+  const BVHModel<BV>* obj2 = static_cast<const BVHModel<BV>* >(o2);
 
   initialize(node, *obj1, tf1, *obj2, tf2, request, result);
   distance(&node);
@@ -467,17 +467,17 @@ struct BVHDistanceImpl<Scalar, OBBRSS<Scalar>>
 };
 
 //==============================================================================
-template <typename T_BVH, typename NarrowPhaseSolver>
-typename T_BVH::Scalar BVHDistance(
-    const CollisionGeometry<typename T_BVH::Scalar>* o1,
-    const Transform3<typename T_BVH::Scalar>& tf1,
-    const CollisionGeometry<typename T_BVH::Scalar>* o2,
-    const Transform3<typename T_BVH::Scalar>& tf2,
+template <typename BV, typename NarrowPhaseSolver>
+typename BV::Scalar BVHDistance(
+    const CollisionGeometry<typename BV::Scalar>* o1,
+    const Transform3<typename BV::Scalar>& tf1,
+    const CollisionGeometry<typename BV::Scalar>* o2,
+    const Transform3<typename BV::Scalar>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename T_BVH::Scalar>& request,
-    DistanceResult<typename T_BVH::Scalar>& result)
+    const DistanceRequest<typename BV::Scalar>& request,
+    DistanceResult<typename BV::Scalar>& result)
 {
-  return BVHDistance<T_BVH>(o1, tf1, o2, tf2, request, result);
+  return BVHDistance<BV>(o1, tf1, o2, tf2, request, result);
 }
 
 template <typename NarrowPhaseSolver>

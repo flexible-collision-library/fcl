@@ -52,7 +52,7 @@ namespace fcl
 {
 
 /// @brief Traversal node for octree-shape collision
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 class OcTreeShapeCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
 {
@@ -67,7 +67,7 @@ public:
   void leafTesting(int, int) const;
 
   const OcTree<Scalar>* model1;
-  const S* model2;
+  const Shape* model2;
 
   Transform3<Scalar> tf1, tf2;
 
@@ -76,12 +76,12 @@ public:
 
 /// @brief Initialize traversal node for collision between one octree and one
 /// shape, given current object transform
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
+    OcTreeShapeCollisionTraversalNode<Shape, NarrowPhaseSolver>& node,
     const OcTree<typename NarrowPhaseSolver::Scalar>& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const S& model2,
+    const Shape& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
@@ -94,8 +94,8 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>::
+template <typename Shape, typename NarrowPhaseSolver>
+OcTreeShapeCollisionTraversalNode<Shape, NarrowPhaseSolver>::
 OcTreeShapeCollisionTraversalNode()
 {
   model1 = NULL;
@@ -105,16 +105,16 @@ OcTreeShapeCollisionTraversalNode()
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-bool OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>::
+template <typename Shape, typename NarrowPhaseSolver>
+bool OcTreeShapeCollisionTraversalNode<Shape, NarrowPhaseSolver>::
 BVTesting(int, int) const
 {
   return false;
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-void OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>::
+template <typename Shape, typename NarrowPhaseSolver>
+void OcTreeShapeCollisionTraversalNode<Shape, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
   otsolver->OcTreeShapeIntersect(
@@ -122,12 +122,12 @@ leafTesting(int, int) const
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    OcTreeShapeCollisionTraversalNode<S, NarrowPhaseSolver>& node,
+    OcTreeShapeCollisionTraversalNode<Shape, NarrowPhaseSolver>& node,
     const OcTree<typename NarrowPhaseSolver::Scalar>& model1,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const S& model2,
+    const Shape& model2,
     const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
     const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
