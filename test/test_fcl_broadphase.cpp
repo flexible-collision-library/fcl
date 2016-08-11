@@ -195,8 +195,8 @@ BOOST_AUTO_TEST_CASE(test_core_bf_broad_phase_collision)
 /// check broad phase update, in mesh, only return collision or not
 BOOST_AUTO_TEST_CASE(test_core_mesh_bf_broad_phase_update_collision_mesh_binary)
 {
-  broad_phase_update_collision_test(2000, 100, 1000, false, true);
-  broad_phase_update_collision_test(2000, 1000, 1000, false, true);
+  broad_phase_update_collision_test(2000, 100, 1000, 1, false, true);
+  broad_phase_update_collision_test(2000, 1000, 1000, 1, false, true);
 }
 
 /// check broad phase update, in mesh, return 10 contacts
