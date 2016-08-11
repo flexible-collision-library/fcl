@@ -1,8 +1,9 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012-2014, Willow Garage, Inc.
+ *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
+ *  Copyright (c) 2016, Toyota Research Institute
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,46 +34,52 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FCL_CONFIG_H
-#define FCL_CONFIG_H
+/* Author Jeongseok Lee <jslee02@gmail.com> */
 
-#define FCL_VERSION "@FCL_VERSION@"
-#define FCL_MAJOR_VERSION @FCL_MAJOR_VERSION@
-#define FCL_MINOR_VERSION @FCL_MINOR_VERSION@
-#define FCL_PATCH_VERSION @FCL_PATCH_VERSION@
+#include <gtest/gtest.h>
+#include <chrono>
+#include <thread>
+#include <iostream>
+#define FCL_ENABLE_PROFILING 1
+#include "fcl/common/profiler.h"
+#include "fcl/shape/sphere.h"
+#include "fcl/collision.h"
+#include "test_fcl_utility.h"
 
-#cmakedefine01 FCL_HAVE_SSE
-#cmakedefine01 FCL_HAVE_OCTOMAP
-#cmakedefine01 FCL_HAVE_TINYXML
+using namespace fcl;
 
-#cmakedefine01 FCL_BUILD_TYPE_DEBUG
-#cmakedefine01 FCL_BUILD_TYPE_RELEASE
+//==============================================================================
+GTEST_TEST(FCL_PROFILER, basic)
+{
+  detail::Profiler::Start();
+  {
+    detail::Profiler::Begin("Section 1");
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-#cmakedefine01 FCL_ENABLE_PROFILING
+      detail::Profiler::Begin("Section 1.1");
+      {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      }
+      detail::Profiler::End("Section 1.1");
 
-// Detect the compiler
-#if defined(__clang__)
-  #define FCL_COMPILER_CLANG
-#elif defined(__GNUC__) || defined(__GNUG__)
-  #define FCL_COMPILER_GCC
-#elif defined(_MSC_VER)
-  #define FCL_COMPILER_MSVC
-#endif
+    }
+    detail::Profiler::End("Section 1");
 
-#if FCL_HAVE_OCTOMAP
-  #define OCTOMAP_MAJOR_VERSION @OCTOMAP_MAJOR_VERSION@
-  #define OCTOMAP_MINOR_VERSION @OCTOMAP_MINOR_VERSION@
-  #define OCTOMAP_PATCH_VERSION @OCTOMAP_PATCH_VERSION@
+    detail::Profiler::Begin("Section 2");
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    detail::Profiler::End("Section 2");
+  }
+  detail::Profiler::Stop();
 
-  #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
-    (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
-    OCTOMAP_PATCH_VERSION >= z))))
+  detail::Profiler::Status(std::cout);
+}
 
-  #define OCTOMAP_VERSION_AT_MOST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
-    (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
-    OCTOMAP_PATCH_VERSION <= z))))
-#endif // FCL_HAVE_OCTOMAP
-
-#endif
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

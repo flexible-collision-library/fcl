@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2012-2014, Willow Garage, Inc.
+ *  Copyright (c) 2008-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -33,46 +33,31 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FCL_CONFIG_H
-#define FCL_CONFIG_H
+/* Author Jeongseok Lee <jslee02@gmail.com> */
 
-#define FCL_VERSION "@FCL_VERSION@"
-#define FCL_MAJOR_VERSION @FCL_MAJOR_VERSION@
-#define FCL_MINOR_VERSION @FCL_MINOR_VERSION@
-#define FCL_PATCH_VERSION @FCL_PATCH_VERSION@
+#ifndef FCL_COMMON_PROFILER_H
+#define FCL_COMMON_PROFILER_H
 
-#cmakedefine01 FCL_HAVE_SSE
-#cmakedefine01 FCL_HAVE_OCTOMAP
-#cmakedefine01 FCL_HAVE_TINYXML
+#include "fcl/config.h"
 
-#cmakedefine01 FCL_BUILD_TYPE_DEBUG
-#cmakedefine01 FCL_BUILD_TYPE_RELEASE
+#if FCL_ENABLE_PROFILING
 
-#cmakedefine01 FCL_ENABLE_PROFILING
+  #define FCL_PROFILE_START                ::fcl::detail::Profiler::Start();
+  #define FCL_PROFILE_STOP                 ::fcl::detail::Profiler::Stop();
+  #define FCL_PROFILE_BLOCK_BEGIN(name)    ::fcl::detail::Profiler::Begin(name);
+  #define FCL_PROFILE_BLOCK_END(name)      ::fcl::detail::Profiler::End(name);
+  #define FCL_PROFILE_STATUS(stream)       ::fcl::detail::Profiler::Status(stream);
 
-// Detect the compiler
-#if defined(__clang__)
-  #define FCL_COMPILER_CLANG
-#elif defined(__GNUC__) || defined(__GNUG__)
-  #define FCL_COMPILER_GCC
-#elif defined(_MSC_VER)
-  #define FCL_COMPILER_MSVC
-#endif
+  #include "fcl/common/detail/profiler.h"
 
-#if FCL_HAVE_OCTOMAP
-  #define OCTOMAP_MAJOR_VERSION @OCTOMAP_MAJOR_VERSION@
-  #define OCTOMAP_MINOR_VERSION @OCTOMAP_MINOR_VERSION@
-  #define OCTOMAP_PATCH_VERSION @OCTOMAP_PATCH_VERSION@
+#else
 
-  #define OCTOMAP_VERSION_AT_LEAST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION > x || (OCTOMAP_MAJOR_VERSION >= x && \
-    (OCTOMAP_MINOR_VERSION > y || (OCTOMAP_MINOR_VERSION >= y && \
-    OCTOMAP_PATCH_VERSION >= z))))
+  #define FCL_PROFILE_START
+  #define FCL_PROFILE_STOP
+  #define FCL_PROFILE_BLOCK_BEGIN(name)
+  #define FCL_PROFILE_BLOCK_END(name)
+  #define FCL_PROFILE_STATUS(stream)
 
-  #define OCTOMAP_VERSION_AT_MOST(x,y,z) \
-    (OCTOMAP_MAJOR_VERSION < x || (OCTOMAP_MAJOR_VERSION <= x && \
-    (OCTOMAP_MINOR_VERSION < y || (OCTOMAP_MINOR_VERSION <= y && \
-    OCTOMAP_PATCH_VERSION <= z))))
-#endif // FCL_HAVE_OCTOMAP
+#endif // #if FCL_ENABLE_PROFILING
 
-#endif
+#endif // #ifndef FCL_COMMON_PROFILER_H

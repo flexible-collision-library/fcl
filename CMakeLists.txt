@@ -9,6 +9,7 @@ endif()
 
 project(fcl CXX C)
 
+option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 
 # set the default build type
