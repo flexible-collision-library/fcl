@@ -361,8 +361,10 @@ Scalar kIOS<Scalar>::distance(
     {
       Vector3<Scalar> v = spheres[id_a].o - spheres[id_b].o;
       Scalar len_v = v.norm();
-      *P = spheres[id_a].o - v * (spheres[id_a].r / len_v);
-      *Q = spheres[id_b].o + v * (spheres[id_b].r / len_v);
+      *P = spheres[id_a].o;
+      (*P).noalias() -= v * (spheres[id_a].r / len_v);
+      *Q = spheres[id_b].o;
+      (*Q).noalias() += v * (spheres[id_b].r / len_v);
     }
   }
 
@@ -378,13 +380,10 @@ bool overlap(
 {
   kIOS<Scalar> b2_temp = b2;
   for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-  {
     b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
-  }
 
-  b2_temp.obb.To = T0;
-  b2_temp.obb.To.noalias() += R0 * b2_temp.obb.To;
-  b2_temp.obb.axis.noalias() = R0 * b2_temp.obb.axis;
+  b2_temp.obb.To = R0 * b2_temp.obb.To + T0;
+  b2_temp.obb.axis = R0 * b2_temp.obb.axis;
 
   return b1.overlap(b2_temp);
 }
@@ -415,9 +414,7 @@ Scalar distance(
 {
   kIOS<Scalar> b2_temp = b2;
   for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-  {
     b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
-  }
 
   return b1.distance(b2_temp, P, Q);
 }
@@ -434,7 +431,7 @@ Scalar distance(
   kIOS<Scalar> b2_temp = b2;
 
   for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-    b2_temp.spheres[i].o.noalias() = tf * b2_temp.spheres[i].o;
+    b2_temp.spheres[i].o = tf * b2_temp.spheres[i].o;
 
   return b1.distance(b2_temp, P, Q);
 }
