@@ -132,12 +132,11 @@ kIOS<Scalar> translate(
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
 /// @todo Not efficient
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//FCL_DEPRECATED
-//bool overlap(
-//    const Eigen::MatrixBase<DerivedA>& R0,
-//    const Eigen::MatrixBase<DerivedB>& T0,
-//    const kIOS<Scalar>& b1, const kIOS<Scalar>& b2);
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const kIOS<Scalar>& b1, const kIOS<Scalar>& b2);
 
 /// @brief Check collision between two kIOSs, b1 is in configuration (R0, T0)
 /// and b2 is in identity.
@@ -150,15 +149,14 @@ bool overlap(
 
 /// @brief Approximate distance between two kIOS bounding volumes
 /// @todo P and Q is not returned, need implementation
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//FCL_DEPRECATED
-//Scalar distance(
-//    const Eigen::MatrixBase<DerivedA>& R0,
-//    const Eigen::MatrixBase<DerivedB>& T0,
-//    const kIOS<Scalar>& b1,
-//    const kIOS<Scalar>& b2,
-//    Vector3<Scalar>* P = NULL,
-//    Vector3<Scalar>* Q = NULL);
+template <typename Scalar, typename DerivedA, typename DerivedB>
+Scalar distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const kIOS<Scalar>& b1,
+    const kIOS<Scalar>& b2,
+    Vector3<Scalar>* P = NULL,
+    Vector3<Scalar>* Q = NULL);
 
 /// @brief Approximate distance between two kIOS bounding volumes
 /// @todo P and Q is not returned, need implementation
@@ -336,7 +334,8 @@ Scalar kIOS<Scalar>::size() const
 template <typename Scalar>
 Scalar kIOS<Scalar>::distance(
     const kIOS<Scalar>& other,
-    Vector3<Scalar>* P, Vector3<Scalar>* Q) const
+    Vector3<Scalar>* P,
+    Vector3<Scalar>* Q) const
 {
   Scalar d_max = 0;
   int id_a = -1, id_b = -1;
@@ -371,23 +370,24 @@ Scalar kIOS<Scalar>::distance(
 }
 
 //==============================================================================
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//bool overlap(
-//    const Eigen::MatrixBase<DerivedA>& R0,
-//    const Eigen::MatrixBase<DerivedB>& T0,
-//    const kIOS<Scalar>& b1, const kIOS<Scalar>& b2)
-//{
-//  kIOS<Scalar> b2_temp = b2;
-//  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-//  {
-//    b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
-//  }
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const kIOS<Scalar>& b1, const kIOS<Scalar>& b2)
+{
+  kIOS<Scalar> b2_temp = b2;
+  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
+  {
+    b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
+  }
 
-//  b2_temp.obb.frame.translation() = R0 * b2_temp.obb.frame.translation() + T0;
-//  b2_temp.obb.frame.linear() = R0 * b2_temp.obb.frame.linear();
+  b2_temp.obb.To = T0;
+  b2_temp.obb.To.noalias() += R0 * b2_temp.obb.To;
+  b2_temp.obb.axis.noalias() = R0 * b2_temp.obb.axis;
 
-//  return b1.overlap(b2_temp);
-//}
+  return b1.overlap(b2_temp);
+}
 
 //==============================================================================
 template <typename Scalar>
@@ -406,21 +406,21 @@ bool overlap(
 }
 
 //==============================================================================
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//Scalar distance(
-//    const Eigen::MatrixBase<DerivedA>& R0,
-//    const Eigen::MatrixBase<DerivedB>& T0,
-//    const kIOS<Scalar>& b1, const kIOS<Scalar>& b2,
-//    Vector3<Scalar>* P, Vector3<Scalar>* Q)
-//{
-//  kIOS<Scalar> b2_temp = b2;
-//  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-//  {
-//    b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
-//  }
+template <typename Scalar, typename DerivedA, typename DerivedB>
+Scalar distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const kIOS<Scalar>& b1, const kIOS<Scalar>& b2,
+    Vector3<Scalar>* P, Vector3<Scalar>* Q)
+{
+  kIOS<Scalar> b2_temp = b2;
+  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
+  {
+    b2_temp.spheres[i].o = R0 * b2_temp.spheres[i].o + T0;
+  }
 
-//  return b1.distance(b2_temp, P, Q);
-//}
+  return b1.distance(b2_temp, P, Q);
+}
 
 //==============================================================================
 template <typename Scalar>

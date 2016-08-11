@@ -120,14 +120,19 @@ public:
                                  Scalar* penetration_depth = NULL,
                                  Vector3<Scalar>* normal = NULL);
 
-//  FCL_DEPRECATED
-//  static bool intersect_Triangle(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3,
-//                                 const Vector3<Scalar>& Q1, const Vector3<Scalar>& Q2, const Vector3<Scalar>& Q3,
-//                                 const Matrix3<Scalar>& R, const Vector3<Scalar>& T,
-//                                 Vector3<Scalar>* contact_points = NULL,
-//                                 unsigned int* num_contact_points = NULL,
-//                                 Scalar* penetration_depth = NULL,
-//                                 Vector3<Scalar>* normal = NULL);
+  static bool intersect_Triangle(
+      const Vector3<Scalar>& P1,
+      const Vector3<Scalar>& P2,
+      const Vector3<Scalar>& P3,
+      const Vector3<Scalar>& Q1,
+      const Vector3<Scalar>& Q2,
+      const Vector3<Scalar>& Q3,
+      const Matrix3<Scalar>& R,
+      const Vector3<Scalar>& T,
+      Vector3<Scalar>* contact_points = NULL,
+      unsigned int* num_contact_points = NULL,
+      Scalar* penetration_depth = NULL,
+      Vector3<Scalar>* normal = NULL);
 
   static bool intersect_Triangle(
       const Vector3<Scalar>& P1,
@@ -1053,21 +1058,21 @@ bool Intersect<Scalar>::intersect_EE_filtered(const Vector3<Scalar>& a0, const V
 }
 
 //==============================================================================
-//template <typename Scalar>
-//bool Intersect<Scalar>::intersect_Triangle(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3,
-//                                   const Vector3<Scalar>& Q1, const Vector3<Scalar>& Q2, const Vector3<Scalar>& Q3,
-//                                   const Matrix3<Scalar>& R, const Vector3<Scalar>& T,
-//                                   Vector3<Scalar>* contact_points,
-//                                   unsigned int* num_contact_points,
-//                                   Scalar* penetration_depth,
-//                                   Vector3<Scalar>* normal)
-//{
-//  Vector3<Scalar> Q1_ = R * Q1 + T;
-//  Vector3<Scalar> Q2_ = R * Q2 + T;
-//  Vector3<Scalar> Q3_ = R * Q3 + T;
+template <typename Scalar>
+bool Intersect<Scalar>::intersect_Triangle(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3,
+                                   const Vector3<Scalar>& Q1, const Vector3<Scalar>& Q2, const Vector3<Scalar>& Q3,
+                                   const Matrix3<Scalar>& R, const Vector3<Scalar>& T,
+                                   Vector3<Scalar>* contact_points,
+                                   unsigned int* num_contact_points,
+                                   Scalar* penetration_depth,
+                                   Vector3<Scalar>* normal)
+{
+  Vector3<Scalar> Q1_ = R * Q1 + T;
+  Vector3<Scalar> Q2_ = R * Q2 + T;
+  Vector3<Scalar> Q3_ = R * Q3 + T;
 
-//  return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
-//}
+  return intersect_Triangle(P1, P2, P3, Q1_, Q2_, Q3_, contact_points, num_contact_points, penetration_depth, normal);
+}
 
 //==============================================================================
 template <typename Scalar>

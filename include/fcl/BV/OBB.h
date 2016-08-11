@@ -54,19 +54,18 @@ public:
 
   using Scalar = ScalarT;
 
-  /// @brief Orientation and center of OBB. Rotation part of frame represents
-  /// the orientation of the box; the axes of the rotation matrix are the
+  /// @brief Orientation of OBB. The axes of the rotation matrix are the
   /// principle directions of the box. We assume that the first column
   /// corresponds to the axis with the longest box edge, second column
   /// corresponds to the shorter one and the third coulumn corresponds to the
   /// shortest one.
-  Transform3<ScalarT> frame;
+  Matrix3<ScalarT> axis;
+
+  /// @brief Center of OBB
+  Vector3<ScalarT> To;
 
   /// @brief Half dimensions of OBB
   Vector3<ScalarT> extent;
-
-  /// Constructor
-  OBB();
 
   /// @brief Check collision between two OBB, return true if collision happens. 
   bool overlap(const OBB<ScalarT>& other) const;
@@ -134,11 +133,10 @@ OBB<Scalar> translate(
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//FCL_DEPRECATED
-//bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
-//             const Eigen::MatrixBase<DerivedB>& T0,
-//             const OBB<Scalar>& b1, const OBB<Scalar>& b2);
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
+             const Eigen::MatrixBase<DerivedB>& T0,
+             const OBB<Scalar>& b1, const OBB<Scalar>& b2);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
@@ -151,10 +149,12 @@ bool overlap(
 /// @brief Check collision between two boxes: the first box is in configuration
 /// (R, T) and its half dimension is set by a; the second box is in identity
 /// configuration and its half dimension is set by b.
-//template <typename Scalar>
-////FCL_DEPRECATED
-//bool obbDisjoint(const Matrix3<Scalar>& B, const Vector3<Scalar>& T,
-//                 const Vector3<Scalar>& a, const Vector3<Scalar>& b);
+template <typename Scalar>
+bool obbDisjoint(
+    const Matrix3<Scalar>& B,
+    const Vector3<Scalar>& T,
+    const Vector3<Scalar>& a,
+    const Vector3<Scalar>& b);
 
 /// @brief Check collision between two boxes: the first box is in configuration
 /// (R, T) and its half dimension is set by a; the second box is in identity
@@ -173,19 +173,17 @@ bool obbDisjoint(
 
 //==============================================================================
 template <typename Scalar>
-OBB<Scalar>::OBB() : frame(Transform3<Scalar>::Identity())
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename Scalar>
 bool OBB<Scalar>::overlap(const OBB<Scalar>& other) const
 {
   /// compute the relative transform that takes us from this->frame to
   /// other.frame
 
-  return !obbDisjoint(frame.inverse(Eigen::Isometry) * other.frame, extent, other.extent);
+  Vector3<Scalar> t = other.To - To;
+  Vector3<Scalar> T(
+        axis.col(0).dot(t), axis.col(1).dot(t), axis.col(2).dot(t));
+  Matrix3<Scalar> R = axis.transpose() * other.axis;
+
+  return !obbDisjoint(R, T, extent, other.extent);
 }
 
 //==============================================================================
@@ -199,16 +197,16 @@ bool OBB<Scalar>::overlap(const OBB& other, OBB& overlap_part) const
 template <typename Scalar>
 bool OBB<Scalar>::contain(const Vector3<Scalar>& p) const
 {
-  Vector3<Scalar> local_p = p - frame.translation();
-  Scalar proj = local_p.dot(frame.linear().col(0));
+  Vector3<Scalar> local_p = p - To;
+  Scalar proj = local_p.dot(axis.col(0));
   if((proj > extent[0]) || (proj < -extent[0]))
     return false;
 
-  proj = local_p.dot(frame.linear().col(1));
+  proj = local_p.dot(axis.col(1));
   if((proj > extent[1]) || (proj < -extent[1]))
     return false;
 
-  proj = local_p.dot(frame.linear().col(2));
+  proj = local_p.dot(axis.col(2));
   if((proj > extent[2]) || (proj < -extent[2]))
     return false;
 
@@ -220,8 +218,8 @@ template <typename Scalar>
 OBB<Scalar>& OBB<Scalar>::operator +=(const Vector3<Scalar>& p)
 {
   OBB<Scalar> bvp;
-  bvp.frame.linear() = frame.linear();
-  bvp.frame.translation() = p;
+  bvp.axis = axis;
+  bvp.To = p;
   bvp.extent.setZero();
 
   *this += bvp;
@@ -240,7 +238,7 @@ OBB<Scalar>& OBB<Scalar>::operator +=(const OBB<Scalar>& other)
 template <typename Scalar>
 OBB<Scalar> OBB<Scalar>::operator +(const OBB<Scalar>& other) const
 {
-  Vector3<Scalar> center_diff = frame.translation() - other.frame.translation();
+  Vector3<Scalar> center_diff = To - other.To;
   Scalar max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
   Scalar max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
   if(center_diff.norm() > 2 * (max_extent + max_extent2))
@@ -292,7 +290,7 @@ Scalar OBB<Scalar>::size() const
 template <typename Scalar>
 const Vector3<Scalar> OBB<Scalar>::center() const
 {
-  return frame.translation();
+  return To;
 }
 
 //==============================================================================
@@ -309,11 +307,11 @@ template <typename Scalar>
 void computeVertices(const OBB<Scalar>& b, Vector3<Scalar> vertices[8])
 {
   const Vector3<Scalar>& extent = b.extent;
-  const Vector3<Scalar>& To = b.frame.translation();
+  const Vector3<Scalar>& To = b.To;
 
-  Vector3<Scalar> extAxis0 = b.frame.linear().col(0) * extent[0];
-  Vector3<Scalar> extAxis1 = b.frame.linear().col(1) * extent[1];
-  Vector3<Scalar> extAxis2 = b.frame.linear().col(2) * extent[2];
+  Vector3<Scalar> extAxis0 = b.axis.col(0) * extent[0];
+  Vector3<Scalar> extAxis1 = b.axis.col(1) * extent[1];
+  Vector3<Scalar> extAxis2 = b.axis.col(2) * extent[2];
 
   vertices[0] = To - extAxis0 - extAxis1 - extAxis2;
   vertices[1] = To + extAxis0 - extAxis1 - extAxis2;
@@ -337,12 +335,12 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
   Matrix3<Scalar> E;
   Vector3<Scalar> s(0, 0, 0);
 
-  b.frame.linear().col(0) = b1.frame.translation() - b2.frame.translation();
-  b.frame.linear().col(0).normalize();
+  b.axis.col(0) = b1.To - b2.To;
+  b.axis.col(0).normalize();
 
   Vector3<Scalar> vertex_proj[16];
   for(int i = 0; i < 16; ++i)
-    vertex_proj[i] = vertex[i] - b.frame.linear().col(0) * vertex[i].dot(b.frame.linear().col(0));
+    vertex_proj[i] = vertex[i] - b.axis.col(0) * vertex[i].dot(b.axis.col(0));
 
   getCovariance<Scalar>(vertex_proj, NULL, NULL, NULL, 16, M);
   eigen_old(M, s, E);
@@ -374,14 +372,14 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
     mid = 2;
   }
 
-  b.frame.linear().col(1) << E.col(0)[max], E.col(1)[max], E.col(2)[max];
-  b.frame.linear().col(2) << E.col(0)[mid], E.col(1)[mid], E.col(2)[mid];
+  b.axis.col(1) << E.col(0)[max], E.col(1)[max], E.col(2)[max];
+  b.axis.col(2) << E.col(0)[mid], E.col(1)[mid], E.col(2)[mid];
 
   // set obb centers and extensions
   Vector3<Scalar> center, extent;
-  getExtentAndCenter<Scalar>(vertex, NULL, NULL, NULL, 16, b.frame.linear(), center, extent);
+  getExtentAndCenter<Scalar>(vertex, NULL, NULL, NULL, 16, b.axis, center, extent);
 
-  b.frame.translation() = center;
+  b.To = center;
   b.extent = extent;
 
   return b;
@@ -392,15 +390,15 @@ template <typename Scalar>
 OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
 {
   OBB<Scalar> b;
-  b.frame.translation() = (b1.frame.translation() + b2.frame.translation()) * 0.5;
-  Quaternion<Scalar> q0(b1.frame.linear());
-  Quaternion<Scalar> q1(b2.frame.linear());
+  b.To = (b1.To + b2.To) * 0.5;
+  Quaternion<Scalar> q0(b1.axis);
+  Quaternion<Scalar> q1(b2.axis);
   if(q0.dot(q1) < 0)
     q1.coeffs() = -q1.coeffs();
 
   Quaternion<Scalar> q(q0.coeffs() + q1.coeffs());
   q.normalize();
-  b.frame.linear() = q.toRotationMatrix();
+  b.axis = q.toRotationMatrix();
 
 
   Vector3<Scalar> vertex[8], diff;
@@ -411,10 +409,10 @@ OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
   computeVertices(b1, vertex);
   for(int i = 0; i < 8; ++i)
   {
-    diff = vertex[i] - b.frame.translation();
+    diff = vertex[i] - b.To;
     for(int j = 0; j < 3; ++j)
     {
-      Scalar dot = diff.dot(b.frame.linear().col(j));
+      Scalar dot = diff.dot(b.axis.col(j));
       if(dot > pmax[j])
         pmax[j] = dot;
       else if(dot < pmin[j])
@@ -425,10 +423,10 @@ OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
   computeVertices(b2, vertex);
   for(int i = 0; i < 8; ++i)
   {
-    diff = vertex[i] - b.frame.translation();
+    diff = vertex[i] - b.To;
     for(int j = 0; j < 3; ++j)
     {
-      Scalar dot = diff.dot(b.frame.linear().col(j));
+      Scalar dot = diff.dot(b.axis.col(j));
       if(dot > pmax[j])
         pmax[j] = dot;
       else if(dot < pmin[j])
@@ -438,7 +436,7 @@ OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
 
   for(int j = 0; j < 3; ++j)
   {
-    b.frame.translation() += (b.frame.linear().col(j) * (0.5 * (pmax[j] + pmin[j])));
+    b.To += (b.axis.col(j) * (0.5 * (pmax[j] + pmin[j])));
     b.extent[j] = 0.5 * (pmax[j] - pmin[j]);
   }
 
@@ -451,24 +449,24 @@ OBB<Scalar> translate(
     const OBB<Scalar>& bv, const Eigen::MatrixBase<Derived>& t)
 {
   OBB<Scalar> res(bv);
-  res.frame.translation() += t;
+  res.To += t;
   return res;
 }
 
-////==============================================================================
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
-//             const Eigen::MatrixBase<DerivedB>& T0,
-//             const OBB<Scalar>& b1, const OBB<Scalar>& b2)
-//{
-//  typename DerivedA::PlainObject R0b2 = R0 * b2.frame.linear();
-//  typename DerivedA::PlainObject R = b1.frame.linear().transpose() * R0b2;
+//==============================================================================
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
+             const Eigen::MatrixBase<DerivedB>& T0,
+             const OBB<Scalar>& b1, const OBB<Scalar>& b2)
+{
+  typename DerivedA::PlainObject R0b2 = R0 * b2.axis;
+  typename DerivedA::PlainObject R = b1.axis.transpose() * R0b2;
 
-//  typename DerivedB::PlainObject Ttemp = R0 * b2.frame.translation() + T0 - b1.frame.translation();
-//  typename DerivedB::PlainObject T = Ttemp.transpose() * b1.frame.linear();
+  typename DerivedB::PlainObject Ttemp = R0 * b2.To + T0 - b1.To;
+  typename DerivedB::PlainObject T = Ttemp.transpose() * b1.axis;
 
-//  return !obbDisjoint(R, T, b1.extent, b2.extent);
-//}
+  return !obbDisjoint(R, T, b1.extent, b2.extent);
+}
 
 //==============================================================================
 template <typename Scalar>
@@ -482,132 +480,132 @@ bool overlap(
 }
 
 //==============================================================================
-//template <typename Scalar>
-//bool obbDisjoint(const Matrix3<Scalar>& B, const Vector3<Scalar>& T,
-//                 const Vector3<Scalar>& a, const Vector3<Scalar>& b)
-//{
-//  register Scalar t, s;
-//  const Scalar reps = 1e-6;
+template <typename Scalar>
+bool obbDisjoint(const Matrix3<Scalar>& B, const Vector3<Scalar>& T,
+                 const Vector3<Scalar>& a, const Vector3<Scalar>& b)
+{
+  register Scalar t, s;
+  const Scalar reps = 1e-6;
 
-//  Matrix3<Scalar> Bf = B.cwiseAbs();
-//  Bf.array() += reps;
+  Matrix3<Scalar> Bf = B.cwiseAbs();
+  Bf.array() += reps;
 
-//  // if any of these tests are one-sided, then the polyhedra are disjoint
+  // if any of these tests are one-sided, then the polyhedra are disjoint
 
-//  // A1 x A2 = A0
-//  t = ((T[0] < 0.0) ? -T[0] : T[0]);
+  // A1 x A2 = A0
+  t = ((T[0] < 0.0) ? -T[0] : T[0]);
 
-//  if(t > (a[0] + Bf.row(0).dot(b)))
-//    return true;
+  if(t > (a[0] + Bf.row(0).dot(b)))
+    return true;
 
-//  // B1 x B2 = B0
-//  s =  B.col(0).dot(T);
-//  t = ((s < 0.0) ? -s : s);
+  // B1 x B2 = B0
+  s =  B.col(0).dot(T);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (b[0] + Bf.col(0).dot(a)))
-//    return true;
+  if(t > (b[0] + Bf.col(0).dot(a)))
+    return true;
 
-//  // A2 x A0 = A1
-//  t = ((T[1] < 0.0) ? -T[1] : T[1]);
+  // A2 x A0 = A1
+  t = ((T[1] < 0.0) ? -T[1] : T[1]);
 
-//  if(t > (a[1] + Bf.row(1).dot(b)))
-//    return true;
+  if(t > (a[1] + Bf.row(1).dot(b)))
+    return true;
 
-//  // A0 x A1 = A2
-//  t =((T[2] < 0.0) ? -T[2] : T[2]);
+  // A0 x A1 = A2
+  t =((T[2] < 0.0) ? -T[2] : T[2]);
 
-//  if(t > (a[2] + Bf.row(2).dot(b)))
-//    return true;
+  if(t > (a[2] + Bf.row(2).dot(b)))
+    return true;
 
-//  // B2 x B0 = B1
-//  s = B.col(1).dot(T);
-//  t = ((s < 0.0) ? -s : s);
+  // B2 x B0 = B1
+  s = B.col(1).dot(T);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (b[1] + Bf.col(1).dot(a)))
-//    return true;
+  if(t > (b[1] + Bf.col(1).dot(a)))
+    return true;
 
-//  // B0 x B1 = B2
-//  s = B.col(2).dot(T);
-//  t = ((s < 0.0) ? -s : s);
+  // B0 x B1 = B2
+  s = B.col(2).dot(T);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (b[2] + Bf.col(2).dot(a)))
-//    return true;
+  if(t > (b[2] + Bf.col(2).dot(a)))
+    return true;
 
-//  // A0 x B0
-//  s = T[2] * B(1, 0) - T[1] * B(2, 0);
-//  t = ((s < 0.0) ? -s : s);
+  // A0 x B0
+  s = T[2] * B(1, 0) - T[1] * B(2, 0);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) +
-//          b[1] * Bf(0, 2) + b[2] * Bf(0, 1)))
-//    return true;
+  if(t > (a[1] * Bf(2, 0) + a[2] * Bf(1, 0) +
+          b[1] * Bf(0, 2) + b[2] * Bf(0, 1)))
+    return true;
 
-//  // A0 x B1
-//  s = T[2] * B(1, 1) - T[1] * B(2, 1);
-//  t = ((s < 0.0) ? -s : s);
+  // A0 x B1
+  s = T[2] * B(1, 1) - T[1] * B(2, 1);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[1] * Bf(2, 1) + a[2] * Bf(1, 1) +
-//          b[0] * Bf(0, 2) + b[2] * Bf(0, 0)))
-//    return true;
+  if(t > (a[1] * Bf(2, 1) + a[2] * Bf(1, 1) +
+          b[0] * Bf(0, 2) + b[2] * Bf(0, 0)))
+    return true;
 
-//  // A0 x B2
-//  s = T[2] * B(1, 2) - T[1] * B(2, 2);
-//  t = ((s < 0.0) ? -s : s);
+  // A0 x B2
+  s = T[2] * B(1, 2) - T[1] * B(2, 2);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[1] * Bf(2, 2) + a[2] * Bf(1, 2) +
-//          b[0] * Bf(0, 1) + b[1] * Bf(0, 0)))
-//    return true;
+  if(t > (a[1] * Bf(2, 2) + a[2] * Bf(1, 2) +
+          b[0] * Bf(0, 1) + b[1] * Bf(0, 0)))
+    return true;
 
-//  // A1 x B0
-//  s = T[0] * B(2, 0) - T[2] * B(0, 0);
-//  t = ((s < 0.0) ? -s : s);
+  // A1 x B0
+  s = T[0] * B(2, 0) - T[2] * B(0, 0);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[0] * Bf(2, 0) + a[2] * Bf(0, 0) +
-//          b[1] * Bf(1, 2) + b[2] * Bf(1, 1)))
-//    return true;
+  if(t > (a[0] * Bf(2, 0) + a[2] * Bf(0, 0) +
+          b[1] * Bf(1, 2) + b[2] * Bf(1, 1)))
+    return true;
 
-//  // A1 x B1
-//  s = T[0] * B(2, 1) - T[2] * B(0, 1);
-//  t = ((s < 0.0) ? -s : s);
+  // A1 x B1
+  s = T[0] * B(2, 1) - T[2] * B(0, 1);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[0] * Bf(2, 1) + a[2] * Bf(0, 1) +
-//          b[0] * Bf(1, 2) + b[2] * Bf(1, 0)))
-//    return true;
+  if(t > (a[0] * Bf(2, 1) + a[2] * Bf(0, 1) +
+          b[0] * Bf(1, 2) + b[2] * Bf(1, 0)))
+    return true;
 
-//  // A1 x B2
-//  s = T[0] * B(2, 2) - T[2] * B(0, 2);
-//  t = ((s < 0.0) ? -s : s);
+  // A1 x B2
+  s = T[0] * B(2, 2) - T[2] * B(0, 2);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[0] * Bf(2, 2) + a[2] * Bf(0, 2) +
-//          b[0] * Bf(1, 1) + b[1] * Bf(1, 0)))
-//    return true;
+  if(t > (a[0] * Bf(2, 2) + a[2] * Bf(0, 2) +
+          b[0] * Bf(1, 1) + b[1] * Bf(1, 0)))
+    return true;
 
-//  // A2 x B0
-//  s = T[1] * B(0, 0) - T[0] * B(1, 0);
-//  t = ((s < 0.0) ? -s : s);
+  // A2 x B0
+  s = T[1] * B(0, 0) - T[0] * B(1, 0);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[0] * Bf(1, 0) + a[1] * Bf(0, 0) +
-//          b[1] * Bf(2, 2) + b[2] * Bf(2, 1)))
-//    return true;
+  if(t > (a[0] * Bf(1, 0) + a[1] * Bf(0, 0) +
+          b[1] * Bf(2, 2) + b[2] * Bf(2, 1)))
+    return true;
 
-//  // A2 x B1
-//  s = T[1] * B(0, 1) - T[0] * B(1, 1);
-//  t = ((s < 0.0) ? -s : s);
+  // A2 x B1
+  s = T[1] * B(0, 1) - T[0] * B(1, 1);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[0] * Bf(1, 1) + a[1] * Bf(0, 1) +
-//          b[0] * Bf(2, 2) + b[2] * Bf(2, 0)))
-//    return true;
+  if(t > (a[0] * Bf(1, 1) + a[1] * Bf(0, 1) +
+          b[0] * Bf(2, 2) + b[2] * Bf(2, 0)))
+    return true;
 
-//  // A2 x B2
-//  s = T[1] * B(0, 2) - T[0] * B(1, 2);
-//  t = ((s < 0.0) ? -s : s);
+  // A2 x B2
+  s = T[1] * B(0, 2) - T[0] * B(1, 2);
+  t = ((s < 0.0) ? -s : s);
 
-//  if(t > (a[0] * Bf(1, 2) + a[1] * Bf(0, 2) +
-//          b[0] * Bf(2, 1) + b[1] * Bf(2, 0)))
-//    return true;
+  if(t > (a[0] * Bf(1, 2) + a[1] * Bf(0, 2) +
+          b[0] * Bf(2, 1) + b[1] * Bf(2, 0)))
+    return true;
 
-//  return false;
+  return false;
 
-//}
+}
 
 //==============================================================================
 template <typename Scalar>

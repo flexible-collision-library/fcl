@@ -175,7 +175,7 @@ struct GetOrientationImpl<Scalar, OBB<Scalar>>
 {
   static Matrix3<Scalar> run(const OBB<Scalar>& bv)
   {
-    return bv.frame.linear();
+    return bv.axis;
   }
 };
 
@@ -185,7 +185,7 @@ struct GetOrientationImpl<Scalar, RSS<Scalar>>
 {
   static Matrix3<Scalar> run(const RSS<Scalar>& bv)
   {
-    return bv.frame.linear();
+    return bv.axis;
   }
 };
 
@@ -195,7 +195,7 @@ struct GetOrientationImpl<Scalar, OBBRSS<Scalar>>
 {
   static Matrix3<Scalar> run(const OBBRSS<Scalar>& bv)
   {
-    return bv.obb.frame.linear();
+    return bv.obb.axis;
   }
 };
 

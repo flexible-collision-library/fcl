@@ -95,22 +95,21 @@ void generateCoordinateSystem(Matrix3<Scalar>& axis);
 template <typename Scalar>
 void generateCoordinateSystem(Transform3<Scalar>& tf);
 
-//template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-//void relativeTransform(
-//    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
-//    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
-//    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t);
+template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
+void relativeTransform(
+    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
+    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
+    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t);
 
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//void relativeTransform(
-//    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T1,
-//    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
-//    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t);
+template <typename Scalar, typename DerivedA, typename DerivedB>
+void relativeTransform(
+    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T1,
+    const Eigen::Transform<Scalar, 3, Eigen::Isometry>& T2,
+    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t);
 
 /// @brief Compute the RSS bounding volume parameters: radius, rectangle size
 /// and the origin, given the BV axises.
 template <typename Scalar>
-FCL_DEPRECATED
 void getRadiusAndOriginAndRectangleSize(
     Vector3<Scalar>* ps,
     Vector3<Scalar>* ps2,
@@ -392,7 +391,7 @@ void axisFromEigen(const Matrix3<Scalar>& eigenV,
 
   axis.col(0) = eigenV.row(max);
   axis.col(1) = eigenV.row(mid);
-  axis.col(2) = axis.col(0).cross(axis.col(1));
+  axis.col(2).noalias() = axis.col(0).cross(axis.col(1));
 }
 
 //==============================================================================
@@ -431,7 +430,7 @@ void axisFromEigen(const Matrix3<Scalar>& eigenV,
 
   tf.linear().col(0) = eigenV.col(max);
   tf.linear().col(1) = eigenV.col(mid);
-  tf.linear().col(2) = tf.linear().col(0).cross(tf.linear().col(1));
+  tf.linear().col(2).noalias() = tf.linear().col(0).cross(tf.linear().col(1));
 }
 
 //==============================================================================
@@ -524,57 +523,57 @@ void generateCoordinateSystem(Transform3<Scalar>& tf)
   }
 }
 
-////==============================================================================
-//template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
-//void relativeTransform(
-//    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
-//    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
-//    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t)
-//{
-//  EIGEN_STATIC_ASSERT(
-//        DerivedA::RowsAtCompileTime == 3
-//        && DerivedA::ColsAtCompileTime == 3,
-//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+//==============================================================================
+template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
+void relativeTransform(
+    const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
+    const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
+    Eigen::MatrixBase<DerivedC>& R, Eigen::MatrixBase<DerivedD>& t)
+{
+  EIGEN_STATIC_ASSERT(
+        DerivedA::RowsAtCompileTime == 3
+        && DerivedA::ColsAtCompileTime == 3,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-//  EIGEN_STATIC_ASSERT(
-//        DerivedB::RowsAtCompileTime == 3
-//        && DerivedB::ColsAtCompileTime == 1,
-//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+  EIGEN_STATIC_ASSERT(
+        DerivedB::RowsAtCompileTime == 3
+        && DerivedB::ColsAtCompileTime == 1,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-//  EIGEN_STATIC_ASSERT(
-//        DerivedC::RowsAtCompileTime == 3
-//        && DerivedC::ColsAtCompileTime == 3,
-//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+  EIGEN_STATIC_ASSERT(
+        DerivedC::RowsAtCompileTime == 3
+        && DerivedC::ColsAtCompileTime == 3,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-//  EIGEN_STATIC_ASSERT(
-//        DerivedD::RowsAtCompileTime == 3
-//        && DerivedD::ColsAtCompileTime == 1,
-//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+  EIGEN_STATIC_ASSERT(
+        DerivedD::RowsAtCompileTime == 3
+        && DerivedD::ColsAtCompileTime == 1,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-//  R = R1.transpose() * R2;
-//  t = R1.transpose() * (t2 - t1);
-//}
+  R.noalias() = R1.transpose() * R2;
+  t.noalias() = R1.transpose() * (t2 - t1);
+}
 
-////==============================================================================
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//void relativeTransform(
-//    const Transform3<Scalar>& T1,
-//    const Transform3<Scalar>& T2,
-//    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t)
-//{
-//  EIGEN_STATIC_ASSERT(
-//        DerivedA::RowsAtCompileTime == 3
-//        && DerivedA::ColsAtCompileTime == 3,
-//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+//==============================================================================
+template <typename Scalar, typename DerivedA, typename DerivedB>
+void relativeTransform(
+    const Transform3<Scalar>& T1,
+    const Transform3<Scalar>& T2,
+    Eigen::MatrixBase<DerivedA>& R, Eigen::MatrixBase<DerivedB>& t)
+{
+  EIGEN_STATIC_ASSERT(
+        DerivedA::RowsAtCompileTime == 3
+        && DerivedA::ColsAtCompileTime == 3,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-//  EIGEN_STATIC_ASSERT(
-//        DerivedB::RowsAtCompileTime == 3
-//        && DerivedB::ColsAtCompileTime == 1,
-//        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
+  EIGEN_STATIC_ASSERT(
+        DerivedB::RowsAtCompileTime == 3
+        && DerivedB::ColsAtCompileTime == 1,
+        THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
 
-//  relativeTransform(
-//        T1.linear(), T1.translation(), T2.linear(), T2.translation(), R, t);
-//}
+  R.noalias() = T1.linear().transpose() * T2.linear();
+  t.noalias() = T1.linear().transpose() * (T2.translation() - T1.translation());
+}
 
 //==============================================================================
 template <typename Scalar>
@@ -609,8 +608,9 @@ void getRadiusAndOriginAndRectangleSize(
       {
         int point_id = t[j];
         const Vector3<Scalar>& p = ps[point_id];
-        Vector3<Scalar> v(p[0], p[1], p[2]);
-        P[P_id] = v.transpose() * axis;
+        P[P_id][0] = axis.col(0).dot(p);
+        P[P_id][1] = axis.col(1).dot(p);
+        P[P_id][2] = axis.col(2).dot(p);
         P_id++;
       }
 
@@ -620,8 +620,9 @@ void getRadiusAndOriginAndRectangleSize(
         {
           int point_id = t[j];
           const Vector3<Scalar>& p = ps2[point_id];
-          Vector3<Scalar> v(p[0], p[1], p[2]);
-          P[P_id] = v.transpose() * axis;
+          P[P_id][0] = axis.col(0).dot(p);
+          P[P_id][1] = axis.col(1).dot(p);
+          P[P_id][2] = axis.col(2).dot(p);
           P_id++;
         }
       }
@@ -634,14 +635,17 @@ void getRadiusAndOriginAndRectangleSize(
       int index = indirect_index ? indices[i] : i;
 
       const Vector3<Scalar>& p = ps[index];
-      Vector3<Scalar> v(p[0], p[1], p[2]);
-      P[P_id] = v.transpose() * axis;
+      P[P_id][0] = axis.col(0).dot(p);
+      P[P_id][1] = axis.col(1).dot(p);
+      P[P_id][2] = axis.col(2).dot(p);
       P_id++;
 
       if(ps2)
       {
         const Vector3<Scalar>& v = ps2[index];
-        P[P_id] = v.transpose() * axis;
+        P[P_id][0] = axis.col(0).dot(v);
+        P[P_id][1] = axis.col(1).dot(v);
+        P[P_id][2] = axis.col(2).dot(v);
         P_id++;
       }
     }
@@ -885,7 +889,9 @@ void getRadiusAndOriginAndRectangleSize(
       {
         int point_id = t[j];
         const Vector3<Scalar>& p = ps[point_id];
-        P[P_id].noalias() = tf.linear().transpose() * p;
+        P[P_id][0] = tf.linear().col(0).dot(p);
+        P[P_id][1] = tf.linear().col(1).dot(p);
+        P[P_id][2] = tf.linear().col(2).dot(p);
         P_id++;
       }
 
@@ -895,7 +901,9 @@ void getRadiusAndOriginAndRectangleSize(
         {
           int point_id = t[j];
           const Vector3<Scalar>& p = ps2[point_id];
-          P[P_id].noalias() = tf.linear().transpose() * p;
+          P[P_id][0] = tf.linear().col(0).dot(p);
+          P[P_id][1] = tf.linear().col(1).dot(p);
+          P[P_id][2] = tf.linear().col(2).dot(p);
           P_id++;
         }
       }
@@ -908,12 +916,16 @@ void getRadiusAndOriginAndRectangleSize(
       int index = indirect_index ? indices[i] : i;
 
       const Vector3<Scalar>& p = ps[index];
-      P[P_id].noalias() = tf.linear().transpose() * p;
+      P[P_id][0] = tf.linear().col(0).dot(p);
+      P[P_id][1] = tf.linear().col(1).dot(p);
+      P[P_id][2] = tf.linear().col(2).dot(p);
       P_id++;
 
       if(ps2)
       {
-        P[P_id].noalias() = tf.linear().transpose() * ps2[index];
+        P[P_id][0] = tf.linear().col(0).dot(ps2[index]);
+        P[P_id][1] = tf.linear().col(1).dot(ps2[index]);
+        P[P_id][2] = tf.linear().col(2).dot(ps2[index]);
         P_id++;
       }
     }
@@ -1144,7 +1156,8 @@ void circumCircleComputation(
   radius = e1_len2 * e2_len2 * (e1 - e2).squaredNorm() / e3_len2;
   radius = std::sqrt(radius) * 0.5;
 
-  center = (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2) + c;
+  center = c;
+  center.noalias() += (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2);
 }
 
 //==============================================================================

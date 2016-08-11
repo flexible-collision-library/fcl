@@ -1286,15 +1286,15 @@ struct MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>>
     if(!model.bvs[bv_id].isLeaf())
     {
       MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>> tmp1;
-      tmp1(model, model.bvs[bv_id].first_child, obb.frame.linear(), obb.frame.translation());
+      tmp1(model, model.bvs[bv_id].first_child, obb.axis, obb.To);
 
       MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>> tmp2;
-      tmp2(model, model.bvs[bv_id].first_child + 1, obb.frame.linear(), obb.frame.translation());
+      tmp2(model, model.bvs[bv_id].first_child + 1, obb.axis, obb.To);
     }
 
     // make self parent relative
-    obb.frame.linear() = parent_axis.transpose() * obb.frame.linear();
-    obb.frame.translation() = (obb.frame.translation() - parent_c).transpose() * parent_axis;
+    obb.axis = parent_axis.transpose() * obb.axis;
+    obb.To = (obb.To - parent_c).transpose() * parent_axis;
   }
 };
 
@@ -1311,15 +1311,15 @@ struct MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>>
     if(!model.bvs[bv_id].isLeaf())
     {
       MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp1;
-      tmp1(model, model.bvs[bv_id].first_child, rss.frame.linear(), rss.frame.translation());
+      tmp1(model, model.bvs[bv_id].first_child, rss.axis, rss.To);
 
       MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp2;
-      tmp2(model, model.bvs[bv_id].first_child + 1, rss.frame.linear(), rss.frame.translation());
+      tmp2(model, model.bvs[bv_id].first_child + 1, rss.axis, rss.To);
     }
 
     // make self parent relative
-    rss.frame.linear() = parent_axis.transpose() * rss.frame.linear();
-    rss.frame.translation() = (rss.frame.translation() - parent_c).transpose() * parent_axis;
+    rss.axis = parent_axis.transpose() * rss.axis;
+    rss.To = (rss.To - parent_c).transpose() * parent_axis;
   }
 };
 
@@ -1337,18 +1337,18 @@ struct MakeParentRelativeRecurseImpl<Scalar, OBBRSS<Scalar>>
     if(!model.bvs[bv_id].isLeaf())
     {
       MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp1;
-      tmp1(model, model.bvs[bv_id].first_child, obb.frame.linear(), obb.frame.translation());
+      tmp1(model, model.bvs[bv_id].first_child, obb.axis, obb.To);
 
       MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp2;
-      tmp2(model, model.bvs[bv_id].first_child + 1, obb.frame.linear(), obb.frame.translation());
+      tmp2(model, model.bvs[bv_id].first_child + 1, obb.axis, obb.To);
     }
 
     // make self parent relative
-    obb.frame.linear() = parent_axis.transpose() * obb.frame.linear();
-    rss.frame.linear() = obb.frame.linear();
+    obb.axis = parent_axis.transpose() * obb.axis;
+    rss.axis = obb.axis;
 
-    obb.frame.translation() = (obb.frame.translation() - parent_c).transpose() * parent_axis;
-    rss.frame.translation() = obb.frame.translation();
+    obb.To = (obb.To - parent_c).transpose() * parent_axis;
+    rss.To = obb.To;
   }
 };
 

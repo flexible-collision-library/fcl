@@ -662,7 +662,7 @@ struct ComputeSplitVectorImpl
 {
   static void run(const BV& bv, Vector3<Scalar>& split_vector)
   {
-    split_vector = bv.frame.linear().col(0);
+    split_vector = bv.axis.col(0);
   }
 };
 
@@ -707,7 +707,7 @@ struct ComputeSplitVectorImpl<Scalar, kIOS<Scalar>>
       ;
       }
     */
-    split_vector = bv.obb.frame.linear().col(0);
+    split_vector = bv.obb.axis.col(0);
   }
 };
 
@@ -717,7 +717,7 @@ struct ComputeSplitVectorImpl<Scalar, OBBRSS<Scalar>>
 {
   static void run(const OBBRSS<Scalar>& bv, Vector3<Scalar>& split_vector)
   {
-    split_vector = bv.obb.frame.linear().col(0);
+    split_vector = bv.obb.axis.col(0);
   }
 };
 

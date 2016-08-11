@@ -146,7 +146,7 @@ void getCovariance(Vector3<Scalar>* ps,
       const Vector3<Scalar>& p2 = ps[t[1]];
       const Vector3<Scalar>& p3 = ps[t[2]];
 
-      S1 += p1 + p2 + p3;
+      S1 += (p1 + p2 + p3).eval();
 
       S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
       S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
@@ -161,7 +161,7 @@ void getCovariance(Vector3<Scalar>* ps,
         const Vector3<Scalar>& p2 = ps2[t[1]];
         const Vector3<Scalar>& p3 = ps2[t[2]];
 
-        S1 += p1 + p2 + p3;
+        S1 += (p1 + p2 + p3).eval();
 
         S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
         S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);

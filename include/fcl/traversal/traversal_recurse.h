@@ -164,9 +164,9 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b
 
     const OBB<Scalar>& bv1 = node->model1->getBV(c1).bv;
 
-    Matrix3<Scalar> Rc = R.transpose() * bv1.frame.linear();
-    temp = T - bv1.frame.translation();
-    Vector3<Scalar> Tc = temp.transpose() * bv1.frame.linear();
+    Matrix3<Scalar> Rc = R.transpose() * bv1.axis;
+    temp = T - bv1.To;
+    Vector3<Scalar> Tc = temp.transpose() * bv1.axis;
 
     collisionRecurse(node, c1, b2, Rc, Tc, front_list);
 
@@ -175,9 +175,11 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b
 
     const OBB<Scalar>& bv2 = node->model1->getBV(c2).bv;
 
-    Rc = R.transpose() * bv2.frame.linear();
-    temp = T - bv2.frame.translation();
-    Tc = temp.transpose() * bv2.frame.linear();
+    Rc.noalias() = R.transpose() * bv2.axis;
+    temp = T - bv2.To;
+    Tc[0] = bv2.axis.col(0).dot(temp);
+    Tc[1] = bv2.axis.col(1).dot(temp);
+    Tc[2] = bv2.axis.col(2).dot(temp);
 
     collisionRecurse(node, c2, b2, Rc, Tc, front_list);
   }
@@ -188,13 +190,13 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b
 
     const OBB<Scalar>& bv1 = node->model2->getBV(c1).bv;
     Matrix3<Scalar> Rc;
-    temp = R * bv1.frame.linear().col(0);
+    temp.noalias() = R * bv1.axis.col(0);
     Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
-    temp = R * bv1.frame.linear().col(1);
+    temp.noalias() = R * bv1.axis.col(1);
     Rc(0, 1) = temp[0]; Rc(1, 1) = temp[1]; Rc(2, 1) = temp[2];
-    temp = R * bv1.frame.linear().col(2);
+    temp.noalias() = R * bv1.axis.col(2);
     Rc(0, 2) = temp[0]; Rc(1, 2) = temp[1]; Rc(2, 2) = temp[2];
-    Vector3<Scalar> Tc = R * bv1.frame.translation() + T;
+    Vector3<Scalar> Tc = R * bv1.To + T;
 
     collisionRecurse(node, b1, c1, Rc, Tc, front_list);
 
@@ -202,13 +204,14 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b
     if(node->canStop() && !front_list) return;
 
     const OBB<Scalar>& bv2 = node->model2->getBV(c2).bv;
-    temp = R * bv2.frame.linear().col(0);
+    temp.noalias() = R * bv2.axis.col(0);
     Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
-    temp = R * bv2.frame.linear().col(1);
+    temp.noalias() = R * bv2.axis.col(1);
     Rc(0, 1) = temp[0]; Rc(1, 1) = temp[1]; Rc(2, 1) = temp[2];
-    temp = R * bv2.frame.linear().col(2);
+    temp.noalias() = R * bv2.axis.col(2);
     Rc(0, 2) = temp[0]; Rc(1, 2) = temp[1]; Rc(2, 2) = temp[2];
-    Tc = R * bv2.frame.translation() + T;
+    Tc = T;
+    Tc.noalias() += R * bv2.To;
 
     collisionRecurse(node, b1, c2, Rc, Tc, front_list);
   }

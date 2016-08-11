@@ -122,9 +122,9 @@ public:
     bv2.axis[2] = R.col(id[2]);
     */
 
-    bv2.frame.translation() = tf1 * bv1.center();
+    bv2.To = tf1 * bv1.center();
     bv2.extent = (bv1.max_ - bv1.min_) * 0.5;
-    bv2.frame.linear() = tf1.linear();
+    bv2.axis = tf1.linear();
   }
 };
 
@@ -135,8 +135,8 @@ public:
   static void convert(const OBB<Scalar>& bv1, const Transform3<Scalar>& tf1, OBB<Scalar>& bv2)
   {
     bv2.extent = bv1.extent;
-    bv2.frame.translation() = tf1 * bv1.frame.translation();
-    bv2.frame.linear() = tf1.linear() * bv1.frame.linear();
+    bv2.To = tf1 * bv1.To;
+    bv2.axis = tf1.linear() * bv1.axis;
   }
 };
 
@@ -157,8 +157,8 @@ public:
   static void convert(const RSS<Scalar>& bv1, const Transform3<Scalar>& tf1, OBB<Scalar>& bv2)
   {
     bv2.extent = Vector3<Scalar>(bv1.l[0] * 0.5 + bv1.r, bv1.l[1] * 0.5 + bv1.r, bv1.r);
-    bv2.frame.translation() = tf1 * bv1.frame.translation();
-    bv2.frame.linear() = tf1.linear() * bv1.frame.linear();
+    bv2.To = tf1 * bv1.To;
+    bv2.axis = tf1.linear() * bv1.axis;
   }
 };
 
@@ -196,8 +196,8 @@ class Converter<Scalar, OBB<Scalar>, RSS<Scalar>>
 public:
   static void convert(const OBB<Scalar>& bv1, const Transform3<Scalar>& tf1, RSS<Scalar>& bv2)
   {
-    bv2.frame.translation() = tf1 * bv1.frame.translation();
-    bv2.frame.linear() = tf1.linear() * bv1.frame.linear();
+    bv2.To = tf1 * bv1.To;
+    bv2.axis = tf1.linear() * bv1.axis;
 
     bv2.r = bv1.extent[2];
     bv2.l[0] = 2 * (bv1.extent[0] - bv2.r);
@@ -211,8 +211,8 @@ class Converter<Scalar, RSS<Scalar>, RSS<Scalar>>
 public:
   static void convert(const RSS<Scalar>& bv1, const Transform3<Scalar>& tf1, RSS<Scalar>& bv2)
   {
-    bv2.frame.translation() = tf1 * bv1.frame.translation();
-    bv2.frame.linear() = tf1.linear() * bv1.frame.linear();
+    bv2.To = tf1 * bv1.To;
+    bv2.axis = tf1.linear() * bv1.axis;
 
     bv2.r = bv1.r;
     bv2.l[0] = bv1.l[0];
@@ -236,7 +236,7 @@ class Converter<Scalar, AABB<Scalar>, RSS<Scalar>>
 public:
   static void convert(const AABB<Scalar>& bv1, const Transform3<Scalar>& tf1, RSS<Scalar>& bv2)
   {
-    bv2.frame.translation() = tf1 * bv1.center();
+    bv2.To = tf1 * bv1.center();
 
     /// Sort the AABB edges so that AABB extents are ordered.
     Scalar d[3] = {bv1.width(), bv1.height(), bv1.depth() };
@@ -270,11 +270,11 @@ public:
     const Matrix3<Scalar>& R = tf1.linear();
     bool left_hand = (id[0] == (id[1] + 1) % 3);
     if (left_hand)
-      bv2.frame.linear().col(0) = -R.col(id[0]);
+      bv2.axis.col(0) = -R.col(id[0]);
     else
-      bv2.frame.linear().col(0) = R.col(id[0]);
-    bv2.frame.linear().col(1) = R.col(id[1]);
-    bv2.frame.linear().col(2) = R.col(id[2]);
+      bv2.axis.col(0) = R.col(id[0]);
+    bv2.axis.col(1) = R.col(id[1]);
+    bv2.axis.col(2) = R.col(id[2]);
   }
 };
 

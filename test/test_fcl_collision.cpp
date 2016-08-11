@@ -240,8 +240,8 @@ void test_OBB_AABB_test()
     {
       std::cout << aabb1.min_.transpose() << " " << aabb1.max_.transpose() << std::endl;
       std::cout << aabb2.min_.transpose() << " " << aabb2.max_.transpose() << std::endl;
-      std::cout << obb1.frame.translation().transpose() << " " << obb1.extent.transpose() << " " << obb1.frame.linear().col(0).transpose() << " " << obb1.frame.linear().col(1).transpose() << " " << obb1.frame.linear().col(2).transpose() << std::endl;
-      std::cout << obb2.frame.translation().transpose() << " " << obb2.extent.transpose() << " " << obb2.frame.linear().col(0).transpose() << " " << obb2.frame.linear().col(1).transpose() << " " << obb2.frame.linear().col(2).transpose() << std::endl;
+      std::cout << obb1.To.transpose() << " " << obb1.extent.transpose() << " " << obb1.axis.col(0).transpose() << " " << obb1.axis.col(1).transpose() << " " << obb1.axis.col(2).transpose() << std::endl;
+      std::cout << obb2.To.transpose() << " " << obb2.extent.transpose() << " " << obb2.axis.col(0).transpose() << " " << obb2.axis.col(1).transpose() << " " << obb2.axis.col(2).transpose() << std::endl;
     }
 
     EXPECT_TRUE(overlap_aabb == overlap_obb);

@@ -273,10 +273,10 @@ struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, SplineMotion<Scalar>>
     Scalar T_bound = motion.computeTBound(visitor.n);
     Scalar tf_t = motion.getCurrentTime();
 
-    Vector3<Scalar> c1 = visitor.bv.frame.translation();
-    Vector3<Scalar> c2 = visitor.bv.frame.translation() + visitor.bv.frame.linear().col(0) * visitor.bv.l[0];
-    Vector3<Scalar> c3 = visitor.bv.frame.translation() + visitor.bv.frame.linear().col(1) * visitor.bv.l[1];
-    Vector3<Scalar> c4 = visitor.bv.frame.translation() + visitor.bv.frame.linear().col(0) * visitor.bv.l[0] + visitor.bv.frame.linear().col(1) * visitor.bv.l[1];
+    Vector3<Scalar> c1 = visitor.bv.To;
+    Vector3<Scalar> c2 = visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0];
+    Vector3<Scalar> c3 = visitor.bv.To + visitor.bv.axis.col(1) * visitor.bv.l[1];
+    Vector3<Scalar> c4 = visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] + visitor.bv.axis.col(1) * visitor.bv.l[1];
 
     Scalar tmp;
     // max_i |c_i * n|
@@ -340,13 +340,13 @@ struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, ScrewMotion<Scalar>>
     Scalar angular_vel = motion.getAngularVelocity();
     const Vector3<Scalar>& p = motion.getAxisOrigin();
 
-    Scalar c_proj_max = ((tf.linear() * visitor.bv.frame.translation()).cross(axis)).squaredNorm();
+    Scalar c_proj_max = ((tf.linear() * visitor.bv.To).cross(axis)).squaredNorm();
     Scalar tmp;
-    tmp = ((tf.linear() * (visitor.bv.frame.translation() + visitor.bv.frame.linear().col(0) * visitor.bv.l[0])).cross(axis)).squaredNorm();
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0])).cross(axis)).squaredNorm();
     if(tmp > c_proj_max) c_proj_max = tmp;
-    tmp = ((tf.linear() * (visitor.bv.frame.translation() + visitor.bv.frame.linear().col(1) * visitor.bv.l[1])).cross(axis)).squaredNorm();
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(1) * visitor.bv.l[1])).cross(axis)).squaredNorm();
     if(tmp > c_proj_max) c_proj_max = tmp;
-    tmp = ((tf.linear() * (visitor.bv.frame.translation() + visitor.bv.frame.linear().col(0) * visitor.bv.l[0] + visitor.bv.frame.linear().col(1) * visitor.bv.l[1])).cross(axis)).squaredNorm();
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] + visitor.bv.axis.col(1) * visitor.bv.l[1])).cross(axis)).squaredNorm();
     if(tmp > c_proj_max) c_proj_max = tmp;
 
     c_proj_max = sqrt(c_proj_max);
@@ -381,13 +381,13 @@ struct TBVMotionBoundVisitorVisitImpl<Scalar, RSS<Scalar>, InterpMotion<Scalar>>
     Scalar angular_vel = motion.getAngularVelocity();
     const Vector3<Scalar>& linear_vel = motion.getLinearVelocity();
 
-    Scalar c_proj_max = ((tf.linear() * (visitor.bv.frame.translation() - reference_p)).cross(angular_axis)).squaredNorm();
+    Scalar c_proj_max = ((tf.linear() * (visitor.bv.To - reference_p)).cross(angular_axis)).squaredNorm();
     Scalar tmp;
-    tmp = ((tf.linear() * (visitor.bv.frame.translation() + visitor.bv.frame.linear().col(0) * visitor.bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
     if(tmp > c_proj_max) c_proj_max = tmp;
-    tmp = ((tf.linear() * (visitor.bv.frame.translation() + visitor.bv.frame.linear().col(1) * visitor.bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(1) * visitor.bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
     if(tmp > c_proj_max) c_proj_max = tmp;
-    tmp = ((tf.linear() * (visitor.bv.frame.translation() + visitor.bv.frame.linear().col(0) * visitor.bv.l[0] + visitor.bv.frame.linear().col(1) * visitor.bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] + visitor.bv.axis.col(1) * visitor.bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
     if(tmp > c_proj_max) c_proj_max = tmp;
 
     c_proj_max = std::sqrt(c_proj_max);

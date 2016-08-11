@@ -127,7 +127,10 @@ void getExtentAndCenter_pointcloud(
     int index = indirect_index ? indices[i] : i;
 
     const Vector3<Scalar>& p = ps[index];
-    Vector3<Scalar> proj = axis.transpose() * p;
+    Vector3<Scalar> proj(
+        axis.col(0).dot(p),
+        axis.col(1).dot(p),
+        axis.col(2).dot(p));
 
     for(int j = 0; j < 3; ++j)
     {
@@ -141,7 +144,10 @@ void getExtentAndCenter_pointcloud(
     if(ps2)
     {
       const Vector3<Scalar>& v = ps2[index];
-      proj = axis.transpose() * v;
+      Vector3<Scalar> proj(
+          axis.col(0).dot(v),
+          axis.col(1).dot(v),
+          axis.col(2).dot(v));
 
       for(int j = 0; j < 3; ++j)
       {
@@ -182,7 +188,10 @@ void getExtentAndCenter_pointcloud(
     int index = indirect_index ? indices[i] : i;
 
     const Vector3<Scalar>& p = ps[index];
-    Vector3<Scalar> proj = tf.linear().transpose() * p;
+    Vector3<Scalar> proj(
+        tf.linear().col(0).dot(p),
+        tf.linear().col(1).dot(p),
+        tf.linear().col(2).dot(p));
 
     for(int j = 0; j < 3; ++j)
     {
@@ -196,7 +205,10 @@ void getExtentAndCenter_pointcloud(
     if(ps2)
     {
       const Vector3<Scalar>& v = ps2[index];
-      proj = tf.linear().transpose() * v;
+      Vector3<Scalar> proj(
+          tf.linear().col(0).dot(v),
+          tf.linear().col(1).dot(v),
+          tf.linear().col(2).dot(v));
 
       for(int j = 0; j < 3; ++j)
       {
@@ -242,7 +254,10 @@ void getExtentAndCenter_mesh(Vector3<Scalar>* ps,
     {
       int point_id = t[j];
       const Vector3<Scalar>& p = ps[point_id];
-      const Vector3<Scalar> proj = axis.transpose() * p;
+      Vector3<Scalar> proj(
+          axis.col(0).dot(p),
+          axis.col(1).dot(p),
+          axis.col(2).dot(p));
 
       for(int k = 0; k < 3; ++k)
       {
@@ -260,7 +275,10 @@ void getExtentAndCenter_mesh(Vector3<Scalar>* ps,
       {
         int point_id = t[j];
         const Vector3<Scalar>& p = ps2[point_id];
-        const Vector3<Scalar> proj = axis.transpose() * p;
+        Vector3<Scalar> proj(
+            axis.col(0).dot(p),
+            axis.col(1).dot(p),
+            axis.col(2).dot(p));
 
         for(int k = 0; k < 3; ++k)
         {
@@ -307,7 +325,10 @@ void getExtentAndCenter_mesh(
     {
       const int point_id = t[j];
       const Vector3<Scalar>& p = ps[point_id];
-      const Vector3<Scalar> proj = tf.linear().transpose() * p;
+      const Vector3<Scalar> proj(
+          tf.linear().col(0).dot(p),
+          tf.linear().col(1).dot(p),
+          tf.linear().col(2).dot(p));
 
       for(int k = 0; k < 3; ++k)
       {
@@ -325,7 +346,10 @@ void getExtentAndCenter_mesh(
       {
         const int point_id = t[j];
         const Vector3<Scalar>& p = ps2[point_id];
-        const Vector3<Scalar> proj = tf.linear().transpose() * p;
+        const Vector3<Scalar> proj(
+            tf.linear().col(0).dot(p),
+            tf.linear().col(1).dot(p),
+            tf.linear().col(2).dot(p));
 
         for(int k = 0; k < 3; ++k)
         {

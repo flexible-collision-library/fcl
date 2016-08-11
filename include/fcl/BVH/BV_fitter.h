@@ -385,13 +385,13 @@ struct FitImpl<Scalar, OBB<Scalar>>
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);
     eigen_old(M, s, E);
-    axisFromEigen(E, s, bv.frame);
+    axisFromEigen(E, s, bv.axis);
 
     // set obb centers and extensions
     getExtentAndCenter(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives,
-          bv.frame, bv.extent);
+          bv.axis, bv.To, bv.extent);
 
     return bv;
   }
@@ -415,12 +415,12 @@ struct FitImpl<Scalar, RSS<Scalar>>
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);
     eigen_old(M, s, E);
-    axisFromEigen(E, s, bv.frame);
+    axisFromEigen(E, s, bv.axis);
 
     // set rss origin, rectangle size and radius
     getRadiusAndOriginAndRectangleSize(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
-          primitive_indices, num_primitives, bv.frame, bv.l, bv.r);
+          primitive_indices, num_primitives, bv.axis, bv.To, bv.l, bv.r);
 
     return bv;
   }
@@ -444,14 +444,14 @@ struct FitImpl<Scalar, kIOS<Scalar>>
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);
     eigen_old(M, s, E);
-    axisFromEigen(E, s, bv.obb.frame);
+    axisFromEigen(E, s, bv.obb.axis);
 
     // get centers and extensions
     getExtentAndCenter(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
-          primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
+          primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
-    const Vector3<Scalar>& center = bv.obb.frame.translation();
+    const Vector3<Scalar>& center = bv.obb.To;
     const Vector3<Scalar>& extent = bv.obb.extent;
     Scalar r0 = maximumDistance(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
@@ -471,7 +471,7 @@ struct FitImpl<Scalar, kIOS<Scalar>>
     if(bv.num_spheres >= 3)
     {
       Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<Scalar>::invSinA();
-      Vector3<Scalar> delta = bv.obb.frame.linear().col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
+      Vector3<Scalar> delta = bv.obb.axis.col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
       bv.spheres[1].o = center - delta;
       bv.spheres[2].o = center + delta;
 
@@ -482,8 +482,8 @@ struct FitImpl<Scalar, kIOS<Scalar>>
             fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
             primitive_indices, num_primitives, bv.spheres[2].o);
 
-      bv.spheres[1].o += bv.obb.frame.linear().col(2) * (-r10 + r11);
-      bv.spheres[2].o += bv.obb.frame.linear().col(2) * (r10 - r12);
+      bv.spheres[1].o += bv.obb.axis.col(2) * (-r10 + r11);
+      bv.spheres[2].o += bv.obb.axis.col(2) * (r10 - r12);
 
       bv.spheres[1].r = r10;
       bv.spheres[2].r = r10;
@@ -492,7 +492,7 @@ struct FitImpl<Scalar, kIOS<Scalar>>
     if(bv.num_spheres >= 5)
     {
       Scalar r10 = bv.spheres[1].r;
-      Vector3<Scalar> delta = bv.obb.frame.linear().col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+      Vector3<Scalar> delta = bv.obb.axis.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
       bv.spheres[3].o = bv.spheres[0].o - delta;
       bv.spheres[4].o = bv.spheres[0].o + delta;
 
@@ -504,8 +504,8 @@ struct FitImpl<Scalar, kIOS<Scalar>>
             fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
             primitive_indices, num_primitives, bv.spheres[4].o);
 
-      bv.spheres[3].o += bv.obb.frame.linear().col(1) * (-r10 + r21);
-      bv.spheres[4].o += bv.obb.frame.linear().col(1) * (r10 - r22);
+      bv.spheres[3].o += bv.obb.axis.col(1) * (-r10 + r21);
+      bv.spheres[4].o += bv.obb.axis.col(1) * (r10 - r22);
 
       bv.spheres[3].r = r10;
       bv.spheres[4].r = r10;
@@ -532,17 +532,17 @@ struct FitImpl<Scalar, OBBRSS<Scalar>>
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);
     eigen_old(M, s, E);
-    axisFromEigen(E, s, bv.obb.frame);
-    bv.rss.frame.linear() = bv.obb.frame.linear();
+    axisFromEigen(E, s, bv.obb.axis);
+    bv.rss.axis = bv.obb.axis;
 
     getExtentAndCenter(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
-          primitive_indices, num_primitives, bv.obb.frame, bv.obb.extent);
+          primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
     getRadiusAndOriginAndRectangleSize(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives,
-          bv.rss.frame, bv.rss.l, bv.rss.r);
+          bv.rss.axis, bv.rss.To, bv.rss.l, bv.rss.r);
 
     return bv;
   }

@@ -112,11 +112,10 @@ OBBRSS<Scalar> translate(const OBBRSS<Scalar>& bv, const Vector3<Scalar>& t);
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
 /// and b2 is in indentity
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//FCL_DEPRECATED
-//bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
-//             const Eigen::MatrixBase<DerivedB>& T0,
-//             const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2);
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
+             const Eigen::MatrixBase<DerivedB>& T0,
+             const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2);
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
 /// and b2 is in indentity
@@ -128,13 +127,12 @@ bool overlap(
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
 /// and b2 is in indentity; P and Q, is not NULL, returns the nearest points
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//FCL_DEPRECATED
-//Scalar distance(
-//    const Eigen::MatrixBase<DerivedA>& R0,
-//    const Eigen::MatrixBase<DerivedB>& T0,
-//    const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2,
-//    Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL);
+template <typename Scalar, typename DerivedA, typename DerivedB>
+Scalar distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2,
+    Vector3<Scalar>* P = NULL, Vector3<Scalar>* Q = NULL);
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
 /// and b2 is in indentity; P and Q, is not NULL, returns the nearest points
@@ -252,13 +250,13 @@ Scalar OBBRSS<Scalar>::distance(const OBBRSS<Scalar>& other,
 }
 
 //==============================================================================
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
-//             const Eigen::MatrixBase<DerivedB>& T0,
-//             const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2)
-//{
-//  return overlap(R0, T0, b1.obb, b2.obb);
-//}
+template <typename Scalar, typename DerivedA, typename DerivedB>
+bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
+             const Eigen::MatrixBase<DerivedB>& T0,
+             const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2)
+{
+  return overlap(R0, T0, b1.obb, b2.obb);
+}
 
 //==============================================================================
 template <typename Scalar>
@@ -271,15 +269,15 @@ bool overlap(
 }
 
 //==============================================================================
-//template <typename Scalar, typename DerivedA, typename DerivedB>
-//Scalar distance(
-//    const Eigen::MatrixBase<DerivedA>& R0,
-//    const Eigen::MatrixBase<DerivedB>& T0,
-//    const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2,
-//    Vector3<Scalar>* P, Vector3<Scalar>* Q)
-//{
-//  return distance(R0, T0, b1.rss, b2.rss, P, Q);
-//}
+template <typename Scalar, typename DerivedA, typename DerivedB>
+Scalar distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const OBBRSS<Scalar>& b1, const OBBRSS<Scalar>& b2,
+    Vector3<Scalar>* P, Vector3<Scalar>* Q)
+{
+  return distance(R0, T0, b1.rss, b2.rss, P, Q);
+}
 
 //==============================================================================
 template <typename Scalar>
@@ -298,8 +296,8 @@ template <typename Scalar>
 OBBRSS<Scalar> translate(const OBBRSS<Scalar>& bv, const Vector3<Scalar>& t)
 {
   OBBRSS<Scalar> res(bv);
-  res.obb.frame.translation() += t;
-  res.rss.frame.translation() += t;
+  res.obb.To += t;
+  res.rss.To += t;
   return res;
 }
 

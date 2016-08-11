@@ -123,13 +123,13 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Plane<ScalarT>>
   static void compute(const Plane<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
     Vector3<ScalarT> n = tf.linear() * s.n;
-    bv.frame.linear().col(0) = n;
-    generateCoordinateSystem(bv.frame);
+    bv.axis.col(0) = n;
+    generateCoordinateSystem(bv.axis);
 
     bv.extent << 0, std::numeric_limits<ScalarT>::max(), std::numeric_limits<ScalarT>::max();
 
     Vector3<ScalarT> p = s.n * s.d;
-    bv.frame.translation() = tf * p; /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
+    bv.To = tf * p; /// n'd' = R * n * (d + (R * n) * T) = R * (n * d) + T
   }
 };
 
@@ -141,8 +141,8 @@ struct BVComputer<ScalarT, RSS<ScalarT>, Plane<ScalarT>>
   {
     Vector3<ScalarT> n = tf.linear() * s.n;
 
-    bv.frame.linear().col(0) = n;
-    generateCoordinateSystem(bv.frame);
+    bv.axis.col(0) = n;
+    generateCoordinateSystem(bv.axis);
 
     bv.l[0] = std::numeric_limits<ScalarT>::max();
     bv.l[1] = std::numeric_limits<ScalarT>::max();
@@ -150,7 +150,7 @@ struct BVComputer<ScalarT, RSS<ScalarT>, Plane<ScalarT>>
     bv.r = 0;
 
     Vector3<ScalarT> p = s.n * s.d;
-    bv.frame.translation() = tf * p;
+    bv.To = tf * p;
   }
 };
 

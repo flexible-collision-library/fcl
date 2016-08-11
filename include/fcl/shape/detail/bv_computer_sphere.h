@@ -76,8 +76,8 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>
 {
   static void compute(const Sphere<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    bv.frame.translation() = tf.translation();
-    bv.frame.linear().setIdentity();
+    bv.To = tf.translation();
+    bv.axis.setIdentity();
     bv.extent.setConstant(s.radius);
   }
 };

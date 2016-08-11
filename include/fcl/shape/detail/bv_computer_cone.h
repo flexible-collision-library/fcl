@@ -83,7 +83,8 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Cone<ScalarT>>
 {
   static void compute(const Cone<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
   {
-    bv.frame = tf;
+    bv.axis = tf.linear();
+    bv.To = tf.translation();
     bv.extent << s.radius, s.radius, s.lz / 2;
   }
 };

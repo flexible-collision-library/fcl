@@ -104,7 +104,7 @@ public:
   {
     if (this->enable_statistics) this->num_bv_tests++;
 
-    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+    return distance(tf.linear(), tf.translation(), this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const;
@@ -144,7 +144,7 @@ public:
   {
     if (this->enable_statistics) this->num_bv_tests++;
 
-    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+    return distance(tf.linear(), tf.translation(), this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const;
@@ -184,7 +184,7 @@ public:
   {
     if (this->enable_statistics) this->num_bv_tests++;
 
-    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+    return distance(tf.linear(), tf.translation(), this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const;

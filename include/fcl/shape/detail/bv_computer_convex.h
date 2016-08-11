@@ -86,8 +86,8 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Convex<ScalarT>>
   {
     fit(s.points, s.num_points, bv);
 
-    bv.frame.linear() = tf.linear();
-    bv.frame.translation() = tf * bv.frame.translation();
+    bv.axis = tf.linear();
+    bv.To = tf * bv.To;
   }
 };
 

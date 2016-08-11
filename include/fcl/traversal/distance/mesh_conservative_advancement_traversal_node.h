@@ -676,7 +676,7 @@ struct GetBVAxisImpl<Scalar, OBBRSS<Scalar>>
 {
   const Vector3<Scalar> operator()(const OBBRSS<Scalar>& bv, int i)
   {
-    return bv.obb.frame.linear().col(i);
+    return bv.obb.axis.col(i);
   }
 };
 
