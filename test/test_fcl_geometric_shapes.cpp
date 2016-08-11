@@ -164,15 +164,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
   test_gjkcache<double>();
 }
 
-template <typename S1, typename S2>
+template <typename Shape1, typename Shape2>
 void printComparisonError(const std::string& comparison_type,
-                          const S1& s1, const Transform3<typename S1::S>& tf1,
-                          const S2& s2, const Transform3<typename S1::S>& tf2,
+                          const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                          const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                           GJKSolverType solver_type,
-                          const Vector3<typename S1::S>& expected_contact_or_normal,
-                          const Vector3<typename S1::S>& actual_contact_or_normal,
+                          const Vector3<typename Shape1::S>& expected_contact_or_normal,
+                          const Vector3<typename Shape1::S>& actual_contact_or_normal,
                           bool check_opposite_normal,
-                          typename S1::S tol)
+                          typename Shape1::S tol)
 {
   std::cout << "Disagreement between " << comparison_type
             << " and expected_" << comparison_type << " for "
@@ -194,14 +194,14 @@ void printComparisonError(const std::string& comparison_type,
             << "tolerance: " << tol << std::endl;
 }
 
-template <typename S1, typename S2>
+template <typename Shape1, typename Shape2>
 void printComparisonError(const std::string& comparison_type,
-                          const S1& s1, const Transform3<typename S1::S>& tf1,
-                          const S2& s2, const Transform3<typename S1::S>& tf2,
+                          const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                          const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                           GJKSolverType solver_type,
-                          typename S1::S expected_depth,
-                          typename S1::S actual_depth,
-                          typename S1::S tol)
+                          typename Shape1::S expected_depth,
+                          typename Shape1::S actual_depth,
+                          typename Shape1::S tol)
 {
   std::cout << "Disagreement between " << comparison_type
             << " and expected_" << comparison_type << " for "
@@ -218,16 +218,16 @@ void printComparisonError(const std::string& comparison_type,
             << "tolerance: " << tol << std::endl;
 }
 
-template <typename S1, typename S2>
-bool checkContactPointds(const S1& s1, const Transform3<typename S1::S>& tf1,
-                        const S2& s2, const Transform3<typename S1::S>& tf2,
+template <typename Shape1, typename Shape2>
+bool checkContactPointds(const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                        const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                         GJKSolverType solver_type,
-                        const ContactPoint<typename S1::S>& expected, const ContactPoint<typename S1::S>& actual,
+                        const ContactPoint<typename Shape1::S>& expected, const ContactPoint<typename Shape1::S>& actual,
                         bool check_position = false,
                         bool check_depth = false,
                         bool check_normal = false,
                         bool check_opposite_normal = false,
-                        typename S1::S tol = 1e-9)
+                        typename Shape1::S tol = 1e-9)
 {
   if (check_position)
   {
@@ -257,19 +257,19 @@ bool checkContactPointds(const S1& s1, const Transform3<typename S1::S>& tf1,
   return true;
 }
 
-template <typename S1, typename S2>
-bool inspectContactPointds(const S1& s1, const Transform3<typename S1::S>& tf1,
-                          const S2& s2, const Transform3<typename S1::S>& tf2,
+template <typename Shape1, typename Shape2>
+bool inspectContactPointds(const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                          const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                           GJKSolverType solver_type,
-                          const std::vector<ContactPoint<typename S1::S>>& expected_contacts,
-                          const std::vector<ContactPoint<typename S1::S>>& actual_contacts,
+                          const std::vector<ContactPoint<typename Shape1::S>>& expected_contacts,
+                          const std::vector<ContactPoint<typename Shape1::S>>& actual_contacts,
                           bool check_position = false,
                           bool check_depth = false,
                           bool check_normal = false,
                           bool check_opposite_normal = false,
-                          typename S1::S tol = 1e-9)
+                          typename Shape1::S tol = 1e-9)
 {
-  using S = typename S1::S;
+  using S = typename Shape1::S;
 
   // Check number of contact points
   bool sameNumContacts = (actual_contacts.size() == expected_contacts.size());
@@ -408,20 +408,20 @@ void getContactPointdsFromResult(std::vector<ContactPoint<S>>& contacts, const C
   }
 }
 
-template <typename S1, typename S2>
+template <typename Shape1, typename Shape2>
 void testShapeIntersection(
-    const S1& s1, const Transform3<typename S1::S>& tf1,
-    const S2& s2, const Transform3<typename S1::S>& tf2,
+    const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+    const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
     GJKSolverType solver_type,
     bool expected_res,
-    const std::vector<ContactPoint<typename S1::S>>& expected_contacts = std::vector<ContactPoint<typename S1::S>>(),
+    const std::vector<ContactPoint<typename Shape1::S>>& expected_contacts = std::vector<ContactPoint<typename Shape1::S>>(),
     bool check_position = true,
     bool check_depth = true,
     bool check_normal = true,
     bool check_opposite_normal = false,
-    typename S1::S tol = 1e-9)
+    typename Shape1::S tol = 1e-9)
 {
-  using S = typename S1::S;
+  using S = typename Shape1::S;
 
   CollisionRequest<S> request;
   request.gjk_solver_type = solver_type;
@@ -991,7 +991,7 @@ void test_shapeIntersection_conecone()
   tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 5e-5);
 
   tf1 = Transform3<S>::Identity();
   tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10.001, 0, 0)));
@@ -5032,10 +5032,10 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
   test_shapeDistanceGJK_ellipsoidellipsoid<double>();
 }
 
-template<typename S1, typename S2>
-void testReversibleShapeIntersection(const S1& s1, const S2& s2, typename S2::S distance)
+template<typename Shape1, typename Shape2>
+void testReversibleShapeIntersection(const Shape1& s1, const Shape2& s2, typename Shape2::S distance)
 {
-  using S = typename S2::S;
+  using S = typename Shape2::S;
 
   Transform3<S> tf1(Translation3<S>(Vector3<S>(-0.5 * distance, 0.0, 0.0)));
   Transform3<S> tf2(Translation3<S>(Vector3<S>(+0.5 * distance, 0.0, 0.0)));
@@ -5141,10 +5141,10 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
   test_reversibleShapeIntersection_allshapes<double>();
 }
 
-template<typename S1, typename S2>
-void testReversibleShapeDistance(const S1& s1, const S2& s2, typename S2::S distance)
+template<typename Shape1, typename Shape2>
+void testReversibleShapeDistance(const Shape1& s1, const Shape2& s2, typename Shape2::S distance)
 {
-  using S = typename S2::S;
+  using S = typename Shape2::S;
 
   Transform3<S> tf1(Translation3<S>(Vector3<S>(-0.5 * distance, 0.0, 0.0)));
   Transform3<S> tf2(Translation3<S>(Vector3<S>(+0.5 * distance, 0.0, 0.0)));

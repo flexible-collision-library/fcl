@@ -45,7 +45,7 @@ namespace fcl
 {
 
 /// @brief Traversal node for collision between two shapes
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::S>
 {
@@ -61,8 +61,8 @@ public:
   /// @brief Intersection testing between leaves (two shapes)
   void leafTesting(int, int) const;
 
-  const S1* model1;
-  const S2* model2;
+  const Shape1* model1;
+  const Shape2* model2;
 
   S cost_density;
 
@@ -71,12 +71,12 @@ public:
 
 /// @brief Initialize traversal node for collision between two geometric shapes,
 /// given current object transform
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
+    const Shape1& shape1,
     const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const S2& shape2,
+    const Shape2& shape2,
     const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     const CollisionRequest<typename NarrowPhaseSolver::S>& request,
@@ -89,8 +89,8 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 ShapeCollisionTraversalNode()
   : CollisionTraversalNodeBase<typename NarrowPhaseSolver::S>()
 {
@@ -101,16 +101,16 @@ ShapeCollisionTraversalNode()
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-bool ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+bool ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 BVTesting(int, int) const
 {
   return false;
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-void ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>::
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+void ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
   if(model1->isOccupied() && model2->isOccupied())
@@ -178,12 +178,12 @@ leafTesting(int, int) const
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeCollisionTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
+    const Shape1& shape1,
     const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const S2& shape2,
+    const Shape2& shape2,
     const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     const CollisionRequest<typename NarrowPhaseSolver::S>& request,

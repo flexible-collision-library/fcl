@@ -43,9 +43,9 @@
 namespace fcl
 {
 
-template<typename S1, typename S2, typename NarrowPhaseSolver>
+template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeConservativeAdvancementTraversalNode
-    : public ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>
+    : public ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>
 {
 public:
   using S = typename NarrowPhaseSolver::S;
@@ -70,12 +70,12 @@ public:
   RSS<S> model1_bv, model2_bv; // local bv for the two shapes
 };
 
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
+    const Shape1& shape1,
     const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const S2& shape2,
+    const Shape2& shape2,
     const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver);
 
@@ -86,10 +86,10 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>::
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 ShapeConservativeAdvancementTraversalNode()
-  : ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>()
+  : ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>()
 {
   delta_t = 1;
   toc = 0;
@@ -100,8 +100,8 @@ ShapeConservativeAdvancementTraversalNode()
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-void ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>::
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+void ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
   S distance;
@@ -133,12 +133,12 @@ leafTesting(int, int) const
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
+    const Shape1& shape1,
     const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const S2& shape2,
+    const Shape2& shape2,
     const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver)
 {

@@ -45,7 +45,7 @@ namespace fcl
 {
 
 /// @brief Traversal node for distance between two shapes
-template<typename S1, typename S2, typename NarrowPhaseSolver>
+template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::S>
 {
@@ -60,19 +60,19 @@ public:
   /// @brief Distance testing between leaves (two shapes)
   void leafTesting(int, int) const;
 
-  const S1* model1;
-  const S2* model2;
+  const Shape1* model1;
+  const Shape2* model2;
 
   const NarrowPhaseSolver* nsolver;
 };
 
 /// @brief Initialize traversal node for distance between two geometric shapes
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
+    const Shape1& shape1,
     const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const S2& shape2,
+    const Shape2& shape2,
     const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     const DistanceRequest<typename NarrowPhaseSolver::S>& request,
@@ -85,8 +85,8 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSolver::S>()
 {
   model1 = NULL;
@@ -96,16 +96,16 @@ ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSol
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 typename NarrowPhaseSolver::S
-ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::BVTesting(int, int) const
+ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::BVTesting(int, int) const
 {
   return -1; // should not be used
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
-void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+void ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::leafTesting(
     int, int) const
 {
   using S = typename NarrowPhaseSolver::S;
@@ -134,12 +134,12 @@ void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
 }
 
 //==============================================================================
-template <typename S1, typename S2, typename NarrowPhaseSolver>
+template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
-    const S1& shape1,
+    ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
+    const Shape1& shape1,
     const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const S2& shape2,
+    const Shape2& shape2,
     const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     const DistanceRequest<typename NarrowPhaseSolver::S>& request,

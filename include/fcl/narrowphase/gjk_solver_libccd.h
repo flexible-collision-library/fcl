@@ -54,24 +54,24 @@ struct GJKSolver_libccd
   using S = S_;
 
   /// @brief intersection checking between two shapes
-  /// @deprecated use shapeIntersect(const S1&, const Transform3<S>&, const S2&, const Transform3<S>&, std::vector<ContactPoint<S>>*) const
-  template<typename S1, typename S2>
+  /// @deprecated use shapeIntersect(const Shape1&, const Transform3<S>&, const Shape2&, const Transform3<S>&, std::vector<ContactPoint<S>>*) const
+  template<typename Shape1, typename Shape2>
   FCL_DEPRECATED
   bool shapeIntersect(
-      const S1& s1,
+      const Shape1& s1,
       const Transform3<S>& tf1,
-      const S2& s2,
+      const Shape2& s2,
       const Transform3<S>& tf2,
       Vector3<S>* contact_points,
       S* penetration_depth,
       Vector3<S>* normal) const;
 
   /// @brief intersection checking between two shapes
-  template<typename S1, typename S2>
+  template<typename Shape1, typename Shape2>
   bool shapeIntersect(
-      const S1& s1,
+      const Shape1& s1,
       const Transform3<S>& tf1,
-      const S2& s2,
+      const Shape2& s2,
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts = NULL) const;
 
@@ -101,11 +101,11 @@ struct GJKSolver_libccd
       Vector3<S>* normal = NULL) const;
 
   /// @brief distance computation between two shapes
-  template<typename S1, typename S2>
+  template<typename Shape1, typename Shape2>
   bool shapeDistance(
-      const S1& s1,
+      const Shape1& s1,
       const Transform3<S>& tf1,
-      const S2& s2,
+      const Shape2& s2,
       const Transform3<S>& tf2,
       S* dist = NULL,
       Vector3<S>* p1 = NULL,
@@ -170,10 +170,10 @@ using GJKSolver_libccdd = GJKSolver_libccd<double>;
 
 //==============================================================================
 template<typename S>
-template<typename S1, typename S2>
+template<typename Shape1, typename Shape2>
 bool GJKSolver_libccd<S>::shapeIntersect(
-    const S1& s1, const Transform3<S>& tf1,
-    const S2& s2, const Transform3<S>& tf2,
+    const Shape1& s1, const Transform3<S>& tf1,
+    const Shape2& s2, const Transform3<S>& tf2,
     Vector3<S>* contact_points,
     S* penetration_depth,
     Vector3<S>* normal) const
@@ -210,17 +210,17 @@ bool GJKSolver_libccd<S>::shapeIntersect(
 }
 
 //==============================================================================
-template<typename S, typename S1, typename S2>
+template<typename S, typename Shape1, typename Shape2>
 struct ShapeIntersectLibccdImpl
 {
   static bool run(
       const GJKSolver_libccd<S>& gjkSolver,
-      const S1& s1, const Transform3<S>& tf1,
-      const S2& s2, const Transform3<S>& tf2,
+      const Shape1& s1, const Transform3<S>& tf1,
+      const Shape2& s2, const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
-    void* o1 = details::GJKInitializer<S, S1>::createGJKObject(s1, tf1);
-    void* o2 = details::GJKInitializer<S, S2>::createGJKObject(s2, tf2);
+    void* o1 = details::GJKInitializer<S, Shape1>::createGJKObject(s1, tf1);
+    void* o2 = details::GJKInitializer<S, Shape2>::createGJKObject(s2, tf2);
 
     bool res;
 
@@ -231,10 +231,10 @@ struct ShapeIntersectLibccdImpl
       S depth;
       res = details::GJKCollide<S>(
             o1,
-            details::GJKInitializer<S, S1>::getSupportFunction(),
-            details::GJKInitializer<S, S1>::getCenterFunction(),
-            o2, details::GJKInitializer<S, S2>::getSupportFunction(),
-            details::GJKInitializer<S, S2>::getCenterFunction(),
+            details::GJKInitializer<S, Shape1>::getSupportFunction(),
+            details::GJKInitializer<S, Shape1>::getCenterFunction(),
+            o2, details::GJKInitializer<S, Shape2>::getSupportFunction(),
+            details::GJKInitializer<S, Shape2>::getCenterFunction(),
             gjkSolver.max_collision_iterations,
             gjkSolver.collision_tolerance,
             &point,
@@ -246,11 +246,11 @@ struct ShapeIntersectLibccdImpl
     {
       res = details::GJKCollide<S>(
             o1,
-            details::GJKInitializer<S, S1>::getSupportFunction(),
-            details::GJKInitializer<S, S1>::getCenterFunction(),
+            details::GJKInitializer<S, Shape1>::getSupportFunction(),
+            details::GJKInitializer<S, Shape1>::getCenterFunction(),
             o2,
-            details::GJKInitializer<S, S2>::getSupportFunction(),
-            details::GJKInitializer<S, S2>::getCenterFunction(),
+            details::GJKInitializer<S, Shape2>::getSupportFunction(),
+            details::GJKInitializer<S, Shape2>::getCenterFunction(),
             gjkSolver.max_collision_iterations,
             gjkSolver.collision_tolerance,
             NULL,
@@ -258,8 +258,8 @@ struct ShapeIntersectLibccdImpl
             NULL);
     }
 
-    details::GJKInitializer<S, S1>::deleteGJKObject(o1);
-    details::GJKInitializer<S, S2>::deleteGJKObject(o2);
+    details::GJKInitializer<S, Shape1>::deleteGJKObject(o1);
+    details::GJKInitializer<S, Shape2>::deleteGJKObject(o2);
 
     return res;
   }
@@ -267,13 +267,13 @@ struct ShapeIntersectLibccdImpl
 
 //==============================================================================
 template<typename S>
-template<typename S1, typename S2>
+template<typename Shape1, typename Shape2>
 bool GJKSolver_libccd<S>::shapeIntersect(
-    const S1& s1, const Transform3<S>& tf1,
-    const S2& s2, const Transform3<S>& tf2,
+    const Shape1& s1, const Transform3<S>& tf1,
+    const Shape2& s2, const Transform3<S>& tf2,
     std::vector<ContactPoint<S>>* contacts) const
 {
-  return ShapeIntersectLibccdImpl<S, S1, S2>::run(
+  return ShapeIntersectLibccdImpl<S, Shape1, Shape2>::run(
         *this, s1, tf1, s2, tf2, contacts);
 }
 
@@ -631,27 +631,27 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<S, Plane<S>>
 };
 
 //==============================================================================
-template<typename S, typename S1, typename S2>
+template<typename S, typename Shape1, typename Shape2>
 struct ShapeDistanceLibccdImpl
 {
   static bool run(
       const GJKSolver_libccd<S>& gjkSolver,
-      const S1& s1,
+      const Shape1& s1,
       const Transform3<S>& tf1,
-      const S2& s2,
+      const Shape2& s2,
       const Transform3<S>& tf2,
       S* dist,
       Vector3<S>* p1,
       Vector3<S>* p2)
   {
-    void* o1 = details::GJKInitializer<S, S1>::createGJKObject(s1, tf1);
-    void* o2 = details::GJKInitializer<S, S2>::createGJKObject(s2, tf2);
+    void* o1 = details::GJKInitializer<S, Shape1>::createGJKObject(s1, tf1);
+    void* o2 = details::GJKInitializer<S, Shape2>::createGJKObject(s2, tf2);
 
     bool res =  details::GJKDistance(
           o1,
-          details::GJKInitializer<S, S1>::getSupportFunction(),
+          details::GJKInitializer<S, Shape1>::getSupportFunction(),
           o2,
-          details::GJKInitializer<S, S2>::getSupportFunction(),
+          details::GJKInitializer<S, Shape2>::getSupportFunction(),
           gjkSolver.max_distance_iterations,
           gjkSolver.distance_tolerance,
           dist,
@@ -664,25 +664,25 @@ struct ShapeDistanceLibccdImpl
     if (p2)
       (*p2).noalias() = tf2.inverse(Eigen::Isometry) * *p2;
 
-    details::GJKInitializer<S, S1>::deleteGJKObject(o1);
-    details::GJKInitializer<S, S2>::deleteGJKObject(o2);
+    details::GJKInitializer<S, Shape1>::deleteGJKObject(o1);
+    details::GJKInitializer<S, Shape2>::deleteGJKObject(o2);
 
     return res;
   }
 };
 
 template<typename S>
-template<typename S1, typename S2>
+template<typename Shape1, typename Shape2>
 bool GJKSolver_libccd<S>::shapeDistance(
-    const S1& s1,
+    const Shape1& s1,
     const Transform3<S>& tf1,
-    const S2& s2,
+    const Shape2& s2,
     const Transform3<S>& tf2,
     S* dist,
     Vector3<S>* p1,
     Vector3<S>* p2) const
 {
-  return ShapeDistanceLibccdImpl<S, S1, S2>::run(
+  return ShapeDistanceLibccdImpl<S, Shape1, Shape2>::run(
         *this, s1, tf1, s2, tf2, dist, p1, p2);
 }
 

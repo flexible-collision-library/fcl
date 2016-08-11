@@ -228,10 +228,10 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
 
 }
 
-template<typename S1, typename S2, typename NarrowPhaseSolver>
-bool conservativeAdvancement(const S1& o1,
+template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
+bool conservativeAdvancement(const Shape1& o1,
                              const MotionBase<typename NarrowPhaseSolver::S>* motion1,
-                             const S2& o2,
+                             const Shape2& o2,
                              const MotionBase<typename NarrowPhaseSolver::S>* motion2,
                              const NarrowPhaseSolver* solver,
                              const CollisionRequest<typename NarrowPhaseSolver::S>& request,
@@ -251,7 +251,7 @@ bool conservativeAdvancement(const S1& o1,
     return true;
   }
 
-  ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver> node;
+  ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver> node;
 
   initialize(node, o1, tf1, o2, tf2, solver);
 
@@ -724,13 +724,13 @@ typename BV::S BVHConservativeAdvancement(const CollisionGeometry<typename BV::S
   return toc;
 }
 
-template<typename S1, typename S2, typename NarrowPhaseSolver>
+template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 typename NarrowPhaseSolver::S ShapeConservativeAdvancement(const CollisionGeometry<typename NarrowPhaseSolver::S>* o1, const MotionBase<typename NarrowPhaseSolver::S>* motion1, const CollisionGeometry<typename NarrowPhaseSolver::S>* o2, const MotionBase<typename NarrowPhaseSolver::S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<typename NarrowPhaseSolver::S>& request, ContinuousCollisionResult<typename NarrowPhaseSolver::S>& result)
 {
   using S = typename NarrowPhaseSolver::S;
 
-  const S1* obj1 = static_cast<const S1*>(o1);
-  const S2* obj2 = static_cast<const S2*>(o2);
+  const Shape1* obj1 = static_cast<const Shape1*>(o1);
+  const Shape2* obj2 = static_cast<const Shape2*>(o2);
 
   CollisionRequest<S> c_request;
   CollisionResult<S> c_result;
