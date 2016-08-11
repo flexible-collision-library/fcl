@@ -235,7 +235,7 @@ struct ShapeIntersectIndepImpl
     details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
@@ -253,7 +253,7 @@ struct ShapeIntersectIndepImpl
           Vector3<S> w0 = Vector3<S>::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
-            w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+            w0.noalias() += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
           }
           if(contacts)
           {
@@ -486,11 +486,11 @@ struct ShapeTriangleIntersectIndepImpl
           Vector3<S> w0 = Vector3<S>::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
-            w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+            w0.noalias() += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
           if(normal) *normal = -epa.normal;
-          if(contact_points) *contact_points = tf * (w0 - epa.normal*(epa.depth *0.5));
+          if(contact_points) (*contact_points).noalias() = tf * (w0 - epa.normal*(epa.depth *0.5));
           return true;
         }
         else return false;
@@ -565,7 +565,7 @@ struct ShapeTransformedTriangleIntersectIndepImpl
     details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
@@ -583,11 +583,11 @@ struct ShapeTransformedTriangleIntersectIndepImpl
           Vector3<S> w0 = Vector3<S>::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
-            w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
+            w0.noalias() += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
           }
           if(penetration_depth) *penetration_depth = -epa.depth;
           if(normal) *normal = -epa.normal;
-          if(contact_points) *contact_points = tf1 * (w0 - epa.normal*(epa.depth *0.5));
+          if(contact_points) (*contact_points).noalias() = tf1 * (w0 - epa.normal*(epa.depth *0.5));
           return true;
         }
         else return false;
@@ -705,7 +705,7 @@ struct ShapeDistanceIndepImpl
     details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
-    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
@@ -719,14 +719,14 @@ struct ShapeDistanceIndepImpl
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         S p = gjk.getSimplex()->p[i];
-        w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
+        w0.noalias() += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
+        w1.noalias() += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
       if(distance) *distance = (w0 - w1).norm();
 
       if(p1) *p1 = w0;
-      if(p2) *p2 = shape.toshape0 * w1;
+      if(p2) (*p2).noalias() = shape.toshape0 * w1;
 
       return true;
     }
@@ -885,13 +885,13 @@ struct ShapeTriangleDistanceIndepImpl
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         S p = gjk.getSimplex()->p[i];
-        w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
+        w0.noalias() += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
+        w1.noalias() += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
       if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = w0;
-      if(p2) *p2 = shape.toshape0 * w1;
+      if(p2) (*p2).noalias() = shape.toshape0 * w1;
       return true;
     }
     else
@@ -961,7 +961,7 @@ struct ShapeTransformedTriangleDistanceIndepImpl
     details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
-    shape.toshape1 = tf2.linear().transpose() * tf1.linear();
+    shape.toshape1.noalias() = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
     details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
@@ -975,13 +975,13 @@ struct ShapeTransformedTriangleDistanceIndepImpl
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
         S p = gjk.getSimplex()->p[i];
-        w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
-        w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
+        w0.noalias() += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
+        w1.noalias() += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
 
       if(distance) *distance = (w0 - w1).norm();
       if(p1) *p1 = w0;
-      if(p2) *p2 = shape.toshape0 * w1;
+      if(p2) (*p2).noalias() = shape.toshape0 * w1;
       return true;
     }
     else
