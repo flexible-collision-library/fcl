@@ -657,7 +657,7 @@ bool GJK<S>::encloseOrigin()
     {
       for(size_t i = 0; i < 3; ++i)
       {
-        Vector3<S> axis;
+        Vector3<S> axis = Vector3<S>::Zero();
         axis[i] = 1;
         appendVertex(*simplex, axis);
         if(encloseOrigin()) return true;
@@ -673,7 +673,7 @@ bool GJK<S>::encloseOrigin()
       Vector3<S> d = simplex->c[1]->w - simplex->c[0]->w;
       for(size_t i = 0; i < 3; ++i)
       {
-        Vector3<S> axis;
+        Vector3<S> axis = Vector3<S>::Zero();
         axis[i] = 1;
         Vector3<S> p = d.cross(axis);
         if(p.squaredNorm() > 0)
@@ -775,7 +775,7 @@ typename EPA<S>::SimplexF* EPA<S>::newFace(
     face->c[0] = a;
     face->c[1] = b;
     face->c[2] = c;
-    face->n = (b->w - a->w).cross(c->w - a->w);
+    face->n.noalias() = (b->w - a->w).cross(c->w - a->w);
     S l = face->n.norm();
 
     if(l > tolerance)
