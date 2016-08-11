@@ -38,10 +38,6 @@
 #ifndef FCL_COMMON_DETAIL_PROFILER_H
 #define FCL_COMMON_DETAIL_PROFILER_H
 
-#include "fcl/config.h"
-
-#if FCL_ENABLE_PROFILING
-
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -608,5 +604,4 @@ inline Profiler::ScopedBlock::~ScopedBlock()
 } // namespace tools
 } // namespace fcl
 
-#endif // #if FCL_ENABLE_PROFILING
 #endif // #ifndef FCL_COMMON_DETAIL_PROFILER_H

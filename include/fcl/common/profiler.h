@@ -48,8 +48,6 @@
   #define FCL_PROFILE_BLOCK_END(name)      ::fcl::detail::Profiler::End(name);
   #define FCL_PROFILE_STATUS(stream)       ::fcl::detail::Profiler::Status(stream);
 
-  #include "fcl/common/detail/profiler.h"
-
 #else
 
   #define FCL_PROFILE_START
@@ -59,5 +57,7 @@
   #define FCL_PROFILE_STATUS(stream)
 
 #endif // #if FCL_ENABLE_PROFILING
+
+#include "fcl/common/detail/profiler.h"
 
 #endif // #ifndef FCL_COMMON_PROFILER_H

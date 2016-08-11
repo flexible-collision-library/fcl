@@ -37,14 +37,7 @@
 /* Author Jeongseok Lee <jslee02@gmail.com> */
 
 #include <gtest/gtest.h>
-#include <chrono>
-#include <thread>
-#include <iostream>
-#define FCL_ENABLE_PROFILING 1
 #include "fcl/common/profiler.h"
-#include "fcl/shape/sphere.h"
-#include "fcl/collision.h"
-#include "test_fcl_utility.h"
 
 using namespace fcl;
 
