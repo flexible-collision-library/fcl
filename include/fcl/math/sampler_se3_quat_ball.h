@@ -45,22 +45,22 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class SamplerSE3Quat_ball : public SamplerBase<Scalar>
+template <typename S>
+class SamplerSE3Quat_ball : public SamplerBase<S>
 {
 public:
   SamplerSE3Quat_ball();
 
-  SamplerSE3Quat_ball(Scalar r_);
+  SamplerSE3Quat_ball(S r_);
 
-  void setBound(const Scalar& r_);
+  void setBound(const S& r_);
 
-  void getBound(Scalar& r_) const;
+  void getBound(S& r_) const;
 
-  Vector7<Scalar> sample() const;
+  Vector7<S> sample() const;
 
 protected:
-  Scalar r;
+  S r;
 };
 
 using SamplerSE3Quat_ballf = SamplerSE3Quat_ball<float>;
@@ -73,45 +73,45 @@ using SamplerSE3Quat_balld = SamplerSE3Quat_ball<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Quat_ball<Scalar>::SamplerSE3Quat_ball()
+template <typename S>
+SamplerSE3Quat_ball<S>::SamplerSE3Quat_ball()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Quat_ball<Scalar>::SamplerSE3Quat_ball(Scalar r_) : r(r_)
+template <typename S>
+SamplerSE3Quat_ball<S>::SamplerSE3Quat_ball(S r_) : r(r_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Quat_ball<Scalar>::setBound(const Scalar& r_)
+template <typename S>
+void SamplerSE3Quat_ball<S>::setBound(const S& r_)
 {
   r = r_;
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Quat_ball<Scalar>::getBound(Scalar& r_) const
+template <typename S>
+void SamplerSE3Quat_ball<S>::getBound(S& r_) const
 {
   r_ = r;
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector7<Scalar> SamplerSE3Quat_ball<Scalar>::sample() const
+template <typename S>
+Vector7<S> SamplerSE3Quat_ball<S>::sample() const
 {
-  Vector7<Scalar> q;
-  Scalar x, y, z;
+  Vector7<S> q;
+  S x, y, z;
   this->rng.ball(0, r, x, y, z);
   q[0] = x;
   q[1] = y;
   q[2] = z;
 
-  Scalar s[4];
+  S s[4];
   this->rng.quaternion(s);
 
   q[3] = s[0];

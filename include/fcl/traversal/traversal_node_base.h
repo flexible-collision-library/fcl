@@ -44,7 +44,7 @@ namespace fcl
 {
 
 /// @brief Node structure encoding the information required for traversal.
-template <typename Scalar>
+template <typename S>
 class TraversalNodeBase
 {
 public:
@@ -79,10 +79,10 @@ public:
   virtual void enableStatistics(bool enable) = 0;
 
   /// @brief configuation of first object
-  Transform3<Scalar> tf1;
+  Transform3<S> tf1;
 
   /// @brief configuration of second object
-  Transform3<Scalar> tf2;
+  Transform3<S> tf2;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -94,71 +94,71 @@ public:
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-TraversalNodeBase<Scalar>::~TraversalNodeBase()
+template <typename S>
+TraversalNodeBase<S>::~TraversalNodeBase()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void TraversalNodeBase<Scalar>::preprocess()
+template <typename S>
+void TraversalNodeBase<S>::preprocess()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void TraversalNodeBase<Scalar>::postprocess()
+template <typename S>
+void TraversalNodeBase<S>::postprocess()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool TraversalNodeBase<Scalar>::isFirstNodeLeaf(int b) const
+template <typename S>
+bool TraversalNodeBase<S>::isFirstNodeLeaf(int b) const
 {
   return true;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool TraversalNodeBase<Scalar>::isSecondNodeLeaf(int b) const
+template <typename S>
+bool TraversalNodeBase<S>::isSecondNodeLeaf(int b) const
 {
   return true;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool TraversalNodeBase<Scalar>::firstOverSecond(int b1, int b2) const
+template <typename S>
+bool TraversalNodeBase<S>::firstOverSecond(int b1, int b2) const
 {
   return true;
 }
 
 //==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getFirstLeftChild(int b) const
+template <typename S>
+int TraversalNodeBase<S>::getFirstLeftChild(int b) const
 {
   return b;
 }
 
 //==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getFirstRightChild(int b) const
+template <typename S>
+int TraversalNodeBase<S>::getFirstRightChild(int b) const
 {
   return b;
 }
 
 //==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getSecondLeftChild(int b) const
+template <typename S>
+int TraversalNodeBase<S>::getSecondLeftChild(int b) const
 {
   return b;
 }
 
 //==============================================================================
-template <typename Scalar>
-int TraversalNodeBase<Scalar>::getSecondRightChild(int b) const
+template <typename S>
+int TraversalNodeBase<S>::getSecondRightChild(int b) const
 {
   return b;
 }

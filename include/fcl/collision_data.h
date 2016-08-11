@@ -54,49 +54,49 @@ namespace fcl
 enum GJKSolverType {GST_LIBCCD, GST_INDEP};
 
 /// @brief Minimal contact information returned by collision
-template <typename Scalar>
+template <typename S>
 struct ContactPoint
 {
   /// @brief Contact normal, pointing from o1 to o2
-  Vector3<Scalar> normal;
+  Vector3<S> normal;
 
   /// @brief Contact position, in world space
-  Vector3<Scalar> pos;
+  Vector3<S> pos;
 
   /// @brief Penetration depth
-  Scalar penetration_depth;
+  S penetration_depth;
 
   /// @brief Constructor
   ContactPoint();
 
   /// @brief Constructor
-  ContactPoint(const Vector3<Scalar>& n_, const Vector3<Scalar>& p_, Scalar d_);
+  ContactPoint(const Vector3<S>& n_, const Vector3<S>& p_, S d_);
 };
 
 using ContactPointf = ContactPoint<float>;
 using ContactPointd = ContactPoint<double>;
 
-template <typename Scalar>
-void flipNormal(std::vector<ContactPoint<Scalar>>& contacts)
+template <typename S>
+void flipNormal(std::vector<ContactPoint<S>>& contacts)
 {
   for (auto& contact : contacts)
     contact.normal *= -1.0;
 }
 
 /// @brief Return true if _cp1's penentration depth is less than _cp2's.
-template <typename Scalar>
+template <typename S>
 bool comparePenDepth(
-    const ContactPoint<Scalar>& _cp1, const ContactPoint<Scalar>& _cp2);
+    const ContactPoint<S>& _cp1, const ContactPoint<S>& _cp2);
 
 /// @brief Contact information returned by collision
-template <typename Scalar>
+template <typename S>
 struct Contact
 {
   /// @brief collision object 1
-  const CollisionGeometry<Scalar>* o1;
+  const CollisionGeometry<S>* o1;
 
   /// @brief collision object 2
-  const CollisionGeometry<Scalar>* o2;
+  const CollisionGeometry<S>* o2;
 
   /// @brief contact primitive in object 1
   /// if object 1 is mesh or point cloud, it is the triangle or point id
@@ -111,13 +111,13 @@ struct Contact
   int b2;
  
   /// @brief contact normal, pointing from o1 to o2
-  Vector3<Scalar> normal;
+  Vector3<S> normal;
 
   /// @brief contact position, in world space
-  Vector3<Scalar> pos;
+  Vector3<S> pos;
 
   /// @brief penetration depth
-  Scalar penetration_depth;
+  S penetration_depth;
 
  
   /// @brief invalid contact primitive information
@@ -125,10 +125,10 @@ struct Contact
 
   Contact();
 
-  Contact(const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_);
+  Contact(const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_);
 
-  Contact(const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_,
-          const Vector3<Scalar>& pos_, const Vector3<Scalar>& normal_, Scalar depth_);
+  Contact(const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_,
+          const Vector3<S>& pos_, const Vector3<S>& normal_, S depth_);
 
   bool operator < (const Contact& other) const;
 };
@@ -136,24 +136,24 @@ struct Contact
 using Contactf = Contact<float>;
 using Contactd = Contact<double>;
 
-/// @brief Cost source describes an area with a cost. The area is described by an AABB<Scalar> region.
-template <typename Scalar>
+/// @brief Cost source describes an area with a cost. The area is described by an AABB<S> region.
+template <typename S>
 struct CostSource
 {
   /// @brief aabb lower bound
-  Vector3<Scalar> aabb_min;
+  Vector3<S> aabb_min;
 
   /// @brief aabb upper bound
-  Vector3<Scalar> aabb_max;
+  Vector3<S> aabb_max;
 
-  /// @brief cost density in the AABB<Scalar> region
-  Scalar cost_density;
+  /// @brief cost density in the AABB<S> region
+  S cost_density;
 
-  Scalar total_cost;
+  S total_cost;
 
-  CostSource(const Vector3<Scalar>& aabb_min_, const Vector3<Scalar>& aabb_max_, Scalar cost_density_);
+  CostSource(const Vector3<S>& aabb_min_, const Vector3<S>& aabb_max_, S cost_density_);
 
-  CostSource(const AABB<Scalar>& aabb, Scalar cost_density_);
+  CostSource(const AABB<S>& aabb, S cost_density_);
 
   CostSource();
 
@@ -163,11 +163,11 @@ struct CostSource
 using CostSourcef = CostSource<float>;
 using CostSourced = CostSource<double>;
 
-template <typename Scalar>
+template <typename S>
 struct CollisionResult;
 
 /// @brief request to the collision algorithm
-template <typename Scalar>
+template <typename S>
 struct CollisionRequest
 {  
   /// @brief The maximum number of contacts will return
@@ -192,7 +192,7 @@ struct CollisionRequest
   bool enable_cached_gjk_guess;
   
   /// @brief the gjk intial guess set by user
-  Vector3<Scalar> cached_gjk_guess;
+  Vector3<S> cached_gjk_guess;
 
   CollisionRequest(size_t num_max_contacts_ = 1,
                    bool enable_contact_ = false,
@@ -201,34 +201,34 @@ struct CollisionRequest
                    bool use_approximate_cost_ = true,
                    GJKSolverType gjk_solver_type_ = GST_LIBCCD);
 
-  bool isSatisfied(const CollisionResult<Scalar>& result) const;
+  bool isSatisfied(const CollisionResult<S>& result) const;
 };
 
 using CollisionRequestf = CollisionRequest<float>;
 using CollisionRequestd = CollisionRequest<double>;
 
 /// @brief collision result
-template <typename Scalar>
+template <typename S>
 struct CollisionResult
 {
 private:
   /// @brief contact information
-  std::vector<Contact<Scalar>> contacts;
+  std::vector<Contact<S>> contacts;
 
   /// @brief cost sources
-  std::set<CostSource<Scalar>> cost_sources;
+  std::set<CostSource<S>> cost_sources;
 
 public:
-  Vector3<Scalar> cached_gjk_guess;
+  Vector3<S> cached_gjk_guess;
 
 public:
   CollisionResult();
 
   /// @brief add one contact into result structure
-  void addContact(const Contact<Scalar>& c);
+  void addContact(const Contact<S>& c);
 
   /// @brief add one cost source into result structure
-  void addCostSource(const CostSource<Scalar>& c, std::size_t num_max_cost_sources);
+  void addCostSource(const CostSource<S>& c, std::size_t num_max_cost_sources);
 
   /// @brief return binary collision result
   bool isCollision() const;
@@ -240,13 +240,13 @@ public:
   size_t numCostSources() const;
 
   /// @brief get the i-th contact calculated
-  const Contact<Scalar>& getContact(size_t i) const;
+  const Contact<S>& getContact(size_t i) const;
 
   /// @brief get all the contacts
-  void getContacts(std::vector<Contact<Scalar>>& contacts_);
+  void getContacts(std::vector<Contact<S>>& contacts_);
 
   /// @brief get all the cost sources 
-  void getCostSources(std::vector<CostSource<Scalar>>& cost_sources_);
+  void getCostSources(std::vector<CostSource<S>>& cost_sources_);
 
   /// @brief clear the results obtained
   void clear();
@@ -255,52 +255,52 @@ public:
 using CollisionResultf = CollisionResult<float>;
 using CollisionResultd = CollisionResult<double>;
 
-template <typename Scalar>
+template <typename S>
 struct DistanceResult;
 
 /// @brief request to the distance computation
-template <typename Scalar>
+template <typename S>
 struct DistanceRequest
 {
   /// @brief whether to return the nearest points
   bool enable_nearest_points;
 
   /// @brief error threshold for approximate distance
-  Scalar rel_err; // relative error, between 0 and 1
-  Scalar abs_err; // absoluate error
+  S rel_err; // relative error, between 0 and 1
+  S abs_err; // absoluate error
 
   /// @brief narrow phase solver type
   GJKSolverType gjk_solver_type;
 
   DistanceRequest(bool enable_nearest_points_ = false,
-                  Scalar rel_err_ = 0.0,
-                  Scalar abs_err_ = 0.0,
+                  S rel_err_ = 0.0,
+                  S abs_err_ = 0.0,
                   GJKSolverType gjk_solver_type_ = GST_LIBCCD);
 
-  bool isSatisfied(const DistanceResult<Scalar>& result) const;
+  bool isSatisfied(const DistanceResult<S>& result) const;
 };
 
 using DistanceRequestf = DistanceRequest<float>;
 using DistanceRequestd = DistanceRequest<double>;
 
 /// @brief distance result
-template <typename Scalar>
+template <typename S>
 struct DistanceResult
 {
 
 public:
 
   /// @brief minimum distance between two objects. if two objects are in collision, min_distance <= 0.
-  Scalar min_distance;
+  S min_distance;
 
   /// @brief nearest points
-  Vector3<Scalar> nearest_points[2];
+  Vector3<S> nearest_points[2];
 
   /// @brief collision object 1
-  const CollisionGeometry<Scalar>* o1;
+  const CollisionGeometry<S>* o1;
 
   /// @brief collision object 2
-  const CollisionGeometry<Scalar>* o2;
+  const CollisionGeometry<S>* o2;
 
   /// @brief information about the nearest point in object 1
   /// if object 1 is mesh or point cloud, it is the triangle or point id
@@ -317,13 +317,13 @@ public:
   /// @brief invalid contact primitive information
   static const int NONE = -1;
   
-  DistanceResult(Scalar min_distance_ = std::numeric_limits<Scalar>::max());
+  DistanceResult(S min_distance_ = std::numeric_limits<S>::max());
 
   /// @brief add distance information into the result
-  void update(Scalar distance, const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_);
+  void update(S distance, const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_);
 
   /// @brief add distance information into the result
-  void update(Scalar distance, const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_, const Vector3<Scalar>& p1, const Vector3<Scalar>& p2);
+  void update(S distance, const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_, const Vector3<S>& p1, const Vector3<S>& p2);
 
   /// @brief add distance information into the result
   void update(const DistanceResult& other_result);
@@ -338,14 +338,14 @@ using DistanceResultd = DistanceResult<double>;
 enum CCDMotionType {CCDM_TRANS, CCDM_LINEAR, CCDM_SCREW, CCDM_SPLINE};
 enum CCDSolverType {CCDC_NAIVE, CCDC_CONSERVATIVE_ADVANCEMENT, CCDC_RAY_SHOOTING, CCDC_POLYNOMIAL_SOLVER};
 
-template <typename Scalar>
+template <typename S>
 struct ContinuousCollisionRequest
 {
   /// @brief maximum num of iterations
   std::size_t num_max_iterations;
 
   /// @brief error in first contact time
-  Scalar toc_err;
+  S toc_err;
 
   /// @brief ccd motion type
   CCDMotionType ccd_motion_type;
@@ -357,7 +357,7 @@ struct ContinuousCollisionRequest
   CCDSolverType ccd_solver_type;
   
   ContinuousCollisionRequest(std::size_t num_max_iterations_ = 10,
-                             Scalar toc_err_ = 0.0001,
+                             S toc_err_ = 0.0001,
                              CCDMotionType ccd_motion_type_ = CCDM_TRANS,
                              GJKSolverType gjk_solver_type_ = GST_LIBCCD,
                              CCDSolverType ccd_solver_type_ = CCDC_NAIVE);
@@ -368,16 +368,16 @@ using ContinuousCollisionRequestf = ContinuousCollisionRequest<float>;
 using ContinuousCollisionRequestd = ContinuousCollisionRequest<double>;
 
 /// @brief continuous collision result
-template <typename Scalar>
+template <typename S>
 struct ContinuousCollisionResult
 {
   /// @brief collision or not
   bool is_collide;
   
   /// @brief time of contact in [0, 1]
-  Scalar time_of_contact;
+  S time_of_contact;
 
-  Transform3<Scalar> contact_tf1, contact_tf2;
+  Transform3<S> contact_tf1, contact_tf2;
   
   ContinuousCollisionResult();
 };
@@ -387,7 +387,7 @@ using ContinuousCollisionResultd = ContinuousCollisionResult<double>;
 
 enum PenetrationDepthType {PDT_TRANSLATIONAL, PDT_GENERAL_EULER, PDT_GENERAL_QUAT, PDT_GENERAL_EULER_BALL, PDT_GENERAL_QUAT_BALL};
 
-template <typename Scalar>
+template <typename S>
 struct PenetrationDepthRequest
 {
   void* classifier;
@@ -398,21 +398,21 @@ struct PenetrationDepthRequest
   /// @brief gjk solver type
   GJKSolverType gjk_solver_type;
 
-  Eigen::aligned_vector<Transform3<Scalar>> contact_vectors;
+  Eigen::aligned_vector<Transform3<S>> contact_vectors;
 
   PenetrationDepthRequest(void* classifier_,
                           PenetrationDepthType pd_type_ = PDT_TRANSLATIONAL,
                           GJKSolverType gjk_solver_type_ = GST_LIBCCD);
 };
 
-template <typename Scalar>
+template <typename S>
 struct PenetrationDepthResult
 {
   /// @brief penetration depth value
-  Scalar pd_value;
+  S pd_value;
 
   /// @brief the transform where the collision is resolved
-  Transform3<Scalar> resolved_tf;
+  Transform3<S> resolved_tf;
 };
 
 //============================================================================//
@@ -422,34 +422,34 @@ struct PenetrationDepthResult
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-ContactPoint<Scalar>::ContactPoint()
-  : normal(Vector3<Scalar>::Zero()),
-    pos(Vector3<Scalar>::Zero()),
+template <typename S>
+ContactPoint<S>::ContactPoint()
+  : normal(Vector3<S>::Zero()),
+    pos(Vector3<S>::Zero()),
     penetration_depth(0.0)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-ContactPoint<Scalar>::ContactPoint(
-    const Vector3<Scalar>& n_, const Vector3<Scalar>& p_, Scalar d_)
+template <typename S>
+ContactPoint<S>::ContactPoint(
+    const Vector3<S>& n_, const Vector3<S>& p_, S d_)
   : normal(n_), pos(p_), penetration_depth(d_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool comparePenDepth(const ContactPoint<Scalar>& _cp1, const ContactPoint<Scalar>& _cp2)
+template <typename S>
+bool comparePenDepth(const ContactPoint<S>& _cp1, const ContactPoint<S>& _cp2)
 {
   return _cp1.penetration_depth < _cp2.penetration_depth;
 }
 
 //==============================================================================
-template <typename Scalar>
-Contact<Scalar>::Contact()
+template <typename S>
+Contact<S>::Contact()
   : o1(NULL),
     o2(NULL),
     b1(NONE),
@@ -459,8 +459,8 @@ Contact<Scalar>::Contact()
 }
 
 //==============================================================================
-template <typename Scalar>
-Contact<Scalar>::Contact(const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_) : o1(o1_),
+template <typename S>
+Contact<S>::Contact(const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_) : o1(o1_),
   o2(o2_),
   b1(b1_),
   b2(b2_)
@@ -469,8 +469,8 @@ Contact<Scalar>::Contact(const CollisionGeometry<Scalar>* o1_, const CollisionGe
 }
 
 //==============================================================================
-template <typename Scalar>
-Contact<Scalar>::Contact(const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_, const Vector3<Scalar>& pos_, const Vector3<Scalar>& normal_, Scalar depth_) : o1(o1_),
+template <typename S>
+Contact<S>::Contact(const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_, const Vector3<S>& pos_, const Vector3<S>& normal_, S depth_) : o1(o1_),
   o2(o2_),
   b1(b1_),
   b2(b2_),
@@ -482,8 +482,8 @@ Contact<Scalar>::Contact(const CollisionGeometry<Scalar>* o1_, const CollisionGe
 }
 
 //==============================================================================
-template <typename Scalar>
-bool Contact<Scalar>::operator <(const Contact& other) const
+template <typename S>
+bool Contact<S>::operator <(const Contact& other) const
 {
   if(b1 == other.b1)
     return b2 < other.b2;
@@ -491,8 +491,8 @@ bool Contact<Scalar>::operator <(const Contact& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-CostSource<Scalar>::CostSource(const Vector3<Scalar>& aabb_min_, const Vector3<Scalar>& aabb_max_, Scalar cost_density_) : aabb_min(aabb_min_),
+template <typename S>
+CostSource<S>::CostSource(const Vector3<S>& aabb_min_, const Vector3<S>& aabb_max_, S cost_density_) : aabb_min(aabb_min_),
   aabb_max(aabb_max_),
   cost_density(cost_density_)
 {
@@ -500,8 +500,8 @@ CostSource<Scalar>::CostSource(const Vector3<Scalar>& aabb_min_, const Vector3<S
 }
 
 //==============================================================================
-template <typename Scalar>
-CostSource<Scalar>::CostSource(const AABB<Scalar>& aabb, Scalar cost_density_) : aabb_min(aabb.min_),
+template <typename S>
+CostSource<S>::CostSource(const AABB<S>& aabb, S cost_density_) : aabb_min(aabb.min_),
   aabb_max(aabb.max_),
   cost_density(cost_density_)
 {
@@ -509,15 +509,15 @@ CostSource<Scalar>::CostSource(const AABB<Scalar>& aabb, Scalar cost_density_) :
 }
 
 //==============================================================================
-template <typename Scalar>
-CostSource<Scalar>::CostSource()
+template <typename S>
+CostSource<S>::CostSource()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CostSource<Scalar>::operator <(const CostSource& other) const
+template <typename S>
+bool CostSource<S>::operator <(const CostSource& other) const
 {
   if(total_cost < other.total_cost)
     return false;
@@ -537,8 +537,8 @@ bool CostSource<Scalar>::operator <(const CostSource& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-CollisionRequest<Scalar>::CollisionRequest(size_t num_max_contacts_, bool enable_contact_, size_t num_max_cost_sources_, bool enable_cost_, bool use_approximate_cost_, GJKSolverType gjk_solver_type_) : num_max_contacts(num_max_contacts_),
+template <typename S>
+CollisionRequest<S>::CollisionRequest(size_t num_max_contacts_, bool enable_contact_, size_t num_max_cost_sources_, bool enable_cost_, bool use_approximate_cost_, GJKSolverType gjk_solver_type_) : num_max_contacts(num_max_contacts_),
   enable_contact(enable_contact_),
   num_max_cost_sources(num_max_cost_sources_),
   enable_cost(enable_cost_),
@@ -546,13 +546,13 @@ CollisionRequest<Scalar>::CollisionRequest(size_t num_max_contacts_, bool enable
   gjk_solver_type(gjk_solver_type_)
 {
   enable_cached_gjk_guess = false;
-  cached_gjk_guess = Vector3<Scalar>(1, 0, 0);
+  cached_gjk_guess = Vector3<S>(1, 0, 0);
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CollisionRequest<Scalar>::isSatisfied(
-    const CollisionResult<Scalar>& result) const
+template <typename S>
+bool CollisionRequest<S>::isSatisfied(
+    const CollisionResult<S>& result) const
 {
   return (!enable_cost)
       && result.isCollision()
@@ -560,23 +560,23 @@ bool CollisionRequest<Scalar>::isSatisfied(
 }
 
 //==============================================================================
-template <typename Scalar>
-CollisionResult<Scalar>::CollisionResult()
+template <typename S>
+CollisionResult<S>::CollisionResult()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionResult<Scalar>::addContact(const Contact<Scalar>& c)
+template <typename S>
+void CollisionResult<S>::addContact(const Contact<S>& c)
 {
   contacts.push_back(c);
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionResult<Scalar>::addCostSource(
-    const CostSource<Scalar>& c, std::size_t num_max_cost_sources)
+template <typename S>
+void CollisionResult<S>::addCostSource(
+    const CostSource<S>& c, std::size_t num_max_cost_sources)
 {
   cost_sources.insert(c);
   while (cost_sources.size() > num_max_cost_sources)
@@ -584,29 +584,29 @@ void CollisionResult<Scalar>::addCostSource(
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CollisionResult<Scalar>::isCollision() const
+template <typename S>
+bool CollisionResult<S>::isCollision() const
 {
   return contacts.size() > 0;
 }
 
 //==============================================================================
-template <typename Scalar>
-size_t CollisionResult<Scalar>::numContacts() const
+template <typename S>
+size_t CollisionResult<S>::numContacts() const
 {
   return contacts.size();
 }
 
 //==============================================================================
-template <typename Scalar>
-size_t CollisionResult<Scalar>::numCostSources() const
+template <typename S>
+size_t CollisionResult<S>::numCostSources() const
 {
   return cost_sources.size();
 }
 
 //==============================================================================
-template <typename Scalar>
-const Contact<Scalar>& CollisionResult<Scalar>::getContact(size_t i) const
+template <typename S>
+const Contact<S>& CollisionResult<S>::getContact(size_t i) const
 {
   if(i < contacts.size())
     return contacts[i];
@@ -615,34 +615,34 @@ const Contact<Scalar>& CollisionResult<Scalar>::getContact(size_t i) const
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionResult<Scalar>::getContacts(
-    std::vector<Contact<Scalar>>& contacts_)
+template <typename S>
+void CollisionResult<S>::getContacts(
+    std::vector<Contact<S>>& contacts_)
 {
   contacts_.resize(contacts.size());
   std::copy(contacts.begin(), contacts.end(), contacts_.begin());
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionResult<Scalar>::getCostSources(
-    std::vector<CostSource<Scalar>>& cost_sources_)
+template <typename S>
+void CollisionResult<S>::getCostSources(
+    std::vector<CostSource<S>>& cost_sources_)
 {
   cost_sources_.resize(cost_sources.size());
   std::copy(cost_sources.begin(), cost_sources.end(), cost_sources_.begin());
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionResult<Scalar>::clear()
+template <typename S>
+void CollisionResult<S>::clear()
 {
   contacts.clear();
   cost_sources.clear();
 }
 
 //==============================================================================
-template <typename Scalar>
-DistanceRequest<Scalar>::DistanceRequest(bool enable_nearest_points_, Scalar rel_err_, Scalar abs_err_, GJKSolverType gjk_solver_type_) : enable_nearest_points(enable_nearest_points_),
+template <typename S>
+DistanceRequest<S>::DistanceRequest(bool enable_nearest_points_, S rel_err_, S abs_err_, GJKSolverType gjk_solver_type_) : enable_nearest_points(enable_nearest_points_),
   rel_err(rel_err_),
   abs_err(abs_err_),
   gjk_solver_type(gjk_solver_type_)
@@ -651,16 +651,16 @@ DistanceRequest<Scalar>::DistanceRequest(bool enable_nearest_points_, Scalar rel
 }
 
 //==============================================================================
-template <typename Scalar>
-bool DistanceRequest<Scalar>::isSatisfied(
-    const DistanceResult<Scalar>& result) const
+template <typename S>
+bool DistanceRequest<S>::isSatisfied(
+    const DistanceResult<S>& result) const
 {
   return (result.min_distance <= 0);
 }
 
 //==============================================================================
-template <typename Scalar>
-DistanceResult<Scalar>::DistanceResult(Scalar min_distance_)
+template <typename S>
+DistanceResult<S>::DistanceResult(S min_distance_)
   : min_distance(min_distance_),
     o1(NULL),
     o2(NULL),
@@ -671,8 +671,8 @@ DistanceResult<Scalar>::DistanceResult(Scalar min_distance_)
 }
 
 //==============================================================================
-template <typename Scalar>
-void DistanceResult<Scalar>::update(Scalar distance, const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_)
+template <typename S>
+void DistanceResult<S>::update(S distance, const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_)
 {
   if(min_distance > distance)
   {
@@ -685,8 +685,8 @@ void DistanceResult<Scalar>::update(Scalar distance, const CollisionGeometry<Sca
 }
 
 //==============================================================================
-template <typename Scalar>
-void DistanceResult<Scalar>::update(Scalar distance, const CollisionGeometry<Scalar>* o1_, const CollisionGeometry<Scalar>* o2_, int b1_, int b2_, const Vector3<Scalar>& p1, const Vector3<Scalar>& p2)
+template <typename S>
+void DistanceResult<S>::update(S distance, const CollisionGeometry<S>* o1_, const CollisionGeometry<S>* o2_, int b1_, int b2_, const Vector3<S>& p1, const Vector3<S>& p2)
 {
   if(min_distance > distance)
   {
@@ -701,8 +701,8 @@ void DistanceResult<Scalar>::update(Scalar distance, const CollisionGeometry<Sca
 }
 
 //==============================================================================
-template <typename Scalar>
-void DistanceResult<Scalar>::update(const DistanceResult& other_result)
+template <typename S>
+void DistanceResult<S>::update(const DistanceResult& other_result)
 {
   if(min_distance > other_result.min_distance)
   {
@@ -717,10 +717,10 @@ void DistanceResult<Scalar>::update(const DistanceResult& other_result)
 }
 
 //==============================================================================
-template <typename Scalar>
-void DistanceResult<Scalar>::clear()
+template <typename S>
+void DistanceResult<S>::clear()
 {
-  min_distance = std::numeric_limits<Scalar>::max();
+  min_distance = std::numeric_limits<S>::max();
   o1 = NULL;
   o2 = NULL;
   b1 = NONE;
@@ -728,8 +728,8 @@ void DistanceResult<Scalar>::clear()
 }
 
 //==============================================================================
-template <typename Scalar>
-ContinuousCollisionRequest<Scalar>::ContinuousCollisionRequest(std::size_t num_max_iterations_, Scalar toc_err_, CCDMotionType ccd_motion_type_, GJKSolverType gjk_solver_type_, CCDSolverType ccd_solver_type_) : num_max_iterations(num_max_iterations_),
+template <typename S>
+ContinuousCollisionRequest<S>::ContinuousCollisionRequest(std::size_t num_max_iterations_, S toc_err_, CCDMotionType ccd_motion_type_, GJKSolverType gjk_solver_type_, CCDSolverType ccd_solver_type_) : num_max_iterations(num_max_iterations_),
   toc_err(toc_err_),
   ccd_motion_type(ccd_motion_type_),
   gjk_solver_type(gjk_solver_type_),
@@ -739,15 +739,15 @@ ContinuousCollisionRequest<Scalar>::ContinuousCollisionRequest(std::size_t num_m
 }
 
 //==============================================================================
-template <typename Scalar>
-ContinuousCollisionResult<Scalar>::ContinuousCollisionResult() : is_collide(false), time_of_contact(1.0)
+template <typename S>
+ContinuousCollisionResult<S>::ContinuousCollisionResult() : is_collide(false), time_of_contact(1.0)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-PenetrationDepthRequest<Scalar>::PenetrationDepthRequest(void* classifier_, PenetrationDepthType pd_type_, GJKSolverType gjk_solver_type_) : classifier(classifier_),
+template <typename S>
+PenetrationDepthRequest<S>::PenetrationDepthRequest(void* classifier_, PenetrationDepthType pd_type_, GJKSolverType gjk_solver_type_) : classifier(classifier_),
   pd_type(pd_type_),
   gjk_solver_type(gjk_solver_type_)
 {

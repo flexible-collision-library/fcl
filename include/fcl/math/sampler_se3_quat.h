@@ -44,26 +44,26 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class SamplerSE3Quat : public SamplerBase<Scalar>
+template <typename S>
+class SamplerSE3Quat : public SamplerBase<S>
 {
 public:
   SamplerSE3Quat();
 
-  SamplerSE3Quat(const Vector3<Scalar>& lower_bound_,
-                 const Vector3<Scalar>& upper_bound_);
+  SamplerSE3Quat(const Vector3<S>& lower_bound_,
+                 const Vector3<S>& upper_bound_);
 
-  void setBound(const Vector3<Scalar>& lower_bound_,
-                const Vector3<Scalar>& upper_bound_);
+  void setBound(const Vector3<S>& lower_bound_,
+                const Vector3<S>& upper_bound_);
 
-  void getBound(Vector3<Scalar>& lower_bound_,
-                Vector3<Scalar>& upper_bound_) const;
+  void getBound(Vector3<S>& lower_bound_,
+                Vector3<S>& upper_bound_) const;
 
-  Vector6<Scalar> sample() const;
+  Vector6<S> sample() const;
 
 protected:
-  Vector3<Scalar> lower_bound;
-  Vector3<Scalar> upper_bound;
+  Vector3<S> lower_bound;
+  Vector3<S> upper_bound;
 
 };
 
@@ -77,31 +77,31 @@ using SamplerSE3Quatd = SamplerSE3Quat<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Quat<Scalar>::SamplerSE3Quat()
+template <typename S>
+SamplerSE3Quat<S>::SamplerSE3Quat()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Quat<Scalar>::SamplerSE3Quat(const Vector3<Scalar>& lower_bound_, const Vector3<Scalar>& upper_bound_) : lower_bound(lower_bound_),
+template <typename S>
+SamplerSE3Quat<S>::SamplerSE3Quat(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_) : lower_bound(lower_bound_),
   upper_bound(upper_bound_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Quat<Scalar>::getBound(Vector3<Scalar>& lower_bound_, Vector3<Scalar>& upper_bound_) const
+template <typename S>
+void SamplerSE3Quat<S>::getBound(Vector3<S>& lower_bound_, Vector3<S>& upper_bound_) const
 {
   lower_bound_ = lower_bound;
   upper_bound_ = upper_bound;
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Quat<Scalar>::setBound(const Vector3<Scalar>& lower_bound_, const Vector3<Scalar>& upper_bound_)
+template <typename S>
+void SamplerSE3Quat<S>::setBound(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_)
 
 {
   lower_bound = lower_bound_;
@@ -109,15 +109,15 @@ void SamplerSE3Quat<Scalar>::setBound(const Vector3<Scalar>& lower_bound_, const
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector6<Scalar> SamplerSE3Quat<Scalar>::sample() const
+template <typename S>
+Vector6<S> SamplerSE3Quat<S>::sample() const
 {
-  Vector6<Scalar> q;
+  Vector6<S> q;
   q[0] = this->rng.uniformReal(lower_bound[0], upper_bound[0]);
   q[1] = this->rng.uniformReal(lower_bound[1], upper_bound[1]);
   q[2] = this->rng.uniformReal(lower_bound[2], upper_bound[2]);
 
-  Scalar s[4];
+  S s[4];
   this->rng.quaternion(s);
 
   q[3] = s[0];

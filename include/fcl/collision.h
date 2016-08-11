@@ -52,16 +52,16 @@ namespace fcl
 /// returning all the contact points), whether return detailed contact information (i.e., normal, contact point, depth; otherwise only contact primitive id is returned), this function
 /// performs the collision between them. 
 /// Return value is the number of contacts generated between the two objects.
-template <typename Scalar>
-std::size_t collide(const CollisionObject<Scalar>* o1, const CollisionObject<Scalar>* o2,
-                    const CollisionRequest<Scalar>& request,
-                    CollisionResult<Scalar>& result);
+template <typename S>
+std::size_t collide(const CollisionObject<S>* o1, const CollisionObject<S>* o2,
+                    const CollisionRequest<S>& request,
+                    CollisionResult<S>& result);
 
-template <typename Scalar>
-std::size_t collide(const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
-                    const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
-                    const CollisionRequest<Scalar>& request,
-                    CollisionResult<Scalar>& result);
+template <typename S>
+std::size_t collide(const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
+                    const CollisionGeometry<S>* o2, const Transform3<S>& tf2,
+                    const CollisionRequest<S>& request,
+                    CollisionResult<S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -77,27 +77,27 @@ CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
   return table;
 }
 
-template <typename Scalar, typename NarrowPhaseSolver>
+template <typename S, typename NarrowPhaseSolver>
 std::size_t collide(
-    const CollisionObject<Scalar>* o1,
-    const CollisionObject<Scalar>* o2,
+    const CollisionObject<S>* o1,
+    const CollisionObject<S>* o2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<Scalar>& request,
-    CollisionResult<Scalar>& result)
+    const CollisionRequest<S>& request,
+    CollisionResult<S>& result)
 {
   return collide(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(),
                  nsolver, request, result);
 }
 
-template <typename Scalar, typename NarrowPhaseSolver>
+template <typename S, typename NarrowPhaseSolver>
 std::size_t collide(
-    const CollisionGeometry<Scalar>* o1,
-    const Transform3<Scalar>& tf1,
-    const CollisionGeometry<Scalar>* o2,
-    const Transform3<Scalar>& tf2,
+    const CollisionGeometry<S>* o1,
+    const Transform3<S>& tf1,
+    const CollisionGeometry<S>* o2,
+    const Transform3<S>& tf2,
     const NarrowPhaseSolver* nsolver_,
-    const CollisionRequest<Scalar>& request,
-    CollisionResult<Scalar>& result)
+    const CollisionRequest<S>& request,
+    CollisionResult<S>& result)
 {
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_)
@@ -147,21 +147,21 @@ std::size_t collide(
 }
 
 //==============================================================================
-template <typename Scalar>
-std::size_t collide(const CollisionObject<Scalar>* o1, const CollisionObject<Scalar>* o2,
-                    const CollisionRequest<Scalar>& request, CollisionResult<Scalar>& result)
+template <typename S>
+std::size_t collide(const CollisionObject<S>* o1, const CollisionObject<S>* o2,
+                    const CollisionRequest<S>& request, CollisionResult<S>& result)
 {
   switch(request.gjk_solver_type)
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<Scalar> solver;
-      return collide<Scalar, GJKSolver_libccd<Scalar>>(o1, o2, &solver, request, result);
+      GJKSolver_libccd<S> solver;
+      return collide<S, GJKSolver_libccd<S>>(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<Scalar> solver;
-      return collide<Scalar, GJKSolver_indep<Scalar>>(o1, o2, &solver, request, result);
+      GJKSolver_indep<S> solver;
+      return collide<S, GJKSolver_indep<S>>(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -169,27 +169,27 @@ std::size_t collide(const CollisionObject<Scalar>* o1, const CollisionObject<Sca
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::size_t collide(
-    const CollisionGeometry<Scalar>* o1,
-    const Transform3<Scalar>& tf1,
-    const CollisionGeometry<Scalar>* o2,
-    const Transform3<Scalar>& tf2,
-    const CollisionRequest<Scalar>& request,
-    CollisionResult<Scalar>& result)
+    const CollisionGeometry<S>* o1,
+    const Transform3<S>& tf1,
+    const CollisionGeometry<S>* o2,
+    const Transform3<S>& tf2,
+    const CollisionRequest<S>& request,
+    CollisionResult<S>& result)
 {
   switch(request.gjk_solver_type)
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<Scalar> solver;
-      return collide<Scalar, GJKSolver_libccd<Scalar>>(
+      GJKSolver_libccd<S> solver;
+      return collide<S, GJKSolver_libccd<S>>(
           o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<Scalar> solver;
-      return collide<Scalar, GJKSolver_indep<Scalar>>(
+      GJKSolver_indep<S> solver;
+      return collide<S, GJKSolver_indep<S>>(
           o1, tf1, o2, tf2, &solver, request, result);
     }
   default:

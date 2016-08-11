@@ -49,11 +49,11 @@ namespace fcl
 /// @brief Traversal node for distance computation between BVH models
 template <typename BV>
 class BVHDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename BV::Scalar>
+    : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   BVHDistanceTraversalNode();
 
@@ -79,7 +79,7 @@ public:
   int getSecondRightChild(int b) const;
 
   /// @brief BV culling test in one BVTT node
-  Scalar BVTesting(int b1, int b2) const;
+  S BVTesting(int b1, int b2) const;
 
   /// @brief The first BVH model
   const BVHModel<BV>* model1;
@@ -89,7 +89,7 @@ public:
   /// @brief statistical information
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable Scalar query_time_seconds;
+  mutable S query_time_seconds;
 };
 
 //============================================================================//
@@ -101,7 +101,7 @@ public:
 //==============================================================================
 template <typename BV>
 BVHDistanceTraversalNode<BV>::BVHDistanceTraversalNode()
-  : DistanceTraversalNodeBase<typename BV::Scalar>()
+  : DistanceTraversalNodeBase<typename BV::S>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -129,8 +129,8 @@ bool BVHDistanceTraversalNode<BV>::isSecondNodeLeaf(int b) const
 template <typename BV>
 bool BVHDistanceTraversalNode<BV>::firstOverSecond(int b1, int b2) const
 {
-  Scalar sz1 = model1->getBV(b1).bv.size();
-  Scalar sz2 = model2->getBV(b2).bv.size();
+  S sz1 = model1->getBV(b1).bv.size();
+  S sz2 = model2->getBV(b2).bv.size();
 
   bool l1 = model1->getBV(b1).isLeaf();
   bool l2 = model2->getBV(b2).isLeaf();
@@ -170,7 +170,7 @@ int BVHDistanceTraversalNode<BV>::getSecondRightChild(int b) const
 
 //==============================================================================
 template <typename BV>
-typename BV::Scalar BVHDistanceTraversalNode<BV>::BVTesting(int b1, int b2) const
+typename BV::S BVHDistanceTraversalNode<BV>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
   return model1->getBV(b1).distance(model2->getBV(b2));

@@ -47,11 +47,11 @@ namespace fcl
 /// @brief Traversal node for collision between BVH models
 template <typename BV>
 class BVHCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename BV::Scalar>
+    : public CollisionTraversalNodeBase<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   BVHCollisionTraversalNode();
 
@@ -88,7 +88,7 @@ public:
   /// @brief statistical information
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable Scalar query_time_seconds;
+  mutable S query_time_seconds;
 };
 
 //============================================================================//
@@ -100,7 +100,7 @@ public:
 //==============================================================================
 template <typename BV>
 BVHCollisionTraversalNode<BV>::BVHCollisionTraversalNode()
-  : CollisionTraversalNodeBase<typename BV::Scalar>()
+  : CollisionTraversalNodeBase<typename BV::S>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -128,8 +128,8 @@ bool BVHCollisionTraversalNode<BV>::isSecondNodeLeaf(int b) const
 template <typename BV>
 bool BVHCollisionTraversalNode<BV>::firstOverSecond(int b1, int b2) const
 {
-  Scalar sz1 = model1->getBV(b1).bv.size();
-  Scalar sz2 = model2->getBV(b2).bv.size();
+  S sz1 = model1->getBV(b1).bv.size();
+  S sz2 = model2->getBV(b2).bv.size();
 
   bool l1 = model1->getBV(b1).isLeaf();
   bool l2 = model2->getBV(b2).isLeaf();

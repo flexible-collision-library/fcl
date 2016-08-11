@@ -48,102 +48,102 @@ namespace fcl
 {
 
 /// @brief collision and distance solver based on libccd library.
-template <typename ScalarT>
+template <typename S_>
 struct GJKSolver_libccd
 {
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief intersection checking between two shapes
-  /// @deprecated use shapeIntersect(const S1&, const Transform3<Scalar>&, const S2&, const Transform3<Scalar>&, std::vector<ContactPoint<Scalar>>*) const
+  /// @deprecated use shapeIntersect(const S1&, const Transform3<S>&, const S2&, const Transform3<S>&, std::vector<ContactPoint<S>>*) const
   template<typename S1, typename S2>
   FCL_DEPRECATED
   bool shapeIntersect(
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal) const;
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal) const;
 
   /// @brief intersection checking between two shapes
   template<typename S1, typename S2>
   bool shapeIntersect(
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts = NULL) const;
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts = NULL) const;
 
   /// @brief intersection checking between one shape and a triangle
   template<typename Shape>
   bool shapeTriangleIntersect(
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Vector3<Scalar>* contact_points = NULL,
-      Scalar* penetration_depth = NULL,
-      Vector3<Scalar>* normal = NULL) const;
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      Vector3<S>* contact_points = NULL,
+      S* penetration_depth = NULL,
+      Vector3<S>* normal = NULL) const;
 
   //// @brief intersection checking between one shape and a triangle with transformation
   template<typename Shape>
   bool shapeTriangleIntersect(
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points = NULL,
-      Scalar* penetration_depth = NULL,
-      Vector3<Scalar>* normal = NULL) const;
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points = NULL,
+      S* penetration_depth = NULL,
+      Vector3<S>* normal = NULL) const;
 
   /// @brief distance computation between two shapes
   template<typename S1, typename S2>
   bool shapeDistance(
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist = NULL,
-      Vector3<Scalar>* p1 = NULL,
-      Vector3<Scalar>* p2 = NULL) const;
+      const Transform3<S>& tf2,
+      S* dist = NULL,
+      Vector3<S>* p1 = NULL,
+      Vector3<S>* p2 = NULL) const;
 
   /// @brief distance computation between one shape and a triangle
   template<typename Shape>
   bool shapeTriangleDistance(
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Scalar* dist = NULL,
-      Vector3<Scalar>* p1 = NULL,
-      Vector3<Scalar>* p2 = NULL) const;
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      S* dist = NULL,
+      Vector3<S>* p1 = NULL,
+      Vector3<S>* p2 = NULL) const;
   
   /// @brief distance computation between one shape and a triangle with transformation
   template<typename Shape>
   bool shapeTriangleDistance(
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist = NULL,
-      Vector3<Scalar>* p1 = NULL,
-      Vector3<Scalar>* p2 = NULL) const;
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      S* dist = NULL,
+      Vector3<S>* p1 = NULL,
+      Vector3<S>* p2 = NULL) const;
 
   /// @brief default setting for GJK algorithm
   GJKSolver_libccd();
 
   void enableCachedGuess(bool if_enable) const;
 
-  void setCachedGuess(const Vector3<Scalar>& guess) const;
+  void setCachedGuess(const Vector3<S>& guess) const;
 
-  Vector3<Scalar> getCachedGuess() const;
+  Vector3<S> getCachedGuess() const;
 
   /// @brief maximum number of iterations used in GJK algorithm for collision
   unsigned int max_collision_iterations;
@@ -152,10 +152,10 @@ struct GJKSolver_libccd
   unsigned int max_distance_iterations;
 
   /// @brief the threshold used in GJK algorithm to stop collision iteration
-  Scalar collision_tolerance;
+  S collision_tolerance;
 
   /// @brief the threshold used in GJK algorithm to stop distance iteration
-  Scalar distance_tolerance;
+  S distance_tolerance;
 
 };
 
@@ -169,27 +169,27 @@ using GJKSolver_libccdd = GJKSolver_libccd<double>;
 //============================================================================//
 
 //==============================================================================
-template<typename Scalar>
+template<typename S>
 template<typename S1, typename S2>
-bool GJKSolver_libccd<Scalar>::shapeIntersect(
-    const S1& s1, const Transform3<Scalar>& tf1,
-    const S2& s2, const Transform3<Scalar>& tf2,
-    Vector3<Scalar>* contact_points,
-    Scalar* penetration_depth,
-    Vector3<Scalar>* normal) const
+bool GJKSolver_libccd<S>::shapeIntersect(
+    const S1& s1, const Transform3<S>& tf1,
+    const S2& s2, const Transform3<S>& tf2,
+    Vector3<S>* contact_points,
+    S* penetration_depth,
+    Vector3<S>* normal) const
 {
   bool res;
 
   if (contact_points || penetration_depth || normal)
   {
-    std::vector<ContactPoint<Scalar>> contacts;
+    std::vector<ContactPoint<S>> contacts;
 
     res = shapeIntersect(s1, tf1, s2, tf2, &contacts);
 
     if (!contacts.empty())
     {
       // Get the deepest contact point
-      const ContactPoint<Scalar>& maxDepthContact = *std::max_element(contacts.begin(), contacts.end(), comparePenDepth<Scalar>);
+      const ContactPoint<S>& maxDepthContact = *std::max_element(contacts.begin(), contacts.end(), comparePenDepth<S>);
 
       if (contact_points)
         *contact_points = maxDepthContact.pos;
@@ -210,47 +210,47 @@ bool GJKSolver_libccd<Scalar>::shapeIntersect(
 }
 
 //==============================================================================
-template<typename Scalar, typename S1, typename S2>
+template<typename S, typename S1, typename S2>
 struct ShapeIntersectLibccdImpl
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& gjkSolver,
-      const S1& s1, const Transform3<Scalar>& tf1,
-      const S2& s2, const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_libccd<S>& gjkSolver,
+      const S1& s1, const Transform3<S>& tf1,
+      const S2& s2, const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    void* o1 = details::GJKInitializer<Scalar, S1>::createGJKObject(s1, tf1);
-    void* o2 = details::GJKInitializer<Scalar, S2>::createGJKObject(s2, tf2);
+    void* o1 = details::GJKInitializer<S, S1>::createGJKObject(s1, tf1);
+    void* o2 = details::GJKInitializer<S, S2>::createGJKObject(s2, tf2);
 
     bool res;
 
     if(contacts)
     {
-      Vector3<Scalar> normal;
-      Vector3<Scalar> point;
-      Scalar depth;
-      res = details::GJKCollide<Scalar>(
+      Vector3<S> normal;
+      Vector3<S> point;
+      S depth;
+      res = details::GJKCollide<S>(
             o1,
-            details::GJKInitializer<Scalar, S1>::getSupportFunction(),
-            details::GJKInitializer<Scalar, S1>::getCenterFunction(),
-            o2, details::GJKInitializer<Scalar, S2>::getSupportFunction(),
-            details::GJKInitializer<Scalar, S2>::getCenterFunction(),
+            details::GJKInitializer<S, S1>::getSupportFunction(),
+            details::GJKInitializer<S, S1>::getCenterFunction(),
+            o2, details::GJKInitializer<S, S2>::getSupportFunction(),
+            details::GJKInitializer<S, S2>::getCenterFunction(),
             gjkSolver.max_collision_iterations,
             gjkSolver.collision_tolerance,
             &point,
             &depth,
             &normal);
-      contacts->push_back(ContactPoint<Scalar>(normal, point, depth));
+      contacts->push_back(ContactPoint<S>(normal, point, depth));
     }
     else
     {
-      res = details::GJKCollide<Scalar>(
+      res = details::GJKCollide<S>(
             o1,
-            details::GJKInitializer<Scalar, S1>::getSupportFunction(),
-            details::GJKInitializer<Scalar, S1>::getCenterFunction(),
+            details::GJKInitializer<S, S1>::getSupportFunction(),
+            details::GJKInitializer<S, S1>::getCenterFunction(),
             o2,
-            details::GJKInitializer<Scalar, S2>::getSupportFunction(),
-            details::GJKInitializer<Scalar, S2>::getCenterFunction(),
+            details::GJKInitializer<S, S2>::getSupportFunction(),
+            details::GJKInitializer<S, S2>::getCenterFunction(),
             gjkSolver.max_collision_iterations,
             gjkSolver.collision_tolerance,
             NULL,
@@ -258,22 +258,22 @@ struct ShapeIntersectLibccdImpl
             NULL);
     }
 
-    details::GJKInitializer<Scalar, S1>::deleteGJKObject(o1);
-    details::GJKInitializer<Scalar, S2>::deleteGJKObject(o2);
+    details::GJKInitializer<S, S1>::deleteGJKObject(o1);
+    details::GJKInitializer<S, S2>::deleteGJKObject(o2);
 
     return res;
   }
 };
 
 //==============================================================================
-template<typename Scalar>
+template<typename S>
 template<typename S1, typename S2>
-bool GJKSolver_libccd<Scalar>::shapeIntersect(
-    const S1& s1, const Transform3<Scalar>& tf1,
-    const S2& s2, const Transform3<Scalar>& tf2,
-    std::vector<ContactPoint<Scalar>>* contacts) const
+bool GJKSolver_libccd<S>::shapeIntersect(
+    const S1& s1, const Transform3<S>& tf1,
+    const S2& s2, const Transform3<S>& tf2,
+    std::vector<ContactPoint<S>>* contacts) const
 {
-  return ShapeIntersectLibccdImpl<Scalar, S1, S2>::run(
+  return ShapeIntersectLibccdImpl<S, S1, S2>::run(
         *this, s1, tf1, s2, tf2, contacts);
 }
 
@@ -302,32 +302,32 @@ bool GJKSolver_libccd<Scalar>::shapeIntersect(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 #define FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT_REG(SHAPE1, SHAPE2, ALG)\
-  template <typename Scalar>\
-  struct ShapeIntersectLibccdImpl<Scalar, SHAPE1<Scalar>, SHAPE2<Scalar>>\
+  template <typename S>\
+  struct ShapeIntersectLibccdImpl<S, SHAPE1<S>, SHAPE2<S>>\
   {\
     static bool run(\
-        const GJKSolver_libccd<Scalar>& /*gjkSolver*/,\
-        const SHAPE1<Scalar>& s1,\
-        const Transform3<Scalar>& tf1,\
-        const SHAPE2<Scalar>& s2,\
-        const Transform3<Scalar>& tf2,\
-        std::vector<ContactPoint<Scalar>>* contacts)\
+        const GJKSolver_libccd<S>& /*gjkSolver*/,\
+        const SHAPE1<S>& s1,\
+        const Transform3<S>& tf1,\
+        const SHAPE2<S>& s2,\
+        const Transform3<S>& tf2,\
+        std::vector<ContactPoint<S>>* contacts)\
     {\
       return ALG(s1, tf1, s2, tf2, contacts);\
     }\
   };
 
 #define FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT_INV(SHAPE1, SHAPE2, ALG)\
-  template <typename Scalar>\
-  struct ShapeIntersectLibccdImpl<Scalar, SHAPE2<Scalar>, SHAPE1<Scalar>>\
+  template <typename S>\
+  struct ShapeIntersectLibccdImpl<S, SHAPE2<S>, SHAPE1<S>>\
   {\
     static bool run(\
-        const GJKSolver_libccd<Scalar>& /*gjkSolver*/,\
-        const SHAPE2<Scalar>& s1,\
-        const Transform3<Scalar>& tf1,\
-        const SHAPE1<Scalar>& s2,\
-        const Transform3<Scalar>& tf2,\
-        std::vector<ContactPoint<Scalar>>* contacts)\
+        const GJKSolver_libccd<S>& /*gjkSolver*/,\
+        const SHAPE2<S>& s1,\
+        const Transform3<S>& tf1,\
+        const SHAPE1<S>& s2,\
+        const Transform3<S>& tf2,\
+        std::vector<ContactPoint<S>>* contacts)\
     {\
       const bool res = ALG(s2, tf2, s1, tf1, contacts);\
       if (contacts) flipNormal(*contacts);\
@@ -361,100 +361,100 @@ FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Capsule, Plane, details::capsulePlaneInters
 FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Cylinder, Plane, details::cylinderPlaneIntersect)
 FCL_GJK_LIBCCD_SHAPE_SHAPE_INTERSECT(Cone, Plane, details::conePlaneIntersect)
 
-template <typename Scalar>
-struct ShapeIntersectLibccdImpl<Scalar, Halfspace<Scalar>, Halfspace<Scalar>>
+template <typename S>
+struct ShapeIntersectLibccdImpl<S, Halfspace<S>, Halfspace<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Halfspace<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Halfspace<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    Halfspace<Scalar> s;
-    Vector3<Scalar> p, d;
-    Scalar depth;
+    Halfspace<S> s;
+    Vector3<S> p, d;
+    S depth;
     int ret;
     return details::halfspaceIntersect(s1, tf1, s2, tf2, p, d, s, depth, ret);
   }
 };
 
-template <typename Scalar>
-struct ShapeIntersectLibccdImpl<Scalar, Plane<Scalar>, Plane<Scalar>>
+template <typename S>
+struct ShapeIntersectLibccdImpl<S, Plane<S>, Plane<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Plane<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Plane<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Plane<S>& s1,
+      const Transform3<S>& tf1,
+      const Plane<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
     return details::planeIntersect(s1, tf1, s2, tf2, contacts);
   }
 };
 
-template <typename Scalar>
-struct ShapeIntersectLibccdImpl<Scalar, Plane<Scalar>, Halfspace<Scalar>>
+template <typename S>
+struct ShapeIntersectLibccdImpl<S, Plane<S>, Halfspace<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Plane<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Halfspace<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Plane<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    Plane<Scalar> pl;
-    Vector3<Scalar> p, d;
-    Scalar depth;
+    Plane<S> pl;
+    Vector3<S> p, d;
+    S depth;
     int ret;
     return details::planeHalfspaceIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
   }
 };
 
-template <typename Scalar>
-struct ShapeIntersectLibccdImpl<Scalar, Halfspace<Scalar>, Plane<Scalar>>
+template <typename S>
+struct ShapeIntersectLibccdImpl<S, Halfspace<S>, Plane<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Halfspace<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Plane<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Plane<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    Plane<Scalar> pl;
-    Vector3<Scalar> p, d;
-    Scalar depth;
+    Plane<S> pl;
+    Vector3<S> p, d;
+    S depth;
     int ret;
     return details::halfspacePlaneIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
   }
 };
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTriangleIntersectLibccdImpl
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& gjkSolver,
+      const GJKSolver_libccd<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
-    void* o1 = details::GJKInitializer<Scalar, Shape>::createGJKObject(s, tf);
+    void* o1 = details::GJKInitializer<S, Shape>::createGJKObject(s, tf);
     void* o2 = details::triCreateGJKObject(P1, P2, P3);
 
-    bool res = details::GJKCollide<Scalar>(
+    bool res = details::GJKCollide<S>(
           o1,
-          details::GJKInitializer<Scalar, Shape>::getSupportFunction(),
-          details::GJKInitializer<Scalar, Shape>::getCenterFunction(),
+          details::GJKInitializer<S, Shape>::getSupportFunction(),
+          details::GJKInitializer<S, Shape>::getCenterFunction(),
           o2,
           details::triGetSupportFunction(),
           details::triGetCenterFunction(),
@@ -464,43 +464,43 @@ struct ShapeTriangleIntersectLibccdImpl
           penetration_depth,
           normal);
 
-    details::GJKInitializer<Scalar, Shape>::deleteGJKObject(o1);
+    details::GJKInitializer<S, Shape>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
 
     return res;
   }
 };
 
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_libccd<Scalar>::shapeTriangleIntersect(
+bool GJKSolver_libccd<S>::shapeTriangleIntersect(
     const Shape& s,
-    const Transform3<Scalar>& tf,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    Vector3<Scalar>* contact_points,
-    Scalar* penetration_depth,
-    Vector3<Scalar>* normal) const
+    const Transform3<S>& tf,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    Vector3<S>* contact_points,
+    S* penetration_depth,
+    Vector3<S>* normal) const
 {
-  return ShapeTriangleIntersectLibccdImpl<Scalar, Shape>::run(
+  return ShapeTriangleIntersectLibccdImpl<S, Shape>::run(
         *this, s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTriangleIntersectLibccdImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::sphereTriangleIntersect(
           s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
@@ -508,28 +508,28 @@ struct ShapeTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTransformedTriangleIntersectLibccdImpl
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& gjkSolver,
+      const GJKSolver_libccd<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
-    void* o1 = details::GJKInitializer<Scalar, Shape>::createGJKObject(s, tf1);
+    void* o1 = details::GJKInitializer<S, Shape>::createGJKObject(s, tf1);
     void* o2 = details::triCreateGJKObject(P1, P2, P3, tf2);
 
-    bool res = details::GJKCollide<Scalar>(
+    bool res = details::GJKCollide<S>(
           o1,
-          details::GJKInitializer<Scalar, Shape>::getSupportFunction(),
-          details::GJKInitializer<Scalar, Shape>::getCenterFunction(),
+          details::GJKInitializer<S, Shape>::getSupportFunction(),
+          details::GJKInitializer<S, Shape>::getCenterFunction(),
           o2,
           details::triGetSupportFunction(),
           details::triGetCenterFunction(),
@@ -539,46 +539,46 @@ struct ShapeTransformedTriangleIntersectLibccdImpl
           penetration_depth,
           normal);
 
-    details::GJKInitializer<Scalar, Shape>::deleteGJKObject(o1);
+    details::GJKInitializer<S, Shape>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
 
     return res;
   }
 };
 
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_libccd<Scalar>::shapeTriangleIntersect(
+bool GJKSolver_libccd<S>::shapeTriangleIntersect(
     const Shape& s,
-    const Transform3<Scalar>& tf1,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    const Transform3<Scalar>& tf2,
-    Vector3<Scalar>* contact_points,
-    Scalar* penetration_depth,
-    Vector3<Scalar>* normal) const
+    const Transform3<S>& tf1,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    const Transform3<S>& tf2,
+    Vector3<S>* contact_points,
+    S* penetration_depth,
+    Vector3<S>* normal) const
 {
-  return ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Shape>::run(
+  return ShapeTransformedTriangleIntersectLibccdImpl<S, Shape>::run(
         *this, s, tf1, P1, P2, P3, tf2,
         contact_points, penetration_depth, normal);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleIntersectLibccdImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::sphereTriangleIntersect(
           s, tf1, tf2 * P1, tf2 * P2, tf2 * P3,
@@ -587,20 +587,20 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Sphere<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Halfspace<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleIntersectLibccdImpl<S, Halfspace<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Halfspace<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Halfspace<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::halfspaceTriangleIntersect(
           s, tf1, P1, P2, P3, tf2,
@@ -609,20 +609,20 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Halfspace<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Plane<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleIntersectLibccdImpl<S, Plane<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Plane<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Plane<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::planeTriangleIntersect(
           s, tf1, P1, P2, P3, tf2,
@@ -631,27 +631,27 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<Scalar, Plane<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar, typename S1, typename S2>
+template<typename S, typename S1, typename S2>
 struct ShapeDistanceLibccdImpl
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& gjkSolver,
+      const GJKSolver_libccd<S>& gjkSolver,
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
-    void* o1 = details::GJKInitializer<Scalar, S1>::createGJKObject(s1, tf1);
-    void* o2 = details::GJKInitializer<Scalar, S2>::createGJKObject(s2, tf2);
+    void* o1 = details::GJKInitializer<S, S1>::createGJKObject(s1, tf1);
+    void* o2 = details::GJKInitializer<S, S2>::createGJKObject(s2, tf2);
 
     bool res =  details::GJKDistance(
           o1,
-          details::GJKInitializer<Scalar, S1>::getSupportFunction(),
+          details::GJKInitializer<S, S1>::getSupportFunction(),
           o2,
-          details::GJKInitializer<Scalar, S2>::getSupportFunction(),
+          details::GJKInitializer<S, S2>::getSupportFunction(),
           gjkSolver.max_distance_iterations,
           gjkSolver.distance_tolerance,
           dist,
@@ -664,25 +664,25 @@ struct ShapeDistanceLibccdImpl
     if (p2)
       *p2 = tf2.inverse(Eigen::Isometry) * *p2;
 
-    details::GJKInitializer<Scalar, S1>::deleteGJKObject(o1);
-    details::GJKInitializer<Scalar, S2>::deleteGJKObject(o2);
+    details::GJKInitializer<S, S1>::deleteGJKObject(o1);
+    details::GJKInitializer<S, S2>::deleteGJKObject(o2);
 
     return res;
   }
 };
 
-template<typename Scalar>
+template<typename S>
 template<typename S1, typename S2>
-bool GJKSolver_libccd<Scalar>::shapeDistance(
+bool GJKSolver_libccd<S>::shapeDistance(
     const S1& s1,
-    const Transform3<Scalar>& tf1,
+    const Transform3<S>& tf1,
     const S2& s2,
-    const Transform3<Scalar>& tf2,
-    Scalar* dist,
-    Vector3<Scalar>* p1,
-    Vector3<Scalar>* p2) const
+    const Transform3<S>& tf2,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
 {
-  return ShapeDistanceLibccdImpl<Scalar, S1, S2>::run(
+  return ShapeDistanceLibccdImpl<S, S1, S2>::run(
         *this, s1, tf1, s2, tf2, dist, p1, p2);
 }
 
@@ -711,98 +711,98 @@ bool GJKSolver_libccd<Scalar>::shapeDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceLibccdImpl<Scalar, Sphere<Scalar>, Capsule<Scalar>>
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Sphere<S>, Capsule<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Capsule<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Sphere<S>& s1,
+      const Transform3<S>& tf1,
+      const Capsule<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceLibccdImpl<Scalar, Capsule<Scalar>, Sphere<Scalar>>
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Capsule<S>, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Capsule<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Sphere<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Capsule<S>& s1,
+      const Transform3<S>& tf1,
+      const Sphere<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereCapsuleDistance(s2, tf2, s1, tf1, dist, p2, p1);
   }
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceLibccdImpl<Scalar, Sphere<Scalar>, Sphere<Scalar>>
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Sphere<S>, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Sphere<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Sphere<S>& s1,
+      const Transform3<S>& tf1,
+      const Sphere<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereSphereDistance(s1, tf1, s2, tf2, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceLibccdImpl<Scalar, Capsule<Scalar>, Capsule<Scalar>>
+template<typename S>
+struct ShapeDistanceLibccdImpl<S, Capsule<S>, Capsule<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Capsule<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Capsule<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Capsule<S>& s1,
+      const Transform3<S>& tf1,
+      const Capsule<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTriangleDistanceLibccdImpl
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& gjkSolver,
+      const GJKSolver_libccd<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
-    void* o1 = details::GJKInitializer<Scalar, Shape>::createGJKObject(s, tf);
+    void* o1 = details::GJKInitializer<S, Shape>::createGJKObject(s, tf);
     void* o2 = details::triCreateGJKObject(P1, P2, P3);
 
     bool res = details::GJKDistance(
           o1,
-          details::GJKInitializer<Scalar, Shape>::getSupportFunction(),
+          details::GJKInitializer<S, Shape>::getSupportFunction(),
           o2,
           details::triGetSupportFunction(),
           gjkSolver.max_distance_iterations,
@@ -812,7 +812,7 @@ struct ShapeTriangleDistanceLibccdImpl
           p2);
     if(p1) *p1 = tf.inverse(Eigen::Isometry) * *p1;
 
-    details::GJKInitializer<Scalar, Shape>::deleteGJKObject(o1);
+    details::GJKInitializer<S, Shape>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
 
     return res;
@@ -820,63 +820,63 @@ struct ShapeTriangleDistanceLibccdImpl
 };
 
 //==============================================================================
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_libccd<Scalar>::shapeTriangleDistance(
+bool GJKSolver_libccd<S>::shapeTriangleDistance(
     const Shape& s,
-    const Transform3<Scalar>& tf,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    Scalar* dist,
-    Vector3<Scalar>* p1,
-    Vector3<Scalar>* p2) const
+    const Transform3<S>& tf,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
 {
-  return ShapeTriangleDistanceLibccdImpl<Scalar, Shape>::run(
+  return ShapeTriangleDistanceLibccdImpl<S, Shape>::run(
         *this, s, tf, P1, P2, P3, dist, p1, p2);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTriangleDistanceLibccdImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTriangleDistanceLibccdImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereTriangleDistance(s, tf, P1, P2, P3, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTransformedTriangleDistanceLibccdImpl
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& gjkSolver,
+      const GJKSolver_libccd<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
-    void* o1 = details::GJKInitializer<Scalar, Shape>::createGJKObject(s, tf1);
+    void* o1 = details::GJKInitializer<S, Shape>::createGJKObject(s, tf1);
     void* o2 = details::triCreateGJKObject(P1, P2, P3, tf2);
 
     bool res = details::GJKDistance(
           o1,
-          details::GJKInitializer<Scalar, Shape>::getSupportFunction(),
+          details::GJKInitializer<S, Shape>::getSupportFunction(),
           o2,
           details::triGetSupportFunction(),
           gjkSolver.max_distance_iterations,
@@ -887,7 +887,7 @@ struct ShapeTransformedTriangleDistanceLibccdImpl
     if(p1) *p1 = tf1.inverse(Eigen::Isometry) * *p1;
     if(p2) *p2 = tf2.inverse(Eigen::Isometry) * *p2;
 
-    details::GJKInitializer<Scalar, Shape>::deleteGJKObject(o1);
+    details::GJKInitializer<S, Shape>::deleteGJKObject(o1);
     details::triDeleteGJKObject(o2);
 
     return res;
@@ -895,38 +895,38 @@ struct ShapeTransformedTriangleDistanceLibccdImpl
 };
 
 //==============================================================================
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_libccd<Scalar>::shapeTriangleDistance(
+bool GJKSolver_libccd<S>::shapeTriangleDistance(
     const Shape& s,
-    const Transform3<Scalar>& tf1,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    const Transform3<Scalar>& tf2,
-    Scalar* dist,
-    Vector3<Scalar>* p1,
-    Vector3<Scalar>* p2) const
+    const Transform3<S>& tf1,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    const Transform3<S>& tf2,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
 {
-  return ShapeTransformedTriangleDistanceLibccdImpl<Scalar, Shape>::run(
+  return ShapeTransformedTriangleDistanceLibccdImpl<S, Shape>::run(
         *this, s, tf1, P1, P2, P3, tf2, dist, p1, p2);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleDistanceLibccdImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleDistanceLibccdImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_libccd<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_libccd<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereTriangleDistance(
           s, tf1, P1, P2, P3, tf2, dist, p1, p2);
@@ -934,8 +934,8 @@ struct ShapeTransformedTriangleDistanceLibccdImpl<Scalar, Sphere<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar>
-GJKSolver_libccd<Scalar>::GJKSolver_libccd()
+template<typename S>
+GJKSolver_libccd<S>::GJKSolver_libccd()
 {
   max_collision_iterations = 500;
   max_distance_iterations = 1000;
@@ -944,25 +944,25 @@ GJKSolver_libccd<Scalar>::GJKSolver_libccd()
 }
 
 //==============================================================================
-template<typename Scalar>
-void GJKSolver_libccd<Scalar>::enableCachedGuess(bool if_enable) const
+template<typename S>
+void GJKSolver_libccd<S>::enableCachedGuess(bool if_enable) const
 {
   // TODO: need change libccd to exploit spatial coherence
 }
 
 //==============================================================================
-template<typename Scalar>
-void GJKSolver_libccd<Scalar>::setCachedGuess(
-    const Vector3<Scalar>& guess) const
+template<typename S>
+void GJKSolver_libccd<S>::setCachedGuess(
+    const Vector3<S>& guess) const
 {
   // TODO: need change libccd to exploit spatial coherence
 }
 
 //==============================================================================
-template<typename Scalar>
-Vector3<Scalar> GJKSolver_libccd<Scalar>::getCachedGuess() const
+template<typename S>
+Vector3<S> GJKSolver_libccd<S>::getCachedGuess() const
 {
-  return Vector3<Scalar>(-1, 0, 0);
+  return Vector3<S>(-1, 0, 0);
 }
 
 } // namespace fcl

@@ -47,7 +47,7 @@ using namespace fcl;
 template<typename BV>
 void testBVHModelPointCloud()
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
@@ -62,11 +62,11 @@ void testBVHModelPointCloud()
     return;
   }
 
-  Box<Scalar> box;
+  Box<S> box;
   auto a = box.side[0];
   auto b = box.side[1];
   auto c = box.side[2];
-  std::vector<Vector3<Scalar>> points(8);
+  std::vector<Vector3<S>> points(8);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
   points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
@@ -100,15 +100,15 @@ void testBVHModelPointCloud()
 template<typename BV>
 void testBVHModelTriangles()
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box<Scalar> box;
+  Box<S> box;
 
   auto a = box.side[0];
   auto b = box.side[1];
   auto c = box.side[2];
-  std::vector<Vector3<Scalar>> points(8);
+  std::vector<Vector3<S>> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
@@ -156,15 +156,15 @@ void testBVHModelTriangles()
 template<typename BV>
 void testBVHModelSubModel()
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box<Scalar> box;
+  Box<S> box;
 
   auto a = box.side[0];
   auto b = box.side[1];
   auto c = box.side[2];
-  std::vector<Vector3<Scalar>> points(8);
+  std::vector<Vector3<S>> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;

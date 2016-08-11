@@ -42,14 +42,14 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 struct constants
 {
 /// The mathematical constant pi
-static constexpr Scalar pi() { return Scalar(3.141592653589793238462643383279502884197169399375105820974944592L); }
+static constexpr S pi() { return S(3.141592653589793238462643383279502884197169399375105820974944592L); }
 
 /// The golden ratio
-static constexpr Scalar phi() { return Scalar(1.618033988749894848204586834365638117720309179805762862135448623L); }
+static constexpr S phi() { return S(1.618033988749894848204586834365638117720309179805762862135448623L); }
 };
 
 using constantsf = constants<float>;

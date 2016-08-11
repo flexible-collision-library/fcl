@@ -49,16 +49,16 @@ namespace fcl
 
 /// @brief Main distance interface: given two collision objects, and the requirements for contacts, including whether return the nearest points, this function performs the distance between them. 
 /// Return value is the minimum distance generated between the two objects.
-template <typename Scalar>
-Scalar distance(
-    const CollisionObject<Scalar>* o1, const CollisionObject<Scalar>* o2,
-    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result);
+template <typename S>
+S distance(
+    const CollisionObject<S>* o1, const CollisionObject<S>* o2,
+    const DistanceRequest<S>& request, DistanceResult<S>& result);
 
-template <typename Scalar>
-Scalar distance(
-    const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
-    const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result);
+template <typename S>
+S distance(
+    const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
+    const CollisionGeometry<S>* o2, const Transform3<S>& tf2,
+    const DistanceRequest<S>& request, DistanceResult<S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -75,12 +75,12 @@ DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
 }
 
 template <typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar distance(
-    const CollisionObject<typename NarrowPhaseSolver::Scalar>* o1,
-    const CollisionObject<typename NarrowPhaseSolver::Scalar>* o2,
+typename NarrowPhaseSolver::S distance(
+    const CollisionObject<typename NarrowPhaseSolver::S>* o1,
+    const CollisionObject<typename NarrowPhaseSolver::S>* o2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
   return distance<NarrowPhaseSolver>(
         o1->collisionGeometry().get(),
@@ -93,16 +93,16 @@ typename NarrowPhaseSolver::Scalar distance(
 }
 
 template <typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar distance(
-    const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const CollisionGeometry<typename NarrowPhaseSolver::Scalar>* o2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+typename NarrowPhaseSolver::S distance(
+    const CollisionGeometry<typename NarrowPhaseSolver::S>* o1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const CollisionGeometry<typename NarrowPhaseSolver::S>* o2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver_,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   const NarrowPhaseSolver* nsolver = nsolver_;
   if(!nsolver_)
@@ -115,7 +115,7 @@ typename NarrowPhaseSolver::Scalar distance(
   OBJECT_TYPE object_type2 = o2->getObjectType();
   NODE_TYPE node_type2 = o2->getNodeType();
 
-  Scalar res = std::numeric_limits<Scalar>::max();
+  S res = std::numeric_limits<S>::max();
 
   if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
@@ -147,24 +147,24 @@ typename NarrowPhaseSolver::Scalar distance(
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar distance(
-    const CollisionObject<Scalar>* o1,
-    const CollisionObject<Scalar>* o2,
-    const DistanceRequest<Scalar>& request,
-    DistanceResult<Scalar>& result)
+template <typename S>
+S distance(
+    const CollisionObject<S>* o1,
+    const CollisionObject<S>* o2,
+    const DistanceRequest<S>& request,
+    DistanceResult<S>& result)
 {
   switch(request.gjk_solver_type)
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<Scalar> solver;
-      return distance<GJKSolver_libccd<Scalar>>(o1, o2, &solver, request, result);
+      GJKSolver_libccd<S> solver;
+      return distance<GJKSolver_libccd<S>>(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<Scalar> solver;
-      return distance<GJKSolver_indep<Scalar>>(o1, o2, &solver, request, result);
+      GJKSolver_indep<S> solver;
+      return distance<GJKSolver_indep<S>>(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -172,23 +172,23 @@ Scalar distance(
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar distance(
-    const CollisionGeometry<Scalar>* o1, const Transform3<Scalar>& tf1,
-    const CollisionGeometry<Scalar>* o2, const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request, DistanceResult<Scalar>& result)
+template <typename S>
+S distance(
+    const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
+    const CollisionGeometry<S>* o2, const Transform3<S>& tf2,
+    const DistanceRequest<S>& request, DistanceResult<S>& result)
 {
   switch(request.gjk_solver_type)
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<Scalar> solver;
-      return distance<GJKSolver_libccd<Scalar>>(o1, tf1, o2, tf2, &solver, request, result);
+      GJKSolver_libccd<S> solver;
+      return distance<GJKSolver_libccd<S>>(o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<Scalar> solver;
-      return distance<GJKSolver_indep<Scalar>>(o1, tf1, o2, tf2, &solver, request, result);
+      GJKSolver_indep<S> solver;
+      return distance<GJKSolver_indep<S>>(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     return -1;

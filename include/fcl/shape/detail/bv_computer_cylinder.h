@@ -47,11 +47,11 @@ namespace fcl
 namespace detail
 {
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Cylinder<ScalarT>>;
+template <typename S>
+struct BVComputer<S, AABB<S>, Cylinder<S>>;
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Cylinder<ScalarT>>;
+template <typename S>
+struct BVComputer<S, OBB<S>, Cylinder<S>>;
 
 //============================================================================//
 //                                                                            //
@@ -60,29 +60,29 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Cylinder<ScalarT>>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Cylinder<ScalarT>>
+template <typename S>
+struct BVComputer<S, AABB<S>, Cylinder<S>>
 {
-  static void compute(const Cylinder<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  static void compute(const Cylinder<S>& s, const Transform3<S>& tf, AABB<S>& bv)
   {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
+    const Matrix3<S>& R = tf.linear();
+    const Vector3<S>& T = tf.translation();
 
-    ScalarT x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
-    ScalarT y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
-    ScalarT z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
+    S x_range = fabs(R(0, 0) * s.radius) + fabs(R(0, 1) * s.radius) + 0.5 * fabs(R(0, 2) * s.lz);
+    S y_range = fabs(R(1, 0) * s.radius) + fabs(R(1, 1) * s.radius) + 0.5 * fabs(R(1, 2) * s.lz);
+    S z_range = fabs(R(2, 0) * s.radius) + fabs(R(2, 1) * s.radius) + 0.5 * fabs(R(2, 2) * s.lz);
 
-    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
+    Vector3<S> v_delta(x_range, y_range, z_range);
     bv.max_ = T + v_delta;
     bv.min_ = T - v_delta;
   }
 };
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Cylinder<ScalarT>>
+template <typename S>
+struct BVComputer<S, OBB<S>, Cylinder<S>>
 {
-  static void compute(const Cylinder<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  static void compute(const Cylinder<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
     bv.axis = tf.linear();
     bv.To = tf.translation();

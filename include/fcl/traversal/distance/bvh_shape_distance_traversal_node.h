@@ -47,11 +47,11 @@ namespace fcl
 /// @brief Traversal node for distance computation between BVH and shape
 template<typename BV, typename Shape>
 class BVHShapeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename BV::Scalar>
+    : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   BVHShapeDistanceTraversalNode();
 
@@ -65,7 +65,7 @@ public:
   int getFirstRightChild(int b) const;
 
   /// @brief BV culling test in one BVTT node
-  Scalar BVTesting(int b1, int b2) const;
+  S BVTesting(int b1, int b2) const;
 
   const BVHModel<BV>* model1;
   const Shape* model2;
@@ -73,7 +73,7 @@ public:
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable Scalar query_time_seconds;
+  mutable S query_time_seconds;
 };
 
 //============================================================================//
@@ -85,7 +85,7 @@ public:
 //==============================================================================
 template<typename BV, typename Shape>
 BVHShapeDistanceTraversalNode<BV, Shape>::BVHShapeDistanceTraversalNode()
-  : DistanceTraversalNodeBase<typename BV::Scalar>()
+  : DistanceTraversalNodeBase<typename BV::S>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -118,7 +118,7 @@ int BVHShapeDistanceTraversalNode<BV, Shape>::getFirstRightChild(int b) const
 
 //==============================================================================
 template<typename BV, typename Shape>
-typename BV::Scalar BVHShapeDistanceTraversalNode<BV, Shape>::BVTesting(
+typename BV::S BVHShapeDistanceTraversalNode<BV, Shape>::BVTesting(
     int b1, int b2) const
 {
   return model1->getBV(b1).bv.distance(model2_bv);

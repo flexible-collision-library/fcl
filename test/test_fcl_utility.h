@@ -102,56 +102,56 @@ struct TStruct
 };
 
 /// @brief Load an obj mesh file
-template <typename Scalar>
-void loadOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles);
+template <typename S>
+void loadOBJFile(const char* filename, std::vector<Vector3<S>>& points, std::vector<Triangle>& triangles);
 
-template <typename Scalar>
-void saveOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles);
+template <typename S>
+void saveOBJFile(const char* filename, std::vector<Vector3<S>>& points, std::vector<Triangle>& triangles);
 
-template <typename Scalar>
-Scalar rand_interval(Scalar rmin, Scalar rmax);
+template <typename S>
+S rand_interval(S rmin, S rmax);
 
-template <typename Scalar>
-void eulerToMatrix(Scalar a, Scalar b, Scalar c, Matrix3<Scalar>& R);
+template <typename S>
+void eulerToMatrix(S a, S b, S c, Matrix3<S>& R);
 
 /// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 
 /// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
-template <typename Scalar>
-void generateRandomTransform(Scalar extents[6], Transform3<Scalar>& transform);
+template <typename S>
+void generateRandomTransform(S extents[6], Transform3<S>& transform);
 
 /// @brief Generate n random transforms whose translations are constrained by extents.
-template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, std::size_t n);
+template <typename S>
+void generateRandomTransforms(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, std::size_t n);
 
 /// @brief Generate n random transforms whose translations are constrained by extents. Also generate another transforms2 which have additional random translation & rotation to the transforms generated.
-template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, std::size_t n);
+template <typename S>
+void generateRandomTransforms(S extents[6], S delta_trans[3], S delta_rot, Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, std::size_t n);
 
 /// @brief Generate n random tranforms and transform2 with addtional random translation/rotation. The transforms and transform2 are used as initial and goal configurations for the first mesh. The second mesh is in I. This is used for continuous collision detection checking.
-template <typename Scalar>
-void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
-                                 const std::vector<Vector3<Scalar>>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vector3<Scalar>>& vertices2, const std::vector<Triangle>& triangles2);
+template <typename S>
+void generateRandomTransforms_ccd(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, S delta_trans[3], S delta_rot, std::size_t n,
+                                 const std::vector<Vector3<S>>& vertices1, const std::vector<Triangle>& triangles1,
+                                 const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2);
 
 /// @brief Generate environment with 3 * n objects: n boxes, n spheres and n cylinders.
-template <typename Scalar>
-void generateEnvironments(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n);
+template <typename S>
+void generateEnvironments(std::vector<CollisionObject<S>*>& env, S env_scale, std::size_t n);
 
 /// @brief Generate environment with 3 * n objects, but all in meshes.
-template <typename Scalar>
-void generateEnvironmentsMesh(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n);
+template <typename S>
+void generateEnvironmentsMesh(std::vector<CollisionObject<S>*>& env, S env_scale, std::size_t n);
 
 /// @brief Structure for minimum distance between two meshes and the corresponding nearest point pair
-template <typename Scalar>
+template <typename S>
 struct DistanceRes
 {
-  Scalar distance;
-  Vector3<Scalar> p1;
-  Vector3<Scalar> p2;
+  S distance;
+  Vector3<S> p1;
+  Vector3<S> p2;
 };
 
 /// @brief Collision data stores the collision request and the result given by collision algorithm. 
-template <typename Scalar>
+template <typename S>
 struct CollisionData
 {
   CollisionData()
@@ -160,10 +160,10 @@ struct CollisionData
   }
 
   /// @brief Collision request
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
 
   /// @brief Collision result
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
   /// @brief Whether the collision iteration can stop
   bool done;
@@ -171,7 +171,7 @@ struct CollisionData
 
 
 /// @brief Distance data stores the distance request and the result given by distance algorithm. 
-template <typename Scalar>
+template <typename S>
 struct DistanceData
 {
   DistanceData()
@@ -180,10 +180,10 @@ struct DistanceData
   }
 
   /// @brief Distance request
-  DistanceRequest<Scalar> request;
+  DistanceRequest<S> request;
 
   /// @brief Distance result
-  DistanceResult<Scalar> result;
+  DistanceResult<S> result;
 
   /// @brief Whether the distance iteration can stop
   bool done;
@@ -191,7 +191,7 @@ struct DistanceData
 };
 
 /// @brief Continuous collision data stores the continuous collision request and result given the continuous collision algorithm.
-template <typename Scalar>
+template <typename S>
 struct ContinuousCollisionData
 {
   ContinuousCollisionData()
@@ -200,28 +200,28 @@ struct ContinuousCollisionData
   }
 
   /// @brief Continuous collision request
-  ContinuousCollisionRequest<Scalar> request;
+  ContinuousCollisionRequest<S> request;
 
   /// @brief Continuous collision result
-  ContinuousCollisionResult<Scalar> result;
+  ContinuousCollisionResult<S> result;
 
   /// @brief Whether the continuous collision iteration can stop
   bool done;
 };
 
 /// @brief Default collision callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now.
-template <typename Scalar>
-bool defaultCollisionFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_);
+template <typename S>
+bool defaultCollisionFunction(CollisionObject<S>* o1, CollisionObject<S>* o2, void* cdata_);
 
 /// @brief Default distance callback for two objects o1 and o2 in broad phase. return value means whether the broad phase can stop now. also return dist, i.e. the bmin distance till now
-template <typename Scalar>
-bool defaultDistanceFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_, Scalar& dist);
+template <typename S>
+bool defaultDistanceFunction(CollisionObject<S>* o1, CollisionObject<S>* o2, void* cdata_, S& dist);
 
-template <typename Scalar>
-bool defaultContinuousCollisionFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_);
+template <typename S>
+bool defaultContinuousCollisionFunction(ContinuousCollisionObject<S>* o1, ContinuousCollisionObject<S>* o2, void* cdata_);
 
-template <typename Scalar>
-bool defaultContinuousDistanceFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_, Scalar& dist);
+template <typename S>
+bool defaultContinuousDistanceFunction(ContinuousCollisionObject<S>* o1, ContinuousCollisionObject<S>* o2, void* cdata_, S& dist);
 
 std::string getNodeTypeName(NODE_TYPE node_type);
 
@@ -230,12 +230,12 @@ std::string getGJKSolverName(GJKSolverType solver_type);
 #if FCL_HAVE_OCTOMAP
 
 /// @brief Generate boxes from the octomap
-template <typename Scalar>
-void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& env, OcTree<Scalar>& tree);
+template <typename S>
+void generateBoxesFromOctomap(std::vector<CollisionObject<S>*>& env, OcTree<S>& tree);
 
 /// @brief Generate boxes from the octomap
-template <typename Scalar>
-void generateBoxesFromOctomapMesh(std::vector<CollisionObject<Scalar>*>& env, OcTree<Scalar>& tree);
+template <typename S>
+void generateBoxesFromOctomapMesh(std::vector<CollisionObject<S>*>& env, OcTree<S>& tree);
 
 /// @brief Generate an octree
 octomap::OcTree* generateOcTree(double resolution = 0.1);
@@ -249,8 +249,8 @@ octomap::OcTree* generateOcTree(double resolution = 0.1);
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-void loadOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles)
+template <typename S>
+void loadOBJFile(const char* filename, std::vector<Vector3<S>>& points, std::vector<Triangle>& triangles)
 {
 
   FILE* file = fopen(filename, "rb");
@@ -288,10 +288,10 @@ void loadOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std
         }
         else
         {
-          Scalar x = (Scalar)atof(strtok(NULL, "\t "));
-          Scalar y = (Scalar)atof(strtok(NULL, "\t "));
-          Scalar z = (Scalar)atof(strtok(NULL, "\t "));
-          Vector3<Scalar> p(x, y, z);
+          S x = (S)atof(strtok(NULL, "\t "));
+          S y = (S)atof(strtok(NULL, "\t "));
+          S z = (S)atof(strtok(NULL, "\t "));
+          Vector3<S> p(x, y, z);
           points.push_back(p);
         }
       }
@@ -337,8 +337,8 @@ void loadOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std
 }
 
 //==============================================================================
-template <typename Scalar>
-void saveOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std::vector<Triangle>& triangles)
+template <typename S>
+void saveOBJFile(const char* filename, std::vector<Vector3<S>>& points, std::vector<Triangle>& triangles)
 {
   std::ofstream os(filename);
   if(!os)
@@ -361,16 +361,16 @@ void saveOBJFile(const char* filename, std::vector<Vector3<Scalar>>& points, std
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar rand_interval(Scalar rmin, Scalar rmax)
+template <typename S>
+S rand_interval(S rmin, S rmax)
 {
-  Scalar t = rand() / ((Scalar)RAND_MAX + 1);
+  S t = rand() / ((S)RAND_MAX + 1);
   return (t * (rmax - rmin) + rmin);
 }
 
 //==============================================================================
-template <typename Scalar>
-void eulerToMatrix(Scalar a, Scalar b, Scalar c, Matrix3<Scalar>& R)
+template <typename S>
+void eulerToMatrix(S a, S b, S c, Matrix3<S>& R)
 {
   auto c1 = std::cos(a);
   auto c2 = std::cos(b);
@@ -385,28 +385,28 @@ void eulerToMatrix(Scalar a, Scalar b, Scalar c, Matrix3<Scalar>& R)
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateRandomTransform(const std::array<Scalar, 6>& extents, Transform3<Scalar>& transform)
+template <typename S>
+void generateRandomTransform(const std::array<S, 6>& extents, Transform3<S>& transform)
 {
   auto x = rand_interval(extents[0], extents[3]);
   auto y = rand_interval(extents[1], extents[4]);
   auto z = rand_interval(extents[2], extents[5]);
 
-  const auto pi = constants<Scalar>::pi();
-  auto a = rand_interval((Scalar)0, 2 * pi);
-  auto b = rand_interval((Scalar)0, 2 * pi);
-  auto c = rand_interval((Scalar)0, 2 * pi);
+  const auto pi = constants<S>::pi();
+  auto a = rand_interval((S)0, 2 * pi);
+  auto b = rand_interval((S)0, 2 * pi);
+  auto c = rand_interval((S)0, 2 * pi);
 
-  Matrix3<Scalar> R;
+  Matrix3<S> R;
   eulerToMatrix(a, b, c, R);
-  Vector3<Scalar> T(x, y, z);
+  Vector3<S> T(x, y, z);
   transform.linear() = R;
   transform.translation() = T;
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, std::size_t n)
+template <typename S>
+void generateRandomTransforms(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, std::size_t n)
 {
   transforms.resize(n);
   for(std::size_t i = 0; i < n; ++i)
@@ -415,15 +415,15 @@ void generateRandomTransforms(Scalar extents[6], Eigen::aligned_vector<Transform
     auto y = rand_interval(extents[1], extents[4]);
     auto z = rand_interval(extents[2], extents[5]);
 
-    const auto pi = constants<Scalar>::pi();
-    auto a = rand_interval((Scalar)0, 2 * pi);
-    auto b = rand_interval((Scalar)0, 2 * pi);
-    auto c = rand_interval((Scalar)0, 2 * pi);
+    const auto pi = constants<S>::pi();
+    auto a = rand_interval((S)0, 2 * pi);
+    auto b = rand_interval((S)0, 2 * pi);
+    auto c = rand_interval((S)0, 2 * pi);
 
     {
-      Matrix3<Scalar> R;
+      Matrix3<S> R;
       eulerToMatrix(a, b, c, R);
-      Vector3<Scalar> T(x, y, z);
+      Vector3<S> T(x, y, z);
       transforms[i].setIdentity();
       transforms[i].linear() = R;
       transforms[i].translation() = T;
@@ -432,8 +432,8 @@ void generateRandomTransforms(Scalar extents[6], Eigen::aligned_vector<Transform
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar delta_rot, Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, std::size_t n)
+template <typename S>
+void generateRandomTransforms(S extents[6], S delta_trans[3], S delta_rot, Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, std::size_t n)
 {
   transforms.resize(n);
   transforms2.resize(n);
@@ -443,15 +443,15 @@ void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar d
     auto y = rand_interval(extents[1], extents[4]);
     auto z = rand_interval(extents[2], extents[5]);
 
-    const auto pi = constants<Scalar>::pi();
-    auto a = rand_interval((Scalar)0, 2 * pi);
-    auto b = rand_interval((Scalar)0, 2 * pi);
-    auto c = rand_interval((Scalar)0, 2 * pi);
+    const auto pi = constants<S>::pi();
+    auto a = rand_interval((S)0, 2 * pi);
+    auto b = rand_interval((S)0, 2 * pi);
+    auto c = rand_interval((S)0, 2 * pi);
 
     {
-      Matrix3<Scalar> R;
+      Matrix3<S> R;
       eulerToMatrix(a, b, c, R);
-      Vector3<Scalar> T(x, y, z);
+      Vector3<S> T(x, y, z);
       transforms[i].setIdentity();
       transforms[i].linear() = R;
       transforms[i].translation() = T;
@@ -466,9 +466,9 @@ void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar d
     auto deltac = rand_interval(-delta_rot, delta_rot);
 
     {
-      Matrix3<Scalar> R;
+      Matrix3<S> R;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R);
-      Vector3<Scalar> T(x + deltax, y + deltay, z + deltaz);
+      Vector3<S> T(x + deltax, y + deltay, z + deltaz);
       transforms2[i].setIdentity();
       transforms2[i].linear() = R;
       transforms2[i].translation() = T;
@@ -477,10 +477,10 @@ void generateRandomTransforms(Scalar extents[6], Scalar delta_trans[3], Scalar d
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Transform3<Scalar>>& transforms, Eigen::aligned_vector<Transform3<Scalar>>& transforms2, Scalar delta_trans[3], Scalar delta_rot, std::size_t n,
-                                 const std::vector<Vector3<Scalar>>& vertices1, const std::vector<Triangle>& triangles1,
-                                 const std::vector<Vector3<Scalar>>& vertices2, const std::vector<Triangle>& triangles2)
+template <typename S>
+void generateRandomTransforms_ccd(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, S delta_trans[3], S delta_rot, std::size_t n,
+                                 const std::vector<Vector3<S>>& vertices1, const std::vector<Triangle>& triangles1,
+                                 const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2)
 {
   transforms.resize(n);
   transforms2.resize(n);
@@ -491,16 +491,16 @@ void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Trans
     auto y = rand_interval(extents[1], extents[4]);
     auto z = rand_interval(extents[2], extents[5]);
 
-    const auto pi = constants<Scalar>::pi();
+    const auto pi = constants<S>::pi();
     auto a = rand_interval(0, 2 * pi);
     auto b = rand_interval(0, 2 * pi);
     auto c = rand_interval(0, 2 * pi);
 
 
-    Matrix3<Scalar> R;
+    Matrix3<S> R;
     eulerToMatrix(a, b, c, R);
-    Vector3<Scalar> T(x, y, z);
-    Transform3<Scalar> tf(Transform3<Scalar>::Identity());
+    Vector3<S> T(x, y, z);
+    Transform3<S> tf(Transform3<S>::Identity());
     tf.linear() = R;
     tf.translation() = T;
 
@@ -516,9 +516,9 @@ void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Trans
       auto deltab = rand_interval(-delta_rot, delta_rot);
       auto deltac = rand_interval(-delta_rot, delta_rot);
 
-      Matrix3<Scalar> R2;
+      Matrix3<S> R2;
       eulerToMatrix(a + deltaa, b + deltab, c + deltac, R2);
-      Vector3<Scalar> T2(x + deltax, y + deltay, z + deltaz);
+      Vector3<S> T2(x + deltax, y + deltay, z + deltaz);
       transforms2[i].linear() = R2;
       transforms2[i].translation() = T2;
       ++i;
@@ -527,74 +527,74 @@ void generateRandomTransforms_ccd(Scalar extents[6], Eigen::aligned_vector<Trans
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateEnvironments(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n)
+template <typename S>
+void generateEnvironments(std::vector<CollisionObject<S>*>& env, S env_scale, std::size_t n)
 {
-  Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  Eigen::aligned_vector<Transform3<Scalar>> transforms;
+  S extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
+  Eigen::aligned_vector<Transform3<S>> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Box<Scalar>* box = new Box<Scalar>(5, 10, 20);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(box), transforms[i]));
+    Box<S>* box = new Box<S>(5, 10, 20);
+    env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(box), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Sphere<Scalar>* sphere = new Sphere<Scalar>(30);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(sphere), transforms[i]));
+    Sphere<S>* sphere = new Sphere<S>(30);
+    env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(sphere), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
   {
-    Cylinder<Scalar>* cylinder = new Cylinder<Scalar>(10, 40);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(cylinder), transforms[i]));
+    Cylinder<S>* cylinder = new Cylinder<S>(10, 40);
+    env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(cylinder), transforms[i]));
   }
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateEnvironmentsMesh(std::vector<CollisionObject<Scalar>*>& env, Scalar env_scale, std::size_t n)
+template <typename S>
+void generateEnvironmentsMesh(std::vector<CollisionObject<S>*>& env, S env_scale, std::size_t n)
 {
-  Scalar extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  Eigen::aligned_vector<Transform3<Scalar>> transforms;
+  S extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
+  Eigen::aligned_vector<Transform3<S>> transforms;
 
   generateRandomTransforms(extents, transforms, n);
-  Box<Scalar> box(5, 10, 20);
+  Box<S> box(5, 10, 20);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, box, Transform3<Scalar>::Identity());
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
+    BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
+    generateBVHModel(*model, box, Transform3<S>::Identity());
+    env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
-  Sphere<Scalar> sphere(30);
+  Sphere<S> sphere(30);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, sphere, Transform3<Scalar>::Identity(), 16, 16);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
+    BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
+    generateBVHModel(*model, sphere, Transform3<S>::Identity(), 16, 16);
+    env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), transforms[i]));
   }
 
   generateRandomTransforms(extents, transforms, n);
-  Cylinder<Scalar> cylinder(10, 40);
+  Cylinder<S> cylinder(10, 40);
   for(std::size_t i = 0; i < n; ++i)
   {
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, cylinder, Transform3<Scalar>::Identity(), 16, 16);
-    env.push_back(new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), transforms[i]));
+    BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
+    generateBVHModel(*model, cylinder, Transform3<S>::Identity(), 16, 16);
+    env.push_back(new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), transforms[i]));
   }
 }
 
 //==============================================================================
-template <typename Scalar>
-bool defaultCollisionFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_)
+template <typename S>
+bool defaultCollisionFunction(CollisionObject<S>* o1, CollisionObject<S>* o2, void* cdata_)
 {
-  auto* cdata = static_cast<CollisionData<Scalar>*>(cdata_);
+  auto* cdata = static_cast<CollisionData<S>*>(cdata_);
   const auto& request = cdata->request;
   auto& result = cdata->result;
 
@@ -609,12 +609,12 @@ bool defaultCollisionFunction(CollisionObject<Scalar>* o1, CollisionObject<Scala
 }
 
 //==============================================================================
-template <typename Scalar>
-bool defaultDistanceFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata_, Scalar& dist)
+template <typename S>
+bool defaultDistanceFunction(CollisionObject<S>* o1, CollisionObject<S>* o2, void* cdata_, S& dist)
 {
-  auto* cdata = static_cast<DistanceData<Scalar>*>(cdata_);
-  const DistanceRequest<Scalar>& request = cdata->request;
-  DistanceResult<Scalar>& result = cdata->result;
+  auto* cdata = static_cast<DistanceData<S>*>(cdata_);
+  const DistanceRequest<S>& request = cdata->request;
+  DistanceResult<S>& result = cdata->result;
 
   if(cdata->done) { dist = result.min_distance; return true; }
 
@@ -628,12 +628,12 @@ bool defaultDistanceFunction(CollisionObject<Scalar>* o1, CollisionObject<Scalar
 }
 
 //==============================================================================
-template <typename Scalar>
-bool defaultContinuousCollisionFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_)
+template <typename S>
+bool defaultContinuousCollisionFunction(ContinuousCollisionObject<S>* o1, ContinuousCollisionObject<S>* o2, void* cdata_)
 {
-  auto* cdata = static_cast<ContinuousCollisionData<Scalar>*>(cdata_);
-  const ContinuousCollisionRequest<Scalar>& request = cdata->request;
-  ContinuousCollisionResult<Scalar>& result = cdata->result;
+  auto* cdata = static_cast<ContinuousCollisionData<S>*>(cdata_);
+  const ContinuousCollisionRequest<S>& request = cdata->request;
+  ContinuousCollisionResult<S>& result = cdata->result;
 
   if(cdata->done) return true;
 
@@ -643,8 +643,8 @@ bool defaultContinuousCollisionFunction(ContinuousCollisionObject<Scalar>* o1, C
 }
 
 //==============================================================================
-template <typename Scalar>
-bool defaultContinuousDistanceFunction(ContinuousCollisionObject<Scalar>* o1, ContinuousCollisionObject<Scalar>* o2, void* cdata_, Scalar& dist)
+template <typename S>
+bool defaultContinuousDistanceFunction(ContinuousCollisionObject<S>* o1, ContinuousCollisionObject<S>* o2, void* cdata_, S& dist)
 {
   return true;
 }
@@ -652,24 +652,24 @@ bool defaultContinuousDistanceFunction(ContinuousCollisionObject<Scalar>* o1, Co
 #if FCL_HAVE_OCTOMAP
 
 //==============================================================================
-template <typename Scalar>
-void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& boxes, OcTree<Scalar>& tree)
+template <typename S>
+void generateBoxesFromOctomap(std::vector<CollisionObject<S>*>& boxes, OcTree<S>& tree)
 {
-  std::vector<std::array<Scalar, 6> > boxes_ = tree.toBoxes();
+  std::vector<std::array<S, 6> > boxes_ = tree.toBoxes();
 
   for(std::size_t i = 0; i < boxes_.size(); ++i)
   {
-    Scalar x = boxes_[i][0];
-    Scalar y = boxes_[i][1];
-    Scalar z = boxes_[i][2];
-    Scalar size = boxes_[i][3];
-    Scalar cost = boxes_[i][4];
-    Scalar threshold = boxes_[i][5];
+    S x = boxes_[i][0];
+    S y = boxes_[i][1];
+    S z = boxes_[i][2];
+    S size = boxes_[i][3];
+    S cost = boxes_[i][4];
+    S threshold = boxes_[i][5];
 
-    Box<Scalar>* box = new Box<Scalar>(size, size, size);
+    Box<S>* box = new Box<S>(size, size, size);
     box->cost_density = cost;
     box->threshold_occupied = threshold;
-    CollisionObject<Scalar>* obj = new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(box), Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(x, y, z))));
+    CollisionObject<S>* obj = new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(box), Transform3<S>(Translation3<S>(Vector3<S>(x, y, z))));
     boxes.push_back(obj);
   }
 
@@ -678,26 +678,26 @@ void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& boxes, OcTr
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateBoxesFromOctomapMesh(std::vector<CollisionObject<Scalar>*>& boxes, OcTree<Scalar>& tree)
+template <typename S>
+void generateBoxesFromOctomapMesh(std::vector<CollisionObject<S>*>& boxes, OcTree<S>& tree)
 {
-  std::vector<std::array<Scalar, 6> > boxes_ = tree.toBoxes();
+  std::vector<std::array<S, 6> > boxes_ = tree.toBoxes();
 
   for(std::size_t i = 0; i < boxes_.size(); ++i)
   {
-    Scalar x = boxes_[i][0];
-    Scalar y = boxes_[i][1];
-    Scalar z = boxes_[i][2];
-    Scalar size = boxes_[i][3];
-    Scalar cost = boxes_[i][4];
-    Scalar threshold = boxes_[i][5];
+    S x = boxes_[i][0];
+    S y = boxes_[i][1];
+    S z = boxes_[i][2];
+    S size = boxes_[i][3];
+    S cost = boxes_[i][4];
+    S threshold = boxes_[i][5];
 
-    Box<Scalar> box(size, size, size);
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, box, Transform3<Scalar>::Identity());
+    Box<S> box(size, size, size);
+    BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
+    generateBVHModel(*model, box, Transform3<S>::Identity());
     model->cost_density = cost;
     model->threshold_occupied = threshold;
-    CollisionObject<Scalar>* obj = new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(x, y, z))));
+    CollisionObject<S>* obj = new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), Transform3<S>(Translation3<S>(Vector3<S>(x, y, z))));
     boxes.push_back(obj);
   }
 

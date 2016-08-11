@@ -48,51 +48,51 @@
 
 using namespace fcl;
 
-template <typename Scalar>
-std::array<Scalar, 6>& extents()
+template <typename S>
+std::array<S, 6>& extents()
 {
-  static std::array<Scalar, 6> static_extents{ {0, 0, 0, 10, 10, 10} };
+  static std::array<S, 6> static_extents{ {0, 0, 0, 10, 10, 10} };
   return static_extents;
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_spheresphere_libccd()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(20);
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  Sphere<S> s1(20);
+  Sphere<S> s2(20);
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
-  DistanceRequest<Scalar> request;
-  DistanceResult<Scalar> res, res1;
+  DistanceRequest<S> request;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(50, 0, 0);
+  pose.translation() = Vector3<S>(50, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -108,29 +108,29 @@ void test_consistency_distance_spheresphere_libccd()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
-  pose.translation() = Vector3<Scalar>(40.1, 0, 0);
+  pose.translation() = Vector3<S>(40.1, 0, 0);
 
   res.clear(), res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -153,44 +153,44 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_libccd)
   test_consistency_distance_spheresphere_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_ellipsoidellipsoid_libccd()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
-  DistanceRequest<Scalar> request;
-  DistanceResult<Scalar> res, res1;
+  DistanceRequest<S> request;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(40, 0, 0);
+  pose.translation() = Vector3<S>(40, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
 
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -206,28 +206,28 @@ void test_consistency_distance_ellipsoidellipsoid_libccd()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
-  pose.translation() = Vector3<Scalar>(30.1, 0, 0);
+  pose.translation() = Vector3<S>(30.1, 0, 0);
 
   res.clear(), res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
 
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -250,45 +250,45 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_l
   test_consistency_distance_ellipsoidellipsoid_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_boxbox_libccd()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
 
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity());
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity());
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity());
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity());
 
-  DistanceRequest<Scalar> request;
-  DistanceResult<Scalar> res, res1;
+  DistanceRequest<S> request;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(50, 0, 0);
+  pose.translation() = Vector3<S>(50, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -304,28 +304,28 @@ void test_consistency_distance_boxbox_libccd()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   }
 
-  pose.translation() = Vector3<Scalar>(15.1, 0, 0);
+  pose.translation() = Vector3<S>(15.1, 0, 0);
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -348,45 +348,45 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_libccd)
   test_consistency_distance_boxbox_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_cylindercylinder_libccd()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
-  DistanceRequest<Scalar> request;
-  DistanceResult<Scalar> res, res1;
+  DistanceRequest<S> request;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(20, 0, 0);
+  pose.translation() = Vector3<S>(20, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -402,28 +402,28 @@ void test_consistency_distance_cylindercylinder_libccd()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   }
   
-  pose.translation() = Vector3<Scalar>(15, 0, 0); // libccd cannot use small value here :(
+  pose.translation() = Vector3<S>(15, 0, 0); // libccd cannot use small value here :(
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -446,44 +446,44 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_lib
   test_consistency_distance_cylindercylinder_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_conecone_libccd()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
-  DistanceRequest<Scalar> request;
-  DistanceResult<Scalar> res, res1;
+  DistanceRequest<S> request;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(20, 0, 0);
+  pose.translation() = Vector3<S>(20, 0, 0);
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -499,28 +499,28 @@ void test_consistency_distance_conecone_libccd()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
   
-  pose.translation() = Vector3<Scalar>(15, 0, 0); // libccd cannot use small value here :(
+  pose.translation() = Vector3<S>(15, 0, 0); // libccd cannot use small value here :(
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -543,46 +543,46 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_libccd)
   test_consistency_distance_conecone_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_spheresphere_GJK()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(20);
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  Sphere<S> s1(20);
+  Sphere<S> s2(20);
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
-  DistanceRequest<Scalar> request;
+  DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult<Scalar> res, res1;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(50, 0, 0);
+  pose.translation() = Vector3<S>(50, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -598,29 +598,29 @@ void test_consistency_distance_spheresphere_GJK()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
-  pose.translation() = Vector3<Scalar>(40.1, 0, 0);
+  pose.translation() = Vector3<S>(40.1, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
 
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -643,46 +643,46 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_spheresphere_GJK)
   test_consistency_distance_spheresphere_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_ellipsoidellipsoid_GJK()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
-  DistanceRequest<Scalar> request;
+  DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult<Scalar> res, res1;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(40, 0, 0);
+  pose.translation() = Vector3<S>(40, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
 
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
 
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -698,29 +698,29 @@ void test_consistency_distance_ellipsoidellipsoid_GJK()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
 
-  pose.translation() = Vector3<Scalar>(30.1, 0, 0);
+  pose.translation() = Vector3<S>(30.1, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 4);
 
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
 
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -743,46 +743,46 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_ellipsoidellipsoid_G
   test_consistency_distance_ellipsoidellipsoid_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_boxbox_GJK()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
 
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity());
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity());
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity());
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity());
 
-  DistanceRequest<Scalar> request;
+  DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult<Scalar> res, res1;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(50, 0, 0);
+  pose.translation() = Vector3<S>(50, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -798,28 +798,28 @@ void test_consistency_distance_boxbox_GJK()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   }
 
-  pose.translation() = Vector3<Scalar>(15.1, 0, 0);
+  pose.translation() = Vector3<S>(15.1, 0, 0);
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -842,46 +842,46 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_boxbox_GJK)
   test_consistency_distance_boxbox_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_cylindercylinder_GJK()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
   
-  DistanceRequest<Scalar> request;
+  DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult<Scalar> res, res1;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(20, 0, 0);
+  pose.translation() = Vector3<S>(20, 0, 0);
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -906,28 +906,28 @@ void test_consistency_distance_cylindercylinder_GJK()
       EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
   
-  pose.translation() = Vector3<Scalar>(10.1, 0, 0);
+  pose.translation() = Vector3<S>(10.1, 0, 0);
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -950,46 +950,46 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_cylindercylinder_GJK
   test_consistency_distance_cylindercylinder_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_distance_conecone_GJK()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  BVHModel<RSS<Scalar>> s1_rss;
-  BVHModel<RSS<Scalar>> s2_rss;
+  BVHModel<RSS<S>> s1_rss;
+  BVHModel<RSS<S>> s2_rss;
 
-  generateBVHModel(s1_rss, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_rss, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
 
-  DistanceRequest<Scalar> request;
+  DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
-  DistanceResult<Scalar> res, res1;
+  DistanceResult<S> res, res1;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(20, 0, 0);
+  pose.translation() = Vector3<S>(20, 0, 0);
 
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -1005,28 +1005,28 @@ void test_consistency_distance_conecone_GJK()
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
   
-  pose.translation() = Vector3<Scalar>(10.1, 0, 0);
+  pose.translation() = Vector3<S>(10.1, 0, 0);
   
   res.clear(); res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, res);
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   res1.clear();
-  distance(&s1, Transform3<Scalar>::Identity(), &s2_rss, pose, request, res1);
+  distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
 
   res1.clear();
-  distance(&s1_rss, Transform3<Scalar>::Identity(), &s2, pose, request, res1);
+  distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
   
   for(std::size_t i = 0; i < 10; ++i)
   {
-    Transform3<Scalar> t;
-    generateRandomTransform(extents<Scalar>(), t);
+    Transform3<S> t;
+    generateRandomTransform(extents<S>(), t);
     
-    Transform3<Scalar> pose1(t);
-    Transform3<Scalar> pose2 = t * pose;
+    Transform3<S> pose1(t);
+    Transform3<S> pose2 = t * pose;
 
     res.clear(); res1.clear();
     distance(&s1, pose1, &s2, pose2, request, res);
@@ -1049,29 +1049,29 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_distance_conecone_GJK)
   test_consistency_distance_conecone_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_spheresphere_libccd()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(10);
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  Sphere<S> s1(20);
+  Sphere<S> s2(10);
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
-  CollisionResult<Scalar> result;
+  CollisionRequest<S> request;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
 
   // s2 is within s1
@@ -1080,192 +1080,192 @@ void test_consistency_collision_spheresphere_libccd()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(40, 0, 0);
+  pose.translation() = Vector3<S>(40, 0, 0);
+  pose_aabb.translation() = Vector3<S>(40, 0, 0);
+  pose_obb.translation() = Vector3<S>(40, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-
-  pose.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(30, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
-  pose_obb.translation() = Vector3<Scalar>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose.translation() = Vector3<S>(30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(30, 0, 0);
+  pose_obb.translation() = Vector3<S>(30, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+
+  pose.translation() = Vector3<S>(29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose_obb.translation() = Vector3<S>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
 
-  pose.translation() = Vector3<Scalar>(-29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
-  pose_obb.translation() = Vector3<Scalar>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose.translation() = Vector3<S>(-29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose_obb.translation() = Vector3<S>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(-30, 0, 0);
+  pose.translation() = Vector3<S>(-30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-30, 0, 0);
+  pose_obb.translation() = Vector3<S>(-30, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -1275,29 +1275,29 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_libccd
   test_consistency_collision_spheresphere_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_ellipsoidellipsoid_libccd()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
-  CollisionResult<Scalar> result;
+  CollisionRequest<S> request;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
 
   // s2 is within s1
@@ -1306,194 +1306,194 @@ void test_consistency_collision_ellipsoidellipsoid_libccd()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(40, 0, 0);
+  pose.translation() = Vector3<S>(40, 0, 0);
+  pose_aabb.translation() = Vector3<S>(40, 0, 0);
+  pose_obb.translation() = Vector3<S>(40, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(30, 0, 0);
+  pose.translation() = Vector3<S>(30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(30, 0, 0);
+  pose_obb.translation() = Vector3<S>(30, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);  // libccd cannot detect collision when two ellipsoid is exactly touching each other
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.999, 0, 0))), request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, Transform3<S>(Translation3<S>(Vector3<S>(29.999, 0, 0))), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(29.9, 0, 0); // 29.9 fails, result depends on mesh precision
-  pose_obb.translation() = Vector3<Scalar>(29.9, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose.translation() = Vector3<S>(29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(29.9, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose_obb.translation() = Vector3<S>(29.9, 0, 0); // 29.9 fails, result depends on mesh precision
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-
-  pose.translation() = Vector3<Scalar>(-29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-29.9, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(-29.9, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(-30, 0, 0);
+  pose.translation() = Vector3<S>(-29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-29.9, 0, 0);
+  pose_obb.translation() = Vector3<S>(-29.9, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+
+  pose.translation() = Vector3<S>(-30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-30, 0, 0);
+  pose_obb.translation() = Vector3<S>(-30, 0, 0);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -1503,30 +1503,30 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
   test_consistency_collision_ellipsoidellipsoid_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_boxbox_libccd()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity());
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity());
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity());
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity());
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity());
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity());
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity());
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity());
 
-  CollisionRequest<Scalar> request;
-  CollisionResult<Scalar> result;
+  CollisionRequest<S> request;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1534,95 +1534,95 @@ void test_consistency_collision_boxbox_libccd()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-
-  pose.translation() = Vector3<Scalar>(15.01, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(15.01, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(15.01, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(14.99, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(14.99, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(14.99, 0, 0);
+  pose.translation() = Vector3<S>(15.01, 0, 0);
+  pose_aabb.translation() = Vector3<S>(15.01, 0, 0);
+  pose_obb.translation() = Vector3<S>(15.01, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+
+  pose.translation() = Vector3<S>(14.99, 0, 0);
+  pose_aabb.translation() = Vector3<S>(14.99, 0, 0);
+  pose_obb.translation() = Vector3<S>(14.99, 0, 0);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 }
 
@@ -1632,30 +1632,30 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_libccd)
   test_consistency_collision_boxbox_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_spherebox_libccd()
 {
-  Sphere<Scalar> s1(20);
-  Box<Scalar> s2(5, 5, 5);
+  Sphere<S> s1(20);
+  Box<S> s2(5, 5, 5);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity());
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity());
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity());
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity());
 
-  CollisionRequest<Scalar> request;
-  CollisionResult<Scalar> result;
+  CollisionRequest<S> request;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
   // s2 is within s1
   // both are shapes --> collision
@@ -1663,95 +1663,95 @@ void test_consistency_collision_spherebox_libccd()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(22.4, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(22.4, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(22.4, 0, 0);
+  pose.translation() = Vector3<S>(22.4, 0, 0);
+  pose_aabb.translation() = Vector3<S>(22.4, 0, 0);
+  pose_obb.translation() = Vector3<S>(22.4, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(22.51, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(22.51, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(22.51, 0, 0);
+  pose.translation() = Vector3<S>(22.51, 0, 0);
+  pose_aabb.translation() = Vector3<S>(22.51, 0, 0);
+  pose_obb.translation() = Vector3<S>(22.51, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -1761,93 +1761,93 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_libccd)
   test_consistency_collision_spherebox_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_cylindercylinder_libccd()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
-  CollisionResult<Scalar> result;
+  CollisionRequest<S> request;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(9.99, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(9.99, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(9.99, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-
-  pose.translation() = Vector3<Scalar>(10.01, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(10.01, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(10.01, 0, 0);
+  pose.translation() = Vector3<S>(9.99, 0, 0);
+  pose_aabb.translation() = Vector3<S>(9.99, 0, 0);
+  pose_obb.translation() = Vector3<S>(9.99, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+
+  pose.translation() = Vector3<S>(10.01, 0, 0);
+  pose_aabb.translation() = Vector3<S>(10.01, 0, 0);
+  pose_obb.translation() = Vector3<S>(10.01, 0, 0);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -1857,157 +1857,157 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_li
   test_consistency_collision_cylindercylinder_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_conecone_libccd()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
-  CollisionResult<Scalar> result;
+  CollisionRequest<S> request;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(9.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(9.9, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(9.9, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-
-  pose.translation() = Vector3<Scalar>(10.1, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(10.1, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(10.1, 0, 0);
+  pose.translation() = Vector3<S>(9.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(9.9, 0, 0);
+  pose_obb.translation() = Vector3<S>(9.9, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-
-  pose.translation() = Vector3<Scalar>(0, 0, 9.9);
-  pose_aabb.translation() = Vector3<Scalar>(0, 0, 9.9);
-  pose_obb.translation() = Vector3<Scalar>(0, 0, 9.9);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(0, 0, 10.1);
-  pose_aabb.translation() = Vector3<Scalar>(0, 0, 10.1);
-  pose_obb.translation() = Vector3<Scalar>(0, 0, 10.1);
+  pose.translation() = Vector3<S>(10.1, 0, 0);
+  pose_aabb.translation() = Vector3<S>(10.1, 0, 0);
+  pose_obb.translation() = Vector3<S>(10.1, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+
+  pose.translation() = Vector3<S>(0, 0, 9.9);
+  pose_aabb.translation() = Vector3<S>(0, 0, 9.9);
+  pose_obb.translation() = Vector3<S>(0, 0, 9.9);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+
+  pose.translation() = Vector3<S>(0, 0, 10.1);
+  pose_aabb.translation() = Vector3<S>(0, 0, 10.1);
+  pose_obb.translation() = Vector3<S>(0, 0, 10.1);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -2017,31 +2017,31 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_conecone_libccd)
   test_consistency_collision_conecone_libccd<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_spheresphere_GJK()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(10);
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  Sphere<S> s1(20);
+  Sphere<S> s2(10);
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
 
   // s2 is within s1
@@ -2050,192 +2050,192 @@ void test_consistency_collision_spheresphere_GJK()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(40, 0, 0);
+  pose.translation() = Vector3<S>(40, 0, 0);
+  pose_aabb.translation() = Vector3<S>(40, 0, 0);
+  pose_obb.translation() = Vector3<S>(40, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-
-  pose.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(30, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
-  pose_obb.translation() = Vector3<Scalar>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose.translation() = Vector3<S>(30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(30, 0, 0);
+  pose_obb.translation() = Vector3<S>(30, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+
+  pose.translation() = Vector3<S>(29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose_obb.translation() = Vector3<S>(29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
 
-  pose.translation() = Vector3<Scalar>(-29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
-  pose_obb.translation() = Vector3<Scalar>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose.translation() = Vector3<S>(-29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
+  pose_obb.translation() = Vector3<S>(-29.8, 0, 0); // 29.9 fails, result depends on mesh precision
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(-30, 0, 0);
+  pose.translation() = Vector3<S>(-30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-30, 0, 0);
+  pose_obb.translation() = Vector3<S>(-30, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -2245,31 +2245,31 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spheresphere_GJK)
   test_consistency_collision_spheresphere_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_ellipsoidellipsoid_GJK()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
 
   // s2 is within s1
@@ -2278,192 +2278,192 @@ void test_consistency_collision_ellipsoidellipsoid_GJK()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(40, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(40, 0, 0);
+  pose.translation() = Vector3<S>(40, 0, 0);
+  pose_aabb.translation() = Vector3<S>(40, 0, 0);
+  pose_obb.translation() = Vector3<S>(40, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-
-  pose.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(30, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(29.9, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(29.9, 0, 0);
+  pose.translation() = Vector3<S>(30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(30, 0, 0);
+  pose_obb.translation() = Vector3<S>(30, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+
+  pose.translation() = Vector3<S>(29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(29.9, 0, 0);
+  pose_obb.translation() = Vector3<S>(29.9, 0, 0);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
 
-  pose.translation() = Vector3<Scalar>(-29.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-29.9, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(-29.9, 0, 0);
+  pose.translation() = Vector3<S>(-29.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-29.9, 0, 0);
+  pose_obb.translation() = Vector3<S>(-29.9, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(-30, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(-30, 0, 0);
+  pose.translation() = Vector3<S>(-30, 0, 0);
+  pose_aabb.translation() = Vector3<S>(-30, 0, 0);
+  pose_obb.translation() = Vector3<S>(-30, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -2473,32 +2473,32 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_ellipsoidellipsoid_
   test_consistency_collision_ellipsoidellipsoid_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_boxbox_GJK()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity());
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity());
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity());
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity());
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity());
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity());
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity());
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity());
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
   // s2 is within s1
   // both are shapes --> collision
@@ -2506,95 +2506,95 @@ void test_consistency_collision_boxbox_GJK()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-
-  pose.translation() = Vector3<Scalar>(15.01, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(15.01, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(15.01, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(14.99, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(14.99, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(14.99, 0, 0);
+  pose.translation() = Vector3<S>(15.01, 0, 0);
+  pose_aabb.translation() = Vector3<S>(15.01, 0, 0);
+  pose_obb.translation() = Vector3<S>(15.01, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+
+  pose.translation() = Vector3<S>(14.99, 0, 0);
+  pose_aabb.translation() = Vector3<S>(14.99, 0, 0);
+  pose_obb.translation() = Vector3<S>(14.99, 0, 0);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 }
 
@@ -2604,32 +2604,32 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_boxbox_GJK)
   test_consistency_collision_boxbox_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_spherebox_GJK()
 {
-  Sphere<Scalar> s1(20);
-  Box<Scalar> s2(5, 5, 5);
+  Sphere<S> s1(20);
+  Box<S> s2(5, 5, 5);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity());
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity());
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity());
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity());
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
   // s2 is within s1
   // both are shapes --> collision
@@ -2637,95 +2637,95 @@ void test_consistency_collision_spherebox_GJK()
   // s1 is mesh, s2 is shape --> collision free
   // all are reasonable
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 
-  pose.translation() = Vector3<Scalar>(22.4, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(22.4, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(22.4, 0, 0);
+  pose.translation() = Vector3<S>(22.4, 0, 0);
+  pose_aabb.translation() = Vector3<S>(22.4, 0, 0);
+  pose_obb.translation() = Vector3<S>(22.4, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(22.51, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(22.51, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(22.51, 0, 0);
+  pose.translation() = Vector3<S>(22.51, 0, 0);
+  pose_aabb.translation() = Vector3<S>(22.51, 0, 0);
+  pose_obb.translation() = Vector3<S>(22.51, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -2735,95 +2735,95 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_spherebox_GJK)
   test_consistency_collision_spherebox_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_cylindercylinder_GJK()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(9.99, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(9.99, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(9.99, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-
-  pose.translation() = Vector3<Scalar>(10.01, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(10.01, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(10.01, 0, 0);
+  pose.translation() = Vector3<S>(9.99, 0, 0);
+  pose_aabb.translation() = Vector3<S>(9.99, 0, 0);
+  pose_obb.translation() = Vector3<S>(9.99, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+
+  pose.translation() = Vector3<S>(10.01, 0, 0);
+  pose_aabb.translation() = Vector3<S>(10.01, 0, 0);
+  pose_obb.translation() = Vector3<S>(10.01, 0, 0);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 
@@ -2833,159 +2833,159 @@ GTEST_TEST(FCL_SHAPE_MESH_CONSISTENCY, consistency_collision_cylindercylinder_GJ
   test_consistency_collision_cylindercylinder_GJK<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_consistency_collision_conecone_GJK()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  BVHModel<AABB<Scalar>> s1_aabb;
-  BVHModel<AABB<Scalar>> s2_aabb;
-  BVHModel<OBB<Scalar>> s1_obb;
-  BVHModel<OBB<Scalar>> s2_obb;
+  BVHModel<AABB<S>> s1_aabb;
+  BVHModel<AABB<S>> s2_aabb;
+  BVHModel<OBB<S>> s1_obb;
+  BVHModel<OBB<S>> s2_obb;
 
-  generateBVHModel(s1_aabb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_aabb, s2, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s1_obb, s1, Transform3<Scalar>::Identity(), 16, 16);
-  generateBVHModel(s2_obb, s2, Transform3<Scalar>::Identity(), 16, 16);
+  generateBVHModel(s1_aabb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_aabb, s2, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s1_obb, s1, Transform3<S>::Identity(), 16, 16);
+  generateBVHModel(s2_obb, s2, Transform3<S>::Identity(), 16, 16);
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
 
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
   bool res;
 
-  Transform3<Scalar> pose = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_aabb = Transform3<Scalar>::Identity();
-  Transform3<Scalar> pose_obb = Transform3<Scalar>::Identity();
+  Transform3<S> pose = Transform3<S>::Identity();
+  Transform3<S> pose_aabb = Transform3<S>::Identity();
+  Transform3<S> pose_obb = Transform3<S>::Identity();
 
-  pose.translation() = Vector3<Scalar>(9.9, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(9.9, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(9.9, 0, 0);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_TRUE(res);
-
-  pose.translation() = Vector3<Scalar>(10.1, 0, 0);
-  pose_aabb.translation() = Vector3<Scalar>(10.1, 0, 0);
-  pose_obb.translation() = Vector3<Scalar>(10.1, 0, 0);
+  pose.translation() = Vector3<S>(9.9, 0, 0);
+  pose_aabb.translation() = Vector3<S>(9.9, 0, 0);
+  pose_obb.translation() = Vector3<S>(9.9, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-  result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
-  EXPECT_FALSE(res);
-
-  pose.translation() = Vector3<Scalar>(0, 0, 9.9);
-  pose_aabb.translation() = Vector3<Scalar>(0, 0, 9.9);
-  pose_obb.translation() = Vector3<Scalar>(0, 0, 9.9);
-
-  result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_TRUE(res);
 
-  pose.translation() = Vector3<Scalar>(0, 0, 10.1);
-  pose_aabb.translation() = Vector3<Scalar>(0, 0, 10.1);
-  pose_obb.translation() = Vector3<Scalar>(0, 0, 10.1);
+  pose.translation() = Vector3<S>(10.1, 0, 0);
+  pose_aabb.translation() = Vector3<S>(10.1, 0, 0);
+  pose_obb.translation() = Vector3<S>(10.1, 0, 0);
 
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2_obb, pose_obb, &s1, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1, Transform3<Scalar>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_aabb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s2, pose, &s1_obb, Transform3<Scalar>::Identity(), request, result) > 0);
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
   result.clear();
-  res = (collide(&s1_aabb, Transform3<Scalar>::Identity(), &s2, pose, request, result) > 0);
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+
+  pose.translation() = Vector3<S>(0, 0, 9.9);
+  pose_aabb.translation() = Vector3<S>(0, 0, 9.9);
+  pose_obb.translation() = Vector3<S>(0, 0, 9.9);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_TRUE(res);
+
+  pose.translation() = Vector3<S>(0, 0, 10.1);
+  pose_aabb.translation() = Vector3<S>(0, 0, 10.1);
+  pose_obb.translation() = Vector3<S>(0, 0, 10.1);
+
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_aabb, pose_aabb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2_obb, pose_obb, &s1, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_aabb, pose_aabb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1, Transform3<S>::Identity(), &s2_obb, pose_obb, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_aabb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s2, pose, &s1_obb, Transform3<S>::Identity(), request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
+  EXPECT_FALSE(res);
+  result.clear();
+  res = (collide(&s1_aabb, Transform3<S>::Identity(), &s2, pose, request, result) > 0);
   EXPECT_FALSE(res);
 }
 

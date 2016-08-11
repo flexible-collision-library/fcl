@@ -46,11 +46,11 @@ namespace fcl
 namespace detail
 {
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Capsule<ScalarT>>;
+template <typename S>
+struct BVComputer<S, AABB<S>, Capsule<S>>;
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>;
+template <typename S>
+struct BVComputer<S, OBB<S>, Capsule<S>>;
 
 //============================================================================//
 //                                                                            //
@@ -59,29 +59,29 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Capsule<ScalarT>>
+template <typename S>
+struct BVComputer<S, AABB<S>, Capsule<S>>
 {
-  static void compute(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  static void compute(const Capsule<S>& s, const Transform3<S>& tf, AABB<S>& bv)
   {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
+    const Matrix3<S>& R = tf.linear();
+    const Vector3<S>& T = tf.translation();
 
-    ScalarT x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
-    ScalarT y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
-    ScalarT z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
+    S x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
+    S y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
+    S z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
 
-    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
+    Vector3<S> v_delta(x_range, y_range, z_range);
     bv.max_ = T + v_delta;
     bv.min_ = T - v_delta;
   }
 };
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Capsule<ScalarT>>
+template <typename S>
+struct BVComputer<S, OBB<S>, Capsule<S>>
 {
-  static void compute(const Capsule<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  static void compute(const Capsule<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
     bv.axis = tf.linear();
     bv.To = tf.translation();

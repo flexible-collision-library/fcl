@@ -47,23 +47,23 @@
 using namespace fcl;
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void test_distance_capsulecapsule_origin()
 {
-  GJKSolver_indep<Scalar> solver;
-  Capsule<Scalar> s1(5, 10);
-  Capsule<Scalar> s2(5, 10);
+  GJKSolver_indep<S> solver;
+  Capsule<S> s1(5, 10);
+  Capsule<S> s2(5, 10);
 
-  Vector3<Scalar> closest_p1, closest_p2;
+  Vector3<S> closest_p1, closest_p2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  Transform3<Scalar> transform2 = Transform3<Scalar>::Identity();
-  transform2.translation() = Vector3<Scalar>(20.1, 0,0);
+  Transform3<S> transform = Transform3<S>::Identity();
+  Transform3<S> transform2 = Transform3<S>::Identity();
+  transform2.translation() = Vector3<S>(20.1, 0,0);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver.template shapeDistance<Capsule<Scalar>, Capsule<Scalar>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.template shapeDistance<Capsule<S>, Capsule<S>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
@@ -72,49 +72,49 @@ void test_distance_capsulecapsule_origin()
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void test_distance_capsulecapsule_transformXY()
 {
-  GJKSolver_indep<Scalar> solver;
-  Capsule<Scalar> s1(5, 10);
-  Capsule<Scalar> s2(5, 10);
+  GJKSolver_indep<S> solver;
+  Capsule<S> s1(5, 10);
+  Capsule<S> s2(5, 10);
 
-  Vector3<Scalar> closest_p1, closest_p2;
+  Vector3<S> closest_p1, closest_p2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  Transform3<Scalar> transform2 = Transform3<Scalar>::Identity();
-  transform2.translation() = Vector3<Scalar>(20, 20,0);
+  Transform3<S> transform = Transform3<S>::Identity();
+  Transform3<S> transform2 = Transform3<S>::Identity();
+  transform2.translation() = Vector3<S>(20, 20,0);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver.template shapeDistance<Capsule<Scalar>, Capsule<Scalar>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.template shapeDistance<Capsule<S>, Capsule<S>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
-  Scalar expected = std::sqrt(Scalar(800)) - 10;
+  S expected = std::sqrt(S(800)) - 10;
   EXPECT_TRUE(std::abs(expected-dist) < 0.01);
   EXPECT_TRUE(res);
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void test_distance_capsulecapsule_transformZ()
 {
-  GJKSolver_indep<Scalar> solver;
-  Capsule<Scalar> s1(5, 10);
-  Capsule<Scalar> s2(5, 10);
+  GJKSolver_indep<S> solver;
+  Capsule<S> s1(5, 10);
+  Capsule<S> s2(5, 10);
 
-  Vector3<Scalar> closest_p1, closest_p2;
+  Vector3<S> closest_p1, closest_p2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  Transform3<Scalar> transform2 = Transform3<Scalar>::Identity();
-  transform2.translation() = Vector3<Scalar>(0,0,20.1);
+  Transform3<S> transform = Transform3<S>::Identity();
+  Transform3<S> transform2 = Transform3<S>::Identity();
+  transform2.translation() = Vector3<S>(0,0,20.1);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver.template shapeDistance<Capsule<Scalar>, Capsule<Scalar>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.template shapeDistance<Capsule<S>, Capsule<S>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;
 
@@ -123,30 +123,30 @@ void test_distance_capsulecapsule_transformZ()
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void test_distance_capsulecapsule_transformZ2()
 {
-  const Scalar Pi = constants<Scalar>::pi();
+  const S Pi = constants<S>::pi();
 
-  GJKSolver_indep<Scalar> solver;
-  Capsule<Scalar> s1(5, 10);
-  Capsule<Scalar> s2(5, 10);
+  GJKSolver_indep<S> solver;
+  Capsule<S> s1(5, 10);
+  Capsule<S> s2(5, 10);
 
-  Vector3<Scalar> closest_p1, closest_p2;
+  Vector3<S> closest_p1, closest_p2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  Transform3<Scalar> transform2 = Transform3<Scalar>::Identity();
-  transform2.translation() = Vector3<Scalar>(0,0,25.1);
-  Matrix3<Scalar> rot2(
-        AngleAxis<Scalar>(0, Vector3<Scalar>::UnitX())
-        * AngleAxis<Scalar>(Pi/2, Vector3<Scalar>::UnitY())
-        * AngleAxis<Scalar>(0, Vector3<Scalar>::UnitZ()));
+  Transform3<S> transform = Transform3<S>::Identity();
+  Transform3<S> transform2 = Transform3<S>::Identity();
+  transform2.translation() = Vector3<S>(0,0,25.1);
+  Matrix3<S> rot2(
+        AngleAxis<S>(0, Vector3<S>::UnitX())
+        * AngleAxis<S>(Pi/2, Vector3<S>::UnitY())
+        * AngleAxis<S>(0, Vector3<S>::UnitZ()));
   transform2.linear() = rot2;
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver.template shapeDistance<Capsule<Scalar>, Capsule<Scalar>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
+  res = solver.template shapeDistance<Capsule<S>, Capsule<S>>(s1, transform, s2, transform2, &dist, &closest_p1, &closest_p2);
   std::cerr << "applied transformation of two caps: " << transform.translation() << " & " << transform2.translation() << std::endl;
   std::cerr << "applied transformation of two caps: " << transform.linear() << " & " << transform2.linear() << std::endl;
   std::cerr << "computed points in caps to caps" << closest_p1 << " & " << closest_p2 << "with dist: " << dist << std::endl;

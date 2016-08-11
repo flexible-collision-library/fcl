@@ -78,7 +78,7 @@ struct BVNodeBase
 template <typename BV>
 struct BVNode : public BVNodeBase
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   /// @brief bounding volume storing the geometry
   BV bv;
@@ -88,16 +88,16 @@ struct BVNode : public BVNodeBase
 
   /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and
   /// the underlying BV supports distance, return the nearest points.
-  Scalar distance(
+  S distance(
       const BVNode& other,
-      Vector3<Scalar>* P1 = NULL,
-      Vector3<Scalar>* P2 = NULL) const;
+      Vector3<S>* P1 = NULL,
+      Vector3<S>* P2 = NULL) const;
 
   /// @brief Access the center of the BV
-  Vector3<Scalar> getCenter() const;
+  Vector3<S> getCenter() const;
 
   /// @brief Access the orientation of the BV
-  Matrix3<Scalar> getOrientation() const;
+  Matrix3<S> getOrientation() const;
 };
 
 //============================================================================//
@@ -139,61 +139,61 @@ bool BVNode<BV>::overlap(const BVNode& other) const
 
 //==============================================================================
 template <typename BV>
-typename BVNode<BV>::Scalar BVNode<BV>::distance(
-    const BVNode& other, Vector3<Scalar>* P1, Vector3<Scalar>* P2) const
+typename BVNode<BV>::S BVNode<BV>::distance(
+    const BVNode& other, Vector3<S>* P1, Vector3<S>* P2) const
 {
   return bv.distance(other.bv, P1, P2);
 }
 
 //==============================================================================
 template <typename BV>
-Vector3<typename BVNode<BV>::Scalar> BVNode<BV>::getCenter() const
+Vector3<typename BVNode<BV>::S> BVNode<BV>::getCenter() const
 {
   return bv.center();
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct GetOrientationImpl
 {
-  static Matrix3<Scalar> run(const BVNode<BV>& /*node*/)
+  static Matrix3<S> run(const BVNode<BV>& /*node*/)
   {
-    return Matrix3<Scalar>::Identity();
+    return Matrix3<S>::Identity();
   }
 };
 
 //==============================================================================
 template <typename BV>
-Matrix3<typename BV::Scalar> BVNode<BV>::getOrientation() const
+Matrix3<typename BV::S> BVNode<BV>::getOrientation() const
 {
-  return GetOrientationImpl<typename BV::Scalar, BV>::run(bv);
+  return GetOrientationImpl<typename BV::S, BV>::run(bv);
 }
 
 //==============================================================================
-template <typename Scalar>
-struct GetOrientationImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct GetOrientationImpl<S, OBB<S>>
 {
-  static Matrix3<Scalar> run(const OBB<Scalar>& bv)
+  static Matrix3<S> run(const OBB<S>& bv)
   {
     return bv.axis;
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetOrientationImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct GetOrientationImpl<S, RSS<S>>
 {
-  static Matrix3<Scalar> run(const RSS<Scalar>& bv)
+  static Matrix3<S> run(const RSS<S>& bv)
   {
     return bv.axis;
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetOrientationImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct GetOrientationImpl<S, OBBRSS<S>>
 {
-  static Matrix3<Scalar> run(const OBBRSS<Scalar>& bv)
+  static Matrix3<S> run(const OBBRSS<S>& bv)
   {
     return bv.obb.axis;
   }

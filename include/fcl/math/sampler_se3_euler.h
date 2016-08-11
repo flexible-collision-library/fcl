@@ -44,26 +44,26 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class SamplerSE3Euler : public SamplerBase<Scalar>
+template <typename S>
+class SamplerSE3Euler : public SamplerBase<S>
 {
 public:
   SamplerSE3Euler();
 
-  SamplerSE3Euler(const Vector3<Scalar>& lower_bound_,
-                  const Vector3<Scalar>& upper_bound_);
+  SamplerSE3Euler(const Vector3<S>& lower_bound_,
+                  const Vector3<S>& upper_bound_);
 
-  void setBound(const Vector3<Scalar>& lower_bound_,
-                const Vector3<Scalar>& upper_bound_);
+  void setBound(const Vector3<S>& lower_bound_,
+                const Vector3<S>& upper_bound_);
 
-  void getBound(Vector3<Scalar>& lower_bound_,
-                Vector3<Scalar>& upper_bound_) const;
+  void getBound(Vector3<S>& lower_bound_,
+                Vector3<S>& upper_bound_) const;
 
-  Vector6<Scalar> sample() const;
+  Vector6<S> sample() const;
 
 protected:
-  Vector3<Scalar> lower_bound;
-  Vector3<Scalar> upper_bound;
+  Vector3<S> lower_bound;
+  Vector3<S> upper_bound;
 
 };
 
@@ -77,34 +77,34 @@ using SamplerSE3Eulerd = SamplerSE3Euler<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Euler<Scalar>::SamplerSE3Euler()
+template <typename S>
+SamplerSE3Euler<S>::SamplerSE3Euler()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Euler<Scalar>::SamplerSE3Euler(const Vector3<Scalar>& lower_bound_, const Vector3<Scalar>& upper_bound_) : lower_bound(lower_bound_),
+template <typename S>
+SamplerSE3Euler<S>::SamplerSE3Euler(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_) : lower_bound(lower_bound_),
   upper_bound(upper_bound_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector6<Scalar> SamplerSE3Euler<Scalar>::sample() const
+template <typename S>
+Vector6<S> SamplerSE3Euler<S>::sample() const
 {
-  Vector6<Scalar> q;
+  Vector6<S> q;
   q[0] = this->rng.uniformReal(lower_bound[0], upper_bound[0]);
   q[1] = this->rng.uniformReal(lower_bound[1], upper_bound[1]);
   q[2] = this->rng.uniformReal(lower_bound[2], upper_bound[2]);
 
-  Scalar s[4];
+  S s[4];
   this->rng.quaternion(s);
 
-  Quaternion<Scalar> quat(s[0], s[1], s[2], s[3]);
-  Vector3<Scalar> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+  Quaternion<S> quat(s[0], s[1], s[2], s[3]);
+  Vector3<S> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
 
   q[3] = angles[0];
   q[4] = angles[1];
@@ -114,16 +114,16 @@ Vector6<Scalar> SamplerSE3Euler<Scalar>::sample() const
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Euler<Scalar>::getBound(Vector3<Scalar>& lower_bound_, Vector3<Scalar>& upper_bound_) const
+template <typename S>
+void SamplerSE3Euler<S>::getBound(Vector3<S>& lower_bound_, Vector3<S>& upper_bound_) const
 {
   lower_bound_ = lower_bound;
   upper_bound_ = upper_bound;
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Euler<Scalar>::setBound(const Vector3<Scalar>& lower_bound_, const Vector3<Scalar>& upper_bound_)
+template <typename S>
+void SamplerSE3Euler<S>::setBound(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_)
 
 {
   lower_bound = lower_bound_;

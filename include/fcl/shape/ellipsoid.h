@@ -47,21 +47,21 @@ namespace fcl
 {
 
 /// @brief Center at zero point ellipsoid
-template <typename ScalarT>
-class Ellipsoid : public ShapeBase<ScalarT>
+template <typename S_>
+class Ellipsoid : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Constructor
-  Ellipsoid(ScalarT a, ScalarT b, ScalarT c);
+  Ellipsoid(S a, S b, S c);
 
   /// @brief Constructor
-  Ellipsoid(const Vector3<ScalarT>& radii);
+  Ellipsoid(const Vector3<S>& radii);
 
   /// @brief Radii of the ellipsoid
-  Vector3<ScalarT> radii;
+  Vector3<S> radii;
 
   /// @brief Compute AABBd
   void computeLocalAABB() override;
@@ -70,15 +70,15 @@ public:
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  Matrix3<ScalarT> computeMomentofInertia() const override;
+  Matrix3<S> computeMomentofInertia() const override;
 
   // Documentation inherited
-  ScalarT computeVolume() const override;
+  S computeVolume() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(
+      const Transform3<S>& tf) const;
 };
 
 using Ellipsoidf = Ellipsoid<float>;
@@ -91,66 +91,66 @@ using Ellipsoidd = Ellipsoid<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Ellipsoid<ScalarT>::Ellipsoid(ScalarT a, ScalarT b, ScalarT c)
-  : ShapeBase<ScalarT>(), radii(a, b, c)
+template <typename S>
+Ellipsoid<S>::Ellipsoid(S a, S b, S c)
+  : ShapeBase<S>(), radii(a, b, c)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-Ellipsoid<ScalarT>::Ellipsoid(const Vector3<ScalarT>& radii)
-  : ShapeBase<ScalarT>(), radii(radii)
+template <typename S>
+Ellipsoid<S>::Ellipsoid(const Vector3<S>& radii)
+  : ShapeBase<S>(), radii(radii)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Ellipsoid<ScalarT>::computeLocalAABB()
+template <typename S>
+void Ellipsoid<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Ellipsoid<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Ellipsoid<S>::getNodeType() const
 {
   return GEOM_ELLIPSOID;
 }
 
 //==============================================================================
-template <typename ScalarT>
-Matrix3<ScalarT> Ellipsoid<ScalarT>::computeMomentofInertia() const
+template <typename S>
+Matrix3<S> Ellipsoid<S>::computeMomentofInertia() const
 {
-  const ScalarT V = computeVolume();
+  const S V = computeVolume();
 
-  const ScalarT a2 = radii[0] * radii[0] * V;
-  const ScalarT b2 = radii[1] * radii[1] * V;
-  const ScalarT c2 = radii[2] * radii[2] * V;
+  const S a2 = radii[0] * radii[0] * V;
+  const S b2 = radii[1] * radii[1] * V;
+  const S c2 = radii[2] * radii[2] * V;
 
-  return Vector3<ScalarT>(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
+  return Vector3<S>(0.2 * (b2 + c2), 0.2 * (a2 + c2), 0.2 * (a2 + b2)).asDiagonal();
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Ellipsoid<ScalarT>::computeVolume() const
+template <typename S>
+S Ellipsoid<S>::computeVolume() const
 {
-  const ScalarT pi = constants<Scalar>::pi();
+  const S pi = constants<S>::pi();
   return 4.0 * pi * radii[0] * radii[1] * radii[2] / 3.0;
 }
 
 //==============================================================================
-template <typename ScalarT>
-std::vector<Vector3<ScalarT>> Ellipsoid<ScalarT>::getBoundVertices(
-    const Transform3<ScalarT>& tf) const
+template <typename S>
+std::vector<Vector3<S>> Ellipsoid<S>::getBoundVertices(
+    const Transform3<S>& tf) const
 {
   // we use scaled icosahedron to bound the ellipsoid
 
-  std::vector<Vector3<ScalarT>> result(12);
+  std::vector<Vector3<S>> result(12);
 
   const auto phi = (1.0 + std::sqrt(5.0)) / 2.0;  // golden ratio
 
@@ -168,18 +168,18 @@ std::vector<Vector3<ScalarT>> Ellipsoid<ScalarT>::getBoundVertices(
   const auto Ca = C * a;
   const auto Cb = C * b;
 
-  result[0] = tf * Vector3<ScalarT>(0, Ba, Cb);
-  result[1] = tf * Vector3<ScalarT>(0, -Ba, Cb);
-  result[2] = tf * Vector3<ScalarT>(0, Ba, -Cb);
-  result[3] = tf * Vector3<ScalarT>(0, -Ba, -Cb);
-  result[4] = tf * Vector3<ScalarT>(Aa, Bb, 0);
-  result[5] = tf * Vector3<ScalarT>(-Aa, Bb, 0);
-  result[6] = tf * Vector3<ScalarT>(Aa, -Bb, 0);
-  result[7] = tf * Vector3<ScalarT>(-Aa, -Bb, 0);
-  result[8] = tf * Vector3<ScalarT>(Ab, 0, Ca);
-  result[9] = tf * Vector3<ScalarT>(Ab, 0, -Ca);
-  result[10] = tf * Vector3<ScalarT>(-Ab, 0, Ca);
-  result[11] = tf * Vector3<ScalarT>(-Ab, 0, -Ca);
+  result[0] = tf * Vector3<S>(0, Ba, Cb);
+  result[1] = tf * Vector3<S>(0, -Ba, Cb);
+  result[2] = tf * Vector3<S>(0, Ba, -Cb);
+  result[3] = tf * Vector3<S>(0, -Ba, -Cb);
+  result[4] = tf * Vector3<S>(Aa, Bb, 0);
+  result[5] = tf * Vector3<S>(-Aa, Bb, 0);
+  result[6] = tf * Vector3<S>(Aa, -Bb, 0);
+  result[7] = tf * Vector3<S>(-Aa, -Bb, 0);
+  result[8] = tf * Vector3<S>(Ab, 0, Ca);
+  result[9] = tf * Vector3<S>(Ab, 0, -Ca);
+  result[10] = tf * Vector3<S>(-Ab, 0, Ca);
+  result[11] = tf * Vector3<S>(-Ab, 0, -Ca);
 
   return result;
 }

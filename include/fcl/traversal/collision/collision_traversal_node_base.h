@@ -45,8 +45,8 @@ namespace fcl
 {
 
 /// @brief Node structure encoding the information required for collision traversal.
-template <typename Scalar>
-class CollisionTraversalNodeBase : public TraversalNodeBase<Scalar>
+template <typename S>
+class CollisionTraversalNodeBase : public TraversalNodeBase<S>
 {
 public:
   CollisionTraversalNodeBase();
@@ -66,10 +66,10 @@ public:
   void enableStatistics(bool enable);
 
   /// @brief request setting for collision
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
 
   /// @brief collision result kept during the traversal iteration
-  CollisionResult<Scalar>* result;
+  CollisionResult<S>* result;
 
   /// @brief Whether stores statistics 
   bool enable_statistics;
@@ -85,44 +85,44 @@ using CollisionTraversalNodeBased = CollisionTraversalNodeBase<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-CollisionTraversalNodeBase<Scalar>::CollisionTraversalNodeBase()
+template <typename S>
+CollisionTraversalNodeBase<S>::CollisionTraversalNodeBase()
   : result(NULL), enable_statistics(false)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-CollisionTraversalNodeBase<Scalar>::~CollisionTraversalNodeBase()
+template <typename S>
+CollisionTraversalNodeBase<S>::~CollisionTraversalNodeBase()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CollisionTraversalNodeBase<Scalar>::BVTesting(int b1, int b2) const
+template <typename S>
+bool CollisionTraversalNodeBase<S>::BVTesting(int b1, int b2) const
 {
   return true;
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionTraversalNodeBase<Scalar>::leafTesting(int b1, int b2) const
+template <typename S>
+void CollisionTraversalNodeBase<S>::leafTesting(int b1, int b2) const
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CollisionTraversalNodeBase<Scalar>::canStop() const
+template <typename S>
+bool CollisionTraversalNodeBase<S>::canStop() const
 {
   return false;
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionTraversalNodeBase<Scalar>::enableStatistics(bool enable)
+template <typename S>
+void CollisionTraversalNodeBase<S>::enableStatistics(bool enable)
 {
   enable_statistics = enable;
 }

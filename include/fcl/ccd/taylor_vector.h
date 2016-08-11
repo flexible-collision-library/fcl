@@ -44,76 +44,76 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 class TVector3
 {
-  TaylorModel<Scalar> i_[3];
+  TaylorModel<S> i_[3];
 
 public:
   
   TVector3();
-  TVector3(const std::shared_ptr<TimeInterval<Scalar>>& time_interval);
-  TVector3(TaylorModel<Scalar> v[3]);
-  TVector3(const TaylorModel<Scalar>& v0, const TaylorModel<Scalar>& v1, const TaylorModel<Scalar>& v2);
-  TVector3(const Vector3<Scalar>& v, const std::shared_ptr<TimeInterval<Scalar>>& time_interval);
+  TVector3(const std::shared_ptr<TimeInterval<S>>& time_interval);
+  TVector3(TaylorModel<S> v[3]);
+  TVector3(const TaylorModel<S>& v0, const TaylorModel<S>& v1, const TaylorModel<S>& v2);
+  TVector3(const Vector3<S>& v, const std::shared_ptr<TimeInterval<S>>& time_interval);
   
   TVector3 operator + (const TVector3& other) const;
   TVector3& operator += (const TVector3& other);
 
-  TVector3 operator + (const Vector3<Scalar>& other) const;
-  TVector3& operator += (const Vector3<Scalar>& other);
+  TVector3 operator + (const Vector3<S>& other) const;
+  TVector3& operator += (const Vector3<S>& other);
 
   TVector3 operator - (const TVector3& other) const;
   TVector3& operator -= (const TVector3& other);
 
-  TVector3 operator - (const Vector3<Scalar>& other) const;
-  TVector3& operator -= (const Vector3<Scalar>& other);
+  TVector3 operator - (const Vector3<S>& other) const;
+  TVector3& operator -= (const Vector3<S>& other);
 
   TVector3 operator - () const;
 
-  TVector3 operator * (const TaylorModel<Scalar>& d) const;
-  TVector3& operator *= (const TaylorModel<Scalar>& d);
-  TVector3 operator * (Scalar d) const;
-  TVector3& operator *= (Scalar d);
+  TVector3 operator * (const TaylorModel<S>& d) const;
+  TVector3& operator *= (const TaylorModel<S>& d);
+  TVector3 operator * (S d) const;
+  TVector3& operator *= (S d);
 
-  const TaylorModel<Scalar>& operator [] (size_t i) const;
-  TaylorModel<Scalar>& operator [] (size_t i);
+  const TaylorModel<S>& operator [] (size_t i) const;
+  TaylorModel<S>& operator [] (size_t i);
 
-  TaylorModel<Scalar> dot(const TVector3& other) const;
+  TaylorModel<S> dot(const TVector3& other) const;
   TVector3 cross(const TVector3& other) const;
-  TaylorModel<Scalar> dot(const Vector3<Scalar>& other) const;
-  TVector3 cross(const Vector3<Scalar>& other) const;
+  TaylorModel<S> dot(const Vector3<S>& other) const;
+  TVector3 cross(const Vector3<S>& other) const;
 
-  IVector3<Scalar> getBound() const;
-  IVector3<Scalar> getBound(Scalar l, Scalar r) const;
-  IVector3<Scalar> getBound(Scalar t) const;
+  IVector3<S> getBound() const;
+  IVector3<S> getBound(S l, S r) const;
+  IVector3<S> getBound(S t) const;
 
-  IVector3<Scalar> getTightBound() const;
-  IVector3<Scalar> getTightBound(Scalar l, Scalar r) const;
+  IVector3<S> getTightBound() const;
+  IVector3<S> getTightBound(S l, S r) const;
 
   void print() const;
-  Scalar volumn() const;
+  S volumn() const;
   void setZero();
 
-  TaylorModel<Scalar> squareLength() const;
+  TaylorModel<S> squareLength() const;
 
-  void setTimeInterval(const std::shared_ptr<TimeInterval<Scalar>>& time_interval);
-  void setTimeInterval(Scalar l, Scalar r);
+  void setTimeInterval(const std::shared_ptr<TimeInterval<S>>& time_interval);
+  void setTimeInterval(S l, S r);
 
-  const std::shared_ptr<TimeInterval<Scalar>>& getTimeInterval() const;
+  const std::shared_ptr<TimeInterval<S>>& getTimeInterval() const;
 };
 
-template <typename Scalar>
-void generateTVector3ForLinearFunc(TVector3<Scalar>& v, const Vector3<Scalar>& position, const Vector3<Scalar>& velocity);
+template <typename S>
+void generateTVector3ForLinearFunc(TVector3<S>& v, const Vector3<S>& position, const Vector3<S>& velocity);
 
-template <typename Scalar>
-TVector3<Scalar> operator * (const Vector3<Scalar>& v, const TaylorModel<Scalar>& a);
+template <typename S>
+TVector3<S> operator * (const Vector3<S>& v, const TaylorModel<S>& a);
 
-template <typename Scalar>
-TVector3<Scalar> operator + (const Vector3<Scalar>& v1, const TVector3<Scalar>& v2);
+template <typename S>
+TVector3<S> operator + (const Vector3<S>& v1, const TVector3<S>& v2);
 
-template <typename Scalar>
-TVector3<Scalar> operator - (const Vector3<Scalar>& v1, const TVector3<Scalar>& v2);
+template <typename S>
+TVector3<S> operator - (const Vector3<S>& v1, const TVector3<S>& v2);
 
 //============================================================================//
 //                                                                            //
@@ -122,21 +122,21 @@ TVector3<Scalar> operator - (const Vector3<Scalar>& v1, const TVector3<Scalar>& 
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>::TVector3()
+template <typename S>
+TVector3<S>::TVector3()
 {
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>::TVector3(const std::shared_ptr<TimeInterval<Scalar>>& time_interval)
+template <typename S>
+TVector3<S>::TVector3(const std::shared_ptr<TimeInterval<S>>& time_interval)
 {
   setTimeInterval(time_interval);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>::TVector3(TaylorModel<Scalar> v[3])
+template <typename S>
+TVector3<S>::TVector3(TaylorModel<S> v[3])
 {
   i_[0] = v[0];
   i_[1] = v[1];
@@ -144,8 +144,8 @@ TVector3<Scalar>::TVector3(TaylorModel<Scalar> v[3])
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>::TVector3(const TaylorModel<Scalar>& v1, const TaylorModel<Scalar>& v2, const TaylorModel<Scalar>& v3)
+template <typename S>
+TVector3<S>::TVector3(const TaylorModel<S>& v1, const TaylorModel<S>& v2, const TaylorModel<S>& v3)
 {
   i_[0] = v1;
   i_[1] = v2;
@@ -153,17 +153,17 @@ TVector3<Scalar>::TVector3(const TaylorModel<Scalar>& v1, const TaylorModel<Scal
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>::TVector3(const Vector3<Scalar>& v, const std::shared_ptr<TimeInterval<Scalar>>& time_interval)
+template <typename S>
+TVector3<S>::TVector3(const Vector3<S>& v, const std::shared_ptr<TimeInterval<S>>& time_interval)
 {
-  i_[0] = TaylorModel<Scalar>(v[0], time_interval);
-  i_[1] = TaylorModel<Scalar>(v[1], time_interval);
-  i_[2] = TaylorModel<Scalar>(v[2], time_interval);
+  i_[0] = TaylorModel<S>(v[0], time_interval);
+  i_[1] = TaylorModel<S>(v[1], time_interval);
+  i_[2] = TaylorModel<S>(v[2], time_interval);
 }
 
 //==============================================================================
-template <typename Scalar>
-void TVector3<Scalar>::setZero()
+template <typename S>
+void TVector3<S>::setZero()
 {
   i_[0].setZero();
   i_[1].setZero();
@@ -171,29 +171,29 @@ void TVector3<Scalar>::setZero()
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::operator + (const TVector3<Scalar>& other) const
+template <typename S>
+TVector3<S> TVector3<S>::operator + (const TVector3<S>& other) const
 {
   return TVector3(i_[0] + other.i_[0], i_[1] + other.i_[1], i_[2] + other.i_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::operator - (const TVector3<Scalar>& other) const
+template <typename S>
+TVector3<S> TVector3<S>::operator - (const TVector3<S>& other) const
 {
   return TVector3(i_[0] - other.i_[0], i_[1] - other.i_[1], i_[2] - other.i_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::operator - () const
+template <typename S>
+TVector3<S> TVector3<S>::operator - () const
 {
   return TVector3(-i_[0], -i_[1], -i_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>& TVector3<Scalar>::operator += (const TVector3<Scalar>& other)
+template <typename S>
+TVector3<S>& TVector3<S>::operator += (const TVector3<S>& other)
 {
   i_[0] += other.i_[0];
   i_[1] += other.i_[1];
@@ -202,8 +202,8 @@ TVector3<Scalar>& TVector3<Scalar>::operator += (const TVector3<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>& TVector3<Scalar>::operator -= (const TVector3<Scalar>& other)
+template <typename S>
+TVector3<S>& TVector3<S>::operator -= (const TVector3<S>& other)
 {
   i_[0] -= other.i_[0];
   i_[1] -= other.i_[1];
@@ -212,15 +212,15 @@ TVector3<Scalar>& TVector3<Scalar>::operator -= (const TVector3<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::operator + (const Vector3<Scalar>& other) const
+template <typename S>
+TVector3<S> TVector3<S>::operator + (const Vector3<S>& other) const
 {
   return TVector3(i_[0] + other[0], i_[1] + other[1], i_[2] + other[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>& TVector3<Scalar>::operator += (const Vector3<Scalar>& other)
+template <typename S>
+TVector3<S>& TVector3<S>::operator += (const Vector3<S>& other)
 {
   i_[0] += other[0];
   i_[1] += other[1];
@@ -229,15 +229,15 @@ TVector3<Scalar>& TVector3<Scalar>::operator += (const Vector3<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::operator - (const Vector3<Scalar>& other) const
+template <typename S>
+TVector3<S> TVector3<S>::operator - (const Vector3<S>& other) const
 {
   return TVector3(i_[0] - other[0], i_[1] - other[1], i_[2] - other[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>& TVector3<Scalar>::operator -= (const Vector3<Scalar>& other)
+template <typename S>
+TVector3<S>& TVector3<S>::operator -= (const Vector3<S>& other)
 {
   i_[0] -= other[0];
   i_[1] -= other[1];
@@ -246,15 +246,15 @@ TVector3<Scalar>& TVector3<Scalar>::operator -= (const Vector3<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::operator * (const TaylorModel<Scalar>& d) const
+template <typename S>
+TVector3<S> TVector3<S>::operator * (const TaylorModel<S>& d) const
 {
   return TVector3(i_[0] * d, i_[1] * d, i_[2] * d);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>& TVector3<Scalar>::operator *= (const TaylorModel<Scalar>& d)
+template <typename S>
+TVector3<S>& TVector3<S>::operator *= (const TaylorModel<S>& d)
 {
   i_[0] *= d;
   i_[1] *= d;
@@ -263,15 +263,15 @@ TVector3<Scalar>& TVector3<Scalar>::operator *= (const TaylorModel<Scalar>& d)
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::operator * (Scalar d) const
+template <typename S>
+TVector3<S> TVector3<S>::operator * (S d) const
 {
   return TVector3(i_[0] * d, i_[1] * d, i_[2] * d);
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar>& TVector3<Scalar>::operator *= (Scalar d)
+template <typename S>
+TVector3<S>& TVector3<S>::operator *= (S d)
 {
   i_[0] *= d;
   i_[1] *= d;
@@ -280,96 +280,96 @@ TVector3<Scalar>& TVector3<Scalar>::operator *= (Scalar d)
 }
 
 //==============================================================================
-template <typename Scalar>
-const TaylorModel<Scalar>& TVector3<Scalar>::operator [] (size_t i) const
+template <typename S>
+const TaylorModel<S>& TVector3<S>::operator [] (size_t i) const
 {
   return i_[i];
 }
 
 //==============================================================================
-template <typename Scalar>
-TaylorModel<Scalar>& TVector3<Scalar>::operator [] (size_t i)
+template <typename S>
+TaylorModel<S>& TVector3<S>::operator [] (size_t i)
 {
   return i_[i];
 }
 
 //==============================================================================
-template <typename Scalar>
-TaylorModel<Scalar> TVector3<Scalar>::dot(const TVector3& other) const
+template <typename S>
+TaylorModel<S> TVector3<S>::dot(const TVector3& other) const
 {
   return i_[0] * other.i_[0] + i_[1] * other.i_[1] + i_[2] * other.i_[2];
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::cross(const TVector3<Scalar>& other) const
+template <typename S>
+TVector3<S> TVector3<S>::cross(const TVector3<S>& other) const
 {
-  return TVector3<Scalar>(i_[1] * other.i_[2] - i_[2] * other.i_[1],
+  return TVector3<S>(i_[1] * other.i_[2] - i_[2] * other.i_[1],
                   i_[2] * other.i_[0] - i_[0] * other.i_[2],
                   i_[0] * other.i_[1] - i_[1] * other.i_[0]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TaylorModel<Scalar> TVector3<Scalar>::dot(const Vector3<Scalar>& other) const
+template <typename S>
+TaylorModel<S> TVector3<S>::dot(const Vector3<S>& other) const
 {
   return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TVector3<Scalar>::cross(const Vector3<Scalar>& other) const
+template <typename S>
+TVector3<S> TVector3<S>::cross(const Vector3<S>& other) const
 {
-  return TVector3<Scalar>(i_[1] * other[2] - i_[2] * other[1],
+  return TVector3<S>(i_[1] * other[2] - i_[2] * other[1],
                   i_[2] * other[0] - i_[0] * other[2],
                   i_[0] * other[1] - i_[1] * other[0]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar TVector3<Scalar>::volumn() const
+template <typename S>
+S TVector3<S>::volumn() const
 {
   return i_[0].getBound().diameter() * i_[1].getBound().diameter() * i_[2].getBound().diameter();
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> TVector3<Scalar>::getBound() const
+template <typename S>
+IVector3<S> TVector3<S>::getBound() const
 {
-  return IVector3<Scalar>(i_[0].getBound(), i_[1].getBound(), i_[2].getBound());
+  return IVector3<S>(i_[0].getBound(), i_[1].getBound(), i_[2].getBound());
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> TVector3<Scalar>::getBound(Scalar l, Scalar r) const
+template <typename S>
+IVector3<S> TVector3<S>::getBound(S l, S r) const
 {
-  return IVector3<Scalar>(i_[0].getBound(l, r), i_[1].getBound(l, r), i_[2].getBound(l, r));
+  return IVector3<S>(i_[0].getBound(l, r), i_[1].getBound(l, r), i_[2].getBound(l, r));
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> TVector3<Scalar>::getBound(Scalar t) const
+template <typename S>
+IVector3<S> TVector3<S>::getBound(S t) const
 {
-  return IVector3<Scalar>(i_[0].getBound(t), i_[1].getBound(t), i_[2].getBound(t));
+  return IVector3<S>(i_[0].getBound(t), i_[1].getBound(t), i_[2].getBound(t));
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> TVector3<Scalar>::getTightBound() const
+template <typename S>
+IVector3<S> TVector3<S>::getTightBound() const
 {
-  return IVector3<Scalar>(i_[0].getTightBound(), i_[1].getTightBound(), i_[2].getTightBound());
+  return IVector3<S>(i_[0].getTightBound(), i_[1].getTightBound(), i_[2].getTightBound());
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> TVector3<Scalar>::getTightBound(Scalar l, Scalar r) const
+template <typename S>
+IVector3<S> TVector3<S>::getTightBound(S l, S r) const
 {
-  return IVector3<Scalar>(i_[0].getTightBound(l, r), i_[1].getTightBound(l, r), i_[2].getTightBound(l, r));
+  return IVector3<S>(i_[0].getTightBound(l, r), i_[1].getTightBound(l, r), i_[2].getTightBound(l, r));
 }
 
 //==============================================================================
-template <typename Scalar>
-void TVector3<Scalar>::print() const
+template <typename S>
+void TVector3<S>::print() const
 {
   i_[0].print();
   i_[1].print();
@@ -377,15 +377,15 @@ void TVector3<Scalar>::print() const
 }
 
 //==============================================================================
-template <typename Scalar>
-TaylorModel<Scalar> TVector3<Scalar>::squareLength() const
+template <typename S>
+TaylorModel<S> TVector3<S>::squareLength() const
 {
   return i_[0] * i_[0] + i_[1] * i_[1] + i_[2] * i_[2];
 }
 
 //==============================================================================
-template <typename Scalar>
-void TVector3<Scalar>::setTimeInterval(const std::shared_ptr<TimeInterval<Scalar>>& time_interval)
+template <typename S>
+void TVector3<S>::setTimeInterval(const std::shared_ptr<TimeInterval<S>>& time_interval)
 {
   i_[0].setTimeInterval(time_interval);
   i_[1].setTimeInterval(time_interval);
@@ -393,8 +393,8 @@ void TVector3<Scalar>::setTimeInterval(const std::shared_ptr<TimeInterval<Scalar
 }
 
 //==============================================================================
-template <typename Scalar>
-void TVector3<Scalar>::setTimeInterval(Scalar l, Scalar r)
+template <typename S>
+void TVector3<S>::setTimeInterval(S l, S r)
 {
   i_[0].setTimeInterval(l, r);
   i_[1].setTimeInterval(l, r);
@@ -402,15 +402,15 @@ void TVector3<Scalar>::setTimeInterval(Scalar l, Scalar r)
 }
 
 //==============================================================================
-template <typename Scalar>
-const std::shared_ptr<TimeInterval<Scalar>>& TVector3<Scalar>::getTimeInterval() const
+template <typename S>
+const std::shared_ptr<TimeInterval<S>>& TVector3<S>::getTimeInterval() const
 {
   return i_[0].getTimeInterval();
 }
 
 //==============================================================================
-template <typename Scalar>
-void generateTVector3ForLinearFunc(TVector3<Scalar>& v, const Vector3<Scalar>& position, const Vector3<Scalar>& velocity)
+template <typename S>
+void generateTVector3ForLinearFunc(TVector3<S>& v, const Vector3<S>& position, const Vector3<S>& velocity)
 {
   generateTaylorModelForLinearFunc(v[0], position[0], velocity[0]);
   generateTaylorModelForLinearFunc(v[1], position[1], velocity[1]);
@@ -418,10 +418,10 @@ void generateTVector3ForLinearFunc(TVector3<Scalar>& v, const Vector3<Scalar>& p
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> operator * (const Vector3<Scalar>& v, const TaylorModel<Scalar>& a)
+template <typename S>
+TVector3<S> operator * (const Vector3<S>& v, const TaylorModel<S>& a)
 {
-  TVector3<Scalar> res(a.getTimeInterval());
+  TVector3<S> res(a.getTimeInterval());
   res[0] = a * v[0];
   res[1] = a * v[1];
   res[2] = a * v[2];
@@ -430,15 +430,15 @@ TVector3<Scalar> operator * (const Vector3<Scalar>& v, const TaylorModel<Scalar>
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> operator + (const Vector3<Scalar>& v1, const TVector3<Scalar>& v2)
+template <typename S>
+TVector3<S> operator + (const Vector3<S>& v1, const TVector3<S>& v2)
 {
   return v2 + v1;
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> operator - (const Vector3<Scalar>& v1, const TVector3<Scalar>& v2)
+template <typename S>
+TVector3<S> operator - (const Vector3<S>& v1, const TVector3<S>& v2)
 {
   return -v2 + v1;
 }

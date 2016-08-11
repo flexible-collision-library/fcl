@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Compute a bounding volume that fits a set of n points.
 template <typename BV>
-void fit(Vector3<typename BV::Scalar>* ps, int n, BV& bv);
+void fit(Vector3<typename BV::S>* ps, int n, BV& bv);
 
 //============================================================================//
 //                                                                            //
@@ -55,9 +55,9 @@ void fit(Vector3<typename BV::Scalar>* ps, int n, BV& bv);
 
 //==============================================================================
 template <typename BV>
-void fit(Vector3<typename BV::Scalar>* ps, int n, BV& bv)
+void fit(Vector3<typename BV::S>* ps, int n, BV& bv)
 {
-  detail::Fitter<typename BV::Scalar, BV>::fit(ps, n, bv);
+  detail::Fitter<typename BV::S, BV>::fit(ps, n, bv);
 }
 
 } // namespace fcl

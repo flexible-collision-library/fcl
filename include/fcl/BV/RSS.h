@@ -46,74 +46,74 @@ namespace fcl
 {
 
 /// @brief A class for rectangle sphere-swept bounding volume
-template <typename ScalarT>
+template <typename S_>
 class RSS
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Orientation of RSS. The axes of the rotation matrix are the
   /// principle directions of the box. We assume that the first column
   /// corresponds to the axis with the longest box edge, second column
   /// corresponds to the shorter one and the third coulumn corresponds to the
   /// shortest one.
-  Matrix3<ScalarT> axis;
+  Matrix3<S> axis;
 
   /// @brief Origin of the rectangle in RSS
-  Vector3<ScalarT> To;
+  Vector3<S> To;
 
   /// @brief Side lengths of rectangle
-  ScalarT l[2];
+  S l[2];
 
   /// @brief Radius of sphere summed with rectangle to form RSS
-  ScalarT r;
+  S r;
 
   /// Constructor
   RSS();
 
   /// @brief Check collision between two RSS
-  bool overlap(const RSS<ScalarT>& other) const;
+  bool overlap(const RSS<S>& other) const;
 
   /// @brief Check collision between two RSS and return the overlap part.
   /// For RSS, we return nothing, as the overlap part of two RSSs usually is not a RSS.
-  bool overlap(const RSS<ScalarT>& other, RSS<ScalarT>& overlap_part) const;
+  bool overlap(const RSS<S>& other, RSS<S>& overlap_part) const;
 
   /// @brief Check whether the RSS contains a point
-  bool contain(const Vector3<ScalarT>& p) const;
+  bool contain(const Vector3<S>& p) const;
 
   /// @brief A simple way to merge the RSS and a point, not compact.
   /// @todo This function may have some bug.
-  RSS<ScalarT>& operator += (const Vector3<ScalarT>& p);
+  RSS<S>& operator += (const Vector3<S>& p);
 
   /// @brief Merge the RSS and another RSS
-  RSS<ScalarT>& operator += (const RSS<ScalarT>& other);
+  RSS<S>& operator += (const RSS<S>& other);
 
   /// @brief Return the merged RSS of current RSS and the other one
-  RSS<ScalarT> operator + (const RSS<ScalarT>& other) const;
+  RSS<S> operator + (const RSS<S>& other) const;
 
   /// @brief Width of the RSS
-  ScalarT width() const;
+  S width() const;
 
   /// @brief Height of the RSS
-  ScalarT height() const;
+  S height() const;
 
   /// @brief Depth of the RSS
-  ScalarT depth() const;
+  S depth() const;
 
   /// @brief Volume of the RSS
-  ScalarT volume() const;
+  S volume() const;
 
   /// @brief Size of the RSS (used in BV_Splitter to order two RSSs)
-  ScalarT size() const;
+  S size() const;
 
   /// @brief The RSS center
-  const Vector3<ScalarT> center() const;
+  const Vector3<S> center() const;
 
   /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
-  ScalarT distance(const RSS<ScalarT>& other,
-                  Vector3<ScalarT>* P = NULL,
-                  Vector3<ScalarT>* Q = NULL) const;
+  S distance(const RSS<S>& other,
+                  Vector3<S>* P = NULL,
+                  Vector3<S>* Q = NULL) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -123,8 +123,8 @@ using RSSf = RSS<float>;
 using RSSd = RSS<double>;
 
 /// @brief Clip value between a and b
-template <typename Scalar>
-void clipToRange(Scalar& val, Scalar a, Scalar b);
+template <typename S>
+void clipToRange(S& val, S a, S b);
 
 /// @brief Finds the parameters t & u corresponding to the two closest points on
 /// a pair of line segments. The first segment is defined as
@@ -138,90 +138,90 @@ void clipToRange(Scalar& val, Scalar a, Scalar b);
 /// is the vector betweeen Pa and Pb.
 /// Reference: "On fast computation of distance between line segments." Vladimir
 /// J. Lumelsky, in Information Processing Letters, no. 21, pages 55-61, 1985.
-template <typename Scalar>
-void segCoords(Scalar& t, Scalar& u, Scalar a, Scalar b,
-               Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T);
+template <typename S>
+void segCoords(S& t, S& u, S a, S b,
+               S A_dot_B, S A_dot_T, S B_dot_T);
 
 /// @brief Returns whether the nearest point on rectangle edge
 /// Pb + B*u, 0 <= u <= b, to the rectangle edge,
 /// Pa + A*t, 0 <= t <= a, is within the half space
 /// determined by the point Pa and the direction Anorm.
 /// A,B, and Anorm are unit vectors. T is the vector between Pa and Pb.
-template <typename Scalar>
-bool inVoronoi(Scalar a, Scalar b,
-               Scalar Anorm_dot_B, Scalar Anorm_dot_T,
-               Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T);
+template <typename S>
+bool inVoronoi(S a, S b,
+               S Anorm_dot_B, S Anorm_dot_T,
+               S A_dot_B, S A_dot_T, S B_dot_T);
 
 /// @brief Distance between two oriented rectangles; P and Q (optional return
 /// values) are the closest points in the rectangles, both are in the local
 /// frame of the first rectangle.
-template <typename Scalar>
-Scalar rectDistance(
-    const Matrix3<Scalar>& Rab,
-    const Vector3<Scalar>& Tab,
-    const Scalar a[2],
-    const Scalar b[2],
-    Vector3<Scalar>* P = NULL,
-    Vector3<Scalar>* Q = NULL);
+template <typename S>
+S rectDistance(
+    const Matrix3<S>& Rab,
+    const Vector3<S>& Tab,
+    const S a[2],
+    const S b[2],
+    Vector3<S>* P = NULL,
+    Vector3<S>* Q = NULL);
 
 /// @brief Distance between two oriented rectangles; P and Q (optional return
 /// values) are the closest points in the rectangles, both are in the local
 /// frame of the first rectangle.
-template <typename Scalar>
-Scalar rectDistance(
-    const Transform3<Scalar>& tfab,
-    const Scalar a[2],
-    const Scalar b[2],
-    Vector3<Scalar>* P = NULL,
-    Vector3<Scalar>* Q = NULL);
+template <typename S>
+S rectDistance(
+    const Transform3<S>& tfab,
+    const S a[2],
+    const S b[2],
+    Vector3<S>* P = NULL,
+    Vector3<S>* Q = NULL);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles,
 /// not the RSS. But the direction P - Q is the correct direction for cloest
 /// points. Notice that P and Q are both in the local frame of the first RSS
 /// (not global frame and not even the local frame of object 1)
-template <typename Scalar, typename DerivedA, typename DerivedB>
-Scalar distance(
+template <typename S, typename DerivedA, typename DerivedB>
+S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2,
-    Vector3<Scalar>* P = NULL,
-    Vector3<Scalar>* Q = NULL);
+    const RSS<S>& b1,
+    const RSS<S>& b2,
+    Vector3<S>* P = NULL,
+    Vector3<S>* Q = NULL);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles,
 /// not the RSS. But the direction P - Q is the correct direction for cloest
 /// points. Notice that P and Q are both in the local frame of the first RSS
 /// (not global frame and not even the local frame of object 1)
-template <typename Scalar>
-Scalar distance(
-    const Transform3<Scalar>& tf,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2,
-    Vector3<Scalar>* P = NULL,
-    Vector3<Scalar>* Q = NULL);
+template <typename S>
+S distance(
+    const Transform3<S>& tf,
+    const RSS<S>& b1,
+    const RSS<S>& b2,
+    Vector3<S>* P = NULL,
+    Vector3<S>* Q = NULL);
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-template <typename Scalar, typename DerivedA, typename DerivedB>
+template <typename S, typename DerivedA, typename DerivedB>
 bool overlap(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2);
+    const RSS<S>& b1,
+    const RSS<S>& b2);
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-template <typename Scalar>
+template <typename S>
 bool overlap(
-    const Transform3<Scalar>& tf,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2);
+    const Transform3<S>& tf,
+    const RSS<S>& b1,
+    const RSS<S>& b2);
 
 /// @brief Translate the RSS bv
-template <typename Scalar>
-RSS<Scalar> translate(const RSS<Scalar>& bv, const Vector3<Scalar>& t);
+template <typename S>
+RSS<S> translate(const RSS<S>& bv, const Vector3<S>& t);
 
 //============================================================================//
 //                                                                            //
@@ -230,44 +230,44 @@ RSS<Scalar> translate(const RSS<Scalar>& bv, const Vector3<Scalar>& t);
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-RSS<Scalar>::RSS()
-  : axis(Matrix3<Scalar>::Identity()), To(Vector3<Scalar>::Zero())
+template <typename S>
+RSS<S>::RSS()
+  : axis(Matrix3<S>::Identity()), To(Vector3<S>::Zero())
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool RSS<Scalar>::overlap(const RSS<Scalar>& other) const
+template <typename S>
+bool RSS<S>::overlap(const RSS<S>& other) const
 {
-  Vector3<Scalar> t = other.To - To;
-  Vector3<Scalar> T(
+  Vector3<S> t = other.To - To;
+  Vector3<S> T(
         axis.col(0).dot(t), axis.col(1).dot(t), axis.col(2).dot(t));
-  Matrix3<Scalar> R = axis.transpose() * other.axis;
+  Matrix3<S> R = axis.transpose() * other.axis;
 
-  Scalar dist = rectDistance(R, T, l, other.l);
+  S dist = rectDistance(R, T, l, other.l);
   return (dist <= (r + other.r));
 }
 
 //==============================================================================
-template <typename Scalar>
-bool RSS<Scalar>::overlap(const RSS<Scalar>& other,
-                          RSS<Scalar>& /*overlap_part*/) const
+template <typename S>
+bool RSS<S>::overlap(const RSS<S>& other,
+                          RSS<S>& /*overlap_part*/) const
 {
   return overlap(other);
 }
 
 //==============================================================================
-template <typename Scalar>
-bool RSS<Scalar>::contain(const Vector3<Scalar>& p) const
+template <typename S>
+bool RSS<S>::contain(const Vector3<S>& p) const
 {
-  Vector3<Scalar> local_p = p - To;
-  Vector3<Scalar> proj(
+  Vector3<S> local_p = p - To;
+  Vector3<S> proj(
       axis.col(0).dot(local_p),
       axis.col(1).dot(local_p),
       axis.col(2).dot(local_p));
-  Scalar abs_proj2 = fabs(proj[2]);
+  S abs_proj2 = fabs(proj[2]);
 
   /// projection is within the rectangle
   if((proj[0] < l[0]) && (proj[0] > 0) && (proj[1] < l[1]) && (proj[1] > 0))
@@ -276,36 +276,36 @@ bool RSS<Scalar>::contain(const Vector3<Scalar>& p) const
   }
   else if((proj[0] < l[0]) && (proj[0] > 0) && ((proj[1] < 0) || (proj[1] > l[1])))
   {
-    Scalar y = (proj[1] > 0) ? l[1] : 0;
-    Vector3<Scalar> v(proj[0], y, 0);
+    S y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<S> v(proj[0], y, 0);
     return ((proj - v).squaredNorm() < r * r);
   }
   else if((proj[1] < l[1]) && (proj[1] > 0) && ((proj[0] < 0) || (proj[0] > l[0])))
   {
-    Scalar x = (proj[0] > 0) ? l[0] : 0;
-    Vector3<Scalar> v(x, proj[1], 0);
+    S x = (proj[0] > 0) ? l[0] : 0;
+    Vector3<S> v(x, proj[1], 0);
     return ((proj - v).squaredNorm() < r * r);
   }
   else
   {
-    Scalar x = (proj[0] > 0) ? l[0] : 0;
-    Scalar y = (proj[1] > 0) ? l[1] : 0;
-    Vector3<Scalar> v(x, y, 0);
+    S x = (proj[0] > 0) ? l[0] : 0;
+    S y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<S> v(x, y, 0);
     return ((proj - v).squaredNorm() < r * r);
   }
 }
 
 //==============================================================================
-template <typename Scalar>
-RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
+template <typename S>
+RSS<S>& RSS<S>::operator +=(const Vector3<S>& p)
 
 {
-  Vector3<Scalar> local_p = p - To;
-  Vector3<Scalar> proj(
+  Vector3<S> local_p = p - To;
+  Vector3<S> proj(
       axis.col(0).dot(local_p),
       axis.col(1).dot(local_p),
       axis.col(2).dot(local_p));
-  Scalar abs_proj2 = fabs(proj[2]);
+  S abs_proj2 = fabs(proj[2]);
 
   // projection is within the rectangle
   if((proj[0] < l[0]) && (proj[0] > 0) && (proj[1] < l[1]) && (proj[1] > 0))
@@ -324,23 +324,23 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
   }
   else if((proj[0] < l[0]) && (proj[0] > 0) && ((proj[1] < 0) || (proj[1] > l[1])))
   {
-    Scalar y = (proj[1] > 0) ? l[1] : 0;
-    Vector3<Scalar> v(proj[0], y, 0);
-    Scalar new_r_sqr = (proj - v).squaredNorm();
+    S y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<S> v(proj[0], y, 0);
+    S new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        Scalar delta_y = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[1] - y);
+        S delta_y = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[1] - y);
         l[1] += delta_y;
         if(proj[1] < 0)
           To[1] -= delta_y;
       }
       else
       {
-        Scalar delta_y = fabs(proj[1] - y);
+        S delta_y = fabs(proj[1] - y);
         l[1] += delta_y;
         if(proj[1] < 0)
           To[1] -= delta_y;
@@ -354,23 +354,23 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
   }
   else if((proj[1] < l[1]) && (proj[1] > 0) && ((proj[0] < 0) || (proj[0] > l[0])))
   {
-    Scalar x = (proj[0] > 0) ? l[0] : 0;
-    Vector3<Scalar> v(x, proj[1], 0);
-    Scalar new_r_sqr = (proj - v).squaredNorm();
+    S x = (proj[0] > 0) ? l[0] : 0;
+    Vector3<S> v(x, proj[1], 0);
+    S new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        Scalar delta_x = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[0] - x);
+        S delta_x = - std::sqrt(r * r - proj[2] * proj[2]) + fabs(proj[0] - x);
         l[0] += delta_x;
         if(proj[0] < 0)
           To[0] -= delta_x;
       }
       else
       {
-        Scalar delta_x = fabs(proj[0] - x);
+        S delta_x = fabs(proj[0] - x);
         l[0] += delta_x;
         if(proj[0] < 0)
           To[0] -= delta_x;
@@ -384,21 +384,21 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
   }
   else
   {
-    Scalar x = (proj[0] > 0) ? l[0] : 0;
-    Scalar y = (proj[1] > 0) ? l[1] : 0;
-    Vector3<Scalar> v(x, y, 0);
-    Scalar new_r_sqr = (proj - v).squaredNorm();
+    S x = (proj[0] > 0) ? l[0] : 0;
+    S y = (proj[1] > 0) ? l[1] : 0;
+    Vector3<S> v(x, y, 0);
+    S new_r_sqr = (proj - v).squaredNorm();
     if(new_r_sqr < r * r)
       ; // do nothing
     else
     {
       if(abs_proj2 < r)
       {
-        Scalar diag = std::sqrt(new_r_sqr - proj[2] * proj[2]);
-        Scalar delta_diag = - std::sqrt(r * r - proj[2] * proj[2]) + diag;
+        S diag = std::sqrt(new_r_sqr - proj[2] * proj[2]);
+        S delta_diag = - std::sqrt(r * r - proj[2] * proj[2]) + diag;
 
-        Scalar delta_x = delta_diag / diag * fabs(proj[0] - x);
-        Scalar delta_y = delta_diag / diag * fabs(proj[1] - y);
+        S delta_x = delta_diag / diag * fabs(proj[0] - x);
+        S delta_y = delta_diag / diag * fabs(proj[1] - y);
         l[0] += delta_x;
         l[1] += delta_y;
 
@@ -410,8 +410,8 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
       }
       else
       {
-        Scalar delta_x = fabs(proj[0] - x);
-        Scalar delta_y = fabs(proj[1] - y);
+        S delta_x = fabs(proj[0] - x);
+        S delta_y = fabs(proj[1] - y);
 
         l[0] += delta_x;
         l[1] += delta_y;
@@ -434,29 +434,29 @@ RSS<Scalar>& RSS<Scalar>::operator +=(const Vector3<Scalar>& p)
 }
 
 //==============================================================================
-template <typename Scalar>
-RSS<Scalar>& RSS<Scalar>::operator +=(const RSS<Scalar>& other)
+template <typename S>
+RSS<S>& RSS<S>::operator +=(const RSS<S>& other)
 {
   *this = *this + other;
   return *this;
 }
 
 //==============================================================================
-template <typename Scalar>
-RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
+template <typename S>
+RSS<S> RSS<S>::operator +(const RSS<S>& other) const
 {
-  RSS<Scalar> bv;
+  RSS<S> bv;
 
-  Vector3<Scalar> v[16];
+  Vector3<S> v[16];
 
-  Vector3<Scalar> d0_pos = other.axis.col(0) * (other.l[0] + other.r);
-  Vector3<Scalar> d1_pos = other.axis.col(1) * (other.l[1] + other.r);
+  Vector3<S> d0_pos = other.axis.col(0) * (other.l[0] + other.r);
+  Vector3<S> d1_pos = other.axis.col(1) * (other.l[1] + other.r);
 
-  Vector3<Scalar> d0_neg = other.axis.col(0) * (-other.r);
-  Vector3<Scalar> d1_neg = other.axis.col(1) * (-other.r);
+  Vector3<S> d0_neg = other.axis.col(0) * (-other.r);
+  Vector3<S> d1_neg = other.axis.col(1) * (-other.r);
 
-  Vector3<Scalar> d2_pos = other.axis.col(2) * other.r;
-  Vector3<Scalar> d2_neg = other.axis.col(2) * (-other.r);
+  Vector3<S> d2_pos = other.axis.col(2) * other.r;
+  Vector3<S> d2_neg = other.axis.col(2) * (-other.r);
 
   v[0] = other.To + d0_pos + d1_pos + d2_pos;
   v[1] = other.To + d0_pos + d1_pos + d2_neg;
@@ -484,11 +484,11 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   v[15] = To + d0_neg + d1_neg + d2_neg;
 
 
-  Matrix3<Scalar> M; // row first matrix
-  Matrix3<Scalar> E; // row first eigen-vectors
-  Vector3<Scalar> s(0, 0, 0);
+  Matrix3<S> M; // row first matrix
+  Matrix3<S> E; // row first eigen-vectors
+  Vector3<S> s(0, 0, 0);
 
-  getCovariance<Scalar>(v, NULL, NULL, NULL, 16, M);
+  getCovariance<S>(v, NULL, NULL, NULL, 16, M);
   eigen_old(M, s, E);
 
   int min, mid, max;
@@ -504,89 +504,89 @@ RSS<Scalar> RSS<Scalar>::operator +(const RSS<Scalar>& other) const
   bv.axis.col(2).noalias() = axis.col(0).cross(axis.col(1));
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<Scalar>(v, NULL, NULL, NULL, 16, bv.axis, bv.To, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<S>(v, NULL, NULL, NULL, 16, bv.axis, bv.To, bv.l, bv.r);
 
   return bv;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar RSS<Scalar>::width() const
+template <typename S>
+S RSS<S>::width() const
 {
   return l[0] + 2 * r;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar RSS<Scalar>::height() const
+template <typename S>
+S RSS<S>::height() const
 {
   return l[1] + 2 * r;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar RSS<Scalar>::depth() const
+template <typename S>
+S RSS<S>::depth() const
 {
   return 2 * r;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar RSS<Scalar>::volume() const
+template <typename S>
+S RSS<S>::volume() const
 {
-  return (l[0] * l[1] * 2 * r + 4 * constants<Scalar>::pi() * r * r * r);
+  return (l[0] * l[1] * 2 * r + 4 * constants<S>::pi() * r * r * r);
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar RSS<Scalar>::size() const
+template <typename S>
+S RSS<S>::size() const
 {
   return (std::sqrt(l[0] * l[0] + l[1] * l[1]) + 2 * r);
 }
 
 //==============================================================================
-template <typename Scalar>
-const Vector3<Scalar> RSS<Scalar>::center() const
+template <typename S>
+const Vector3<S> RSS<S>::center() const
 {
   return To;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar RSS<Scalar>::distance(
-    const RSS<Scalar>& other,
-    Vector3<Scalar>* P,
-    Vector3<Scalar>* Q) const
+template <typename S>
+S RSS<S>::distance(
+    const RSS<S>& other,
+    Vector3<S>* P,
+    Vector3<S>* Q) const
 {
-  Vector3<Scalar> t = other.To - To;
-  Vector3<Scalar> T(
+  Vector3<S> t = other.To - To;
+  Vector3<S> T(
         axis.col(0).dot(t), axis.col(1).dot(t), axis.col(2).dot(t));
-  Matrix3<Scalar> R = axis.transpose() * other.axis;
+  Matrix3<S> R = axis.transpose() * other.axis;
 
-  Scalar dist = rectDistance(R, T, l, other.l, P, Q);
+  S dist = rectDistance(R, T, l, other.l, P, Q);
   dist -= (r + other.r);
-  return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
+  return (dist < (S)0.0) ? (S)0.0 : dist;
 }
 
 //==============================================================================
-template <typename Scalar>
-void clipToRange(Scalar& val, Scalar a, Scalar b)
+template <typename S>
+void clipToRange(S& val, S a, S b)
 {
   if(val < a) val = a;
   else if(val > b) val = b;
 }
 
 //==============================================================================
-template <typename Scalar>
-void segCoords(Scalar& t, Scalar& u, Scalar a, Scalar b, Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T)
+template <typename S>
+void segCoords(S& t, S& u, S a, S b, S A_dot_B, S A_dot_T, S B_dot_T)
 {
-  Scalar denom = 1 - A_dot_B * A_dot_B;
+  S denom = 1 - A_dot_B * A_dot_B;
 
   if(denom == 0) t = 0;
   else
   {
     t = (A_dot_T - B_dot_T * A_dot_B) / denom;
-    clipToRange(t, (Scalar)0.0, a);
+    clipToRange(t, (S)0.0, a);
   }
 
   u = t * A_dot_B - B_dot_T;
@@ -594,29 +594,29 @@ void segCoords(Scalar& t, Scalar& u, Scalar a, Scalar b, Scalar A_dot_B, Scalar 
   {
     u = 0;
     t = A_dot_T;
-    clipToRange(t, (Scalar)0.0, a);
+    clipToRange(t, (S)0.0, a);
   }
   else if(u > b)
   {
     u = b;
     t = u * A_dot_B + A_dot_T;
-    clipToRange(t, (Scalar)0.0, a);
+    clipToRange(t, (S)0.0, a);
   }
 }
 
 //==============================================================================
-template <typename Scalar>
-bool inVoronoi(Scalar a, Scalar b, Scalar Anorm_dot_B, Scalar Anorm_dot_T, Scalar A_dot_B, Scalar A_dot_T, Scalar B_dot_T)
+template <typename S>
+bool inVoronoi(S a, S b, S Anorm_dot_B, S Anorm_dot_T, S A_dot_B, S A_dot_T, S B_dot_T)
 {
   if(fabs(Anorm_dot_B) < 1e-7) return false;
 
-  Scalar t, u, v;
+  S t, u, v;
 
   u = -Anorm_dot_T / Anorm_dot_B;
-  clipToRange(u, (Scalar)0.0, b);
+  clipToRange(u, (S)0.0, b);
 
   t = u * A_dot_B + A_dot_T;
-  clipToRange(t, (Scalar)0.0, a);
+  clipToRange(t, (S)0.0, a);
 
   v = t * A_dot_B - B_dot_T;
 
@@ -632,18 +632,18 @@ bool inVoronoi(Scalar a, Scalar b, Scalar Anorm_dot_B, Scalar Anorm_dot_T, Scala
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, const Scalar a[2], const Scalar b[2], Vector3<Scalar>* P, Vector3<Scalar>* Q)
+template <typename S>
+S rectDistance(const Matrix3<S>& Rab, Vector3<S> const& Tab, const S a[2], const S b[2], Vector3<S>* P, Vector3<S>* Q)
 {
-  Scalar A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
+  S A0_dot_B0, A0_dot_B1, A1_dot_B0, A1_dot_B1;
 
   A0_dot_B0 = Rab(0, 0);
   A0_dot_B1 = Rab(0, 1);
   A1_dot_B0 = Rab(1, 0);
   A1_dot_B1 = Rab(1, 1);
 
-  Scalar aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
-  Scalar bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
+  S aA0_dot_B0, aA0_dot_B1, aA1_dot_B0, aA1_dot_B1;
+  S bA0_dot_B0, bA0_dot_B1, bA1_dot_B0, bA1_dot_B1;
 
   aA0_dot_B0 = a[0] * A0_dot_B0;
   aA0_dot_B1 = a[0] * A0_dot_B1;
@@ -654,16 +654,16 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   bA0_dot_B1 = b[1] * A0_dot_B1;
   bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vector3<Scalar> Tba = Rab.transpose() * Tab;
+  Vector3<S> Tba = Rab.transpose() * Tab;
 
-  Vector3<Scalar> D;
-  Scalar t, u;
+  Vector3<S> D;
+  S t, u;
 
   // determine if any edge pair contains the closest points
 
-  Scalar ALL_x, ALU_x, AUL_x, AUU_x;
-  Scalar BLL_x, BLU_x, BUL_x, BUU_x;
-  Scalar LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
+  S ALL_x, ALU_x, AUL_x, AUU_x;
+  S BLL_x, BLU_x, BUL_x, BUU_x;
+  S LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
 
   ALL_x = -Tba[0];
   ALU_x = ALL_x + aA1_dot_B0;
@@ -820,14 +820,14 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     }
   }
 
-  Scalar ALL_y, ALU_y, AUL_y, AUU_y;
+  S ALL_y, ALU_y, AUL_y, AUU_y;
 
   ALL_y = -Tba[1];
   ALU_y = ALL_y + aA1_dot_B1;
   AUL_y = ALL_y + aA0_dot_B1;
   AUU_y = ALU_y + aA0_dot_B1;
 
-  Scalar LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
+  S LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
 
   if(ALL_y < ALU_y)
   {
@@ -974,14 +974,14 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     }
   }
 
-  Scalar BLL_y, BLU_y, BUL_y, BUU_y;
+  S BLL_y, BLU_y, BUL_y, BUU_y;
 
   BLL_y = Tab[1];
   BLU_y = BLL_y + bA1_dot_B1;
   BUL_y = BLL_y + bA1_dot_B0;
   BUU_y = BLU_y + bA1_dot_B0;
 
-  Scalar LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
+  S LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
 
   if(ALL_x < AUL_x)
   {
@@ -1126,7 +1126,7 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     }
   }
 
-  Scalar LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
+  S LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
 
   if(ALL_y < AUL_y)
   {
@@ -1274,7 +1274,7 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
 
   // no edges passed, take max separation along face normals
 
-  Scalar sep1, sep2;
+  S sep1, sep2;
 
   if(Tab[2] > 0.0)
   {
@@ -1318,8 +1318,8 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
 
   if(sep2 >= sep1 && sep2 >= 0)
   {
-    Vector3<Scalar> Q_(Tab[0], Tab[1], Tab[2]);
-    Vector3<Scalar> P_;
+    Vector3<S> Q_(Tab[0], Tab[1], Tab[2]);
+    Vector3<S> P_;
     if(Tba[2] < 0)
     {
       P_[0] = Rab(0, 2) * sep2 + Tab[0];
@@ -1342,46 +1342,46 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     }
   }
 
-  Scalar sep = (sep1 > sep2 ? sep1 : sep2);
+  S sep = (sep1 > sep2 ? sep1 : sep2);
   return (sep > 0 ? sep : 0);
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar rectDistance(
-    const Transform3<Scalar>& tfab,
-    const Scalar a[2],
-    const Scalar b[2],
-    Vector3<Scalar>* P,
-    Vector3<Scalar>* Q)
+template <typename S>
+S rectDistance(
+    const Transform3<S>& tfab,
+    const S a[2],
+    const S b[2],
+    Vector3<S>* P,
+    Vector3<S>* Q)
 {
-  Scalar A0_dot_B0 = tfab.linear()(0, 0);
-  Scalar A0_dot_B1 = tfab.linear()(0, 1);
-  Scalar A1_dot_B0 = tfab.linear()(1, 0);
-  Scalar A1_dot_B1 = tfab.linear()(1, 1);
+  S A0_dot_B0 = tfab.linear()(0, 0);
+  S A0_dot_B1 = tfab.linear()(0, 1);
+  S A1_dot_B0 = tfab.linear()(1, 0);
+  S A1_dot_B1 = tfab.linear()(1, 1);
 
-  Scalar aA0_dot_B0 = a[0] * A0_dot_B0;
-  Scalar aA0_dot_B1 = a[0] * A0_dot_B1;
-  Scalar aA1_dot_B0 = a[1] * A1_dot_B0;
-  Scalar aA1_dot_B1 = a[1] * A1_dot_B1;
-  Scalar bA0_dot_B0 = b[0] * A0_dot_B0;
-  Scalar bA1_dot_B0 = b[0] * A1_dot_B0;
-  Scalar bA0_dot_B1 = b[1] * A0_dot_B1;
-  Scalar bA1_dot_B1 = b[1] * A1_dot_B1;
+  S aA0_dot_B0 = a[0] * A0_dot_B0;
+  S aA0_dot_B1 = a[0] * A0_dot_B1;
+  S aA1_dot_B0 = a[1] * A1_dot_B0;
+  S aA1_dot_B1 = a[1] * A1_dot_B1;
+  S bA0_dot_B0 = b[0] * A0_dot_B0;
+  S bA1_dot_B0 = b[0] * A1_dot_B0;
+  S bA0_dot_B1 = b[1] * A0_dot_B1;
+  S bA1_dot_B1 = b[1] * A1_dot_B1;
 
-  Vector3<Scalar> Tba = tfab.linear().transpose() * tfab.translation();
+  Vector3<S> Tba = tfab.linear().transpose() * tfab.translation();
 
-  Vector3<Scalar> D;
-  Scalar t, u;
+  Vector3<S> D;
+  S t, u;
 
   // determine if any edge pair contains the closest points
 
-  Scalar LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
+  S LA1_lx, LA1_ux, UA1_lx, UA1_ux, LB1_lx, LB1_ux, UB1_lx, UB1_ux;
 
-  Scalar ALL_x = -Tba[0];
-  Scalar ALU_x = ALL_x + aA1_dot_B0;
-  Scalar AUL_x = ALL_x + aA0_dot_B0;
-  Scalar AUU_x = ALU_x + aA0_dot_B0;
+  S ALL_x = -Tba[0];
+  S ALU_x = ALL_x + aA1_dot_B0;
+  S AUL_x = ALL_x + aA0_dot_B0;
+  S AUU_x = ALU_x + aA0_dot_B0;
 
   if(ALL_x < ALU_x)
   {
@@ -1398,10 +1398,10 @@ Scalar rectDistance(
     UA1_ux = AUL_x;
   }
 
-  Scalar BLL_x = tfab.translation()[0];
-  Scalar BLU_x = BLL_x + bA0_dot_B1;
-  Scalar BUL_x = BLL_x + bA0_dot_B0;
-  Scalar BUU_x = BLU_x + bA0_dot_B0;
+  S BLL_x = tfab.translation()[0];
+  S BLU_x = BLL_x + bA0_dot_B1;
+  S BUL_x = BLL_x + bA0_dot_B0;
+  S BUU_x = BLU_x + bA0_dot_B0;
 
   if(BLL_x < BLU_x)
   {
@@ -1533,14 +1533,14 @@ Scalar rectDistance(
     }
   }
 
-  Scalar ALL_y, ALU_y, AUL_y, AUU_y;
+  S ALL_y, ALU_y, AUL_y, AUU_y;
 
   ALL_y = -Tba[1];
   ALU_y = ALL_y + aA1_dot_B1;
   AUL_y = ALL_y + aA0_dot_B1;
   AUU_y = ALU_y + aA0_dot_B1;
 
-  Scalar LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
+  S LA1_ly, LA1_uy, UA1_ly, UA1_uy, LB0_lx, LB0_ux, UB0_lx, UB0_ux;
 
   if(ALL_y < ALU_y)
   {
@@ -1687,14 +1687,14 @@ Scalar rectDistance(
     }
   }
 
-  Scalar BLL_y, BLU_y, BUL_y, BUU_y;
+  S BLL_y, BLU_y, BUL_y, BUU_y;
 
   BLL_y = tfab.translation()[1];
   BLU_y = BLL_y + bA1_dot_B1;
   BUL_y = BLL_y + bA1_dot_B0;
   BUU_y = BLU_y + bA1_dot_B0;
 
-  Scalar LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
+  S LA0_lx, LA0_ux, UA0_lx, UA0_ux, LB1_ly, LB1_uy, UB1_ly, UB1_uy;
 
   if(ALL_x < AUL_x)
   {
@@ -1839,7 +1839,7 @@ Scalar rectDistance(
     }
   }
 
-  Scalar LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
+  S LA0_ly, LA0_uy, UA0_ly, UA0_uy, LB0_ly, LB0_uy, UB0_ly, UB0_uy;
 
   if(ALL_y < AUL_y)
   {
@@ -1987,7 +1987,7 @@ Scalar rectDistance(
 
   // no edges passed, take max separation along face normals
 
-  Scalar sep1, sep2;
+  S sep1, sep2;
 
   if(tfab.translation()[2] > 0.0)
   {
@@ -2031,8 +2031,8 @@ Scalar rectDistance(
 
   if(sep2 >= sep1 && sep2 >= 0)
   {
-    Vector3<Scalar> Q_(tfab.translation());
-    Vector3<Scalar> P_;
+    Vector3<S> Q_(tfab.translation());
+    Vector3<S> P_;
     if(Tba[2] < 0)
     {
       P_.noalias() = tfab.linear().col(2) * sep2;
@@ -2053,81 +2053,81 @@ Scalar rectDistance(
     }
   }
 
-  Scalar sep = (sep1 > sep2 ? sep1 : sep2);
+  S sep = (sep1 > sep2 ? sep1 : sep2);
   return (sep > 0 ? sep : 0);
 }
 
 //==============================================================================
-template <typename Scalar, typename DerivedA, typename DerivedB>
+template <typename S, typename DerivedA, typename DerivedB>
 bool overlap(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2)
+    const RSS<S>& b1,
+    const RSS<S>& b2)
 {
-  Matrix3<Scalar> R0b2 = R0 * b2.axis;
-  Matrix3<Scalar> R = b1.axis.transpose() * R0b2;
+  Matrix3<S> R0b2 = R0 * b2.axis;
+  Matrix3<S> R = b1.axis.transpose() * R0b2;
 
-  Vector3<Scalar> Ttemp = R0 * b2.To + T0 - b1.To;
-  Vector3<Scalar> T = Ttemp.transpose() * b1.axis;
+  Vector3<S> Ttemp = R0 * b2.To + T0 - b1.To;
+  Vector3<S> T = Ttemp.transpose() * b1.axis;
 
-  Scalar dist = rectDistance(R, T, b1.l, b2.l);
+  S dist = rectDistance(R, T, b1.l, b2.l);
   return (dist <= (b1.r + b2.r));
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool overlap(
-    const Transform3<Scalar>& tf,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2)
+    const Transform3<S>& tf,
+    const RSS<S>& b1,
+    const RSS<S>& b2)
 {
-  Scalar dist = rectDistance(b1.frame.inverse(Eigen::Isometry) * tf * b2.frame, b1.l, b2.l);
+  S dist = rectDistance(b1.frame.inverse(Eigen::Isometry) * tf * b2.frame, b1.l, b2.l);
   return (dist <= (b1.r + b2.r));
 }
 
 //==============================================================================
-template <typename Scalar, typename DerivedA, typename DerivedB>
-Scalar distance(
+template <typename S, typename DerivedA, typename DerivedB>
+S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2,
-    Vector3<Scalar>* P,
-    Vector3<Scalar>* Q)
+    const RSS<S>& b1,
+    const RSS<S>& b2,
+    Vector3<S>* P,
+    Vector3<S>* Q)
 {
-  Matrix3<Scalar> R0b2 = R0 * b2.axis;
-  Matrix3<Scalar> R = b1.axis.transpose() * R0b2;
+  Matrix3<S> R0b2 = R0 * b2.axis;
+  Matrix3<S> R = b1.axis.transpose() * R0b2;
 
-  Vector3<Scalar> Ttemp = R0 * b2.To + T0 - b1.To;
-  Vector3<Scalar> T = Ttemp.transpose() * b1.axis;
+  Vector3<S> Ttemp = R0 * b2.To + T0 - b1.To;
+  Vector3<S> T = Ttemp.transpose() * b1.axis;
 
-  Scalar dist = rectDistance(R, T, b1.l, b2.l, P, Q);
+  S dist = rectDistance(R, T, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);
-  return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
+  return (dist < (S)0.0) ? (S)0.0 : dist;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar distance(
-    const Transform3<Scalar>& tf,
-    const RSS<Scalar>& b1,
-    const RSS<Scalar>& b2,
-    Vector3<Scalar>* P,
-    Vector3<Scalar>* Q)
+template <typename S>
+S distance(
+    const Transform3<S>& tf,
+    const RSS<S>& b1,
+    const RSS<S>& b2,
+    Vector3<S>* P,
+    Vector3<S>* Q)
 {
-  const Transform3<Scalar> tf1 = b1.frame.inverse(Eigen::Isometry) * tf * b2.frame;
+  const Transform3<S> tf1 = b1.frame.inverse(Eigen::Isometry) * tf * b2.frame;
 
-  Scalar dist = rectDistance(tf1, b1.l, b2.l, P, Q);
+  S dist = rectDistance(tf1, b1.l, b2.l, P, Q);
   dist -= (b1.r + b2.r);
-  return (dist < (Scalar)0.0) ? (Scalar)0.0 : dist;
+  return (dist < (S)0.0) ? (S)0.0 : dist;
 }
 
 //==============================================================================
-template <typename Scalar>
-RSS<Scalar> translate(const RSS<Scalar>& bv, const Vector3<Scalar>& t)
+template <typename S>
+RSS<S> translate(const RSS<S>& bv, const Vector3<S>& t)
 {
-  RSS<Scalar> res(bv);
+  RSS<S> res(bv);
   res.To += t;
   return res;
 }

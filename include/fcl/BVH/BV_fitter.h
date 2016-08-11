@@ -53,13 +53,13 @@ class BVFitterBase
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   /// @brief Set the primitives to be processed by the fitter
-  virtual void set(Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+  virtual void set(Vector3<S>* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
   /// @brief Set the primitives to be processed by the fitter, for deformable mesh.
-  virtual void set(Vector3<Scalar>* vertices_, Vector3<Scalar>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+  virtual void set(Vector3<S>* vertices_, Vector3<S>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
   /// @brief Compute the fitting BV
   virtual BV fit(unsigned int* primitive_indices, int num_primitives) = 0;
@@ -74,19 +74,19 @@ class BVFitter : public BVFitterBase<BV>
 {
 public:
 
-  using Scalar = typename BVFitterBase<BV>::Scalar;
+  using S = typename BVFitterBase<BV>::S;
 
   /// @brief default deconstructor
   virtual ~BVFitter();
 
   /// @brief Prepare the geometry primitive data for fitting
   void set(
-      Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_);
+      Vector3<S>* vertices_, Triangle* tri_indices_, BVHModelType type_);
 
   /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
   void set(
-      Vector3<Scalar>* vertices_,
-      Vector3<Scalar>* prev_vertices_,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
       Triangle* tri_indices_,
       BVHModelType type_);
 
@@ -99,8 +99,8 @@ public:
 
 private:
 
-  Vector3<Scalar>* vertices;
-  Vector3<Scalar>* prev_vertices;
+  Vector3<S>* vertices;
+  Vector3<S>* prev_vertices;
   Triangle* tri_indices;
   BVHModelType type;
 
@@ -125,40 +125,40 @@ BVFitter<BV>::~BVFitter()
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct SetImpl;
 
 //==============================================================================
 template <typename BV>
 void BVFitter<BV>::set(
-    Vector3<typename BVFitter<BV>::Scalar>* vertices_,
+    Vector3<typename BVFitter<BV>::S>* vertices_,
     Triangle* tri_indices_,
     BVHModelType type_)
 {
-  SetImpl<typename BV::Scalar, BV>::run(*this, vertices_, tri_indices_, type_);
+  SetImpl<typename BV::S, BV>::run(*this, vertices_, tri_indices_, type_);
 }
 
 //==============================================================================
 template <typename BV>
 void BVFitter<BV>::set(
-    Vector3<typename BVFitter<BV>::Scalar>* vertices_,
-    Vector3<typename BVFitter<BV>::Scalar>* prev_vertices_,
+    Vector3<typename BVFitter<BV>::S>* vertices_,
+    Vector3<typename BVFitter<BV>::S>* prev_vertices_,
     Triangle* tri_indices_,
     BVHModelType type_)
 {
-  SetImpl<typename BV::Scalar, BV>::run(
+  SetImpl<typename BV::S, BV>::run(
         *this, vertices_, prev_vertices_, tri_indices_, type_);
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct FitImpl;
 
 //==============================================================================
 template <typename BV>
 BV BVFitter<BV>::fit(unsigned int* primitive_indices, int num_primitives)
 {
-  return FitImpl<typename BV::Scalar, BV>::run(
+  return FitImpl<typename BV::S, BV>::run(
         *this, primitive_indices, num_primitives);
 }
 
@@ -173,12 +173,12 @@ void BVFitter<BV>::clear()
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct SetImpl
 {
   static void run(
       BVFitter<BV>& fitter,
-      Vector3<Scalar>* vertices_,
+      Vector3<S>* vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -190,8 +190,8 @@ struct SetImpl
 
   static void run(
       BVFitter<BV>& fitter,
-      Vector3<Scalar>* vertices_,
-      Vector3<Scalar>* prev_vertices_,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -203,12 +203,12 @@ struct SetImpl
 };
 
 //==============================================================================
-template <typename Scalar>
-struct SetImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct SetImpl<S, OBB<S>>
 {
   static void run(
-      BVFitter<OBB<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
+      BVFitter<OBB<S>>& fitter,
+      Vector3<S>* vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -219,9 +219,9 @@ struct SetImpl<Scalar, OBB<Scalar>>
   }
 
   static void run(
-      BVFitter<OBB<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
-      Vector3<Scalar>* prev_vertices_,
+      BVFitter<OBB<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -233,12 +233,12 @@ struct SetImpl<Scalar, OBB<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct SetImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct SetImpl<S, RSS<S>>
 {
   static void run(
-      BVFitter<RSS<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
+      BVFitter<RSS<S>>& fitter,
+      Vector3<S>* vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -249,9 +249,9 @@ struct SetImpl<Scalar, RSS<Scalar>>
   }
 
   static void run(
-      BVFitter<RSS<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
-      Vector3<Scalar>* prev_vertices_,
+      BVFitter<RSS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -263,12 +263,12 @@ struct SetImpl<Scalar, RSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct SetImpl<Scalar, kIOS<Scalar>>
+template <typename S>
+struct SetImpl<S, kIOS<S>>
 {
   static void run(
-      BVFitter<kIOS<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
+      BVFitter<kIOS<S>>& fitter,
+      Vector3<S>* vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -279,9 +279,9 @@ struct SetImpl<Scalar, kIOS<Scalar>>
   }
 
   static void run(
-      BVFitter<kIOS<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
-      Vector3<Scalar>* prev_vertices_,
+      BVFitter<kIOS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -293,12 +293,12 @@ struct SetImpl<Scalar, kIOS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct SetImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct SetImpl<S, OBBRSS<S>>
 {
   static void run(
-      BVFitter<OBBRSS<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
+      BVFitter<OBBRSS<S>>& fitter,
+      Vector3<S>* vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -309,9 +309,9 @@ struct SetImpl<Scalar, OBBRSS<Scalar>>
   }
 
   static void run(
-      BVFitter<OBBRSS<Scalar>>& fitter,
-      Vector3<Scalar>* vertices_,
-      Vector3<Scalar>* prev_vertices_,
+      BVFitter<OBBRSS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
       Triangle* tri_indices_,
       BVHModelType type_)
   {
@@ -323,7 +323,7 @@ struct SetImpl<Scalar, OBBRSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct FitImpl
 {
   static BV run(
@@ -368,19 +368,19 @@ struct FitImpl
 };
 
 //==============================================================================
-template <typename Scalar>
-struct FitImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct FitImpl<S, OBB<S>>
 {
-  static OBB<Scalar> run(
-      const BVFitter<OBB<Scalar>>& fitter,
+  static OBB<S> run(
+      const BVFitter<OBB<S>>& fitter,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    OBB<Scalar> bv;
+    OBB<S> bv;
 
-    Matrix3<Scalar> M; // row first matrix
-    Matrix3<Scalar> E; // row first eigen-vectors
-    Vector3<Scalar> s; // three eigen values
+    Matrix3<S> M; // row first matrix
+    Matrix3<S> E; // row first eigen-vectors
+    Vector3<S> s; // three eigen values
     getCovariance(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);
@@ -398,19 +398,19 @@ struct FitImpl<Scalar, OBB<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct FitImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct FitImpl<S, RSS<S>>
 {
-  static RSS<Scalar> run(
-      const BVFitter<RSS<Scalar>>& fitter,
+  static RSS<S> run(
+      const BVFitter<RSS<S>>& fitter,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    RSS<Scalar> bv;
+    RSS<S> bv;
 
-    Matrix3<Scalar> M; // row first matrix
-    Matrix3<Scalar> E; // row first eigen-vectors
-    Vector3<Scalar> s; // three eigen values
+    Matrix3<S> M; // row first matrix
+    Matrix3<S> E; // row first eigen-vectors
+    Vector3<S> s; // three eigen values
     getCovariance(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);
@@ -427,19 +427,19 @@ struct FitImpl<Scalar, RSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct FitImpl<Scalar, kIOS<Scalar>>
+template <typename S>
+struct FitImpl<S, kIOS<S>>
 {
-  static kIOS<Scalar> run(
-      const BVFitter<kIOS<Scalar>>& fitter,
+  static kIOS<S> run(
+      const BVFitter<kIOS<S>>& fitter,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    kIOS<Scalar> bv;
+    kIOS<S> bv;
 
-    Matrix3<Scalar> M; // row first matrix
-    Matrix3<Scalar> E; // row first eigen-vectors
-    Vector3<Scalar> s;
+    Matrix3<S> M; // row first matrix
+    Matrix3<S> E; // row first eigen-vectors
+    Vector3<S> s;
     getCovariance(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);
@@ -451,16 +451,16 @@ struct FitImpl<Scalar, kIOS<Scalar>>
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
-    const Vector3<Scalar>& center = bv.obb.To;
-    const Vector3<Scalar>& extent = bv.obb.extent;
-    Scalar r0 = maximumDistance(
+    const Vector3<S>& center = bv.obb.To;
+    const Vector3<S>& extent = bv.obb.extent;
+    S r0 = maximumDistance(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, center);
 
     // decide k in kIOS
-    if(extent[0] > kIOS<Scalar>::ratio() * extent[2])
+    if(extent[0] > kIOS<S>::ratio() * extent[2])
     {
-      if(extent[0] > kIOS<Scalar>::ratio() * extent[1]) bv.num_spheres = 5;
+      if(extent[0] > kIOS<S>::ratio() * extent[1]) bv.num_spheres = 5;
       else bv.num_spheres = 3;
     }
     else bv.num_spheres = 1;
@@ -470,15 +470,15 @@ struct FitImpl<Scalar, kIOS<Scalar>>
 
     if(bv.num_spheres >= 3)
     {
-      Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<Scalar>::invSinA();
-      Vector3<Scalar> delta = bv.obb.axis.col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
+      S r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<S>::invSinA();
+      Vector3<S> delta = bv.obb.axis.col(2) * (r10 * kIOS<S>::cosA() - extent[2]);
       bv.spheres[1].o = center - delta;
       bv.spheres[2].o = center + delta;
 
-      Scalar r11 = maximumDistance(
+      S r11 = maximumDistance(
             fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
             primitive_indices, num_primitives, bv.spheres[1].o);
-      Scalar r12 = maximumDistance(
+      S r12 = maximumDistance(
             fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
             primitive_indices, num_primitives, bv.spheres[2].o);
 
@@ -491,12 +491,12 @@ struct FitImpl<Scalar, kIOS<Scalar>>
 
     if(bv.num_spheres >= 5)
     {
-      Scalar r10 = bv.spheres[1].r;
-      Vector3<Scalar> delta = bv.obb.axis.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+      S r10 = bv.spheres[1].r;
+      Vector3<S> delta = bv.obb.axis.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
       bv.spheres[3].o = bv.spheres[0].o - delta;
       bv.spheres[4].o = bv.spheres[0].o + delta;
 
-      Scalar r21 = 0, r22 = 0;
+      S r21 = 0, r22 = 0;
       r21 = maximumDistance(
             fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
             primitive_indices, num_primitives, bv.spheres[3].o);
@@ -516,18 +516,18 @@ struct FitImpl<Scalar, kIOS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct FitImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct FitImpl<S, OBBRSS<S>>
 {
-  static OBBRSS<Scalar> run(
-      const BVFitter<OBBRSS<Scalar>>& fitter,
+  static OBBRSS<S> run(
+      const BVFitter<OBBRSS<S>>& fitter,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    OBBRSS<Scalar> bv;
-    Matrix3<Scalar> M;
-    Matrix3<Scalar> E;
-    Vector3<Scalar> s;
+    OBBRSS<S> bv;
+    Matrix3<S> M;
+    Matrix3<S> E;
+    Vector3<S> s;
     getCovariance(
           fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
           primitive_indices, num_primitives, M);

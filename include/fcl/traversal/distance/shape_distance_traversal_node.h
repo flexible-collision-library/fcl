@@ -47,15 +47,15 @@ namespace fcl
 /// @brief Traversal node for distance between two shapes
 template<typename S1, typename S2, typename NarrowPhaseSolver>
 class ShapeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
+    : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::S>
 {
 public:
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   ShapeDistanceTraversalNode();
 
   /// @brief BV culling test in one BVTT node
-  Scalar BVTesting(int, int) const;
+  S BVTesting(int, int) const;
 
   /// @brief Distance testing between leaves (two shapes)
   void leafTesting(int, int) const;
@@ -71,12 +71,12 @@ template <typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
     const S1& shape1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
     const S2& shape2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -87,7 +87,7 @@ bool initialize(
 //==============================================================================
 template <typename S1, typename S2, typename NarrowPhaseSolver>
 ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::
-ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSolver::Scalar>()
+ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSolver::S>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -97,7 +97,7 @@ ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSol
 
 //==============================================================================
 template <typename S1, typename S2, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar
+typename NarrowPhaseSolver::S
 ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::BVTesting(int, int) const
 {
   return -1; // should not be used
@@ -108,17 +108,17 @@ template <typename S1, typename S2, typename NarrowPhaseSolver>
 void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
     int, int) const
 {
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
-  Scalar distance;
+  S distance;
   // NOTE(JS): The closest points are set to zeros in order to suppress the
   // maybe-uninitialized warning. It seems the warnings occur since
   // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
   // If this wasn't intentional then please remove the initialization of the
   // closest points, and change the function NarrowPhaseSolver::shapeDistance()
   // to always set the closest points.
-  Vector3<Scalar> closest_p1 = Vector3<Scalar>::Zero();
-  Vector3<Scalar> closest_p2 = Vector3<Scalar>::Zero();
+  Vector3<S> closest_p1 = Vector3<S>::Zero();
+  Vector3<S> closest_p2 = Vector3<S>::Zero();
 
   nsolver->shapeDistance(
         *model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
@@ -127,8 +127,8 @@ void ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>::leafTesting(
         distance,
         model1,
         model2,
-        DistanceResult<Scalar>::NONE,
-        DistanceResult<Scalar>::NONE,
+        DistanceResult<S>::NONE,
+        DistanceResult<S>::NONE,
         closest_p1,
         closest_p2);
 }
@@ -138,12 +138,12 @@ template <typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>& node,
     const S1& shape1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
     const S2& shape2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
   node.request = request;
   node.result = &result;

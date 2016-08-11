@@ -50,18 +50,18 @@ namespace details
 // segment to to another point. The code is inspired by the explanation
 // given by Dan Sunday's page:
 //   http://geomalgorithms.com/a02-_lines.html
-template <typename Scalar>
-void lineSegmentPointClosestToPoint (const Vector3<Scalar> &p, const Vector3<Scalar> &s1, const Vector3<Scalar> &s2, Vector3<Scalar> &sp);
+template <typename S>
+void lineSegmentPointClosestToPoint (const Vector3<S> &p, const Vector3<S> &s1, const Vector3<S> &s2, Vector3<S> &sp);
 
-template <typename Scalar>
-bool sphereCapsuleIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Capsule<Scalar>& s2, const Transform3<Scalar>& tf2,
-                            std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool sphereCapsuleIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
+                            const Capsule<S>& s2, const Transform3<S>& tf2,
+                            std::vector<ContactPoint<S>>* contacts);
 
-template <typename Scalar>
-bool sphereCapsuleDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Capsule<Scalar>& s2, const Transform3<Scalar>& tf2,
-                           Scalar* dist, Vector3<Scalar>* p1, Vector3<Scalar>* p2);
+template <typename S>
+bool sphereCapsuleDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
+                           const Capsule<S>& s2, const Transform3<S>& tf2,
+                           S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
 //============================================================================//
 //                                                                            //
@@ -70,75 +70,75 @@ bool sphereCapsuleDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& t
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-void lineSegmentPointClosestToPoint (const Vector3<Scalar> &p, const Vector3<Scalar> &s1, const Vector3<Scalar> &s2, Vector3<Scalar> &sp) {
-  Vector3<Scalar> v = s2 - s1;
-  Vector3<Scalar> w = p - s1;
+template <typename S>
+void lineSegmentPointClosestToPoint (const Vector3<S> &p, const Vector3<S> &s1, const Vector3<S> &s2, Vector3<S> &sp) {
+  Vector3<S> v = s2 - s1;
+  Vector3<S> w = p - s1;
 
-  Scalar c1 = w.dot(v);
-  Scalar c2 = v.dot(v);
+  S c1 = w.dot(v);
+  S c2 = v.dot(v);
 
   if (c1 <= 0) {
     sp = s1;
   } else if (c2 <= c1) {
     sp = s2;
   } else {
-    Scalar b = c1/c2;
-    Vector3<Scalar> Pb = s1 + v * b;
+    S b = c1/c2;
+    Vector3<S> Pb = s1 + v * b;
     sp = Pb;
   }
 }
 
 //==============================================================================
-template <typename Scalar>
-bool sphereCapsuleIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Capsule<Scalar>& s2, const Transform3<Scalar>& tf2,
-                            std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool sphereCapsuleIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
+                            const Capsule<S>& s2, const Transform3<S>& tf2,
+                            std::vector<ContactPoint<S>>* contacts)
 {
-  const Vector3<Scalar> pos1(0., 0., 0.5 * s2.lz);
-  const Vector3<Scalar> pos2(0., 0., -0.5 * s2.lz);
-  const Vector3<Scalar> s_c = tf2.inverse(Eigen::Isometry) * tf1.translation();
+  const Vector3<S> pos1(0., 0., 0.5 * s2.lz);
+  const Vector3<S> pos2(0., 0., -0.5 * s2.lz);
+  const Vector3<S> s_c = tf2.inverse(Eigen::Isometry) * tf1.translation();
 
-  Vector3<Scalar> segment_point;
+  Vector3<S> segment_point;
 
   lineSegmentPointClosestToPoint (s_c, pos1, pos2, segment_point);
-  Vector3<Scalar> diff = s_c - segment_point;
+  Vector3<S> diff = s_c - segment_point;
 
-  const Scalar distance = diff.norm() - s1.radius - s2.radius;
+  const S distance = diff.norm() - s1.radius - s2.radius;
 
   if (distance > 0)
     return false;
 
-  const Vector3<Scalar> local_normal = -diff.normalized();
+  const Vector3<S> local_normal = -diff.normalized();
 
   if (contacts)
   {
-    const Vector3<Scalar> normal = tf2.linear() * local_normal;
-    const Vector3<Scalar> point = tf2 * (segment_point + local_normal * distance);
-    const Scalar penetration_depth = -distance;
+    const Vector3<S> normal = tf2.linear() * local_normal;
+    const Vector3<S> point = tf2 * (segment_point + local_normal * distance);
+    const S penetration_depth = -distance;
 
-    contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+    contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
   }
 
   return true;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool sphereCapsuleDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Capsule<Scalar>& s2, const Transform3<Scalar>& tf2,
-                           Scalar* dist, Vector3<Scalar>* p1, Vector3<Scalar>* p2)
+template <typename S>
+bool sphereCapsuleDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
+                           const Capsule<S>& s2, const Transform3<S>& tf2,
+                           S* dist, Vector3<S>* p1, Vector3<S>* p2)
 {
-  Vector3<Scalar> pos1(0., 0., 0.5 * s2.lz);
-  Vector3<Scalar> pos2(0., 0., -0.5 * s2.lz);
-  Vector3<Scalar> s_c = tf2.inverse(Eigen::Isometry) * tf1.translation();
+  Vector3<S> pos1(0., 0., 0.5 * s2.lz);
+  Vector3<S> pos2(0., 0., -0.5 * s2.lz);
+  Vector3<S> s_c = tf2.inverse(Eigen::Isometry) * tf1.translation();
 
-  Vector3<Scalar> segment_point;
+  Vector3<S> segment_point;
 
   lineSegmentPointClosestToPoint (s_c, pos1, pos2, segment_point);
-  Vector3<Scalar> diff = s_c - segment_point;
+  Vector3<S> diff = s_c - segment_point;
 
-  Scalar distance = diff.norm() - s1.radius - s2.radius;
+  S distance = diff.norm() - s1.radius - s2.radius;
 
   if(distance <= 0)
     return false;

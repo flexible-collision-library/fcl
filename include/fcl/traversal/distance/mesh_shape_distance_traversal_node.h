@@ -51,7 +51,7 @@ class MeshShapeDistanceTraversalNode
 { 
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   MeshShapeDistanceTraversalNode();
 
@@ -59,13 +59,13 @@ public:
   void leafTesting(int b1, int b2) const;
 
   /// @brief Whether the traversal process can stop early
-  bool canStop(Scalar c) const;
+  bool canStop(S c) const;
 
-  Vector3<Scalar>* vertices;
+  Vector3<S>* vertices;
   Triangle* tri_indices;
 
-  Scalar rel_err;
-  Scalar abs_err;
+  S rel_err;
+  S abs_err;
     
   const NarrowPhaseSolver* nsolver;
 };
@@ -79,29 +79,29 @@ void meshShapeDistanceOrientedNodeLeafTesting(
     int b1, int /* b2 */,
     const BVHModel<BV>* model1,
     const Shape& model2,
-    Vector3<typename BV::Scalar>* vertices,
+    Vector3<typename BV::S>* vertices,
     Triangle* tri_indices,
-    const Transform3<typename BV::Scalar>& tf1,
-    const Transform3<typename BV::Scalar>& tf2,
+    const Transform3<typename BV::S>& tf1,
+    const Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     bool enable_statistics,
     int & num_leaf_tests,
-    const DistanceRequest<typename BV::Scalar>& /* request */,
-    DistanceResult<typename BV::Scalar>& result);
+    const DistanceRequest<typename BV::S>& /* request */,
+    DistanceResult<typename BV::S>& result);
 
 
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
-    Vector3<typename BV::Scalar>* vertices,
+    Vector3<typename BV::S>* vertices,
     Triangle* tri_indices,
     int init_tri_id,
     const Shape& model2,
-    const Transform3<typename BV::Scalar>& tf1,
-    const Transform3<typename BV::Scalar>& tf2,
+    const Transform3<typename BV::S>& tf1,
+    const Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename BV::Scalar>& /* request */,
-    DistanceResult<typename BV::Scalar>& result);
+    const DistanceRequest<typename BV::S>& /* request */,
+    DistanceResult<typename BV::S>& result);
 
 } // namespace details
 
@@ -113,22 +113,22 @@ template <typename BV, typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNode<BV, Shape, NarrowPhaseSolver>& node,
     BVHModel<BV>& model1,
-    Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    Transform3<typename NarrowPhaseSolver::S>& tf1,
     const Shape& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result,
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result,
     bool use_refit = false, bool refit_bottomup = false);
 
 /// @brief Traversal node for distance between mesh and shape, when mesh BVH is one of the oriented node (RSS, OBBRSS, kIOS)
 template <typename Shape, typename NarrowPhaseSolver>
 class MeshShapeDistanceTraversalNodeRSS
     : public MeshShapeDistanceTraversalNode<
-    RSS<typename NarrowPhaseSolver::Scalar>, Shape, NarrowPhaseSolver>
+    RSS<typename NarrowPhaseSolver::S>, Shape, NarrowPhaseSolver>
 {
 public:
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   MeshShapeDistanceTraversalNodeRSS();
 
@@ -136,7 +136,7 @@ public:
 
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const;
+  S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 };
@@ -144,18 +144,18 @@ public:
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
-    const BVHModel<RSS<typename NarrowPhaseSolver::Scalar>>& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const Shape& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const BVHModel<RSS<typename NarrowPhaseSolver::S>>& model1, const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Shape& model2, const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
 class MeshShapeDistanceTraversalNodekIOS
-    : public MeshShapeDistanceTraversalNode<kIOS<typename NarrowPhaseSolver::Scalar>, Shape, NarrowPhaseSolver>
+    : public MeshShapeDistanceTraversalNode<kIOS<typename NarrowPhaseSolver::S>, Shape, NarrowPhaseSolver>
 {
 public:
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   MeshShapeDistanceTraversalNodekIOS();
 
@@ -163,7 +163,7 @@ public:
 
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const;
+  S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
@@ -173,18 +173,18 @@ public:
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>& node,
-    const BVHModel<kIOS<typename NarrowPhaseSolver::Scalar>>& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const Shape& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const BVHModel<kIOS<typename NarrowPhaseSolver::S>>& model1, const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Shape& model2, const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
 class MeshShapeDistanceTraversalNodeOBBRSS
-    : public MeshShapeDistanceTraversalNode<OBBRSS<typename NarrowPhaseSolver::Scalar>, Shape, NarrowPhaseSolver>
+    : public MeshShapeDistanceTraversalNode<OBBRSS<typename NarrowPhaseSolver::S>, Shape, NarrowPhaseSolver>
 {
 public:
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   MeshShapeDistanceTraversalNodeOBBRSS();
 
@@ -192,7 +192,7 @@ public:
 
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const;
+  S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
   
@@ -202,13 +202,13 @@ public:
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
-    const BVHModel<OBBRSS<typename NarrowPhaseSolver::Scalar>>& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const BVHModel<OBBRSS<typename NarrowPhaseSolver::S>>& model1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
     const Shape& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -244,12 +244,12 @@ leafTesting(int b1, int b2) const
 
   const Triangle& tri_id = tri_indices[primitive_id];
 
-  const Vector3<Scalar>& p1 = vertices[tri_id[0]];
-  const Vector3<Scalar>& p2 = vertices[tri_id[1]];
-  const Vector3<Scalar>& p3 = vertices[tri_id[2]];
+  const Vector3<S>& p1 = vertices[tri_id[0]];
+  const Vector3<S>& p2 = vertices[tri_id[1]];
+  const Vector3<S>& p3 = vertices[tri_id[2]];
 
-  Scalar d;
-  Vector3<Scalar> closest_p1, closest_p2;
+  S d;
+  Vector3<S> closest_p1, closest_p2;
   nsolver->shapeTriangleDistance(*(this->model2), this->tf2, p1, p2, p3, &d, &closest_p2, &closest_p1);
 
   this->result->update(
@@ -257,7 +257,7 @@ leafTesting(int b1, int b2) const
         this->model1,
         this->model2,
         primitive_id,
-        DistanceResult<Scalar>::NONE,
+        DistanceResult<S>::NONE,
         closest_p1,
         closest_p2);
 }
@@ -265,7 +265,7 @@ leafTesting(int b1, int b2) const
 //==============================================================================
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 bool MeshShapeDistanceTraversalNode<BV, Shape, NarrowPhaseSolver>::
-canStop(Scalar c) const
+canStop(S c) const
 {
   if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
     return true;
@@ -277,27 +277,27 @@ template <typename BV, typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNode<BV, Shape, NarrowPhaseSolver>& node,
     BVHModel<BV>& model1,
-    Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    Transform3<typename NarrowPhaseSolver::S>& tf1,
     const Shape& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result,
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result,
     bool use_refit,
     bool refit_bottomup)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf1.matrix().isIdentity())
   {
-    std::vector<Vector3<Scalar>> vertices_transformed1(model1.num_vertices);
+    std::vector<Vector3<S>> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vector3<Scalar>& p = model1.vertices[i];
-      Vector3<Scalar> new_v = tf1 * p;
+      Vector3<S>& p = model1.vertices[i];
+      Vector3<S> new_v = tf1 * p;
       vertices_transformed1[i] = new_v;
     }
 
@@ -334,16 +334,16 @@ template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void meshShapeDistanceOrientedNodeLeafTesting(
     int b1, int /* b2 */,
     const BVHModel<BV>* model1, const Shape& model2,
-    Vector3<typename BV::Scalar>* vertices, Triangle* tri_indices,
-    const Transform3<typename BV::Scalar>& tf1,
-    const Transform3<typename BV::Scalar>& tf2,
+    Vector3<typename BV::S>* vertices, Triangle* tri_indices,
+    const Transform3<typename BV::S>& tf1,
+    const Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     bool enable_statistics,
     int & num_leaf_tests,
-    const DistanceRequest<typename BV::Scalar>& /* request */,
-    DistanceResult<typename BV::Scalar>& result)
+    const DistanceRequest<typename BV::S>& /* request */,
+    DistanceResult<typename BV::S>& result)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if(enable_statistics) num_leaf_tests++;
 
@@ -351,12 +351,12 @@ void meshShapeDistanceOrientedNodeLeafTesting(
   int primitive_id = node.primitiveId();
 
   const Triangle& tri_id = tri_indices[primitive_id];
-  const Vector3<Scalar>& p1 = vertices[tri_id[0]];
-  const Vector3<Scalar>& p2 = vertices[tri_id[1]];
-  const Vector3<Scalar>& p3 = vertices[tri_id[2]];
+  const Vector3<S>& p1 = vertices[tri_id[0]];
+  const Vector3<S>& p2 = vertices[tri_id[1]];
+  const Vector3<S>& p3 = vertices[tri_id[2]];
 
-  Scalar distance;
-  Vector3<Scalar> closest_p1, closest_p2;
+  S distance;
+  Vector3<S> closest_p1, closest_p2;
   nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
 
   result.update(
@@ -364,7 +364,7 @@ void meshShapeDistanceOrientedNodeLeafTesting(
         model1,
         &model2,
         primitive_id,
-        DistanceResult<Scalar>::NONE,
+        DistanceResult<S>::NONE,
         closest_p1,
         closest_p2);
 }
@@ -373,26 +373,26 @@ void meshShapeDistanceOrientedNodeLeafTesting(
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
-    Vector3<typename BV::Scalar>* vertices,
+    Vector3<typename BV::S>* vertices,
     Triangle* tri_indices,
     int init_tri_id,
     const Shape& model2,
-    const Transform3<typename BV::Scalar>& tf1,
-    const Transform3<typename BV::Scalar>& tf2,
+    const Transform3<typename BV::S>& tf1,
+    const Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename BV::Scalar>& /* request */,
-    DistanceResult<typename BV::Scalar>& result)
+    const DistanceRequest<typename BV::S>& /* request */,
+    DistanceResult<typename BV::S>& result)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   const Triangle& init_tri = tri_indices[init_tri_id];
 
-  const Vector3<Scalar>& p1 = vertices[init_tri[0]];
-  const Vector3<Scalar>& p2 = vertices[init_tri[1]];
-  const Vector3<Scalar>& p3 = vertices[init_tri[2]];
+  const Vector3<S>& p1 = vertices[init_tri[0]];
+  const Vector3<S>& p2 = vertices[init_tri[1]];
+  const Vector3<S>& p3 = vertices[init_tri[2]];
 
-  Scalar distance;
-  Vector3<Scalar> closest_p1, closest_p2;
+  S distance;
+  Vector3<S> closest_p1, closest_p2;
   nsolver->shapeTriangleDistance(model2, tf2, p1, p2, p3, tf1, &distance, &closest_p2, &closest_p1);
 
   result.update(
@@ -400,7 +400,7 @@ void distancePreprocessOrientedNode(
         model1,
         &model2,
         init_tri_id,
-        DistanceResult<Scalar>::NONE,
+        DistanceResult<S>::NONE,
         closest_p1,
         closest_p2);
 }
@@ -412,7 +412,7 @@ template <typename Shape, typename NarrowPhaseSolver>
 MeshShapeDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>::
 MeshShapeDistanceTraversalNodeRSS()
   : MeshShapeDistanceTraversalNode<
-    RSS<typename NarrowPhaseSolver::Scalar>, Shape, NarrowPhaseSolver>()
+    RSS<typename NarrowPhaseSolver::S>, Shape, NarrowPhaseSolver>()
 {
 }
 
@@ -441,7 +441,7 @@ void MeshShapeDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>::postprocess()
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar
+typename NarrowPhaseSolver::S
 MeshShapeDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>::BVTesting(
     int b1, int b2) const
 {
@@ -473,7 +473,7 @@ leafTesting(int b1, int b2) const
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS<Scalar>, Shape, NarrowPhaseSolver>()
+MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::MeshShapeDistanceTraversalNodekIOS() : MeshShapeDistanceTraversalNode<kIOS<S>, Shape, NarrowPhaseSolver>()
 {
 }
 
@@ -493,7 +493,7 @@ void MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::postprocess()
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
+typename NarrowPhaseSolver::S MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
 
@@ -510,7 +510,7 @@ void MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::leafTesting(i
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS<Scalar>, Shape, NarrowPhaseSolver>()
+MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::MeshShapeDistanceTraversalNodeOBBRSS() : MeshShapeDistanceTraversalNode<OBBRSS<S>, Shape, NarrowPhaseSolver>()
 {
 }
 
@@ -531,7 +531,7 @@ void MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::postprocess
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar
+typename NarrowPhaseSolver::S
 MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::
 BVTesting(int b1, int b2) const
 {
@@ -554,11 +554,11 @@ namespace details
 
 template <typename BV, typename Shape, typename NarrowPhaseSolver, template <typename, typename> class OrientedNode>
 static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<Shape, NarrowPhaseSolver>& node,
-                                                      const BVHModel<BV>& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-                                                      const Shape& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+                                                      const BVHModel<BV>& model1, const Transform3<typename NarrowPhaseSolver::S>& tf1,
+                                                      const Shape& model2, const Transform3<typename NarrowPhaseSolver::S>& tf2,
                                                       const NarrowPhaseSolver* nsolver,
-                                                      const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-                                                      DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+                                                      const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+                                                      DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -587,11 +587,11 @@ static inline bool setupMeshShapeDistanceOrientedNode(OrientedNode<Shape, Narrow
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
-    const BVHModel<RSS<typename NarrowPhaseSolver::Scalar>>& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const Shape& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const BVHModel<RSS<typename NarrowPhaseSolver::S>>& model1, const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Shape& model2, const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
   return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
@@ -600,11 +600,11 @@ bool initialize(
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>& node,
-    const BVHModel<kIOS<typename NarrowPhaseSolver::Scalar>>& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const Shape& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const BVHModel<kIOS<typename NarrowPhaseSolver::S>>& model1, const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Shape& model2, const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
   return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
@@ -613,11 +613,11 @@ bool initialize(
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
-    const BVHModel<OBBRSS<typename NarrowPhaseSolver::Scalar>>& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const Shape& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const BVHModel<OBBRSS<typename NarrowPhaseSolver::S>>& model1, const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Shape& model2, const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
   return details::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }

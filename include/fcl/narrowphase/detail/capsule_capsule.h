@@ -47,24 +47,24 @@ namespace details
 {
 
 // Clamp n to lie within the range [min, max]
-template <typename Scalar>
-Scalar clamp(Scalar n, Scalar min, Scalar max);
+template <typename S>
+S clamp(S n, S min, S max);
 
 // Computes closest points C1 and C2 of S1(s)=P1+s*(Q1-P1) and
 // S2(t)=P2+t*(Q2-P2), returning s and t. Function result is squared
 // distance between between S1(s) and S2(t)
-template <typename Scalar>
-Scalar closestPtSegmentSegment(
-    Vector3<Scalar> p1, Vector3<Scalar> q1, Vector3<Scalar> p2, Vector3<Scalar> q2,
-    Scalar &s, Scalar &t, Vector3<Scalar> &c1, Vector3<Scalar> &c2);
+template <typename S>
+S closestPtSegmentSegment(
+    Vector3<S> p1, Vector3<S> q1, Vector3<S> p2, Vector3<S> q2,
+    S &s, S &t, Vector3<S> &c1, Vector3<S> &c2);
 
 // Computes closest points C1 and C2 of S1(s)=P1+s*(Q1-P1) and
 // S2(t)=P2+t*(Q2-P2), returning s and t. Function result is squared
 // distance between between S1(s) and S2(t)
-template <typename Scalar>
-bool capsuleCapsuleDistance(const Capsule<Scalar>& s1, const Transform3<Scalar>& tf1,
-          const Capsule<Scalar>& s2, const Transform3<Scalar>& tf2,
-          Scalar* dist, Vector3<Scalar>* p1_res, Vector3<Scalar>* p2_res);
+template <typename S>
+bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& tf1,
+          const Capsule<S>& s2, const Transform3<S>& tf2,
+          S* dist, Vector3<S>* p1_res, Vector3<S>* p2_res);
 
 //============================================================================//
 //                                                                            //
@@ -73,8 +73,8 @@ bool capsuleCapsuleDistance(const Capsule<Scalar>& s1, const Transform3<Scalar>&
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Scalar clamp(Scalar n, Scalar min, Scalar max)
+template <typename S>
+S clamp(S n, S min, S max)
 {
   if (n < min) return min;
   if (n > max) return max;
@@ -82,49 +82,49 @@ Scalar clamp(Scalar n, Scalar min, Scalar max)
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar closestPtSegmentSegment(
-    Vector3<Scalar> p1, Vector3<Scalar> q1, Vector3<Scalar> p2, Vector3<Scalar> q2,
-    Scalar &s, Scalar &t, Vector3<Scalar> &c1, Vector3<Scalar> &c2)
+template <typename S>
+S closestPtSegmentSegment(
+    Vector3<S> p1, Vector3<S> q1, Vector3<S> p2, Vector3<S> q2,
+    S &s, S &t, Vector3<S> &c1, Vector3<S> &c2)
 {
-  const Scalar EPSILON = 0.001;
-  Vector3<Scalar> d1 = q1 - p1; // Direction vector of segment S1
-  Vector3<Scalar> d2 = q2 - p2; // Direction vector of segment S2
-  Vector3<Scalar> r = p1 - p2;
-  Scalar a = d1.dot(d1); // Squared length of segment S1, always nonnegative
+  const S EPSILON = 0.001;
+  Vector3<S> d1 = q1 - p1; // Direction vector of segment S1
+  Vector3<S> d2 = q2 - p2; // Direction vector of segment S2
+  Vector3<S> r = p1 - p2;
+  S a = d1.dot(d1); // Squared length of segment S1, always nonnegative
 
-  Scalar e = d2.dot(d2); // Squared length of segment S2, always nonnegative
-  Scalar f = d2.dot(r);
+  S e = d2.dot(d2); // Squared length of segment S2, always nonnegative
+  S f = d2.dot(r);
   // Check if either or both segments degenerate into points
   if (a <= EPSILON && e <= EPSILON) {
     // Both segments degenerate into points
     s = t = 0.0;
     c1 = p1;
     c2 = p2;
-    Vector3<Scalar> diff = c1-c2;
-    Scalar res = diff.dot(diff);
+    Vector3<S> diff = c1-c2;
+    S res = diff.dot(diff);
     return res;
   }
   if (a <= EPSILON) {
     // First segment degenerates into a point
     s = 0.0;
     t = f / e; // s = 0 => t = (b*s + f) / e = f / e
-    t = clamp(t, (Scalar)0.0, (Scalar)1.0);
+    t = clamp(t, (S)0.0, (S)1.0);
   } else {
-    Scalar c = d1.dot(r);
+    S c = d1.dot(r);
     if (e <= EPSILON) {
       // Second segment degenerates into a point
       t = 0.0;
-      s = clamp(-c / a, (Scalar)0.0, (Scalar)1.0); // t = 0 => s = (b*t - c) / a = -c / a
+      s = clamp(-c / a, (S)0.0, (S)1.0); // t = 0 => s = (b*t - c) / a = -c / a
     } else {
       // The general nondegenerate case starts here
-      Scalar b = d1.dot(d2);
-      Scalar denom = a*e-b*b; // Always nonnegative
+      S b = d1.dot(d2);
+      S denom = a*e-b*b; // Always nonnegative
       // If segments not parallel, compute closest point on L1 to L2 and
       // clamp to segment S1. Else pick arbitrary s (here 0)
       if (denom != 0.0) {
         std::cerr << "denominator equals zero, using 0 as reference" << std::endl;
-        s = clamp((b*f - c*e) / denom, (Scalar)0.0, (Scalar)1.0);
+        s = clamp((b*f - c*e) / denom, (S)0.0, (S)1.0);
       } else s = 0.0;
       // Compute point on L2 closest to S1(s) using
       // t = Dot((P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e
@@ -136,47 +136,47 @@ Scalar closestPtSegmentSegment(
       //and clamp s to [0, 1]
       if(t < 0.0) {
         t = 0.0;
-        s = clamp(-c / a, (Scalar)0.0, (Scalar)1.0);
+        s = clamp(-c / a, (S)0.0, (S)1.0);
       } else if (t > 1.0) {
         t = 1.0;
-        s = clamp((b - c) / a, (Scalar)0.0, (Scalar)1.0);
+        s = clamp((b - c) / a, (S)0.0, (S)1.0);
       }
     }
   }
   c1 = p1 + d1 * s;
   c2 = p2 + d2 * t;
-  Vector3<Scalar> diff = c1-c2;
-  Scalar res = diff.dot(diff);
+  Vector3<S> diff = c1-c2;
+  S res = diff.dot(diff);
   return res;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool capsuleCapsuleDistance(const Capsule<Scalar>& s1, const Transform3<Scalar>& tf1,
-          const Capsule<Scalar>& s2, const Transform3<Scalar>& tf2,
-          Scalar* dist, Vector3<Scalar>* p1_res, Vector3<Scalar>* p2_res)
+template <typename S>
+bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& tf1,
+          const Capsule<S>& s2, const Transform3<S>& tf2,
+          S* dist, Vector3<S>* p1_res, Vector3<S>* p2_res)
 {
 
-  Vector3<Scalar> p1(tf1.translation());
-  Vector3<Scalar> p2(tf2.translation());
+  Vector3<S> p1(tf1.translation());
+  Vector3<S> p2(tf2.translation());
 
   // line segment composes two points. First point is given by the origin, second point is computed by the origin transformed along z.
   // extension along z-axis means transformation with identity matrix and translation vector z pos
-  Transform3<Scalar> transformQ1 = tf1 * Translation3<Scalar>(Vector3<Scalar>(0,0,s1.lz));
-  Vector3<Scalar> q1 = transformQ1.translation();
+  Transform3<S> transformQ1 = tf1 * Translation3<S>(Vector3<S>(0,0,s1.lz));
+  Vector3<S> q1 = transformQ1.translation();
 
-  Transform3<Scalar> transformQ2 = tf2 * Translation3<Scalar>(Vector3<Scalar>(0,0,s2.lz));
-  Vector3<Scalar> q2 = transformQ2.translation();
+  Transform3<S> transformQ2 = tf2 * Translation3<S>(Vector3<S>(0,0,s2.lz));
+  Vector3<S> q2 = transformQ2.translation();
 
   // s and t correspont to the length of the line segment
-  Scalar s, t;
-  Vector3<Scalar> c1, c2;
+  S s, t;
+  Vector3<S> c1, c2;
 
-  Scalar result = closestPtSegmentSegment(p1, q1, p2, q2, s, t, c1, c2);
+  S result = closestPtSegmentSegment(p1, q1, p2, q2, s, t, c1, c2);
   *dist = sqrt(result)-s1.radius-s2.radius;
 
   // getting directional unit vector
-  Vector3<Scalar> distVec = c2 -c1;
+  Vector3<S> distVec = c2 -c1;
   distVec.normalize();
 
   // extend the point to be border of the capsule.

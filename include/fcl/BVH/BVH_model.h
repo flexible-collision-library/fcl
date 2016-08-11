@@ -54,11 +54,11 @@ namespace fcl
 
 /// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 template <typename BV>
-class BVHModel : public CollisionGeometry<typename BV::Scalar>
+class BVHModel : public CollisionGeometry<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   /// @brief Model type described by the instance
   BVHModelType getModelType() const;
@@ -97,16 +97,16 @@ public:
   int beginModel(int num_tris = 0, int num_vertices = 0);
 
   /// @brief Add one point in the new BVH model
-  int addVertex(const Vector3<Scalar>& p);
+  int addVertex(const Vector3<S>& p);
 
   /// @brief Add one triangle in the new BVH model
-  int addTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& p2, const Vector3<Scalar>& p3);
+  int addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3);
 
   /// @brief Add a set of triangles in the new BVH model
-  int addSubModel(const std::vector<Vector3<Scalar>>& ps, const std::vector<Triangle>& ts);
+  int addSubModel(const std::vector<Vector3<S>>& ps, const std::vector<Triangle>& ts);
 
   /// @brief Add a set of points in the new BVH model
-  int addSubModel(const std::vector<Vector3<Scalar>>& ps);
+  int addSubModel(const std::vector<Vector3<S>>& ps);
 
   /// @brief End BVH model construction, will build the bounding volume hierarchy
   int endModel();
@@ -116,13 +116,13 @@ public:
   int beginReplaceModel();
 
   /// @brief Replace one point in the old BVH model
-  int replaceVertex(const Vector3<Scalar>& p);
+  int replaceVertex(const Vector3<S>& p);
 
   /// @brief Replace one triangle in the old BVH model
-  int replaceTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& p2, const Vector3<Scalar>& p3);
+  int replaceTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3);
 
   /// @brief Replace a set of points in the old BVH model
-  int replaceSubModel(const std::vector<Vector3<Scalar>>& ps);
+  int replaceSubModel(const std::vector<Vector3<S>>& ps);
 
   /// @brief End BVH model replacement, will also refit or rebuild the bounding volume hierarchy
   int endReplaceModel(bool refit = true, bool bottomup = true);
@@ -133,13 +133,13 @@ public:
   int beginUpdateModel();
 
   /// @brief Update one point in the old BVH model
-  int updateVertex(const Vector3<Scalar>& p);
+  int updateVertex(const Vector3<S>& p);
 
   /// @brief Update one triangle in the old BVH model
-  int updateTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& p2, const Vector3<Scalar>& p3);
+  int updateTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3);
 
   /// @brief Update a set of points in the old BVH model
-  int updateSubModel(const std::vector<Vector3<Scalar>>& ps);
+  int updateSubModel(const std::vector<Vector3<S>>& ps);
 
   /// @brief End BVH model update, will also refit or rebuild the bounding volume hierarchy
   int endUpdateModel(bool refit = true, bool bottomup = true);
@@ -151,21 +151,21 @@ public:
   /// BV node. When traversing the BVH, this can save one matrix transformation.
   void makeParentRelative();
 
-  Vector3<Scalar> computeCOM() const override;
+  Vector3<S> computeCOM() const override;
 
-  Scalar computeVolume() const override;
+  S computeVolume() const override;
 
-  Matrix3<Scalar> computeMomentofInertia() const override;
+  Matrix3<S> computeMomentofInertia() const override;
 
 public:
   /// @brief Geometry point data
-  Vector3<Scalar>* vertices;
+  Vector3<S>* vertices;
 
   /// @brief Geometry triangle index data, will be NULL for point clouds
   Triangle* tri_indices;
 
   /// @brief Geometry point data in previous frame
-  Vector3<Scalar>* prev_vertices;
+  Vector3<S>* prev_vertices;
 
   /// @brief Number of triangles
   int num_tris;
@@ -221,8 +221,8 @@ private:
   /// OBBRSS), special implementation is provided.
   void makeParentRelativeRecurse(
       int bv_id,
-      const Matrix3<Scalar>& parent_axis,
-      const Vector3<Scalar>& parent_c);
+      const Matrix3<S>& parent_axis,
+      const Vector3<S>& parent_c);
 
   template <typename, typename>
   friend struct MakeParentRelativeRecurseImpl;
@@ -270,7 +270,7 @@ BVHModel<BV>::BVHModel() : vertices(NULL),
 //==============================================================================
 template <typename BV>
 BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
-  : CollisionGeometry<Scalar>(other),
+  : CollisionGeometry<S>(other),
     num_tris(other.num_tris),
     num_vertices(other.num_vertices),
     build_state(other.build_state),
@@ -281,8 +281,8 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
 {
   if(other.vertices)
   {
-    vertices = new Vector3<Scalar>[num_vertices];
-    memcpy(vertices, other.vertices, sizeof(Vector3<Scalar>) * num_vertices);
+    vertices = new Vector3<S>[num_vertices];
+    memcpy(vertices, other.vertices, sizeof(Vector3<S>) * num_vertices);
   }
   else
     vertices = NULL;
@@ -297,8 +297,8 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
 
   if(other.prev_vertices)
   {
-    prev_vertices = new Vector3<Scalar>[num_vertices];
-    memcpy(prev_vertices, other.prev_vertices, sizeof(Vector3<Scalar>) * num_vertices);
+    prev_vertices = new Vector3<S>[num_vertices];
+    memcpy(prev_vertices, other.prev_vertices, sizeof(Vector3<S>) * num_vertices);
   }
   else
     prev_vertices = NULL;
@@ -413,7 +413,7 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
   num_tris_allocated = num_tris_;
 
   tri_indices = new Triangle[num_tris_allocated];
-  vertices = new Vector3<Scalar>[num_vertices_allocated];
+  vertices = new Vector3<S>[num_vertices_allocated];
 
   if(!tri_indices)
   {
@@ -440,7 +440,7 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::addVertex(const Vector3<Scalar>& p)
+int BVHModel<BV>::addVertex(const Vector3<S>& p)
 {
   if(build_state != BVH_BUILD_STATE_BEGUN)
   {
@@ -450,14 +450,14 @@ int BVHModel<BV>::addVertex(const Vector3<Scalar>& p)
 
   if(num_vertices >= num_vertices_allocated)
   {
-    Vector3<Scalar>* temp = new Vector3<Scalar>[num_vertices_allocated * 2];
+    Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addVertex() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<Scalar>) * num_vertices);
+    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated *= 2;
@@ -471,7 +471,7 @@ int BVHModel<BV>::addVertex(const Vector3<Scalar>& p)
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::addTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& p2, const Vector3<Scalar>& p3)
+int BVHModel<BV>::addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3)
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
@@ -481,14 +481,14 @@ int BVHModel<BV>::addTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& 
 
   if(num_vertices + 2 >= num_vertices_allocated)
   {
-    Vector3<Scalar>* temp = new Vector3<Scalar>[num_vertices_allocated * 2 + 2];
+    Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2 + 2];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addTriangle() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<Scalar>) * num_vertices);
+    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + 2;
@@ -526,7 +526,7 @@ int BVHModel<BV>::addTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& 
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::addSubModel(const std::vector<Vector3<Scalar>>& ps)
+int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps)
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
@@ -538,14 +538,14 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<Scalar>>& ps)
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
-    Vector3<Scalar>* temp = new Vector3<Scalar>[num_vertices_allocated * 2 + num_vertices_to_add - 1];
+    Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2 + num_vertices_to_add - 1];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<Scalar>) * num_vertices);
+    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + num_vertices_to_add - 1;
@@ -562,7 +562,7 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<Scalar>>& ps)
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::addSubModel(const std::vector<Vector3<Scalar>>& ps, const std::vector<Triangle>& ts)
+int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps, const std::vector<Triangle>& ts)
 {
   if(build_state == BVH_BUILD_STATE_PROCESSED)
   {
@@ -574,14 +574,14 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<Scalar>>& ps, const std:
 
   if(num_vertices + num_vertices_to_add - 1 >= num_vertices_allocated)
   {
-    Vector3<Scalar>* temp = new Vector3<Scalar>[num_vertices_allocated * 2 + num_vertices_to_add - 1];
+    Vector3<S>* temp = new Vector3<S>[num_vertices_allocated * 2 + num_vertices_to_add - 1];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for vertices array on addSubModel() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
 
-    memcpy(temp, vertices, sizeof(Vector3<Scalar>) * num_vertices);
+    memcpy(temp, vertices, sizeof(Vector3<S>) * num_vertices);
     delete [] vertices;
     vertices = temp;
     num_vertices_allocated = num_vertices_allocated * 2 + num_vertices_to_add - 1;
@@ -655,13 +655,13 @@ int BVHModel<BV>::endModel()
 
   if(num_vertices_allocated > num_vertices)
   {
-    Vector3<Scalar>* new_vertices = new Vector3<Scalar>[num_vertices];
+    Vector3<S>* new_vertices = new Vector3<S>[num_vertices];
     if(!new_vertices)
     {
       std::cerr << "BVH Error! Out of memory for vertices array in endModel() call!" << std::endl;
       return BVH_ERR_MODEL_OUT_OF_MEMORY;
     }
-    memcpy(new_vertices, vertices, sizeof(Vector3<Scalar>) * num_vertices);
+    memcpy(new_vertices, vertices, sizeof(Vector3<S>) * num_vertices);
     delete [] vertices;
     vertices = new_vertices;
     num_vertices_allocated = num_vertices;
@@ -715,7 +715,7 @@ int BVHModel<BV>::beginReplaceModel()
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::replaceVertex(const Vector3<Scalar>& p)
+int BVHModel<BV>::replaceVertex(const Vector3<S>& p)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
@@ -731,7 +731,7 @@ int BVHModel<BV>::replaceVertex(const Vector3<Scalar>& p)
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::replaceTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& p2, const Vector3<Scalar>& p3)
+int BVHModel<BV>::replaceTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
@@ -747,7 +747,7 @@ int BVHModel<BV>::replaceTriangle(const Vector3<Scalar>& p1, const Vector3<Scala
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::replaceSubModel(const std::vector<Vector3<Scalar>>& ps)
+int BVHModel<BV>::replaceSubModel(const std::vector<Vector3<S>>& ps)
 {
   if(build_state != BVH_BUILD_STATE_REPLACE_BEGUN)
   {
@@ -805,14 +805,14 @@ int BVHModel<BV>::beginUpdateModel()
 
   if(prev_vertices)
   {
-    Vector3<Scalar>* temp = prev_vertices;
+    Vector3<S>* temp = prev_vertices;
     prev_vertices = vertices;
     vertices = temp;
   }
   else
   {
     prev_vertices = vertices;
-    vertices = new Vector3<Scalar>[num_vertices];
+    vertices = new Vector3<S>[num_vertices];
   }
 
   num_vertex_updated = 0;
@@ -824,7 +824,7 @@ int BVHModel<BV>::beginUpdateModel()
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::updateVertex(const Vector3<Scalar>& p)
+int BVHModel<BV>::updateVertex(const Vector3<S>& p)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
@@ -840,7 +840,7 @@ int BVHModel<BV>::updateVertex(const Vector3<Scalar>& p)
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::updateTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar>& p2, const Vector3<Scalar>& p3)
+int BVHModel<BV>::updateTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
@@ -856,7 +856,7 @@ int BVHModel<BV>::updateTriangle(const Vector3<Scalar>& p1, const Vector3<Scalar
 
 //==============================================================================
 template <typename BV>
-int BVHModel<BV>::updateSubModel(const std::vector<Vector3<Scalar>>& ps)
+int BVHModel<BV>::updateSubModel(const std::vector<Vector3<S>>& ps)
 {
   if(build_state != BVH_BUILD_STATE_UPDATE_BEGUN)
   {
@@ -913,7 +913,7 @@ int BVHModel<BV>::memUsage(int msg) const
 {
   int mem_bv_list = sizeof(BV) * num_bvs;
   int mem_tri_list = sizeof(Triangle) * num_tris;
-  int mem_vertex_list = sizeof(Vector3<Scalar>) * num_vertices;
+  int mem_vertex_list = sizeof(Vector3<S>) * num_vertices;
 
   int total_mem = mem_bv_list + mem_tri_list + mem_vertex_list + sizeof(BVHModel<BV>);
   if(msg)
@@ -932,19 +932,19 @@ template <typename BV>
 void BVHModel<BV>::makeParentRelative()
 {
   makeParentRelativeRecurse(
-        0, Matrix3<Scalar>::Identity(), Vector3<Scalar>::Zero());
+        0, Matrix3<S>::Identity(), Vector3<S>::Zero());
 }
 
 //==============================================================================
 template <typename BV>
-Vector3<typename BV::Scalar> BVHModel<BV>::computeCOM() const
+Vector3<typename BV::S> BVHModel<BV>::computeCOM() const
 {
-  Scalar vol = 0;
-  Vector3<Scalar> com = Vector3<Scalar>::Zero();
+  S vol = 0;
+  Vector3<S> com = Vector3<S>::Zero();
   for(int i = 0; i < num_tris; ++i)
   {
     const Triangle& tri = tri_indices[i];
-    Scalar d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+    S d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
     vol += d_six_vol;
     com.noalias() += (vertices[tri[0]] + vertices[tri[1]] + vertices[tri[2]]) * d_six_vol;
   }
@@ -954,13 +954,13 @@ Vector3<typename BV::Scalar> BVHModel<BV>::computeCOM() const
 
 //==============================================================================
 template <typename BV>
-typename BV::Scalar BVHModel<BV>::computeVolume() const
+typename BV::S BVHModel<BV>::computeVolume() const
 {
-  Scalar vol = 0;
+  S vol = 0;
   for(int i = 0; i < num_tris; ++i)
   {
     const Triangle& tri = tri_indices[i];
-    Scalar d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
+    S d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
     vol += d_six_vol;
   }
 
@@ -969,11 +969,11 @@ typename BV::Scalar BVHModel<BV>::computeVolume() const
 
 //==============================================================================
 template <typename BV>
-Matrix3<typename BV::Scalar> BVHModel<BV>::computeMomentofInertia() const
+Matrix3<typename BV::S> BVHModel<BV>::computeMomentofInertia() const
 {
-  Matrix3<Scalar> C = Matrix3<Scalar>::Zero();
+  Matrix3<S> C = Matrix3<S>::Zero();
 
-  Matrix3<Scalar> C_canonical;
+  Matrix3<S> C_canonical;
   C_canonical << 1/ 60.0, 1/120.0, 1/120.0,
       1/120.0, 1/ 60.0, 1/120.0,
       1/120.0, 1/120.0, 1/ 60.0;
@@ -981,20 +981,20 @@ Matrix3<typename BV::Scalar> BVHModel<BV>::computeMomentofInertia() const
   for(int i = 0; i < num_tris; ++i)
   {
     const Triangle& tri = tri_indices[i];
-    const Vector3<Scalar>& v1 = vertices[tri[0]];
-    const Vector3<Scalar>& v2 = vertices[tri[1]];
-    const Vector3<Scalar>& v3 = vertices[tri[2]];
-    Scalar d_six_vol = (v1.cross(v2)).dot(v3);
-    Matrix3<Scalar> A;
+    const Vector3<S>& v1 = vertices[tri[0]];
+    const Vector3<S>& v2 = vertices[tri[1]];
+    const Vector3<S>& v3 = vertices[tri[2]];
+    S d_six_vol = (v1.cross(v2)).dot(v3);
+    Matrix3<S> A;
     A.row(0) = v1;
     A.row(1) = v2;
     A.row(2) = v3;
     C.noalias() += A.transpose() * C_canonical * A * d_six_vol;
   }
 
-  Scalar trace_C = C(0, 0) + C(1, 1) + C(2, 2);
+  S trace_C = C(0, 0) + C(1, 1) + C(2, 2);
 
-  Matrix3<Scalar> m;
+  Matrix3<S> m;
   m << trace_C - C(0, 0), -C(0, 1), -C(0, 2),
       -C(1, 0), trace_C - C(1, 1), -C(1, 2),
       -C(2, 0), -C(2, 1), trace_C - C(2, 2);
@@ -1065,14 +1065,14 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
     int c1 = 0;
     for(int i = 0; i < num_primitives; ++i)
     {
-      Vector3<Scalar> p;
+      Vector3<S> p;
       if(type == BVH_MODEL_POINTCLOUD) p = vertices[cur_primitive_indices[i]];
       else if(type == BVH_MODEL_TRIANGLES)
       {
         const Triangle& t = tri_indices[cur_primitive_indices[i]];
-        const Vector3<Scalar>& p1 = vertices[t[0]];
-        const Vector3<Scalar>& p2 = vertices[t[1]];
-        const Vector3<Scalar>& p3 = vertices[t[2]];
+        const Vector3<S>& p1 = vertices[t[0]];
+        const Vector3<S>& p2 = vertices[t[1]];
+        const Vector3<S>& p3 = vertices[t[2]];
         p.noalias() = (p1 + p2 + p3) / 3.0;
       }
       else
@@ -1145,7 +1145,7 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
 
       if(prev_vertices)
       {
-        Vector3<Scalar> v[2];
+        Vector3<S> v[2];
         v[0] = prev_vertices[primitive_id];
         v[1] = vertices[primitive_id];
         fit(v, 2, bv);
@@ -1162,7 +1162,7 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
 
       if(prev_vertices)
       {
-        Vector3<Scalar> v[6];
+        Vector3<S> v[6];
         for(int i = 0; i < 3; ++i)
         {
           v[i] = prev_vertices[triangle[i]];
@@ -1173,7 +1173,7 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
       }
       else
       {
-        Vector3<Scalar> v[3];
+        Vector3<S> v[3];
         for(int i = 0; i < 3; ++i)
         {
           v[i] = vertices[triangle[i]];
@@ -1201,20 +1201,20 @@ int BVHModel<BV>::recursiveRefitTree_bottomup(int bv_id)
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct MakeParentRelativeRecurseImpl
 {
   static void run(BVHModel<BV>& model,
                   int bv_id,
-                  const Matrix3<Scalar>& parent_axis,
-                  const Vector3<Scalar>& parent_c)
+                  const Matrix3<S>& parent_axis,
+                  const Vector3<S>& parent_c)
   {
     if(!model.bvs[bv_id].isLeaf())
     {
-      MakeParentRelativeRecurseImpl<Scalar, BV> tmp1;
+      MakeParentRelativeRecurseImpl<S, BV> tmp1;
       tmp1(model, model.bvs[bv_id].first_child, parent_axis, model.bvs[bv_id].getCenter());
 
-      MakeParentRelativeRecurseImpl<Scalar, BV> tmp2;
+      MakeParentRelativeRecurseImpl<S, BV> tmp2;
       tmp2(model, model.bvs[bv_id].first_child + 1, parent_axis, model.bvs[bv_id].getCenter());
     }
 
@@ -1226,10 +1226,10 @@ struct MakeParentRelativeRecurseImpl
 template <typename BV>
 void BVHModel<BV>::makeParentRelativeRecurse(
     int bv_id,
-    const Matrix3<Scalar>& parent_axis,
-    const Vector3<Scalar>& parent_c)
+    const Matrix3<S>& parent_axis,
+    const Vector3<S>& parent_c)
 {
-  MakeParentRelativeRecurseImpl<typename BV::Scalar, BV>::run(
+  MakeParentRelativeRecurseImpl<typename BV::S, BV>::run(
         *this, bv_id, parent_axis, parent_c);
 }
 
@@ -1253,7 +1253,7 @@ int BVHModel<BV>::refitTree_topdown()
 template <typename BV>
 void BVHModel<BV>::computeLocalAABB()
 {
-  AABB<Scalar> aabb_;
+  AABB<S> aabb_;
   for(int i = 0; i < num_vertices; ++i)
   {
     aabb_ += vertices[i];
@@ -1264,7 +1264,7 @@ void BVHModel<BV>::computeLocalAABB()
   this->aabb_radius = 0;
   for(int i = 0; i < num_vertices; ++i)
   {
-    Scalar r = (this->aabb_center - vertices[i]).squaredNorm();
+    S r = (this->aabb_center - vertices[i]).squaredNorm();
     if(r > this->aabb_radius) this->aabb_radius = r;
   }
 
@@ -1274,21 +1274,21 @@ void BVHModel<BV>::computeLocalAABB()
 }
 
 //==============================================================================
-template <typename Scalar>
-struct MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct MakeParentRelativeRecurseImpl<S, OBB<S>>
 {
-  static void run(BVHModel<OBB<Scalar>>& model,
+  static void run(BVHModel<OBB<S>>& model,
                   int bv_id,
-                  const Matrix3<Scalar>& parent_axis,
-                  const Vector3<Scalar>& parent_c)
+                  const Matrix3<S>& parent_axis,
+                  const Vector3<S>& parent_c)
   {
-    OBB<Scalar>& obb = model.bvs[bv_id].bv;
+    OBB<S>& obb = model.bvs[bv_id].bv;
     if(!model.bvs[bv_id].isLeaf())
     {
-      MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>> tmp1;
+      MakeParentRelativeRecurseImpl<S, OBB<S>> tmp1;
       tmp1(model, model.bvs[bv_id].first_child, obb.axis, obb.To);
 
-      MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>> tmp2;
+      MakeParentRelativeRecurseImpl<S, OBB<S>> tmp2;
       tmp2(model, model.bvs[bv_id].first_child + 1, obb.axis, obb.To);
     }
 
@@ -1299,21 +1299,21 @@ struct MakeParentRelativeRecurseImpl<Scalar, OBB<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct MakeParentRelativeRecurseImpl<S, RSS<S>>
 {
-  static void run(BVHModel<RSS<Scalar>>& model,
+  static void run(BVHModel<RSS<S>>& model,
                   int bv_id,
-                  const Matrix3<Scalar>& parent_axis,
-                  const Vector3<Scalar>& parent_c)
+                  const Matrix3<S>& parent_axis,
+                  const Vector3<S>& parent_c)
   {
-    RSS<Scalar>& rss = model.bvs[bv_id].bv;
+    RSS<S>& rss = model.bvs[bv_id].bv;
     if(!model.bvs[bv_id].isLeaf())
     {
-      MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp1;
+      MakeParentRelativeRecurseImpl<S, RSS<S>> tmp1;
       tmp1(model, model.bvs[bv_id].first_child, rss.axis, rss.To);
 
-      MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp2;
+      MakeParentRelativeRecurseImpl<S, RSS<S>> tmp2;
       tmp2(model, model.bvs[bv_id].first_child + 1, rss.axis, rss.To);
     }
 
@@ -1324,22 +1324,22 @@ struct MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct MakeParentRelativeRecurseImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct MakeParentRelativeRecurseImpl<S, OBBRSS<S>>
 {
-  static void run(BVHModel<OBBRSS<Scalar>>& model,
+  static void run(BVHModel<OBBRSS<S>>& model,
                   int bv_id,
-                  const Matrix3<Scalar>& parent_axis,
-                  const Vector3<Scalar>& parent_c)
+                  const Matrix3<S>& parent_axis,
+                  const Vector3<S>& parent_c)
   {
-    OBB<Scalar>& obb = model.bvs[bv_id].bv.obb;
-    RSS<Scalar>& rss = model.bvs[bv_id].bv.rss;
+    OBB<S>& obb = model.bvs[bv_id].bv.obb;
+    RSS<S>& rss = model.bvs[bv_id].bv.rss;
     if(!model.bvs[bv_id].isLeaf())
     {
-      MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp1;
+      MakeParentRelativeRecurseImpl<S, RSS<S>> tmp1;
       tmp1(model, model.bvs[bv_id].first_child, obb.axis, obb.To);
 
-      MakeParentRelativeRecurseImpl<Scalar, RSS<Scalar>> tmp2;
+      MakeParentRelativeRecurseImpl<S, RSS<S>> tmp2;
       tmp2(model, model.bvs[bv_id].first_child + 1, obb.axis, obb.To);
     }
 
@@ -1353,8 +1353,8 @@ struct MakeParentRelativeRecurseImpl<Scalar, OBBRSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<AABB<Scalar>>
+template <typename S>
+struct GetNodeTypeImpl<AABB<S>>
 {
   static NODE_TYPE run()
   {
@@ -1363,8 +1363,8 @@ struct GetNodeTypeImpl<AABB<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<OBB<Scalar>>
+template <typename S>
+struct GetNodeTypeImpl<OBB<S>>
 {
   static NODE_TYPE run()
   {
@@ -1373,8 +1373,8 @@ struct GetNodeTypeImpl<OBB<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<RSS<Scalar>>
+template <typename S>
+struct GetNodeTypeImpl<RSS<S>>
 {
   static NODE_TYPE run()
   {
@@ -1383,8 +1383,8 @@ struct GetNodeTypeImpl<RSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<kIOS<Scalar>>
+template <typename S>
+struct GetNodeTypeImpl<kIOS<S>>
 {
   static NODE_TYPE run()
   {
@@ -1393,8 +1393,8 @@ struct GetNodeTypeImpl<kIOS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<OBBRSS<Scalar>>
+template <typename S>
+struct GetNodeTypeImpl<OBBRSS<S>>
 {
   static NODE_TYPE run()
   {
@@ -1403,8 +1403,8 @@ struct GetNodeTypeImpl<OBBRSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<KDOP<Scalar, 16>>
+template <typename S>
+struct GetNodeTypeImpl<KDOP<S, 16>>
 {
   static NODE_TYPE run()
   {
@@ -1413,8 +1413,8 @@ struct GetNodeTypeImpl<KDOP<Scalar, 16>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<KDOP<Scalar, 18>>
+template <typename S>
+struct GetNodeTypeImpl<KDOP<S, 18>>
 {
   static NODE_TYPE run()
   {
@@ -1423,8 +1423,8 @@ struct GetNodeTypeImpl<KDOP<Scalar, 18>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct GetNodeTypeImpl<KDOP<Scalar, 24>>
+template <typename S>
+struct GetNodeTypeImpl<KDOP<S, 24>>
 {
   static NODE_TYPE run()
   {

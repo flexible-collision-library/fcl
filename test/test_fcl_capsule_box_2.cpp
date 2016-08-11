@@ -42,32 +42,32 @@
 #include <fcl/collision_object.h>
 #include <fcl/shape/geometric_shapes.h>
 
-template <typename Scalar>
+template <typename S>
 void test_distance_capsule_box()
 {
-  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<Scalar>>;
+  using CollisionGeometryPtr_t = std::shared_ptr<fcl::CollisionGeometry<S>>;
 
-  // Capsule<Scalar> of radius 2 and of height 4
-  CollisionGeometryPtr_t capsuleGeometry (new fcl::Capsule<Scalar> (2., 4.));
-  // Box<Scalar> of size 1 by 2 by 4
-  CollisionGeometryPtr_t boxGeometry (new fcl::Box<Scalar> (1., 2., 4.));
+  // Capsule<S> of radius 2 and of height 4
+  CollisionGeometryPtr_t capsuleGeometry (new fcl::Capsule<S> (2., 4.));
+  // Box<S> of size 1 by 2 by 4
+  CollisionGeometryPtr_t boxGeometry (new fcl::Box<S> (1., 2., 4.));
 
   // Enable computation of nearest points
-  fcl::DistanceRequest<Scalar> distanceRequest (true);
-  fcl::DistanceResult<Scalar> distanceResult;
+  fcl::DistanceRequest<S> distanceRequest (true);
+  fcl::DistanceResult<S> distanceResult;
 
   // Rotate capsule around y axis by pi/2 and move it behind box
-  fcl::Transform3<Scalar> tf1 = fcl::Translation3<Scalar>(fcl::Vector3<Scalar>(-10., 0.8, 1.5))
-      *fcl::Quaternion<Scalar>(sqrt(2)/2, 0, sqrt(2)/2, 0);
-  fcl::Transform3<Scalar> tf2 = fcl::Transform3<Scalar>::Identity();
-  fcl::CollisionObject<Scalar> capsule (capsuleGeometry, tf1);
-  fcl::CollisionObject<Scalar> box (boxGeometry, tf2);
+  fcl::Transform3<S> tf1 = fcl::Translation3<S>(fcl::Vector3<S>(-10., 0.8, 1.5))
+      *fcl::Quaternion<S>(sqrt(2)/2, 0, sqrt(2)/2, 0);
+  fcl::Transform3<S> tf2 = fcl::Transform3<S>::Identity();
+  fcl::CollisionObject<S> capsule (capsuleGeometry, tf1);
+  fcl::CollisionObject<S> box (boxGeometry, tf2);
 
   // test distance
   distanceResult.clear ();
   fcl::distance (&capsule, &box, distanceRequest, distanceResult);
-  fcl::Vector3<Scalar> o1 = distanceResult.nearest_points [0];
-  fcl::Vector3<Scalar> o2 = distanceResult.nearest_points [1];
+  fcl::Vector3<S> o1 = distanceResult.nearest_points [0];
+  fcl::Vector3<S> o2 = distanceResult.nearest_points [1];
 
   EXPECT_NEAR (distanceResult.min_distance, 5.5, 1e-4);
   // Disabled broken test lines. Please see #25.

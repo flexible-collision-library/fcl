@@ -47,12 +47,12 @@ namespace fcl
 namespace detail
 {
 
-template <typename Scalar, typename BV, typename Shape>
+template <typename S, typename BV, typename Shape>
 struct BVComputer
 {
-  static void compute(const Shape& s, const Transform3<Scalar>& tf, BV& bv)
+  static void compute(const Shape& s, const Transform3<S>& tf, BV& bv)
   {
-    std::vector<Vector3<Scalar>> convex_bound_vertices = s.getBoundVertices(tf);
+    std::vector<Vector3<S>> convex_bound_vertices = s.getBoundVertices(tf);
     fit(&convex_bound_vertices[0], (int)convex_bound_vertices.size(), bv);
   }
 };

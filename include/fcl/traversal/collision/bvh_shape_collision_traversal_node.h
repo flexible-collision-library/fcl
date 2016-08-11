@@ -48,11 +48,11 @@ namespace fcl
 /// @brief Traversal node for collision between BVH and shape
 template <typename BV, typename Shape>
 class BVHShapeCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename BV::Scalar>
+    : public CollisionTraversalNodeBase<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   BVHShapeCollisionTraversalNode();
 
@@ -74,7 +74,7 @@ public:
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable Scalar query_time_seconds;
+  mutable S query_time_seconds;
 };
 
 //============================================================================//
@@ -86,7 +86,7 @@ public:
 //==============================================================================
 template <typename Shape, typename BV>
 BVHShapeCollisionTraversalNode<Shape, BV>::BVHShapeCollisionTraversalNode()
-  : CollisionTraversalNodeBase<typename BV::Scalar>()
+  : CollisionTraversalNodeBase<typename BV::S>()
 {
   model1 = NULL;
   model2 = NULL;

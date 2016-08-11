@@ -46,29 +46,29 @@ namespace fcl
 {
 
 /// @brief Interval class for [a, b]
-template <typename Scalar>
+template <typename S>
 struct Interval
 {
-  Scalar i_[2];
+  S i_[2];
 
   Interval();
 
-  explicit Interval(Scalar v);
+  explicit Interval(S v);
 
   /// @brief construct interval [left, right]
-  Interval(Scalar left, Scalar right);
+  Interval(S left, S right);
 
   /// @brief construct interval [left, right]
-  void setValue(Scalar a, Scalar b);
+  void setValue(S a, S b);
 
   /// @brief construct zero interval [x, x]
-  void setValue(Scalar x);
+  void setValue(S x);
 
   /// @brief access the interval endpoints: 0 for left, 1 for right end
-  Scalar operator [] (size_t i) const;
+  S operator [] (size_t i) const;
 
   /// @brief access the interval endpoints: 0 for left, 1 for right end
-  Scalar& operator [] (size_t i);
+  S& operator [] (size_t i);
 
   /// @brief whether two intervals are the same
   bool operator == (const Interval& other) const;
@@ -87,9 +87,9 @@ struct Interval
 
   Interval& operator *= (const Interval& other);
 
-  Interval operator * (Scalar d) const;
+  Interval operator * (S d) const;
 
-  Interval& operator *= (Scalar d);
+  Interval& operator *= (S d);
 
   /// @brief other must not contain 0
   Interval operator / (const Interval& other) const;
@@ -104,31 +104,31 @@ struct Interval
   Interval operator - () const;
 
   /// @brief Return the nearest distance for points within the interval to zero
-  Scalar getAbsLower() const;
+  S getAbsLower() const;
 
   /// @brief Return the farthest distance for points within the interval to zero
-  Scalar getAbsUpper() const;
+  S getAbsUpper() const;
 
-  bool contains(Scalar v) const;
+  bool contains(S v) const;
 
   /// @brief Compute the minimum interval contains v and original interval
-  Interval& bound(Scalar v);
+  Interval& bound(S v);
 
   /// @brief Compute the minimum interval contains other and original interval
   Interval& bound(const Interval& other);
 
   void print() const;
 
-  Scalar center() const;
+  S center() const;
 
-  Scalar diameter() const;
+  S diameter() const;
 };
 
-template <typename Scalar>
-Interval<Scalar> bound(const Interval<Scalar>& i, Scalar v);
+template <typename S>
+Interval<S> bound(const Interval<S>& i, S v);
 
-template <typename Scalar>
-Interval<Scalar> bound(const Interval<Scalar>& i, const Interval<Scalar>& other);
+template <typename S>
+Interval<S> bound(const Interval<S>& i, const Interval<S>& other);
 
 //============================================================================//
 //                                                                            //
@@ -137,57 +137,57 @@ Interval<Scalar> bound(const Interval<Scalar>& i, const Interval<Scalar>& other)
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>::Interval()
+template <typename S>
+Interval<S>::Interval()
 {
   i_[0] = i_[1] = 0;
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>::Interval(Scalar v)
+template <typename S>
+Interval<S>::Interval(S v)
 {
   i_[0] = i_[1] = v;
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>::Interval(Scalar left, Scalar right)
+template <typename S>
+Interval<S>::Interval(S left, S right)
 {
   i_[0] = left; i_[1] = right;
 }
 
 //==============================================================================
-template <typename Scalar>
-void Interval<Scalar>::setValue(Scalar a, Scalar b)
+template <typename S>
+void Interval<S>::setValue(S a, S b)
 {
   i_[0] = a; i_[1] = b;
 }
 
 //==============================================================================
-template <typename Scalar>
-void Interval<Scalar>::setValue(Scalar x)
+template <typename S>
+void Interval<S>::setValue(S x)
 {
   i_[0] = i_[1] = x;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Interval<Scalar>::operator [] (size_t i) const
+template <typename S>
+S Interval<S>::operator [] (size_t i) const
 {
   return i_[i];
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar& Interval<Scalar>::operator [] (size_t i)
+template <typename S>
+S& Interval<S>::operator [] (size_t i)
 {
   return i_[i];
 }
 
 //==============================================================================
-template <typename Scalar>
-bool Interval<Scalar>::operator == (const Interval& other) const
+template <typename S>
+bool Interval<S>::operator == (const Interval& other) const
 {
   if(i_[0] != other.i_[0]) return false;
   if(i_[1] != other.i_[1]) return false;
@@ -195,22 +195,22 @@ bool Interval<Scalar>::operator == (const Interval& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> Interval<Scalar>::operator + (const Interval<Scalar>& other) const
+template <typename S>
+Interval<S> Interval<S>::operator + (const Interval<S>& other) const
 {
   return Interval(i_[0] + other.i_[0], i_[1] + other.i_[1]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> Interval<Scalar>::operator - (const Interval<Scalar>& other) const
+template <typename S>
+Interval<S> Interval<S>::operator - (const Interval<S>& other) const
 {
   return Interval(i_[0] - other.i_[1], i_[1] - other.i_[0]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>& Interval<Scalar>::operator += (const Interval<Scalar>& other)
+template <typename S>
+Interval<S>& Interval<S>::operator += (const Interval<S>& other)
 {
   i_[0] += other.i_[0];
   i_[1] += other.i_[1];
@@ -218,8 +218,8 @@ Interval<Scalar>& Interval<Scalar>::operator += (const Interval<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>& Interval<Scalar>::operator -= (const Interval<Scalar>& other)
+template <typename S>
+Interval<S>& Interval<S>::operator -= (const Interval<S>& other)
 {
   i_[0] -= other.i_[1];
   i_[1] -= other.i_[0];
@@ -227,44 +227,44 @@ Interval<Scalar>& Interval<Scalar>::operator -= (const Interval<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> Interval<Scalar>::operator * (const Interval<Scalar>& other) const
+template <typename S>
+Interval<S> Interval<S>::operator * (const Interval<S>& other) const
 {
   if(other.i_[0] >= 0)
   {
-    if(i_[0] >= 0) return Interval<Scalar>(i_[0] * other.i_[0], i_[1] * other.i_[1]);
-    if(i_[1] <= 0) return Interval<Scalar>(i_[0] * other.i_[1], i_[1] * other.i_[0]);
-    return Interval<Scalar>(i_[0] * other.i_[1], i_[1] * other.i_[1]);
+    if(i_[0] >= 0) return Interval<S>(i_[0] * other.i_[0], i_[1] * other.i_[1]);
+    if(i_[1] <= 0) return Interval<S>(i_[0] * other.i_[1], i_[1] * other.i_[0]);
+    return Interval<S>(i_[0] * other.i_[1], i_[1] * other.i_[1]);
   }
   if(other.i_[1] <= 0)
   {
-    if(i_[0] >= 0) return Interval<Scalar>(i_[1] * other.i_[0], i_[0] * other.i_[1]);
-    if(i_[1] <= 0) return Interval<Scalar>(i_[1] * other.i_[1], i_[0] * other.i_[0]);
-    return Interval<Scalar>(i_[1] * other.i_[0], i_[0] * other.i_[0]);
+    if(i_[0] >= 0) return Interval<S>(i_[1] * other.i_[0], i_[0] * other.i_[1]);
+    if(i_[1] <= 0) return Interval<S>(i_[1] * other.i_[1], i_[0] * other.i_[0]);
+    return Interval<S>(i_[1] * other.i_[0], i_[0] * other.i_[0]);
   }
 
-  if(i_[0] >= 0) return Interval<Scalar>(i_[1] * other.i_[0], i_[1] * other.i_[1]);
-  if(i_[1] <= 0) return Interval<Scalar>(i_[0] * other.i_[1], i_[0] * other.i_[0]);
+  if(i_[0] >= 0) return Interval<S>(i_[1] * other.i_[0], i_[1] * other.i_[1]);
+  if(i_[1] <= 0) return Interval<S>(i_[0] * other.i_[1], i_[0] * other.i_[0]);
 
-  Scalar v00 = i_[0] * other.i_[0];
-  Scalar v11 = i_[1] * other.i_[1];
+  S v00 = i_[0] * other.i_[0];
+  S v11 = i_[1] * other.i_[1];
   if(v00 <= v11)
   {
-    Scalar v01 = i_[0] * other.i_[1];
-    Scalar v10 = i_[1] * other.i_[0];
-    if(v01 < v10) return Interval<Scalar>(v01, v11);
-    return Interval<Scalar>(v10, v11);
+    S v01 = i_[0] * other.i_[1];
+    S v10 = i_[1] * other.i_[0];
+    if(v01 < v10) return Interval<S>(v01, v11);
+    return Interval<S>(v10, v11);
   }
 
-  Scalar v01 = i_[0] * other.i_[1];
-  Scalar v10 = i_[1] * other.i_[0];
-  if(v01 < v10) return Interval<Scalar>(v01, v00);
-  return Interval<Scalar>(v10, v00);
+  S v01 = i_[0] * other.i_[1];
+  S v10 = i_[1] * other.i_[0];
+  if(v01 < v10) return Interval<S>(v01, v00);
+  return Interval<S>(v10, v00);
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>& Interval<Scalar>::operator *= (const Interval<Scalar>& other)
+template <typename S>
+Interval<S>& Interval<S>::operator *= (const Interval<S>& other)
 {
   if(other.i_[0] >= 0)
   {
@@ -290,19 +290,19 @@ Interval<Scalar>& Interval<Scalar>::operator *= (const Interval<Scalar>& other)
   {
     if(i_[0] >= 0)
     {
-      Scalar tmp = i_[0];
+      S tmp = i_[0];
       i_[0] = i_[1] * other.i_[0];
       i_[1] = tmp * other.i_[1];
     }
     else if(i_[1] <= 0)
     {
-      Scalar tmp = i_[0];
+      S tmp = i_[0];
       i_[0] = i_[1] * other.i_[1];
       i_[1] = tmp * other.i_[0];
     }
     else
     {
-      Scalar tmp = i_[0];
+      S tmp = i_[0];
       i_[0] = i_[1] * other.i_[0];
       i_[1] = tmp * other.i_[0];
     }
@@ -323,12 +323,12 @@ Interval<Scalar>& Interval<Scalar>::operator *= (const Interval<Scalar>& other)
     return *this;
   }
 
-  Scalar v00 = i_[0] * other.i_[0];
-  Scalar v11 = i_[1] * other.i_[1];
+  S v00 = i_[0] * other.i_[0];
+  S v11 = i_[1] * other.i_[1];
   if(v00 <= v11)
   {
-    Scalar v01 = i_[0] * other.i_[1];
-    Scalar v10 = i_[1] * other.i_[0];
+    S v01 = i_[0] * other.i_[1];
+    S v10 = i_[1] * other.i_[0];
     if(v01 < v10)
     {
       i_[0] = v01;
@@ -342,8 +342,8 @@ Interval<Scalar>& Interval<Scalar>::operator *= (const Interval<Scalar>& other)
     return *this;
   }
 
-  Scalar v01 = i_[0] * other.i_[1];
-  Scalar v10 = i_[1] * other.i_[0];
+  S v01 = i_[0] * other.i_[1];
+  S v10 = i_[1] * other.i_[0];
   if(v01 < v10)
   {
     i_[0] = v01;
@@ -359,16 +359,16 @@ Interval<Scalar>& Interval<Scalar>::operator *= (const Interval<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> Interval<Scalar>::operator * (Scalar d) const
+template <typename S>
+Interval<S> Interval<S>::operator * (S d) const
 {
   if(d >= 0) return Interval(i_[0] * d, i_[1] * d);
   return Interval(i_[1] * d, i_[0] * d);
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>& Interval<Scalar>::operator *= (Scalar d)
+template <typename S>
+Interval<S>& Interval<S>::operator *= (S d)
 {
   if(d >= 0)
   {
@@ -377,7 +377,7 @@ Interval<Scalar>& Interval<Scalar>::operator *= (Scalar d)
   }
   else
   {
-    Scalar tmp = i_[0];
+    S tmp = i_[0];
     i_[0] = i_[1] * d;
     i_[1] = tmp * d;
   }
@@ -386,23 +386,23 @@ Interval<Scalar>& Interval<Scalar>::operator *= (Scalar d)
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> Interval<Scalar>::operator / (const Interval<Scalar>& other) const
+template <typename S>
+Interval<S> Interval<S>::operator / (const Interval<S>& other) const
 {
   return *this * Interval(1.0 / other.i_[1], 1.0 / other.i_[0]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>& Interval<Scalar>::operator /= (const Interval<Scalar>& other)
+template <typename S>
+Interval<S>& Interval<S>::operator /= (const Interval<S>& other)
 {
   *this *= Interval(1.0 / other.i_[1], 1.0 / other.i_[0]);
   return *this;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool Interval<Scalar>::overlap(const Interval<Scalar>& other) const
+template <typename S>
+bool Interval<S>::overlap(const Interval<S>& other) const
 {
   if(i_[1] < other.i_[0]) return false;
   if(i_[0] > other.i_[1]) return false;
@@ -410,8 +410,8 @@ bool Interval<Scalar>::overlap(const Interval<Scalar>& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-bool Interval<Scalar>::intersect(const Interval<Scalar>& other)
+template <typename S>
+bool Interval<S>::intersect(const Interval<S>& other)
 {
   if(i_[1] < other.i_[0]) return false;
   if(i_[0] > other.i_[1]) return false;
@@ -421,15 +421,15 @@ bool Interval<Scalar>::intersect(const Interval<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> Interval<Scalar>::operator -() const
+template <typename S>
+Interval<S> Interval<S>::operator -() const
 {
-  return Interval<Scalar>(-i_[1], -i_[0]);
+  return Interval<S>(-i_[1], -i_[0]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Interval<Scalar>::getAbsLower() const
+template <typename S>
+S Interval<S>::getAbsLower() const
 {
   if(i_[0] >= 0) return i_[0];
   if(i_[1] >= 0) return 0;
@@ -437,16 +437,16 @@ Scalar Interval<Scalar>::getAbsLower() const
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Interval<Scalar>::getAbsUpper() const
+template <typename S>
+S Interval<S>::getAbsUpper() const
 {
   if(i_[0] + i_[1] >= 0) return i_[1];
   return i_[0];
 }
 
 //==============================================================================
-template <typename Scalar>
-bool Interval<Scalar>::contains(Scalar v) const
+template <typename S>
+bool Interval<S>::contains(S v) const
 {
   if(v < i_[0]) return false;
   if(v > i_[1]) return false;
@@ -454,8 +454,8 @@ bool Interval<Scalar>::contains(Scalar v) const
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>& Interval<Scalar>::bound(Scalar v)
+template <typename S>
+Interval<S>& Interval<S>::bound(S v)
 {
   if(v < i_[0]) i_[0] = v;
   if(v > i_[1]) i_[1] = v;
@@ -463,8 +463,8 @@ Interval<Scalar>& Interval<Scalar>::bound(Scalar v)
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar>& Interval<Scalar>::bound(const Interval<Scalar>& other)
+template <typename S>
+Interval<S>& Interval<S>::bound(const Interval<S>& other)
 {
   if(other.i_[0] < i_[0]) i_[0] = other.i_[0];
   if(other.i_[1] > i_[1]) i_[1] = other.i_[1];
@@ -472,41 +472,41 @@ Interval<Scalar>& Interval<Scalar>::bound(const Interval<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-void Interval<Scalar>::print() const
+template <typename S>
+void Interval<S>::print() const
 {
   std::cout << "[" << i_[0] << ", " << i_[1] << "]" << std::endl;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Interval<Scalar>::center() const
+template <typename S>
+S Interval<S>::center() const
 {
   return 0.5 * (i_[0] + i_[1]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar Interval<Scalar>::diameter() const
+template <typename S>
+S Interval<S>::diameter() const
 {
   return i_[1] -i_[0];
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> bound(const Interval<Scalar>& i, Scalar v)
+template <typename S>
+Interval<S> bound(const Interval<S>& i, S v)
 {
-  Interval<Scalar> res = i;
+  Interval<S> res = i;
   if(v < res.i_[0]) res.i_[0] = v;
   if(v > res.i_[1]) res.i_[1] = v;
   return res;
 }
 
 //==============================================================================
-template <typename Scalar>
-Interval<Scalar> bound(const Interval<Scalar>& i, const Interval<Scalar>& other)
+template <typename S>
+Interval<S> bound(const Interval<S>& i, const Interval<S>& other)
 {
-  Interval<Scalar> res = i;
+  Interval<S> res = i;
   if(other.i_[0] < res.i_[0]) res.i_[0] = other.i_[0];
   if(other.i_[1] > res.i_[1]) res.i_[1] = other.i_[1];
   return res;

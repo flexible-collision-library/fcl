@@ -45,29 +45,29 @@
 namespace fcl
 {
 
-template <typename Scalar, std::size_t N>
-class SamplerR : public SamplerBase<Scalar>
+template <typename S, std::size_t N>
+class SamplerR : public SamplerBase<S>
 {
 public:
   SamplerR();
 
-  SamplerR(const VectorN<Scalar, N>& lower_bound_,
-           const VectorN<Scalar, N>& upper_bound_);
+  SamplerR(const VectorN<S, N>& lower_bound_,
+           const VectorN<S, N>& upper_bound_);
 
-  void setBound(const VectorN<Scalar, N>& lower_bound_,
-                const VectorN<Scalar, N>& upper_bound_);
+  void setBound(const VectorN<S, N>& lower_bound_,
+                const VectorN<S, N>& upper_bound_);
 
-  void getBound(VectorN<Scalar, N>& lower_bound_,
-                VectorN<Scalar, N>& upper_bound_) const;
+  void getBound(VectorN<S, N>& lower_bound_,
+                VectorN<S, N>& upper_bound_) const;
 
-  VectorN<Scalar, N> sample() const;
+  VectorN<S, N> sample() const;
 
 private:
-  VectorN<Scalar, N> lower_bound;
-  VectorN<Scalar, N> upper_bound;
+  VectorN<S, N> lower_bound;
+  VectorN<S, N> upper_bound;
 
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(Scalar, N)
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF_VECTORIZABLE_FIXED_SIZE(S, N)
 
 };
 
@@ -83,40 +83,40 @@ using SamplerRd = SamplerR<double, N>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar, std::size_t N>
-SamplerR<Scalar, N>::SamplerR()
+template <typename S, std::size_t N>
+SamplerR<S, N>::SamplerR()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar, std::size_t N>
-SamplerR<Scalar, N>::SamplerR(const VectorN<Scalar, N>& lower_bound_, const VectorN<Scalar, N>& upper_bound_)
+template <typename S, std::size_t N>
+SamplerR<S, N>::SamplerR(const VectorN<S, N>& lower_bound_, const VectorN<S, N>& upper_bound_)
   : lower_bound(lower_bound_), upper_bound(upper_bound_)
 {
 }
 
 //==============================================================================
-template <typename Scalar, std::size_t N>
-void SamplerR<Scalar, N>::setBound(const VectorN<Scalar, N>& lower_bound_, const VectorN<Scalar, N>& upper_bound_)
+template <typename S, std::size_t N>
+void SamplerR<S, N>::setBound(const VectorN<S, N>& lower_bound_, const VectorN<S, N>& upper_bound_)
 {
   lower_bound = lower_bound_;
   upper_bound = upper_bound_;
 }
 
 //==============================================================================
-template <typename Scalar, std::size_t N>
-void SamplerR<Scalar, N>::getBound(VectorN<Scalar, N>& lower_bound_, VectorN<Scalar, N>& upper_bound_) const
+template <typename S, std::size_t N>
+void SamplerR<S, N>::getBound(VectorN<S, N>& lower_bound_, VectorN<S, N>& upper_bound_) const
 {
   lower_bound_ = lower_bound;
   upper_bound_ = upper_bound;
 }
 
 //==============================================================================
-template <typename Scalar, std::size_t N>
-VectorN<Scalar, N> SamplerR<Scalar, N>::sample() const
+template <typename S, std::size_t N>
+VectorN<S, N> SamplerR<S, N>::sample() const
 {
-  VectorN<Scalar, N> q;
+  VectorN<S, N> q;
 
   for(std::size_t i = 0; i < N; ++i)
   {

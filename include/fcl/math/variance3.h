@@ -48,22 +48,22 @@ namespace fcl
 {
 
 /// @brief Class for variance matrix in 3d
-template <typename Scalar>
+template <typename S>
 class Variance3
 {
 public:
   /// @brief Variation matrix
-  Matrix3<Scalar> Sigma;
+  Matrix3<S> Sigma;
 
   /// @brief Variations along the eign axes
-  Vector3<Scalar> sigma;
+  Vector3<S> sigma;
 
   /// @brief Matrix whose columns are eigenvectors of Sigma
-  Matrix3<Scalar> axis;
+  Matrix3<S> axis;
 
   Variance3();
 
-  Variance3(const Matrix3<Scalar>& sigma);
+  Variance3(const Matrix3<S>& sigma);
 
   /// @brief init the Variance
   void init();
@@ -71,7 +71,7 @@ public:
   /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition
   /// result, this is useful when the uncertainty matrix is initialized as a
   /// square variation matrix
-  Variance3<Scalar>& sqrt();
+  Variance3<S>& sqrt();
 };
 
 using Variance3f = Variance3<float>;
@@ -84,29 +84,29 @@ using Variance3d = Variance3<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Variance3<Scalar>::Variance3()
+template <typename S>
+Variance3<S>::Variance3()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Variance3<Scalar>::Variance3(const Matrix3<Scalar>& sigma) : Sigma(sigma)
+template <typename S>
+Variance3<S>::Variance3(const Matrix3<S>& sigma) : Sigma(sigma)
 {
   init();
 }
 
 //==============================================================================
-template <typename Scalar>
-void Variance3<Scalar>::init()
+template <typename S>
+void Variance3<S>::init()
 {
   eigen_old(Sigma, sigma, axis);
 }
 
 //==============================================================================
-template <typename Scalar>
-Variance3<Scalar>& Variance3<Scalar>::sqrt()
+template <typename S>
+Variance3<S>& Variance3<S>::sqrt()
 {
   for(std::size_t i = 0; i < 3; ++i)
   {

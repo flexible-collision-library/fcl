@@ -54,19 +54,19 @@ namespace fcl
 /// @brief Traversal node for octree-shape distance
 template <typename Shape, typename NarrowPhaseSolver>
 class OcTreeShapeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
+    : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::S>
 {
 public:
 
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   OcTreeShapeDistanceTraversalNode();
 
-  Scalar BVTesting(int, int) const;
+  S BVTesting(int, int) const;
 
   void leafTesting(int, int) const;
 
-  const OcTree<Scalar>* model1;
+  const OcTree<S>* model1;
   const Shape* model2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
@@ -77,13 +77,13 @@ public:
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>& node,
-    const OcTree<typename NarrowPhaseSolver::Scalar>& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const OcTree<typename NarrowPhaseSolver::S>& model1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
     const Shape& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -104,7 +104,7 @@ OcTreeShapeDistanceTraversalNode()
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar
+typename NarrowPhaseSolver::S
 OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
 BVTesting(int, int) const
 {
@@ -124,13 +124,13 @@ leafTesting(int, int) const
 template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>& node,
-    const OcTree<typename NarrowPhaseSolver::Scalar>& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const OcTree<typename NarrowPhaseSolver::S>& model1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
     const Shape& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
+    DistanceResult<typename NarrowPhaseSolver::S>& result)
 {
   node.request = request;
   node.result = &result;

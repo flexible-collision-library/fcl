@@ -50,32 +50,32 @@ namespace fcl
 {
 
 /// @brief Recurse function for collision
-template <typename Scalar>
-void collisionRecurse(CollisionTraversalNodeBase<Scalar>* node, int b1, int b2, BVHFrontList* front_list);
+template <typename S>
+void collisionRecurse(CollisionTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list);
 
 /// @brief Recurse function for collision, specialized for OBBd type
-template <typename Scalar>
-void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b2, const Matrix3<Scalar>& R, const Vector3<Scalar>& T, BVHFrontList* front_list);
+template <typename S>
+void collisionRecurse(MeshCollisionTraversalNodeOBB<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list);
 
 /// @brief Recurse function for collision, specialized for RSSd type
-template <typename Scalar>
-void collisionRecurse(MeshCollisionTraversalNodeRSS<Scalar>* node, int b1, int b2, const Matrix3<Scalar>& R, const Vector3<Scalar>& T, BVHFrontList* front_list);
+template <typename S>
+void collisionRecurse(MeshCollisionTraversalNodeRSS<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list);
 
 /// @brief Recurse function for self collision. Make sure node is set correctly so that the first and second tree are the same
-template <typename Scalar>
-void selfCollisionRecurse(CollisionTraversalNodeBase<Scalar>* node, int b, BVHFrontList* front_list);
+template <typename S>
+void selfCollisionRecurse(CollisionTraversalNodeBase<S>* node, int b, BVHFrontList* front_list);
 
 /// @brief Recurse function for distance
-template <typename Scalar>
-void distanceRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b2, BVHFrontList* front_list);
+template <typename S>
+void distanceRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list);
 
 /// @brief Recurse function for distance, using queue acceleration
-template <typename Scalar>
-void distanceQueueRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
+template <typename S>
+void distanceQueueRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 /// @brief Recurse function for front list propagation
-template <typename Scalar>
-void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_list);
+template <typename S>
+void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list);
 
 //============================================================================//
 //                                                                            //
@@ -84,8 +84,8 @@ void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<Scalar>* n
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-void collisionRecurse(CollisionTraversalNodeBase<Scalar>* node, int b1, int b2, BVHFrontList* front_list)
+template <typename S>
+void collisionRecurse(CollisionTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
   bool l2 = node->isSecondNodeLeaf(b2);
@@ -133,8 +133,8 @@ void collisionRecurse(CollisionTraversalNodeBase<Scalar>* node, int b1, int b2, 
 }
 
 //==============================================================================
-template <typename Scalar>
-void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b2, const Matrix3<Scalar>& R, const Vector3<Scalar>& T, BVHFrontList* front_list)
+template <typename S>
+void collisionRecurse(MeshCollisionTraversalNodeOBB<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
   bool l2 = node->isSecondNodeLeaf(b2);
@@ -155,25 +155,25 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b
     return;
   }
 
-  Vector3<Scalar> temp;
+  Vector3<S> temp;
 
   if(node->firstOverSecond(b1, b2))
   {
     int c1 = node->getFirstLeftChild(b1);
     int c2 = node->getFirstRightChild(b1);
 
-    const OBB<Scalar>& bv1 = node->model1->getBV(c1).bv;
+    const OBB<S>& bv1 = node->model1->getBV(c1).bv;
 
-    Matrix3<Scalar> Rc = R.transpose() * bv1.axis;
+    Matrix3<S> Rc = R.transpose() * bv1.axis;
     temp = T - bv1.To;
-    Vector3<Scalar> Tc = temp.transpose() * bv1.axis;
+    Vector3<S> Tc = temp.transpose() * bv1.axis;
 
     collisionRecurse(node, c1, b2, Rc, Tc, front_list);
 
     // early stop is disabled is front_list is used
     if(node->canStop() && !front_list) return;
 
-    const OBB<Scalar>& bv2 = node->model1->getBV(c2).bv;
+    const OBB<S>& bv2 = node->model1->getBV(c2).bv;
 
     Rc.noalias() = R.transpose() * bv2.axis;
     temp = T - bv2.To;
@@ -188,22 +188,22 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b
     int c1 = node->getSecondLeftChild(b2);
     int c2 = node->getSecondRightChild(b2);
 
-    const OBB<Scalar>& bv1 = node->model2->getBV(c1).bv;
-    Matrix3<Scalar> Rc;
+    const OBB<S>& bv1 = node->model2->getBV(c1).bv;
+    Matrix3<S> Rc;
     temp.noalias() = R * bv1.axis.col(0);
     Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
     temp.noalias() = R * bv1.axis.col(1);
     Rc(0, 1) = temp[0]; Rc(1, 1) = temp[1]; Rc(2, 1) = temp[2];
     temp.noalias() = R * bv1.axis.col(2);
     Rc(0, 2) = temp[0]; Rc(1, 2) = temp[1]; Rc(2, 2) = temp[2];
-    Vector3<Scalar> Tc = R * bv1.To + T;
+    Vector3<S> Tc = R * bv1.To + T;
 
     collisionRecurse(node, b1, c1, Rc, Tc, front_list);
 
     // early stop is disabled is front_list is used
     if(node->canStop() && !front_list) return;
 
-    const OBB<Scalar>& bv2 = node->model2->getBV(c2).bv;
+    const OBB<S>& bv2 = node->model2->getBV(c2).bv;
     temp.noalias() = R * bv2.axis.col(0);
     Rc(0, 0) = temp[0]; Rc(1, 0) = temp[1]; Rc(2, 0) = temp[2];
     temp.noalias() = R * bv2.axis.col(1);
@@ -218,8 +218,8 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<Scalar>* node, int b1, int b
 }
 
 //==============================================================================
-template <typename Scalar>
-void collisionRecurse(MeshCollisionTraversalNodeRSS<Scalar>* node, int b1, int b2, const Matrix3<Scalar>& R, const Vector3<Scalar>& T, BVHFrontList* front_list)
+template <typename S>
+void collisionRecurse(MeshCollisionTraversalNodeRSS<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list)
 {
   // Do nothing
 }
@@ -228,8 +228,8 @@ void collisionRecurse(MeshCollisionTraversalNodeRSS<Scalar>* node, int b1, int b
 /** Recurse function for self collision
  * Make sure node is set correctly so that the first and second tree are the same
  */
-template <typename Scalar>
-void selfCollisionRecurse(CollisionTraversalNodeBase<Scalar>* node, int b, BVHFrontList* front_list)
+template <typename S>
+void selfCollisionRecurse(CollisionTraversalNodeBase<S>* node, int b, BVHFrontList* front_list)
 {
   bool l = node->isFirstNodeLeaf(b);
 
@@ -248,8 +248,8 @@ void selfCollisionRecurse(CollisionTraversalNodeBase<Scalar>* node, int b, BVHFr
 }
 
 //==============================================================================
-template <typename Scalar>
-void distanceRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b2, BVHFrontList* front_list)
+template <typename S>
+void distanceRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list)
 {
   bool l1 = node->isFirstNodeLeaf(b1);
   bool l2 = node->isSecondNodeLeaf(b2);
@@ -279,8 +279,8 @@ void distanceRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b2, BV
     c2 = node->getSecondRightChild(b2);
   }
 
-  Scalar d1 = node->BVTesting(a1, a2);
-  Scalar d2 = node->BVTesting(c1, c2);
+  S d1 = node->BVTesting(a1, a2);
+  S d2 = node->BVTesting(c1, c2);
 
   if(d2 < d1)
   {
@@ -310,11 +310,11 @@ void distanceRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b2, BV
 
 //==============================================================================
 /** \brief Bounding volume test structure */
-template <typename Scalar>
+template <typename S>
 struct BVT
 {
   /** \brief distance between bvs */
-  Scalar d;
+  S d;
 
   /** \brief bv indices for a pair of bvs in two models */
   int b1, b2;
@@ -322,17 +322,17 @@ struct BVT
 
 //==============================================================================
 /** \brief Comparer between two BVT */
-template <typename Scalar>
+template <typename S>
 struct BVT_Comparer
 {
-  bool operator() (const BVT<Scalar>& lhs, const BVT<Scalar>& rhs) const
+  bool operator() (const BVT<S>& lhs, const BVT<S>& rhs) const
   {
     return lhs.d > rhs.d;
   }
 };
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 struct BVTQ
 {
   BVTQ() : qsize(2) {}
@@ -347,12 +347,12 @@ struct BVTQ
     return pq.size();
   }
 
-  const BVT<Scalar>& top() const
+  const BVT<S>& top() const
   {
     return pq.top();
   }
 
-  void push(const BVT<Scalar>& x)
+  void push(const BVT<S>& x)
   {
     pq.push(x);
   }
@@ -367,20 +367,20 @@ struct BVTQ
     return (pq.size() + 1 >= qsize);
   }
 
-  std::priority_queue<BVT<Scalar>, std::vector<BVT<Scalar>>, BVT_Comparer<Scalar>> pq;
+  std::priority_queue<BVT<S>, std::vector<BVT<S>>, BVT_Comparer<S>> pq;
 
   /** \brief Queue size */
   unsigned int qsize;
 };
 
 //==============================================================================
-template <typename Scalar>
-void distanceQueueRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b2, BVHFrontList* front_list, int qsize)
+template <typename S>
+void distanceQueueRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list, int qsize)
 {
-  BVTQ<Scalar> bvtq;
+  BVTQ<S> bvtq;
   bvtq.qsize = qsize;
 
-  BVT<Scalar> min_test;
+  BVT<S> min_test;
   min_test.b1 = b1;
   min_test.b2 = b2;
 
@@ -404,7 +404,7 @@ void distanceQueueRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b
     else
     {
       // queue capacity is not full yet
-      BVT<Scalar> bvt1, bvt2;
+      BVT<S> bvt1, bvt2;
 
       if(node->firstOverSecond(min_test.b1, min_test.b2))
       {
@@ -452,8 +452,8 @@ void distanceQueueRecurse(DistanceTraversalNodeBase<Scalar>* node, int b1, int b
 }
 
 //==============================================================================
-template <typename Scalar>
-void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_list)
+template <typename S>
+void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list)
 {
   BVHFrontList::iterator front_iter;
   BVHFrontList append;

@@ -45,11 +45,11 @@ namespace fcl
 namespace detail
 {
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Box<ScalarT>>;
+template <typename S>
+struct BVComputer<S, AABB<S>, Box<S>>;
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Box<ScalarT>>;
+template <typename S>
+struct BVComputer<S, OBB<S>, Box<S>>;
 
 //============================================================================//
 //                                                                            //
@@ -58,33 +58,33 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Box<ScalarT>>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Box<ScalarT>>
+template <typename S>
+struct BVComputer<S, AABB<S>, Box<S>>
 {
-  static void compute(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  static void compute(const Box<S>& s, const Transform3<S>& tf, AABB<S>& bv)
   {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
+    const Matrix3<S>& R = tf.linear();
+    const Vector3<S>& T = tf.translation();
 
-    ScalarT x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
-    ScalarT y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
-    ScalarT z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
+    S x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
+    S y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
+    S z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
 
-    Vector3<ScalarT> v_delta(x_range, y_range, z_range);
+    Vector3<S> v_delta(x_range, y_range, z_range);
     bv.max_ = T + v_delta;
     bv.min_ = T - v_delta;
   }
 };
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Box<ScalarT>>
+template <typename S>
+struct BVComputer<S, OBB<S>, Box<S>>
 {
-  static void compute(const Box<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  static void compute(const Box<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
     bv.axis = tf.linear();
     bv.To = tf.translation();
-    bv.extent = s.side * (ScalarT)0.5;
+    bv.extent = s.side * (S)0.5;
   }
 };
 

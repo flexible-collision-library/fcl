@@ -49,18 +49,18 @@
 using namespace fcl;
 
 /// @brief Octomap collision with an environment with 3 * env_size objects, compute cost
-template <typename Scalar>
-void octomap_cost_test(Scalar env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
+template <typename S>
+void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_cost()
 {
 #if FCL_BUILD_TYPE_DEBUG
-  octomap_cost_test<Scalar>(200, 10, 10, false, false, 0.1);
-  octomap_cost_test<Scalar>(200, 100, 10, false, false, 0.1);
+  octomap_cost_test<S>(200, 10, 10, false, false, 0.1);
+  octomap_cost_test<S>(200, 100, 10, false, false, 0.1);
 #else
-  octomap_cost_test<Scalar>(200, 100, 10, false, false);
-  octomap_cost_test<Scalar>(200, 1000, 10, false, false);
+  octomap_cost_test<S>(200, 100, 10, false, false);
+  octomap_cost_test<S>(200, 1000, 10, false, false);
 #endif
 }
 
@@ -70,15 +70,15 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_cost)
   test_octomap_cost<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_cost_mesh()
 {
 #if FCL_BUILD_TYPE_DEBUG
-  octomap_cost_test<Scalar>(200, 2, 4, true, false, 1.0);
-  octomap_cost_test<Scalar>(200, 5, 4, true, false, 1.0);
+  octomap_cost_test<S>(200, 2, 4, true, false, 1.0);
+  octomap_cost_test<S>(200, 5, 4, true, false, 1.0);
 #else
-//  octomap_cost_test<Scalar>(200, 100, 10, true, false);
-  octomap_cost_test<Scalar>(200, 1000, 10, true, false);
+//  octomap_cost_test<S>(200, 100, 10, true, false);
+  octomap_cost_test<S>(200, 1000, 10, true, false);
 #endif
 }
 
@@ -88,23 +88,23 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_cost_mesh)
   test_octomap_cost_mesh<double>();
 }
 
-template <typename Scalar>
-void octomap_cost_test(Scalar env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution)
+template <typename S>
+void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_cost_sources, bool use_mesh, bool use_mesh_octomap, double resolution)
 {
-  std::vector<CollisionObject<Scalar>*> env;
+  std::vector<CollisionObject<S>*> env;
   if(use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree<Scalar>* tree = new OcTree<Scalar>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
-  CollisionObject<Scalar> tree_obj((std::shared_ptr<CollisionGeometry<Scalar>>(tree)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
+  CollisionObject<S> tree_obj((std::shared_ptr<CollisionGeometry<S>>(tree)));
 
-  DynamicAABBTreeCollisionManager<Scalar>* manager = new DynamicAABBTreeCollisionManager<Scalar>();
+  DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
   manager->registerObjects(env);
   manager->setup();
   
-  CollisionData<Scalar> cdata;
+  CollisionData<S> cdata;
   cdata.request.enable_cost = true;
   cdata.request.num_max_cost_sources = num_max_cost_sources;
 
@@ -117,7 +117,7 @@ void octomap_cost_test(Scalar env_scale, std::size_t env_size, std::size_t num_m
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
-  CollisionData<Scalar> cdata3;
+  CollisionData<S> cdata3;
   cdata3.request.enable_cost = true;
   cdata3.request.num_max_cost_sources = num_max_cost_sources;
 
@@ -133,7 +133,7 @@ void octomap_cost_test(Scalar env_scale, std::size_t env_size, std::size_t num_m
   TStruct t2;
   Timer timer2;
   timer2.start();
-  std::vector<CollisionObject<Scalar>*> boxes;
+  std::vector<CollisionObject<S>*> boxes;
   if(use_mesh_octomap)
     generateBoxesFromOctomapMesh(boxes, *tree);
   else
@@ -142,14 +142,14 @@ void octomap_cost_test(Scalar env_scale, std::size_t env_size, std::size_t num_m
   t2.push_back(timer2.getElapsedTime());
   
   timer2.start();
-  DynamicAABBTreeCollisionManager<Scalar>* manager2 = new DynamicAABBTreeCollisionManager<Scalar>();
+  DynamicAABBTreeCollisionManager<S>* manager2 = new DynamicAABBTreeCollisionManager<S>();
   manager2->registerObjects(boxes);
   manager2->setup();
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
 
-  CollisionData<Scalar> cdata2;
+  CollisionData<S> cdata2;
   cdata2.request.enable_cost = true;
   cdata3.request.num_max_cost_sources = num_max_cost_sources;
 
@@ -162,7 +162,7 @@ void octomap_cost_test(Scalar env_scale, std::size_t env_size, std::size_t num_m
   std::cout << cdata.result.numCostSources() << " " << cdata3.result.numCostSources() << " " << cdata2.result.numCostSources() << std::endl;
 
   {
-    std::vector<CostSource<Scalar>> cost_sources;
+    std::vector<CostSource<S>> cost_sources;
     cdata.result.getCostSources(cost_sources);
     for(std::size_t i = 0; i < cost_sources.size(); ++i)
     {
@@ -207,24 +207,24 @@ void octomap_cost_test(Scalar env_scale, std::size_t env_size, std::size_t num_m
   std::cout << "Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside" << std::endl;
 }
 
-template <typename Scalar>
-void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& boxes, OcTree<Scalar>& tree)
+template <typename S>
+void generateBoxesFromOctomap(std::vector<CollisionObject<S>*>& boxes, OcTree<S>& tree)
 {
-  std::vector<std::array<Scalar, 6> > boxes_ = tree.toBoxes();
+  std::vector<std::array<S, 6> > boxes_ = tree.toBoxes();
 
   for(std::size_t i = 0; i < boxes_.size(); ++i)
   {
-    Scalar x = boxes_[i][0];
-    Scalar y = boxes_[i][1];
-    Scalar z = boxes_[i][2];
-    Scalar size = boxes_[i][3];
-    Scalar cost = boxes_[i][4];
-    Scalar threshold = boxes_[i][5];
+    S x = boxes_[i][0];
+    S y = boxes_[i][1];
+    S z = boxes_[i][2];
+    S size = boxes_[i][3];
+    S cost = boxes_[i][4];
+    S threshold = boxes_[i][5];
 
-    Box<Scalar>* box = new Box<Scalar>(size, size, size);
+    Box<S>* box = new Box<S>(size, size, size);
     box->cost_density = cost;
     box->threshold_occupied = threshold;
-    CollisionObject<Scalar>* obj = new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(box), Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(x, y, z))));
+    CollisionObject<S>* obj = new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(box), Transform3<S>(Translation3<S>(Vector3<S>(x, y, z))));
     boxes.push_back(obj);
   }
 
@@ -232,26 +232,26 @@ void generateBoxesFromOctomap(std::vector<CollisionObject<Scalar>*>& boxes, OcTr
 
 }
 
-template <typename Scalar>
-void generateBoxesFromOctomapMesh(std::vector<CollisionObject<Scalar>*>& boxes, OcTree<Scalar>& tree)
+template <typename S>
+void generateBoxesFromOctomapMesh(std::vector<CollisionObject<S>*>& boxes, OcTree<S>& tree)
 {
-  std::vector<std::array<Scalar, 6> > boxes_ = tree.toBoxes();
+  std::vector<std::array<S, 6> > boxes_ = tree.toBoxes();
 
   for(std::size_t i = 0; i < boxes_.size(); ++i)
   {
-    Scalar x = boxes_[i][0];
-    Scalar y = boxes_[i][1];
-    Scalar z = boxes_[i][2];
-    Scalar size = boxes_[i][3];
-    Scalar cost = boxes_[i][4];
-    Scalar threshold = boxes_[i][5];
+    S x = boxes_[i][0];
+    S y = boxes_[i][1];
+    S z = boxes_[i][2];
+    S size = boxes_[i][3];
+    S cost = boxes_[i][4];
+    S threshold = boxes_[i][5];
 
-    Box<Scalar> box(size, size, size);
-    BVHModel<OBBRSS<Scalar>>* model = new BVHModel<OBBRSS<Scalar>>();
-    generateBVHModel(*model, box, Transform3<Scalar>::Identity());
+    Box<S> box(size, size, size);
+    BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
+    generateBVHModel(*model, box, Transform3<S>::Identity());
     model->cost_density = cost;
     model->threshold_occupied = threshold;
-    CollisionObject<Scalar>* obj = new CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>(model), Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(x, y, z))));
+    CollisionObject<S>* obj = new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), Transform3<S>(Translation3<S>(Vector3<S>(x, y, z))));
     boxes.push_back(obj);    
   }
 

@@ -47,10 +47,10 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 class Joint;
 
-template <typename Scalar>
+template <typename S>
 class Link
 {
 public:
@@ -64,7 +64,7 @@ public:
   
   void setParentJoint(const std::shared_ptr<Joint>& joint);
   
-  void addObject(const std::shared_ptr<CollisionObject<Scalar>>& object);
+  void addObject(const std::shared_ptr<CollisionObject<S>>& object);
   
   std::size_t getNumChildJoints() const;
   
@@ -73,7 +73,7 @@ public:
 protected:
   std::string name_;
 
-  std::vector<std::shared_ptr<CollisionObject<Scalar>> > objects_;
+  std::vector<std::shared_ptr<CollisionObject<S>> > objects_;
 
   std::vector<std::shared_ptr<Joint> > children_joints_;
 
@@ -87,55 +87,55 @@ protected:
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Link<Scalar>::Link(const std::string& name) : name_(name)
+template <typename S>
+Link<S>::Link(const std::string& name) : name_(name)
 {}
 
 //==============================================================================
-template <typename Scalar>
-const std::string& Link<Scalar>::getName() const
+template <typename S>
+const std::string& Link<S>::getName() const
 {
   return name_;
 }
 
 //==============================================================================
-template <typename Scalar>
-void Link<Scalar>::setName(const std::string& name)
+template <typename S>
+void Link<S>::setName(const std::string& name)
 {
   name_ = name;
 }
 
 //==============================================================================
-template <typename Scalar>
-void Link<Scalar>::addChildJoint(const std::shared_ptr<Joint>& joint)
+template <typename S>
+void Link<S>::addChildJoint(const std::shared_ptr<Joint>& joint)
 {
   children_joints_.push_back(joint);
 }
 
 //==============================================================================
-template <typename Scalar>
-void Link<Scalar>::setParentJoint(const std::shared_ptr<Joint>& joint)
+template <typename S>
+void Link<S>::setParentJoint(const std::shared_ptr<Joint>& joint)
 {
   parent_joint_ = joint;
 }
 
 //==============================================================================
-template <typename Scalar>
-void Link<Scalar>::addObject(const std::shared_ptr<CollisionObject<Scalar>>& object)
+template <typename S>
+void Link<S>::addObject(const std::shared_ptr<CollisionObject<S>>& object)
 {
   objects_.push_back(object);
 }
 
 //==============================================================================
-template <typename Scalar>
-std::size_t Link<Scalar>::getNumChildJoints() const
+template <typename S>
+std::size_t Link<S>::getNumChildJoints() const
 {
   return children_joints_.size();
 }
 
 //==============================================================================
-template <typename Scalar>
-std::size_t Link<Scalar>::getNumObjects() const
+template <typename S>
+std::size_t Link<S>::getNumObjects() const
 {
   return objects_.size();
 }

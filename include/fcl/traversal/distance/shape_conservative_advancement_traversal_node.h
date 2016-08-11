@@ -48,35 +48,35 @@ class ShapeConservativeAdvancementTraversalNode
     : public ShapeDistanceTraversalNode<S1, S2, NarrowPhaseSolver>
 {
 public:
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   ShapeConservativeAdvancementTraversalNode();
 
   void leafTesting(int, int) const;
 
-  mutable Scalar min_distance;
+  mutable S min_distance;
 
   /// @brief The time from beginning point
-  Scalar toc;
-  Scalar t_err;
+  S toc;
+  S t_err;
 
   /// @brief The delta_t each step
-  mutable Scalar delta_t;
+  mutable S delta_t;
 
   /// @brief Motions for the two objects in query
-  const MotionBase<Scalar>* motion1;
-  const MotionBase<Scalar>* motion2;
+  const MotionBase<S>* motion1;
+  const MotionBase<S>* motion2;
 
-  RSS<Scalar> model1_bv, model2_bv; // local bv for the two shapes
+  RSS<S> model1_bv, model2_bv; // local bv for the two shapes
 };
 
 template <typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>& node,
     const S1& shape1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
     const S2& shape2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver);
 
 //============================================================================//
@@ -93,7 +93,7 @@ ShapeConservativeAdvancementTraversalNode()
 {
   delta_t = 1;
   toc = 0;
-  t_err = (Scalar)0.0001;
+  t_err = (S)0.0001;
 
   motion1 = NULL;
   motion2 = NULL;
@@ -104,27 +104,27 @@ template <typename S1, typename S2, typename NarrowPhaseSolver>
 void ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
-  Scalar distance;
+  S distance;
   // NOTE(JS): The closest points are set to zeros in order to suppress the
   // maybe-uninitialized warning. It seems the warnings occur since
   // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
   // If this wasn't intentional then please remove the initialization of the
   // closest points, and change the function NarrowPhaseSolver::shapeDistance()
   // to always set the closest points.
-  Vector3<Scalar> closest_p1 = Vector3<Scalar>::Zero();
-  Vector3<Scalar> closest_p2 = Vector3<Scalar>::Zero();
+  Vector3<S> closest_p1 = Vector3<S>::Zero();
+  Vector3<S> closest_p2 = Vector3<S>::Zero();
   this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
 
-  Vector3<Scalar> n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
+  Vector3<S> n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
   n.normalize();
-  TBVMotionBoundVisitor<RSS<Scalar>> mb_visitor1(model1_bv, n);
-  TBVMotionBoundVisitor<RSS<Scalar>> mb_visitor2(model2_bv, -n);
-  Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
-  Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
+  TBVMotionBoundVisitor<RSS<S>> mb_visitor1(model1_bv, n);
+  TBVMotionBoundVisitor<RSS<S>> mb_visitor2(model2_bv, -n);
+  S bound1 = motion1->computeMotionBound(mb_visitor1);
+  S bound2 = motion2->computeMotionBound(mb_visitor2);
 
-  Scalar bound = bound1 + bound2;
+  S bound = bound1 + bound2;
 
-  Scalar cur_delta_t;
+  S cur_delta_t;
   if(bound <= distance) cur_delta_t = 1;
   else cur_delta_t = distance / bound;
 
@@ -137,12 +137,12 @@ template <typename S1, typename S2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeConservativeAdvancementTraversalNode<S1, S2, NarrowPhaseSolver>& node,
     const S1& shape1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
+    const Transform3<typename NarrowPhaseSolver::S>& tf1,
     const S2& shape2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename NarrowPhaseSolver::S>& tf2,
     const NarrowPhaseSolver* nsolver)
 {
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename NarrowPhaseSolver::S;
 
   node.model1 = &shape1;
   node.tf1 = tf1;
@@ -152,12 +152,12 @@ bool initialize(
 
   computeBV(
         shape1,
-        Transform3<Scalar>::Identity(),
+        Transform3<S>::Identity(),
         node.model1_bv);
 
   computeBV(
         shape2,
-        Transform3<Scalar>::Identity(),
+        Transform3<S>::Identity(),
         node.model2_bv);
 
   return true;

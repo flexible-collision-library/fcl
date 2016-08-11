@@ -47,73 +47,73 @@ namespace fcl
 {
 
 /// @brief Oriented bounding box class
-template <typename ScalarT>
+template <typename S_>
 class OBB
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Orientation of OBB. The axes of the rotation matrix are the
   /// principle directions of the box. We assume that the first column
   /// corresponds to the axis with the longest box edge, second column
   /// corresponds to the shorter one and the third coulumn corresponds to the
   /// shortest one.
-  Matrix3<ScalarT> axis;
+  Matrix3<S> axis;
 
   /// @brief Center of OBB
-  Vector3<ScalarT> To;
+  Vector3<S> To;
 
   /// @brief Half dimensions of OBB
-  Vector3<ScalarT> extent;
+  Vector3<S> extent;
 
   /// @brief Constructor
   OBB();
 
   /// @brief Constructor
-  OBB(const Matrix3<ScalarT>& axis,
-      const Vector3<ScalarT>& center,
-      const Vector3<ScalarT>& extent);
+  OBB(const Matrix3<S>& axis,
+      const Vector3<S>& center,
+      const Vector3<S>& extent);
 
   /// @brief Check collision between two OBB, return true if collision happens. 
-  bool overlap(const OBB<ScalarT>& other) const;
+  bool overlap(const OBB<S>& other) const;
   
   /// @brief Check collision between two OBB and return the overlap part. For OBB, the overlap_part return value is NOT used as the overlap part of two obbs usually is not an obb. 
-  bool overlap(const OBB<ScalarT>& other, OBB<ScalarT>& overlap_part) const;
+  bool overlap(const OBB<S>& other, OBB<S>& overlap_part) const;
 
   /// @brief Check whether the OBB contains a point.
-  bool contain(const Vector3<ScalarT>& p) const;
+  bool contain(const Vector3<S>& p) const;
 
   /// @brief A simple way to merge the OBB and a point (the result is not compact).
-  OBB<ScalarT>& operator +=(const Vector3<ScalarT>& p);
+  OBB<S>& operator +=(const Vector3<S>& p);
 
   /// @brief Merge the OBB and another OBB (the result is not compact).
-  OBB<ScalarT>& operator += (const OBB<ScalarT>& other);
+  OBB<S>& operator += (const OBB<S>& other);
 
   /// @brief Return the merged OBB of current OBB and the other one (the result is not compact).
-  OBB<ScalarT> operator + (const OBB<ScalarT>& other) const;
+  OBB<S> operator + (const OBB<S>& other) const;
 
   /// @brief Width of the OBB.
-  ScalarT width() const;
+  S width() const;
 
   /// @brief Height of the OBB.
-  ScalarT height() const;
+  S height() const;
 
   /// @brief Depth of the OBB
-  ScalarT depth() const;
+  S depth() const;
 
   /// @brief Volume of the OBB
-  ScalarT volume() const;
+  S volume() const;
 
   /// @brief Size of the OBB (used in BV_Splitter to order two OBBs)
-  ScalarT size() const;
+  S size() const;
 
   /// @brief Center of the OBB
-  const Vector3<ScalarT> center() const;
+  const Vector3<S> center() const;
 
   /// @brief Distance between two OBBs, not implemented.
-  ScalarT distance(const OBB& other, Vector3<ScalarT>* P = NULL,
-                  Vector3<ScalarT>* Q = NULL) const;
+  S distance(const OBB& other, Vector3<S>* P = NULL,
+                  Vector3<S>* Q = NULL) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -123,55 +123,55 @@ using OBBf = OBB<float>;
 using OBBd = OBB<double>;
 
 /// @brief Compute the 8 vertices of a OBBd
-template <typename Scalar>
-void computeVertices(const OBB<Scalar>& b, Vector3<Scalar> vertices[8]);
+template <typename S>
+void computeVertices(const OBB<S>& b, Vector3<S> vertices[8]);
 
 /// @brief OBBd merge method when the centers of two smaller OBBd are far away
-template <typename Scalar>
-OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2);
+template <typename S>
+OBB<S> merge_largedist(const OBB<S>& b1, const OBB<S>& b2);
 
 /// @brief OBBd merge method when the centers of two smaller OBBd are close
-template <typename Scalar>
-OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2);
+template <typename S>
+OBB<S> merge_smalldist(const OBB<S>& b1, const OBB<S>& b2);
 
 /// @brief Translate the OBB bv
-template <typename Scalar, typename Derived>
-OBB<Scalar> translate(
-    const OBB<Scalar>& bv, const Eigen::MatrixBase<Derived>& t);
+template <typename S, typename Derived>
+OBB<S> translate(
+    const OBB<S>& bv, const Eigen::MatrixBase<Derived>& t);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-template <typename Scalar, typename DerivedA, typename DerivedB>
+template <typename S, typename DerivedA, typename DerivedB>
 bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
              const Eigen::MatrixBase<DerivedB>& T0,
-             const OBB<Scalar>& b1, const OBB<Scalar>& b2);
+             const OBB<S>& b1, const OBB<S>& b2);
 
 /// @brief Check collision between two obbs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
-template <typename Scalar>
+template <typename S>
 bool overlap(
-    const Transform3<Scalar>& tf,
-    const OBB<Scalar>& b1,
-    const OBB<Scalar>& b2);
+    const Transform3<S>& tf,
+    const OBB<S>& b1,
+    const OBB<S>& b2);
 
 /// @brief Check collision between two boxes: the first box is in configuration
 /// (R, T) and its half dimension is set by a; the second box is in identity
 /// configuration and its half dimension is set by b.
-template <typename Scalar>
+template <typename S>
 bool obbDisjoint(
-    const Matrix3<Scalar>& B,
-    const Vector3<Scalar>& T,
-    const Vector3<Scalar>& a,
-    const Vector3<Scalar>& b);
+    const Matrix3<S>& B,
+    const Vector3<S>& T,
+    const Vector3<S>& a,
+    const Vector3<S>& b);
 
 /// @brief Check collision between two boxes: the first box is in configuration
 /// (R, T) and its half dimension is set by a; the second box is in identity
 /// configuration and its half dimension is set by b.
-template <typename Scalar>
+template <typename S>
 bool obbDisjoint(
-    const Transform3<Scalar>& tf,
-    const Vector3<Scalar>& a,
-    const Vector3<Scalar>& b);
+    const Transform3<S>& tf,
+    const Vector3<S>& a,
+    const Vector3<S>& b);
 
 //============================================================================//
 //                                                                            //
@@ -180,50 +180,50 @@ bool obbDisjoint(
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar>::OBB()
+template <typename S>
+OBB<S>::OBB()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar>::OBB(const Matrix3<Scalar>& axis_,
-                 const Vector3<Scalar>& center_,
-                 const Vector3<Scalar>& extent_)
+template <typename S>
+OBB<S>::OBB(const Matrix3<S>& axis_,
+                 const Vector3<S>& center_,
+                 const Vector3<S>& extent_)
   : axis(axis_), To(center_), extent(extent_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool OBB<Scalar>::overlap(const OBB<Scalar>& other) const
+template <typename S>
+bool OBB<S>::overlap(const OBB<S>& other) const
 {
   /// compute the relative transform that takes us from this->frame to
   /// other.frame
 
-  Vector3<Scalar> t = other.To - To;
-  Vector3<Scalar> T(
+  Vector3<S> t = other.To - To;
+  Vector3<S> T(
         axis.col(0).dot(t), axis.col(1).dot(t), axis.col(2).dot(t));
-  Matrix3<Scalar> R = axis.transpose() * other.axis;
+  Matrix3<S> R = axis.transpose() * other.axis;
 
   return !obbDisjoint(R, T, extent, other.extent);
 }
 
 //==============================================================================
-template <typename Scalar>
-bool OBB<Scalar>::overlap(const OBB& other, OBB& overlap_part) const
+template <typename S>
+bool OBB<S>::overlap(const OBB& other, OBB& overlap_part) const
 {
   return overlap(other);
 }
 
 //==============================================================================
-template <typename Scalar>
-bool OBB<Scalar>::contain(const Vector3<Scalar>& p) const
+template <typename S>
+bool OBB<S>::contain(const Vector3<S>& p) const
 {
-  Vector3<Scalar> local_p = p - To;
-  Scalar proj = local_p.dot(axis.col(0));
+  Vector3<S> local_p = p - To;
+  S proj = local_p.dot(axis.col(0));
   if((proj > extent[0]) || (proj < -extent[0]))
     return false;
 
@@ -239,18 +239,18 @@ bool OBB<Scalar>::contain(const Vector3<Scalar>& p) const
 }
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar>& OBB<Scalar>::operator +=(const Vector3<Scalar>& p)
+template <typename S>
+OBB<S>& OBB<S>::operator +=(const Vector3<S>& p)
 {
-  OBB<Scalar> bvp(axis, p, Vector3<Scalar>::Zero());
+  OBB<S> bvp(axis, p, Vector3<S>::Zero());
   *this += bvp;
 
   return *this;
 }
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar>& OBB<Scalar>::operator +=(const OBB<Scalar>& other)
+template <typename S>
+OBB<S>& OBB<S>::operator +=(const OBB<S>& other)
 {
   *this = *this + other;
 
@@ -258,12 +258,12 @@ OBB<Scalar>& OBB<Scalar>::operator +=(const OBB<Scalar>& other)
 }
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar> OBB<Scalar>::operator +(const OBB<Scalar>& other) const
+template <typename S>
+OBB<S> OBB<S>::operator +(const OBB<S>& other) const
 {
-  Vector3<Scalar> center_diff = To - other.To;
-  Scalar max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
-  Scalar max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
+  Vector3<S> center_diff = To - other.To;
+  S max_extent = std::max(std::max(extent[0], extent[1]), extent[2]);
+  S max_extent2 = std::max(std::max(other.extent[0], other.extent[1]), other.extent[2]);
   if(center_diff.norm() > 2 * (max_extent + max_extent2))
   {
     return merge_largedist(*this, other);
@@ -275,66 +275,66 @@ OBB<Scalar> OBB<Scalar>::operator +(const OBB<Scalar>& other) const
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar OBB<Scalar>::width() const
+template <typename S>
+S OBB<S>::width() const
 {
   return 2 * extent[0];
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar OBB<Scalar>::height() const
+template <typename S>
+S OBB<S>::height() const
 {
   return 2 * extent[1];
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar OBB<Scalar>::depth() const
+template <typename S>
+S OBB<S>::depth() const
 {
   return 2 * extent[2];
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar OBB<Scalar>::volume() const
+template <typename S>
+S OBB<S>::volume() const
 {
   return width() * height() * depth();
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar OBB<Scalar>::size() const
+template <typename S>
+S OBB<S>::size() const
 {
   return extent.squaredNorm();
 }
 
 //==============================================================================
-template <typename Scalar>
-const Vector3<Scalar> OBB<Scalar>::center() const
+template <typename S>
+const Vector3<S> OBB<S>::center() const
 {
   return To;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar OBB<Scalar>::distance(const OBB& other, Vector3<Scalar>* P,
-                             Vector3<Scalar>* Q) const
+template <typename S>
+S OBB<S>::distance(const OBB& other, Vector3<S>* P,
+                             Vector3<S>* Q) const
 {
   std::cerr << "OBB distance not implemented!" << std::endl;
   return 0.0;
 }
 
 //==============================================================================
-template <typename Scalar>
-void computeVertices(const OBB<Scalar>& b, Vector3<Scalar> vertices[8])
+template <typename S>
+void computeVertices(const OBB<S>& b, Vector3<S> vertices[8])
 {
-  const Vector3<Scalar>& extent = b.extent;
-  const Vector3<Scalar>& To = b.To;
+  const Vector3<S>& extent = b.extent;
+  const Vector3<S>& To = b.To;
 
-  Vector3<Scalar> extAxis0 = b.axis.col(0) * extent[0];
-  Vector3<Scalar> extAxis1 = b.axis.col(1) * extent[1];
-  Vector3<Scalar> extAxis2 = b.axis.col(2) * extent[2];
+  Vector3<S> extAxis0 = b.axis.col(0) * extent[0];
+  Vector3<S> extAxis1 = b.axis.col(1) * extent[1];
+  Vector3<S> extAxis2 = b.axis.col(2) * extent[2];
 
   vertices[0] = To - extAxis0 - extAxis1 - extAxis2;
   vertices[1] = To + extAxis0 - extAxis1 - extAxis2;
@@ -347,28 +347,28 @@ void computeVertices(const OBB<Scalar>& b, Vector3<Scalar> vertices[8])
 }
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
+template <typename S>
+OBB<S> merge_largedist(const OBB<S>& b1, const OBB<S>& b2)
 {
-  Vector3<Scalar> vertex[16];
+  Vector3<S> vertex[16];
   computeVertices(b1, vertex);
   computeVertices(b2, vertex + 8);
-  Matrix3<Scalar> M;
-  Matrix3<Scalar> E;
-  Vector3<Scalar> s(0, 0, 0);
+  Matrix3<S> M;
+  Matrix3<S> E;
+  Vector3<S> s(0, 0, 0);
 
-  OBB<Scalar> b;
+  OBB<S> b;
   b.axis.col(0) = b1.To - b2.To;
   b.axis.col(0).normalize();
 
-  Vector3<Scalar> vertex_proj[16];
+  Vector3<S> vertex_proj[16];
   for(int i = 0; i < 16; ++i)
   {
     vertex_proj[i] = vertex[i];
     vertex_proj[i].noalias() -= b.axis.col(0) * vertex[i].dot(b.axis.col(0));
   }
 
-  getCovariance<Scalar>(vertex_proj, NULL, NULL, NULL, 16, M);
+  getCovariance<S>(vertex_proj, NULL, NULL, NULL, 16, M);
   eigen_old(M, s, E);
 
   int min, mid, max;
@@ -402,32 +402,32 @@ OBB<Scalar> merge_largedist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
   b.axis.col(2) << E.col(0)[mid], E.col(1)[mid], E.col(2)[mid];
 
   // set obb centers and extensions
-  getExtentAndCenter<Scalar>(
+  getExtentAndCenter<S>(
         vertex, NULL, NULL, NULL, 16, b.axis, b.To, b.extent);
 
   return b;
 }
 
 //==============================================================================
-template <typename Scalar>
-OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
+template <typename S>
+OBB<S> merge_smalldist(const OBB<S>& b1, const OBB<S>& b2)
 {
-  OBB<Scalar> b;
+  OBB<S> b;
   b.To = (b1.To + b2.To) * 0.5;
-  Quaternion<Scalar> q0(b1.axis);
-  Quaternion<Scalar> q1(b2.axis);
+  Quaternion<S> q0(b1.axis);
+  Quaternion<S> q1(b2.axis);
   if(q0.dot(q1) < 0)
     q1.coeffs() = -q1.coeffs();
 
-  Quaternion<Scalar> q(q0.coeffs() + q1.coeffs());
+  Quaternion<S> q(q0.coeffs() + q1.coeffs());
   q.normalize();
   b.axis = q.toRotationMatrix();
 
 
-  Vector3<Scalar> vertex[8], diff;
-  Scalar real_max = std::numeric_limits<Scalar>::max();
-  Vector3<Scalar> pmin(real_max, real_max, real_max);
-  Vector3<Scalar> pmax(-real_max, -real_max, -real_max);
+  Vector3<S> vertex[8], diff;
+  S real_max = std::numeric_limits<S>::max();
+  Vector3<S> pmin(real_max, real_max, real_max);
+  Vector3<S> pmax(-real_max, -real_max, -real_max);
 
   computeVertices(b1, vertex);
   for(int i = 0; i < 8; ++i)
@@ -435,7 +435,7 @@ OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
     diff = vertex[i] - b.To;
     for(int j = 0; j < 3; ++j)
     {
-      Scalar dot = diff.dot(b.axis.col(j));
+      S dot = diff.dot(b.axis.col(j));
       if(dot > pmax[j])
         pmax[j] = dot;
       else if(dot < pmin[j])
@@ -449,7 +449,7 @@ OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
     diff = vertex[i] - b.To;
     for(int j = 0; j < 3; ++j)
     {
-      Scalar dot = diff.dot(b.axis.col(j));
+      S dot = diff.dot(b.axis.col(j));
       if(dot > pmax[j])
         pmax[j] = dot;
       else if(dot < pmin[j])
@@ -467,20 +467,20 @@ OBB<Scalar> merge_smalldist(const OBB<Scalar>& b1, const OBB<Scalar>& b2)
 }
 
 //==============================================================================
-template <typename Scalar, typename Derived>
-OBB<Scalar> translate(
-    const OBB<Scalar>& bv, const Eigen::MatrixBase<Derived>& t)
+template <typename S, typename Derived>
+OBB<S> translate(
+    const OBB<S>& bv, const Eigen::MatrixBase<Derived>& t)
 {
-  OBB<Scalar> res(bv);
+  OBB<S> res(bv);
   res.To += t;
   return res;
 }
 
 //==============================================================================
-template <typename Scalar, typename DerivedA, typename DerivedB>
+template <typename S, typename DerivedA, typename DerivedB>
 bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
              const Eigen::MatrixBase<DerivedB>& T0,
-             const OBB<Scalar>& b1, const OBB<Scalar>& b2)
+             const OBB<S>& b1, const OBB<S>& b2)
 {
   typename DerivedA::PlainObject R0b2 = R0 * b2.axis;
   typename DerivedA::PlainObject R = b1.axis.transpose() * R0b2;
@@ -492,25 +492,25 @@ bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool overlap(
-    const Transform3<Scalar>& tf,
-    const OBB<Scalar>& b1,
-    const OBB<Scalar>& b2)
+    const Transform3<S>& tf,
+    const OBB<S>& b1,
+    const OBB<S>& b2)
 {
   return !obbDisjoint(
         b1.frame.inverse(Eigen::Isometry) * tf * b2.frame, b1.extent, b2.extent);
 }
 
 //==============================================================================
-template <typename Scalar>
-bool obbDisjoint(const Matrix3<Scalar>& B, const Vector3<Scalar>& T,
-                 const Vector3<Scalar>& a, const Vector3<Scalar>& b)
+template <typename S>
+bool obbDisjoint(const Matrix3<S>& B, const Vector3<S>& T,
+                 const Vector3<S>& a, const Vector3<S>& b)
 {
-  register Scalar t, s;
-  const Scalar reps = 1e-6;
+  register S t, s;
+  const S reps = 1e-6;
 
-  Matrix3<Scalar> Bf = B.cwiseAbs();
+  Matrix3<S> Bf = B.cwiseAbs();
   Bf.array() += reps;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint
@@ -631,16 +631,16 @@ bool obbDisjoint(const Matrix3<Scalar>& B, const Vector3<Scalar>& T,
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool obbDisjoint(
-    const Transform3<Scalar>& tf,
-    const Vector3<Scalar>& a,
-    const Vector3<Scalar>& b)
+    const Transform3<S>& tf,
+    const Vector3<S>& a,
+    const Vector3<S>& b)
 {
-  register Scalar t, s;
-  const Scalar reps = 1e-6;
+  register S t, s;
+  const S reps = 1e-6;
 
-  Matrix3<Scalar> Bf = tf.linear().cwiseAbs();
+  Matrix3<S> Bf = tf.linear().cwiseAbs();
   Bf.array() += reps;
 
   // if any of these tests are one-sided, then the polyhedra are disjoint

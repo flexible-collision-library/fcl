@@ -46,48 +46,48 @@ namespace fcl
 
 /// @brief Generate BVH model from box
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose);
+void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose);
 
 /// @brief Generate BVH model from sphere, given the number of segments along longitude and number of rings along latitude.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring);
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring);
 
 /// @brief Generate BVH model from sphere
 /// The difference between generateBVHModel is that it gives the number of triangles faces N for a sphere with unit radius. For sphere of radius r,
 /// then the number of triangles is r * r * N so that the area represented by a single triangle is approximately the same.s
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_sphere);
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere);
 
 /// @brief Generate BVH model from ellipsoid, given the number of segments along longitude and number of rings along latitude.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring);
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring);
 
 /// @brief Generate BVH model from ellipsoid
 /// The difference between generateBVHModel is that it gives the number of triangles faces N for an ellipsoid with unit radii (1, 1, 1). For ellipsoid of radii (a, b, c),
 /// then the number of triangles is ((a^p * b^p + b^p * c^p + c^p * a^p)/3)^(1/p) * N, where p is 1.6075, so that the area represented by a single triangle is approximately the same.
-/// Reference: https://en.wikipedia.org/wiki/Ellipsoid<Scalar>#Approximate_formula
+/// Reference: https://en.wikipedia.org/wiki/Ellipsoid<S>#Approximate_formula
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_ellipsoid);
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid);
 
 /// @brief Generate BVH model from cylinder, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num);
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num);
 
 /// @brief Generate BVH model from cylinder
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cylinder with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cylinder);
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder);
 
 /// @brief Generate BVH model from cone, given the number of segments along circle and the number of segments along axis.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num);
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num);
 
 /// @brief Generate BVH model from cone
 /// Difference from generateBVHModel: is that it gives the circle split number tot for a cylinder with unit radius. For cone with
 /// larger radius, the number of circle split number is r * tot.
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cone);
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone);
 
 //============================================================================//
 //                                                                            //
@@ -97,14 +97,14 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shap
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose)
+void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::S>& shape, const Transform3<typename BV::S>& pose)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  Scalar a = shape.side[0];
-  Scalar b = shape.side[1];
-  Scalar c = shape.side[2];
-  std::vector<Vector3<Scalar>> points(8);
+  S a = shape.side[0];
+  S b = shape.side[1];
+  S c = shape.side[2];
+  std::vector<Vector3<S>> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
@@ -141,26 +141,26 @@ void generateBVHModel(BVHModel<BV>& model, const Box<typename BV::Scalar>& shape
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring)
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  std::vector<Vector3<Scalar>> points;
+  std::vector<Vector3<S>> points;
   std::vector<Triangle> tri_indices;
 
-  Scalar r = shape.radius;
-  Scalar phi, phid;
-  const Scalar pi = constants<Scalar>::pi();
+  S r = shape.radius;
+  S phi, phid;
+  const S pi = constants<S>::pi();
   phid = pi * 2 / seg;
   phi = 0;
 
-  Scalar theta, thetad;
+  S theta, thetad;
   thetad = pi / (ring + 1);
   theta = 0;
 
   for(unsigned int i = 0; i < ring; ++i)
   {
-    Scalar theta_ = theta + thetad * (i + 1);
+    S theta_ = theta + thetad * (i + 1);
     for(unsigned int j = 0; j < seg; ++j)
     {
       points.emplace_back(r * sin(theta_) * cos(phi + j * phid), r * sin(theta_) * sin(phi + j * phid), r * cos(theta_));
@@ -208,12 +208,12 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& sh
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_sphere)
+void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_sphere)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  Scalar r = shape.radius;
-  Scalar n_low_bound = sqrtf(n_faces_for_unit_sphere / 2.0) * r * r;
+  S r = shape.radius;
+  S n_low_bound = sqrtf(n_faces_for_unit_sphere / 2.0) * r * r;
   unsigned int ring = ceil(n_low_bound);
   unsigned int seg = ceil(n_low_bound);
 
@@ -222,29 +222,29 @@ void generateBVHModel(BVHModel<BV>& model, const Sphere<typename BV::Scalar>& sh
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int seg, unsigned int ring)
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int seg, unsigned int ring)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  std::vector<Vector3<Scalar>> points;
+  std::vector<Vector3<S>> points;
   std::vector<Triangle> tri_indices;
 
-  const Scalar& a = shape.radii[0];
-  const Scalar& b = shape.radii[1];
-  const Scalar& c = shape.radii[2];
+  const S& a = shape.radii[0];
+  const S& b = shape.radii[1];
+  const S& c = shape.radii[2];
 
-  Scalar phi, phid;
-  const Scalar pi = constants<Scalar>::pi();
+  S phi, phid;
+  const S pi = constants<S>::pi();
   phid = pi * 2 / seg;
   phi = 0;
 
-  Scalar theta, thetad;
+  S theta, thetad;
   thetad = pi / (ring + 1);
   theta = 0;
 
   for(unsigned int i = 0; i < ring; ++i)
   {
-    Scalar theta_ = theta + thetad * (i + 1);
+    S theta_ = theta + thetad * (i + 1);
     for(unsigned int j = 0; j < seg; ++j)
     {
       points.emplace_back(a * sin(theta_) * cos(phi + j * phid), b * sin(theta_) * sin(phi + j * phid), c * cos(theta_));
@@ -292,18 +292,18 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>&
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int n_faces_for_unit_ellipsoid)
+void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int n_faces_for_unit_ellipsoid)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  const Scalar p = 1.6075;
+  const S p = 1.6075;
 
-  const Scalar& ap = std::pow(shape.radii[0], p);
-  const Scalar& bp = std::pow(shape.radii[1], p);
-  const Scalar& cp = std::pow(shape.radii[2], p);
+  const S& ap = std::pow(shape.radii[0], p);
+  const S& bp = std::pow(shape.radii[1], p);
+  const S& cp = std::pow(shape.radii[2], p);
 
-  const Scalar ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
-  const Scalar n_low_bound = std::sqrt(n_faces_for_unit_ellipsoid / 2.0) * ratio;
+  const S ratio = std::pow((ap * bp + bp * cp + cp * ap) / 3.0, 1.0 / p);
+  const S n_low_bound = std::sqrt(n_faces_for_unit_ellipsoid / 2.0) * ratio;
 
   const unsigned int ring = std::ceil(n_low_bound);
   const unsigned int seg = std::ceil(n_low_bound);
@@ -313,21 +313,21 @@ void generateBVHModel(BVHModel<BV>& model, const Ellipsoid<typename BV::Scalar>&
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  std::vector<Vector3<Scalar>> points;
+  std::vector<Vector3<S>> points;
   std::vector<Triangle> tri_indices;
 
-  Scalar r = shape.radius;
-  Scalar h = shape.lz;
-  Scalar phi, phid;
-  const Scalar pi = constants<Scalar>::pi();
+  S r = shape.radius;
+  S h = shape.lz;
+  S phi, phid;
+  const S pi = constants<S>::pi();
   phid = pi * 2 / tot;
   phi = 0;
 
-  Scalar hd = h / h_num;
+  S hd = h / h_num;
 
   for(unsigned int i = 0; i < tot; ++i)
     points.emplace_back(r * cos(phi + phid * i), r * sin(phi + phid * i), h / 2);
@@ -381,18 +381,18 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& 
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cylinder)
+void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cylinder)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  Scalar r = shape.radius;
-  Scalar h = shape.lz;
+  S r = shape.radius;
+  S h = shape.lz;
 
-  const Scalar pi = constants<Scalar>::pi();
+  const S pi = constants<S>::pi();
   unsigned int tot = tot_for_unit_cylinder * r;
-  Scalar phid = pi * 2 / tot;
+  S phid = pi * 2 / tot;
 
-  Scalar circle_edge = phid * r;
+  S circle_edge = phid * r;
   unsigned int h_num = ceil(h / circle_edge);
 
   generateBVHModel(model, shape, pose, tot, h_num);
@@ -401,27 +401,27 @@ void generateBVHModel(BVHModel<BV>& model, const Cylinder<typename BV::Scalar>& 
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot, unsigned int h_num)
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot, unsigned int h_num)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  std::vector<Vector3<Scalar>> points;
+  std::vector<Vector3<S>> points;
   std::vector<Triangle> tri_indices;
 
-  Scalar r = shape.radius;
-  Scalar h = shape.lz;
+  S r = shape.radius;
+  S h = shape.lz;
 
-  Scalar phi, phid;
-  const Scalar pi = constants<Scalar>::pi();
+  S phi, phid;
+  const S pi = constants<S>::pi();
   phid = pi * 2 / tot;
   phi = 0;
 
-  Scalar hd = h / h_num;
+  S hd = h / h_num;
 
   for(unsigned int i = 0; i < h_num - 1; ++i)
   {
-    Scalar h_i = h / 2 - (i + 1) * hd;
-    Scalar rh = r * (0.5 - h_i / h);
+    S h_i = h / 2 - (i + 1) * hd;
+    S rh = r * (0.5 - h_i / h);
     for(unsigned int j = 0; j < tot; ++j)
     {
       points.emplace_back(rh * cos(phi + phid * j), rh * sin(phi + phid * j), h_i);
@@ -469,18 +469,18 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shap
 
 //==============================================================================
 template<typename BV>
-void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::Scalar>& shape, const Transform3<typename BV::Scalar>& pose, unsigned int tot_for_unit_cone)
+void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, const Transform3<typename BV::S>& pose, unsigned int tot_for_unit_cone)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  Scalar r = shape.radius;
-  Scalar h = shape.lz;
+  S r = shape.radius;
+  S h = shape.lz;
 
-  const Scalar pi = constants<Scalar>::pi();
+  const S pi = constants<S>::pi();
   unsigned int tot = tot_for_unit_cone * r;
-  Scalar phid = pi * 2 / tot;
+  S phid = pi * 2 / tot;
 
-  Scalar circle_edge = phid * r;
+  S circle_edge = phid * r;
   unsigned int h_num = ceil(h / circle_edge);
 
   generateBVHModel(model, shape, pose, tot, h_num);

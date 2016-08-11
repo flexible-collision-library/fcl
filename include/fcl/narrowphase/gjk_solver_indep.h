@@ -48,102 +48,102 @@ namespace fcl
 {
 
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
-template <typename ScalarT>
+template <typename S_>
 struct GJKSolver_indep
 {  
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief intersection checking between two shapes
-  /// @deprecated use shapeIntersect(const S1&, const Transform3<Scalar>&, const S2&, const Transform3<Scalar>&, std::vector<ContactPoint<Scalar>>*) const
+  /// @deprecated use shapeIntersect(const S1&, const Transform3<S>&, const S2&, const Transform3<S>&, std::vector<ContactPoint<S>>*) const
   template<typename S1, typename S2>
   FCL_DEPRECATED
   bool shapeIntersect(
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal) const;
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal) const;
 
   /// @brief intersection checking between two shapes
   template<typename S1, typename S2>
   bool shapeIntersect(
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts = NULL) const;
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts = NULL) const;
 
   /// @brief intersection checking between one shape and a triangle
   template<typename Shape>
   bool shapeTriangleIntersect(
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Vector3<Scalar>* contact_points = NULL,
-      Scalar* penetration_depth = NULL,
-      Vector3<Scalar>* normal = NULL) const;
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      Vector3<S>* contact_points = NULL,
+      S* penetration_depth = NULL,
+      Vector3<S>* normal = NULL) const;
 
   //// @brief intersection checking between one shape and a triangle with transformation
   template<typename Shape>
   bool shapeTriangleIntersect(
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points = NULL,
-      Scalar* penetration_depth = NULL,
-      Vector3<Scalar>* normal = NULL) const;
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points = NULL,
+      S* penetration_depth = NULL,
+      Vector3<S>* normal = NULL) const;
 
   /// @brief distance computation between two shapes
   template<typename S1, typename S2>
   bool shapeDistance(
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* distance = NULL,
-      Vector3<Scalar>* p1 = NULL,
-      Vector3<Scalar>* p2 = NULL) const;
+      const Transform3<S>& tf2,
+      S* distance = NULL,
+      Vector3<S>* p1 = NULL,
+      Vector3<S>* p2 = NULL) const;
 
   /// @brief distance computation between one shape and a triangle
   template<typename Shape>
   bool shapeTriangleDistance(
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Scalar* distance = NULL,
-      Vector3<Scalar>* p1 = NULL,
-      Vector3<Scalar>* p2 = NULL) const;
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      S* distance = NULL,
+      Vector3<S>* p1 = NULL,
+      Vector3<S>* p2 = NULL) const;
   
   /// @brief distance computation between one shape and a triangle with transformation
   template<typename Shape>
   bool shapeTriangleDistance(
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Scalar* distance = NULL,
-      Vector3<Scalar>* p1 = NULL,
-      Vector3<Scalar>* p2 = NULL) const;
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      S* distance = NULL,
+      Vector3<S>* p1 = NULL,
+      Vector3<S>* p2 = NULL) const;
   
   /// @brief default setting for GJK algorithm
   GJKSolver_indep();
 
   void enableCachedGuess(bool if_enable) const;
 
-  void setCachedGuess(const Vector3<Scalar>& guess) const;
+  void setCachedGuess(const Vector3<S>& guess) const;
 
-  Vector3<Scalar> getCachedGuess() const;
+  Vector3<S> getCachedGuess() const;
 
   /// @brief maximum number of simplex face used in EPA algorithm
   unsigned int epa_max_face_num;
@@ -155,19 +155,19 @@ struct GJKSolver_indep
   unsigned int epa_max_iterations;
 
   /// @brief the threshold used in EPA to stop iteration
-  Scalar epa_tolerance;
+  S epa_tolerance;
 
   /// @brief the threshold used in GJK to stop iteration
-  Scalar gjk_tolerance;
+  S gjk_tolerance;
 
   /// @brief maximum number of iterations used for GJK iterations
-  Scalar gjk_max_iterations;
+  S gjk_max_iterations;
 
   /// @brief Whether smart guess can be provided
   mutable bool enable_cached_guess;
 
   /// @brief smart guess
-  mutable Vector3<Scalar> cached_guess;
+  mutable Vector3<S> cached_guess;
 };
 
 using GJKSolver_indepf = GJKSolver_indep<float>;
@@ -180,24 +180,24 @@ using GJKSolver_indepd = GJKSolver_indep<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 template<typename S1, typename S2>
-bool GJKSolver_indep<Scalar>::shapeIntersect(const S1& s1, const Transform3<Scalar>& tf1,
-                                     const S2& s2, const Transform3<Scalar>& tf2,
-                                     Vector3<Scalar>* contact_points, Scalar* penetration_depth, Vector3<Scalar>* normal) const
+bool GJKSolver_indep<S>::shapeIntersect(const S1& s1, const Transform3<S>& tf1,
+                                     const S2& s2, const Transform3<S>& tf2,
+                                     Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal) const
 {
   bool res;
 
   if (contact_points || penetration_depth || normal)
   {
-    std::vector<ContactPoint<Scalar>> contacts;
+    std::vector<ContactPoint<S>> contacts;
 
     res = shapeIntersect(s1, tf1, s2, tf2, &contacts);
 
     if (!contacts.empty())
     {
       // Get the deepest contact point
-      const ContactPoint<Scalar>& maxDepthContact = *std::max_element(contacts.begin(), contacts.end(), comparePenDepth<Scalar>);
+      const ContactPoint<S>& maxDepthContact = *std::max_element(contacts.begin(), contacts.end(), comparePenDepth<S>);
 
       if (contact_points)
         *contact_points = maxDepthContact.pos;
@@ -218,49 +218,49 @@ bool GJKSolver_indep<Scalar>::shapeIntersect(const S1& s1, const Transform3<Scal
 }
 
 //==============================================================================
-template<typename Scalar, typename S1, typename S2>
+template<typename S, typename S1, typename S2>
 struct ShapeIntersectIndepImpl
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& gjkSolver,
+      const GJKSolver_indep<S>& gjkSolver,
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    Vector3<Scalar> guess(1, 0, 0);
+    Vector3<S> guess(1, 0, 0);
     if(gjkSolver.enable_cached_guess) guess = gjkSolver.cached_guess;
 
-    details::MinkowskiDiff<Scalar> shape;
+    details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
-    details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
-    typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
+    details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
+    typename details::GJK<S>::Status gjk_status = gjk.evaluate(shape, -guess);
     if(gjkSolver.enable_cached_guess) gjkSolver.cached_guess = gjk.getGuessFromSimplex();
 
     switch(gjk_status)
     {
-    case details::GJK<Scalar>::Inside:
+    case details::GJK<S>::Inside:
       {
-        details::EPA<Scalar> epa(gjkSolver.epa_max_face_num, gjkSolver.epa_max_vertex_num, gjkSolver.epa_max_iterations, gjkSolver.epa_tolerance);
-        typename details::EPA<Scalar>::Status epa_status = epa.evaluate(gjk, -guess);
-        if(epa_status != details::EPA<Scalar>::Failed)
+        details::EPA<S> epa(gjkSolver.epa_max_face_num, gjkSolver.epa_max_vertex_num, gjkSolver.epa_max_iterations, gjkSolver.epa_tolerance);
+        typename details::EPA<S>::Status epa_status = epa.evaluate(gjk, -guess);
+        if(epa_status != details::EPA<S>::Failed)
         {
-          Vector3<Scalar> w0 = Vector3<Scalar>::Zero();
+          Vector3<S> w0 = Vector3<S>::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
           }
           if(contacts)
           {
-            Vector3<Scalar> normal = epa.normal;
-            Vector3<Scalar> point = tf1 * (w0 - epa.normal*(epa.depth *0.5));
-            Scalar depth = -epa.depth;
-            contacts->push_back(ContactPoint<Scalar>(normal, point, depth));
+            Vector3<S> normal = epa.normal;
+            Vector3<S> point = tf1 * (w0 - epa.normal*(epa.depth *0.5));
+            S depth = -epa.depth;
+            contacts->push_back(ContactPoint<S>(normal, point, depth));
           }
           return true;
         }
@@ -276,16 +276,16 @@ struct ShapeIntersectIndepImpl
 };
 
 //==============================================================================
-template<typename Scalar>
+template<typename S>
 template<typename S1, typename S2>
-bool GJKSolver_indep<Scalar>::shapeIntersect(
+bool GJKSolver_indep<S>::shapeIntersect(
     const S1& s1,
-    const Transform3<Scalar>& tf1,
+    const Transform3<S>& tf1,
     const S2& s2,
-    const Transform3<Scalar>& tf2,
-    std::vector<ContactPoint<Scalar>>* contacts) const
+    const Transform3<S>& tf2,
+    std::vector<ContactPoint<S>>* contacts) const
 {
-  return ShapeIntersectIndepImpl<Scalar, S1, S2>::run(
+  return ShapeIntersectIndepImpl<S, S1, S2>::run(
         *this, s1, tf1, s2, tf2, contacts);
 }
 
@@ -314,32 +314,32 @@ bool GJKSolver_indep<Scalar>::shapeIntersect(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 #define FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT_REG(SHAPE1, SHAPE2, ALG)\
-  template <typename Scalar>\
-  struct ShapeIntersectIndepImpl<Scalar, SHAPE1<Scalar>, SHAPE2<Scalar>>\
+  template <typename S>\
+  struct ShapeIntersectIndepImpl<S, SHAPE1<S>, SHAPE2<S>>\
   {\
     static bool run(\
-        const GJKSolver_indep<Scalar>& /*gjkSolver*/,\
-        const SHAPE1<Scalar>& s1,\
-        const Transform3<Scalar>& tf1,\
-        const SHAPE2<Scalar>& s2,\
-        const Transform3<Scalar>& tf2,\
-        std::vector<ContactPoint<Scalar>>* contacts)\
+        const GJKSolver_indep<S>& /*gjkSolver*/,\
+        const SHAPE1<S>& s1,\
+        const Transform3<S>& tf1,\
+        const SHAPE2<S>& s2,\
+        const Transform3<S>& tf2,\
+        std::vector<ContactPoint<S>>* contacts)\
     {\
       return ALG(s1, tf1, s2, tf2, contacts);\
     }\
   };
 
 #define FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT_INV(SHAPE1, SHAPE2, ALG)\
-  template <typename Scalar>\
-  struct ShapeIntersectIndepImpl<Scalar, SHAPE2<Scalar>, SHAPE1<Scalar>>\
+  template <typename S>\
+  struct ShapeIntersectIndepImpl<S, SHAPE2<S>, SHAPE1<S>>\
   {\
     static bool run(\
-        const GJKSolver_indep<Scalar>& /*gjkSolver*/,\
-        const SHAPE2<Scalar>& s1,\
-        const Transform3<Scalar>& tf1,\
-        const SHAPE1<Scalar>& s2,\
-        const Transform3<Scalar>& tf2,\
-        std::vector<ContactPoint<Scalar>>* contacts)\
+        const GJKSolver_indep<S>& /*gjkSolver*/,\
+        const SHAPE2<S>& s1,\
+        const Transform3<S>& tf1,\
+        const SHAPE1<S>& s2,\
+        const Transform3<S>& tf2,\
+        std::vector<ContactPoint<S>>* contacts)\
     {\
       const bool res = ALG(s2, tf2, s1, tf1, contacts);\
       if (contacts) flipNormal(*contacts);\
@@ -373,117 +373,117 @@ FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Capsule, Plane, details::capsulePlaneInterse
 FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Cylinder, Plane, details::cylinderPlaneIntersect)
 FCL_GJK_INDEP_SHAPE_SHAPE_INTERSECT(Cone, Plane, details::conePlaneIntersect)
 
-template <typename Scalar>
-struct ShapeIntersectIndepImpl<Scalar, Halfspace<Scalar>, Halfspace<Scalar>>
+template <typename S>
+struct ShapeIntersectIndepImpl<S, Halfspace<S>, Halfspace<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Halfspace<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Halfspace<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    Halfspace<Scalar> s;
-    Vector3<Scalar> p, d;
-    Scalar depth;
+    Halfspace<S> s;
+    Vector3<S> p, d;
+    S depth;
     int ret;
     return details::halfspaceIntersect(s1, tf1, s2, tf2, p, d, s, depth, ret);
   }
 };
 
-template <typename Scalar>
-struct ShapeIntersectIndepImpl<Scalar, Plane<Scalar>, Plane<Scalar>>
+template <typename S>
+struct ShapeIntersectIndepImpl<S, Plane<S>, Plane<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Plane<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Plane<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Plane<S>& s1,
+      const Transform3<S>& tf1,
+      const Plane<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
     return details::planeIntersect(s1, tf1, s2, tf2, contacts);
   }
 };
 
-template <typename Scalar>
-struct ShapeIntersectIndepImpl<Scalar, Plane<Scalar>, Halfspace<Scalar>>
+template <typename S>
+struct ShapeIntersectIndepImpl<S, Plane<S>, Halfspace<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Plane<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Halfspace<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Plane<S>& s1,
+      const Transform3<S>& tf1,
+      const Halfspace<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    Plane<Scalar> pl;
-    Vector3<Scalar> p, d;
-    Scalar depth;
+    Plane<S> pl;
+    Vector3<S> p, d;
+    S depth;
     int ret;
     return details::planeHalfspaceIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
   }
 };
 
-template <typename Scalar>
-struct ShapeIntersectIndepImpl<Scalar, Halfspace<Scalar>, Plane<Scalar>>
+template <typename S>
+struct ShapeIntersectIndepImpl<S, Halfspace<S>, Plane<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Halfspace<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Plane<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      std::vector<ContactPoint<Scalar>>* contacts)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Halfspace<S>& s1,
+      const Transform3<S>& tf1,
+      const Plane<S>& s2,
+      const Transform3<S>& tf2,
+      std::vector<ContactPoint<S>>* contacts)
   {
-    Plane<Scalar> pl;
-    Vector3<Scalar> p, d;
-    Scalar depth;
+    Plane<S> pl;
+    Vector3<S> p, d;
+    S depth;
     int ret;
     return details::halfspacePlaneIntersect(s1, tf1, s2, tf2, pl, p, d, depth, ret);
   }
 };
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTriangleIntersectIndepImpl
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& gjkSolver,
+      const GJKSolver_indep<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
-    TriangleP<Scalar> tri(P1, P2, P3);
+    TriangleP<S> tri(P1, P2, P3);
 
-    Vector3<Scalar> guess(1, 0, 0);
+    Vector3<S> guess(1, 0, 0);
     if(gjkSolver.enable_cached_guess) guess = gjkSolver.cached_guess;
 
-    details::MinkowskiDiff<Scalar> shape;
+    details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf.linear();
     shape.toshape0 = tf.inverse(Eigen::Isometry);
 
-    details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
-    typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
+    details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
+    typename details::GJK<S>::Status gjk_status = gjk.evaluate(shape, -guess);
     if(gjkSolver.enable_cached_guess) gjkSolver.cached_guess = gjk.getGuessFromSimplex();
 
     switch(gjk_status)
     {
-    case details::GJK<Scalar>::Inside:
+    case details::GJK<S>::Inside:
       {
-        details::EPA<Scalar> epa(gjkSolver.epa_max_face_num, gjkSolver.epa_max_vertex_num, gjkSolver.epa_max_iterations, gjkSolver.epa_tolerance);
-        typename details::EPA<Scalar>::Status epa_status = epa.evaluate(gjk, -guess);
-        if(epa_status != details::EPA<Scalar>::Failed)
+        details::EPA<S> epa(gjkSolver.epa_max_face_num, gjkSolver.epa_max_vertex_num, gjkSolver.epa_max_iterations, gjkSolver.epa_tolerance);
+        typename details::EPA<S>::Status epa_status = epa.evaluate(gjk, -guess);
+        if(epa_status != details::EPA<S>::Failed)
         {
-          Vector3<Scalar> w0 = Vector3<Scalar>::Zero();
+          Vector3<S> w0 = Vector3<S>::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
@@ -504,36 +504,36 @@ struct ShapeTriangleIntersectIndepImpl
   }
 };
 
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_indep<Scalar>::shapeTriangleIntersect(
+bool GJKSolver_indep<S>::shapeTriangleIntersect(
     const Shape& s,
-    const Transform3<Scalar>& tf,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    Vector3<Scalar>* contact_points,
-    Scalar* penetration_depth,
-    Vector3<Scalar>* normal) const
+    const Transform3<S>& tf,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    Vector3<S>* contact_points,
+    S* penetration_depth,
+    Vector3<S>* normal) const
 {
-  return ShapeTriangleIntersectIndepImpl<Scalar, Shape>::run(
+  return ShapeTriangleIntersectIndepImpl<S, Shape>::run(
         *this, s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTriangleIntersectIndepImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::sphereTriangleIntersect(
           s, tf, P1, P2, P3, contact_points, penetration_depth, normal);
@@ -542,45 +542,45 @@ struct ShapeTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
 
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTransformedTriangleIntersectIndepImpl
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& gjkSolver,
+      const GJKSolver_indep<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
-    TriangleP<Scalar> tri(P1, P2, P3);
+    TriangleP<S> tri(P1, P2, P3);
 
-    Vector3<Scalar> guess(1, 0, 0);
+    Vector3<S> guess(1, 0, 0);
     if(gjkSolver.enable_cached_guess) guess = gjkSolver.cached_guess;
 
-    details::MinkowskiDiff<Scalar> shape;
+    details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
-    details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
-    typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
+    details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
+    typename details::GJK<S>::Status gjk_status = gjk.evaluate(shape, -guess);
     if(gjkSolver.enable_cached_guess) gjkSolver.cached_guess = gjk.getGuessFromSimplex();
 
     switch(gjk_status)
     {
-    case details::GJK<Scalar>::Inside:
+    case details::GJK<S>::Inside:
       {
-        details::EPA<Scalar> epa(gjkSolver.epa_max_face_num, gjkSolver.epa_max_vertex_num, gjkSolver.epa_max_iterations, gjkSolver.epa_tolerance);
-        typename details::EPA<Scalar>::Status epa_status = epa.evaluate(gjk, -guess);
-        if(epa_status != details::EPA<Scalar>::Failed)
+        details::EPA<S> epa(gjkSolver.epa_max_face_num, gjkSolver.epa_max_vertex_num, gjkSolver.epa_max_iterations, gjkSolver.epa_tolerance);
+        typename details::EPA<S>::Status epa_status = epa.evaluate(gjk, -guess);
+        if(epa_status != details::EPA<S>::Failed)
         {
-          Vector3<Scalar> w0 = Vector3<Scalar>::Zero();
+          Vector3<S> w0 = Vector3<S>::Zero();
           for(size_t i = 0; i < epa.result.rank; ++i)
           {
             w0 += shape.support(epa.result.c[i]->d, 0) * epa.result.p[i];
@@ -601,39 +601,39 @@ struct ShapeTransformedTriangleIntersectIndepImpl
   }
 };
 
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_indep<Scalar>::shapeTriangleIntersect(
+bool GJKSolver_indep<S>::shapeTriangleIntersect(
     const Shape& s,
-    const Transform3<Scalar>& tf1,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    const Transform3<Scalar>& tf2,
-    Vector3<Scalar>* contact_points,
-    Scalar* penetration_depth,
-    Vector3<Scalar>* normal) const
+    const Transform3<S>& tf1,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    const Transform3<S>& tf2,
+    Vector3<S>* contact_points,
+    S* penetration_depth,
+    Vector3<S>* normal) const
 {
-  return ShapeTransformedTriangleIntersectIndepImpl<Scalar, Shape>::run(
+  return ShapeTransformedTriangleIntersectIndepImpl<S, Shape>::run(
         *this, s, tf1, P1, P2, P3, tf2,
         contact_points, penetration_depth, normal);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleIntersectIndepImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::sphereTriangleIntersect(
           s, tf1, tf2 * P1, tf2 * P2, tf2 * P3,
@@ -642,20 +642,20 @@ struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Sphere<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Halfspace<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleIntersectIndepImpl<S, Halfspace<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Halfspace<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Halfspace<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::halfspaceTriangleIntersect(
           s, tf1, P1, P2, P3, tf2,
@@ -664,20 +664,20 @@ struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Halfspace<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Plane<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleIntersectIndepImpl<S, Plane<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Plane<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Vector3<Scalar>* contact_points,
-      Scalar* penetration_depth,
-      Vector3<Scalar>* normal)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Plane<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      Vector3<S>* contact_points,
+      S* penetration_depth,
+      Vector3<S>* normal)
   {
     return details::planeTriangleIntersect(
           s, tf1, P1, P2, P3, tf2,
@@ -686,39 +686,39 @@ struct ShapeTransformedTriangleIntersectIndepImpl<Scalar, Plane<Scalar>>
 };
 
 //==============================================================================
-template<typename Scalar, typename S1, typename S2>
+template<typename S, typename S1, typename S2>
 struct ShapeDistanceIndepImpl
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& gjkSolver,
+      const GJKSolver_indep<S>& gjkSolver,
       const S1& s1,
-      const Transform3<Scalar>& tf1,
+      const Transform3<S>& tf1,
       const S2& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* distance,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const Transform3<S>& tf2,
+      S* distance,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
-    Vector3<Scalar> guess(1, 0, 0);
+    Vector3<S> guess(1, 0, 0);
     if(gjkSolver.enable_cached_guess) guess = gjkSolver.cached_guess;
 
-    details::MinkowskiDiff<Scalar> shape;
+    details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s1;
     shape.shapes[1] = &s2;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
-    details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
-    typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
+    details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
+    typename details::GJK<S>::Status gjk_status = gjk.evaluate(shape, -guess);
     if(gjkSolver.enable_cached_guess) gjkSolver.cached_guess = gjk.getGuessFromSimplex();
 
-    if(gjk_status == details::GJK<Scalar>::Valid)
+    if(gjk_status == details::GJK<S>::Valid)
     {
-      Vector3<Scalar> w0 = Vector3<Scalar>::Zero();
-      Vector3<Scalar> w1 = Vector3<Scalar>::Zero();
+      Vector3<S> w0 = Vector3<S>::Zero();
+      Vector3<S> w1 = Vector3<S>::Zero();
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
-        Scalar p = gjk.getSimplex()->p[i];
+        S p = gjk.getSimplex()->p[i];
         w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
@@ -738,18 +738,18 @@ struct ShapeDistanceIndepImpl
   }
 };
 
-template<typename Scalar>
+template<typename S>
 template<typename S1, typename S2>
-bool GJKSolver_indep<Scalar>::shapeDistance(
+bool GJKSolver_indep<S>::shapeDistance(
     const S1& s1,
-    const Transform3<Scalar>& tf1,
+    const Transform3<S>& tf1,
     const S2& s2,
-    const Transform3<Scalar>& tf2,
-    Scalar* dist,
-    Vector3<Scalar>* p1,
-    Vector3<Scalar>* p2) const
+    const Transform3<S>& tf2,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
 {
-  return ShapeDistanceIndepImpl<Scalar, S1, S2>::run(
+  return ShapeDistanceIndepImpl<S, S1, S2>::run(
         *this, s1, tf1, s2, tf2, dist, p1, p2);
 }
 
@@ -778,113 +778,113 @@ bool GJKSolver_indep<Scalar>::shapeDistance(
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceIndepImpl<Scalar, Sphere<Scalar>, Capsule<Scalar>>
+template<typename S>
+struct ShapeDistanceIndepImpl<S, Sphere<S>, Capsule<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Capsule<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Sphere<S>& s1,
+      const Transform3<S>& tf1,
+      const Capsule<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceIndepImpl<Scalar, Capsule<Scalar>, Sphere<Scalar>>
+template<typename S>
+struct ShapeDistanceIndepImpl<S, Capsule<S>, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Capsule<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Sphere<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Capsule<S>& s1,
+      const Transform3<S>& tf1,
+      const Sphere<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereCapsuleDistance(s2, tf2, s1, tf1, dist, p2, p1);
   }
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceIndepImpl<Scalar, Sphere<Scalar>, Sphere<Scalar>>
+template<typename S>
+struct ShapeDistanceIndepImpl<S, Sphere<S>, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Sphere<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Sphere<S>& s1,
+      const Transform3<S>& tf1,
+      const Sphere<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereSphereDistance(s1, tf1, s2, tf2, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeDistanceIndepImpl<Scalar, Capsule<Scalar>, Capsule<Scalar>>
+template<typename S>
+struct ShapeDistanceIndepImpl<S, Capsule<S>, Capsule<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Capsule<Scalar>& s1,
-      const Transform3<Scalar>& tf1,
-      const Capsule<Scalar>& s2,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Capsule<S>& s1,
+      const Transform3<S>& tf1,
+      const Capsule<S>& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::capsuleCapsuleDistance(s1, tf1, s2, tf2, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTriangleDistanceIndepImpl
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& gjkSolver,
+      const GJKSolver_indep<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Scalar* distance,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      S* distance,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
-    TriangleP<Scalar> tri(P1, P2, P3);
-    Vector3<Scalar> guess(1, 0, 0);
+    TriangleP<S> tri(P1, P2, P3);
+    Vector3<S> guess(1, 0, 0);
     if(gjkSolver.enable_cached_guess) guess = gjkSolver.cached_guess;
 
-    details::MinkowskiDiff<Scalar> shape;
+    details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf.linear();
     shape.toshape0 = tf.inverse(Eigen::Isometry);
 
-    details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
-    typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
+    details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
+    typename details::GJK<S>::Status gjk_status = gjk.evaluate(shape, -guess);
     if(gjkSolver.enable_cached_guess) gjkSolver.cached_guess = gjk.getGuessFromSimplex();
 
-    if(gjk_status == details::GJK<Scalar>::Valid)
+    if(gjk_status == details::GJK<S>::Valid)
     {
-      Vector3<Scalar> w0 = Vector3<Scalar>::Zero();
-      Vector3<Scalar> w1 = Vector3<Scalar>::Zero();
+      Vector3<S> w0 = Vector3<S>::Zero();
+      Vector3<S> w1 = Vector3<S>::Zero();
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
-        Scalar p = gjk.getSimplex()->p[i];
+        S p = gjk.getSimplex()->p[i];
         w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
@@ -903,78 +903,78 @@ struct ShapeTriangleDistanceIndepImpl
 };
 
 //==============================================================================
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_indep<Scalar>::shapeTriangleDistance(
+bool GJKSolver_indep<S>::shapeTriangleDistance(
     const Shape& s,
-    const Transform3<Scalar>& tf,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    Scalar* dist,
-    Vector3<Scalar>* p1,
-    Vector3<Scalar>* p2) const
+    const Transform3<S>& tf,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
 {
-  return ShapeTriangleDistanceIndepImpl<Scalar, Shape>::run(
+  return ShapeTriangleDistanceIndepImpl<S, Shape>::run(
         *this, s, tf, P1, P2, P3, dist, p1, p2);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTriangleDistanceIndepImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTriangleDistanceIndepImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereTriangleDistance(s, tf, P1, P2, P3, dist, p1, p2);
   }
 };
 
 //==============================================================================
-template<typename Scalar, typename Shape>
+template<typename S, typename Shape>
 struct ShapeTransformedTriangleDistanceIndepImpl
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& gjkSolver,
+      const GJKSolver_indep<S>& gjkSolver,
       const Shape& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Scalar* distance,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      S* distance,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
-    TriangleP<Scalar> tri(P1, P2, P3);
-    Vector3<Scalar> guess(1, 0, 0);
+    TriangleP<S> tri(P1, P2, P3);
+    Vector3<S> guess(1, 0, 0);
     if(gjkSolver.enable_cached_guess) guess = gjkSolver.cached_guess;
 
-    details::MinkowskiDiff<Scalar> shape;
+    details::MinkowskiDiff<S> shape;
     shape.shapes[0] = &s;
     shape.shapes[1] = &tri;
     shape.toshape1 = tf2.linear().transpose() * tf1.linear();
     shape.toshape0 = tf1.inverse(Eigen::Isometry) * tf2;
 
-    details::GJK<Scalar> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
-    typename details::GJK<Scalar>::Status gjk_status = gjk.evaluate(shape, -guess);
+    details::GJK<S> gjk(gjkSolver.gjk_max_iterations, gjkSolver.gjk_tolerance);
+    typename details::GJK<S>::Status gjk_status = gjk.evaluate(shape, -guess);
     if(gjkSolver.enable_cached_guess) gjkSolver.cached_guess = gjk.getGuessFromSimplex();
 
-    if(gjk_status == details::GJK<Scalar>::Valid)
+    if(gjk_status == details::GJK<S>::Valid)
     {
-      Vector3<Scalar> w0 = Vector3<Scalar>::Zero();
-      Vector3<Scalar> w1 = Vector3<Scalar>::Zero();
+      Vector3<S> w0 = Vector3<S>::Zero();
+      Vector3<S> w1 = Vector3<S>::Zero();
       for(size_t i = 0; i < gjk.getSimplex()->rank; ++i)
       {
-        Scalar p = gjk.getSimplex()->p[i];
+        S p = gjk.getSimplex()->p[i];
         w0 += shape.support(gjk.getSimplex()->c[i]->d, 0) * p;
         w1 += shape.support(-gjk.getSimplex()->c[i]->d, 1) * p;
       }
@@ -993,38 +993,38 @@ struct ShapeTransformedTriangleDistanceIndepImpl
 };
 
 //==============================================================================
-template<typename Scalar>
+template<typename S>
 template<typename Shape>
-bool GJKSolver_indep<Scalar>::shapeTriangleDistance(
+bool GJKSolver_indep<S>::shapeTriangleDistance(
     const Shape& s,
-    const Transform3<Scalar>& tf1,
-    const Vector3<Scalar>& P1,
-    const Vector3<Scalar>& P2,
-    const Vector3<Scalar>& P3,
-    const Transform3<Scalar>& tf2,
-    Scalar* dist,
-    Vector3<Scalar>* p1,
-    Vector3<Scalar>* p2) const
+    const Transform3<S>& tf1,
+    const Vector3<S>& P1,
+    const Vector3<S>& P2,
+    const Vector3<S>& P3,
+    const Transform3<S>& tf2,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
 {
-  return ShapeTransformedTriangleDistanceIndepImpl<Scalar, Shape>::run(
+  return ShapeTransformedTriangleDistanceIndepImpl<S, Shape>::run(
         *this, s, tf1, P1, P2, P3, tf2, dist, p1, p2);
 }
 
 //==============================================================================
-template<typename Scalar>
-struct ShapeTransformedTriangleDistanceIndepImpl<Scalar, Sphere<Scalar>>
+template<typename S>
+struct ShapeTransformedTriangleDistanceIndepImpl<S, Sphere<S>>
 {
   static bool run(
-      const GJKSolver_indep<Scalar>& /*gjkSolver*/,
-      const Sphere<Scalar>& s,
-      const Transform3<Scalar>& tf1,
-      const Vector3<Scalar>& P1,
-      const Vector3<Scalar>& P2,
-      const Vector3<Scalar>& P3,
-      const Transform3<Scalar>& tf2,
-      Scalar* dist,
-      Vector3<Scalar>* p1,
-      Vector3<Scalar>* p2)
+      const GJKSolver_indep<S>& /*gjkSolver*/,
+      const Sphere<S>& s,
+      const Transform3<S>& tf1,
+      const Vector3<S>& P1,
+      const Vector3<S>& P2,
+      const Vector3<S>& P3,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
   {
     return details::sphereTriangleDistance(
           s, tf1, P1, P2, P3, tf2, dist, p1, p2);
@@ -1032,8 +1032,8 @@ struct ShapeTransformedTriangleDistanceIndepImpl<Scalar, Sphere<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-GJKSolver_indep<Scalar>::GJKSolver_indep()
+template <typename S>
+GJKSolver_indep<S>::GJKSolver_indep()
 {
   gjk_max_iterations = 128;
   gjk_tolerance = 1e-6;
@@ -1042,26 +1042,26 @@ GJKSolver_indep<Scalar>::GJKSolver_indep()
   epa_max_iterations = 255;
   epa_tolerance = 1e-6;
   enable_cached_guess = false;
-  cached_guess = Vector3<Scalar>(1, 0, 0);
+  cached_guess = Vector3<S>(1, 0, 0);
 }
 
 //==============================================================================
-template <typename Scalar>
-void GJKSolver_indep<Scalar>::enableCachedGuess(bool if_enable) const
+template <typename S>
+void GJKSolver_indep<S>::enableCachedGuess(bool if_enable) const
 {
   enable_cached_guess = if_enable;
 }
 
 //==============================================================================
-template <typename Scalar>
-void GJKSolver_indep<Scalar>::setCachedGuess(const Vector3<Scalar>& guess) const
+template <typename S>
+void GJKSolver_indep<S>::setCachedGuess(const Vector3<S>& guess) const
 {
   cached_guess = guess;
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> GJKSolver_indep<Scalar>::getCachedGuess() const
+template <typename S>
+Vector3<S> GJKSolver_indep<S>::getCachedGuess() const
 {
   return cached_guess;
 }

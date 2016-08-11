@@ -45,18 +45,18 @@ namespace fcl
 {
 
 /// @brief Simple SAP collision manager 
-template <typename Scalar>
-class SSaPCollisionManager : public BroadPhaseCollisionManager<Scalar>
+template <typename S>
+class SSaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   SSaPCollisionManager() : setup_(false)
   {}
 
   /// @brief remove one object from the manager
-  void registerObject(CollisionObject<Scalar>* obj);
+  void registerObject(CollisionObject<S>* obj);
 
   /// @brief add one object to the manager
-  void unregisterObject(CollisionObject<Scalar>* obj);
+  void unregisterObject(CollisionObject<S>* obj);
 
   /// @brief initialize the manager, related with the specific type of manager
   void setup();
@@ -68,25 +68,25 @@ public:
   void clear();
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObject<Scalar>*>& objs) const;
+  void getObjects(std::vector<CollisionObject<S>*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(BroadPhaseCollisionManager<S>* other_manager, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(BroadPhaseCollisionManager<S>* other_manager, void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
@@ -96,23 +96,23 @@ public:
 
 protected:
   /// @brief check collision between one object and a list of objects, return value is whether stop is possible
-  bool checkColl(typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_start, typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_end,
-                 CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  bool checkColl(typename std::vector<CollisionObject<S>*>::const_iterator pos_start, typename std::vector<CollisionObject<S>*>::const_iterator pos_end,
+                 CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
   
   /// @brief check distance between one object and a list of objects, return value is whether stop is possible
-  bool checkDis(typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_start, typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_end,
-                CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const;
+  bool checkDis(typename std::vector<CollisionObject<S>*>::const_iterator pos_start, typename std::vector<CollisionObject<S>*>::const_iterator pos_end,
+                CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
-  bool collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  bool collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
   
-  bool distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const;
+  bool distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
-  static inline size_t selectOptimalAxis(const std::vector<CollisionObject<Scalar>*>& objs_x, const std::vector<CollisionObject<Scalar>*>& objs_y, const std::vector<CollisionObject<Scalar>*>& objs_z, typename std::vector<CollisionObject<Scalar>*>::const_iterator& it_beg, typename std::vector<CollisionObject<Scalar>*>::const_iterator& it_end)
+  static inline size_t selectOptimalAxis(const std::vector<CollisionObject<S>*>& objs_x, const std::vector<CollisionObject<S>*>& objs_y, const std::vector<CollisionObject<S>*>& objs_z, typename std::vector<CollisionObject<S>*>::const_iterator& it_beg, typename std::vector<CollisionObject<S>*>::const_iterator& it_end)
   {
     /// simple sweep and prune method
-    Scalar delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
-    Scalar delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
-    Scalar delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
+    S delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
+    S delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
+    S delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
 
     int axis = 0;
     if(delta_y > delta_x && delta_y > delta_z)
@@ -141,13 +141,13 @@ protected:
 
 
   /// @brief Objects sorted according to lower x value
-  std::vector<CollisionObject<Scalar>*> objs_x;
+  std::vector<CollisionObject<S>*> objs_x;
 
   /// @brief Objects sorted according to lower y value
-  std::vector<CollisionObject<Scalar>*> objs_y;
+  std::vector<CollisionObject<S>*> objs_y;
 
   /// @brief Objects sorted according to lower z value
-  std::vector<CollisionObject<Scalar>*> objs_z;
+  std::vector<CollisionObject<S>*> objs_z;
 
   /// @brief tag about whether the environment is maintained suitably (i.e., the objs_x, objs_y, objs_z are sorted correctly
   bool setup_;
@@ -162,11 +162,11 @@ using SSaPCollisionManagerd = SSaPCollisionManager<double>;
 //                                                                            //
 //============================================================================//
 
-/** \brief Functor sorting objects according to the AABB<Scalar> lower x bound */
-template <typename Scalar>
+/** \brief Functor sorting objects according to the AABB<S> lower x bound */
+template <typename S>
 struct SortByXLow
 {
-  bool operator()(const CollisionObject<Scalar>* a, const CollisionObject<Scalar>* b) const
+  bool operator()(const CollisionObject<S>* a, const CollisionObject<S>* b) const
   {
     if(a->getAABB().min_[0] < b->getAABB().min_[0])
       return true;
@@ -174,11 +174,11 @@ struct SortByXLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB<Scalar> lower y bound */
-template <typename Scalar>
+/** \brief Functor sorting objects according to the AABB<S> lower y bound */
+template <typename S>
 struct SortByYLow
 {
-  bool operator()(const CollisionObject<Scalar>* a, const CollisionObject<Scalar>* b) const
+  bool operator()(const CollisionObject<S>* a, const CollisionObject<S>* b) const
   {
     if(a->getAABB().min_[1] < b->getAABB().min_[1])
       return true;
@@ -186,11 +186,11 @@ struct SortByYLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB<Scalar> lower z bound */
-template <typename Scalar>
+/** \brief Functor sorting objects according to the AABB<S> lower z bound */
+template <typename S>
 struct SortByZLow
 {
-  bool operator()(const CollisionObject<Scalar>* a, const CollisionObject<Scalar>* b) const
+  bool operator()(const CollisionObject<S>* a, const CollisionObject<S>* b) const
   {
     if(a->getAABB().min_[2] < b->getAABB().min_[2])
       return true;
@@ -198,12 +198,12 @@ struct SortByZLow
   }
 };
 
-/** \brief Dummy collision object with a point AABB<Scalar> */
-template <typename Scalar>
-class DummyCollisionObject : public CollisionObject<Scalar>
+/** \brief Dummy collision object with a point AABB<S> */
+template <typename S>
+class DummyCollisionObject : public CollisionObject<S>
 {
 public:
-  DummyCollisionObject(const AABB<Scalar>& aabb_) : CollisionObject<Scalar>(std::shared_ptr<CollisionGeometry<Scalar>>())
+  DummyCollisionObject(const AABB<S>& aabb_) : CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>())
   {
     this->aabb = aabb_;
   }
@@ -212,15 +212,15 @@ public:
 };
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
+template <typename S>
+void SSaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
 {
   setup();
 
-  DummyCollisionObject<Scalar> dummyHigh(AABB<Scalar>(obj->getAABB().max_));
+  DummyCollisionObject<S> dummyHigh(AABB<S>(obj->getAABB().max_));
 
   auto pos_start1 = objs_x.begin();
-  auto pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow<Scalar>());
+  auto pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow<S>());
 
   while(pos_start1 < pos_end1)
   {
@@ -233,7 +233,7 @@ void SSaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj
   }
 
   auto pos_start2 = objs_y.begin();
-  auto pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow<Scalar>());
+  auto pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow<S>());
 
   while(pos_start2 < pos_end2)
   {
@@ -246,7 +246,7 @@ void SSaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj
   }
 
   auto pos_start3 = objs_z.begin();
-  auto pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow<Scalar>());
+  auto pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow<S>());
 
   while(pos_start3 < pos_end3)
   {
@@ -260,8 +260,8 @@ void SSaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
+template <typename S>
+void SSaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
 {
   objs_x.push_back(obj);
   objs_y.push_back(obj);
@@ -270,29 +270,29 @@ void SSaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::setup()
+template <typename S>
+void SSaPCollisionManager<S>::setup()
 {
   if(!setup_)
   {
-    std::sort(objs_x.begin(), objs_x.end(), SortByXLow<Scalar>());
-    std::sort(objs_y.begin(), objs_y.end(), SortByYLow<Scalar>());
-    std::sort(objs_z.begin(), objs_z.end(), SortByZLow<Scalar>());
+    std::sort(objs_x.begin(), objs_x.end(), SortByXLow<S>());
+    std::sort(objs_y.begin(), objs_y.end(), SortByYLow<S>());
+    std::sort(objs_z.begin(), objs_z.end(), SortByZLow<S>());
     setup_ = true;
   }
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::update()
+template <typename S>
+void SSaPCollisionManager<S>::update()
 {
   setup_ = false;
   setup();
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::clear()
+template <typename S>
+void SSaPCollisionManager<S>::clear()
 {
   objs_x.clear();
   objs_y.clear();
@@ -301,17 +301,17 @@ void SSaPCollisionManager<Scalar>::clear()
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::getObjects(std::vector<CollisionObject<Scalar>*>& objs) const
+template <typename S>
+void SSaPCollisionManager<S>::getObjects(std::vector<CollisionObject<S>*>& objs) const
 {
   objs.resize(objs_x.size());
   std::copy(objs_x.begin(), objs_x.end(), objs.begin());
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SSaPCollisionManager<Scalar>::checkColl(typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_start, typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_end,
-                                     CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+bool SSaPCollisionManager<S>::checkColl(typename std::vector<CollisionObject<S>*>::const_iterator pos_start, typename std::vector<CollisionObject<S>*>::const_iterator pos_end,
+                                     CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   while(pos_start < pos_end)
   {
@@ -329,8 +329,8 @@ bool SSaPCollisionManager<Scalar>::checkColl(typename std::vector<CollisionObjec
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SSaPCollisionManager<Scalar>::checkDis(typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_start, typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_end, CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const
+template <typename S>
+bool SSaPCollisionManager<S>::checkDis(typename std::vector<CollisionObject<S>*>::const_iterator pos_start, typename std::vector<CollisionObject<S>*>::const_iterator pos_end, CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const
 {
   while(pos_start < pos_end)
   {
@@ -349,8 +349,8 @@ bool SSaPCollisionManager<Scalar>::checkDis(typename std::vector<CollisionObject
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void SSaPCollisionManager<S>::collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
 
@@ -358,28 +358,28 @@ void SSaPCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* c
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SSaPCollisionManager<Scalar>::collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+bool SSaPCollisionManager<S>::collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   static const unsigned int CUTOFF = 100;
 
-  DummyCollisionObject<Scalar> dummyHigh(AABB<Scalar>(obj->getAABB().max_));
+  DummyCollisionObject<S> dummyHigh(AABB<S>(obj->getAABB().max_));
   bool coll_res = false;
 
   const auto pos_start1 = objs_x.begin();
-  const auto pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow<Scalar>());
+  const auto pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow<S>());
   unsigned int d1 = pos_end1 - pos_start1;
 
   if(d1 > CUTOFF)
   {
     const auto pos_start2 = objs_y.begin();
-    const auto pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow<Scalar>());
+    const auto pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow<S>());
     unsigned int d2 = pos_end2 - pos_start2;
 
     if(d2 > CUTOFF)
     {
       const auto pos_start3 = objs_z.begin();
-      const auto pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow<Scalar>());
+      const auto pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow<S>());
       unsigned int d3 = pos_end3 - pos_start3;
 
       if(d3 > CUTOFF)
@@ -407,53 +407,53 @@ bool SSaPCollisionManager<Scalar>::collide_(CollisionObject<Scalar>* obj, void* 
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void SSaPCollisionManager<S>::distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
   distance_(obj, cdata, callback, min_dist);
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SSaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const
+template <typename S>
+bool SSaPCollisionManager<S>::distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const
 {
   static const unsigned int CUTOFF = 100;
-  Vector3<Scalar> delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  Vector3<Scalar> dummy_vector = obj->getAABB().max_;
-  if(min_dist < std::numeric_limits<Scalar>::max())
-    dummy_vector += Vector3<Scalar>(min_dist, min_dist, min_dist);
+  Vector3<S> delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  Vector3<S> dummy_vector = obj->getAABB().max_;
+  if(min_dist < std::numeric_limits<S>::max())
+    dummy_vector += Vector3<S>(min_dist, min_dist, min_dist);
 
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_start1 = objs_x.begin();
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_start2 = objs_y.begin();
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_start3 = objs_z.begin();
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_end1 = objs_x.end();
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_end2 = objs_y.end();
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator pos_end3 = objs_z.end();
+  typename std::vector<CollisionObject<S>*>::const_iterator pos_start1 = objs_x.begin();
+  typename std::vector<CollisionObject<S>*>::const_iterator pos_start2 = objs_y.begin();
+  typename std::vector<CollisionObject<S>*>::const_iterator pos_start3 = objs_z.begin();
+  typename std::vector<CollisionObject<S>*>::const_iterator pos_end1 = objs_x.end();
+  typename std::vector<CollisionObject<S>*>::const_iterator pos_end2 = objs_y.end();
+  typename std::vector<CollisionObject<S>*>::const_iterator pos_end3 = objs_z.end();
 
   int status = 1;
-  Scalar old_min_distance;
+  S old_min_distance;
 
   while(1)
   {
     old_min_distance = min_dist;
-    DummyCollisionObject<Scalar> dummyHigh((AABB<Scalar>(dummy_vector)));
+    DummyCollisionObject<S> dummyHigh((AABB<S>(dummy_vector)));
 
-    pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow<Scalar>());
+    pos_end1 = std::upper_bound(pos_start1, objs_x.end(), &dummyHigh, SortByXLow<S>());
     unsigned int d1 = pos_end1 - pos_start1;
 
     bool dist_res = false;
 
     if(d1 > CUTOFF)
     {
-      pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow<Scalar>());
+      pos_end2 = std::upper_bound(pos_start2, objs_y.end(), &dummyHigh, SortByYLow<S>());
       unsigned int d2 = pos_end2 - pos_start2;
 
       if(d2 > CUTOFF)
       {
-        pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow<Scalar>());
+        pos_end3 = std::upper_bound(pos_start3, objs_z.end(), &dummyHigh, SortByZLow<S>());
         unsigned int d3 = pos_end3 - pos_start3;
 
         if(d3 > CUTOFF)
@@ -483,7 +483,7 @@ bool SSaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void*
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<Scalar>::max())
+      if(old_min_distance < std::numeric_limits<S>::max())
         break;
       else
       {
@@ -491,12 +491,12 @@ bool SSaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void*
         // to check the possible missed ones to the right of the objs array
         if(min_dist < old_min_distance)
         {
-          dummy_vector = obj->getAABB().max_ + Vector3<Scalar>(min_dist, min_dist, min_dist);
+          dummy_vector = obj->getAABB().max_ + Vector3<S>(min_dist, min_dist, min_dist);
           status = 0;
         }
         else // need more loop
         {
-          if(dummy_vector.isApprox(obj->getAABB().max_, std::numeric_limits<Scalar>::epsilon() * 100))
+          if(dummy_vector.isApprox(obj->getAABB().max_, std::numeric_limits<S>::epsilon() * 100))
             dummy_vector = dummy_vector + delta;
           else
             dummy_vector = dummy_vector * 2 - obj->getAABB().max_;
@@ -516,12 +516,12 @@ bool SSaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void*
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void SSaPCollisionManager<S>::collide(void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
 
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator pos, run_pos, pos_end;
+  typename std::vector<CollisionObject<S>*>::const_iterator pos, run_pos, pos_end;
   size_t axis = selectOptimalAxis(objs_x, objs_y, objs_z,
                                   pos, pos_end);
   size_t axis2 = (axis + 1 > 2) ? 0 : (axis + 1);
@@ -531,7 +531,7 @@ void SSaPCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar
 
   while((run_pos < pos_end) && (pos < pos_end))
   {
-    CollisionObject<Scalar>* obj = *(pos++);
+    CollisionObject<S>* obj = *(pos++);
 
     while(1)
     {
@@ -550,11 +550,11 @@ void SSaPCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar
 
     if(run_pos < pos_end)
     {
-      typename std::vector<CollisionObject<Scalar>*>::const_iterator run_pos2 = run_pos;
+      typename std::vector<CollisionObject<S>*>::const_iterator run_pos2 = run_pos;
 
       while((*run_pos2)->getAABB().min_[axis] <= obj->getAABB().max_[axis])
       {
-        CollisionObject<Scalar>* obj2 = *run_pos2;
+        CollisionObject<S>* obj2 = *run_pos2;
         run_pos2++;
 
         if((obj->getAABB().max_[axis2] >= obj2->getAABB().min_[axis2]) && (obj2->getAABB().max_[axis2] >= obj->getAABB().min_[axis2]))
@@ -573,15 +573,15 @@ void SSaPCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void SSaPCollisionManager<S>::distance(void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
 
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator it, it_end;
+  typename std::vector<CollisionObject<S>*>::const_iterator it, it_end;
   selectOptimalAxis(objs_x, objs_y, objs_z, it, it_end);
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
   for(; it != it_end; ++it)
   {
     if(distance_(*it, cdata, callback, min_dist))
@@ -590,8 +590,8 @@ void SSaPCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scalar
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void SSaPCollisionManager<S>::collide(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, CollisionCallBack<S> callback) const
 {
   SSaPCollisionManager* other_manager = static_cast<SSaPCollisionManager*>(other_manager_);
 
@@ -604,7 +604,7 @@ void SSaPCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* o
   }
 
 
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator it, end;
+  typename std::vector<CollisionObject<S>*>::const_iterator it, end;
   if(this->size() < other_manager->size())
   {
     for(it = objs_x.begin(), end = objs_x.end(); it != end; ++it)
@@ -618,8 +618,8 @@ void SSaPCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* o
 }
 
 //==============================================================================
-template <typename Scalar>
-void SSaPCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void SSaPCollisionManager<S>::distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const
 {
   SSaPCollisionManager* other_manager = static_cast<SSaPCollisionManager*>(other_manager_);
 
@@ -631,8 +631,8 @@ void SSaPCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* 
     return;
   }
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
-  typename std::vector<CollisionObject<Scalar>*>::const_iterator it, end;
+  S min_dist = std::numeric_limits<S>::max();
+  typename std::vector<CollisionObject<S>*>::const_iterator it, end;
   if(this->size() < other_manager->size())
   {
     for(it = objs_x.begin(), end = objs_x.end(); it != end; ++it)
@@ -646,8 +646,8 @@ void SSaPCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* 
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SSaPCollisionManager<Scalar>::empty() const
+template <typename S>
+bool SSaPCollisionManager<S>::empty() const
 {
   return objs_x.empty();
 }

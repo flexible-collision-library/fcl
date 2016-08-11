@@ -54,8 +54,8 @@
 using namespace fcl;
 
 /// @brief test for broad phase update
-template <typename Scalar>
-void broad_phase_update_collision_test(Scalar env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);
+template <typename S>
+void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);
 
 #if USE_GOOGLEHASH
 template<typename U, typename V>
@@ -143,53 +143,53 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh_e
 #endif
 }
 
-template <typename Scalar>
-void broad_phase_update_collision_test(Scalar env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts, bool exhaustive, bool use_mesh)
+template <typename S>
+void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts, bool exhaustive, bool use_mesh)
 {
   std::vector<TStruct> ts;
   std::vector<Timer> timers;
 
-  std::vector<CollisionObject<Scalar>*> env;
+  std::vector<CollisionObject<S>*> env;
   if(use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
-  std::vector<CollisionObject<Scalar>*> query;
+  std::vector<CollisionObject<S>*> query;
   if(use_mesh)
     generateEnvironmentsMesh(query, env_scale, query_size); 
   else
     generateEnvironments(query, env_scale, query_size); 
 
-  std::vector<BroadPhaseCollisionManager<Scalar>*> managers;
+  std::vector<BroadPhaseCollisionManager<S>*> managers;
   
-  managers.push_back(new NaiveCollisionManager<Scalar>());
-  managers.push_back(new SSaPCollisionManager<Scalar>());
+  managers.push_back(new NaiveCollisionManager<S>());
+  managers.push_back(new SSaPCollisionManager<S>());
 
   
-  managers.push_back(new SaPCollisionManager<Scalar>());
-  managers.push_back(new IntervalTreeCollisionManager<Scalar>());
+  managers.push_back(new SaPCollisionManager<S>());
+  managers.push_back(new IntervalTreeCollisionManager<S>());
   
-  Vector3<Scalar> lower_limit, upper_limit;
-  SpatialHashingCollisionManager<Scalar>::computeBound(env, lower_limit, upper_limit);
-  Scalar cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
-  // managers.push_back(new SpatialHashingCollisionManager<Scalar>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<Scalar, SparseHashTable<AABB<Scalar>, CollisionObject<Scalar>*, SpatialHash<Scalar>> >(cell_size, lower_limit, upper_limit));
+  Vector3<S> lower_limit, upper_limit;
+  SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
+  S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
+  // managers.push_back(new SpatialHashingCollisionManager<S>(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<Scalar, SparseHashTable<AABB<Scalar>, CollisionObject<Scalar>*, SpatialHash<Scalar>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<Scalar, SparseHashTable<AABB<Scalar>, CollisionObject<Scalar>*, SpatialHash<Scalar>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
-  managers.push_back(new DynamicAABBTreeCollisionManager<Scalar>());
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array<Scalar>());
+  managers.push_back(new DynamicAABBTreeCollisionManager<S>());
+  managers.push_back(new DynamicAABBTreeCollisionManager_Array<S>());
 
   {
-    DynamicAABBTreeCollisionManager<Scalar>* m = new DynamicAABBTreeCollisionManager<Scalar>();
+    DynamicAABBTreeCollisionManager<S>* m = new DynamicAABBTreeCollisionManager<S>();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array<Scalar>* m = new DynamicAABBTreeCollisionManager_Array<Scalar>();
+    DynamicAABBTreeCollisionManager_Array<S>* m = new DynamicAABBTreeCollisionManager_Array<S>();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -214,25 +214,25 @@ void broad_phase_update_collision_test(Scalar env_scale, std::size_t env_size, s
   }
 
   // update the environment
-  Scalar delta_angle_max = 10 / 360.0 * 2 * constants<Scalar>::pi();
-  Scalar delta_trans_max = 0.01 * env_scale;
+  S delta_angle_max = 10 / 360.0 * 2 * constants<S>::pi();
+  S delta_trans_max = 0.01 * env_scale;
   for(size_t i = 0; i < env.size(); ++i)
   {
-    Scalar rand_angle_x = 2 * (rand() / (Scalar)RAND_MAX - 0.5) * delta_angle_max;
-    Scalar rand_trans_x = 2 * (rand() / (Scalar)RAND_MAX - 0.5) * delta_trans_max;
-    Scalar rand_angle_y = 2 * (rand() / (Scalar)RAND_MAX - 0.5) * delta_angle_max;
-    Scalar rand_trans_y = 2 * (rand() / (Scalar)RAND_MAX - 0.5) * delta_trans_max;
-    Scalar rand_angle_z = 2 * (rand() / (Scalar)RAND_MAX - 0.5) * delta_angle_max;
-    Scalar rand_trans_z = 2 * (rand() / (Scalar)RAND_MAX - 0.5) * delta_trans_max;
+    S rand_angle_x = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_angle_max;
+    S rand_trans_x = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_trans_max;
+    S rand_angle_y = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_angle_max;
+    S rand_trans_y = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_trans_max;
+    S rand_angle_z = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_angle_max;
+    S rand_trans_z = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_trans_max;
 
-    Matrix3<Scalar> dR(
-          AngleAxis<Scalar>(rand_angle_x, Vector3<Scalar>::UnitX())
-          * AngleAxis<Scalar>(rand_angle_y, Vector3<Scalar>::UnitY())
-          * AngleAxis<Scalar>(rand_angle_z, Vector3<Scalar>::UnitZ()));
-    Vector3<Scalar> dT(rand_trans_x, rand_trans_y, rand_trans_z);
+    Matrix3<S> dR(
+          AngleAxis<S>(rand_angle_x, Vector3<S>::UnitX())
+          * AngleAxis<S>(rand_angle_y, Vector3<S>::UnitY())
+          * AngleAxis<S>(rand_angle_z, Vector3<S>::UnitZ()));
+    Vector3<S> dT(rand_trans_x, rand_trans_y, rand_trans_z);
     
-    Matrix3<Scalar> R = env[i]->getRotation();
-    Vector3<Scalar> T = env[i]->getTranslation();
+    Matrix3<S> R = env[i]->getRotation();
+    Vector3<S> T = env[i]->getTranslation();
     env[i]->setTransform(dR * R, dR * T + dT);
     env[i]->computeAABB();
   }
@@ -245,7 +245,7 @@ void broad_phase_update_collision_test(Scalar env_scale, std::size_t env_size, s
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<CollisionData<Scalar>> self_data(managers.size());
+  std::vector<CollisionData<S>> self_data(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
     if(exhaustive) self_data[i].request.num_max_contacts = 100000;
@@ -286,7 +286,7 @@ void broad_phase_update_collision_test(Scalar env_scale, std::size_t env_size, s
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<CollisionData<Scalar>> query_data(managers.size());
+    std::vector<CollisionData<S>> query_data(managers.size());
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       if(exhaustive) query_data[j].request.num_max_contacts = 100000;
@@ -362,7 +362,7 @@ void broad_phase_update_collision_test(Scalar env_scale, std::size_t env_size, s
   std::cout << "collision time" << std::endl;
   for(size_t i = 0; i < ts.size(); ++i)
   {
-    Scalar tmp = 0;
+    S tmp = 0;
     for(size_t j = 4; j < ts[i].records.size(); ++j)
       tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";
