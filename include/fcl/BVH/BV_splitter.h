@@ -202,6 +202,7 @@ template <typename BV>
 BVSplitter<BV>::BVSplitter(SplitMethodType method)
   : split_method(method)
 {
+  // Do nothing
 }
 
 //==============================================================================
@@ -317,9 +318,9 @@ struct ComputeRuleMeanImpl
       for(int i = 0; i < num_primitives; ++i)
       {
         const Triangle& t = splitter.tri_indices[primitive_indices[i]];
-        sum += (splitter.vertices[t[0]][splitter.split_axis]
-            + splitter.vertices[t[1]][splitter.split_axis]
-            + splitter.vertices[t[2]][splitter.split_axis]);
+        sum += splitter.vertices[t[0]][splitter.split_axis]
+             + splitter.vertices[t[1]][splitter.split_axis]
+             + splitter.vertices[t[2]][splitter.split_axis];
       }
 
       sum /= 3;

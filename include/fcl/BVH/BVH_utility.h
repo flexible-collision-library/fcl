@@ -114,6 +114,9 @@ void BVHExpand(
     BVNode<OBB<Scalar>>& bvnode = model.getBV(i);
 
     Vector3<Scalar>* vs = new Vector3<Scalar>[bvnode.num_primitives * 6];
+    // TODO(JS): We could use one std::vector outside of the outter for-loop,
+    // and reuse it rather than creating and destructing the array every
+    // iteration.
 
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
@@ -124,8 +127,12 @@ void BVHExpand(
 
       for(int k = 0; k < 3; ++k)
       {
-        vs[6 * j + 2 * k] = v + uc.axis.col(k) * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis.col(k) * (r * uc.sigma[k]);
+        const auto index1 = 6 * j + 2 * k;
+        const auto index2 = index1 + 1;
+        vs[index1] = v;
+        vs[index1].noalias() += uc.axis.col(k) * (r * uc.sigma[k]);
+        vs[index2] = v;
+        vs[index2].noalias() -= uc.axis.col(k) * (r * uc.sigma[k]);
       }
     }
 
@@ -150,6 +157,9 @@ void BVHExpand(
     BVNode<RSS<Scalar>>& bvnode = model.getBV(i);
 
     Vector3<Scalar>* vs = new Vector3<Scalar>[bvnode.num_primitives * 6];
+    // TODO(JS): We could use one std::vector outside of the outter for-loop,
+    // and reuse it rather than creating and destructing the array every
+    // iteration.
 
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {

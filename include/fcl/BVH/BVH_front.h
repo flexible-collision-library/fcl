@@ -74,9 +74,8 @@ void updateFrontList(BVHFrontList* front_list, int b1, int b2);
 //============================================================================//
 
 //==============================================================================
-inline BVHFrontNode::BVHFrontNode(int left_, int right_) : left(left_),
-  right(right_),
-  valid(true)
+inline BVHFrontNode::BVHFrontNode(int left_, int right_)
+  : left(left_), right(right_), valid(true)
 {
   // Do nothing
 }

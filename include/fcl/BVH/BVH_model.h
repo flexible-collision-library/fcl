@@ -946,7 +946,7 @@ Vector3<typename BV::Scalar> BVHModel<BV>::computeCOM() const
     const Triangle& tri = tri_indices[i];
     Scalar d_six_vol = (vertices[tri[0]].cross(vertices[tri[1]])).dot(vertices[tri[2]]);
     vol += d_six_vol;
-    com += (vertices[tri[0]] + vertices[tri[1]] + vertices[tri[2]]) * d_six_vol;
+    com.noalias() += (vertices[tri[0]] + vertices[tri[1]] + vertices[tri[2]]) * d_six_vol;
   }
 
   return com / (vol * 4);
@@ -989,7 +989,7 @@ Matrix3<typename BV::Scalar> BVHModel<BV>::computeMomentofInertia() const
     A.row(0) = v1;
     A.row(1) = v2;
     A.row(2) = v3;
-    C += A.transpose() * C_canonical * A * d_six_vol;
+    C.noalias() += A.transpose() * C_canonical * A * d_six_vol;
   }
 
   Scalar trace_C = C(0, 0) + C(1, 1) + C(2, 2);
@@ -1073,7 +1073,7 @@ int BVHModel<BV>::recursiveBuildTree(int bv_id, int first_primitive, int num_pri
         const Vector3<Scalar>& p1 = vertices[t[0]];
         const Vector3<Scalar>& p2 = vertices[t[1]];
         const Vector3<Scalar>& p3 = vertices[t[2]];
-        p = (p1 + p2 + p3) / 3.0;
+        p.noalias() = (p1 + p2 + p3) / 3.0;
       }
       else
       {

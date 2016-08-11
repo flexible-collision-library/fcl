@@ -482,8 +482,8 @@ struct FitImpl<Scalar, kIOS<Scalar>>
             fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
             primitive_indices, num_primitives, bv.spheres[2].o);
 
-      bv.spheres[1].o += bv.obb.axis.col(2) * (-r10 + r11);
-      bv.spheres[2].o += bv.obb.axis.col(2) * (r10 - r12);
+      bv.spheres[1].o.noalias() += bv.obb.axis.col(2) * (-r10 + r11);
+      bv.spheres[2].o.noalias() += bv.obb.axis.col(2) * (r10 - r12);
 
       bv.spheres[1].r = r10;
       bv.spheres[2].r = r10;
@@ -504,8 +504,8 @@ struct FitImpl<Scalar, kIOS<Scalar>>
             fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
             primitive_indices, num_primitives, bv.spheres[4].o);
 
-      bv.spheres[3].o += bv.obb.axis.col(1) * (-r10 + r21);
-      bv.spheres[4].o += bv.obb.axis.col(1) * (r10 - r22);
+      bv.spheres[3].o.noalias() += bv.obb.axis.col(1) * (-r10 + r21);
+      bv.spheres[4].o.noalias() += bv.obb.axis.col(1) * (r10 - r22);
 
       bv.spheres[3].r = r10;
       bv.spheres[4].r = r10;
