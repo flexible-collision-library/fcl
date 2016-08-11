@@ -42,6 +42,7 @@
 #include <chrono>
 #include <iostream>
 #include <map>
+#include <cmath>
 #include <mutex>
 #include <sstream>
 #include <string>
