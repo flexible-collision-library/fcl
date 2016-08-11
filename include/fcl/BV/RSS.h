@@ -656,7 +656,7 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
 
   Vector3<Scalar> Tba = Rab.transpose() * Tab;
 
-  Vector3<Scalar> S;
+  Vector3<Scalar> D;
   Scalar t, u;
 
   // determine if any edge pair contains the closest points
@@ -721,17 +721,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0,
                 Tba[1] - aA0_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - a[0] ;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - a[0] ;
+      D[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
+      D[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -750,17 +750,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1] - aA0_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 1) * u - a[0];
-      S[1] = Tab[1] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 1) * u - a[0];
+      D[1] = Tab[1] + Rab(1, 1) * u - t;
+      D[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -778,17 +778,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1] + bA1_dot_B0, Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u;
+      D[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - t;
+      D[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -806,17 +806,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, Tab[1], Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 1) * u;
-      S[1] = Tab[1] + Rab(1, 1) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 1) * u;
+      D[1] = Tab[1] + Rab(1, 1) * u - t;
+      D[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -874,17 +874,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1,
                 Tba[0] - aA0_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - a[0] ;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - a[0] ;
+      D[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
+      D[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -902,17 +902,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0] - aA0_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 0) * u - a[0];
-      S[1] = Tab[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 0) * u - a[0];
+      D[1] = Tab[1] + Rab(1, 0) * u - t;
+      D[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -931,18 +931,18 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1] + bA1_dot_B1, Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u;
+      D[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - t;
+      D[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
       if(P && Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -960,17 +960,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, Tab[1], Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 0) * u;
-      S[1] = Tab[1] + Rab(1, 0) * u - t;
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 0) * u;
+      D[1] = Tab[1] + Rab(1, 0) * u - t;
+      D[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P&& Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1028,17 +1028,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0,
                 Tba[1] - aA1_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
+      D[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u - a[1];
+      D[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1056,17 +1056,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1] - aA1_dot_B1);
 
-      S[0] = Tab[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 1) * u - t;
+      D[1] = Tab[1] + Rab(1, 1) * u - a[1];
+      D[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1084,17 +1084,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0] + bA0_dot_B0, Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u;
-      S[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 0) * b[0] + Rab(0, 1) * u - t;
+      D[1] = Tab[1] + Rab(1, 0) * b[0] + Rab(1, 1) * u;
+      D[2] = Tab[2] + Rab(2, 0) * b[0] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1112,17 +1112,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, Tab[0], Tba[1]);
 
-      S[0] = Tab[0] + Rab(0, 1) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * u;
-      S[2] = Tab[2] + Rab(2, 1) * u;
+      D[0] = Tab[0] + Rab(0, 1) * u - t;
+      D[1] = Tab[1] + Rab(1, 1) * u;
+      D[2] = Tab[2] + Rab(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1173,17 +1173,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1,
                 Tba[0] - aA1_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
+      D[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u - a[1];
+      D[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1201,17 +1201,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0] - aA1_dot_B0);
 
-      S[0] = Tab[0] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * u - a[1];
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 0) * u - t;
+      D[1] = Tab[1] + Rab(1, 0) * u - a[1];
+      D[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1230,17 +1230,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0] + bA0_dot_B1, Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u;
-      S[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 1) * b[1] + Rab(0, 0) * u - t;
+      D[1] = Tab[1] + Rab(1, 1) * b[1] + Rab(1, 0) * u;
+      D[2] = Tab[2] + Rab(2, 1) * b[1] + Rab(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1258,17 +1258,17 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, Tab[0], Tba[0]);
 
-      S[0] = Tab[0] + Rab(0, 0) * u - t;
-      S[1] = Tab[1] + Rab(1, 0) * u;
-      S[2] = Tab[2] + Rab(2, 0) * u;
+      D[0] = Tab[0] + Rab(0, 0) * u - t;
+      D[1] = Tab[1] + Rab(1, 0) * u;
+      D[2] = Tab[2] + Rab(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1305,13 +1305,13 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
   if(sep1 >= sep2 && sep1 >= 0)
   {
     if(Tab[2] > 0)
-      S << 0, 0, sep1;
+      D << 0, 0, sep1;
     else
-      S << 0, 0, -sep1;
+      D << 0, 0, -sep1;
 
     if(P && Q)
     {
-      *Q = S;
+      *Q = D;
       P->setZero();
     }
   }
@@ -1333,7 +1333,7 @@ Scalar rectDistance(const Matrix3<Scalar>& Rab, Vector3<Scalar> const& Tab, cons
       P_[2] = -Rab(2, 2) * sep2 + Tab[2];
     }
 
-    S = Q_ - P_;
+    D = Q_ - P_;
 
     if(P && Q)
     {
@@ -1371,7 +1371,7 @@ Scalar rectDistance(
 
   Vector3<Scalar> Tba = tfab.linear().transpose() * tfab.translation();
 
-  Vector3<Scalar> S;
+  Vector3<Scalar> D;
   Scalar t, u;
 
   // determine if any edge pair contains the closest points
@@ -1434,17 +1434,17 @@ Scalar rectDistance(
       segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1] + bA1_dot_B0,
                 Tba[1] - aA0_dot_B1);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - a[0] ;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - a[0] ;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1463,17 +1463,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1], Tba[1] - aA0_dot_B1);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - a[0];
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - a[0];
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1491,17 +1491,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1] + bA1_dot_B0, Tba[1]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1519,17 +1519,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[1], b[1], A1_dot_B1, tfab.translation()[1], Tba[1]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1587,17 +1587,17 @@ Scalar rectDistance(
       segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1] + bA1_dot_B1,
                 Tba[0] - aA0_dot_B0);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - a[0] ;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - a[0] ;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1615,17 +1615,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1], Tba[0] - aA0_dot_B0);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - a[0];
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - a[0];
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
         *P << a[0], t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1644,18 +1644,18 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1] + bA1_dot_B1, Tba[0]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1673,17 +1673,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[1], b[0], A1_dot_B0, tfab.translation()[1], Tba[0]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - t;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - t;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P&& Q)
       {
         *P << 0, t, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1741,17 +1741,17 @@ Scalar rectDistance(
       segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0] + bA0_dot_B0,
                 Tba[1] - aA1_dot_B1);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - a[1];
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u - a[1];
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1769,17 +1769,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0], Tba[1] - aA1_dot_B1);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - a[1];
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u - a[1];
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1797,17 +1797,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0] + bA0_dot_B0, Tba[1]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * b[0] + tfab.linear()(0, 1) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * b[0] + tfab.linear()(1, 1) * u;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * b[0] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1825,17 +1825,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[0], b[1], A0_dot_B1, tfab.translation()[0], Tba[1]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * u;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1886,17 +1886,17 @@ Scalar rectDistance(
       segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0] + bA0_dot_B1,
                 Tba[0] - aA1_dot_B0);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - a[1];
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u - a[1];
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1914,17 +1914,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0], Tba[0] - aA1_dot_B0);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - a[1];
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u - a[1];
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, a[1], 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1943,17 +1943,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0] + bA0_dot_B1, Tba[0]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 1) * b[1] + tfab.linear()(0, 0) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 1) * b[1] + tfab.linear()(1, 0) * u;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 1) * b[1] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -1971,17 +1971,17 @@ Scalar rectDistance(
     {
       segCoords(t, u, a[0], b[0], A0_dot_B0, tfab.translation()[0], Tba[0]);
 
-      S[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - t;
-      S[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u;
-      S[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
+      D[0] = tfab.translation()[0] + tfab.linear()(0, 0) * u - t;
+      D[1] = tfab.translation()[1] + tfab.linear()(1, 0) * u;
+      D[2] = tfab.translation()[2] + tfab.linear()(2, 0) * u;
 
       if(P && Q)
       {
         *P << t, 0, 0;
-        *Q = S + (*P);
+        *Q = D + (*P);
       }
 
-      return S.norm();
+      return D.norm();
     }
   }
 
@@ -2018,13 +2018,13 @@ Scalar rectDistance(
   if(sep1 >= sep2 && sep1 >= 0)
   {
     if(tfab.translation()[2] > 0)
-      S << 0, 0, sep1;
+      D << 0, 0, sep1;
     else
-      S << 0, 0, -sep1;
+      D << 0, 0, -sep1;
 
     if(P && Q)
     {
-      *Q = S;
+      *Q = D;
       P->setZero();
     }
   }
@@ -2044,7 +2044,7 @@ Scalar rectDistance(
       P_.noalias() += tfab.translation();
     }
 
-    S = Q_ - P_;
+    D = Q_ - P_;
 
     if(P && Q)
     {

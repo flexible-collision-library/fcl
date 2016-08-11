@@ -432,7 +432,7 @@ protected:
   /// @brief screw axis
   Vector3<Scalar> axis;
 
-  /// @brief A point on the axis S
+  /// @brief A point on the axis
   Vector3<Scalar> p;
 
   /// @brief linear velocity along the axis

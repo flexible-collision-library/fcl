@@ -63,7 +63,7 @@ public:
 
   Variance3();
 
-  Variance3(const Matrix3<Scalar>& S);
+  Variance3(const Matrix3<Scalar>& sigma);
 
   /// @brief init the Variance
   void init();
@@ -92,7 +92,7 @@ Variance3<Scalar>::Variance3()
 
 //==============================================================================
 template <typename Scalar>
-Variance3<Scalar>::Variance3(const Matrix3<Scalar>& S) : Sigma(S)
+Variance3<Scalar>::Variance3(const Matrix3<Scalar>& sigma) : Sigma(sigma)
 {
   init();
 }

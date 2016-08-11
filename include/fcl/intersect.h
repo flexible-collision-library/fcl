@@ -326,27 +326,27 @@ public:
                         Vector3<Scalar>& VEC, Vector3<Scalar>& X, Vector3<Scalar>& Y);
 
   /// @brief Compute the closest points on two triangles given their absolute coordinate, and returns the distance between them
-  /// S and T are two triangles
-  /// If the triangles are disjoint, P and Q give the closet points of S and T respectively. However,
+  /// T1 and T2 are two triangles
+  /// If the triangles are disjoint, P and Q give the closet points of T1 and T2 respectively. However,
   /// if the triangles overlap, P and Q are basically a random pair of points from the triangles, not
   /// coincident points on the intersection of the triangles, as might be expected.
-  static Scalar triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3], Vector3<Scalar>& P, Vector3<Scalar>& Q);
+  static Scalar triDistance(const Vector3<Scalar> T1[3], const Vector3<Scalar> T2[3], Vector3<Scalar>& P, Vector3<Scalar>& Q);
 
   static Scalar triDistance(const Vector3<Scalar>& S1, const Vector3<Scalar>& S2, const Vector3<Scalar>& S3,
                               const Vector3<Scalar>& T1, const Vector3<Scalar>& T2, const Vector3<Scalar>& T3,
                               Vector3<Scalar>& P, Vector3<Scalar>& Q);
 
   /// @brief Compute the closest points on two triangles given the relative transform between them, and returns the distance between them
-  /// S and T are two triangles
-  /// If the triangles are disjoint, P and Q give the closet points of S and T respectively. However,
+  /// T1 and T2 are two triangles
+  /// If the triangles are disjoint, P and Q give the closet points of T1 and T2 respectively. However,
   /// if the triangles overlap, P and Q are basically a random pair of points from the triangles, not
   /// coincident points on the intersection of the triangles, as might be expected.
   /// The returned P and Q are both in the coordinate of the first triangle's coordinate
-  static Scalar triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3],
+  static Scalar triDistance(const Vector3<Scalar> T1[3], const Vector3<Scalar> T2[3],
                               const Matrix3<Scalar>& R, const Vector3<Scalar>& Tl,
                               Vector3<Scalar>& P, Vector3<Scalar>& Q);
 
-  static Scalar triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3],
+  static Scalar triDistance(const Vector3<Scalar> T1[3], const Vector3<Scalar> T2[3],
                               const Transform3<Scalar>& tf,
                               Vector3<Scalar>& P, Vector3<Scalar>& Q);
 
@@ -1684,7 +1684,7 @@ void TriangleDistance<Scalar>::segPoints(const Vector3<Scalar>& P, const Vector3
 
 //==============================================================================
 template <typename Scalar>
-Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3], Vector3<Scalar>& P, Vector3<Scalar>& Q)
+Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> T1[3], const Vector3<Scalar> T2[3], Vector3<Scalar>& P, Vector3<Scalar>& Q)
 {
   // Compute vectors along the 6 sides
 
@@ -1692,13 +1692,13 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
   Vector3<Scalar> Tv[3];
   Vector3<Scalar> VEC;
 
-  Sv[0] = S[1] - S[0];
-  Sv[1] = S[2] - S[1];
-  Sv[2] = S[0] - S[2];
+  Sv[0] = T1[1] - T1[0];
+  Sv[1] = T1[2] - T1[1];
+  Sv[2] = T1[0] - T1[2];
 
-  Tv[0] = T[1] - T[0];
-  Tv[1] = T[2] - T[1];
-  Tv[2] = T[0] - T[2];
+  Tv[0] = T2[1] - T2[0];
+  Tv[1] = T2[2] - T2[1];
+  Tv[2] = T2[0] - T2[2];
 
   // For each edge pair, the vector connecting the closest points
   // of the edges defines a slab (parallel planes at head and tail
@@ -1715,7 +1715,7 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
   Scalar mindd;
   int shown_disjoint = 0;
 
-  mindd = (S[0] - T[0]).squaredNorm() + 1; // Set first minimum safely high
+  mindd = (T1[0] - T2[0]).squaredNorm() + 1; // Set first minimum safely high
 
   for(int i = 0; i < 3; ++i)
   {
@@ -1723,7 +1723,7 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
     {
       // Find closest points on edges i & j, plus the
       // vector (and distance squared) between these points
-      segPoints(S[i], Sv[i], T[j], Tv[j], VEC, P, Q);
+      segPoints(T1[i], Sv[i], T2[j], Tv[j], VEC, P, Q);
 
       V = Q - P;
       Scalar dd = V.dot(V);
@@ -1737,9 +1737,9 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
         minQ = Q;
         mindd = dd;
 
-        Z = S[(i+2)%3] - P;
+        Z = T1[(i+2)%3] - P;
         Scalar a = Z.dot(VEC);
-        Z = T[(j+2)%3] - Q;
+        Z = T2[(j+2)%3] - Q;
         Scalar b = Z.dot(VEC);
 
         if((a <= 0) && (b >= 0)) return sqrt(dd);
@@ -1772,24 +1772,24 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
   Vector3<Scalar> Sn;
   Scalar Snl;
 
-  Sn = Sv[0].cross(Sv[1]); // Compute normal to S triangle
+  Sn = Sv[0].cross(Sv[1]); // Compute normal to T1 triangle
   Snl = Sn.dot(Sn);        // Compute square of length of normal
 
   // If cross product is long enough,
 
   if(Snl > 1e-15)
   {
-    // Get projection lengths of T points
+    // Get projection lengths of T2 points
 
     Vector3<Scalar> Tp;
 
-    V = S[0] - T[0];
+    V = T1[0] - T2[0];
     Tp[0] = V.dot(Sn);
 
-    V = S[0] - T[1];
+    V = T1[0] - T2[1];
     Tp[1] = V.dot(Sn);
 
-    V = S[0] - T[2];
+    V = T1[0] - T2[2];
     Tp[2] = V.dot(Sn);
 
     // If Sn is a separating direction,
@@ -1816,22 +1816,22 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
       // Test whether the point found, when projected onto the
       // other triangle, lies within the face.
 
-      V = T[point] - S[0];
+      V = T2[point] - T1[0];
       Z = Sn.cross(Sv[0]);
       if(V.dot(Z) > 0)
       {
-        V = T[point] - S[1];
+        V = T2[point] - T1[1];
         Z = Sn.cross(Sv[1]);
         if(V.dot(Z) > 0)
         {
-          V = T[point] - S[2];
+          V = T2[point] - T1[2];
           Z = Sn.cross(Sv[2]);
           if(V.dot(Z) > 0)
           {
             // T[point] passed the test - it's a closest point for
-            // the T triangle; the other point is on the face of S
-            P = T[point] + Sn * (Tp[point] / Snl);
-            Q = T[point];
+            // the T2 triangle; the other point is on the face of T1
+            P = T2[point] + Sn * (Tp[point] / Snl);
+            Q = T2[point];
             return (P - Q).norm();
           }
         }
@@ -1849,13 +1849,13 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
   {
     Vector3<Scalar> Sp;
 
-    V = T[0] - S[0];
+    V = T2[0] - T1[0];
     Sp[0] = V.dot(Tn);
 
-    V = T[0] - S[1];
+    V = T2[0] - T1[1];
     Sp[1] = V.dot(Tn);
 
-    V = T[0] - S[2];
+    V = T2[0] - T1[2];
     Sp[2] = V.dot(Tn);
 
     int point = -1;
@@ -1874,20 +1874,20 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const V
     {
       shown_disjoint = 1;
 
-      V = S[point] - T[0];
+      V = T1[point] - T2[0];
       Z = Tn.cross(Tv[0]);
       if(V.dot(Z) > 0)
       {
-        V = S[point] - T[1];
+        V = T1[point] - T2[1];
         Z = Tn.cross(Tv[1]);
         if(V.dot(Z) > 0)
         {
-          V = S[point] - T[2];
+          V = T1[point] - T2[2];
           Z = Tn.cross(Tv[2]);
           if(V.dot(Z) > 0)
           {
-            P = S[point];
-            Q = S[point] + Tn * (Sp[point] / Tnl);
+            P = T1[point];
+            Q = T1[point] + Tn * (Sp[point] / Tnl);
             return (P - Q).norm();
           }
         }
@@ -1915,40 +1915,40 @@ Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar>& S1, const Ve
                                        const Vector3<Scalar>& T1, const Vector3<Scalar>& T2, const Vector3<Scalar>& T3,
                                        Vector3<Scalar>& P, Vector3<Scalar>& Q)
 {
-  Vector3<Scalar> S[3];
+  Vector3<Scalar> U[3];
   Vector3<Scalar> T[3];
-  S[0] = S1; S[1] = S2; S[2] = S3;
+  U[0] = S1; U[1] = S2; U[2] = S3;
   T[0] = T1; T[1] = T2; T[2] = T3;
 
-  return triDistance(S, T, P, Q);
+  return triDistance(U, T, P, Q);
 }
 
 //==============================================================================
 template <typename Scalar>
-Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3],
+Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> T1[3], const Vector3<Scalar> T2[3],
                                        const Matrix3<Scalar>& R, const Vector3<Scalar>& Tl,
                                        Vector3<Scalar>& P, Vector3<Scalar>& Q)
 {
   Vector3<Scalar> T_transformed[3];
-  T_transformed[0] = R * T[0] + Tl;
-  T_transformed[1] = R * T[1] + Tl;
-  T_transformed[2] = R * T[2] + Tl;
+  T_transformed[0] = R * T2[0] + Tl;
+  T_transformed[1] = R * T2[1] + Tl;
+  T_transformed[2] = R * T2[2] + Tl;
 
-  return triDistance(S, T_transformed, P, Q);
+  return triDistance(T1, T_transformed, P, Q);
 }
 
 //==============================================================================
 template <typename Scalar>
-Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> S[3], const Vector3<Scalar> T[3],
+Scalar TriangleDistance<Scalar>::triDistance(const Vector3<Scalar> T1[3], const Vector3<Scalar> T2[3],
                                        const Transform3<Scalar>& tf,
                                        Vector3<Scalar>& P, Vector3<Scalar>& Q)
 {
   Vector3<Scalar> T_transformed[3];
-  T_transformed[0] = tf * T[0];
-  T_transformed[1] = tf * T[1];
-  T_transformed[2] = tf * T[2];
+  T_transformed[0] = tf * T2[0];
+  T_transformed[1] = tf * T2[1];
+  T_transformed[2] = tf * T2[2];
 
-  return triDistance(S, T_transformed, P, Q);
+  return triDistance(T1, T_transformed, P, Q);
 }
 
 //==============================================================================
