@@ -39,6 +39,8 @@
 
 #include "fcl/config.h"
 #include "fcl/broadphase/broadphase.h"
+#include "fcl/broadphase/sparse_hash_table.h"
+#include "fcl/broadphase/spatial_hash.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 

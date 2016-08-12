@@ -35,66 +35,23 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BROAD_PHASE_SPATIAL_HASH_H
-#define FCL_BROAD_PHASE_SPATIAL_HASH_H
+#ifndef FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
+#define FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
 
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/hash.h"
-#include "fcl/BV/AABB.h"
 #include <list>
 #include <map>
+#include "fcl/BV/AABB.h"
+#include "fcl/broadphase/broadphase.h"
+#include "fcl/broadphase/simple_hash_table.h"
+#include "fcl/broadphase/spatial_hash.h"
 
 namespace fcl
 {
 
-/// @brief Spatial hash function: hash an AABB to a set of integer values
-template <typename S>
-struct SpatialHash
-{
-  SpatialHash(const AABB<S>& scene_limit_, S cell_size_) : cell_size(cell_size_),
-                                                               scene_limit(scene_limit_)
-  {
-    width[0] = std::ceil(scene_limit.width() / cell_size);
-    width[1] = std::ceil(scene_limit.height() / cell_size);
-    width[2] = std::ceil(scene_limit.depth() / cell_size);
-  }
-    
-  std::vector<unsigned int> operator() (const AABB<S>& aabb) const
-  {
-    int min_x = std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size);
-    int max_x = std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size);
-    int min_y = std::floor((aabb.min_[1] - scene_limit.min_[1]) / cell_size);
-    int max_y = std::ceil((aabb.max_[1] - scene_limit.min_[1]) / cell_size);
-    int min_z = std::floor((aabb.min_[2] - scene_limit.min_[2]) / cell_size);
-    int max_z = std::ceil((aabb.max_[2] - scene_limit.min_[2]) / cell_size);
-
-    std::vector<unsigned int> keys((max_x - min_x) * (max_y - min_y) * (max_z - min_z));
-    int id = 0;
-    for(int x = min_x; x < max_x; ++x)
-    {
-      for(int y = min_y; y < max_y; ++y)
-      {
-        for(int z = min_z; z < max_z; ++z)
-        {
-          keys[id++] = x + y * width[0] + z * width[0] * width[1];
-        }
-      }
-    }
-    return keys;
-  }
-
-private:
-
-  S cell_size;
-  AABB<S> scene_limit;
-  unsigned int width[3];
-};
-
-using SpatialHashf = SpatialHash<float>;
-using SpatialHashd = SpatialHash<double>;
-
 /// @brief spatial hashing collision mananger
-template<typename S, typename HashTable = SimpleHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >
+template<typename S,
+         typename HashTable
+             = SimpleHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >
 class SpatialHashingCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
@@ -102,17 +59,9 @@ public:
       S cell_size,
       const Vector3<S>& scene_min,
       const Vector3<S>& scene_max,
-      unsigned int default_table_size = 1000)
-    : scene_limit(AABB<S>(scene_min, scene_max)),
-      hash_table(new HashTable(SpatialHash<S>(scene_limit, cell_size)))
-  {
-    hash_table->init(default_table_size);
-  }
+      unsigned int default_table_size = 1000);
 
-  ~SpatialHashingCollisionManager()
-  {
-    delete hash_table;
-  }
+  ~SpatialHashingCollisionManager();
 
   /// @brief add one object to the manager
   void registerObject(CollisionObject<S>* obj);
@@ -163,15 +112,7 @@ public:
   size_t size() const;
 
   /// @brief compute the bound for the environent
-  static void computeBound(std::vector<CollisionObject<S>*>& objs, Vector3<S>& l, Vector3<S>& u)
-  {
-    AABB<S> bound;
-    for(unsigned int i = 0; i < objs.size(); ++i)
-      bound += objs[i]->getAABB();
-    
-    l = bound.min_;
-    u = bound.max_;
-  }
+  static void computeBound(std::vector<CollisionObject<S>*>& objs, Vector3<S>& l, Vector3<S>& u);
 
 protected:
 
@@ -180,7 +121,6 @@ protected:
 
   /// @brief perform distance computation between one object and all the objects belonging ot the manager
   bool distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
-
 
   /// @brief all objects in the scene
   std::list<CollisionObject<S>*> objs;
@@ -213,7 +153,28 @@ using SpatialHashingCollisionManagerd = SpatialHashingCollisionManager<double, H
 
 //==============================================================================
 template<typename S, typename HashTable>
-void SpatialHashingCollisionManager<S, HashTable>::registerObject(CollisionObject<S>* obj)
+SpatialHashingCollisionManager<S, HashTable>::SpatialHashingCollisionManager(
+    S cell_size,
+    const Vector3<S>& scene_min,
+    const Vector3<S>& scene_max,
+    unsigned int default_table_size)
+  : scene_limit(AABB<S>(scene_min, scene_max)),
+    hash_table(new HashTable(SpatialHash<S>(scene_limit, cell_size)))
+{
+  hash_table->init(default_table_size);
+}
+
+//==============================================================================
+template<typename S, typename HashTable>
+SpatialHashingCollisionManager<S, HashTable>::~SpatialHashingCollisionManager()
+{
+  delete hash_table;
+}
+
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::registerObject(
+    CollisionObject<S>* obj)
 {
   objs.push_back(obj);
 
@@ -233,6 +194,7 @@ void SpatialHashingCollisionManager<S, HashTable>::registerObject(CollisionObjec
   obj_aabb_map[obj] = obj_aabb;
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::unregisterObject(CollisionObject<S>* obj)
 {
@@ -254,10 +216,14 @@ void SpatialHashingCollisionManager<S, HashTable>::unregisterObject(CollisionObj
   obj_aabb_map.erase(obj);
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::setup()
-{}
+{
+  // Do nothing
+}
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::update()
 {
@@ -284,6 +250,7 @@ void SpatialHashingCollisionManager<S, HashTable>::update()
   }
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::update(CollisionObject<S>* updated_obj)
 {
@@ -315,6 +282,7 @@ void SpatialHashingCollisionManager<S, HashTable>::update(CollisionObject<S>* up
   obj_aabb_map[updated_obj] = new_aabb;
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::update(const std::vector<CollisionObject<S>*>& updated_objs)
 {
@@ -322,7 +290,7 @@ void SpatialHashingCollisionManager<S, HashTable>::update(const std::vector<Coll
     update(updated_objs[i]);
 }
 
-
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::clear()
 {
@@ -332,6 +300,7 @@ void SpatialHashingCollisionManager<S, HashTable>::clear()
   obj_aabb_map.clear();
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::getObjects(std::vector<CollisionObject<S>*>& objs_) const
 {
@@ -339,6 +308,7 @@ void SpatialHashingCollisionManager<S, HashTable>::getObjects(std::vector<Collis
   std::copy(objs.begin(), objs.end(), objs_.begin());
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
@@ -346,6 +316,7 @@ void SpatialHashingCollisionManager<S, HashTable>::collide(CollisionObject<S>* o
   collide_(obj, cdata, callback);
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const
 {
@@ -354,6 +325,7 @@ void SpatialHashingCollisionManager<S, HashTable>::distance(CollisionObject<S>* 
   distance_(obj, cdata, callback, min_dist);
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 bool SpatialHashingCollisionManager<S, HashTable>::collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
@@ -393,6 +365,7 @@ bool SpatialHashingCollisionManager<S, HashTable>::collide_(CollisionObject<S>* 
   return false;
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 bool SpatialHashingCollisionManager<S, HashTable>::distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const
 {
@@ -509,6 +482,7 @@ bool SpatialHashingCollisionManager<S, HashTable>::distance_(CollisionObject<S>*
   return false;
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::collide(void* cdata, CollisionCallBack<S> callback) const
 {
@@ -547,6 +521,7 @@ void SpatialHashingCollisionManager<S, HashTable>::collide(void* cdata, Collisio
   }
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::distance(void* cdata, DistanceCallBack<S> callback) const
 {
@@ -564,6 +539,7 @@ void SpatialHashingCollisionManager<S, HashTable>::distance(void* cdata, Distanc
   this->tested_set.clear();
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::collide(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, CollisionCallBack<S> callback) const
 {
@@ -589,6 +565,7 @@ void SpatialHashingCollisionManager<S, HashTable>::collide(BroadPhaseCollisionMa
   }
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 void SpatialHashingCollisionManager<S, HashTable>::distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const
 {
@@ -616,16 +593,31 @@ void SpatialHashingCollisionManager<S, HashTable>::distance(BroadPhaseCollisionM
   }
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 bool SpatialHashingCollisionManager<S, HashTable>::empty() const
 {
   return objs.empty();
 }
 
+//==============================================================================
 template<typename S, typename HashTable>
 size_t SpatialHashingCollisionManager<S, HashTable>::size() const
 {
   return objs.size();
+}
+
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::computeBound(
+    std::vector<CollisionObject<S>*>& objs, Vector3<S>& l, Vector3<S>& u)
+{
+  AABB<S> bound;
+  for(unsigned int i = 0; i < objs.size(); ++i)
+    bound += objs[i]->getAABB();
+
+  l = bound.min_;
+  u = bound.max_;
 }
 
 } // namespace fcl
