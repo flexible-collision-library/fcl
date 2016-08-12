@@ -50,6 +50,5 @@ build:
   project: C:\projects\fcl\build\fcl.sln
   parallel: true
 
-# tests seem to hang
-# test_script:
-#  - cmd: ctest -C %Configuration%
+test_script:
+  - cmd: ctest -C %Configuration%
