@@ -63,16 +63,16 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
 template <typename S>
 void test_octomap_collision()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test<S>(200, 10, false, 10, false, false, 0.1);
-  octomap_collision_test<S>(200, 100, false, 10, false, false, 0.1);
-  octomap_collision_test<S>(200, 10, true, 1, false, false, 0.1);
-  octomap_collision_test<S>(200, 100, true, 1, false, false, 0.1);
-#else
+#ifdef NDEBUG
   octomap_collision_test<S>(200, 100, false, 10, false, false);
   octomap_collision_test<S>(200, 1000, false, 10, false, false);
   octomap_collision_test<S>(200, 100, true, 1, false, false);
   octomap_collision_test<S>(200, 1000, true, 1, false, false);
+#else
+  octomap_collision_test<S>(200, 10, false, 10, false, false, 0.1);
+  octomap_collision_test<S>(200, 100, false, 10, false, false, 0.1);
+  octomap_collision_test<S>(200, 10, true, 1, false, false, 0.1);
+  octomap_collision_test<S>(200, 100, true, 1, false, false, 0.1);
 #endif
 }
 
@@ -85,14 +85,14 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_collision)
 template <typename S>
 void test_octomap_collision_mesh()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test<S>(200, 4, false, 1, true, true, 1.0);
-  octomap_collision_test<S>(200, 4, true, 1, true, true, 1.0);
-#else
+#ifdef NDEBUG
   octomap_collision_test<S>(200, 100, false, 10, true, true);
   octomap_collision_test<S>(200, 1000, false, 10, true, true);
   octomap_collision_test<S>(200, 100, true, 1, true, true);
   octomap_collision_test<S>(200, 1000, true, 1, true, true);
+#else
+  octomap_collision_test<S>(200, 4, false, 1, true, true, 1.0);
+  octomap_collision_test<S>(200, 4, true, 1, true, true, 1.0);
 #endif
 }
 
@@ -105,10 +105,10 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh)
 template <typename S>
 void test_octomap_collision_mesh_triangle_id()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test_mesh_triangle_id<S>(1, 10, 10000, 1.0);
-#else
+#ifdef NDEBUG
   octomap_collision_test_mesh_triangle_id<S>(1, 30, 100000);
+#else
+  octomap_collision_test_mesh_triangle_id<S>(1, 10, 10000, 1.0);
 #endif
 }
 
@@ -121,14 +121,14 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_triangle_id)
 template <typename S>
 void test_octomap_collision_mesh_octomap_box()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test<S>(200, 4, false, 4, true, false, 1.0);
-  octomap_collision_test<S>(200, 4, true, 1, true, false, 1.0);
-#else
+#ifdef NDEBUG
   octomap_collision_test<S>(200, 100, false, 10, true, false);
   octomap_collision_test<S>(200, 1000, false, 10, true, false);
   octomap_collision_test<S>(200, 100, true, 1, true, false);
   octomap_collision_test<S>(200, 1000, true, 1, true, false);
+#else
+  octomap_collision_test<S>(200, 4, false, 4, true, false, 1.0);
+  octomap_collision_test<S>(200, 4, true, 1, true, false, 1.0);
 #endif
 }
 
@@ -141,12 +141,12 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_collision_mesh_octomap_box)
 template <typename S>
 void test_octomap_bvh_obb_collision_obb()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_collision_test_BVH<OBB<S>>(1, false, 1.0);
-  octomap_collision_test_BVH<OBB<S>>(1, true, 1.0);
-#else
+#ifdef NDEBUG
   octomap_collision_test_BVH<OBB<S>>(5, false);
   octomap_collision_test_BVH<OBB<S>>(5, true);
+#else
+  octomap_collision_test_BVH<OBB<S>>(1, false, 1.0);
+  octomap_collision_test_BVH<OBB<S>>(1, true, 1.0);
 #endif
 }
 
@@ -180,7 +180,7 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
   S extents[] = {-10, -10, 10, 10, 10, 10};
 
   generateRandomTransforms(extents, transforms, n);
-  
+
   for(std::size_t i = 0; i < n; ++i)
   {
     Transform3<S> tf(transforms[i]);
@@ -197,7 +197,7 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
     generateBoxesFromOctomap(boxes, *tree);
     for(std::size_t j = 0; j < boxes.size(); ++j)
       boxes[j]->setTransform(tf * boxes[j]->getTransform());
-  
+
     DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
     manager->registerObjects(boxes);
     manager->setup();
@@ -239,7 +239,7 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
   DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
   manager->registerObjects(env);
   manager->setup();
-  
+
   CollisionData<S> cdata;
   if(exhaustive) cdata.request.num_max_contacts = 100000;
   else cdata.request.num_max_contacts = num_max_contacts;
@@ -276,7 +276,7 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
     generateBoxesFromOctomap(boxes, *tree);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
-  
+
   timer2.start();
   DynamicAABBTreeCollisionManager<S>* manager2 = new DynamicAABBTreeCollisionManager<S>();
   manager2->registerObjects(boxes);

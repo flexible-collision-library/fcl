@@ -260,10 +260,10 @@ void test_mesh_mesh()
 
   Eigen::aligned_vector<Transform3<S>> transforms;
   S extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
-#if FCL_BUILD_TYPE_DEBUG
-  std::size_t n = 1;
-#else
+#ifdef NDEBUG
   std::size_t n = 10;
+#else
+  std::size_t n = 1;
 #endif
   bool verbose = false;
 
@@ -1005,7 +1005,7 @@ bool collide_Test_Oriented(const Transform3<typename BV::S>& tf,
 
   CollisionResult<S> local_result;
   TraversalNode node;
-  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2, 
+  if(!initialize(node, (const BVHModel<BV>&)m1, pose1, (const BVHModel<BV>&)m2, pose2,
                  CollisionRequest<S>(num_max_contacts, enable_contact), local_result))
     std::cout << "initialize error" << std::endl;
 

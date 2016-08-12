@@ -77,10 +77,10 @@ void test_front_list()
   Eigen::aligned_vector<Transform3<S>> transforms2; // t1
   S extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
   S delta_trans[] = {1, 1, 1};
-#if FCL_BUILD_TYPE_DEBUG
-  std::size_t n = 1;
-#else
+#ifdef NDEBUG
   std::size_t n = 10;
+#else
+  std::size_t n = 1;
 #endif
   bool verbose = false;
 

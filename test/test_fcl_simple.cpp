@@ -124,7 +124,7 @@ void test_Vec_nf_test()
   SamplerSE3Euler<S> sampler3(Vector3<S>(0, 0, 0), Vector3<S>(1, 1, 1));
   for(std::size_t i = 0; i < 10; ++i)
     std::cout << sampler3.sample().transpose() << std::endl;
-  
+
 }
 
 GTEST_TEST(FCL_SIMPLE, Vec_nf_test)
@@ -138,14 +138,14 @@ void test_projection_test_line()
 {
   Vector3<S> v1(0, 0, 0);
   Vector3<S> v2(2, 0, 0);
-    
+
   Vector3<S> p(1, 0, 0);
   auto res = Project<S>::projectLine(v1, v2, p);
   EXPECT_TRUE(res.encode == 3);
   EXPECT_TRUE(approx(res.sqr_distance, (S)0));
   EXPECT_TRUE(approx(res.parameterization[0], (S)0.5));
   EXPECT_TRUE(approx(res.parameterization[1], (S)0.5));
-    
+
   p = Vector3<S>(-1, 0, 0);
   res = Project<S>::projectLine(v1, v2, p);
   EXPECT_TRUE(res.encode == 1);
@@ -182,7 +182,7 @@ void test_projection_test_triangle()
   EXPECT_TRUE(approx(res.parameterization[0], (S)(1/3.0)));
   EXPECT_TRUE(approx(res.parameterization[1], (S)(1/3.0)));
   EXPECT_TRUE(approx(res.parameterization[2], (S)(1/3.0)));
-  
+
   p = Vector3<S>(0, 0, 1.5);
   res = Project<S>::projectTriangle(v1, v2, v3, p);
   EXPECT_TRUE(res.encode == 1);
@@ -353,7 +353,7 @@ void test_projection_test_tetrahedron()
   EXPECT_TRUE(approx(res.parameterization[1], (S)0));
   EXPECT_TRUE(approx(res.parameterization[2], (S)0.5));
   EXPECT_TRUE(approx(res.parameterization[3], (S)0.5));
-    
+
   p = Vector3<S>(-0.5, 0.5, 0.5);
   res = Project<S>::projectTetrahedra(v1, v2, v3, v4, p);
   EXPECT_TRUE(res.encode == 3);
@@ -371,7 +371,7 @@ void test_projection_test_tetrahedron()
   EXPECT_TRUE(approx(res.parameterization[1], (S)0));
   EXPECT_TRUE(approx(res.parameterization[2], (S)0));
   EXPECT_TRUE(approx(res.parameterization[3], (S)0.5));
-    
+
   p = Vector3<S>(0.5, 0.5, -0.5);
   res = Project<S>::projectTetrahedra(v1, v2, v3, v4, p);
   EXPECT_TRUE(res.encode == 6);

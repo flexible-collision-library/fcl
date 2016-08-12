@@ -55,12 +55,12 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
 template <typename S>
 void test_octomap_cost()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_cost_test<S>(200, 10, 10, false, false, 0.1);
-  octomap_cost_test<S>(200, 100, 10, false, false, 0.1);
-#else
+#ifdef NDEBUG
   octomap_cost_test<S>(200, 100, 10, false, false);
   octomap_cost_test<S>(200, 1000, 10, false, false);
+#else
+  octomap_cost_test<S>(200, 10, 10, false, false, 0.1);
+  octomap_cost_test<S>(200, 100, 10, false, false, 0.1);
 #endif
 }
 
@@ -73,12 +73,12 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_cost)
 template <typename S>
 void test_octomap_cost_mesh()
 {
-#if FCL_BUILD_TYPE_DEBUG
+#ifdef NDEBUG
+  octomap_cost_test<S>(200, 100, 10, true, false);
+  octomap_cost_test<S>(200, 1000, 10, true, false);
+#else
   octomap_cost_test<S>(200, 2, 4, true, false, 1.0);
   octomap_cost_test<S>(200, 5, 4, true, false, 1.0);
-#else
-//  octomap_cost_test<S>(200, 100, 10, true, false);
-  octomap_cost_test<S>(200, 1000, 10, true, false);
 #endif
 }
 
@@ -103,7 +103,7 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
   DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
   manager->registerObjects(env);
   manager->setup();
-  
+
   CollisionData<S> cdata;
   cdata.request.enable_cost = true;
   cdata.request.num_max_cost_sources = num_max_cost_sources;
@@ -140,7 +140,7 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
     generateBoxesFromOctomap(boxes, *tree);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
-  
+
   timer2.start();
   DynamicAABBTreeCollisionManager<S>* manager2 = new DynamicAABBTreeCollisionManager<S>();
   manager2->registerObjects(boxes);
@@ -252,7 +252,7 @@ void generateBoxesFromOctomapMesh(std::vector<CollisionObject<S>*>& boxes, OcTre
     model->cost_density = cost;
     model->threshold_occupied = threshold;
     CollisionObject<S>* obj = new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), Transform3<S>(Translation3<S>(Vector3<S>(x, y, z))));
-    boxes.push_back(obj);    
+    boxes.push_back(obj);
   }
 
   std::cout << "boxes size: " << boxes.size() << std::endl;

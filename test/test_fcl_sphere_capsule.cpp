@@ -50,11 +50,11 @@ void test_Sphere_Capsule_Intersect_test_separated_z()
 {
   GJKSolver_libccd<S> solver;
 
-	Sphere<S> sphere1 (50);
-	Transform3<S> sphere1_transform;
+  Sphere<S> sphere1 (50);
+  Transform3<S> sphere1_transform;
   sphere1_transform.translation() = (Vector3<S> (0., 0., -50));
 
-	Capsule<S> capsule (50, 200.);
+  Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(0., 0., 200)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
@@ -71,11 +71,11 @@ void test_Sphere_Capsule_Intersect_test_separated_z_negative()
 {
   GJKSolver_libccd<S> solver;
 
-	Sphere<S> sphere1 (50);
-	Transform3<S> sphere1_transform;
+  Sphere<S> sphere1 (50);
+  Transform3<S> sphere1_transform;
   sphere1_transform.translation() = (Vector3<S> (0., 0., 50));
 
-	Capsule<S> capsule (50, 200.);
+  Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(0., 0., -200)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
@@ -92,11 +92,11 @@ void test_Sphere_Capsule_Intersect_test_separated_x()
 {
   GJKSolver_libccd<S> solver;
 
-	Sphere<S> sphere1 (50);
-	Transform3<S> sphere1_transform;
+  Sphere<S> sphere1 (50);
+  Transform3<S> sphere1_transform;
   sphere1_transform.translation() = (Vector3<S> (0., 0., -50));
 
-	Capsule<S> capsule (50, 200.);
+  Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(150., 0., 0.)));
 
   EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
@@ -113,11 +113,11 @@ void test_Sphere_Capsule_Intersect_test_separated_capsule_rotated()
 {
   GJKSolver_libccd<S> solver;
 
-	Sphere<S> sphere1 (50);
-	Transform3<S> sphere1_transform;
+  Sphere<S> sphere1 (50);
+  Transform3<S> sphere1_transform;
   sphere1_transform.translation() = (Vector3<S> (0., 0., -50));
 
-	Capsule<S> capsule (50, 200.);
+  Capsule<S> capsule (50, 200.);
   Matrix3<S> rotation(
         AngleAxis<S>(constants<S>::pi() * 0.5, Vector3<S>::UnitX())
       * AngleAxis<S>(0.0, Vector3<S>::UnitY())
@@ -172,10 +172,10 @@ void test_Sphere_Capsule_Intersect_test_penetration_z_rotated()
 {
   GJKSolver_libccd<S> solver;
 
-	Sphere<S> sphere1 (50);
+  Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform = Transform3<S>::Identity();
 
-	Capsule<S> capsule (50, 200.);
+  Capsule<S> capsule (50, 200.);
   Matrix3<S> rotation(
         AngleAxis<S>(constants<S>::pi() * 0.5, Vector3<S>::UnitX())
       * AngleAxis<S>(0.0, Vector3<S>::UnitY())
@@ -209,13 +209,13 @@ void test_Sphere_Capsule_Distance_test_collision()
 {
   GJKSolver_libccd<S> solver;
 
-	Sphere<S> sphere1 (50);
+  Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform(Translation3<S>(Vector3<S>(0., 0., -50)));
 
-	Capsule<S> capsule (50, 200.);
+  Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(0., 0., 100)));
 
-	S distance;
+  S distance;
 
   EXPECT_TRUE (!solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance));
 
@@ -232,16 +232,16 @@ void test_Sphere_Capsule_Distance_test_separated()
 {
   GJKSolver_libccd<S> solver;
 
-	Sphere<S> sphere1 (50);
+  Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform(Translation3<S>(Vector3<S>(0., 0., -50)));
 
-	Capsule<S> capsule (50, 200.);
+  Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(0., 0., 175)));
 
-	S distance = 0.;
-	Vector3<S> p1;
-	Vector3<S> p2;
-	bool is_separated = solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance);
+  S distance = 0.;
+  Vector3<S> p1;
+  Vector3<S> p2;
+  bool is_separated = solver.shapeDistance(sphere1, sphere1_transform, capsule, capsule_transform, &distance);
 
   EXPECT_TRUE (is_separated);
   EXPECT_TRUE (distance == 25.);

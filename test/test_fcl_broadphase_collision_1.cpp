@@ -74,72 +74,72 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 /// check the update, only return collision or not
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_update_collision_binary)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test<double>(2000, 10, 100, 1, false);
-  broad_phase_update_collision_test<double>(2000, 100, 100, 1, false);
-#else
+#ifdef NDEBUG
   broad_phase_update_collision_test<double>(2000, 100, 1000, 1, false);
   broad_phase_update_collision_test<double>(2000, 1000, 1000, 1, false);
+#else
+  broad_phase_update_collision_test<double>(2000, 10, 100, 1, false);
+  broad_phase_update_collision_test<double>(2000, 100, 100, 1, false);
 #endif
 }
 
 /// check the update, return 10 contacts
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_update_collision)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test<double>(2000, 10, 100, 10, false);
-  broad_phase_update_collision_test<double>(2000, 100, 100, 10, false);
-#else
+#ifdef NDEBUG
   broad_phase_update_collision_test<double>(2000, 100, 1000, 10, false);
   broad_phase_update_collision_test<double>(2000, 1000, 1000, 10, false);
+#else
+  broad_phase_update_collision_test<double>(2000, 10, 100, 10, false);
+  broad_phase_update_collision_test<double>(2000, 100, 100, 10, false);
 #endif
 }
 
 /// check the update, exhaustive
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_update_collision_exhaustive)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test<double>(2000, 10, 100, 1, true);
-  broad_phase_update_collision_test<double>(2000, 100, 100, 1, true);
-#else
+#ifdef NDEBUG
   broad_phase_update_collision_test<double>(2000, 100, 1000, 1, true);
   broad_phase_update_collision_test<double>(2000, 1000, 1000, 1, true);
+#else
+  broad_phase_update_collision_test<double>(2000, 10, 100, 1, true);
+  broad_phase_update_collision_test<double>(2000, 100, 100, 1, true);
 #endif
 }
 
 /// check broad phase update, in mesh, only return collision or not
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh_binary)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test<double>(2000, 2, 4, 1, false, true);
-  broad_phase_update_collision_test<double>(2000, 4, 4, 1, false, true);
-#else
+#ifdef NDEBUG
   broad_phase_update_collision_test<double>(2000, 100, 1000, 1, false, true);
   broad_phase_update_collision_test<double>(2000, 1000, 1000, 1, false, true);
+#else
+  broad_phase_update_collision_test<double>(2000, 2, 4, 1, false, true);
+  broad_phase_update_collision_test<double>(2000, 4, 4, 1, false, true);
 #endif
 }
 
 /// check broad phase update, in mesh, return 10 contacts
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test<double>(200, 2, 4, 10, false, true);
-  broad_phase_update_collision_test<double>(200, 4, 4, 10, false, true);
-#else
+#ifdef NDEBUG
   broad_phase_update_collision_test<double>(2000, 100, 1000, 10, false, true);
   broad_phase_update_collision_test<double>(2000, 1000, 1000, 10, false, true);
+#else
+  broad_phase_update_collision_test<double>(200, 2, 4, 10, false, true);
+  broad_phase_update_collision_test<double>(200, 4, 4, 10, false, true);
 #endif
 }
 
 /// check broad phase update, in mesh, exhaustive
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh_exhaustive)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_update_collision_test<double>(2000, 2, 4, 1, true, true);
-  broad_phase_update_collision_test<double>(2000, 4, 4, 1, true, true);
-#else
+#ifdef NDEBUG
   broad_phase_update_collision_test<double>(2000, 100, 1000, 1, true, true);
   broad_phase_update_collision_test<double>(2000, 1000, 1000, 1, true, true);
+#else
+  broad_phase_update_collision_test<double>(2000, 2, 4, 1, true, true);
+  broad_phase_update_collision_test<double>(2000, 4, 4, 1, true, true);
 #endif
 }
 
@@ -157,19 +157,19 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
 
   std::vector<CollisionObject<S>*> query;
   if(use_mesh)
-    generateEnvironmentsMesh(query, env_scale, query_size); 
+    generateEnvironmentsMesh(query, env_scale, query_size);
   else
-    generateEnvironments(query, env_scale, query_size); 
+    generateEnvironments(query, env_scale, query_size);
 
   std::vector<BroadPhaseCollisionManager<S>*> managers;
-  
+
   managers.push_back(new NaiveCollisionManager<S>());
   managers.push_back(new SSaPCollisionManager<S>());
 
-  
+
   managers.push_back(new SaPCollisionManager<S>());
   managers.push_back(new IntervalTreeCollisionManager<S>());
-  
+
   Vector3<S> lower_limit, upper_limit;
   SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
   S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
@@ -204,7 +204,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
-  
+
   for(size_t i = 0; i < managers.size(); ++i)
   {
     timers[i].start();
@@ -230,7 +230,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
           * AngleAxis<S>(rand_angle_y, Vector3<S>::UnitY())
           * AngleAxis<S>(rand_angle_z, Vector3<S>::UnitZ()));
     Vector3<S> dT(rand_trans_x, rand_trans_y, rand_trans_z);
-    
+
     Matrix3<S> R = env[i]->getRotation();
     Vector3<S> T = env[i]->getTranslation();
     env[i]->setTransform(dR * R, dR * T + dT);
@@ -275,7 +275,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
     std::vector<bool> self_res(managers.size());
     for(size_t i = 0; i < self_res.size(); ++i)
       self_res[i] = (self_data[i].result.numContacts() > 0);
-  
+
     for(size_t i = 1; i < self_res.size(); ++i)
       EXPECT_TRUE(self_res[0] == self_res[i]);
 
@@ -305,7 +305,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
     // for(size_t j = 0; j < managers.size(); ++j)
     //   std::cout << query_data[j].result.numContacts() << " ";
     // std::cout << std::endl;
-    
+
     if(exhaustive)
     {
       for(size_t j = 1; j < managers.size(); ++j)
@@ -332,7 +332,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
 
   for(size_t i = 0; i < managers.size(); ++i)
     delete managers[i];
-  
+
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
   size_t w = 7;

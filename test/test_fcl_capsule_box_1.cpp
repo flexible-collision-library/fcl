@@ -55,7 +55,7 @@ void test_distance_capsule_box()
   // Enable computation of nearest points
   fcl::DistanceRequest<S> distanceRequest (true);
   fcl::DistanceResult<S> distanceResult;
-  
+
   fcl::Transform3<S> tf1(fcl::Translation3<S>(fcl::Vector3<S> (3., 0, 0)));
   fcl::Transform3<S> tf2 = fcl::Transform3<S>::Identity();
   fcl::CollisionObject<S> capsule (capsuleGeometry, tf1);

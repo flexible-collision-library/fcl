@@ -81,7 +81,7 @@ void test_consistency_distance_spheresphere_libccd()
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
@@ -90,7 +90,7 @@ void test_consistency_distance_spheresphere_libccd()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -128,7 +128,7 @@ void test_consistency_distance_spheresphere_libccd()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -273,7 +273,7 @@ void test_consistency_distance_boxbox_libccd()
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
@@ -286,7 +286,7 @@ void test_consistency_distance_boxbox_libccd()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -305,12 +305,12 @@ void test_consistency_distance_boxbox_libccd()
   }
 
   pose.translation() = Vector3<S>(15.1, 0, 0);
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
@@ -323,7 +323,7 @@ void test_consistency_distance_boxbox_libccd()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -371,20 +371,20 @@ void test_consistency_distance_cylindercylinder_libccd()
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -401,14 +401,14 @@ void test_consistency_distance_cylindercylinder_libccd()
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
   }
-  
+
   pose.translation() = Vector3<S>(15, 0, 0); // libccd cannot use small value here :(
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
@@ -416,12 +416,12 @@ void test_consistency_distance_cylindercylinder_libccd()
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -464,24 +464,24 @@ void test_consistency_distance_conecone_libccd()
   Transform3<S> pose = Transform3<S>::Identity();
 
   pose.translation() = Vector3<S>(20, 0, 0);
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -498,14 +498,14 @@ void test_consistency_distance_conecone_libccd()
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
-  
+
   pose.translation() = Vector3<S>(15, 0, 0); // libccd cannot use small value here :(
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
@@ -513,12 +513,12 @@ void test_consistency_distance_conecone_libccd()
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -570,7 +570,7 @@ void test_consistency_distance_spheresphere_GJK()
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
@@ -580,7 +580,7 @@ void test_consistency_distance_spheresphere_GJK()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -618,7 +618,7 @@ void test_consistency_distance_spheresphere_GJK()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -767,7 +767,7 @@ void test_consistency_distance_boxbox_GJK()
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.01);
@@ -780,7 +780,7 @@ void test_consistency_distance_boxbox_GJK()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -799,12 +799,12 @@ void test_consistency_distance_boxbox_GJK()
   }
 
   pose.translation() = Vector3<S>(15.1, 0, 0);
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
@@ -817,7 +817,7 @@ void test_consistency_distance_boxbox_GJK()
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -853,7 +853,7 @@ void test_consistency_distance_cylindercylinder_GJK()
 
   generateBVHModel(s1_rss, s1, Transform3<S>::Identity(), 16, 16);
   generateBVHModel(s2_rss, s2, Transform3<S>::Identity(), 16, 16);
-  
+
   DistanceRequest<S> request;
   request.gjk_solver_type = GST_INDEP;
   DistanceResult<S> res, res1;
@@ -861,25 +861,25 @@ void test_consistency_distance_cylindercylinder_GJK()
   Transform3<S> pose = Transform3<S>::Identity();
 
   pose.translation() = Vector3<S>(20, 0, 0);
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -905,14 +905,14 @@ void test_consistency_distance_cylindercylinder_GJK()
     else
       EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
-  
+
   pose.translation() = Vector3<S>(10.1, 0, 0);
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
@@ -920,12 +920,12 @@ void test_consistency_distance_cylindercylinder_GJK()
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -974,20 +974,20 @@ void test_consistency_distance_conecone_GJK()
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 
@@ -1004,14 +1004,14 @@ void test_consistency_distance_conecone_GJK()
     distance(&s1_rss, pose1, &s2, pose2, request, res1);
     EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 0.05);
   }
-  
+
   pose.translation() = Vector3<S>(10.1, 0, 0);
-  
+
   res.clear(); res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2, pose, request, res);
   distance(&s1_rss, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   res1.clear();
   distance(&s1, Transform3<S>::Identity(), &s2_rss, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
@@ -1019,12 +1019,12 @@ void test_consistency_distance_conecone_GJK()
   res1.clear();
   distance(&s1_rss, Transform3<S>::Identity(), &s2, pose, request, res1);
   EXPECT_TRUE(fabs(res1.min_distance - res.min_distance) / res.min_distance < 2);
-  
+
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
     generateRandomTransform(extents<S>(), t);
-    
+
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
 

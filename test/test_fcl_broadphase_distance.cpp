@@ -89,60 +89,60 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 /// check broad phase distance
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_distance)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_distance_test<double>(200, 10, 10);
-  broad_phase_distance_test<double>(200, 100, 10);
-  broad_phase_distance_test<double>(2000, 10, 10);
-  broad_phase_distance_test<double>(2000, 100, 10);
-#else
+#ifdef NDEBUG
   broad_phase_distance_test<double>(200, 100, 100);
   broad_phase_distance_test<double>(200, 1000, 100);
   broad_phase_distance_test<double>(2000, 100, 100);
   broad_phase_distance_test<double>(2000, 1000, 100);
+#else
+  broad_phase_distance_test<double>(200, 10, 10);
+  broad_phase_distance_test<double>(200, 100, 10);
+  broad_phase_distance_test<double>(2000, 10, 10);
+  broad_phase_distance_test<double>(2000, 100, 10);
 #endif
 }
 
 /// check broad phase self distance
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_self_distance)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_self_distance_test<double>(200, 256);
-  broad_phase_self_distance_test<double>(200, 500);
-  broad_phase_self_distance_test<double>(200, 2500);
-#else
+#ifdef NDEBUG
   broad_phase_self_distance_test<double>(200, 512);
   broad_phase_self_distance_test<double>(200, 1000);
   broad_phase_self_distance_test<double>(200, 5000);
+#else
+  broad_phase_self_distance_test<double>(200, 256);
+  broad_phase_self_distance_test<double>(200, 500);
+  broad_phase_self_distance_test<double>(200, 2500);
 #endif
 }
 
 /// check broad phase distance
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_distance_mesh)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_distance_test<double>(200, 2, 2, true);
-  broad_phase_distance_test<double>(200, 4, 2, true);
-  broad_phase_distance_test<double>(2000, 2, 2, true);
-  broad_phase_distance_test<double>(2000, 4, 2, true);
-#else
+#ifdef NDEBUG
   broad_phase_distance_test<double>(200, 100, 100, true);
   broad_phase_distance_test<double>(200, 1000, 100, true);
   broad_phase_distance_test<double>(2000, 100, 100, true);
   broad_phase_distance_test<double>(2000, 1000, 100, true);
+#else
+  broad_phase_distance_test<double>(200, 2, 2, true);
+  broad_phase_distance_test<double>(200, 4, 2, true);
+  broad_phase_distance_test<double>(2000, 2, 2, true);
+  broad_phase_distance_test<double>(2000, 4, 2, true);
 #endif
 }
 
 /// check broad phase self distance
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_self_distance_mesh)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_self_distance_test<double>(200, 128, true);
-  broad_phase_self_distance_test<double>(200, 250, true);
-  broad_phase_self_distance_test<double>(200, 1250, true);
-#else
+#ifdef NDEBUG
   broad_phase_self_distance_test<double>(200, 512, true);
   broad_phase_self_distance_test<double>(200, 1000, true);
   broad_phase_self_distance_test<double>(200, 5000, true);
+#else
+  broad_phase_self_distance_test<double>(200, 128, true);
+  broad_phase_self_distance_test<double>(200, 250, true);
+  broad_phase_self_distance_test<double>(200, 1250, true);
 #endif
 }
 
@@ -154,7 +154,7 @@ void generateSelfDistanceEnvironments(std::vector<CollisionObject<S>*>& env, S e
   S step_size = env_scale * 2 / n_edge;
   S delta_size = step_size * 0.05;
   S single_size = step_size - 2 * delta_size;
-  
+
   unsigned int i = 0;
   for(; i < n_edge * n_edge * n_edge / 4; ++i)
   {
@@ -230,7 +230,7 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject<S>*>& env,
   S step_size = env_scale * 2 / n_edge;
   S delta_size = step_size * 0.05;
   S single_size = step_size - 2 * delta_size;
-  
+
   std::size_t i = 0;
   for(; i < n_edge * n_edge * n_edge / 4; ++i)
   {
@@ -319,14 +319,14 @@ void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_
     generateSelfDistanceEnvironmentsMesh(env, env_scale, env_size);
   else
     generateSelfDistanceEnvironments(env, env_scale, env_size);
-  
+
   std::vector<BroadPhaseCollisionManager<S>*> managers;
-  
+
   managers.push_back(new NaiveCollisionManager<S>());
   managers.push_back(new SSaPCollisionManager<S>());
   managers.push_back(new SaPCollisionManager<S>());
   managers.push_back(new IntervalTreeCollisionManager<S>());
-  
+
   Vector3<S> lower_limit, upper_limit;
   SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
   S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 5, (upper_limit[1] - lower_limit[1]) / 5), (upper_limit[2] - lower_limit[2]) / 5);
@@ -369,10 +369,10 @@ void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
- 
+
 
   std::vector<DistanceData<S>> self_data(managers.size());
-                                      
+
   for(size_t i = 0; i < self_data.size(); ++i)
   {
     timers[i].start();
@@ -391,7 +391,7 @@ void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_
     delete env[i];
 
   for(size_t i = 0; i < managers.size(); ++i)
-    delete managers[i];     
+    delete managers[i];
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
   size_t w = 7;
@@ -469,7 +469,7 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
   managers.push_back(new SSaPCollisionManager<S>());
   managers.push_back(new SaPCollisionManager<S>());
   managers.push_back(new IntervalTreeCollisionManager<S>());
-  
+
   Vector3<S> lower_limit, upper_limit;
   SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
   S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
