@@ -54,11 +54,11 @@ namespace fcl
 /// @brief Traversal node for shape-octree collision
 template <typename Shape, typename NarrowPhaseSolver>
 class ShapeOcTreeCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::S>
+    : public CollisionTraversalNodeBase<typename Shape::S>
 {
 public:
 
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   ShapeOcTreeCollisionTraversalNode();
 
@@ -80,12 +80,12 @@ template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     ShapeOcTreeCollisionTraversalNode<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const OcTree<typename NarrowPhaseSolver::S>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape::S>& tf1,
+    const OcTree<typename Shape::S>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-    CollisionResult<typename NarrowPhaseSolver::S>& result);
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -126,12 +126,12 @@ template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     ShapeOcTreeCollisionTraversalNode<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const OcTree<typename NarrowPhaseSolver::S>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape::S>& tf1,
+    const OcTree<typename Shape::S>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-    CollisionResult<typename NarrowPhaseSolver::S>& result)
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result)
 {
   node.request = request;
   node.result = &result;

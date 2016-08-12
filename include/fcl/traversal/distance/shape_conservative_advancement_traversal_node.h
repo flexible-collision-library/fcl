@@ -48,7 +48,7 @@ class ShapeConservativeAdvancementTraversalNode
     : public ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>
 {
 public:
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape1::S;
 
   ShapeConservativeAdvancementTraversalNode();
 
@@ -74,9 +74,9 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
     const Shape1& shape1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename Shape1::S>& tf1,
     const Shape2& shape2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape1::S>& tf2,
     const NarrowPhaseSolver* nsolver);
 
 //============================================================================//
@@ -137,12 +137,12 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
     const Shape1& shape1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename Shape1::S>& tf1,
     const Shape2& shape2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape1::S>& tf2,
     const NarrowPhaseSolver* nsolver)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape1::S;
 
   node.model1 = &shape1;
   node.tf1 = tf1;
@@ -150,15 +150,8 @@ bool initialize(
   node.tf2 = tf2;
   node.nsolver = nsolver;
 
-  computeBV(
-        shape1,
-        Transform3<S>::Identity(),
-        node.model1_bv);
-
-  computeBV(
-        shape2,
-        Transform3<S>::Identity(),
-        node.model2_bv);
+  computeBV(shape1, Transform3<S>::Identity(), node.model1_bv);
+  computeBV(shape2, Transform3<S>::Identity(), node.model2_bv);
 
   return true;
 }

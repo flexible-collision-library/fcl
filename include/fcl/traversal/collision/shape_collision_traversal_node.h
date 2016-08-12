@@ -47,11 +47,11 @@ namespace fcl
 /// @brief Traversal node for collision between two shapes
 template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::S>
+    : public CollisionTraversalNodeBase<typename Shape1::S>
 {
 public:
 
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape1::S;
 
   ShapeCollisionTraversalNode();
 
@@ -75,12 +75,12 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
     const Shape1& shape1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename Shape1::S>& tf1,
     const Shape2& shape2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape1::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-    CollisionResult<typename NarrowPhaseSolver::S>& result);
+    const CollisionRequest<typename Shape1::S>& request,
+    CollisionResult<typename Shape1::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -92,7 +92,7 @@ bool initialize(
 template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 ShapeCollisionTraversalNode()
-  : CollisionTraversalNodeBase<typename NarrowPhaseSolver::S>()
+  : CollisionTraversalNodeBase<typename Shape1::S>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -182,12 +182,12 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
     const Shape1& shape1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename Shape1::S>& tf1,
     const Shape2& shape2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape1::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-    CollisionResult<typename NarrowPhaseSolver::S>& result)
+    const CollisionRequest<typename Shape1::S>& request,
+    CollisionResult<typename Shape1::S>& result)
 {
   node.model1 = &shape1;
   node.tf1 = tf1;

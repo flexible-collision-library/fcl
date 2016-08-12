@@ -79,12 +79,12 @@ template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
     MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
     const BVHModel<BV>& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const OcTree<typename NarrowPhaseSolver::S>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename BV::S>& tf1,
+    const OcTree<typename BV::S>& model2,
+    const Transform3<typename BV::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
-    DistanceResult<typename NarrowPhaseSolver::S>& result);
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -125,12 +125,12 @@ template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
     MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
     const BVHModel<BV>& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const OcTree<typename NarrowPhaseSolver::S>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename BV::S>& tf1,
+    const OcTree<typename BV::S>& model2,
+    const Transform3<typename BV::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
-    DistanceResult<typename NarrowPhaseSolver::S>& result)
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
   node.request = request;
   node.result = &result;

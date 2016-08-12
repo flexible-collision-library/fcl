@@ -163,7 +163,7 @@ typename BV::S BVHOcTreeDistance(
     const DistanceRequest<typename BV::S>& request,
     DistanceResult<typename BV::S>& result)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename BV::S;
 
   if(request.isSatisfied(result)) return result.min_distance;
   MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver> node;
@@ -187,7 +187,7 @@ typename BV::S OcTreeBVHDistance(
     const DistanceRequest<typename BV::S>& request,
     DistanceResult<typename BV::S>& result)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename BV::S;
 
   if(request.isSatisfied(result)) return result.min_distance;
   OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver> node;

@@ -47,10 +47,10 @@ namespace fcl
 /// @brief Traversal node for distance between two shapes
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::S>
+    : public DistanceTraversalNodeBase<typename Shape1::S>
 {
 public:
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape1::S;
 
   ShapeDistanceTraversalNode();
 
@@ -71,12 +71,12 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
     const Shape1& shape1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename Shape1::S>& tf1,
     const Shape2& shape2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape1::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
-    DistanceResult<typename NarrowPhaseSolver::S>& result);
+    const DistanceRequest<typename Shape1::S>& request,
+    DistanceResult<typename Shape1::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -87,7 +87,7 @@ bool initialize(
 //==============================================================================
 template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
-ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSolver::S>()
+ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename Shape1::S>()
 {
   model1 = NULL;
   model2 = NULL;
@@ -97,7 +97,7 @@ ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename NarrowPhaseSol
 
 //==============================================================================
 template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::S
+typename Shape1::S
 ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::BVTesting(int, int) const
 {
   return -1; // should not be used
@@ -108,7 +108,7 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 void ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::leafTesting(
     int, int) const
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape1::S;
 
   S distance;
   // NOTE(JS): The closest points are set to zeros in order to suppress the
@@ -138,12 +138,12 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool initialize(
     ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
     const Shape1& shape1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename Shape1::S>& tf1,
     const Shape2& shape2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape1::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
-    DistanceResult<typename NarrowPhaseSolver::S>& result)
+    const DistanceRequest<typename Shape1::S>& request,
+    DistanceResult<typename Shape1::S>& result)
 {
   node.request = request;
   node.result = &result;

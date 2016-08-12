@@ -230,15 +230,15 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
 
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const Shape1& o1,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion1,
+                             const MotionBase<typename Shape1::S>* motion1,
                              const Shape2& o2,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion2,
+                             const MotionBase<typename Shape1::S>* motion2,
                              const NarrowPhaseSolver* solver,
-                             const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-                             CollisionResult<typename NarrowPhaseSolver::S>& result,
-                             typename NarrowPhaseSolver::S& toc)
+                             const CollisionRequest<typename Shape1::S>& request,
+                             CollisionResult<typename Shape1::S>& result,
+                             typename Shape1::S& toc)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape1::S;
 
   Transform3<S> tf1, tf2;
   motion1->getCurrentTransform(tf1);
@@ -439,31 +439,31 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
 
 
 template<typename Shape, typename NarrowPhaseSolver>
-bool conservativeAdvancement(const BVHModel<RSS<typename NarrowPhaseSolver::S>>& o1,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion1,
+bool conservativeAdvancement(const BVHModel<RSS<typename Shape::S>>& o1,
+                             const MotionBase<typename Shape::S>* motion1,
                              const Shape& o2,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion2,
+                             const MotionBase<typename Shape::S>* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-                             CollisionResult<typename NarrowPhaseSolver::S>& result,
-                             typename NarrowPhaseSolver::S& toc)
+                             const CollisionRequest<typename Shape::S>& request,
+                             CollisionResult<typename Shape::S>& result,
+                             typename Shape::S& toc)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   return details::conservativeAdvancementMeshShapeOriented<RSS<S>, Shape, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeRSS<Shape, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
 template<typename Shape, typename NarrowPhaseSolver>
-bool conservativeAdvancement(const BVHModel<OBBRSS<typename NarrowPhaseSolver::S>>& o1,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion1,
+bool conservativeAdvancement(const BVHModel<OBBRSS<typename Shape::S>>& o1,
+                             const MotionBase<typename Shape::S>* motion1,
                              const Shape& o2,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion2,
+                             const MotionBase<typename Shape::S>* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-                             CollisionResult<typename NarrowPhaseSolver::S>& result,
-                             typename NarrowPhaseSolver::S& toc)
+                             const CollisionRequest<typename Shape::S>& request,
+                             CollisionResult<typename Shape::S>& result,
+                             typename Shape::S& toc)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   return details::conservativeAdvancementMeshShapeOriented<OBBRSS<S>, Shape, NarrowPhaseSolver, MeshShapeConservativeAdvancementTraversalNodeOBBRSS<Shape, NarrowPhaseSolver> >(o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
@@ -641,31 +641,31 @@ struct ConservativeAdvancementImpl
 
 template<typename Shape, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const Shape& o1,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion1,
-                             const BVHModel<RSS<typename NarrowPhaseSolver::S>>& o2,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion2,
+                             const MotionBase<typename Shape::S>* motion1,
+                             const BVHModel<RSS<typename Shape::S>>& o2,
+                             const MotionBase<typename Shape::S>* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-                             CollisionResult<typename NarrowPhaseSolver::S>& result,
-                             typename NarrowPhaseSolver::S& toc)
+                             const CollisionRequest<typename Shape::S>& request,
+                             CollisionResult<typename Shape::S>& result,
+                             typename Shape::S& toc)
 {
   return ConservativeAdvancementImpl<
-      typename NarrowPhaseSolver::S, Shape, NarrowPhaseSolver>::run(
+      typename Shape::S, Shape, NarrowPhaseSolver>::run(
         o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
 template<typename Shape, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const Shape& o1,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion1,
-                             const BVHModel<OBBRSS<typename NarrowPhaseSolver::S>>& o2,
-                             const MotionBase<typename NarrowPhaseSolver::S>* motion2,
+                             const MotionBase<typename Shape::S>* motion1,
+                             const BVHModel<OBBRSS<typename Shape::S>>& o2,
+                             const MotionBase<typename Shape::S>* motion2,
                              const NarrowPhaseSolver* nsolver,
-                             const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-                             CollisionResult<typename NarrowPhaseSolver::S>& result,
-                             typename NarrowPhaseSolver::S& toc)
+                             const CollisionRequest<typename Shape::S>& request,
+                             CollisionResult<typename Shape::S>& result,
+                             typename Shape::S& toc)
 {
   return ConservativeAdvancementImpl<
-      typename NarrowPhaseSolver::S, Shape, NarrowPhaseSolver>::run(
+      typename Shape::S, Shape, NarrowPhaseSolver>::run(
         o1, motion1, o2, motion2, nsolver, request, result, toc);
 }
 
@@ -681,7 +681,7 @@ struct ConservativeAdvancementImpl<S, BVHModel<RSS<S>>, NarrowPhaseSolver>
       const NarrowPhaseSolver* /*nsolver*/,
       const CollisionRequest<S>& request,
       CollisionResult<S>& result,
-      typename NarrowPhaseSolver::S& toc)
+      S& toc)
   {
     return details::conservativeAdvancementMeshOriented<RSS<S>, MeshConservativeAdvancementTraversalNodeRSS<S>>(o1, motion1, o2, motion2, request, result, toc);
   }
@@ -725,9 +725,9 @@ typename BV::S BVHConservativeAdvancement(const CollisionGeometry<typename BV::S
 }
 
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::S ShapeConservativeAdvancement(const CollisionGeometry<typename NarrowPhaseSolver::S>* o1, const MotionBase<typename NarrowPhaseSolver::S>* motion1, const CollisionGeometry<typename NarrowPhaseSolver::S>* o2, const MotionBase<typename NarrowPhaseSolver::S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<typename NarrowPhaseSolver::S>& request, ContinuousCollisionResult<typename NarrowPhaseSolver::S>& result)
+typename Shape1::S ShapeConservativeAdvancement(const CollisionGeometry<typename Shape1::S>* o1, const MotionBase<typename Shape1::S>* motion1, const CollisionGeometry<typename Shape1::S>* o2, const MotionBase<typename Shape1::S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<typename Shape1::S>& request, ContinuousCollisionResult<typename Shape1::S>& result)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape1::S;
 
   const Shape1* obj1 = static_cast<const Shape1*>(o1);
   const Shape2* obj2 = static_cast<const Shape2*>(o2);

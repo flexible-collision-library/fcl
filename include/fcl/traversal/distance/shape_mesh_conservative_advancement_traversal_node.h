@@ -91,9 +91,9 @@ template <typename Shape, typename BV, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshConservativeAdvancementTraversalNode<Shape, BV, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     typename BV::S w = 1,
     bool use_refit = false,
@@ -102,10 +102,10 @@ bool initialize(
 template <typename Shape, typename NarrowPhaseSolver>
 class ShapeMeshConservativeAdvancementTraversalNodeRSS
     : public ShapeMeshConservativeAdvancementTraversalNode<
-    Shape, RSS<typename NarrowPhaseSolver::S>, NarrowPhaseSolver>
+    Shape, RSS<typename Shape::S>, NarrowPhaseSolver>
 {
 public:
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   ShapeMeshConservativeAdvancementTraversalNodeRSS(S w_ = 1);
 
@@ -120,19 +120,19 @@ template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshConservativeAdvancementTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const BVHModel<RSS<typename NarrowPhaseSolver::S>>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<RSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    typename NarrowPhaseSolver::S w = 1);
+    typename Shape::S w = 1);
 
 template <typename Shape, typename NarrowPhaseSolver>
 class ShapeMeshConservativeAdvancementTraversalNodeOBBRSS
     : public ShapeMeshConservativeAdvancementTraversalNode<
-    Shape, OBBRSS<typename NarrowPhaseSolver::S>, NarrowPhaseSolver>
+    Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>
 {
 public:
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   ShapeMeshConservativeAdvancementTraversalNodeOBBRSS(S w_ = 1);
 
@@ -147,11 +147,11 @@ template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const BVHModel<OBBRSS<typename NarrowPhaseSolver::S>>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<OBBRSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    typename NarrowPhaseSolver::S w = 1);
+    typename Shape::S w = 1);
 
 //============================================================================//
 //                                                                            //
@@ -280,9 +280,9 @@ template <typename Shape, typename BV, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshConservativeAdvancementTraversalNode<Shape, BV, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
+    const Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
     typename BV::S w,
     bool use_refit,
@@ -323,20 +323,20 @@ bool initialize(
 template <typename Shape, typename NarrowPhaseSolver>
 ShapeMeshConservativeAdvancementTraversalNodeRSS<Shape, NarrowPhaseSolver>::
 ShapeMeshConservativeAdvancementTraversalNodeRSS(
-    typename NarrowPhaseSolver::S w_)
+    typename Shape::S w_)
   : ShapeMeshConservativeAdvancementTraversalNode<
-    Shape, RSS<typename NarrowPhaseSolver::S>, NarrowPhaseSolver>(w_)
+    Shape, RSS<typename Shape::S>, NarrowPhaseSolver>(w_)
 {
   // Do nothing
 }
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::S
+typename Shape::S
 ShapeMeshConservativeAdvancementTraversalNodeRSS<Shape, NarrowPhaseSolver>::
 BVTesting(int b1, int b2) const
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   if(this->enable_statistics) this->num_bv_tests++;
   Vector3<S> P1, P2;
@@ -377,7 +377,7 @@ leafTesting(int b1, int b2) const
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
 bool ShapeMeshConservativeAdvancementTraversalNodeRSS<Shape, NarrowPhaseSolver>::
-canStop(typename NarrowPhaseSolver::S c) const
+canStop(typename Shape::S c) const
 {
   return details::meshShapeConservativeAdvancementOrientedNodeCanStop(
         c,
@@ -399,13 +399,13 @@ template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshConservativeAdvancementTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const BVHModel<RSS<typename NarrowPhaseSolver::S>>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<RSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    typename NarrowPhaseSolver::S w)
+    typename Shape::S w)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   node.model1 = &model1;
   node.tf1 = tf1;
@@ -424,19 +424,19 @@ bool initialize(
 template <typename Shape, typename NarrowPhaseSolver>
 ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::
 ShapeMeshConservativeAdvancementTraversalNodeOBBRSS(
-    typename NarrowPhaseSolver::S w_)
+    typename Shape::S w_)
   : ShapeMeshConservativeAdvancementTraversalNode<
-    Shape, OBBRSS<typename NarrowPhaseSolver::S>, NarrowPhaseSolver>(w_)
+    Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>(w_)
 {
 }
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::S
+typename Shape::S
 ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::
 BVTesting(int b1, int b2) const
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   if(this->enable_statistics) this->num_bv_tests++;
   Vector3<S> P1, P2;
@@ -477,7 +477,7 @@ leafTesting(int b1, int b2) const
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
 bool ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::
-canStop(typename NarrowPhaseSolver::S c) const
+canStop(typename Shape::S c) const
 {
   return details::meshShapeConservativeAdvancementOrientedNodeCanStop(
         c,
@@ -499,13 +499,13 @@ template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
     ShapeMeshConservativeAdvancementTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const BVHModel<OBBRSS<typename NarrowPhaseSolver::S>>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<OBBRSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    typename NarrowPhaseSolver::S w)
+    typename Shape::S w)
 {
-  using S = typename NarrowPhaseSolver::S;
+  using S = typename Shape::S;
 
   node.model1 = &model1;
   node.tf1 = tf1;
