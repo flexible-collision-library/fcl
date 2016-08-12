@@ -55,6 +55,11 @@
 
 using namespace fcl;
 
+/// @brief make sure if broadphase algorithms doesn't check twice for the same
+/// collision object pair
+template <typename S>
+void broad_phase_duplicate_check_test(S env_scale, std::size_t env_size, bool verbose = false);
+
 /// @brief test for broad phase update
 template <typename S>
 void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);
@@ -72,6 +77,17 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
   }
 };
 #endif
+
+/// make sure if broadphase algorithms doesn't check twice for the same
+/// collision object pair
+GTEST_TEST(FCL_BROADPHASE, test_broad_phase_dont_duplicate_check)
+{
+#ifdef NDEBUG
+  broad_phase_duplicate_check_test<double>(2000, 1000);
+#else
+  broad_phase_duplicate_check_test<double>(2000, 100);
+#endif
+}
 
 /// check the update, only return collision or not
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_update_collision_binary)
@@ -143,6 +159,187 @@ GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_update_collision_mesh_e
   broad_phase_update_collision_test<double>(2000, 2, 4, 1, true, true);
   broad_phase_update_collision_test<double>(2000, 4, 4, 1, true, true);
 #endif
+}
+
+//==============================================================================
+template <typename S>
+struct CollisionDataForUniquenessChecking
+{
+  std::set<std::pair<CollisionObject<S>*, CollisionObject<S>*>> checkedPairs;
+
+  bool checkUniquenessAndAddPair(CollisionObject<S>* o1, CollisionObject<S>* o2)
+  {
+    auto search = checkedPairs.find(std::make_pair(o1, o2));
+
+    if (search != checkedPairs.end())
+      return false;
+
+    checkedPairs.emplace(o1, o2);
+
+    return true;
+  }
+};
+
+//==============================================================================
+template <typename S>
+bool collisionFunctionForUniquenessChecking(
+    CollisionObject<S>* o1, CollisionObject<S>* o2, void* cdata_)
+{
+  auto* cdata = static_cast<CollisionDataForUniquenessChecking<S>*>(cdata_);
+
+  EXPECT_TRUE(cdata->checkUniquenessAndAddPair(o1, o2));
+
+  return false;
+}
+
+//==============================================================================
+template <typename S>
+void broad_phase_duplicate_check_test(S env_scale, std::size_t env_size, bool verbose)
+{
+  std::vector<TStruct> ts;
+  std::vector<Timer> timers;
+
+  std::vector<CollisionObject<S>*> env;
+  generateEnvironments(env, env_scale, env_size);
+
+//  for (auto i = 0u; i < env_size; ++i)
+//    env.emplace_back(new CollisionObject<S>(std::make_shared<Sphere<S>>(10)));
+
+  std::vector<BroadPhaseCollisionManager<S>*> managers;
+  managers.push_back(new NaiveCollisionManager<S>());
+  managers.push_back(new SSaPCollisionManager<S>());
+  managers.push_back(new SaPCollisionManager<S>());
+  managers.push_back(new IntervalTreeCollisionManager<S>());
+  Vector3<S> lower_limit, upper_limit;
+  SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
+  S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
+#if USE_GOOGLEHASH
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+#endif
+  managers.push_back(new DynamicAABBTreeCollisionManager<S>());
+  managers.push_back(new DynamicAABBTreeCollisionManager_Array<S>());
+
+  {
+    DynamicAABBTreeCollisionManager<S>* m = new DynamicAABBTreeCollisionManager<S>();
+    m->tree_init_level = 2;
+    managers.push_back(m);
+  }
+
+  {
+    DynamicAABBTreeCollisionManager_Array<S>* m = new DynamicAABBTreeCollisionManager_Array<S>();
+    m->tree_init_level = 2;
+    managers.push_back(m);
+  }
+
+  ts.resize(managers.size());
+  timers.resize(managers.size());
+
+  for(size_t i = 0; i < managers.size(); ++i)
+  {
+    timers[i].start();
+    managers[i]->registerObjects(env);
+    timers[i].stop();
+    ts[i].push_back(timers[i].getElapsedTime());
+  }
+
+  for(size_t i = 0; i < managers.size(); ++i)
+  {
+    timers[i].start();
+    managers[i]->setup();
+    timers[i].stop();
+    ts[i].push_back(timers[i].getElapsedTime());
+  }
+
+  // update the environment
+  S delta_angle_max = 10 / 360.0 * 2 * constants<S>::pi();
+  S delta_trans_max = 0.01 * env_scale;
+  for(size_t i = 0; i < env.size(); ++i)
+  {
+    S rand_angle_x = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_angle_max;
+    S rand_trans_x = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_trans_max;
+    S rand_angle_y = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_angle_max;
+    S rand_trans_y = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_trans_max;
+    S rand_angle_z = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_angle_max;
+    S rand_trans_z = 2 * (rand() / (S)RAND_MAX - 0.5) * delta_trans_max;
+
+    Matrix3<S> dR(
+          AngleAxis<S>(rand_angle_x, Vector3<S>::UnitX())
+          * AngleAxis<S>(rand_angle_y, Vector3<S>::UnitY())
+          * AngleAxis<S>(rand_angle_z, Vector3<S>::UnitZ()));
+    Vector3<S> dT(rand_trans_x, rand_trans_y, rand_trans_z);
+
+    Matrix3<S> R = env[i]->getRotation();
+    Vector3<S> T = env[i]->getTranslation();
+    env[i]->setTransform(dR * R, dR * T + dT);
+    env[i]->computeAABB();
+  }
+
+  for(size_t i = 0; i < managers.size(); ++i)
+  {
+    timers[i].start();
+    managers[i]->update();
+    timers[i].stop();
+    ts[i].push_back(timers[i].getElapsedTime());
+  }
+
+  std::vector<CollisionDataForUniquenessChecking<S>> self_data(managers.size());
+
+  for(size_t i = 0; i < managers.size(); ++i)
+  {
+    timers[i].start();
+    managers[i]->collide(&self_data[i], collisionFunctionForUniquenessChecking);
+    timers[i].stop();
+    ts[i].push_back(timers[i].getElapsedTime());
+  }
+
+  for (auto obj : env)
+    delete obj;
+
+  if (!verbose)
+    return;
+
+  std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
+  size_t w = 7;
+
+  std::cout << "collision timing summary" << std::endl;
+  std::cout << env_size << " objs" << std::endl;
+  std::cout << "register time" << std::endl;
+  for(size_t i = 0; i < ts.size(); ++i)
+    std::cout << std::setw(w) << ts[i].records[0] << " ";
+  std::cout << std::endl;
+
+  std::cout << "setup time" << std::endl;
+  for(size_t i = 0; i < ts.size(); ++i)
+    std::cout << std::setw(w) << ts[i].records[1] << " ";
+  std::cout << std::endl;
+
+  std::cout << "update time" << std::endl;
+  for(size_t i = 0; i < ts.size(); ++i)
+    std::cout << std::setw(w) << ts[i].records[2] << " ";
+  std::cout << std::endl;
+
+  std::cout << "self collision time" << std::endl;
+  for(size_t i = 0; i < ts.size(); ++i)
+    std::cout << std::setw(w) << ts[i].records[3] << " ";
+  std::cout << std::endl;
+
+  std::cout << "collision time" << std::endl;
+  for(size_t i = 0; i < ts.size(); ++i)
+  {
+    S tmp = 0;
+    for(size_t j = 4; j < ts[i].records.size(); ++j)
+      tmp += ts[i].records[j];
+    std::cout << std::setw(w) << tmp << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "overall time" << std::endl;
+  for(size_t i = 0; i < ts.size(); ++i)
+    std::cout << std::setw(w) << ts[i].overall_time << " ";
+  std::cout << std::endl;
+  std::cout << std::endl;
 }
 
 template <typename S>
