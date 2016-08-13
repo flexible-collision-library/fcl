@@ -138,7 +138,7 @@ Convex<S>::Convex(
   points = points;
   num_points = num_points_;
   polygons = polygons_;
-  edges = NULL;
+  edges = nullptr;
 
   Vector3<S> sum = Vector3<S>::Zero();
   for(int i = 0; i < num_points; ++i)

@@ -87,8 +87,8 @@ template<typename BV, typename Shape>
 BVHShapeDistanceTraversalNode<BV, Shape>::BVHShapeDistanceTraversalNode()
   : DistanceTraversalNodeBase<typename BV::S>()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
   num_bv_tests = 0;
   num_leaf_tests = 0;

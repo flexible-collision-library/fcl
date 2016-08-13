@@ -54,9 +54,9 @@ public:
 
   SaPCollisionManager()
   {
-    elist[0] = NULL;
-    elist[1] = NULL;
-    elist[2] = NULL;
+    elist[0] = nullptr;
+    elist[1] = nullptr;
+    elist[2] = nullptr;
 
     optimal_axis = 0;
   }
@@ -339,12 +339,12 @@ void SaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
     return;
 
   SaPAABB* curr = *it;
-  *it = NULL;
+  *it = nullptr;
 
   for(int coord = 0; coord < 3; ++coord)
   {
     //first delete the lo endpoint of the interval.
-    if(curr->lo->prev[coord] == NULL)
+    if(curr->lo->prev[coord] == nullptr)
       elist[coord] = curr->lo->next[coord];
     else
       curr->lo->prev[coord]->next[coord] = curr->lo->next[coord];
@@ -352,12 +352,12 @@ void SaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
     curr->lo->next[coord]->prev[coord] = curr->lo->prev[coord];
 
     //then, delete the "hi" endpoint.
-    if(curr->hi->prev[coord] == NULL)
+    if(curr->hi->prev[coord] == nullptr)
       elist[coord] = curr->hi->next[coord];
     else
       curr->hi->prev[coord]->next[coord] = curr->hi->next[coord];
 
-    if(curr->hi->next[coord] != NULL)
+    if(curr->hi->next[coord] != nullptr)
       curr->hi->next[coord]->prev[coord] = curr->hi->prev[coord];
   }
 
@@ -406,7 +406,7 @@ void SaPCollisionManager<S>::registerObjects(const std::vector<CollisionObject<S
                             std::bind(static_cast<S (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_1, coord),
                             std::bind(static_cast<S (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_2, coord)));
 
-      endpoints[0]->prev[coord] = NULL;
+      endpoints[0]->prev[coord] = nullptr;
       endpoints[0]->next[coord] = endpoints[1];
       for(size_t i = 1; i < endpoints.size() - 1; ++i)
       {
@@ -414,7 +414,7 @@ void SaPCollisionManager<S>::registerObjects(const std::vector<CollisionObject<S
         endpoints[i]->next[coord] = endpoints[i+1];
       }
       endpoints[endpoints.size() - 1]->prev[coord] = endpoints[endpoints.size() - 2];
-      endpoints[endpoints.size() - 1]->next[coord] = NULL;
+      endpoints[endpoints.size() - 1]->next[coord] = nullptr;
 
       elist[coord] = endpoints[0];
 
@@ -427,23 +427,23 @@ void SaPCollisionManager<S>::registerObjects(const std::vector<CollisionObject<S
 
     EndPoint* pos = elist[axis];
 
-    while(pos != NULL)
+    while(pos != nullptr)
     {
-      EndPoint* pos_next = NULL;
+      EndPoint* pos_next = nullptr;
       SaPAABB* aabb = pos->aabb;
       EndPoint* pos_it = pos->next[axis];
 
-      while(pos_it != NULL)
+      while(pos_it != nullptr)
       {
         if(pos_it->aabb == aabb)
         {
-          if(pos_next == NULL) pos_next = pos_it;
+          if(pos_next == nullptr) pos_next = pos_it;
           break;
         }
 
         if(pos_it->minmax == 0)
         {
-          if(pos_next == NULL) pos_next = pos_it;
+          if(pos_next == nullptr) pos_next = pos_it;
           if(pos_it->aabb->cached.overlap(aabb->cached))
             overlap_pairs.emplace_back(pos_it->aabb->obj, aabb->obj);
         }
@@ -477,23 +477,23 @@ void SaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
     EndPoint* current = elist[coord];
 
     // first insert the lo end point
-    if(current == NULL) // empty list
+    if(current == nullptr) // empty list
     {
       elist[coord] = curr->lo;
-      curr->lo->prev[coord] = curr->lo->next[coord] = NULL;
+      curr->lo->prev[coord] = curr->lo->next[coord] = nullptr;
     }
     else // otherwise, find the correct location in the list and insert
     {
       EndPoint* curr_lo = curr->lo;
       S curr_lo_val = curr_lo->getVal()[coord];
-      while((current->getVal()[coord] < curr_lo_val) && (current->next[coord] != NULL))
+      while((current->getVal()[coord] < curr_lo_val) && (current->next[coord] != nullptr))
         current = current->next[coord];
 
       if(current->getVal()[coord] >= curr_lo_val)
       {
         curr_lo->prev[coord] = current->prev[coord];
         curr_lo->next[coord] = current;
-        if(current->prev[coord] == NULL)
+        if(current->prev[coord] == nullptr)
           elist[coord] = curr_lo;
         else
           current->prev[coord]->next[coord] = curr_lo;
@@ -503,7 +503,7 @@ void SaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
       else
       {
         curr_lo->prev[coord] = current;
-        curr_lo->next[coord] = NULL;
+        curr_lo->next[coord] = nullptr;
         current->next[coord] = curr_lo;
       }
     }
@@ -516,7 +516,7 @@ void SaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
 
     if(coord == 0)
     {
-      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != NULL))
+      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != nullptr))
       {
         if(current != curr->lo)
           if(current->aabb->cached.overlap(curr->cached))
@@ -527,7 +527,7 @@ void SaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
     }
     else
     {
-      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != NULL))
+      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != nullptr))
         current = current->next[coord];
     }
 
@@ -535,7 +535,7 @@ void SaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
     {
       curr_hi->prev[coord] = current->prev[coord];
       curr_hi->next[coord] = current;
-      if(current->prev[coord] == NULL)
+      if(current->prev[coord] == nullptr)
         elist[coord] = curr_hi;
       else
         current->prev[coord]->next[coord] = curr_hi;
@@ -545,7 +545,7 @@ void SaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
     else
     {
       curr_hi->prev[coord] = current;
-      curr_hi->next[coord] = NULL;
+      curr_hi->next[coord] = nullptr;
       current->next[coord] = curr_hi;
     }
   }
@@ -602,10 +602,10 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
     if(direction == -1)
     {
       //first update the "lo" endpoint of the interval
-      if(current->lo->prev[coord] != NULL)
+      if(current->lo->prev[coord] != nullptr)
       {
         temp = current->lo;
-        while((temp != NULL) && (temp->getVal(coord) > new_min[coord]))
+        while((temp != nullptr) && (temp->getVal(coord) > new_min[coord]))
         {
           if(temp->minmax == 1)
             if(temp->aabb->cached.overlap(dummy.cached))
@@ -613,11 +613,11 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
           temp = temp->prev[coord];
         }
 
-        if(temp == NULL)
+        if(temp == nullptr)
         {
           current->lo->prev[coord]->next[coord] = current->lo->next[coord];
           current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-          current->lo->prev[coord] = NULL;
+          current->lo->prev[coord] = nullptr;
           current->lo->next[coord] = elist[coord];
           elist[coord]->prev[coord] = current->lo;
           elist[coord] = current->lo;
@@ -645,11 +645,11 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
       }
 
       current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-      if(current->hi->next[coord] != NULL)
+      if(current->hi->next[coord] != nullptr)
         current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
       current->hi->prev[coord] = temp;
       current->hi->next[coord] = temp->next[coord];
-      if(temp->next[coord] != NULL)
+      if(temp->next[coord] != nullptr)
         temp->next[coord]->prev[coord] = current->hi;
       temp->next[coord] = current->hi;
 
@@ -658,10 +658,10 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
     else if(direction == 1)
     {
       //here, we first update the "hi" endpoint.
-      if(current->hi->next[coord] != NULL)
+      if(current->hi->next[coord] != nullptr)
       {
         temp = current->hi;
-        while((temp->next[coord] != NULL) && (temp->getVal(coord) < new_max[coord]))
+        while((temp->next[coord] != nullptr) && (temp->getVal(coord) < new_max[coord]))
         {
           if(temp->minmax == 0)
             if(temp->aabb->cached.overlap(dummy.cached))
@@ -674,7 +674,7 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
           current->hi->prev[coord]->next[coord] = current->hi->next[coord];
           current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
           current->hi->prev[coord] = temp;
-          current->hi->next[coord] = NULL;
+          current->hi->next[coord] = nullptr;
           temp->next[coord] = current->hi;
         }
         else
@@ -700,14 +700,14 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
         temp = temp->next[coord];
       }
 
-      if(current->lo->prev[coord] != NULL)
+      if(current->lo->prev[coord] != nullptr)
         current->lo->prev[coord]->next[coord] = current->lo->next[coord];
       else
         elist[coord] = current->lo->next[coord];
       current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
       current->lo->prev[coord] = temp->prev[coord];
       current->lo->next[coord] = temp;
-      if(temp->prev[coord] != NULL)
+      if(temp->prev[coord] != nullptr)
         temp->prev[coord]->next[coord] = current->lo;
       else
         elist[coord] = current->lo;
@@ -763,15 +763,15 @@ void SaPCollisionManager<S>::clear()
     delete (*it)->hi;
     delete (*it)->lo;
     delete *it;
-    *it = NULL;
+    *it = nullptr;
   }
 
   AABB_arr.clear();
   overlap_pairs.clear();
 
-  elist[0] = NULL;
-  elist[1] = NULL;
-  elist[2] = NULL;
+  elist[0] = nullptr;
+  elist[1] = nullptr;
+  elist[2] = nullptr;
 
   velist[0].clear();
   velist[1].clear();
@@ -814,7 +814,7 @@ bool SaPCollisionManager<S>::collide_(CollisionObject<S>* obj, void* cdata, Coll
                                                                                std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
                                                                                std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
 
-  EndPoint* end_pos = NULL;
+  EndPoint* end_pos = nullptr;
   if(res_it != velist[axis].end())
     end_pos = *res_it;
 
@@ -884,7 +884,7 @@ bool SaPCollisionManager<S>::distance_(CollisionObject<S>* obj, void* cdata, Dis
                                                                                  std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
                                                                                  std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
 
-    EndPoint* end_pos = NULL;
+    EndPoint* end_pos = nullptr;
     if(res_it != velist[axis].end())
       end_pos = *res_it;
 

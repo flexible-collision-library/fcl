@@ -68,7 +68,7 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 {
   GoogleDenseHashTable() : google::dense_hash_map<U, V, std::tr1::hash<size_t>, std::equal_to<size_t> >()
   {
-    this->set_empty_key(NULL);
+    this->set_empty_key(nullptr);
   }
 };
 #endif

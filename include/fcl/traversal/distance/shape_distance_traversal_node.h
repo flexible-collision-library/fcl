@@ -89,10 +89,10 @@ template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename Shape1::S>()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
-  nsolver = NULL;
+  nsolver = nullptr;
 }
 
 //==============================================================================

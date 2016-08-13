@@ -63,15 +63,15 @@ class GJKInitializer
 {
 public:
   /// @brief Get GJK support function
-  static GJKSupportFunction getSupportFunction() { return NULL; }
+  static GJKSupportFunction getSupportFunction() { return nullptr; }
 
   /// @brief Get GJK center function
-  static GJKCenterFunction getCenterFunction() { return NULL; }
+  static GJKCenterFunction getCenterFunction() { return nullptr; }
 
   /// @brief Get GJK object from a shape
   /// Notice that only local transformation is applied.
   /// Gloal transformation are considered later
-  static void* createGJKObject(const T& /* s */, const Transform3<S>& /*tf*/) { return NULL; }
+  static void* createGJKObject(const T& /* s */, const Transform3<S>& /*tf*/) { return nullptr; }
 
   /// @brief Delete GJK object
   static void deleteGJKObject(void* o) {}
@@ -350,7 +350,7 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   C = ccdSimplexPoint(simplex, 0);
 
   // check touching contact
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
   if (ccdIsZero(dist)){
     return 1;
   }
@@ -435,23 +435,23 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // check if tetrahedron is really tetrahedron (has volume > 0)
   // if it is not simplex can't be expanded and thus no intersection is
   // found
-  dist = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, nullptr);
   if (ccdIsZero(dist)){
     return -1;
   }
 
   // check if origin lies on some of tetrahedron's face - if so objects
   // intersect
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
 

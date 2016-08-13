@@ -117,7 +117,7 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<S>::max();
 
-    distanceRecurse<S>(&node, 0, 0, NULL);
+    distanceRecurse<S>(&node, 0, 0, nullptr);
 
     if(node.delta_t <= node.t_err)
     {
@@ -197,7 +197,7 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<S>::max();
 
-    distanceRecurse(&node, 0, 0, NULL);
+    distanceRecurse(&node, 0, 0, nullptr);
 
     if(node.delta_t <= node.t_err)
     {
@@ -268,7 +268,7 @@ bool conservativeAdvancement(const Shape1& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<S>::max();
 
-    distanceRecurse(&node, 0, 0, NULL);
+    distanceRecurse(&node, 0, 0, nullptr);
 
     if(node.delta_t <= node.t_err)
     {
@@ -333,7 +333,7 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<S>::max();
 
-    distanceRecurse<S>(&node, 0, 0, NULL);
+    distanceRecurse<S>(&node, 0, 0, nullptr);
 
     if(node.delta_t <= node.t_err)
     {
@@ -408,7 +408,7 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<S>::max();
 
-    distanceRecurse(&node, 0, 0, NULL);
+    distanceRecurse(&node, 0, 0, nullptr);
 
     if(node.delta_t <= node.t_err)
     {
@@ -505,7 +505,7 @@ bool conservativeAdvancement(const Shape& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<S>::max();
 
-    distanceRecurse(&node, 0, 0, NULL);
+    distanceRecurse(&node, 0, 0, nullptr);
 
     if(node.delta_t <= node.t_err)
     {
@@ -579,7 +579,7 @@ bool conservativeAdvancementShapeMeshOriented(const Shape& o1,
     node.delta_t = 1;
     node.min_distance = std::numeric_limits<S>::max();
 
-    distanceRecurse(&node, 0, 0, NULL);
+    distanceRecurse(&node, 0, 0, nullptr);
 
     if(node.delta_t <= node.t_err)
     {
@@ -791,7 +791,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
   for(int i = 0; i < NODE_COUNT; ++i)
   {
     for(int j = 0; j < NODE_COUNT; ++j)
-      conservative_advancement_matrix[i][j] = NULL;
+      conservative_advancement_matrix[i][j] = nullptr;
   }
 
 

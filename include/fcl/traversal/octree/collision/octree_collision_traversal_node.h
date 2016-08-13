@@ -98,10 +98,10 @@ bool initialize(
 template <typename NarrowPhaseSolver>
 OcTreeCollisionTraversalNode<NarrowPhaseSolver>::OcTreeCollisionTraversalNode()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
-  otsolver = NULL;
+  otsolver = nullptr;
 }
 
 //==============================================================================

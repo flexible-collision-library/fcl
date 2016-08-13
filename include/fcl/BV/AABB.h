@@ -118,7 +118,7 @@ public:
   /// @brief Center of the AABB
   Vector3<S> center() const;
 
-  /// @brief Distance between two AABBs; P and Q, should not be NULL, return the nearest points 
+  /// @brief Distance between two AABBs; P and Q, should not be nullptr, return the nearest points 
   S distance(
       const AABB<S>& other, Vector3<S>* P, Vector3<S>* Q) const;
 
