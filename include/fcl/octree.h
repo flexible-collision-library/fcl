@@ -56,23 +56,23 @@ namespace fcl
 
 /// @brief Octree is one type of collision geometry which can encode uncertainty
 /// information in the sensor data.
-template <typename Scalar>
-class OcTree : public CollisionGeometry<Scalar>
+template <typename S>
+class OcTree : public CollisionGeometry<S>
 {
 private:
   std::shared_ptr<const octomap::OcTree> tree;
 
-  Scalar default_occupancy;
+  S default_occupancy;
 
-  Scalar occupancy_threshold;
-  Scalar free_threshold;
+  S occupancy_threshold;
+  S free_threshold;
 
 public:
 
   typedef octomap::OcTreeNode OcTreeNode;
 
   /// @brief construct octree with a given resolution
-  OcTree(Scalar resolution) : tree(std::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))
+  OcTree(S resolution) : tree(std::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))
   {
     default_occupancy = tree->getOccupancyThres();
 
@@ -91,7 +91,7 @@ public:
     free_threshold = 0;
   }
 
-  /// @brief compute the AABB<Scalar> for the octree in its local coordinate system
+  /// @brief compute the AABB<S> for the octree in its local coordinate system
   void computeLocalAABB() 
   {
     this->aabb_local = getRootBV();
@@ -100,12 +100,12 @@ public:
   }
 
   /// @brief get the bounding volume for the root
-  AABB<Scalar> getRootBV() const
+  AABB<S> getRootBV() const
   {
-    Scalar delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
+    S delta = (1 << tree->getTreeDepth()) * tree->getResolution() / 2;
 
     // std::cout << "octree size " << delta << std::endl;
-    return AABB<Scalar>(Vector3<Scalar>(-delta, -delta, -delta), Vector3<Scalar>(delta, delta, delta));
+    return AABB<S>(Vector3<S>(-delta, -delta, -delta), Vector3<S>(delta, delta, delta));
   }
 
   /// @brief get the root node of the octree
@@ -136,9 +136,9 @@ public:
 
   /// @brief transform the octree into a bunch of boxes; uncertainty information is kept in the boxes. However, we
   /// only keep the occupied boxes (i.e., the boxes whose occupied probability is higher enough).
-  std::vector<std::array<Scalar, 6> > toBoxes() const
+  std::vector<std::array<S, 6> > toBoxes() const
   {
-    std::vector<std::array<Scalar, 6> > boxes;
+    std::vector<std::array<S, 6> > boxes;
     boxes.reserve(tree->size() / 2);
     for(octomap::OcTree::iterator it = tree->begin(tree->getTreeDepth()), end = tree->end();
         it != end;
@@ -147,14 +147,14 @@ public:
       // if(tree->isNodeOccupied(*it))
       if(isNodeOccupied(&*it))
       {
-        Scalar size = it.getSize();
-        Scalar x = it.getX();
-        Scalar y = it.getY();
-        Scalar z = it.getZ();
-        Scalar c = (*it).getOccupancy();
-        Scalar t = tree->getOccupancyThres();
+        S size = it.getSize();
+        S x = it.getX();
+        S y = it.getY();
+        S z = it.getZ();
+        S c = (*it).getOccupancy();
+        S t = tree->getOccupancyThres();
 
-        std::array<Scalar, 6> box = {{x, y, z, size, c, t}};
+        std::array<S, 6> box = {{x, y, z, size, c, t}};
         boxes.push_back(box);
       }
     }
@@ -162,33 +162,33 @@ public:
   }
 
   /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree occupied_thresold
-  Scalar getOccupancyThres() const
+  S getOccupancyThres() const
   {
     return occupancy_threshold;
   }
 
   /// @brief the threshold used to decide whether one node is occupied, this is NOT the octree free_threshold
-  Scalar getFreeThres() const
+  S getFreeThres() const
   {
     return free_threshold;
   }
 
-  Scalar getDefaultOccupancy() const
+  S getDefaultOccupancy() const
   {
     return default_occupancy;
   }
 
-  void setCellDefaultOccupancy(Scalar d)
+  void setCellDefaultOccupancy(S d)
   {
     default_occupancy = d;
   }
 
-  void setOccupancyThres(Scalar d)
+  void setOccupancyThres(S d)
   {
     occupancy_threshold = d;
   }
 
-  void setFreeThres(Scalar d)
+  void setFreeThres(S d)
   {
     free_threshold = d;
   }
@@ -241,8 +241,8 @@ public:
 };
 
 /// @brief compute the bounding volume of an octree node's i-th child
-template <typename Scalar>
-void computeChildBV(const AABB<Scalar>& root_bv, unsigned int i, AABB<Scalar>& child_bv)
+template <typename S>
+void computeChildBV(const AABB<S>& root_bv, unsigned int i, AABB<S>& child_bv)
 {
   if(i&1)
   {

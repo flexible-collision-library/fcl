@@ -52,38 +52,38 @@ namespace fcl
 {
 
 /// @brief Traversal node for shape-octree distance
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 class ShapeOcTreeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename NarrowPhaseSolver::Scalar>
+    : public DistanceTraversalNodeBase<typename Shape::S>
 {
 public:
 
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename Shape::S;
 
   ShapeOcTreeDistanceTraversalNode();
 
-  Scalar BVTesting(int, int) const;
+  S BVTesting(int, int) const;
 
   void leafTesting(int, int) const;
 
-  const S* model1;
-  const OcTree<Scalar>* model2;
+  const Shape* model1;
+  const OcTree<S>* model2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 };
 
 /// @brief Initialize traversal node for distance between one shape and one
 /// octree, given current object transform
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const OcTree<typename Shape::S>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const DistanceRequest<typename Shape::S>& request,
+    DistanceResult<typename Shape::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -92,28 +92,28 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>::
+template <typename Shape, typename NarrowPhaseSolver>
+ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
 ShapeOcTreeDistanceTraversalNode()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
-  otsolver = NULL;
+  otsolver = nullptr;
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::Scalar
-ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>::
+template <typename Shape, typename NarrowPhaseSolver>
+typename Shape::S
+ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
 BVTesting(int, int) const
 {
   return -1;
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-void ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>::
+template <typename Shape, typename NarrowPhaseSolver>
+void ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
 leafTesting(int, int) const
 {
   otsolver->OcTreeShapeDistance(
@@ -121,16 +121,16 @@ leafTesting(int, int) const
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeOcTreeDistanceTraversalNode<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const OcTree<typename Shape::S>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename Shape::S>& request,
+    DistanceResult<typename Shape::S>& result)
 {
   node.request = request;
   node.result = &result;

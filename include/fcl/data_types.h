@@ -63,41 +63,41 @@ using uint64 = std::uint64_t;
 using int32 = std::int32_t;
 using uint32 = std::uint32_t;
 
-template <typename Scalar>
-using Vector2 = Eigen::Matrix<Scalar, 2, 1>;
+template <typename S>
+using Vector2 = Eigen::Matrix<S, 2, 1>;
 
-template <typename Scalar>
-using Vector3 = Eigen::Matrix<Scalar, 3, 1>;
+template <typename S>
+using Vector3 = Eigen::Matrix<S, 3, 1>;
 
-template <typename Scalar>
-using Vector6 = Eigen::Matrix<Scalar, 6, 1>;
+template <typename S>
+using Vector6 = Eigen::Matrix<S, 6, 1>;
 
-template <typename Scalar>
-using Vector7 = Eigen::Matrix<Scalar, 7, 1>;
+template <typename S>
+using Vector7 = Eigen::Matrix<S, 7, 1>;
 
-template <typename Scalar, int N>
-using VectorN = Eigen::Matrix<Scalar, N, 1>;
+template <typename S, int N>
+using VectorN = Eigen::Matrix<S, N, 1>;
 
-template <typename Scalar>
-using VectorX = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
+template <typename S>
+using VectorX = Eigen::Matrix<S, Eigen::Dynamic, 1>;
 
-template <typename Scalar>
-using Matrix3 = Eigen::Matrix<Scalar, 3, 3>;
+template <typename S>
+using Matrix3 = Eigen::Matrix<S, 3, 3>;
 
-template <typename Scalar>
-using Quaternion = Eigen::Quaternion<Scalar>;
+template <typename S>
+using Quaternion = Eigen::Quaternion<S>;
 
-template <typename Scalar>
-using Transform3 = Eigen::Transform<Scalar, 3, Eigen::AffineCompact>;
+template <typename S>
+using Transform3 = Eigen::Transform<S, 3, Eigen::AffineCompact>;
 
-template <typename Scalar>
-using Isometry3 = Eigen::Transform<Scalar, 3, Eigen::Isometry>;
+template <typename S>
+using Isometry3 = Eigen::Transform<S, 3, Eigen::Isometry>;
 
-template <typename Scalar>
-using Translation3 = Eigen::Translation<Scalar, 3>;
+template <typename S>
+using Translation3 = Eigen::Translation<S, 3>;
 
-template <typename Scalar>
-using AngleAxis = Eigen::AngleAxis<Scalar>;
+template <typename S>
+using AngleAxis = Eigen::AngleAxis<S>;
 
 // float types
 using Vector3f = Vector3<float>;

@@ -46,13 +46,13 @@ namespace fcl
 {
 
 /// @brief Traversal node for collision between BVH and shape
-template <typename BV, typename S>
+template <typename BV, typename Shape>
 class BVHShapeCollisionTraversalNode
-    : public CollisionTraversalNodeBase<typename BV::Scalar>
+    : public CollisionTraversalNodeBase<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   BVHShapeCollisionTraversalNode();
 
@@ -69,12 +69,12 @@ public:
   bool BVTesting(int b1, int b2) const;
 
   const BVHModel<BV>* model1;
-  const S* model2;
+  const Shape* model2;
   BV model2_bv;
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable Scalar query_time_seconds;
+  mutable S query_time_seconds;
 };
 
 //============================================================================//
@@ -84,12 +84,12 @@ public:
 //============================================================================//
 
 //==============================================================================
-template <typename S, typename BV>
-BVHShapeCollisionTraversalNode<S, BV>::BVHShapeCollisionTraversalNode()
-  : CollisionTraversalNodeBase<typename BV::Scalar>()
+template <typename Shape, typename BV>
+BVHShapeCollisionTraversalNode<Shape, BV>::BVHShapeCollisionTraversalNode()
+  : CollisionTraversalNodeBase<typename BV::S>()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
   num_bv_tests = 0;
   num_leaf_tests = 0;
@@ -97,29 +97,29 @@ BVHShapeCollisionTraversalNode<S, BV>::BVHShapeCollisionTraversalNode()
 }
 
 //==============================================================================
-template <typename S, typename BV>
-bool BVHShapeCollisionTraversalNode<S, BV>::isFirstNodeLeaf(int b) const
+template <typename Shape, typename BV>
+bool BVHShapeCollisionTraversalNode<Shape, BV>::isFirstNodeLeaf(int b) const
 {
   return model1->getBV(b).isLeaf();
 }
 
 //==============================================================================
-template <typename S, typename BV>
-int BVHShapeCollisionTraversalNode<S, BV>::getFirstLeftChild(int b) const
+template <typename Shape, typename BV>
+int BVHShapeCollisionTraversalNode<Shape, BV>::getFirstLeftChild(int b) const
 {
   return model1->getBV(b).leftChild();
 }
 
 //==============================================================================
-template <typename S, typename BV>
-int BVHShapeCollisionTraversalNode<S, BV>::getFirstRightChild(int b) const
+template <typename Shape, typename BV>
+int BVHShapeCollisionTraversalNode<Shape, BV>::getFirstRightChild(int b) const
 {
   return model1->getBV(b).rightChild();
 }
 
 //==============================================================================
-template <typename S, typename BV>
-bool BVHShapeCollisionTraversalNode<S, BV>::BVTesting(int b1, int b2) const
+template <typename Shape, typename BV>
+bool BVHShapeCollisionTraversalNode<Shape, BV>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) num_bv_tests++;
   return !model1->getBV(b1).bv.overlap(model2_bv);

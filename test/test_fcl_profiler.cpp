@@ -3,6 +3,7 @@
  *
  *  Copyright (c) 2011-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
+ *  Copyright (c) 2016, Toyota Research Institute
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,13 +32,47 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
-/** \author Jia Pan */
+/* Author Jeongseok Lee <jslee02@gmail.com> */
 
-namespace fcl
+#include <gtest/gtest.h>
+#include "fcl/common/profiler.h"
+
+using namespace fcl;
+
+//==============================================================================
+GTEST_TEST(FCL_PROFILER, basic)
 {
+  detail::Profiler::Start();
+  {
+    detail::Profiler::Begin("Section 1");
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
+      detail::Profiler::Begin("Section 1.1");
+      {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      }
+      detail::Profiler::End("Section 1.1");
 
+    }
+    detail::Profiler::End("Section 1");
 
+    detail::Profiler::Begin("Section 2");
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    detail::Profiler::End("Section 2");
+  }
+  detail::Profiler::Stop();
+
+  detail::Profiler::Status(std::cout);
+}
+
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

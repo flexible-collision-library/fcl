@@ -41,16 +41,16 @@
 
 using namespace fcl;
 
-template <typename Scalar>
+template <typename S>
 void test_vec_test_basic_vector()
 {
-  Vector3<Scalar> v1(1.0, 2.0, 3.0);
-  EXPECT_TRUE(v1[0] == (Scalar)1.0);
-  EXPECT_TRUE(v1[1] == (Scalar)2.0);
-  EXPECT_TRUE(v1[2] == (Scalar)3.0);
+  Vector3<S> v1(1.0, 2.0, 3.0);
+  EXPECT_TRUE(v1[0] == (S)1.0);
+  EXPECT_TRUE(v1[1] == (S)2.0);
+  EXPECT_TRUE(v1[2] == (S)3.0);
 
-  Vector3<Scalar> v2 = v1;
-  Vector3<Scalar> v3(3.3, 4.3, 5.3);
+  Vector3<S> v2 = v1;
+  Vector3<S> v3(3.3, 4.3, 5.3);
   v1 += v3;
   EXPECT_TRUE(v1.isApprox(v2 + v3));
   v1 -= v3;
@@ -83,21 +83,21 @@ void test_vec_test_basic_vector()
   EXPECT_TRUE(v1.array().isApprox(v2.array() - 2.0));
   v1.array() += 2.0;
 
-  EXPECT_TRUE((-Vector3<Scalar>(1.0, 2.0, 3.0)) == (Vector3<Scalar>(-1.0, -2.0, -3.0)));
+  EXPECT_TRUE((-Vector3<S>(1.0, 2.0, 3.0)) == (Vector3<S>(-1.0, -2.0, -3.0)));
 
-  v1 = Vector3<Scalar>(1.0, 2.0, 3.0);
-  v2 = Vector3<Scalar>(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).isApprox(Vector3<Scalar>(-2.0, 4.0, -2.0)));
+  v1 = Vector3<S>(1.0, 2.0, 3.0);
+  v2 = Vector3<S>(3.0, 4.0, 5.0);
+  EXPECT_TRUE((v1.cross(v2)).isApprox(Vector3<S>(-2.0, 4.0, -2.0)));
   EXPECT_TRUE(std::abs(v1.dot(v2) - 26) < 1e-5);
 
-  v1 = Vector3<Scalar>(3.0, 4.0, 5.0);
+  v1 = Vector3<S>(3.0, 4.0, 5.0);
   EXPECT_TRUE(std::abs(v1.squaredNorm() - 50.0) < 1e-5);
   EXPECT_TRUE(std::abs(v1.norm() - sqrt(50.0)) < 1e-5);
   EXPECT_TRUE(v1.normalized().isApprox(v1 / v1.norm()));
 
-  v1 = Vector3<Scalar>(1.0, 2.0, 3.0);
-  v2 = Vector3<Scalar>(3.0, 4.0, 5.0);
-  EXPECT_TRUE((v1.cross(v2)).isApprox(Vector3<Scalar>(-2.0, 4.0, -2.0)));
+  v1 = Vector3<S>(1.0, 2.0, 3.0);
+  v2 = Vector3<S>(3.0, 4.0, 5.0);
+  EXPECT_TRUE((v1.cross(v2)).isApprox(Vector3<S>(-2.0, 4.0, -2.0)));
   EXPECT_TRUE(v1.dot(v2) == 26);
 }
 
@@ -107,16 +107,16 @@ GTEST_TEST(FCL_MATH, vec_test_basic_vector3)
   test_vec_test_basic_vector<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_morton()
 {
-  AABB<Scalar> bbox(Vector3<Scalar>(0, 0, 0), Vector3<Scalar>(1000, 1000, 1000));
-  morton_functor<Scalar, std::bitset<30>> F1(bbox);
-  morton_functor<Scalar, std::bitset<60>> F2(bbox);
-  morton_functor<Scalar, FCL_UINT64> F3(bbox); // 60 bits
-  morton_functor<Scalar, FCL_UINT32> F4(bbox); // 30 bits
+  AABB<S> bbox(Vector3<S>(0, 0, 0), Vector3<S>(1000, 1000, 1000));
+  morton_functor<S, std::bitset<30>> F1(bbox);
+  morton_functor<S, std::bitset<60>> F2(bbox);
+  morton_functor<S, FCL_UINT64> F3(bbox); // 60 bits
+  morton_functor<S, FCL_UINT32> F4(bbox); // 30 bits
 
-  Vector3<Scalar> p(254, 873, 674);
+  Vector3<S> p(254, 873, 674);
 
   EXPECT_TRUE(F1(p).to_ulong() == F4(p));
   EXPECT_TRUE(F2(p).to_ullong() == F3(p));

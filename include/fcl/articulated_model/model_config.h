@@ -47,7 +47,7 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 class ModelConfig
 {
 public:
@@ -77,21 +77,21 @@ private:
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-ModelConfig<Scalar>::ModelConfig()
+template <typename S>
+ModelConfig<S>::ModelConfig()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-ModelConfig<Scalar>::ModelConfig(const ModelConfig& model_cfg) :
+template <typename S>
+ModelConfig<S>::ModelConfig(const ModelConfig& model_cfg) :
   joint_cfgs_map_(model_cfg.joint_cfgs_map_)
 {}
 
 //==============================================================================
-template <typename Scalar>
-ModelConfig<Scalar>::ModelConfig(std::map<std::string, std::shared_ptr<Joint> > joints_map)
+template <typename S>
+ModelConfig<S>::ModelConfig(std::map<std::string, std::shared_ptr<Joint> > joints_map)
 {
   std::map<std::string, std::shared_ptr<Joint> >::iterator it;
   for(it = joints_map.begin(); it != joints_map.end(); ++it)
@@ -99,8 +99,8 @@ ModelConfig<Scalar>::ModelConfig(std::map<std::string, std::shared_ptr<Joint> > 
 }
 
 //==============================================================================
-template <typename Scalar>
-JointConfig ModelConfig<Scalar>::getJointConfigByJointName(const std::string& joint_name) const
+template <typename S>
+JointConfig ModelConfig<S>::getJointConfigByJointName(const std::string& joint_name) const
 {
   std::map<std::string, JointConfig>::const_iterator it = joint_cfgs_map_.find(joint_name);
   assert(it != joint_cfgs_map_.end());
@@ -109,8 +109,8 @@ JointConfig ModelConfig<Scalar>::getJointConfigByJointName(const std::string& jo
 }
 
 //==============================================================================
-template <typename Scalar>
-JointConfig& ModelConfig<Scalar>::getJointConfigByJointName(const std::string& joint_name)
+template <typename S>
+JointConfig& ModelConfig<S>::getJointConfigByJointName(const std::string& joint_name)
 {
   std::map<std::string, JointConfig>::iterator it = joint_cfgs_map_.find(joint_name);
   assert(it != joint_cfgs_map_.end());
@@ -119,15 +119,15 @@ JointConfig& ModelConfig<Scalar>::getJointConfigByJointName(const std::string& j
 }
 
 //==============================================================================
-template <typename Scalar>
-JointConfig ModelConfig<Scalar>::getJointConfigByJoint(std::shared_ptr<Joint> joint) const
+template <typename S>
+JointConfig ModelConfig<S>::getJointConfigByJoint(std::shared_ptr<Joint> joint) const
 {
   return getJointConfigByJointName(joint->getName());
 }
 
 //==============================================================================
-template <typename Scalar>
-JointConfig& ModelConfig<Scalar>::getJointConfigByJoint(std::shared_ptr<Joint> joint)
+template <typename S>
+JointConfig& ModelConfig<S>::getJointConfigByJoint(std::shared_ptr<Joint> joint)
 {
   return getJointConfigByJointName(joint->getName());
 }

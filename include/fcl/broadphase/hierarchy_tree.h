@@ -49,7 +49,7 @@
 namespace fcl
 {
 
-/// @brief dynamic AABB<Scalar> tree node
+/// @brief dynamic AABB<S> tree node
 template<typename BV>
 struct NodeBase
 {
@@ -60,7 +60,7 @@ struct NodeBase
   NodeBase<BV>* parent;
 
   /// @brief whether is a leaf
-  bool isLeaf() const { return (children[1] == NULL); }
+  bool isLeaf() const { return (children[1] == nullptr); }
 
   /// @brief whether is internal node
   bool isInternal() const { return !isLeaf(); }
@@ -77,9 +77,9 @@ struct NodeBase
 
   NodeBase()
   {
-    parent = NULL;
-    children[0] = NULL;
-    children[1] = NULL;
+    parent = nullptr;
+    children[0] = nullptr;
+    children[1] = nullptr;
   }
 };
 
@@ -93,7 +93,7 @@ bool nodeBaseLess(NodeBase<BV>* a, NodeBase<BV>* b, int d)
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct SelectImpl
 {
   static std::size_t run(
@@ -120,7 +120,7 @@ size_t select(
     const NodeBase<BV>& node1,
     const NodeBase<BV>& node2)
 {
-  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2);
+  return SelectImpl<typename BV::S, BV>::run(query, node1, node2);
 }
 
 /// @brief select from node1 and node2 which is close to a given query bounding volume. 0 for node1 and 1 for node2
@@ -130,7 +130,7 @@ size_t select(
     const NodeBase<BV>& node1,
     const NodeBase<BV>& node2)
 {
-  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2);
+  return SelectImpl<typename BV::S, BV>::run(query, node1, node2);
 }
 
 /// @brief Class for hierarchy tree structure
@@ -139,7 +139,7 @@ class HierarchyTree
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   typedef NodeBase<BV> NodeType;
 
@@ -173,10 +173,10 @@ public:
   bool update(NodeType* leaf, const BV& bv);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(NodeType* leaf, const BV& bv, const Vector3<Scalar>& vel, Scalar margin);
+  bool update(NodeType* leaf, const BV& bv, const Vector3<S>& vel, S margin);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(NodeType* leaf, const BV& bv, const Vector3<Scalar>& vel);
+  bool update(NodeType* leaf, const BV& bv, const Vector3<S>& vel);
 
   /// @brief get the max height of the tree
   size_t getMaxHeight() const;
@@ -236,7 +236,7 @@ private:
   void getMaxDepth(NodeType* node, size_t depth, size_t& max_depth) const;
 
   /// @brief construct a tree from a list of nodes stored in [lbeg, lend) in a topdown manner.
-  /// During construction, first compute the best split axis as the axis along with the longest AABB<Scalar> edge.
+  /// During construction, first compute the best split axis as the axis along with the longest AABB<S> edge.
   /// Then compute the median of all nodes' center projection onto the axis and using it as the split threshold.
   NodeType* topdown_0(const NodeVecIterator lbeg, const NodeVecIterator lend);
 
@@ -380,7 +380,7 @@ private:
 };
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct SelectImpl
 {
   static bool run(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
@@ -398,21 +398,21 @@ struct SelectImpl
 template<typename BV> 
 size_t select(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
 {
-  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2, nodes);
+  return SelectImpl<typename BV::S, BV>::run(query, node1, node2, nodes);
 }
 
-/// @brief select the node from node1 and node2 which is close to the query AABB<Scalar>. 0 for node1 and 1 for node2.
+/// @brief select the node from node1 and node2 which is close to the query AABB<S>. 0 for node1 and 1 for node2.
 template<typename BV>
 size_t select(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
 {
-  return SelectImpl<typename BV::Scalar, BV>::run(query, node1, node2, nodes);
+  return SelectImpl<typename BV::S, BV>::run(query, node1, node2, nodes);
 }
 
 /// @brief Class for hierarchy tree structure
 template<typename BV>
 class HierarchyTree
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
   typedef NodeBase<BV> NodeType;
   
   struct SortByMorton
@@ -464,10 +464,10 @@ public:
   bool update(size_t leaf, const BV& bv);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(size_t leaf, const BV& bv, const Vector3<Scalar>& vel, Scalar margin);
+  bool update(size_t leaf, const BV& bv, const Vector3<S>& vel, S margin);
 
   /// @brief update one leaf's bounding volume, with prediction 
-  bool update(size_t leaf, const BV& bv, const Vector3<Scalar>& vel);
+  bool update(size_t leaf, const BV& bv, const Vector3<S>& vel);
 
   /// @brief get the max height of the tree
   size_t getMaxHeight() const;
@@ -517,7 +517,7 @@ private:
   void getMaxDepth(size_t node, size_t depth, size_t& max_depth) const;
 
   /// @brief construct a tree from a list of nodes stored in [lbeg, lend) in a topdown manner.
-  /// During construction, first compute the best split axis as the axis along with the longest AABB<Scalar> edge.
+  /// During construction, first compute the best split axis as the axis along with the longest AABB<S> edge.
   /// Then compute the median of all nodes' center projection onto the axis and using it as the split threshold.
   size_t topdown_0(size_t* lbeg, size_t* lend);
 
@@ -619,9 +619,9 @@ const size_t HierarchyTree<BV>::NULL_NODE;
 template<typename BV>
 HierarchyTree<BV>::HierarchyTree(int bu_threshold_, int topdown_level_)
 {
-  root_node = NULL;
+  root_node = nullptr;
   n_leaves = 0;
-  free_node = NULL;
+  free_node = nullptr;
   max_lookahead_level = -1;
   opath = 0;
   bu_threshold = bu_threshold_;
@@ -659,7 +659,7 @@ void HierarchyTree<BV>::init(std::vector<NodeType*>& leaves, int level)
 template<typename BV>
 typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::insert(const BV& bv, void* data)
 {
-  NodeType* leaf = createNode(NULL, bv, data);
+  NodeType* leaf = createNode(nullptr, bv, data);
   insertLeaf(root_node, leaf);
   ++n_leaves;
   return leaf;
@@ -680,7 +680,7 @@ void HierarchyTree<BV>::clear()
     recurseDeleteNode(root_node);
   n_leaves = 0;
   delete free_node;
-  free_node = NULL;
+  free_node = nullptr;
   max_lookahead_level = -1;
   opath = 0;
 }
@@ -688,7 +688,7 @@ void HierarchyTree<BV>::clear()
 template<typename BV>
 bool HierarchyTree<BV>::empty() const
 {
-  return (NULL == root_node);
+  return (nullptr == root_node);
 }
 
 template<typename BV>
@@ -717,15 +717,15 @@ bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv)
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct UpdateImpl
 {
   static bool run(
       const HierarchyTree<BV>& tree,
       typename HierarchyTree<BV>::NodeType* leaf,
       const BV& bv,
-      const Vector3<Scalar>& /*vel*/,
-      Scalar /*margin*/)
+      const Vector3<S>& /*vel*/,
+      S /*margin*/)
   {
     if(leaf->bv.contain(bv)) return false;
     tree.update_(leaf, bv);
@@ -736,7 +736,7 @@ struct UpdateImpl
       const HierarchyTree<BV>& tree,
       typename HierarchyTree<BV>::NodeType* leaf,
       const BV& bv,
-      const Vector3<Scalar>& /*vel*/)
+      const Vector3<S>& /*vel*/)
   {
     if(leaf->bv.contain(bv)) return false;
     tree.update_(leaf, bv);
@@ -745,15 +745,15 @@ struct UpdateImpl
 };
 
 template<typename BV>
-bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3<Scalar>& vel, Scalar margin)
+bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3<S>& vel, S margin)
 {
-  return UpdateImpl<typename BV::Scalar, BV>::run(*this, leaf, bv, vel, margin);
+  return UpdateImpl<typename BV::S, BV>::run(*this, leaf, bv, vel, margin);
 }
 
 template<typename BV>
-bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3<Scalar>& vel)
+bool HierarchyTree<BV>::update(NodeType* leaf, const BV& bv, const Vector3<S>& vel)
 {
-  return UpdateImpl<typename BV::Scalar, BV>::run(*this, leaf, bv, vel);
+  return UpdateImpl<typename BV::S, BV>::run(*this, leaf, bv, vel);
 }
 
 template<typename BV>
@@ -882,12 +882,12 @@ void HierarchyTree<BV>::bottomup(const NodeVecIterator lbeg, const NodeVecIterat
   while(lbeg < lcur_end - 1)
   {
     NodeVecIterator min_it1, min_it2;
-    Scalar min_size = std::numeric_limits<Scalar>::max();
+    S min_size = std::numeric_limits<S>::max();
     for(NodeVecIterator it1 = lbeg; it1 < lcur_end; ++it1)
     {
       for(NodeVecIterator it2 = it1 + 1; it2 < lcur_end; ++it2)
       {
-        Scalar cur_size = ((*it1)->bv + (*it2)->bv).size();
+        S cur_size = ((*it1)->bv + (*it2)->bv).size();
         if(cur_size < min_size)
         {
           min_size = cur_size;
@@ -898,7 +898,7 @@ void HierarchyTree<BV>::bottomup(const NodeVecIterator lbeg, const NodeVecIterat
     }
 
     NodeType* n[2] = {*min_it1, *min_it2};
-    NodeType* p = createNode(NULL, n[0]->bv, n[1]->bv, NULL);
+    NodeType* p = createNode(nullptr, n[0]->bv, n[1]->bv, nullptr);
     p->children[0] = n[0];
     p->children[1] = n[1];
     n[0]->parent = p;
@@ -965,7 +965,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_0(const NodeVec
         vol += (*it)->bv;
 
       int best_axis = 0;
-      Scalar extent[3] = {vol.width(), vol.height(), vol.depth()};
+      S extent[3] = {vol.width(), vol.height(), vol.depth()};
       if(extent[1] > extent[0]) best_axis = 1;
       if(extent[2] > extent[best_axis]) best_axis = 2;
 
@@ -973,7 +973,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_0(const NodeVec
       NodeVecIterator lcenter = lbeg + num_leaves / 2;
       std::nth_element(lbeg, lcenter, lend, std::bind(&nodeBaseLess<BV>, std::placeholders::_1, std::placeholders::_2, std::ref(best_axis)));
 
-      NodeType* node = createNode(NULL, vol, NULL);
+      NodeType* node = createNode(nullptr, vol, nullptr);
       node->children[0] = topdown_0(lbeg, lcenter);
       node->children[1] = topdown_0(lcenter, lend);
       node->children[0]->parent = node;
@@ -997,7 +997,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
   {
     if(num_leaves > bu_threshold)
     {
-      Vector3<Scalar> split_p = (*lbeg)->bv.center();
+      Vector3<S> split_p = (*lbeg)->bv.center();
       BV vol = (*lbeg)->bv;
       NodeVecIterator it;
       for(it = lbeg + 1; it < lend; ++it)
@@ -1005,13 +1005,13 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
         split_p += (*it)->bv.center();
         vol += (*it)->bv;
       }
-      split_p /= (Scalar)(num_leaves);
+      split_p /= (S)(num_leaves);
       int best_axis = -1;
       int bestmidp = num_leaves;
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
       for(it = lbeg; it < lend; ++it)
       {
-        Vector3<Scalar> x = (*it)->bv.center() - split_p;
+        Vector3<S> x = (*it)->bv.center() - split_p;
         for(size_t j = 0; j < 3; ++j)
           ++splitcount[j][x[j] > 0 ? 1 : 0];
       }
@@ -1031,7 +1031,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
 
       if(best_axis < 0) best_axis = 0;
 
-      Scalar split_value = split_p[best_axis];
+      S split_value = split_p[best_axis];
       NodeVecIterator lcenter = lbeg;
       for(it = lbeg; it < lend; ++it)
       {
@@ -1044,7 +1044,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
         }
       }
 
-      NodeType* node = createNode(NULL, vol, NULL);
+      NodeType* node = createNode(nullptr, vol, nullptr);
       node->children[0] = topdown_1(lbeg, lcenter);
       node->children[1] = topdown_1(lcenter, lend);
       node->children[0]->parent = node;
@@ -1081,7 +1081,7 @@ void HierarchyTree<BV>::init_1(std::vector<NodeType*>& leaves)
   for(size_t i = 1; i < leaves.size(); ++i)
     bound_bv += leaves[i]->bv;
 
-  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::S, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < leaves.size(); ++i)
     leaves[i]->code = coder(leaves[i]->bv.center());
 
@@ -1106,7 +1106,7 @@ void HierarchyTree<BV>::init_2(std::vector<NodeType*>& leaves)
   for(size_t i = 1; i < leaves.size(); ++i)
     bound_bv += leaves[i]->bv;
 
-  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::S, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < leaves.size(); ++i)
     leaves[i]->code = coder(leaves[i]->bv.center());
 
@@ -1131,7 +1131,7 @@ void HierarchyTree<BV>::init_3(std::vector<NodeType*>& leaves)
   for(size_t i = 1; i < leaves.size(); ++i)
     bound_bv += leaves[i]->bv;
 
-  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::S, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < leaves.size(); ++i)
     leaves[i]->code = coder(leaves[i]->bv.center());
 
@@ -1174,7 +1174,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_0(const N
 
         NodeType* child1 = mortonRecurse_0(lbeg, lcenter, split1, bits - 1);
         NodeType* child2 = mortonRecurse_0(lcenter, lend, split2, bits - 1);
-        NodeType* node = createNode(NULL, NULL);
+        NodeType* node = createNode(nullptr, nullptr);
         node->children[0] = child1;
         node->children[1] = child2;
         child1->parent = node;
@@ -1221,7 +1221,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_1(const N
 
         NodeType* child1 = mortonRecurse_1(lbeg, lcenter, split1, bits - 1);
         NodeType* child2 = mortonRecurse_1(lcenter, lend, split2, bits - 1);
-        NodeType* node = createNode(NULL, NULL);
+        NodeType* node = createNode(nullptr, nullptr);
         node->children[0] = child1;
         node->children[1] = child2;
         child1->parent = node;
@@ -1233,7 +1233,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_1(const N
     {
       NodeType* child1 = mortonRecurse_1(lbeg, lbeg + num_leaves / 2, 0, bits - 1);
       NodeType* child2 = mortonRecurse_1(lbeg + num_leaves / 2, lend, 0, bits - 1);
-      NodeType* node = createNode(NULL, NULL);
+      NodeType* node = createNode(nullptr, nullptr);
       node->children[0] = child1;
       node->children[1] = child2;
       child1->parent = node;
@@ -1253,7 +1253,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_2(const N
   {
     NodeType* child1 = mortonRecurse_2(lbeg, lbeg + num_leaves / 2);
     NodeType* child2 = mortonRecurse_2(lbeg + num_leaves / 2, lend);
-    NodeType* node = createNode(NULL, NULL);
+    NodeType* node = createNode(nullptr, nullptr);
     node->children[0] = child1;
     node->children[1] = child2;
     child1->parent = node;
@@ -1316,7 +1316,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
   if(!root_node)
   {
     root_node = leaf;
-    leaf->parent = NULL;
+    leaf->parent = nullptr;
   }
   else
   {
@@ -1330,7 +1330,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
     }
 
     NodeType* prev = root->parent;
-    NodeType* node = createNode(prev, leaf->bv, root->bv, NULL);
+    NodeType* node = createNode(prev, leaf->bv, root->bv, nullptr);
     if(prev)
     {
       prev->children[indexOf(root)] = node;
@@ -1343,7 +1343,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
         else
           break;
         node = prev;
-      } while (NULL != (prev = node->parent));
+      } while (nullptr != (prev = node->parent));
     }
     else
     {
@@ -1359,8 +1359,8 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* le
 {
   if(leaf == root_node)
   {
-    root_node = NULL;
-    return NULL;
+    root_node = nullptr;
+    return nullptr;
   }
   else
   {
@@ -1388,7 +1388,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* le
     else
     {
       root_node = sibling;
-      sibling->parent = NULL;
+      sibling->parent = nullptr;
       deleteNode(parent);
       return root_node;
     }
@@ -1414,7 +1414,7 @@ void HierarchyTree<BV>::fetchLeaves(NodeType* root, std::vector<NodeType*>& leav
 template<typename BV>
 size_t HierarchyTree<BV>::indexOf(NodeType* node)
 {
-  // node cannot be NULL
+  // node cannot be nullptr
   return (node->parent->children[1] == node);
 }
 
@@ -1443,11 +1443,11 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::createNode(NodeType* pa
 template<typename BV>
 typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::createNode(NodeType* parent, void* data)
 {
-  NodeType* node = NULL;
+  NodeType* node = nullptr;
   if(free_node)
   {
     node = free_node;
-    free_node = NULL;
+    free_node = nullptr;
   }
   else
     node = new NodeType();
@@ -1476,7 +1476,7 @@ void HierarchyTree<BV>::recurseDeleteNode(NodeType* node)
     recurseDeleteNode(node->children[1]);
   }
 
-  if(node == root_node) root_node = NULL;
+  if(node == root_node) root_node = nullptr;
   deleteNode(node);
 }
 
@@ -1623,7 +1623,7 @@ void HierarchyTree<BV>::init_1(NodeType* leaves, int n_leaves_)
   for(size_t i = 1; i < n_leaves; ++i)
     bound_bv += nodes[i].bv;
 
-  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::S, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < n_leaves; ++i)
     nodes[i].code = coder(nodes[i].bv.center());
 
@@ -1669,7 +1669,7 @@ void HierarchyTree<BV>::init_2(NodeType* leaves, int n_leaves_)
   for(size_t i = 1; i < n_leaves; ++i)
     bound_bv += nodes[i].bv;
 
-  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::S, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < n_leaves; ++i)
     nodes[i].code = coder(nodes[i].bv.center());
 
@@ -1715,7 +1715,7 @@ void HierarchyTree<BV>::init_3(NodeType* leaves, int n_leaves_)
   for(size_t i = 1; i < n_leaves; ++i)
     bound_bv += nodes[i].bv;
 
-  morton_functor<typename BV::Scalar, FCL_UINT32> coder(bound_bv);
+  morton_functor<typename BV::S, FCL_UINT32> coder(bound_bv);
   for(size_t i = 0; i < n_leaves; ++i)
     nodes[i].code = coder(nodes[i].bv.center());
 
@@ -1804,7 +1804,7 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv)
 }
 
 template<typename BV>
-bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<Scalar>& vel, Scalar margin)
+bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<S>& vel, S margin)
 {
   if(nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -1812,7 +1812,7 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<Scalar>&
 }
 
 template<typename BV>
-bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<Scalar>& vel)
+bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<S>& vel)
 {
   if(nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
@@ -1999,13 +1999,13 @@ void HierarchyTree<BV>::bottomup(size_t* lbeg, size_t* lend)
   size_t* lcur_end = lend;
   while(lbeg < lcur_end - 1)
   {
-    size_t* min_it1 = NULL, *min_it2 = NULL;
-    Scalar min_size = std::numeric_limits<Scalar>::max();
+    size_t* min_it1 = nullptr, *min_it2 = nullptr;
+    S min_size = std::numeric_limits<S>::max();
     for(size_t* it1 = lbeg; it1 < lcur_end; ++it1)
     {
       for(size_t* it2 = it1 + 1; it2 < lcur_end; ++it2)
       {
-        Scalar cur_size = (nodes[*it1].bv + nodes[*it2].bv).size();
+        S cur_size = (nodes[*it1].bv + nodes[*it2].bv).size();
         if(cur_size < min_size)
         {
           min_size = cur_size;
@@ -2015,7 +2015,7 @@ void HierarchyTree<BV>::bottomup(size_t* lbeg, size_t* lend)
       }
     }
 
-    size_t p = createNode(NULL_NODE, nodes[*min_it1].bv, nodes[*min_it2].bv, NULL);
+    size_t p = createNode(NULL_NODE, nodes[*min_it1].bv, nodes[*min_it2].bv, nullptr);
     nodes[p].children[0] = *min_it1;
     nodes[p].children[1] = *min_it2;
     nodes[*min_it1].parent = p;
@@ -2057,7 +2057,7 @@ size_t HierarchyTree<BV>::topdown_0(size_t* lbeg, size_t* lend)
         vol += nodes[*i].bv;
 
       int best_axis = 0;
-      Scalar extent[3] = {vol.width(), vol.height(), vol.depth()};
+      S extent[3] = {vol.width(), vol.height(), vol.depth()};
       if(extent[1] > extent[0]) best_axis = 1;
       if(extent[2] > extent[best_axis]) best_axis = 2;
 
@@ -2065,7 +2065,7 @@ size_t HierarchyTree<BV>::topdown_0(size_t* lbeg, size_t* lend)
       size_t* lcenter = lbeg + num_leaves / 2;
       std::nth_element(lbeg, lcenter, lend, comp);
 
-      size_t node = createNode(NULL_NODE, vol, NULL);
+      size_t node = createNode(NULL_NODE, vol, nullptr);
       nodes[node].children[0] = topdown_0(lbeg, lcenter);
       nodes[node].children[1] = topdown_0(lcenter, lend);
       nodes[nodes[node].children[0]].parent = node;
@@ -2089,20 +2089,20 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
   {
     if(num_leaves > bu_threshold)
     {
-      Vector3<Scalar> split_p = nodes[*lbeg].bv.center();
+      Vector3<S> split_p = nodes[*lbeg].bv.center();
       BV vol = nodes[*lbeg].bv;
       for(size_t* i = lbeg + 1; i < lend; ++i)
       {
         split_p += nodes[*i].bv.center();
         vol += nodes[*i].bv;
       }
-      split_p /= (Scalar)(num_leaves);
+      split_p /= (S)(num_leaves);
       int best_axis = -1;
       int bestmidp = num_leaves;
       int splitcount[3][2] = {{0,0}, {0,0}, {0,0}};
       for(size_t* i = lbeg; i < lend; ++i)
       {
-        Vector3<Scalar> x = nodes[*i].bv.center() - split_p;
+        Vector3<S> x = nodes[*i].bv.center() - split_p;
         for(size_t j = 0; j < 3; ++j)
           ++splitcount[j][x[j] > 0 ? 1 : 0];
       }
@@ -2122,7 +2122,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
 
       if(best_axis < 0) best_axis = 0;
 
-      Scalar split_value = split_p[best_axis];
+      S split_value = split_p[best_axis];
       size_t* lcenter = lbeg;
       for(size_t* i = lbeg; i < lend; ++i)
       {
@@ -2135,7 +2135,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
         }
       }
 
-      size_t node = createNode(NULL_NODE, vol, NULL);
+      size_t node = createNode(NULL_NODE, vol, nullptr);
       nodes[node].children[0] = topdown_1(lbeg, lcenter);
       nodes[node].children[1] = topdown_1(lcenter, lend);
       nodes[nodes[node].children[0]].parent = node;
@@ -2181,7 +2181,7 @@ size_t HierarchyTree<BV>::mortonRecurse_0(size_t* lbeg, size_t* lend, const FCL_
 
         size_t child1 = mortonRecurse_0(lbeg, lcenter, split1, bits - 1);
         size_t child2 = mortonRecurse_0(lcenter, lend, split2, bits - 1);
-        size_t node = createNode(NULL_NODE, NULL);
+        size_t node = createNode(NULL_NODE, nullptr);
         nodes[node].children[0] = child1;
         nodes[node].children[1] = child2;
         nodes[child1].parent = node;
@@ -2229,7 +2229,7 @@ size_t HierarchyTree<BV>::mortonRecurse_1(size_t* lbeg, size_t* lend, const FCL_
 
         size_t child1 = mortonRecurse_1(lbeg, lcenter, split1, bits - 1);
         size_t child2 = mortonRecurse_1(lcenter, lend, split2, bits - 1);
-        size_t node = createNode(NULL_NODE, NULL);
+        size_t node = createNode(NULL_NODE, nullptr);
         nodes[node].children[0] = child1;
         nodes[node].children[1] = child2;
         nodes[child1].parent = node;
@@ -2241,7 +2241,7 @@ size_t HierarchyTree<BV>::mortonRecurse_1(size_t* lbeg, size_t* lend, const FCL_
     {
       size_t child1 = mortonRecurse_1(lbeg, lbeg + num_leaves / 2, 0, bits - 1);
       size_t child2 = mortonRecurse_1(lbeg + num_leaves / 2, lend, 0, bits - 1);
-      size_t node = createNode(NULL_NODE, NULL);
+      size_t node = createNode(NULL_NODE, nullptr);
       nodes[node].children[0] = child1;
       nodes[node].children[1] = child2;
       nodes[child1].parent = node;
@@ -2261,7 +2261,7 @@ size_t HierarchyTree<BV>::mortonRecurse_2(size_t* lbeg, size_t* lend)
   {
     size_t child1 = mortonRecurse_2(lbeg, lbeg + num_leaves / 2);
     size_t child2 = mortonRecurse_2(lbeg + num_leaves / 2, lend);
-    size_t node = createNode(NULL_NODE, NULL);
+    size_t node = createNode(NULL_NODE, nullptr);
     nodes[node].children[0] = child1;
     nodes[node].children[1] = child2;
     nodes[child1].parent = node;
@@ -2292,7 +2292,7 @@ void HierarchyTree<BV>::insertLeaf(size_t root, size_t leaf)
     }
 
     size_t prev = nodes[root].parent;
-    size_t node = createNode(prev, nodes[leaf].bv, nodes[root].bv, NULL);
+    size_t node = createNode(prev, nodes[leaf].bv, nodes[root].bv, nullptr);
     if(prev != NULL_NODE)
     {
       nodes[prev].children[indexOf(root)] = node;
@@ -2482,51 +2482,51 @@ void HierarchyTree<BV>::fetchLeaves(size_t root, NodeType*& leaves, int depth)
 }
 
 //==============================================================================
-template <typename Scalar>
-struct SelectImpl<Scalar, AABB<Scalar>>
+template <typename S>
+struct SelectImpl<S, AABB<S>>
 {
   static std::size_t run(
-      const NodeBase<AABB<Scalar>>& node,
-      const NodeBase<AABB<Scalar>>& node1,
-      const NodeBase<AABB<Scalar>>& node2)
+      const NodeBase<AABB<S>>& node,
+      const NodeBase<AABB<S>>& node1,
+      const NodeBase<AABB<S>>& node2)
   {
-    const AABB<Scalar>& bv = node.bv;
-    const AABB<Scalar>& bv1 = node1.bv;
-    const AABB<Scalar>& bv2 = node2.bv;
-    Vector3<Scalar> v = bv.min_ + bv.max_;
-    Vector3<Scalar> v1 = v - (bv1.min_ + bv1.max_);
-    Vector3<Scalar> v2 = v - (bv2.min_ + bv2.max_);
-    Scalar d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
-    Scalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
+    const AABB<S>& bv = node.bv;
+    const AABB<S>& bv1 = node1.bv;
+    const AABB<S>& bv2 = node2.bv;
+    Vector3<S> v = bv.min_ + bv.max_;
+    Vector3<S> v1 = v - (bv1.min_ + bv1.max_);
+    Vector3<S> v2 = v - (bv2.min_ + bv2.max_);
+    S d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
+    S d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
   }
 
   static std::size_t run(
-      const AABB<Scalar>& query,
-      const NodeBase<AABB<Scalar>>& node1,
-      const NodeBase<AABB<Scalar>>& node2)
+      const AABB<S>& query,
+      const NodeBase<AABB<S>>& node1,
+      const NodeBase<AABB<S>>& node2)
   {
-    const AABB<Scalar>& bv = query;
-    const AABB<Scalar>& bv1 = node1.bv;
-    const AABB<Scalar>& bv2 = node2.bv;
-    Vector3<Scalar> v = bv.min_ + bv.max_;
-    Vector3<Scalar> v1 = v - (bv1.min_ + bv1.max_);
-    Vector3<Scalar> v2 = v - (bv2.min_ + bv2.max_);
-    Scalar d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
-    Scalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
+    const AABB<S>& bv = query;
+    const AABB<S>& bv1 = node1.bv;
+    const AABB<S>& bv2 = node2.bv;
+    Vector3<S> v = bv.min_ + bv.max_;
+    Vector3<S> v1 = v - (bv1.min_ + bv1.max_);
+    Vector3<S> v2 = v - (bv2.min_ + bv2.max_);
+    S d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
+    S d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
   }
 
   static bool run(
-      const HierarchyTree<AABB<Scalar>>& tree,
-      typename HierarchyTree<AABB<Scalar>>::NodeType* leaf,
-      const AABB<Scalar>& bv_,
-      const Vector3<Scalar>& vel,
-      Scalar margin)
+      const HierarchyTree<AABB<S>>& tree,
+      typename HierarchyTree<AABB<S>>::NodeType* leaf,
+      const AABB<S>& bv_,
+      const Vector3<S>& vel,
+      S margin)
   {
-    AABB<Scalar> bv(bv_);
+    AABB<S> bv(bv_);
     if(leaf->bv.contain(bv)) return false;
-    Vector3<Scalar> marginv(margin);
+    Vector3<S> marginv(margin);
     bv.min_ -= marginv;
     bv.max_ += marginv;
     if(vel[0] > 0) bv.max_[0] += vel[0];
@@ -2540,12 +2540,12 @@ struct SelectImpl<Scalar, AABB<Scalar>>
   }
 
   static bool run(
-      const HierarchyTree<AABB<Scalar>>& tree,
-      typename HierarchyTree<AABB<Scalar>>::NodeType* leaf,
-      const AABB<Scalar>& bv_,
-      const Vector3<Scalar>& vel)
+      const HierarchyTree<AABB<S>>& tree,
+      typename HierarchyTree<AABB<S>>::NodeType* leaf,
+      const AABB<S>& bv_,
+      const Vector3<S>& vel)
   {
-    AABB<Scalar> bv(bv_);
+    AABB<S> bv(bv_);
     if(leaf->bv.contain(bv)) return false;
     if(vel[0] > 0) bv.max_[0] += vel[0];
     else bv.min_[0] += vel[0];
@@ -2562,32 +2562,32 @@ namespace implementation_array
 {
 
 //==============================================================================
-template <typename Scalar>
-struct SelectImpl<Scalar, AABB<Scalar>>
+template <typename S>
+struct SelectImpl<S, AABB<S>>
 {
-  static bool run(size_t query, size_t node1, size_t node2, NodeBase<AABB<Scalar>>* nodes)
+  static bool run(size_t query, size_t node1, size_t node2, NodeBase<AABB<S>>* nodes)
   {
-    const AABB<Scalar>& bv = nodes[query].bv;
-    const AABB<Scalar>& bv1 = nodes[node1].bv;
-    const AABB<Scalar>& bv2 = nodes[node2].bv;
-    Vector3<Scalar> v = bv.min_ + bv.max_;
-    Vector3<Scalar> v1 = v - (bv1.min_ + bv1.max_);
-    Vector3<Scalar> v2 = v - (bv2.min_ + bv2.max_);
-    Scalar d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
-    Scalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
+    const AABB<S>& bv = nodes[query].bv;
+    const AABB<S>& bv1 = nodes[node1].bv;
+    const AABB<S>& bv2 = nodes[node2].bv;
+    Vector3<S> v = bv.min_ + bv.max_;
+    Vector3<S> v1 = v - (bv1.min_ + bv1.max_);
+    Vector3<S> v2 = v - (bv2.min_ + bv2.max_);
+    S d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
+    S d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
   }
 
-  static bool run(const AABB<Scalar>& query, size_t node1, size_t node2, NodeBase<AABB<Scalar>>* nodes)
+  static bool run(const AABB<S>& query, size_t node1, size_t node2, NodeBase<AABB<S>>* nodes)
   {
-    const AABB<Scalar>& bv = query;
-    const AABB<Scalar>& bv1 = nodes[node1].bv;
-    const AABB<Scalar>& bv2 = nodes[node2].bv;
-    Vector3<Scalar> v = bv.min_ + bv.max_;
-    Vector3<Scalar> v1 = v - (bv1.min_ + bv1.max_);
-    Vector3<Scalar> v2 = v - (bv2.min_ + bv2.max_);
-    Scalar d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
-    Scalar d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
+    const AABB<S>& bv = query;
+    const AABB<S>& bv1 = nodes[node1].bv;
+    const AABB<S>& bv2 = nodes[node2].bv;
+    Vector3<S> v = bv.min_ + bv.max_;
+    Vector3<S> v1 = v - (bv1.min_ + bv1.max_);
+    Vector3<S> v2 = v - (bv2.min_ + bv2.max_);
+    S d1 = fabs(v1[0]) + fabs(v1[1]) + fabs(v1[2]);
+    S d2 = fabs(v2[0]) + fabs(v2[1]) + fabs(v2[2]);
     return (d1 < d2) ? 0 : 1;
   }
 };

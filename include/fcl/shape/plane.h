@@ -50,24 +50,24 @@ namespace fcl
 {
 
 /// @brief Infinite plane 
-template <typename ScalarT>
-class Plane : public ShapeBase<ScalarT>
+template <typename S_>
+class Plane : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Construct a plane with normal direction and offset 
-  Plane(const Vector3<ScalarT>& n, ScalarT d);
+  Plane(const Vector3<S>& n, S d);
   
   /// @brief Construct a plane with normal direction and offset 
-  Plane(ScalarT a, ScalarT b, ScalarT c, ScalarT d);
+  Plane(S a, S b, S c, S d);
 
   Plane();
 
-  ScalarT signedDistance(const Vector3<ScalarT>& p) const;
+  S signedDistance(const Vector3<S>& p) const;
 
-  ScalarT distance(const Vector3<ScalarT>& p) const;
+  S distance(const Vector3<S>& p) const;
 
   /// @brief Compute AABB
   void computeLocalAABB() override;
@@ -76,10 +76,10 @@ public:
   NODE_TYPE getNodeType() const override;
 
   /// @brief Plane normal 
-  Vector3<ScalarT> n;
+  Vector3<S> n;
 
   /// @brief Plane offset 
-  ScalarT d;
+  S d;
 
 protected:
   
@@ -90,8 +90,8 @@ protected:
 using Planef = Plane<float>;
 using Planed = Plane<double>;
 
-template <typename ScalarT>
-Plane<ScalarT> transform(const Plane<ScalarT>& a, const Transform3<ScalarT>& tf)
+template <typename S>
+Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -99,10 +99,10 @@ Plane<ScalarT> transform(const Plane<ScalarT>& a, const Transform3<ScalarT>& tf)
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vector3<ScalarT> n = tf.linear() * a.n;
-  ScalarT d = a.d + n.dot(tf.translation());
+  Vector3<S> n = tf.linear() * a.n;
+  S d = a.d + n.dot(tf.translation());
 
-  return Plane<ScalarT>(n, d);
+  return Plane<S>(n, d);
 }
 
 //============================================================================//
@@ -112,66 +112,66 @@ Plane<ScalarT> transform(const Plane<ScalarT>& a, const Transform3<ScalarT>& tf)
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Plane<ScalarT>::Plane(const Vector3<ScalarT>& n, ScalarT d)
-  : ShapeBase<ScalarT>(), n(n), d(d)
+template <typename S>
+Plane<S>::Plane(const Vector3<S>& n, S d)
+  : ShapeBase<S>(), n(n), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename ScalarT>
-Plane<ScalarT>::Plane(ScalarT a, ScalarT b, ScalarT c, ScalarT d)
-  : ShapeBase<ScalarT>(), n(a, b, c), d(d)
+template <typename S>
+Plane<S>::Plane(S a, S b, S c, S d)
+  : ShapeBase<S>(), n(a, b, c), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename ScalarT>
-Plane<ScalarT>::Plane() : ShapeBase<ScalarT>(), n(1, 0, 0), d(0)
+template <typename S>
+Plane<S>::Plane() : ShapeBase<S>(), n(1, 0, 0), d(0)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Plane<ScalarT>::signedDistance(const Vector3<ScalarT>& p) const
+template <typename S>
+S Plane<S>::signedDistance(const Vector3<S>& p) const
 {
   return n.dot(p) - d;
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Plane<ScalarT>::distance(const Vector3<ScalarT>& p) const
+template <typename S>
+S Plane<S>::distance(const Vector3<S>& p) const
 {
   return std::abs(n.dot(p) - d);
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Plane<ScalarT>::computeLocalAABB()
+template <typename S>
+void Plane<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Plane<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Plane<S>::getNodeType() const
 {
   return GEOM_PLANE;
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Plane<ScalarT>::unitNormalTest()
+template <typename S>
+void Plane<S>::unitNormalTest()
 {
-  ScalarT l = n.norm();
+  S l = n.norm();
   if(l > 0)
   {
-    ScalarT inv_l = 1.0 / l;
+    S inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   }

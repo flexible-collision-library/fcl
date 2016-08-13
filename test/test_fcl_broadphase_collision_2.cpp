@@ -39,6 +39,8 @@
 
 #include "fcl/config.h"
 #include "fcl/broadphase/broadphase.h"
+#include "fcl/broadphase/sparse_hash_table.h"
+#include "fcl/broadphase/spatial_hash.h"
 #include "fcl/shape/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 
@@ -54,8 +56,8 @@
 using namespace fcl;
 
 /// @brief test for broad phase collision and self collision
-template <typename Scalar>
-void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);
+template <typename S>
+void broad_phase_collision_test(S env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts = 1, bool exhaustive = false, bool use_mesh = false);
 
 #if USE_GOOGLEHASH
 template<typename U, typename V>
@@ -66,7 +68,7 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 {
   GoogleDenseHashTable() : google::dense_hash_map<U, V, std::tr1::hash<size_t>, std::equal_to<size_t> >()
   {
-    this->set_empty_key(NULL);
+    this->set_empty_key(nullptr);
   }
 };
 #endif
@@ -74,23 +76,7 @@ struct GoogleDenseHashTable : public google::dense_hash_map<U, V, std::tr1::hash
 /// check broad phase collision for empty collision object set and queries
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision_empty)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test<double>(2000, 0, 0, 10, false, false);
-  broad_phase_collision_test<double>(2000, 0, 5, 10, false, false);
-  broad_phase_collision_test<double>(2000, 2, 0, 10, false, false);
-
-  broad_phase_collision_test<double>(2000, 0, 0, 10, false, true);
-  broad_phase_collision_test<double>(2000, 0, 5, 10, false, true);
-  broad_phase_collision_test<double>(2000, 2, 0, 10, false, true);
-
-  broad_phase_collision_test<double>(2000, 0, 0, 10, true, false);
-  broad_phase_collision_test<double>(2000, 0, 5, 10, true, false);
-  broad_phase_collision_test<double>(2000, 2, 0, 10, true, false);
-
-  broad_phase_collision_test<double>(2000, 0, 0, 10, true, true);
-  broad_phase_collision_test<double>(2000, 0, 5, 10, true, true);
-  broad_phase_collision_test<double>(2000, 2, 0, 10, true, true);
-#else
+#ifdef NDEBUG
   broad_phase_collision_test<double>(2000, 0, 0, 10, false, false);
   broad_phase_collision_test<double>(2000, 0, 1000, 10, false, false);
   broad_phase_collision_test<double>(2000, 100, 0, 10, false, false);
@@ -106,121 +92,137 @@ GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision_empty)
   broad_phase_collision_test<double>(2000, 0, 0, 10, true, true);
   broad_phase_collision_test<double>(2000, 0, 1000, 10, true, true);
   broad_phase_collision_test<double>(2000, 100, 0, 10, true, true);
+#else
+  broad_phase_collision_test<double>(2000, 0, 0, 10, false, false);
+  broad_phase_collision_test<double>(2000, 0, 5, 10, false, false);
+  broad_phase_collision_test<double>(2000, 2, 0, 10, false, false);
+
+  broad_phase_collision_test<double>(2000, 0, 0, 10, false, true);
+  broad_phase_collision_test<double>(2000, 0, 5, 10, false, true);
+  broad_phase_collision_test<double>(2000, 2, 0, 10, false, true);
+
+  broad_phase_collision_test<double>(2000, 0, 0, 10, true, false);
+  broad_phase_collision_test<double>(2000, 0, 5, 10, true, false);
+  broad_phase_collision_test<double>(2000, 2, 0, 10, true, false);
+
+  broad_phase_collision_test<double>(2000, 0, 0, 10, true, true);
+  broad_phase_collision_test<double>(2000, 0, 5, 10, true, true);
+  broad_phase_collision_test<double>(2000, 2, 0, 10, true, true);
 #endif
 }
 
 /// check broad phase collision and self collision, only return collision or not
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision_binary)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test<double>(2000, 10, 100, 1, false);
-  broad_phase_collision_test<double>(2000, 100, 100, 1, false);
-  broad_phase_collision_test<double>(2000, 10, 100, 1, true);
-  broad_phase_collision_test<double>(2000, 100, 100, 1, true);
-#else
+#ifdef NDEBUG
   broad_phase_collision_test<double>(2000, 100, 1000, 1, false);
   broad_phase_collision_test<double>(2000, 1000, 1000, 1, false);
   broad_phase_collision_test<double>(2000, 100, 1000, 1, true);
   broad_phase_collision_test<double>(2000, 1000, 1000, 1, true);
+#else
+  broad_phase_collision_test<double>(2000, 10, 100, 1, false);
+  broad_phase_collision_test<double>(2000, 100, 100, 1, false);
+  broad_phase_collision_test<double>(2000, 10, 100, 1, true);
+  broad_phase_collision_test<double>(2000, 100, 100, 1, true);
 #endif
 }
 
 /// check broad phase collision and self collision, return 10 contacts
 GTEST_TEST(FCL_BROADPHASE, test_core_bf_broad_phase_collision)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test<double>(2000, 10, 100, 10, false);
-  broad_phase_collision_test<double>(2000, 100, 100, 10, false);
-#else
+#ifdef NDEBUG
   broad_phase_collision_test<double>(2000, 100, 1000, 10, false);
   broad_phase_collision_test<double>(2000, 1000, 1000, 10, false);
+#else
+  broad_phase_collision_test<double>(2000, 10, 100, 10, false);
+  broad_phase_collision_test<double>(2000, 100, 100, 10, false);
 #endif
 }
 
 /// check broad phase collision and self collision, return only collision or not, in mesh
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_binary)
 {
-#if FCL_BUILD_TYPE_DEBUG
+#ifdef NDEBUG
+  broad_phase_collision_test<double>(2000, 100, 1000, 1, false, true);
+  broad_phase_collision_test<double>(2000, 1000, 1000, 1, false, true);
+#else
   broad_phase_collision_test<double>(2000, 2, 5, 1, false, true);
   broad_phase_collision_test<double>(2000, 5, 5, 1, false, true);
-#else
-//  broad_phase_collision_test<double>(2000, 100, 1000, 1, false, true);
-  broad_phase_collision_test<double>(2000, 1000, 1000, 1, false, true);
 #endif
 }
 
 /// check broad phase collision and self collision, return 10 contacts, in mesh
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh)
 {
-#if FCL_BUILD_TYPE_DEBUG
+#ifdef NDEBUG
+  broad_phase_collision_test<double>(2000, 100, 1000, 10, false, true);
+  broad_phase_collision_test<double>(2000, 1000, 1000, 10, false, true);
+#else
   broad_phase_collision_test<double>(2000, 2, 5, 10, false, true);
   broad_phase_collision_test<double>(2000, 5, 5, 10, false, true);
-#else
-  broad_phase_collision_test<double>(2000, 100, 1000, 10, false, true);
-//  broad_phase_collision_test<double>(2000, 1000, 1000, 10, false, true);
 #endif
 }
 
 /// check broad phase collision and self collision, exhaustive, in mesh
 GTEST_TEST(FCL_BROADPHASE, test_core_mesh_bf_broad_phase_collision_mesh_exhaustive)
 {
-#if FCL_BUILD_TYPE_DEBUG
-  broad_phase_collision_test<double>(2000, 2, 5, 1, true, true);
-  broad_phase_collision_test<double>(2000, 5, 5, 1, true, true);
-#else
+#ifdef NDEBUG
   broad_phase_collision_test<double>(2000, 100, 1000, 1, true, true);
   broad_phase_collision_test<double>(2000, 1000, 1000, 1, true, true);
+#else
+  broad_phase_collision_test<double>(2000, 2, 5, 1, true, true);
+  broad_phase_collision_test<double>(2000, 5, 5, 1, true, true);
 #endif
 }
 
-template <typename Scalar>
-void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts, bool exhaustive, bool use_mesh)
+template <typename S>
+void broad_phase_collision_test(S env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts, bool exhaustive, bool use_mesh)
 {
   std::vector<TStruct> ts;
   std::vector<Timer> timers;
 
-  std::vector<CollisionObject<Scalar>*> env;
+  std::vector<CollisionObject<S>*> env;
   if(use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
-  std::vector<CollisionObject<Scalar>*> query;
+  std::vector<CollisionObject<S>*> query;
   if(use_mesh)
     generateEnvironmentsMesh(query, env_scale, query_size);
   else
     generateEnvironments(query, env_scale, query_size);
 
-  std::vector<BroadPhaseCollisionManager<Scalar>*> managers;
-  
-  managers.push_back(new NaiveCollisionManager<Scalar>());
-  managers.push_back(new SSaPCollisionManager<Scalar>());
-  managers.push_back(new SaPCollisionManager<Scalar>());
-  managers.push_back(new IntervalTreeCollisionManager<Scalar>());
-  
-  Vector3<Scalar> lower_limit, upper_limit;
-  SpatialHashingCollisionManager<Scalar>::computeBound(env, lower_limit, upper_limit);
-  // Scalar ncell_per_axis = std::pow((Scalar)env_size / 10, 1 / 3.0);
-  Scalar ncell_per_axis = 20;
-  Scalar cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / ncell_per_axis, (upper_limit[1] - lower_limit[1]) / ncell_per_axis), (upper_limit[2] - lower_limit[2]) / ncell_per_axis);
-  // managers.push_back(new SpatialHashingCollisionManager<Scalar>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<Scalar, SparseHashTable<AABB<Scalar>, CollisionObject<Scalar>*, SpatialHash<Scalar>> >(cell_size, lower_limit, upper_limit));
-#if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<Scalar, SparseHashTable<AABB<Scalar>, CollisionObject<Scalar>*, SpatialHash<Scalar>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<Scalar, SparseHashTable<AABB<Scalar>, CollisionObject<Scalar>*, SpatialHash<Scalar>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
-#endif
-  managers.push_back(new DynamicAABBTreeCollisionManager<Scalar>());
+  std::vector<BroadPhaseCollisionManager<S>*> managers;
 
-  managers.push_back(new DynamicAABBTreeCollisionManager_Array<Scalar>());
+  managers.push_back(new NaiveCollisionManager<S>());
+  managers.push_back(new SSaPCollisionManager<S>());
+  managers.push_back(new SaPCollisionManager<S>());
+  managers.push_back(new IntervalTreeCollisionManager<S>());
+
+  Vector3<S> lower_limit, upper_limit;
+  SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
+  // S ncell_per_axis = std::pow((S)env_size / 10, 1 / 3.0);
+  S ncell_per_axis = 20;
+  S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / ncell_per_axis, (upper_limit[1] - lower_limit[1]) / ncell_per_axis), (upper_limit[2] - lower_limit[2]) / ncell_per_axis);
+  // managers.push_back(new SpatialHashingCollisionManager<S>(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
+#if USE_GOOGLEHASH
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+#endif
+  managers.push_back(new DynamicAABBTreeCollisionManager<S>());
+
+  managers.push_back(new DynamicAABBTreeCollisionManager_Array<S>());
 
   {
-    DynamicAABBTreeCollisionManager<Scalar>* m = new DynamicAABBTreeCollisionManager<Scalar>();
+    DynamicAABBTreeCollisionManager<S>* m = new DynamicAABBTreeCollisionManager<S>();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
 
   {
-    DynamicAABBTreeCollisionManager_Array<Scalar>* m = new DynamicAABBTreeCollisionManager_Array<Scalar>();
+    DynamicAABBTreeCollisionManager_Array<S>* m = new DynamicAABBTreeCollisionManager_Array<S>();
     m->tree_init_level = 2;
     managers.push_back(m);
   }
@@ -244,7 +246,7 @@ void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::siz
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<CollisionData<Scalar>> self_data(managers.size());
+  std::vector<CollisionData<S>> self_data(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
     if(exhaustive) self_data[i].request.num_max_contacts = 100000;
@@ -273,7 +275,7 @@ void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::siz
     std::vector<bool> self_res(managers.size());
     for(size_t i = 0; i < self_res.size(); ++i)
       self_res[i] = (self_data[i].result.numContacts() > 0);
-  
+
     for(size_t i = 1; i < self_res.size(); ++i)
       EXPECT_TRUE(self_res[0] == self_res[i]);
 
@@ -284,7 +286,7 @@ void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::siz
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<CollisionData<Scalar>> query_data(managers.size());
+    std::vector<CollisionData<S>> query_data(managers.size());
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       if(exhaustive) query_data[j].request.num_max_contacts = 100000;
@@ -303,7 +305,7 @@ void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::siz
     // for(size_t j = 0; j < managers.size(); ++j)
     //   std::cout << query_data[j].result.numContacts() << " ";
     // std::cout << std::endl;
-    
+
     if(exhaustive)
     {
       for(size_t j = 1; j < managers.size(); ++j)
@@ -328,7 +330,7 @@ void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::siz
     delete query[i];
 
   for(size_t i = 0; i < managers.size(); ++i)
-    delete managers[i];     
+    delete managers[i];
 
   std::cout.setf(std::ios_base::left, std::ios_base::adjustfield);
   size_t w = 7;
@@ -353,7 +355,7 @@ void broad_phase_collision_test(Scalar env_scale, std::size_t env_size, std::siz
   std::cout << "collision time" << std::endl;
   for(size_t i = 0; i < ts.size(); ++i)
   {
-    Scalar tmp = 0;
+    S tmp = 0;
     for(size_t j = 3; j < ts[i].records.size(); ++j)
       tmp += ts[i].records[j];
     std::cout << std::setw(w) << tmp << " ";

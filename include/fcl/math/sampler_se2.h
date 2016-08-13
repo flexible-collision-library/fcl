@@ -44,32 +44,34 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class SamplerSE2 : public SamplerBase<Scalar>
+template <typename S>
+class SamplerSE2 : public SamplerBase<S>
 {
 public:
   SamplerSE2();
 
-  SamplerSE2(const Vector2<Scalar>& lower_bound_,
-             const Vector2<Scalar>& upper_bound_);
+  SamplerSE2(const Vector2<S>& lower_bound_,
+             const Vector2<S>& upper_bound_);
 
-  SamplerSE2(Scalar x_min, Scalar x_max,
-             Scalar y_min, Scalar y_max);
-
-
-  void setBound(const Vector2<Scalar>& lower_bound_,
-                const Vector2<Scalar>& upper_bound_);
-
-  void getBound(Vector2<Scalar>& lower_bound_,
-                Vector2<Scalar>& upper_bound_) const;
+  SamplerSE2(S x_min, S x_max,
+             S y_min, S y_max);
 
 
-  Vector3<Scalar> sample() const;
+  void setBound(const Vector2<S>& lower_bound_,
+                const Vector2<S>& upper_bound_);
+
+  void getBound(Vector2<S>& lower_bound_,
+                Vector2<S>& upper_bound_) const;
+
+
+  Vector3<S> sample() const;
 
 protected:
-  Vector2<Scalar> lower_bound;
-  Vector2<Scalar> upper_bound;
+  Vector2<S> lower_bound;
+  Vector2<S> upper_bound;
 
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using SamplerSE2f = SamplerSE2<float>;
@@ -82,52 +84,52 @@ using SamplerSE2d = SamplerSE2<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE2<Scalar>::SamplerSE2()
+template <typename S>
+SamplerSE2<S>::SamplerSE2()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE2<Scalar>::SamplerSE2(const Vector2<Scalar>& lower_bound_, const Vector2<Scalar>& upper_bound_) : lower_bound(lower_bound_),
+template <typename S>
+SamplerSE2<S>::SamplerSE2(const Vector2<S>& lower_bound_, const Vector2<S>& upper_bound_) : lower_bound(lower_bound_),
   upper_bound(upper_bound_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE2<Scalar>::SamplerSE2(Scalar x_min, Scalar x_max, Scalar y_min, Scalar y_max) : lower_bound(Vector2<Scalar>(x_min, y_min)),
-  upper_bound(Vector2<Scalar>(x_max, y_max))
+template <typename S>
+SamplerSE2<S>::SamplerSE2(S x_min, S x_max, S y_min, S y_max) : lower_bound(Vector2<S>(x_min, y_min)),
+  upper_bound(Vector2<S>(x_max, y_max))
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE2<Scalar>::getBound(Vector2<Scalar>& lower_bound_, Vector2<Scalar>& upper_bound_) const
+template <typename S>
+void SamplerSE2<S>::getBound(Vector2<S>& lower_bound_, Vector2<S>& upper_bound_) const
 {
   lower_bound_ = lower_bound;
   upper_bound_ = upper_bound;
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE2<Scalar>::setBound(const Vector2<Scalar>& lower_bound_, const Vector2<Scalar>& upper_bound_)
+template <typename S>
+void SamplerSE2<S>::setBound(const Vector2<S>& lower_bound_, const Vector2<S>& upper_bound_)
 {
   lower_bound = lower_bound_;
   upper_bound = upper_bound_;
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> SamplerSE2<Scalar>::sample() const
+template <typename S>
+Vector3<S> SamplerSE2<S>::sample() const
 {
-  Vector3<Scalar> q;
+  Vector3<S> q;
   q[0] = this->rng.uniformReal(lower_bound[0], lower_bound[1]);
   q[1] = this->rng.uniformReal(lower_bound[1], lower_bound[2]);
-  q[2] = this->rng.uniformReal(-constants<Scalar>::pi(), constants<Scalar>::pi());
+  q[2] = this->rng.uniformReal(-constants<S>::pi(), constants<S>::pi());
 
   return q;
 }

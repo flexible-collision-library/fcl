@@ -45,8 +45,8 @@ namespace fcl
 {
 
 /// @brief calculate a bounding volume for a shape in a specific configuration
-template <typename BV, typename S>
-void computeBV(const S& s, const Transform3<typename BV::Scalar>& tf, BV& bv);
+template <typename BV, typename Shape>
+void computeBV(const Shape& s, const Transform3<typename BV::S>& tf, BV& bv);
 
 //============================================================================//
 //                                                                            //
@@ -55,12 +55,12 @@ void computeBV(const S& s, const Transform3<typename BV::Scalar>& tf, BV& bv);
 //============================================================================//
 
 //==============================================================================
-template <typename BV, typename S>
-void computeBV(const S& s, const Transform3<typename BV::Scalar>& tf, BV& bv)
+template <typename BV, typename Shape>
+void computeBV(const Shape& s, const Transform3<typename BV::S>& tf, BV& bv)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  detail::BVComputer<Scalar, BV, S>::compute(s, tf, bv);
+  detail::BVComputer<S, BV, Shape>::compute(s, tf, bv);
 }
 
 } // namespace fcl

@@ -43,11 +43,11 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 class SamplerBase
 {
 public:
-  mutable RNG<Scalar> rng;
+  mutable RNG<S> rng;
 };
 
 } // namespace fcl

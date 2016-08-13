@@ -44,18 +44,18 @@
 using namespace fcl;
 
 //==============================================================================
-template <typename Scalar>
-Scalar getDistance(const Vector3<Scalar>& p)
+template <typename S>
+S getDistance(const Vector3<S>& p)
 {
-  GJKSolver_libccd<Scalar> solver;
+  GJKSolver_libccd<S> solver;
 
-  Scalar dist;
+  S dist;
 
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(10);
+  Sphere<S> s1(20);
+  Sphere<S> s2(10);
 
-  Transform3<Scalar> tf1 = Transform3<Scalar>::Identity();
-  Transform3<Scalar> tf2 = Transform3<Scalar>::Identity();
+  Transform3<S> tf1 = Transform3<S>::Identity();
+  Transform3<S> tf2 = Transform3<S>::Identity();
 
   tf2.translation() = p;
 
@@ -65,10 +65,10 @@ Scalar getDistance(const Vector3<Scalar>& p)
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void test_basic()
 {
-  using derivative_t = Eigen::Matrix<Scalar, 3, 1>;
+  using derivative_t = Eigen::Matrix<S, 3, 1>;
   using scalar_t = Eigen::AutoDiffScalar<derivative_t>;
   using input_t = Eigen::Matrix<scalar_t, 3, 1>;
 
@@ -78,27 +78,27 @@ void test_basic()
   pos(2).derivatives() = derivative_t::Unit(3, 2);
 
   auto dist = getDistance(pos);
-  EXPECT_EQ(dist, (Scalar)10);
-  EXPECT_EQ(dist.value(), (Scalar)10);
-  EXPECT_EQ(dist.derivatives(), Vector3<Scalar>(1, 0, 0));
+  EXPECT_EQ(dist, (S)10);
+  EXPECT_EQ(dist.value(), (S)10);
+  EXPECT_EQ(dist.derivatives(), Vector3<S>(1, 0, 0));
 
   pos << 0, 40, 0;
   pos(0).derivatives() = derivative_t::Unit(3, 0);
   pos(1).derivatives() = derivative_t::Unit(3, 1);
   pos(2).derivatives() = derivative_t::Unit(3, 2);
   dist = getDistance(pos);
-  EXPECT_EQ(dist, (Scalar)10);
-  EXPECT_EQ(dist.value(), (Scalar)10);
-  EXPECT_EQ(dist.derivatives(), Vector3<Scalar>(0, 1, 0));
+  EXPECT_EQ(dist, (S)10);
+  EXPECT_EQ(dist.value(), (S)10);
+  EXPECT_EQ(dist.derivatives(), Vector3<S>(0, 1, 0));
 
   pos << 0, 0, 40;
   pos(0).derivatives() = derivative_t::Unit(3, 0);
   pos(1).derivatives() = derivative_t::Unit(3, 1);
   pos(2).derivatives() = derivative_t::Unit(3, 2);
   dist = getDistance(pos);
-  EXPECT_EQ(dist, (Scalar)10);
-  EXPECT_EQ(dist.value(), (Scalar)10);
-  EXPECT_EQ(dist.derivatives(), Vector3<Scalar>(0, 0, 1));
+  EXPECT_EQ(dist, (S)10);
+  EXPECT_EQ(dist.value(), (S)10);
+  EXPECT_EQ(dist.derivatives(), Vector3<S>(0, 0, 1));
 }
 
 //==============================================================================

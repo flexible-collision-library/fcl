@@ -55,7 +55,7 @@ enum NODE_TYPE {BV_UNKNOWN, BV_AABB, BV_OBB, BV_RSS, BV_kIOS, BV_OBBRSS, BV_KDOP
                 GEOM_BOX, GEOM_SPHERE, GEOM_ELLIPSOID, GEOM_CAPSULE, GEOM_CONE, GEOM_CYLINDER, GEOM_CONVEX, GEOM_PLANE, GEOM_HALFSPACE, GEOM_TRIANGLE, GEOM_OCTREE, NODE_COUNT};
 
 /// @brief The geometry for the object for collision or distance computation
-template <typename Scalar>
+template <typename S>
 class CollisionGeometry
 {
 public:
@@ -88,37 +88,37 @@ public:
   bool isUncertain() const;
 
   /// @brief AABBd center in local coordinate
-  Vector3<Scalar> aabb_center;
+  Vector3<S> aabb_center;
 
   /// @brief AABBd radius
-  Scalar aabb_radius;
+  S aabb_radius;
 
   /// @brief AABBd in local coordinate, used for tight AABBd when only translation transform
-  AABB<Scalar> aabb_local;
+  AABB<S> aabb_local;
 
   /// @brief pointer to user defined data specific to this object
   void* user_data;
 
   /// @brief collision cost for unit volume
-  Scalar cost_density;
+  S cost_density;
 
   /// @brief threshold for occupied ( >= is occupied)
-  Scalar threshold_occupied;
+  S threshold_occupied;
 
   /// @brief threshold for free (<= is free)
-  Scalar threshold_free;
+  S threshold_free;
 
   /// @brief compute center of mass
-  virtual Vector3<Scalar> computeCOM() const;
+  virtual Vector3<S> computeCOM() const;
 
   /// @brief compute the inertia matrix, related to the origin
-  virtual Matrix3<Scalar> computeMomentofInertia() const;
+  virtual Matrix3<S> computeMomentofInertia() const;
 
   /// @brief compute the volume
-  virtual Scalar computeVolume() const;
+  virtual S computeVolume() const;
 
   /// @brief compute the inertia matrix, related to the com
-  virtual Matrix3<Scalar> computeMomentofInertiaRelatedToCOM() const;
+  virtual Matrix3<S> computeMomentofInertiaRelatedToCOM() const;
 
 };
 
@@ -132,104 +132,104 @@ using CollisionGeometryd = CollisionGeometry<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-CollisionGeometry<Scalar>::CollisionGeometry()
-  : aabb_center(Vector3<Scalar>::Zero()),
-    aabb_radius((Scalar)0),
+template <typename S>
+CollisionGeometry<S>::CollisionGeometry()
+  : aabb_center(Vector3<S>::Zero()),
+    aabb_radius((S)0),
     user_data(nullptr),
-    cost_density((Scalar)1),
-    threshold_occupied((Scalar)1),
-    threshold_free((Scalar)0)
+    cost_density((S)1),
+    threshold_occupied((S)1),
+    threshold_free((S)0)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-CollisionGeometry<Scalar>::~CollisionGeometry()
+template <typename S>
+CollisionGeometry<S>::~CollisionGeometry()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-OBJECT_TYPE CollisionGeometry<Scalar>::getObjectType() const
+template <typename S>
+OBJECT_TYPE CollisionGeometry<S>::getObjectType() const
 {
   return OT_UNKNOWN;
 }
 
 //==============================================================================
-template <typename Scalar>
-NODE_TYPE CollisionGeometry<Scalar>::getNodeType() const
+template <typename S>
+NODE_TYPE CollisionGeometry<S>::getNodeType() const
 {
   return BV_UNKNOWN;
 }
 
 //==============================================================================
-template <typename Scalar>
-void* CollisionGeometry<Scalar>::getUserData() const
+template <typename S>
+void* CollisionGeometry<S>::getUserData() const
 {
   return user_data;
 }
 
 //==============================================================================
-template <typename Scalar>
-void CollisionGeometry<Scalar>::setUserData(void* data)
+template <typename S>
+void CollisionGeometry<S>::setUserData(void* data)
 {
   user_data = data;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CollisionGeometry<Scalar>::isOccupied() const
+template <typename S>
+bool CollisionGeometry<S>::isOccupied() const
 {
   return cost_density >= threshold_occupied;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CollisionGeometry<Scalar>::isFree() const
+template <typename S>
+bool CollisionGeometry<S>::isFree() const
 {
   return cost_density <= threshold_free;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool CollisionGeometry<Scalar>::isUncertain() const
+template <typename S>
+bool CollisionGeometry<S>::isUncertain() const
 {
   return !isOccupied() && !isFree();
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> CollisionGeometry<Scalar>::computeCOM() const
+template <typename S>
+Vector3<S> CollisionGeometry<S>::computeCOM() const
 {
-  return Vector3<Scalar>::Zero();
+  return Vector3<S>::Zero();
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> CollisionGeometry<Scalar>::computeMomentofInertia() const
+template <typename S>
+Matrix3<S> CollisionGeometry<S>::computeMomentofInertia() const
 {
-  return Matrix3<Scalar>::Zero();
+  return Matrix3<S>::Zero();
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar CollisionGeometry<Scalar>::computeVolume() const
+template <typename S>
+S CollisionGeometry<S>::computeVolume() const
 {
   return 0;
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> CollisionGeometry<Scalar>::computeMomentofInertiaRelatedToCOM() const
+template <typename S>
+Matrix3<S> CollisionGeometry<S>::computeMomentofInertiaRelatedToCOM() const
 {
-  Matrix3<Scalar> C = computeMomentofInertia();
-  Vector3<Scalar> com = computeCOM();
-  Scalar V = computeVolume();
+  Matrix3<S> C = computeMomentofInertia();
+  Vector3<S> com = computeCOM();
+  S V = computeVolume();
 
-  Matrix3<Scalar> m;
+  Matrix3<S> m;
   m << C(0, 0) - V * (com[1] * com[1] + com[2] * com[2]),
       C(0, 1) + V * com[0] * com[1],
       C(0, 2) + V * com[0] * com[2],

@@ -44,87 +44,87 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 class TMatrix3
 {
-  TVector3<Scalar> v_[3];
+  TVector3<S> v_[3];
   
 public:
   TMatrix3();
-  TMatrix3(const std::shared_ptr<TimeInterval<Scalar>>& time_interval);
-  TMatrix3(TaylorModel<Scalar> m[3][3]);
-  TMatrix3(const TVector3<Scalar>& v1, const TVector3<Scalar>& v2, const TVector3<Scalar>& v3);
-  TMatrix3(const Matrix3<Scalar>& m, const std::shared_ptr<TimeInterval<Scalar>>& time_interval);
+  TMatrix3(const std::shared_ptr<TimeInterval<S>>& time_interval);
+  TMatrix3(TaylorModel<S> m[3][3]);
+  TMatrix3(const TVector3<S>& v1, const TVector3<S>& v2, const TVector3<S>& v3);
+  TMatrix3(const Matrix3<S>& m, const std::shared_ptr<TimeInterval<S>>& time_interval);
 
-  TVector3<Scalar> getColumn(size_t i) const;
-  const TVector3<Scalar>& getRow(size_t i) const;
+  TVector3<S> getColumn(size_t i) const;
+  const TVector3<S>& getRow(size_t i) const;
 
-  const TaylorModel<Scalar>& operator () (size_t i, size_t j) const;
-  TaylorModel<Scalar>& operator () (size_t i, size_t j);
+  const TaylorModel<S>& operator () (size_t i, size_t j) const;
+  TaylorModel<S>& operator () (size_t i, size_t j);
 
-  TVector3<Scalar> operator * (const Vector3<Scalar>& v) const;
-  TVector3<Scalar> operator * (const TVector3<Scalar>& v) const;
-  TMatrix3 operator * (const Matrix3<Scalar>& m) const;
+  TVector3<S> operator * (const Vector3<S>& v) const;
+  TVector3<S> operator * (const TVector3<S>& v) const;
+  TMatrix3 operator * (const Matrix3<S>& m) const;
   TMatrix3 operator * (const TMatrix3& m) const;
-  TMatrix3 operator * (const TaylorModel<Scalar>& d) const;
-  TMatrix3 operator * (Scalar d) const;
+  TMatrix3 operator * (const TaylorModel<S>& d) const;
+  TMatrix3 operator * (S d) const;
 
-  TMatrix3& operator *= (const Matrix3<Scalar>& m);
+  TMatrix3& operator *= (const Matrix3<S>& m);
   TMatrix3& operator *= (const TMatrix3& m);
-  TMatrix3& operator *= (const TaylorModel<Scalar>& d);
-  TMatrix3& operator *= (Scalar d);
+  TMatrix3& operator *= (const TaylorModel<S>& d);
+  TMatrix3& operator *= (S d);
 
   TMatrix3 operator + (const TMatrix3& m) const;
   TMatrix3& operator += (const TMatrix3& m);
-  TMatrix3 operator + (const Matrix3<Scalar>& m) const;
-  TMatrix3& operator += (const Matrix3<Scalar>& m);
+  TMatrix3 operator + (const Matrix3<S>& m) const;
+  TMatrix3& operator += (const Matrix3<S>& m);
 
   TMatrix3 operator - (const TMatrix3& m) const;
   TMatrix3& operator -= (const TMatrix3& m);
-  TMatrix3 operator - (const Matrix3<Scalar>& m) const;
-  TMatrix3& operator -= (const Matrix3<Scalar>& m);
+  TMatrix3 operator - (const Matrix3<S>& m) const;
+  TMatrix3& operator -= (const Matrix3<S>& m);
   TMatrix3 operator - () const;
 
-  IMatrix3<Scalar> getBound() const;
-  IMatrix3<Scalar> getBound(Scalar l, Scalar r) const;
-  IMatrix3<Scalar> getBound(Scalar t) const;
+  IMatrix3<S> getBound() const;
+  IMatrix3<S> getBound(S l, S r) const;
+  IMatrix3<S> getBound(S t) const;
 
-  IMatrix3<Scalar> getTightBound() const;
-  IMatrix3<Scalar> getTightBound(Scalar l, Scalar r) const;
+  IMatrix3<S> getTightBound() const;
+  IMatrix3<S> getTightBound(S l, S r) const;
 
   void print() const;
   void setIdentity();
   void setZero();
-  Scalar diameter() const;
+  S diameter() const;
 
-  void setTimeInterval(const std::shared_ptr<TimeInterval<Scalar>>& time_interval);
-  void setTimeInterval(Scalar l, Scalar r);
+  void setTimeInterval(const std::shared_ptr<TimeInterval<S>>& time_interval);
+  void setTimeInterval(S l, S r);
 
-  const std::shared_ptr<TimeInterval<Scalar>>& getTimeInterval() const;
+  const std::shared_ptr<TimeInterval<S>>& getTimeInterval() const;
 
   TMatrix3& rotationConstrain();
 };
 
-template <typename Scalar>
-TMatrix3<Scalar> rotationConstrain(const TMatrix3<Scalar>& m);
+template <typename S>
+TMatrix3<S> rotationConstrain(const TMatrix3<S>& m);
 
-template <typename Scalar>
-TMatrix3<Scalar> operator * (const Matrix3<Scalar>& m, const TaylorModel<Scalar>& a);
+template <typename S>
+TMatrix3<S> operator * (const Matrix3<S>& m, const TaylorModel<S>& a);
 
-template <typename Scalar>
-TMatrix3<Scalar> operator * (const TaylorModel<Scalar>& a, const Matrix3<Scalar>& m);
+template <typename S>
+TMatrix3<S> operator * (const TaylorModel<S>& a, const Matrix3<S>& m);
 
-template <typename Scalar>
-TMatrix3<Scalar> operator * (const TaylorModel<Scalar>& a, const TMatrix3<Scalar>& m);
+template <typename S>
+TMatrix3<S> operator * (const TaylorModel<S>& a, const TMatrix3<S>& m);
 
-template <typename Scalar>
-TMatrix3<Scalar> operator * (Scalar d, const TMatrix3<Scalar>& m);
+template <typename S>
+TMatrix3<S> operator * (S d, const TMatrix3<S>& m);
 
-template <typename Scalar>
-TMatrix3<Scalar> operator + (const Matrix3<Scalar>& m1, const TMatrix3<Scalar>& m2);
+template <typename S>
+TMatrix3<S> operator + (const Matrix3<S>& m1, const TMatrix3<S>& m2);
 
-template <typename Scalar>
-TMatrix3<Scalar> operator - (const Matrix3<Scalar>& m1, const TMatrix3<Scalar>& m2);
+template <typename S>
+TMatrix3<S> operator - (const Matrix3<S>& m1, const TMatrix3<S>& m2);
 
 //============================================================================//
 //                                                                            //
@@ -133,30 +133,30 @@ TMatrix3<Scalar> operator - (const Matrix3<Scalar>& m1, const TMatrix3<Scalar>& 
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>::TMatrix3()
+template <typename S>
+TMatrix3<S>::TMatrix3()
 {
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>::TMatrix3(const std::shared_ptr<TimeInterval<Scalar>>& time_interval)
+template <typename S>
+TMatrix3<S>::TMatrix3(const std::shared_ptr<TimeInterval<S>>& time_interval)
 {
   setTimeInterval(time_interval);
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>::TMatrix3(TaylorModel<Scalar> m[3][3])
+template <typename S>
+TMatrix3<S>::TMatrix3(TaylorModel<S> m[3][3])
 {
-  v_[0] = TVector3<Scalar>(m[0]);
-  v_[1] = TVector3<Scalar>(m[1]);
-  v_[2] = TVector3<Scalar>(m[2]);
+  v_[0] = TVector3<S>(m[0]);
+  v_[1] = TVector3<S>(m[1]);
+  v_[2] = TVector3<S>(m[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>::TMatrix3(const TVector3<Scalar>& v1, const TVector3<Scalar>& v2, const TVector3<Scalar>& v3)
+template <typename S>
+TMatrix3<S>::TMatrix3(const TVector3<S>& v1, const TVector3<S>& v2, const TVector3<S>& v3)
 {
   v_[0] = v1;
   v_[1] = v2;
@@ -164,17 +164,17 @@ TMatrix3<Scalar>::TMatrix3(const TVector3<Scalar>& v1, const TVector3<Scalar>& v
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>::TMatrix3(const Matrix3<Scalar>& m, const std::shared_ptr<TimeInterval<Scalar>>& time_interval)
+template <typename S>
+TMatrix3<S>::TMatrix3(const Matrix3<S>& m, const std::shared_ptr<TimeInterval<S>>& time_interval)
 {
-  v_[0] = TVector3<Scalar>(m.row(0), time_interval);
-  v_[1] = TVector3<Scalar>(m.row(1), time_interval);
-  v_[2] = TVector3<Scalar>(m.row(2), time_interval);
+  v_[0] = TVector3<S>(m.row(0), time_interval);
+  v_[1] = TVector3<S>(m.row(1), time_interval);
+  v_[2] = TVector3<S>(m.row(2), time_interval);
 }
 
 //==============================================================================
-template <typename Scalar>
-void TMatrix3<Scalar>::setIdentity()
+template <typename S>
+void TMatrix3<S>::setIdentity()
 {
   setZero();
   v_[0][0].coeff(0) = 1;
@@ -184,8 +184,8 @@ void TMatrix3<Scalar>::setIdentity()
 }
 
 //==============================================================================
-template <typename Scalar>
-void TMatrix3<Scalar>::setZero()
+template <typename S>
+void TMatrix3<S>::setZero()
 {
   v_[0].setZero();
   v_[1].setZero();
@@ -193,119 +193,119 @@ void TMatrix3<Scalar>::setZero()
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TMatrix3<Scalar>::getColumn(size_t i) const
+template <typename S>
+TVector3<S> TMatrix3<S>::getColumn(size_t i) const
 {
-  return TVector3<Scalar>(v_[0][i], v_[1][i], v_[2][i]);
+  return TVector3<S>(v_[0][i], v_[1][i], v_[2][i]);
 }
 
 //==============================================================================
-template <typename Scalar>
-const TVector3<Scalar>& TMatrix3<Scalar>::getRow(size_t i) const
+template <typename S>
+const TVector3<S>& TMatrix3<S>::getRow(size_t i) const
 {
   return v_[i];
 }
 
 //==============================================================================
-template <typename Scalar>
-const TaylorModel<Scalar>& TMatrix3<Scalar>::operator () (size_t i, size_t j) const
+template <typename S>
+const TaylorModel<S>& TMatrix3<S>::operator () (size_t i, size_t j) const
 {
   return v_[i][j];
 }
 
 //==============================================================================
-template <typename Scalar>
-TaylorModel<Scalar>& TMatrix3<Scalar>::operator () (size_t i, size_t j)
+template <typename S>
+TaylorModel<S>& TMatrix3<S>::operator () (size_t i, size_t j)
 {
   return v_[i][j];
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator * (const Matrix3<Scalar>& m) const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator * (const Matrix3<S>& m) const
 {
-  const Vector3<Scalar>& mc0 = m.col(0);
-  const Vector3<Scalar>& mc1 = m.col(1);
-  const Vector3<Scalar>& mc2 = m.col(2);
+  const Vector3<S>& mc0 = m.col(0);
+  const Vector3<S>& mc1 = m.col(1);
+  const Vector3<S>& mc2 = m.col(2);
 
-  return TMatrix3(TVector3<Scalar>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
-                  TVector3<Scalar>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
-                  TVector3<Scalar>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
+  return TMatrix3(TVector3<S>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
+                  TVector3<S>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
+                  TVector3<S>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TMatrix3<Scalar>::operator * (const Vector3<Scalar>& v) const
+template <typename S>
+TVector3<S> TMatrix3<S>::operator * (const Vector3<S>& v) const
 {
-  return TVector3<Scalar>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
+  return TVector3<S>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 //==============================================================================
-template <typename Scalar>
-TVector3<Scalar> TMatrix3<Scalar>::operator * (const TVector3<Scalar>& v) const
+template <typename S>
+TVector3<S> TMatrix3<S>::operator * (const TVector3<S>& v) const
 {
-  return TVector3<Scalar>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
+  return TVector3<S>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator * (const TMatrix3<Scalar>& m) const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator * (const TMatrix3<S>& m) const
 {
-  const TVector3<Scalar>& mc0 = m.getColumn(0);
-  const TVector3<Scalar>& mc1 = m.getColumn(1);
-  const TVector3<Scalar>& mc2 = m.getColumn(2);
+  const TVector3<S>& mc0 = m.getColumn(0);
+  const TVector3<S>& mc1 = m.getColumn(1);
+  const TVector3<S>& mc2 = m.getColumn(2);
 
-  return TMatrix3(TVector3<Scalar>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
-                  TVector3<Scalar>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
-                  TVector3<Scalar>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
+  return TMatrix3(TVector3<S>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
+                  TVector3<S>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
+                  TVector3<S>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator * (const TaylorModel<Scalar>& d) const
-{
-  return TMatrix3(v_[0] * d, v_[1] * d, v_[2] * d);
-}
-
-//==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator * (Scalar d) const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator * (const TaylorModel<S>& d) const
 {
   return TMatrix3(v_[0] * d, v_[1] * d, v_[2] * d);
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator *= (const Matrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator * (S d) const
 {
-  const Vector3<Scalar>& mc0 = m.col(0);
-  const Vector3<Scalar>& mc1 = m.col(1);
-  const Vector3<Scalar>& mc2 = m.col(2);
+  return TMatrix3(v_[0] * d, v_[1] * d, v_[2] * d);
+}
 
-  v_[0] = TVector3<Scalar>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
-  v_[1] = TVector3<Scalar>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
-  v_[2] = TVector3<Scalar>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+//==============================================================================
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator *= (const Matrix3<S>& m)
+{
+  const Vector3<S>& mc0 = m.col(0);
+  const Vector3<S>& mc1 = m.col(1);
+  const Vector3<S>& mc2 = m.col(2);
+
+  v_[0] = TVector3<S>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
+  v_[1] = TVector3<S>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
+  v_[2] = TVector3<S>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
   return *this;
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator *= (const TMatrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator *= (const TMatrix3<S>& m)
 {
-  const TVector3<Scalar>& mc0 = m.getColumn(0);
-  const TVector3<Scalar>& mc1 = m.getColumn(1);
-  const TVector3<Scalar>& mc2 = m.getColumn(2);
+  const TVector3<S>& mc0 = m.getColumn(0);
+  const TVector3<S>& mc1 = m.getColumn(1);
+  const TVector3<S>& mc2 = m.getColumn(2);
 
-  v_[0] = TVector3<Scalar>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
-  v_[1] = TVector3<Scalar>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
-  v_[2] = TVector3<Scalar>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
+  v_[0] = TVector3<S>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
+  v_[1] = TVector3<S>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
+  v_[2] = TVector3<S>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2));
 
   return *this;
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator *= (const TaylorModel<Scalar>& d)
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator *= (const TaylorModel<S>& d)
 {
   v_[0] *= d;
   v_[1] *= d;
@@ -314,8 +314,8 @@ TMatrix3<Scalar>& TMatrix3<Scalar>::operator *= (const TaylorModel<Scalar>& d)
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator *= (Scalar d)
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator *= (S d)
 {
   v_[0] *= d;
   v_[1] *= d;
@@ -324,15 +324,15 @@ TMatrix3<Scalar>& TMatrix3<Scalar>::operator *= (Scalar d)
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator + (const TMatrix3<Scalar>& m) const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator + (const TMatrix3<S>& m) const
 {
   return TMatrix3(v_[0] + m.v_[0], v_[1] + m.v_[1], v_[2] + m.v_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator += (const TMatrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator += (const TMatrix3<S>& m)
 {
   v_[0] += m.v_[0];
   v_[1] += m.v_[1];
@@ -341,8 +341,8 @@ TMatrix3<Scalar>& TMatrix3<Scalar>::operator += (const TMatrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator + (const Matrix3<Scalar>& m) const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator + (const Matrix3<S>& m) const
 {
   TMatrix3 res = *this;
   res += m;
@@ -350,8 +350,8 @@ TMatrix3<Scalar> TMatrix3<Scalar>::operator + (const Matrix3<Scalar>& m) const
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator += (const Matrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator += (const Matrix3<S>& m)
 {
   for(std::size_t i = 0; i < 3; ++i)
   {
@@ -363,15 +363,15 @@ TMatrix3<Scalar>& TMatrix3<Scalar>::operator += (const Matrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator - (const TMatrix3<Scalar>& m) const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator - (const TMatrix3<S>& m) const
 {
   return TMatrix3(v_[0] - m.v_[0], v_[1] - m.v_[1], v_[2] - m.v_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator -= (const TMatrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator -= (const TMatrix3<S>& m)
 {
   v_[0] -= m.v_[0];
   v_[1] -= m.v_[1];
@@ -380,8 +380,8 @@ TMatrix3<Scalar>& TMatrix3<Scalar>::operator -= (const TMatrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator - (const Matrix3<Scalar>& m) const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator - (const Matrix3<S>& m) const
 {
   TMatrix3 res = *this;
   res -= m;
@@ -389,8 +389,8 @@ TMatrix3<Scalar> TMatrix3<Scalar>::operator - (const Matrix3<Scalar>& m) const
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::operator -= (const Matrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::operator -= (const Matrix3<S>& m)
 {
   for(std::size_t i = 0; i < 3; ++i)
   {
@@ -402,15 +402,15 @@ TMatrix3<Scalar>& TMatrix3<Scalar>::operator -= (const Matrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> TMatrix3<Scalar>::operator - () const
+template <typename S>
+TMatrix3<S> TMatrix3<S>::operator - () const
 {
-  return TMatrix3<Scalar>(-v_[0], -v_[1], -v_[2]);
+  return TMatrix3<S>(-v_[0], -v_[1], -v_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-void TMatrix3<Scalar>::print() const
+template <typename S>
+void TMatrix3<S>::print() const
 {
   getColumn(0).print();
   getColumn(1).print();
@@ -418,47 +418,47 @@ void TMatrix3<Scalar>::print() const
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> TMatrix3<Scalar>::getBound() const
+template <typename S>
+IMatrix3<S> TMatrix3<S>::getBound() const
 {
-  return IMatrix3<Scalar>(v_[0].getBound(), v_[1].getBound(), v_[2].getBound());
+  return IMatrix3<S>(v_[0].getBound(), v_[1].getBound(), v_[2].getBound());
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> TMatrix3<Scalar>::getBound(Scalar l, Scalar r) const
+template <typename S>
+IMatrix3<S> TMatrix3<S>::getBound(S l, S r) const
 {
-  return IMatrix3<Scalar>(v_[0].getBound(l, r), v_[1].getBound(l, r), v_[2].getBound(l, r));
+  return IMatrix3<S>(v_[0].getBound(l, r), v_[1].getBound(l, r), v_[2].getBound(l, r));
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> TMatrix3<Scalar>::getBound(Scalar t) const
+template <typename S>
+IMatrix3<S> TMatrix3<S>::getBound(S t) const
 {
-  return IMatrix3<Scalar>(v_[0].getBound(t), v_[1].getBound(t), v_[2].getBound(t));
+  return IMatrix3<S>(v_[0].getBound(t), v_[1].getBound(t), v_[2].getBound(t));
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> TMatrix3<Scalar>::getTightBound() const
+template <typename S>
+IMatrix3<S> TMatrix3<S>::getTightBound() const
 {
-  return IMatrix3<Scalar>(v_[0].getTightBound(), v_[1].getTightBound(), v_[2].getTightBound());
+  return IMatrix3<S>(v_[0].getTightBound(), v_[1].getTightBound(), v_[2].getTightBound());
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> TMatrix3<Scalar>::getTightBound(Scalar l, Scalar r) const
+template <typename S>
+IMatrix3<S> TMatrix3<S>::getTightBound(S l, S r) const
 {
-  return IMatrix3<Scalar>(v_[0].getTightBound(l, r), v_[1].getTightBound(l, r), v_[2].getTightBound(l, r));
+  return IMatrix3<S>(v_[0].getTightBound(l, r), v_[1].getTightBound(l, r), v_[2].getTightBound(l, r));
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar TMatrix3<Scalar>::diameter() const
+template <typename S>
+S TMatrix3<S>::diameter() const
 {
-  Scalar d = 0;
+  S d = 0;
 
-  Scalar tmp = v_[0][0].remainder().diameter();
+  S tmp = v_[0][0].remainder().diameter();
   if(tmp > d) d = tmp;
   tmp = v_[0][1].remainder().diameter();
   if(tmp > d) d = tmp;
@@ -483,8 +483,8 @@ Scalar TMatrix3<Scalar>::diameter() const
 }
 
 //==============================================================================
-template <typename Scalar>
-void TMatrix3<Scalar>::setTimeInterval(const std::shared_ptr<TimeInterval<Scalar>>& time_interval)
+template <typename S>
+void TMatrix3<S>::setTimeInterval(const std::shared_ptr<TimeInterval<S>>& time_interval)
 {
   v_[0].setTimeInterval(time_interval);
   v_[1].setTimeInterval(time_interval);
@@ -492,8 +492,8 @@ void TMatrix3<Scalar>::setTimeInterval(const std::shared_ptr<TimeInterval<Scalar
 }
 
 //==============================================================================
-template <typename Scalar>
-void TMatrix3<Scalar>::setTimeInterval(Scalar l, Scalar r)
+template <typename S>
+void TMatrix3<S>::setTimeInterval(S l, S r)
 {
   v_[0].setTimeInterval(l, r);
   v_[1].setTimeInterval(l, r);
@@ -501,15 +501,15 @@ void TMatrix3<Scalar>::setTimeInterval(Scalar l, Scalar r)
 }
 
 //==============================================================================
-template <typename Scalar>
-const std::shared_ptr<TimeInterval<Scalar>>& TMatrix3<Scalar>::getTimeInterval() const
+template <typename S>
+const std::shared_ptr<TimeInterval<S>>& TMatrix3<S>::getTimeInterval() const
 {
   return v_[0].getTimeInterval();
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar>& TMatrix3<Scalar>::rotationConstrain()
+template <typename S>
+TMatrix3<S>& TMatrix3<S>::rotationConstrain()
 {
   for(std::size_t i = 0; i < 3; ++i)
   {
@@ -535,10 +535,10 @@ TMatrix3<Scalar>& TMatrix3<Scalar>::rotationConstrain()
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> rotationConstrain(const TMatrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S> rotationConstrain(const TMatrix3<S>& m)
 {
-  TMatrix3<Scalar> res;
+  TMatrix3<S> res;
 
   for(std::size_t i = 0; i < 3; ++i)
   {
@@ -564,10 +564,10 @@ TMatrix3<Scalar> rotationConstrain(const TMatrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> operator * (const Matrix3<Scalar>& m, const TaylorModel<Scalar>& a)
+template <typename S>
+TMatrix3<S> operator * (const Matrix3<S>& m, const TaylorModel<S>& a)
 {
-  TMatrix3<Scalar> res(a.getTimeInterval());
+  TMatrix3<S> res(a.getTimeInterval());
   res(0, 0) = a * m(0, 0);
   res(0, 1) = a * m(0, 1);
   res(0, 1) = a * m(0, 2);
@@ -584,36 +584,36 @@ TMatrix3<Scalar> operator * (const Matrix3<Scalar>& m, const TaylorModel<Scalar>
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> operator * (const TaylorModel<Scalar>& a, const Matrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S> operator * (const TaylorModel<S>& a, const Matrix3<S>& m)
 {
   return m * a;
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> operator * (const TaylorModel<Scalar>& a, const TMatrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S> operator * (const TaylorModel<S>& a, const TMatrix3<S>& m)
 {
   return m * a;
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> operator * (Scalar d, const TMatrix3<Scalar>& m)
+template <typename S>
+TMatrix3<S> operator * (S d, const TMatrix3<S>& m)
 {
   return m * d;
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> operator + (const Matrix3<Scalar>& m1, const TMatrix3<Scalar>& m2)
+template <typename S>
+TMatrix3<S> operator + (const Matrix3<S>& m1, const TMatrix3<S>& m2)
 {
   return m2 + m1;
 }
 
 //==============================================================================
-template <typename Scalar>
-TMatrix3<Scalar> operator - (const Matrix3<Scalar>& m1, const TMatrix3<Scalar>& m2)
+template <typename S>
+TMatrix3<S> operator - (const Matrix3<S>& m1, const TMatrix3<S>& m2)
 {
   return -m2 + m1;
 }

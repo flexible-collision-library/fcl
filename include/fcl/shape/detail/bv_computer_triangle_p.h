@@ -45,8 +45,8 @@ namespace fcl
 namespace detail
 {
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, TrianglePd>;
+template <typename S>
+struct BVComputer<S, AABB<S>, TrianglePd>;
 
 //============================================================================//
 //                                                                            //
@@ -55,12 +55,12 @@ struct BVComputer<ScalarT, AABB<ScalarT>, TrianglePd>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, TrianglePd>
+template <typename S>
+struct BVComputer<S, AABB<S>, TrianglePd>
 {
-  static void compute(const TrianglePd& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  static void compute(const TrianglePd& s, const Transform3<S>& tf, AABB<S>& bv)
   {
-    bv = AABB<ScalarT>(tf * s.a, tf * s.b, tf * s.c);
+    bv = AABB<S>(tf * s.a, tf * s.b, tf * s.c);
   }
 };
 

@@ -45,12 +45,12 @@ namespace fcl
 {
 
 /// @brief Traversal node for collision between shape and mesh
-template <typename S, typename BV, typename NarrowPhaseSolver>
+template <typename Shape, typename BV, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNode
-    : public ShapeBVHCollisionTraversalNode<S, BV>
+    : public ShapeBVHCollisionTraversalNode<Shape, BV>
 {
 public:
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   ShapeMeshCollisionTraversalNode();
 
@@ -60,33 +60,33 @@ public:
   /// @brief Whether the traversal process can stop early
   bool canStop() const;
 
-  Vector3<Scalar>* vertices;
+  Vector3<S>* vertices;
   Triangle* tri_indices;
 
-  Scalar cost_density;
+  S cost_density;
 
   const NarrowPhaseSolver* nsolver;
 };
 
 /// @brief Initialize traversal node for collision between one mesh and one
 /// shape, given current object transform
-template <typename S, typename BV, typename NarrowPhaseSolver>
+template <typename Shape, typename BV, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename BV::Scalar>& tf1,
+    ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    Transform3<typename BV::Scalar>& tf2,
+    Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename BV::Scalar>& request,
-    CollisionResult<typename BV::Scalar>& result,
+    const CollisionRequest<typename BV::S>& request,
+    CollisionResult<typename BV::S>& result,
     bool use_refit = false, bool refit_bottomup = false);
 
 /// @brief Traversal node for shape and mesh, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNodeOBB
     : public ShapeMeshCollisionTraversalNode<
-    S, OBB<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>
+    Shape, OBB<typename Shape::S>, NarrowPhaseSolver>
 {
 public:
   ShapeMeshCollisionTraversalNodeOBB();
@@ -98,20 +98,20 @@ public:
 
 /// @brief Initialize the traversal node for collision between one mesh and one
 /// shape, specialized for OBB type
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<OBB<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<OBB<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result);
 
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNodeRSS
-    : public ShapeMeshCollisionTraversalNode<S, RSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>
+    : public ShapeMeshCollisionTraversalNode<Shape, RSS<typename Shape::S>, NarrowPhaseSolver>
 {
 public:
   ShapeMeshCollisionTraversalNodeRSS();
@@ -124,20 +124,20 @@ public:
 
 /// @brief Initialize the traversal node for collision between one mesh and one
 /// shape, specialized for RSS type
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<RSS<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<RSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result);
 
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNodekIOS
-    : public ShapeMeshCollisionTraversalNode<S, kIOS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>
+    : public ShapeMeshCollisionTraversalNode<Shape, kIOS<typename Shape::S>, NarrowPhaseSolver>
 {
 public:
   ShapeMeshCollisionTraversalNodekIOS();
@@ -150,20 +150,20 @@ public:
 
 /// @brief Initialize the traversal node for collision between one mesh and one
 /// shape, specialized for kIOS type
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<kIOS<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<kIOS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result);
 
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNodeOBBRSS
-    : public ShapeMeshCollisionTraversalNode<S, OBBRSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>
+    : public ShapeMeshCollisionTraversalNode<Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>
 {
 public:
   ShapeMeshCollisionTraversalNodeOBBRSS();
@@ -176,16 +176,16 @@ public:
 
 /// @brief Initialize the traversal node for collision between one mesh and one
 /// shape, specialized for OBBRSS type
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<OBBRSS<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<OBBRSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result);
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -194,21 +194,21 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename S, typename BV, typename NarrowPhaseSolver>
-ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNode()
-  : ShapeBVHCollisionTraversalNode<S, BV>()
+template <typename Shape, typename BV, typename NarrowPhaseSolver>
+ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNode()
+  : ShapeBVHCollisionTraversalNode<Shape, BV>()
 {
-  vertices = NULL;
-  tri_indices = NULL;
+  vertices = nullptr;
+  tri_indices = nullptr;
 
-  nsolver = NULL;
+  nsolver = nullptr;
 }
 
 //==============================================================================
-template <typename S, typename BV, typename NarrowPhaseSolver>
-void ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
+template <typename Shape, typename BV, typename NarrowPhaseSolver>
+void ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
-  using Scalar = typename NarrowPhaseSolver::Scalar;
+  using S = typename BV::S;
 
   if(this->enable_statistics) this->num_leaf_tests++;
   const BVNode<BV>& node = this->model2->getBV(b2);
@@ -217,9 +217,9 @@ void ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>::leafTesting(int 
 
   const Triangle& tri_id = tri_indices[primitive_id];
 
-  const Vector3<Scalar>& p1 = vertices[tri_id[0]];
-  const Vector3<Scalar>& p2 = vertices[tri_id[1]];
-  const Vector3<Scalar>& p3 = vertices[tri_id[2]];
+  const Vector3<S>& p1 = vertices[tri_id[0]];
+  const Vector3<S>& p2 = vertices[tri_id[1]];
+  const Vector3<S>& p3 = vertices[tri_id[2]];
 
   if(this->model1->isOccupied() && this->model2->isOccupied())
   {
@@ -227,82 +227,82 @@ void ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>::leafTesting(int 
 
     if(!this->request.enable_contact)
     {
-      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
+      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, nullptr, nullptr, nullptr))
       {
         is_intersect = true;
         if(this->request.num_max_contacts > this->result->numContacts())
-          this->result->addContact(Contact<Scalar>(this->model1, this->model2, Contact<Scalar>::NONE, primitive_id));
+          this->result->addContact(Contact<S>(this->model1, this->model2, Contact<S>::NONE, primitive_id));
       }
     }
     else
     {
-      Scalar penetration;
-      Vector3<Scalar> normal;
-      Vector3<Scalar> contactp;
+      S penetration;
+      Vector3<S> normal;
+      Vector3<S> contactp;
 
       if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, &contactp, &penetration, &normal))
       {
         is_intersect = true;
         if(this->request.num_max_contacts > this->result->numContacts())
-          this->result->addContact(Contact<Scalar>(this->model1, this->model2, Contact<Scalar>::NONE, primitive_id, contactp, normal, penetration));
+          this->result->addContact(Contact<S>(this->model1, this->model2, Contact<S>::NONE, primitive_id, contactp, normal, penetration));
       }
     }
 
     if(is_intersect && this->request.enable_cost)
     {
-      AABB<Scalar> overlap_part;
-      AABB<Scalar> shape_aabb;
+      AABB<S> overlap_part;
+      AABB<S> shape_aabb;
       computeBV(*(this->model1), this->tf1, shape_aabb);
-      AABB<Scalar>(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);
+      AABB<S>(p1, p2, p3).overlap(shape_aabb, overlap_part);
+      this->result->addCostSource(CostSource<S>(overlap_part, cost_density), this->request.num_max_cost_sources);
     }
   }
   else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
   {
-    if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
+    if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, nullptr, nullptr, nullptr))
     {
-      AABB<Scalar> overlap_part;
-      AABB<Scalar> shape_aabb;
+      AABB<S> overlap_part;
+      AABB<S> shape_aabb;
       computeBV(*(this->model1), this->tf1, shape_aabb);
-      AABB<Scalar>(p1, p2, p3).overlap(shape_aabb, overlap_part);
-      this->result->addCostSource(CostSource<Scalar>(overlap_part, cost_density), this->request.num_max_cost_sources);
+      AABB<S>(p1, p2, p3).overlap(shape_aabb, overlap_part);
+      this->result->addCostSource(CostSource<S>(overlap_part, cost_density), this->request.num_max_cost_sources);
     }
   }
 }
 
 //==============================================================================
-template <typename S, typename BV, typename NarrowPhaseSolver>
-bool ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>::canStop() const
+template <typename Shape, typename BV, typename NarrowPhaseSolver>
+bool ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::canStop() const
 {
   return this->request.isSatisfied(*(this->result));
 }
 
 //==============================================================================
-template <typename S, typename BV, typename NarrowPhaseSolver>
+template <typename Shape, typename BV, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNode<S, BV, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename BV::Scalar>& tf1,
+    ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    Transform3<typename BV::Scalar>& tf2,
+    Transform3<typename BV::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename BV::Scalar>& request,
-    CollisionResult<typename BV::Scalar>& result,
+    const CollisionRequest<typename BV::S>& request,
+    CollisionResult<typename BV::S>& result,
     bool use_refit,
     bool refit_bottomup)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf2.matrix().isIdentity())
   {
-    std::vector<Vector3<Scalar>> vertices_transformed(model2.num_vertices);
+    std::vector<Vector3<S>> vertices_transformed(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vector3<Scalar>& p = model2.vertices[i];
-      Vector3<Scalar> new_v = tf2 * p;
+      Vector3<S>& p = model2.vertices[i];
+      Vector3<S> new_v = tf2 * p;
       vertices_transformed[i] = new_v;
     }
 
@@ -333,22 +333,22 @@ bool initialize(
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<S, OBB<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>()
+template <typename Shape, typename NarrowPhaseSolver>
+ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<Shape, OBB<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-bool ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+bool ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-void ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+void ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
@@ -357,22 +357,22 @@ void ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>::leafTesting(int b
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<S, RSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>()
+template <typename Shape, typename NarrowPhaseSolver>
+ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<Shape, RSS<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-bool ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+bool ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-void ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+void ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
@@ -381,22 +381,22 @@ void ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>::leafTesting(int b
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<S, kIOS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>()
+template <typename Shape, typename NarrowPhaseSolver>
+ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<Shape, kIOS<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-bool ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+bool ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-void ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+void ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
@@ -405,22 +405,22 @@ void ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>::leafTesting(int 
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<S, OBBRSS<typename NarrowPhaseSolver::Scalar>, NarrowPhaseSolver>()
+template <typename Shape, typename NarrowPhaseSolver>
+ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-bool ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+bool ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
-void ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
+template <typename Shape, typename NarrowPhaseSolver>
+void ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   details::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
                                                      this->tf2, this->tf1, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->request));
@@ -431,13 +431,13 @@ void ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>::leafTesting(in
 /// @cond IGNORE
 namespace details
 {
-template <typename S, typename BV, typename NarrowPhaseSolver, template <typename, typename> class OrientedNode>
-static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPhaseSolver>& node,
-                                                       const S& model1, const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-                                                       const BVHModel<BV>& model2, const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+template <typename Shape, typename BV, typename NarrowPhaseSolver, template <typename, typename> class OrientedNode>
+static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<Shape, NarrowPhaseSolver>& node,
+                                                       const Shape& model1, const Transform3<typename BV::S>& tf1,
+                                                       const BVHModel<BV>& model2, const Transform3<typename BV::S>& tf2,
                                                        const NarrowPhaseSolver* nsolver,
-                                                       const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-                                                       CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
+                                                       const CollisionRequest<typename BV::S>& request,
+                                                       CollisionResult<typename BV::S>& result)
 {
   if(model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -465,64 +465,64 @@ static inline bool setupShapeMeshCollisionOrientedNode(OrientedNode<S, NarrowPha
 /// @endcond
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodeOBB<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<OBB<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<OBB<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result)
 {
   return details::setupShapeMeshCollisionOrientedNode(
         node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodeRSS<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<RSS<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<RSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result)
 {
   return details::setupShapeMeshCollisionOrientedNode(
         node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodekIOS<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<kIOS<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<kIOS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result)
 {
   return details::setupShapeMeshCollisionOrientedNode(
         node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
 //==============================================================================
-template <typename S, typename NarrowPhaseSolver>
+template <typename Shape, typename NarrowPhaseSolver>
 bool initialize(
-    ShapeMeshCollisionTraversalNodeOBBRSS<S, NarrowPhaseSolver>& node,
-    const S& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const BVHModel<OBBRSS<typename NarrowPhaseSolver::Scalar>>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
+    const Shape& model1,
+    const Transform3<typename Shape::S>& tf1,
+    const BVHModel<OBBRSS<typename Shape::S>>& model2,
+    const Transform3<typename Shape::S>& tf2,
     const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::Scalar>& request,
-    CollisionResult<typename NarrowPhaseSolver::Scalar>& result)
+    const CollisionRequest<typename Shape::S>& request,
+    CollisionResult<typename Shape::S>& result)
 {
   return details::setupShapeMeshCollisionOrientedNode(
         node, model1, tf1, model2, tf2, nsolver, request, result);

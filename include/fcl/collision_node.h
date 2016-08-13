@@ -50,24 +50,24 @@ namespace fcl
 {
 
 /// @brief collision on collision traversal node; can use front list to accelerate
-template <typename Scalar>
-void collide(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_list = NULL);
+template <typename S>
+void collide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief self collision on collision traversal node; can use front list to accelerate
-template <typename Scalar>
-void selfCollide(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_list = NULL);
+template <typename S>
+void selfCollide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief distance computation on distance traversal node; can use front list to accelerate
-template <typename Scalar>
-void distance(DistanceTraversalNodeBase<Scalar>* node, BVHFrontList* front_list = NULL, int qsize = 2);
+template <typename S>
+void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr, int qsize = 2);
 
 /// @brief special collision on OBBd traversal node
-template <typename Scalar>
-void collide2(MeshCollisionTraversalNodeOBB<Scalar>* node, BVHFrontList* front_list = NULL);
+template <typename S>
+void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief special collision on RSSd traversal node
-template <typename Scalar>
-void collide2(MeshCollisionTraversalNodeRSS<Scalar>* node, BVHFrontList* front_list = NULL);
+template <typename S>
+void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list = nullptr);
 
 //============================================================================//
 //                                                                            //
@@ -76,8 +76,8 @@ void collide2(MeshCollisionTraversalNodeRSS<Scalar>* node, BVHFrontList* front_l
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-void collide(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_list)
+template <typename S>
+void collide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list)
 {
   if(front_list && front_list->size() > 0)
   {
@@ -90,8 +90,8 @@ void collide(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_list)
 }
 
 //==============================================================================
-template <typename Scalar>
-void collide2(MeshCollisionTraversalNodeOBB<Scalar>* node, BVHFrontList* front_list)
+template <typename S>
+void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list)
 {
   if(front_list && front_list->size() > 0)
   {
@@ -99,8 +99,8 @@ void collide2(MeshCollisionTraversalNodeOBB<Scalar>* node, BVHFrontList* front_l
   }
   else
   {
-    Matrix3<Scalar> Rtemp, R;
-    Vector3<Scalar> Ttemp, T;
+    Matrix3<S> Rtemp, R;
+    Vector3<S> Ttemp, T;
     Rtemp = node->tf.linear() * node->model2->getBV(0).getOrientation();
     R = node->model1->getBV(0).getOrientation().transpose() * Rtemp;
     Ttemp = node->tf.linear() * node->model2->getBV(0).getCenter() + node->tf.translation();
@@ -112,8 +112,8 @@ void collide2(MeshCollisionTraversalNodeOBB<Scalar>* node, BVHFrontList* front_l
 }
 
 //==============================================================================
-template <typename Scalar>
-void collide2(MeshCollisionTraversalNodeRSS<Scalar>* node, BVHFrontList* front_list)
+template <typename S>
+void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list)
 {
   if(front_list && front_list->size() > 0)
   {
@@ -126,8 +126,8 @@ void collide2(MeshCollisionTraversalNodeRSS<Scalar>* node, BVHFrontList* front_l
 }
 
 //==============================================================================
-template <typename Scalar>
-void selfCollide(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_list)
+template <typename S>
+void selfCollide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list)
 {
 
   if(front_list && front_list->size() > 0)
@@ -141,8 +141,8 @@ void selfCollide(CollisionTraversalNodeBase<Scalar>* node, BVHFrontList* front_l
 }
 
 //==============================================================================
-template <typename Scalar>
-void distance(DistanceTraversalNodeBase<Scalar>* node, BVHFrontList* front_list, int qsize)
+template <typename S>
+void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list, int qsize)
 {
   node->preprocess();
 

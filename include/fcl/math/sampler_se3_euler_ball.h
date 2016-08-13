@@ -44,22 +44,22 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class SamplerSE3Euler_ball : public SamplerBase<Scalar>
+template <typename S>
+class SamplerSE3Euler_ball : public SamplerBase<S>
 {
 public:
   SamplerSE3Euler_ball();
 
-  SamplerSE3Euler_ball(Scalar r_);
+  SamplerSE3Euler_ball(S r_);
 
-  void setBound(const Scalar& r_);
+  void setBound(const S& r_);
   
-  void getBound(Scalar& r_) const;
+  void getBound(S& r_) const;
 
-  Vector6<Scalar> sample() const;
+  Vector6<S> sample() const;
 
 protected:
-  Scalar r;
+  S r;
 
 };
 
@@ -73,45 +73,45 @@ using SamplerSE3Euler_balld = SamplerSE3Euler_ball<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Euler_ball<Scalar>::SamplerSE3Euler_ball() {}
+template <typename S>
+SamplerSE3Euler_ball<S>::SamplerSE3Euler_ball() {}
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE3Euler_ball<Scalar>::SamplerSE3Euler_ball(Scalar r_) : r(r_)
+template <typename S>
+SamplerSE3Euler_ball<S>::SamplerSE3Euler_ball(S r_) : r(r_)
 {
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Euler_ball<Scalar>::setBound(const Scalar& r_)
+template <typename S>
+void SamplerSE3Euler_ball<S>::setBound(const S& r_)
 {
   r = r_;
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE3Euler_ball<Scalar>::getBound(Scalar& r_) const
+template <typename S>
+void SamplerSE3Euler_ball<S>::getBound(S& r_) const
 {
   r_ = r;
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector6<Scalar> SamplerSE3Euler_ball<Scalar>::sample() const
+template <typename S>
+Vector6<S> SamplerSE3Euler_ball<S>::sample() const
 {
-  Vector6<Scalar> q;
-  Scalar x, y, z;
+  Vector6<S> q;
+  S x, y, z;
   this->rng.ball(0, r, x, y, z);
   q[0] = x;
   q[1] = y;
   q[2] = z;
 
-  Scalar s[4];
+  S s[4];
   this->rng.quaternion(s);
 
-  Quaternion<Scalar> quat(s[0], s[1], s[2], s[3]);
-  Vector3<Scalar> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
+  Quaternion<S> quat(s[0], s[1], s[2], s[3]);
+  Vector3<S> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
   q[3] = angles[0];
   q[4] = angles[1];
   q[5] = angles[2];

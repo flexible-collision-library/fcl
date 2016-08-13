@@ -47,18 +47,18 @@ namespace fcl
 {
 
 /// @brief Convex polytope
-template <typename ScalarT>
-class Convex : public ShapeBase<ScalarT>
+template <typename S_>
+class Convex : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Constructing a convex, providing normal and offset of each polytype surface, and the points and shape topology information 
-  Convex(Vector3<ScalarT>* plane_normals,
-         ScalarT* plane_dis,
+  Convex(Vector3<S>* plane_normals,
+         S* plane_dis,
          int num_planes,
-         Vector3<ScalarT>* points,
+         Vector3<S>* points,
          int num_points,
          int* polygons);
 
@@ -67,21 +67,21 @@ public:
 
   ~Convex();
 
-  /// @brief Compute AABB<ScalarT>
+  /// @brief Compute AABB<S>
   void computeLocalAABB() override;
 
   /// @brief Get node type: a conex polytope 
   NODE_TYPE getNodeType() const override;
 
   
-  Vector3<ScalarT>* plane_normals;
-  ScalarT* plane_dis;
+  Vector3<S>* plane_normals;
+  S* plane_dis;
 
   /// @brief An array of indices to the points of each polygon, it should be the number of vertices
   /// followed by that amount of indices to "points" in counter clockwise order
   int* polygons;
 
-  Vector3<ScalarT>* points;
+  Vector3<S>* points;
   int num_points;
   int num_edges;
   int num_planes;
@@ -94,21 +94,21 @@ public:
   Edge* edges;
 
   /// @brief center of the convex polytope, this is used for collision: center is guaranteed in the internal of the polytope (as it is convex) 
-  Vector3<ScalarT> center;
+  Vector3<S> center;
 
   /// based on http://number-none.com/blow/inertia/bb_inertia.doc
-  Matrix3<ScalarT> computeMomentofInertia() const override;
+  Matrix3<S> computeMomentofInertia() const override;
 
   // Documentation inherited
-  Vector3<ScalarT> computeCOM() const override;
+  Vector3<S> computeCOM() const override;
 
   // Documentation inherited
-  ScalarT computeVolume() const override;
+  S computeVolume() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(
+      const Transform3<S>& tf) const;
 
 protected:
 
@@ -126,11 +126,11 @@ using Convexd = Convex<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Convex<ScalarT>::Convex(
-    Vector3<ScalarT>* plane_normals, ScalarT* plane_dis, int num_planes_,
-    Vector3<ScalarT>* points, int num_points_, int* polygons_)
-  : ShapeBase<ScalarT>()
+template <typename S>
+Convex<S>::Convex(
+    Vector3<S>* plane_normals, S* plane_dis, int num_planes_,
+    Vector3<S>* points, int num_points_, int* polygons_)
+  : ShapeBase<S>()
 {
   plane_normals = plane_normals;
   plane_dis = plane_dis;
@@ -138,23 +138,23 @@ Convex<ScalarT>::Convex(
   points = points;
   num_points = num_points_;
   polygons = polygons_;
-  edges = NULL;
+  edges = nullptr;
 
-  Vector3<ScalarT> sum = Vector3<ScalarT>::Zero();
+  Vector3<S> sum = Vector3<S>::Zero();
   for(int i = 0; i < num_points; ++i)
   {
     sum += points[i];
   }
 
-  center = sum * (ScalarT)(1.0 / num_points);
+  center = sum * (S)(1.0 / num_points);
 
   fillEdges();
 }
 
 //==============================================================================
-template <typename ScalarT>
-Convex<ScalarT>::Convex(const Convex& other)
-  : ShapeBase<ScalarT>(other)
+template <typename S>
+Convex<S>::Convex(const Convex& other)
+  : ShapeBase<S>(other)
 {
   plane_normals = other.plane_normals;
   plane_dis = other.plane_dis;
@@ -166,35 +166,35 @@ Convex<ScalarT>::Convex(const Convex& other)
 }
 
 //==============================================================================
-template <typename ScalarT>
-Convex<ScalarT>::~Convex()
+template <typename S>
+Convex<S>::~Convex()
 {
   delete [] edges;
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Convex<ScalarT>::computeLocalAABB()
+template <typename S>
+void Convex<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<Scalar>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Convex<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Convex<S>::getNodeType() const
 {
   return GEOM_CONVEX;
 }
 
 //==============================================================================
-template <typename ScalarT>
-Matrix3<ScalarT> Convex<ScalarT>::computeMomentofInertia() const
+template <typename S>
+Matrix3<S> Convex<S>::computeMomentofInertia() const
 {
-  Matrix3<ScalarT> C = Matrix3<ScalarT>::Zero();
+  Matrix3<S> C = Matrix3<S>::Zero();
 
-  Matrix3<ScalarT> C_canonical;
+  Matrix3<S> C_canonical;
   C_canonical << 1/ 60.0, 1/120.0, 1/120.0,
       1/120.0, 1/ 60.0, 1/120.0,
       1/120.0, 1/120.0, 1/ 60.0;
@@ -203,7 +203,7 @@ Matrix3<ScalarT> Convex<ScalarT>::computeMomentofInertia() const
   int* index = polygons + 1;
   for(int i = 0; i < num_planes; ++i)
   {
-    Vector3<ScalarT> plane_center = Vector3<ScalarT>::Zero();
+    Vector3<S> plane_center = Vector3<S>::Zero();
 
     // compute the center of the polygon
     for(int j = 0; j < *points_in_poly; ++j)
@@ -211,15 +211,15 @@ Matrix3<ScalarT> Convex<ScalarT>::computeMomentofInertia() const
     plane_center = plane_center * (1.0 / *points_in_poly);
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-    const Vector3<ScalarT>& v3 = plane_center;
+    const Vector3<S>& v3 = plane_center;
     for(int j = 0; j < *points_in_poly; ++j)
     {
       int e_first = index[j];
       int e_second = index[(j+1)%*points_in_poly];
-      const Vector3<ScalarT>& v1 = points[e_first];
-      const Vector3<ScalarT>& v2 = points[e_second];
-      ScalarT d_six_vol = (v1.cross(v2)).dot(v3);
-      Matrix3<ScalarT> A; // this is A' in the original document
+      const Vector3<S>& v1 = points[e_first];
+      const Vector3<S>& v2 = points[e_second];
+      S d_six_vol = (v1.cross(v2)).dot(v3);
+      Matrix3<S> A; // this is A' in the original document
       A.row(0) = v1;
       A.row(1) = v2;
       A.row(2) = v3;
@@ -230,9 +230,9 @@ Matrix3<ScalarT> Convex<ScalarT>::computeMomentofInertia() const
     index = points_in_poly + 1;
   }
 
-  ScalarT trace_C = C(0, 0) + C(1, 1) + C(2, 2);
+  S trace_C = C(0, 0) + C(1, 1) + C(2, 2);
 
-  Matrix3<ScalarT> m;
+  Matrix3<S> m;
   m << trace_C - C(0, 0), -C(0, 1), -C(0, 2),
       -C(1, 0), trace_C - C(1, 1), -C(1, 2),
       -C(2, 0), -C(2, 1), trace_C - C(2, 2);
@@ -241,16 +241,16 @@ Matrix3<ScalarT> Convex<ScalarT>::computeMomentofInertia() const
 }
 
 //==============================================================================
-template <typename ScalarT>
-Vector3<ScalarT> Convex<ScalarT>::computeCOM() const
+template <typename S>
+Vector3<S> Convex<S>::computeCOM() const
 {
-  Vector3<ScalarT> com = Vector3<ScalarT>::Zero();
-  ScalarT vol = 0;
+  Vector3<S> com = Vector3<S>::Zero();
+  S vol = 0;
   int* points_in_poly = polygons;
   int* index = polygons + 1;
   for(int i = 0; i < num_planes; ++i)
   {
-    Vector3<ScalarT> plane_center = Vector3<ScalarT>::Zero();
+    Vector3<S> plane_center = Vector3<S>::Zero();
 
     // compute the center of the polygon
     for(int j = 0; j < *points_in_poly; ++j)
@@ -258,14 +258,14 @@ Vector3<ScalarT> Convex<ScalarT>::computeCOM() const
     plane_center = plane_center * (1.0 / *points_in_poly);
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero) of the convex shape
-    const Vector3<Scalar>& v3 = plane_center;
+    const Vector3<S>& v3 = plane_center;
     for(int j = 0; j < *points_in_poly; ++j)
     {
       int e_first = index[j];
       int e_second = index[(j+1)%*points_in_poly];
-      const Vector3<ScalarT>& v1 = points[e_first];
-      const Vector3<ScalarT>& v2 = points[e_second];
-      ScalarT d_six_vol = (v1.cross(v2)).dot(v3);
+      const Vector3<S>& v1 = points[e_first];
+      const Vector3<S>& v2 = points[e_second];
+      S d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
       com += (points[e_first] + points[e_second] + plane_center) * d_six_vol;
     }
@@ -278,15 +278,15 @@ Vector3<ScalarT> Convex<ScalarT>::computeCOM() const
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Convex<ScalarT>::computeVolume() const
+template <typename S>
+S Convex<S>::computeVolume() const
 {
-  ScalarT vol = 0;
+  S vol = 0;
   int* points_in_poly = polygons;
   int* index = polygons + 1;
   for(int i = 0; i < num_planes; ++i)
   {
-    Vector3<ScalarT> plane_center = Vector3<ScalarT>::Zero();
+    Vector3<S> plane_center = Vector3<S>::Zero();
 
     // compute the center of the polygon
     for(int j = 0; j < *points_in_poly; ++j)
@@ -294,14 +294,14 @@ ScalarT Convex<ScalarT>::computeVolume() const
     plane_center = plane_center * (1.0 / *points_in_poly);
 
     // compute the volume of tetrahedron making by neighboring two points, the plane center and the reference point (zero point) of the convex shape
-    const Vector3<Scalar>& v3 = plane_center;
+    const Vector3<S>& v3 = plane_center;
     for(int j = 0; j < *points_in_poly; ++j)
     {
       int e_first = index[j];
       int e_second = index[(j+1)%*points_in_poly];
-      const Vector3<ScalarT>& v1 = points[e_first];
-      const Vector3<ScalarT>& v2 = points[e_second];
-      ScalarT d_six_vol = (v1.cross(v2)).dot(v3);
+      const Vector3<S>& v1 = points[e_first];
+      const Vector3<S>& v2 = points[e_second];
+      S d_six_vol = (v1.cross(v2)).dot(v3);
       vol += d_six_vol;
     }
 
@@ -313,8 +313,8 @@ ScalarT Convex<ScalarT>::computeVolume() const
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Convex<ScalarT>::fillEdges()
+template <typename S>
+void Convex<S>::fillEdges()
 {
   int* points_in_poly = polygons;
   if(edges) delete [] edges;
@@ -371,11 +371,11 @@ void Convex<ScalarT>::fillEdges()
 }
 
 //==============================================================================
-template <typename ScalarT>
-std::vector<Vector3<ScalarT>> Convex<ScalarT>::getBoundVertices(
-    const Transform3<ScalarT>& tf) const
+template <typename S>
+std::vector<Vector3<S>> Convex<S>::getBoundVertices(
+    const Transform3<S>& tf) const
 {
-  std::vector<Vector3<ScalarT>> result(num_points);
+  std::vector<Vector3<S>> result(num_points);
   for(int i = 0; i < num_points; ++i)
   {
     result[i] = tf * points[i];

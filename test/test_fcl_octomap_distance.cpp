@@ -49,21 +49,21 @@
 using namespace fcl;
 
 /// @brief Octomap distance with an environment with 3 * env_size objects
-template <typename Scalar>
-void octomap_distance_test(Scalar env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
+template <typename S>
+void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution = 0.1);
 
 template<typename BV>
 void octomap_distance_test_BVH(std::size_t n, double resolution = 0.1);
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_distance()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test<Scalar>(200, 2, false, false, 1.0);
-  octomap_distance_test<Scalar>(200, 10, false, false, 1.0);
+#ifdef NDEBUG
+  octomap_distance_test<S>(200, 100, false, false);
+  octomap_distance_test<S>(200, 1000, false, false);
 #else
-  octomap_distance_test<Scalar>(200, 100, false, false);
-  octomap_distance_test<Scalar>(200, 1000, false, false);
+  octomap_distance_test<S>(200, 2, false, false, 1.0);
+  octomap_distance_test<S>(200, 10, false, false, 1.0);
 #endif
 }
 
@@ -73,15 +73,15 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance)
   test_octomap_distance<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_distance_mesh()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test<Scalar>(200, 2, true, true, 1.0);
-  octomap_distance_test<Scalar>(200, 5, true, true, 1.0);
+#ifdef NDEBUG
+  octomap_distance_test<S>(200, 100, true, true);
+  octomap_distance_test<S>(200, 1000, true, true);
 #else
-  octomap_distance_test<Scalar>(200, 100, true, true);
-  octomap_distance_test<Scalar>(200, 1000, true, true);
+  octomap_distance_test<S>(200, 2, true, true, 1.0);
+  octomap_distance_test<S>(200, 5, true, true, 1.0);
 #endif
 }
 
@@ -91,15 +91,15 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh)
   test_octomap_distance_mesh<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_distance_mesh_octomap_box()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test<Scalar>(200, 2, true, false, 1.0);
-  octomap_distance_test<Scalar>(200, 5, true, false, 1.0);
+#ifdef NDEBUG
+  octomap_distance_test<S>(200, 100, true, false);
+  octomap_distance_test<S>(200, 1000, true, false);
 #else
-//  octomap_distance_test<Scalar>(200, 100, true, false);
-  octomap_distance_test<Scalar>(200, 1000, true, false);
+  octomap_distance_test<S>(200, 2, true, false, 1.0);
+  octomap_distance_test<S>(200, 5, true, false, 1.0);
 #endif
 }
 
@@ -109,13 +109,13 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_distance_mesh_octomap_box)
   test_octomap_distance_mesh_octomap_box<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_bvh_rss_d_distance_rss()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<RSS<Scalar>>(1, 1.0);
+#ifdef NDEBUG
+  octomap_distance_test_BVH<RSS<S>>(5);
 #else
-  octomap_distance_test_BVH<RSS<Scalar>>(5);
+  octomap_distance_test_BVH<RSS<S>>(1, 1.0);
 #endif
 }
 
@@ -125,13 +125,13 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_rss_d_distance_rss)
   test_octomap_bvh_rss_d_distance_rss<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_bvh_obb_d_distance_obb()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<OBBRSS<Scalar>>(1, 1.0);
+#ifdef NDEBUG
+  octomap_distance_test_BVH<OBBRSS<S>>(5);
 #else
-  octomap_distance_test_BVH<OBBRSS<Scalar>>(5);
+  octomap_distance_test_BVH<OBBRSS<S>>(1, 1.0);
 #endif
 }
 
@@ -141,13 +141,13 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_obb_d_distance_obb)
   test_octomap_bvh_obb_d_distance_obb<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_octomap_bvh_kios_d_distance_kios()
 {
-#if FCL_BUILD_TYPE_DEBUG
-  octomap_distance_test_BVH<kIOS<Scalar>>(1, 1.0);
+#ifdef NDEBUG
+  octomap_distance_test_BVH<kIOS<S>>(5);
 #else
-  octomap_distance_test_BVH<kIOS<Scalar>>(5);
+  octomap_distance_test_BVH<kIOS<S>>(1, 1.0);
 #endif
 }
 
@@ -160,51 +160,51 @@ GTEST_TEST(FCL_OCTOMAP, test_octomap_bvh_kios_d_distance_kios)
 template<typename BV>
 void octomap_distance_test_BVH(std::size_t n, double resolution)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  std::vector<Vector3<Scalar>> p1;
+  std::vector<Vector3<S>> p1;
   std::vector<Triangle> t1;
 
   loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
 
   BVHModel<BV>* m1 = new BVHModel<BV>();
-  std::shared_ptr<CollisionGeometry<Scalar>> m1_ptr(m1);
+  std::shared_ptr<CollisionGeometry<S>> m1_ptr(m1);
 
   m1->beginModel();
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree<Scalar>* tree = new OcTree<Scalar>(std::shared_ptr<octomap::OcTree>(generateOcTree(resolution)));
-  std::shared_ptr<CollisionGeometry<Scalar>> tree_ptr(tree);
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<octomap::OcTree>(generateOcTree(resolution)));
+  std::shared_ptr<CollisionGeometry<S>> tree_ptr(tree);
 
-  Eigen::aligned_vector<Transform3<Scalar>> transforms;
-  Scalar extents[] = {-10, -10, 10, 10, 10, 10};
+  Eigen::aligned_vector<Transform3<S>> transforms;
+  S extents[] = {-10, -10, 10, 10, 10, 10};
 
   generateRandomTransforms(extents, transforms, n);
-  
+
   for(std::size_t i = 0; i < n; ++i)
   {
-    Transform3<Scalar> tf(transforms[i]);
+    Transform3<S> tf(transforms[i]);
 
-    CollisionObject<Scalar> obj1(m1_ptr, tf);
-    CollisionObject<Scalar> obj2(tree_ptr, tf);
-    DistanceData<Scalar> cdata;
-    Scalar dist1 = std::numeric_limits<Scalar>::max();
+    CollisionObject<S> obj1(m1_ptr, tf);
+    CollisionObject<S> obj2(tree_ptr, tf);
+    DistanceData<S> cdata;
+    S dist1 = std::numeric_limits<S>::max();
     defaultDistanceFunction(&obj1, &obj2, &cdata, dist1);
 
 
-    std::vector<CollisionObject<Scalar>*> boxes;
+    std::vector<CollisionObject<S>*> boxes;
     generateBoxesFromOctomap(boxes, *tree);
     for(std::size_t j = 0; j < boxes.size(); ++j)
       boxes[j]->setTransform(tf * boxes[j]->getTransform());
-  
-    DynamicAABBTreeCollisionManager<Scalar>* manager = new DynamicAABBTreeCollisionManager<Scalar>();
+
+    DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
     manager->registerObjects(boxes);
     manager->setup();
 
-    DistanceData<Scalar> cdata2;
+    DistanceData<S> cdata2;
     manager->distance(&obj1, &cdata2, defaultDistanceFunction);
-    Scalar dist2 = cdata2.result.min_distance;
+    S dist2 = cdata2.result.min_distance;
 
     for(std::size_t j = 0; j < boxes.size(); ++j)
       delete boxes[j];
@@ -215,24 +215,24 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
   }
 }
 
-template <typename Scalar>
-void octomap_distance_test(Scalar env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution)
+template <typename S>
+void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, bool use_mesh_octomap, double resolution)
 {
   // srand(1);
-  std::vector<CollisionObject<Scalar>*> env;
+  std::vector<CollisionObject<S>*> env;
   if(use_mesh)
     generateEnvironmentsMesh(env, env_scale, env_size);
   else
     generateEnvironments(env, env_scale, env_size);
 
-  OcTree<Scalar>* tree = new OcTree<Scalar>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
-  CollisionObject<Scalar> tree_obj((std::shared_ptr<CollisionGeometry<Scalar>>(tree)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
+  CollisionObject<S> tree_obj((std::shared_ptr<CollisionGeometry<S>>(tree)));
 
-  DynamicAABBTreeCollisionManager<Scalar>* manager = new DynamicAABBTreeCollisionManager<Scalar>();
+  DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
   manager->registerObjects(env);
   manager->setup();
-  
-  DistanceData<Scalar> cdata;
+
+  DistanceData<S> cdata;
   TStruct t1;
   Timer timer1;
   timer1.start();
@@ -242,8 +242,8 @@ void octomap_distance_test(Scalar env_scale, std::size_t env_size, bool use_mesh
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
-  
-  DistanceData<Scalar> cdata3;
+
+  DistanceData<S> cdata3;
   TStruct t3;
   Timer timer3;
   timer3.start();
@@ -252,28 +252,28 @@ void octomap_distance_test(Scalar env_scale, std::size_t env_size, bool use_mesh
   manager->distance(&tree_obj, &cdata3, defaultDistanceFunction);
   timer3.stop();
   t3.push_back(timer3.getElapsedTime());
-  
+
 
   TStruct t2;
   Timer timer2;
   timer2.start();
-  std::vector<CollisionObject<Scalar>*> boxes;
+  std::vector<CollisionObject<S>*> boxes;
   if(use_mesh_octomap)
     generateBoxesFromOctomapMesh(boxes, *tree);
   else
     generateBoxesFromOctomap(boxes, *tree);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
-  
+
   timer2.start();
-  DynamicAABBTreeCollisionManager<Scalar>* manager2 = new DynamicAABBTreeCollisionManager<Scalar>();
+  DynamicAABBTreeCollisionManager<S>* manager2 = new DynamicAABBTreeCollisionManager<S>();
   manager2->registerObjects(boxes);
   manager2->setup();
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
 
-  DistanceData<Scalar> cdata2;
+  DistanceData<S> cdata2;
 
   timer2.start();
   manager->distance(manager2, &cdata2, defaultDistanceFunction);

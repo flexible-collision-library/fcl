@@ -58,99 +58,99 @@ using GJKSupportFunction = void (*)(const void* obj, const ccd_vec3_t* dir_, ccd
 using GJKCenterFunction = void (*)(const void* obj, ccd_vec3_t* c);
 
 /// @brief initialize GJK stuffs
-template <typename Scalar, typename T>
+template <typename S, typename T>
 class GJKInitializer
 {
 public:
   /// @brief Get GJK support function
-  static GJKSupportFunction getSupportFunction() { return NULL; }
+  static GJKSupportFunction getSupportFunction() { return nullptr; }
 
   /// @brief Get GJK center function
-  static GJKCenterFunction getCenterFunction() { return NULL; }
+  static GJKCenterFunction getCenterFunction() { return nullptr; }
 
   /// @brief Get GJK object from a shape
   /// Notice that only local transformation is applied.
   /// Gloal transformation are considered later
-  static void* createGJKObject(const T& /* s */, const Transform3<Scalar>& /*tf*/) { return NULL; }
+  static void* createGJKObject(const T& /* s */, const Transform3<S>& /*tf*/) { return nullptr; }
 
   /// @brief Delete GJK object
   static void deleteGJKObject(void* o) {}
 };
 
-/// @brief initialize GJK Cylinder<Scalar>
-template <typename Scalar>
-class GJKInitializer<Scalar, Cylinder<Scalar>>
+/// @brief initialize GJK Cylinder<S>
+template <typename S>
+class GJKInitializer<S, Cylinder<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cylinder<Scalar>& s, const Transform3<Scalar>& tf);
+  static void* createGJKObject(const Cylinder<S>& s, const Transform3<S>& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Sphere<Scalar>
-template <typename Scalar>
-class GJKInitializer<Scalar, Sphere<Scalar>>
+/// @brief initialize GJK Sphere<S>
+template <typename S>
+class GJKInitializer<S, Sphere<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Sphere<Scalar>& s, const Transform3<Scalar>& tf);
+  static void* createGJKObject(const Sphere<S>& s, const Transform3<S>& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Ellipsoid<Scalar>
-template <typename Scalar>
-class GJKInitializer<Scalar, Ellipsoid<Scalar>>
+/// @brief initialize GJK Ellipsoid<S>
+template <typename S>
+class GJKInitializer<S, Ellipsoid<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Ellipsoid<Scalar>& s, const Transform3<Scalar>& tf);
+  static void* createGJKObject(const Ellipsoid<S>& s, const Transform3<S>& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Box<Scalar>
-template <typename Scalar>
-class GJKInitializer<Scalar, Box<Scalar>>
+/// @brief initialize GJK Box<S>
+template <typename S>
+class GJKInitializer<S, Box<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Box<Scalar>& s, const Transform3<Scalar>& tf);
+  static void* createGJKObject(const Box<S>& s, const Transform3<S>& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Capsule<Scalar>
-template <typename Scalar>
-class GJKInitializer<Scalar, Capsule<Scalar>>
+/// @brief initialize GJK Capsule<S>
+template <typename S>
+class GJKInitializer<S, Capsule<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Capsule<Scalar>& s, const Transform3<Scalar>& tf);
+  static void* createGJKObject(const Capsule<S>& s, const Transform3<S>& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Cone<Scalar>
-template <typename Scalar>
-class GJKInitializer<Scalar, Cone<Scalar>>
+/// @brief initialize GJK Cone<S>
+template <typename S>
+class GJKInitializer<S, Cone<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Cone<Scalar>& s, const Transform3<Scalar>& tf);
+  static void* createGJKObject(const Cone<S>& s, const Transform3<S>& tf);
   static void deleteGJKObject(void* o);
 };
 
-/// @brief initialize GJK Convex<Scalar>
-template <typename Scalar>
-class GJKInitializer<Scalar, Convex<Scalar>>
+/// @brief initialize GJK Convex<S>
+template <typename S>
+class GJKInitializer<S, Convex<S>>
 {
 public:
   static GJKSupportFunction getSupportFunction();
   static GJKCenterFunction getCenterFunction();
-  static void* createGJKObject(const Convex<Scalar>& s, const Transform3<Scalar>& tf);
+  static void* createGJKObject(const Convex<S>& s, const Transform3<S>& tf);
   static void deleteGJKObject(void* o);
 };
 
@@ -159,16 +159,16 @@ GJKSupportFunction triGetSupportFunction();
 
 GJKCenterFunction triGetCenterFunction();
 
-template <typename Scalar>
-void* triCreateGJKObject(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3);
+template <typename S>
+void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3);
 
-template <typename Scalar>
-void* triCreateGJKObject(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3, const Transform3<Scalar>& tf);
+template <typename S>
+void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf);
 
 void triDeleteGJKObject(void* o);
 
 /// @brief GJK collision algorithm
-template <typename Scalar>
+template <typename S>
 bool GJKCollide(
     void* obj1,
     ccd_support_fn supp1,
@@ -177,16 +177,16 @@ bool GJKCollide(
     ccd_support_fn supp2,
     ccd_center_fn cen2,
     unsigned int max_iterations,
-    Scalar tolerance,
-    Vector3<Scalar>* contact_points,
-    Scalar* penetration_depth,
-    Vector3<Scalar>* normal);
+    S tolerance,
+    Vector3<S>* contact_points,
+    S* penetration_depth,
+    Vector3<S>* normal);
 
-template <typename Scalar>
+template <typename S>
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
-                 unsigned int max_iterations, Scalar tolerance,
-                 Scalar* dist, Vector3<Scalar>* p1, Vector3<Scalar>* p2);
+                 unsigned int max_iterations, S tolerance,
+                 S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
 
 } // details
@@ -237,10 +237,10 @@ struct ccd_ellipsoid_t : public ccd_obj_t
   ccd_real_t radii[3];
 };
 
-template <typename Scalar>
+template <typename S>
 struct ccd_convex_t : public ccd_obj_t
 {
-  const Convex<Scalar>* convex;
+  const Convex<S>* convex;
 };
 
 struct ccd_triangle_t : public ccd_obj_t
@@ -350,7 +350,7 @@ static int doSimplex3(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   C = ccdSimplexPoint(simplex, 0);
 
   // check touching contact
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
   if (ccdIsZero(dist)){
     return 1;
   }
@@ -435,23 +435,23 @@ static int doSimplex4(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   // check if tetrahedron is really tetrahedron (has volume > 0)
   // if it is not simplex can't be expanded and thus no intersection is
   // found
-  dist = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(&A->v, &B->v, &C->v, &D->v, nullptr);
   if (ccdIsZero(dist)){
     return -1;
   }
 
   // check if origin lies on some of tetrahedron's face - if so objects
   // intersect
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &C->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &C->v, &D->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &A->v, &B->v, &D->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
-  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, NULL);
+  dist = ccdVec3PointTriDist2(ccd_vec3_origin, &B->v, &C->v, &D->v, nullptr);
   if (ccdIsZero(dist))
     return 1;
 
@@ -664,18 +664,18 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
 
 
 /** Basic shape to ccd shape */
-template <typename Scalar>
-static void shapeToGJK(const ShapeBase<Scalar>& s, const Transform3<Scalar>& tf, ccd_obj_t* o)
+template <typename S>
+static void shapeToGJK(const ShapeBase<S>& s, const Transform3<S>& tf, ccd_obj_t* o)
 {
-  const Quaternion<Scalar> q(tf.linear());
-  const Vector3<Scalar>& T = tf.translation();
+  const Quaternion<S> q(tf.linear());
+  const Vector3<S>& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
   ccdQuatInvert2(&o->rot_inv, &o->rot);
 }
 
-template <typename Scalar>
-static void boxToGJK(const Box<Scalar>& s, const Transform3<Scalar>& tf, ccd_box_t* box)
+template <typename S>
+static void boxToGJK(const Box<S>& s, const Transform3<S>& tf, ccd_box_t* box)
 {
   shapeToGJK(s, tf, box);
   box->dim[0] = s.side[0] / 2.0;
@@ -683,39 +683,39 @@ static void boxToGJK(const Box<Scalar>& s, const Transform3<Scalar>& tf, ccd_box
   box->dim[2] = s.side[2] / 2.0;
 }
 
-template <typename Scalar>
-static void capToGJK(const Capsule<Scalar>& s, const Transform3<Scalar>& tf, ccd_cap_t* cap)
+template <typename S>
+static void capToGJK(const Capsule<S>& s, const Transform3<S>& tf, ccd_cap_t* cap)
 {
   shapeToGJK(s, tf, cap);
   cap->radius = s.radius;
   cap->height = s.lz / 2;
 }
 
-template <typename Scalar>
-static void cylToGJK(const Cylinder<Scalar>& s, const Transform3<Scalar>& tf, ccd_cyl_t* cyl)
+template <typename S>
+static void cylToGJK(const Cylinder<S>& s, const Transform3<S>& tf, ccd_cyl_t* cyl)
 {
   shapeToGJK(s, tf, cyl);
   cyl->radius = s.radius;
   cyl->height = s.lz / 2;
 }
 
-template <typename Scalar>
-static void coneToGJK(const Cone<Scalar>& s, const Transform3<Scalar>& tf, ccd_cone_t* cone)
+template <typename S>
+static void coneToGJK(const Cone<S>& s, const Transform3<S>& tf, ccd_cone_t* cone)
 {
   shapeToGJK(s, tf, cone);
   cone->radius = s.radius;
   cone->height = s.lz / 2;
 }
 
-template <typename Scalar>
-static void sphereToGJK(const Sphere<Scalar>& s, const Transform3<Scalar>& tf, ccd_sphere_t* sph)
+template <typename S>
+static void sphereToGJK(const Sphere<S>& s, const Transform3<S>& tf, ccd_sphere_t* sph)
 {
   shapeToGJK(s, tf, sph);
   sph->radius = s.radius;
 }
 
-template <typename Scalar>
-static void ellipsoidToGJK(const Ellipsoid<Scalar>& s, const Transform3<Scalar>& tf, ccd_ellipsoid_t* ellipsoid)
+template <typename S>
+static void ellipsoidToGJK(const Ellipsoid<S>& s, const Transform3<S>& tf, ccd_ellipsoid_t* ellipsoid)
 {
   shapeToGJK(s, tf, ellipsoid);
   ellipsoid->radii[0] = s.radii[0];
@@ -723,8 +723,8 @@ static void ellipsoidToGJK(const Ellipsoid<Scalar>& s, const Transform3<Scalar>&
   ellipsoid->radii[2] = s.radii[2];
 }
 
-template <typename Scalar>
-static void convexToGJK(const Convex<Scalar>& s, const Transform3<Scalar>& tf, ccd_convex_t<Scalar>* conv)
+template <typename S>
+static void convexToGJK(const Convex<S>& s, const Transform3<S>& tf, ccd_convex_t<S>* conv)
 {
   shapeToGJK(s, tf, conv);
   conv->convex = &s;
@@ -870,14 +870,14 @@ static inline void supportEllipsoid(const void* obj, const ccd_vec3_t* dir_, ccd
   ccdVec3Add(v, &s->pos);
 }
 
-template <typename Scalar>
+template <typename S>
 static void supportConvex(const void* obj, const ccd_vec3_t* dir_, ccd_vec3_t* v)
 {
-  const auto* c = (const ccd_convex_t<Scalar>*)obj;
+  const auto* c = (const ccd_convex_t<S>*)obj;
   ccd_vec3_t dir, p;
   ccd_real_t maxdot, dot;
   int i;
-  Vector3<Scalar>* curp;
+  Vector3<S>* curp;
   const auto& center = c->convex->center;
 
   ccdVec3Copy(&dir, dir_);
@@ -936,10 +936,10 @@ static inline void centerShape(const void* obj, ccd_vec3_t* c)
   ccdVec3Copy(c, &o->pos);
 }
 
-template <typename Scalar>
+template <typename S>
 static void centerConvex(const void* obj, ccd_vec3_t* c)
 {
-  const auto *o = static_cast<const ccd_convex_t<Scalar>*>(obj);
+  const auto *o = static_cast<const ccd_convex_t<S>*>(obj);
   ccdVec3Set(c, o->convex->center[0], o->convex->center[1], o->convex->center[2]);
   ccdQuatRotVec(c, &o->rot);
   ccdVec3Add(c, &o->pos);
@@ -953,11 +953,11 @@ static void centerTriangle(const void* obj, ccd_vec3_t* c)
   ccdVec3Add(c, &o->pos);
 }
 
-template <typename Scalar>
+template <typename S>
 bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
                 void* obj2, ccd_support_fn supp2, ccd_center_fn cen2,
-                unsigned int max_iterations, Scalar tolerance,
-                Vector3<Scalar>* contact_points, Scalar* penetration_depth, Vector3<Scalar>* normal)
+                unsigned int max_iterations, S tolerance,
+                Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal)
 {
   ccd_t ccd;
   int res;
@@ -995,11 +995,11 @@ bool GJKCollide(void* obj1, ccd_support_fn supp1, ccd_center_fn cen1,
 
 
 /// p1 and p2 are in global coordinate, so needs transform in the narrowphase.h functions
-template <typename Scalar>
+template <typename S>
 bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
-                 unsigned int max_iterations, Scalar tolerance,
-                 Scalar* res, Vector3<Scalar>* p1, Vector3<Scalar>* p2)
+                 unsigned int max_iterations, S tolerance,
+                 S* res, Vector3<S>* p1, Vector3<S>* p2)
 {
   ccd_t ccd;
   ccd_real_t dist;
@@ -1026,192 +1026,192 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
   else return true;
 }
 
-template <typename Scalar>
-GJKSupportFunction GJKInitializer<Scalar, Cylinder<Scalar>>::getSupportFunction()
+template <typename S>
+GJKSupportFunction GJKInitializer<S, Cylinder<S>>::getSupportFunction()
 {
   return &supportCyl;
 }
 
-template <typename Scalar>
-GJKCenterFunction GJKInitializer<Scalar, Cylinder<Scalar>>::getCenterFunction()
+template <typename S>
+GJKCenterFunction GJKInitializer<S, Cylinder<S>>::getCenterFunction()
 {
   return &centerShape;
 }
 
-template <typename Scalar>
-void* GJKInitializer<Scalar, Cylinder<Scalar>>::createGJKObject(const Cylinder<Scalar>& s, const Transform3<Scalar>& tf)
+template <typename S>
+void* GJKInitializer<S, Cylinder<S>>::createGJKObject(const Cylinder<S>& s, const Transform3<S>& tf)
 {
   ccd_cyl_t* o = new ccd_cyl_t;
   cylToGJK(s, tf, o);
   return o;
 }
 
-template <typename Scalar>
-void GJKInitializer<Scalar, Cylinder<Scalar>>::deleteGJKObject(void* o_)
+template <typename S>
+void GJKInitializer<S, Cylinder<S>>::deleteGJKObject(void* o_)
 {
   ccd_cyl_t* o = static_cast<ccd_cyl_t*>(o_);
   delete o;
 }
 
-template <typename Scalar>
-GJKSupportFunction GJKInitializer<Scalar, Sphere<Scalar>>::getSupportFunction()
+template <typename S>
+GJKSupportFunction GJKInitializer<S, Sphere<S>>::getSupportFunction()
 {
   return &supportSphere;
 }
 
-template <typename Scalar>
-GJKCenterFunction GJKInitializer<Scalar, Sphere<Scalar>>::getCenterFunction()
+template <typename S>
+GJKCenterFunction GJKInitializer<S, Sphere<S>>::getCenterFunction()
 {
   return &centerShape;
 }
 
-template <typename Scalar>
-void* GJKInitializer<Scalar, Sphere<Scalar>>::createGJKObject(const Sphere<Scalar>& s, const Transform3<Scalar>& tf)
+template <typename S>
+void* GJKInitializer<S, Sphere<S>>::createGJKObject(const Sphere<S>& s, const Transform3<S>& tf)
 {
   ccd_sphere_t* o = new ccd_sphere_t;
   sphereToGJK(s, tf, o);
   return o;
 }
 
-template <typename Scalar>
-void GJKInitializer<Scalar, Sphere<Scalar>>::deleteGJKObject(void* o_)
+template <typename S>
+void GJKInitializer<S, Sphere<S>>::deleteGJKObject(void* o_)
 {
   ccd_sphere_t* o = static_cast<ccd_sphere_t*>(o_);
   delete o;
 }
 
-template <typename Scalar>
-GJKSupportFunction GJKInitializer<Scalar, Ellipsoid<Scalar>>::getSupportFunction()
+template <typename S>
+GJKSupportFunction GJKInitializer<S, Ellipsoid<S>>::getSupportFunction()
 {
   return &supportEllipsoid;
 }
 
-template <typename Scalar>
-GJKCenterFunction GJKInitializer<Scalar, Ellipsoid<Scalar>>::getCenterFunction()
+template <typename S>
+GJKCenterFunction GJKInitializer<S, Ellipsoid<S>>::getCenterFunction()
 {
   return &centerShape;
 }
 
-template <typename Scalar>
-void* GJKInitializer<Scalar, Ellipsoid<Scalar>>::createGJKObject(const Ellipsoid<Scalar>& s, const Transform3<Scalar>& tf)
+template <typename S>
+void* GJKInitializer<S, Ellipsoid<S>>::createGJKObject(const Ellipsoid<S>& s, const Transform3<S>& tf)
 {
   ccd_ellipsoid_t* o = new ccd_ellipsoid_t;
   ellipsoidToGJK(s, tf, o);
   return o;
 }
 
-template <typename Scalar>
-void GJKInitializer<Scalar, Ellipsoid<Scalar>>::deleteGJKObject(void* o_)
+template <typename S>
+void GJKInitializer<S, Ellipsoid<S>>::deleteGJKObject(void* o_)
 {
   ccd_ellipsoid_t* o = static_cast<ccd_ellipsoid_t*>(o_);
   delete o;
 }
 
-template <typename Scalar>
-GJKSupportFunction GJKInitializer<Scalar, Box<Scalar>>::getSupportFunction()
+template <typename S>
+GJKSupportFunction GJKInitializer<S, Box<S>>::getSupportFunction()
 {
   return &supportBox;
 }
 
-template <typename Scalar>
-GJKCenterFunction GJKInitializer<Scalar, Box<Scalar>>::getCenterFunction()
+template <typename S>
+GJKCenterFunction GJKInitializer<S, Box<S>>::getCenterFunction()
 {
   return &centerShape;
 }
 
-template <typename Scalar>
-void* GJKInitializer<Scalar, Box<Scalar>>::createGJKObject(const Box<Scalar>& s, const Transform3<Scalar>& tf)
+template <typename S>
+void* GJKInitializer<S, Box<S>>::createGJKObject(const Box<S>& s, const Transform3<S>& tf)
 {
   ccd_box_t* o = new ccd_box_t;
   boxToGJK(s, tf, o);
   return o;
 }
 
-template <typename Scalar>
-void GJKInitializer<Scalar, Box<Scalar>>::deleteGJKObject(void* o_)
+template <typename S>
+void GJKInitializer<S, Box<S>>::deleteGJKObject(void* o_)
 {
   ccd_box_t* o = static_cast<ccd_box_t*>(o_);
   delete o;
 }
 
-template <typename Scalar>
-GJKSupportFunction GJKInitializer<Scalar, Capsule<Scalar>>::getSupportFunction()
+template <typename S>
+GJKSupportFunction GJKInitializer<S, Capsule<S>>::getSupportFunction()
 {
   return &supportCap;
 }
 
-template <typename Scalar>
-GJKCenterFunction GJKInitializer<Scalar, Capsule<Scalar>>::getCenterFunction()
+template <typename S>
+GJKCenterFunction GJKInitializer<S, Capsule<S>>::getCenterFunction()
 {
   return &centerShape;
 }
 
-template <typename Scalar>
-void* GJKInitializer<Scalar, Capsule<Scalar>>::createGJKObject(const Capsule<Scalar>& s, const Transform3<Scalar>& tf)
+template <typename S>
+void* GJKInitializer<S, Capsule<S>>::createGJKObject(const Capsule<S>& s, const Transform3<S>& tf)
 {
   ccd_cap_t* o = new ccd_cap_t;
   capToGJK(s, tf, o);
   return o;
 }
 
-template <typename Scalar>
-void GJKInitializer<Scalar, Capsule<Scalar>>::deleteGJKObject(void* o_)
+template <typename S>
+void GJKInitializer<S, Capsule<S>>::deleteGJKObject(void* o_)
 {
   ccd_cap_t* o = static_cast<ccd_cap_t*>(o_);
   delete o;
 }
 
-template <typename Scalar>
-GJKSupportFunction GJKInitializer<Scalar, Cone<Scalar>>::getSupportFunction()
+template <typename S>
+GJKSupportFunction GJKInitializer<S, Cone<S>>::getSupportFunction()
 {
   return &supportCone;
 }
 
-template <typename Scalar>
-GJKCenterFunction GJKInitializer<Scalar, Cone<Scalar>>::getCenterFunction()
+template <typename S>
+GJKCenterFunction GJKInitializer<S, Cone<S>>::getCenterFunction()
 {
   return &centerShape;
 }
 
-template <typename Scalar>
-void* GJKInitializer<Scalar, Cone<Scalar>>::createGJKObject(const Cone<Scalar>& s, const Transform3<Scalar>& tf)
+template <typename S>
+void* GJKInitializer<S, Cone<S>>::createGJKObject(const Cone<S>& s, const Transform3<S>& tf)
 {
   ccd_cone_t* o = new ccd_cone_t;
   coneToGJK(s, tf, o);
   return o;
 }
 
-template <typename Scalar>
-void GJKInitializer<Scalar, Cone<Scalar>>::deleteGJKObject(void* o_)
+template <typename S>
+void GJKInitializer<S, Cone<S>>::deleteGJKObject(void* o_)
 {
   ccd_cone_t* o = static_cast<ccd_cone_t*>(o_);
   delete o;
 }
 
-template <typename Scalar>
-GJKSupportFunction GJKInitializer<Scalar, Convex<Scalar>>::getSupportFunction()
+template <typename S>
+GJKSupportFunction GJKInitializer<S, Convex<S>>::getSupportFunction()
 {
-  return &supportConvex<Scalar>;
+  return &supportConvex<S>;
 }
 
-template <typename Scalar>
-GJKCenterFunction GJKInitializer<Scalar, Convex<Scalar>>::getCenterFunction()
+template <typename S>
+GJKCenterFunction GJKInitializer<S, Convex<S>>::getCenterFunction()
 {
-  return &centerConvex<Scalar>;
+  return &centerConvex<S>;
 }
 
-template <typename Scalar>
-void* GJKInitializer<Scalar, Convex<Scalar>>::createGJKObject(const Convex<Scalar>& s, const Transform3<Scalar>& tf)
+template <typename S>
+void* GJKInitializer<S, Convex<S>>::createGJKObject(const Convex<S>& s, const Transform3<S>& tf)
 {
-  auto* o = new ccd_convex_t<Scalar>;
+  auto* o = new ccd_convex_t<S>;
   convexToGJK(s, tf, o);
   return o;
 }
 
-template <typename Scalar>
-void GJKInitializer<Scalar, Convex<Scalar>>::deleteGJKObject(void* o_)
+template <typename S>
+void GJKInitializer<S, Convex<S>>::deleteGJKObject(void* o_)
 {
-  auto* o = static_cast<ccd_convex_t<Scalar>*>(o_);
+  auto* o = static_cast<ccd_convex_t<S>*>(o_);
   delete o;
 }
 
@@ -1225,11 +1225,11 @@ inline GJKCenterFunction triGetCenterFunction()
   return &centerTriangle;
 }
 
-template <typename Scalar>
-void* triCreateGJKObject(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3)
+template <typename S>
+void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3)
 {
   ccd_triangle_t* o = new ccd_triangle_t;
-  Vector3<Scalar> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
+  Vector3<S> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
 
   ccdVec3Set(&o->p[0], P1[0], P1[1], P1[2]);
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
@@ -1242,18 +1242,18 @@ void* triCreateGJKObject(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, c
   return o;
 }
 
-template <typename Scalar>
-void* triCreateGJKObject(const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3, const Transform3<Scalar>& tf)
+template <typename S>
+void* triCreateGJKObject(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf)
 {
   ccd_triangle_t* o = new ccd_triangle_t;
-  Vector3<Scalar> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
+  Vector3<S> center((P1[0] + P2[0] + P3[0]) / 3, (P1[1] + P2[1] + P3[1]) / 3, (P1[2] + P2[2] + P3[2]) / 3);
 
   ccdVec3Set(&o->p[0], P1[0], P1[1], P1[2]);
   ccdVec3Set(&o->p[1], P2[0], P2[1], P2[2]);
   ccdVec3Set(&o->p[2], P3[0], P3[1], P3[2]);
   ccdVec3Set(&o->c, center[0], center[1], center[2]);
-  const Quaternion<Scalar> q(tf.linear());
-  const Vector3<Scalar>& T = tf.translation();
+  const Quaternion<S> q(tf.linear());
+  const Vector3<S>& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);
   ccdQuatSet(&o->rot, q.x(), q.y(), q.z(), q.w());
   ccdQuatInvert2(&o->rot_inv, &o->rot);

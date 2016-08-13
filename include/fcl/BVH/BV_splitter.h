@@ -54,11 +54,11 @@ class BVSplitterBase
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   /// @brief Set the geometry data needed by the split rule
   virtual void set(
-      Vector3<Scalar>* vertices_,
+      Vector3<S>* vertices_,
       Triangle* tri_indices_,
       BVHModelType type_) = 0;
 
@@ -68,7 +68,7 @@ public:
       const BV& bv, unsigned int* primitive_indices, int num_primitives) = 0;
 
   /// @brief Apply the split rule on a given point
-  virtual bool apply(const Vector3<Scalar>& q) const = 0;
+  virtual bool apply(const Vector3<S>& q) const = 0;
 
   /// @brief Clear the geometry data set before
   virtual void clear() = 0;
@@ -88,7 +88,7 @@ class BVSplitter : public BVSplitterBase<BV>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   BVSplitter(SplitMethodType method);
 
@@ -97,7 +97,7 @@ public:
 
   /// @brief Set the geometry data needed by the split rule
   void set(
-      Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_);
+      Vector3<S>* vertices_, Triangle* tri_indices_, BVHModelType type_);
 
   /// @brief Compute the split rule according to a subset of geometry and the
   /// corresponding BV node
@@ -105,7 +105,7 @@ public:
       const BV& bv, unsigned int* primitive_indices, int num_primitives);
 
   /// @brief Apply the split rule on a given point
-  bool apply(const Vector3<Scalar>& q) const;
+  bool apply(const Vector3<S>& q) const;
 
   /// @brief Clear the geometry data set before
   void clear();
@@ -117,15 +117,15 @@ private:
   /// is needed. For oriented node, we can use a vector to make a better split
   /// decision.
   int split_axis;
-  Vector3<Scalar> split_vector;
+  Vector3<S> split_vector;
 
   /// @brief The split threshold, different primitives are splitted according
   /// whether their projection on the split_axis is larger or smaller than the
   /// threshold
-  Scalar split_value;
+  S split_value;
 
   /// @brief The mesh vertices or points handled by the splitter
-  Vector3<Scalar>* vertices;
+  Vector3<S>* vertices;
 
   /// @brief The triangles handled by the splitter
   Triangle* tri_indices;
@@ -163,33 +163,33 @@ private:
   friend struct ComputeRuleMedianImpl;
 };
 
-template <typename Scalar, typename BV>
-void computeSplitVector(const BV& bv, Vector3<Scalar>& split_vector);
+template <typename S, typename BV>
+void computeSplitVector(const BV& bv, Vector3<S>& split_vector);
 
-template <typename Scalar, typename BV>
-void computeSplitValue_bvcenter(const BV& bv, Scalar& split_value);
+template <typename S, typename BV>
+void computeSplitValue_bvcenter(const BV& bv, S& split_value);
 
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 void computeSplitValue_mean(
     const BV& bv,
-    Vector3<Scalar>* vertices,
+    Vector3<S>* vertices,
     Triangle* triangles,
     unsigned int* primitive_indices,
     int num_primitives,
     BVHModelType type,
-    const Vector3<Scalar>& split_vector,
-    Scalar& split_value);
+    const Vector3<S>& split_vector,
+    S& split_value);
 
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 void computeSplitValue_median(
     const BV& bv,
-    Vector3<Scalar>* vertices,
+    Vector3<S>* vertices,
     Triangle* triangles,
     unsigned int* primitive_indices,
     int num_primitives,
     BVHModelType type,
-    const Vector3<Scalar>& split_vector,
-    Scalar& split_value);
+    const Vector3<S>& split_vector,
+    S& split_value);
 
 //============================================================================//
 //                                                                            //
@@ -202,6 +202,7 @@ template <typename BV>
 BVSplitter<BV>::BVSplitter(SplitMethodType method)
   : split_method(method)
 {
+  // Do nothing
 }
 
 //==============================================================================
@@ -214,7 +215,7 @@ BVSplitter<BV>::~BVSplitter()
 //==============================================================================
 template <typename BV>
 void BVSplitter<BV>::set(
-    Vector3<Scalar>* vertices_, Triangle* tri_indices_, BVHModelType type_)
+    Vector3<S>* vertices_, Triangle* tri_indices_, BVHModelType type_)
 {
   vertices = vertices_;
   tri_indices = tri_indices_;
@@ -243,11 +244,11 @@ void BVSplitter<BV>::computeRule(
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct ApplyImpl
 {
   static bool run(
-      const BVSplitter<BV>& splitter, const Vector3<Scalar>& q)
+      const BVSplitter<BV>& splitter, const Vector3<S>& q)
   {
     return q[splitter.split_axis] > splitter.split_value;
   }
@@ -255,13 +256,13 @@ struct ApplyImpl
 
 //==============================================================================
 template <typename BV>
-bool BVSplitter<BV>::apply(const Vector3<Scalar>& q) const
+bool BVSplitter<BV>::apply(const Vector3<S>& q) const
 {
-  return ApplyImpl<Scalar, BV>::run(*this, q);
+  return ApplyImpl<S, BV>::run(*this, q);
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct ComputeRuleCenterImpl
 {
   static void run(
@@ -270,7 +271,7 @@ struct ComputeRuleCenterImpl
       unsigned int* /*primitive_indices*/,
       int /*num_primitives*/)
   {
-    Vector3<Scalar> center = bv.center();
+    Vector3<S> center = bv.center();
     int axis = 2;
 
     if(bv.width() >= bv.height() && bv.width() >= bv.depth())
@@ -288,12 +289,12 @@ template <typename BV>
 void BVSplitter<BV>::computeRule_bvcenter(
     const BV& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  ComputeRuleCenterImpl<Scalar, BV>::run(
+  ComputeRuleCenterImpl<S, BV>::run(
         *this, bv, primitive_indices, num_primitives);
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct ComputeRuleMeanImpl
 {
   static void run(
@@ -310,16 +311,16 @@ struct ComputeRuleMeanImpl
       axis = 1;
 
     splitter.split_axis = axis;
-    Scalar sum = 0;
+    S sum = 0;
 
     if(splitter.type == BVH_MODEL_TRIANGLES)
     {
       for(int i = 0; i < num_primitives; ++i)
       {
         const Triangle& t = splitter.tri_indices[primitive_indices[i]];
-        sum += (splitter.vertices[t[0]][splitter.split_axis]
-            + splitter.vertices[t[1]][splitter.split_axis]
-            + splitter.vertices[t[2]][splitter.split_axis]);
+        sum += splitter.vertices[t[0]][splitter.split_axis]
+             + splitter.vertices[t[1]][splitter.split_axis]
+             + splitter.vertices[t[2]][splitter.split_axis];
       }
 
       sum /= 3;
@@ -341,12 +342,12 @@ template <typename BV>
 void BVSplitter<BV>::computeRule_mean(
     const BV& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  ComputeRuleMeanImpl<Scalar, BV>::run(
+  ComputeRuleMeanImpl<S, BV>::run(
         *this, bv, primitive_indices, num_primitives);
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct ComputeRuleMedianImpl
 {
   static void run(
@@ -363,7 +364,7 @@ struct ComputeRuleMedianImpl
       axis = 1;
 
     splitter.split_axis = axis;
-    std::vector<Scalar> proj(num_primitives);
+    std::vector<S> proj(num_primitives);
 
     if(splitter.type == BVH_MODEL_TRIANGLES)
     {
@@ -399,249 +400,249 @@ template <typename BV>
 void BVSplitter<BV>::computeRule_median(
     const BV& bv, unsigned int* primitive_indices, int num_primitives)
 {
-  ComputeRuleMedianImpl<Scalar, BV>::run(
+  ComputeRuleMedianImpl<S, BV>::run(
         *this, bv, primitive_indices, num_primitives);
 }
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleCenterImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct ComputeRuleCenterImpl<S, OBB<S>>
 {
   static void run(
-      BVSplitter<OBB<Scalar>>& splitter,
-      const OBB<Scalar>& bv,
+      BVSplitter<OBB<S>>& splitter,
+      const OBB<S>& bv,
       unsigned int* /*primitive_indices*/,
       int /*num_primitives*/)
   {
-    computeSplitVector<Scalar, OBB<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_bvcenter<Scalar, OBB<Scalar>>(bv, splitter.split_value);
+    computeSplitVector<S, OBB<S>>(bv, splitter.split_vector);
+    computeSplitValue_bvcenter<S, OBB<S>>(bv, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMeanImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct ComputeRuleMeanImpl<S, OBB<S>>
 {
   static void run(
-      BVSplitter<OBB<Scalar>>& splitter,
-      const OBB<Scalar>& bv,
+      BVSplitter<OBB<S>>& splitter,
+      const OBB<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, OBB<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_mean<Scalar, OBB<Scalar>>(
+    computeSplitVector<S, OBB<S>>(bv, splitter.split_vector);
+    computeSplitValue_mean<S, OBB<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMedianImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct ComputeRuleMedianImpl<S, OBB<S>>
 {
   static void run(
-      BVSplitter<OBB<Scalar>>& splitter,
-      const OBB<Scalar>& bv,
+      BVSplitter<OBB<S>>& splitter,
+      const OBB<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, OBB<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_median<Scalar, OBB<Scalar>>(
+    computeSplitVector<S, OBB<S>>(bv, splitter.split_vector);
+    computeSplitValue_median<S, OBB<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleCenterImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct ComputeRuleCenterImpl<S, RSS<S>>
 {
   static void run(
-      BVSplitter<RSS<Scalar>>& splitter,
-      const RSS<Scalar>& bv,
+      BVSplitter<RSS<S>>& splitter,
+      const RSS<S>& bv,
       unsigned int* /*primitive_indices*/,
       int /*num_primitives*/)
   {
-    computeSplitVector<Scalar, RSS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_bvcenter<Scalar, RSS<Scalar>>(bv, splitter.split_value);
+    computeSplitVector<S, RSS<S>>(bv, splitter.split_vector);
+    computeSplitValue_bvcenter<S, RSS<S>>(bv, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMeanImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct ComputeRuleMeanImpl<S, RSS<S>>
 {
   static void run(
-      BVSplitter<RSS<Scalar>>& splitter,
-      const RSS<Scalar>& bv,
+      BVSplitter<RSS<S>>& splitter,
+      const RSS<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, RSS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_mean<Scalar, RSS<Scalar>>(
+    computeSplitVector<S, RSS<S>>(bv, splitter.split_vector);
+    computeSplitValue_mean<S, RSS<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMedianImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct ComputeRuleMedianImpl<S, RSS<S>>
 {
   static void run(
-      BVSplitter<RSS<Scalar>>& splitter,
-      const RSS<Scalar>& bv,
+      BVSplitter<RSS<S>>& splitter,
+      const RSS<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, RSS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_median<Scalar, RSS<Scalar>>(
+    computeSplitVector<S, RSS<S>>(bv, splitter.split_vector);
+    computeSplitValue_median<S, RSS<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleCenterImpl<Scalar, kIOS<Scalar>>
+template <typename S>
+struct ComputeRuleCenterImpl<S, kIOS<S>>
 {
   static void run(
-      BVSplitter<kIOS<Scalar>>& splitter,
-      const kIOS<Scalar>& bv,
+      BVSplitter<kIOS<S>>& splitter,
+      const kIOS<S>& bv,
       unsigned int* /*primitive_indices*/,
       int /*num_primitives*/)
   {
-    computeSplitVector<Scalar, kIOS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_bvcenter<Scalar, kIOS<Scalar>>(bv, splitter.split_value);
+    computeSplitVector<S, kIOS<S>>(bv, splitter.split_vector);
+    computeSplitValue_bvcenter<S, kIOS<S>>(bv, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMeanImpl<Scalar, kIOS<Scalar>>
+template <typename S>
+struct ComputeRuleMeanImpl<S, kIOS<S>>
 {
   static void run(
-      BVSplitter<kIOS<Scalar>>& splitter,
-      const kIOS<Scalar>& bv,
+      BVSplitter<kIOS<S>>& splitter,
+      const kIOS<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, kIOS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_mean<Scalar, kIOS<Scalar>>(
+    computeSplitVector<S, kIOS<S>>(bv, splitter.split_vector);
+    computeSplitValue_mean<S, kIOS<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMedianImpl<Scalar, kIOS<Scalar>>
+template <typename S>
+struct ComputeRuleMedianImpl<S, kIOS<S>>
 {
   static void run(
-      BVSplitter<kIOS<Scalar>>& splitter,
-      const kIOS<Scalar>& bv,
+      BVSplitter<kIOS<S>>& splitter,
+      const kIOS<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, kIOS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_median<Scalar, kIOS<Scalar>>(
+    computeSplitVector<S, kIOS<S>>(bv, splitter.split_vector);
+    computeSplitValue_median<S, kIOS<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleCenterImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct ComputeRuleCenterImpl<S, OBBRSS<S>>
 {
   static void run(
-      BVSplitter<OBBRSS<Scalar>>& splitter,
-      const OBBRSS<Scalar>& bv,
+      BVSplitter<OBBRSS<S>>& splitter,
+      const OBBRSS<S>& bv,
       unsigned int* /*primitive_indices*/,
       int /*num_primitives*/)
   {
-    computeSplitVector<Scalar, OBBRSS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_bvcenter<Scalar, OBBRSS<Scalar>>(bv, splitter.split_value);
+    computeSplitVector<S, OBBRSS<S>>(bv, splitter.split_vector);
+    computeSplitValue_bvcenter<S, OBBRSS<S>>(bv, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMeanImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct ComputeRuleMeanImpl<S, OBBRSS<S>>
 {
   static void run(
-      BVSplitter<OBBRSS<Scalar>>& splitter,
-      const OBBRSS<Scalar>& bv,
+      BVSplitter<OBBRSS<S>>& splitter,
+      const OBBRSS<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, OBBRSS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_mean<Scalar, OBBRSS<Scalar>>(
+    computeSplitVector<S, OBBRSS<S>>(bv, splitter.split_vector);
+    computeSplitValue_mean<S, OBBRSS<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeRuleMedianImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct ComputeRuleMedianImpl<S, OBBRSS<S>>
 {
   static void run(
-      BVSplitter<OBBRSS<Scalar>>& splitter,
-      const OBBRSS<Scalar>& bv,
+      BVSplitter<OBBRSS<S>>& splitter,
+      const OBBRSS<S>& bv,
       unsigned int* primitive_indices,
       int num_primitives)
   {
-    computeSplitVector<Scalar, OBBRSS<Scalar>>(bv, splitter.split_vector);
-    computeSplitValue_median<Scalar, OBBRSS<Scalar>>(
+    computeSplitVector<S, OBBRSS<S>>(bv, splitter.split_vector);
+    computeSplitValue_median<S, OBBRSS<S>>(
           bv, splitter.vertices, splitter.tri_indices, primitive_indices,
           num_primitives, splitter.type, splitter.split_vector, splitter.split_value);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ApplyImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct ApplyImpl<S, OBB<S>>
 {
   static bool run(
-      const BVSplitter<OBB<Scalar>>& splitter,
-      const Vector3<Scalar>& q)
+      const BVSplitter<OBB<S>>& splitter,
+      const Vector3<S>& q)
   {
     return splitter.split_vector.dot(q) > splitter.split_value;
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ApplyImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct ApplyImpl<S, RSS<S>>
 {
   static bool run(
-      const BVSplitter<RSS<Scalar>>& splitter,
-      const Vector3<Scalar>& q)
+      const BVSplitter<RSS<S>>& splitter,
+      const Vector3<S>& q)
   {
     return splitter.split_vector.dot(q) > splitter.split_value;
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ApplyImpl<Scalar, kIOS<Scalar>>
+template <typename S>
+struct ApplyImpl<S, kIOS<S>>
 {
   static bool run(
-      const BVSplitter<kIOS<Scalar>>& splitter,
-      const Vector3<Scalar>& q)
+      const BVSplitter<kIOS<S>>& splitter,
+      const Vector3<S>& q)
   {
     return splitter.split_vector.dot(q) > splitter.split_value;
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ApplyImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct ApplyImpl<S, OBBRSS<S>>
 {
   static bool run(
-      const BVSplitter<OBBRSS<Scalar>>& splitter,
-      const Vector3<Scalar>& q)
+      const BVSplitter<OBBRSS<S>>& splitter,
+      const Vector3<S>& q)
   {
     return splitter.split_vector.dot(q) > splitter.split_value;
   }
@@ -651,43 +652,43 @@ struct ApplyImpl<Scalar, OBBRSS<Scalar>>
 template <typename BV>
 void BVSplitter<BV>::clear()
 {
-  vertices = NULL;
-  tri_indices = NULL;
+  vertices = nullptr;
+  tri_indices = nullptr;
   type = BVH_MODEL_UNKNOWN;
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct ComputeSplitVectorImpl
 {
-  static void run(const BV& bv, Vector3<Scalar>& split_vector)
+  static void run(const BV& bv, Vector3<S>& split_vector)
   {
-    split_vector = bv.frame.linear().col(0);
+    split_vector = bv.axis.col(0);
   }
 };
 
 //==============================================================================
-template <typename Scalar, typename BV>
-void computeSplitVector(const BV& bv, Vector3<Scalar>& split_vector)
+template <typename S, typename BV>
+void computeSplitVector(const BV& bv, Vector3<S>& split_vector)
 {
-  ComputeSplitVectorImpl<Scalar, BV>::run(bv, split_vector);
+  ComputeSplitVectorImpl<S, BV>::run(bv, split_vector);
 }
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeSplitVectorImpl<Scalar, kIOS<Scalar>>
+template <typename S>
+struct ComputeSplitVectorImpl<S, kIOS<S>>
 {
-  static void run(const kIOS<Scalar>& bv, Vector3<Scalar>& split_vector)
+  static void run(const kIOS<S>& bv, Vector3<S>& split_vector)
   {
     /*
       switch(bv.num_spheres)
       {
       case 1:
-      split_vector = Vector3<Scalar>(1, 0, 0);
+      split_vector = Vector3<S>(1, 0, 0);
       break;
       case 3:
       {
-      Vector3<Scalar> v[3];
+      Vector3<S> v[3];
       v[0] = bv.spheres[1].o - bv.spheres[0].o;
       v[0].normalize();
       generateCoordinateSystem(v[0], v[1], v[2]);
@@ -696,7 +697,7 @@ struct ComputeSplitVectorImpl<Scalar, kIOS<Scalar>>
       break;
       case 5:
       {
-      Vector3<Scalar> v[2];
+      Vector3<S> v[2];
       v[0] = bv.spheres[1].o - bv.spheres[0].o;
       v[1] = bv.spheres[3].o - bv.spheres[0].o;
       split_vector = v[0].cross(v[1]);
@@ -707,51 +708,51 @@ struct ComputeSplitVectorImpl<Scalar, kIOS<Scalar>>
       ;
       }
     */
-    split_vector = bv.obb.frame.linear().col(0);
+    split_vector = bv.obb.axis.col(0);
   }
 };
 
 //==============================================================================
-template <typename Scalar>
-struct ComputeSplitVectorImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct ComputeSplitVectorImpl<S, OBBRSS<S>>
 {
-  static void run(const OBBRSS<Scalar>& bv, Vector3<Scalar>& split_vector)
+  static void run(const OBBRSS<S>& bv, Vector3<S>& split_vector)
   {
-    split_vector = bv.obb.frame.linear().col(0);
+    split_vector = bv.obb.axis.col(0);
   }
 };
 
 //==============================================================================
-template <typename Scalar, typename BV>
-void computeSplitValue_bvcenter(const BV& bv, Scalar& split_value)
+template <typename S, typename BV>
+void computeSplitValue_bvcenter(const BV& bv, S& split_value)
 {
-  Vector3<Scalar> center = bv.center();
+  Vector3<S> center = bv.center();
   split_value = center[0];
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 void computeSplitValue_mean(
     const BV& bv,
-    Vector3<Scalar>* vertices,
+    Vector3<S>* vertices,
     Triangle* triangles,
     unsigned int* primitive_indices,
     int num_primitives,
     BVHModelType type,
-    const Vector3<Scalar>& split_vector,
-    Scalar& split_value)
+    const Vector3<S>& split_vector,
+    S& split_value)
 {
-  Scalar sum = 0.0;
+  S sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
   {
-    Scalar c[3] = {0.0, 0.0, 0.0};
+    S c[3] = {0.0, 0.0, 0.0};
 
     for(int i = 0; i < num_primitives; ++i)
     {
       const Triangle& t = triangles[primitive_indices[i]];
-      const Vector3<Scalar>& p1 = vertices[t[0]];
-      const Vector3<Scalar>& p2 = vertices[t[1]];
-      const Vector3<Scalar>& p3 = vertices[t[2]];
+      const Vector3<S>& p1 = vertices[t[0]];
+      const Vector3<S>& p2 = vertices[t[1]];
+      const Vector3<S>& p3 = vertices[t[2]];
 
       c[0] += (p1[0] + p2[0] + p3[0]);
       c[1] += (p1[1] + p2[1] + p3[1]);
@@ -763,8 +764,8 @@ void computeSplitValue_mean(
   {
     for(int i = 0; i < num_primitives; ++i)
     {
-      const Vector3<Scalar>& p = vertices[primitive_indices[i]];
-      Vector3<Scalar> v(p[0], p[1], p[2]);
+      const Vector3<S>& p = vertices[primitive_indices[i]];
+      Vector3<S> v(p[0], p[1], p[2]);
       sum += v.dot(split_vector);
     }
 
@@ -773,28 +774,28 @@ void computeSplitValue_mean(
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 void computeSplitValue_median(
     const BV& bv,
-    Vector3<Scalar>* vertices,
+    Vector3<S>* vertices,
     Triangle* triangles,
     unsigned int* primitive_indices,
     int num_primitives,
     BVHModelType type,
-    const Vector3<Scalar>& split_vector,
-    Scalar& split_value)
+    const Vector3<S>& split_vector,
+    S& split_value)
 {
-  std::vector<Scalar> proj(num_primitives);
+  std::vector<S> proj(num_primitives);
 
   if(type == BVH_MODEL_TRIANGLES)
   {
     for(int i = 0; i < num_primitives; ++i)
     {
       const Triangle& t = triangles[primitive_indices[i]];
-      const Vector3<Scalar>& p1 = vertices[t[0]];
-      const Vector3<Scalar>& p2 = vertices[t[1]];
-      const Vector3<Scalar>& p3 = vertices[t[2]];
-      Vector3<Scalar> centroid3(p1[0] + p2[0] + p3[0],
+      const Vector3<S>& p1 = vertices[t[0]];
+      const Vector3<S>& p2 = vertices[t[1]];
+      const Vector3<S>& p3 = vertices[t[2]];
+      Vector3<S> centroid3(p1[0] + p2[0] + p3[0],
                       p1[1] + p2[1] + p3[1],
                       p1[2] + p2[2] + p3[2]);
 
@@ -805,8 +806,8 @@ void computeSplitValue_median(
   {
     for(int i = 0; i < num_primitives; ++i)
     {
-      const Vector3<Scalar>& p = vertices[primitive_indices[i]];
-      Vector3<Scalar> v(p[0], p[1], p[2]);
+      const Vector3<S>& p = vertices[primitive_indices[i]];
+      Vector3<S> v(p[0], p[1], p[2]);
       proj[i] = v.dot(split_vector);
     }
   }

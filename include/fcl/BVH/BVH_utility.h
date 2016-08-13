@@ -49,20 +49,20 @@ namespace fcl
 template <typename BV>
 void BVHExpand(
     BVHModel<BV>& model,
-    const Variance3<typename BV::Scalar>* ucs,
-    typename BV::Scalar r);
+    const Variance3<typename BV::S>* ucs,
+    typename BV::S r);
 
 /// @brief Expand the BVH bounding boxes according to the corresponding variance
 /// information, for OBB
-template <typename Scalar>
+template <typename S>
 void BVHExpand(
-    BVHModel<OBB<Scalar>>& model, const Variance3<Scalar>* ucs, Scalar r = 1.0);
+    BVHModel<OBB<S>>& model, const Variance3<S>* ucs, S r = 1.0);
 
 /// @brief Expand the BVH bounding boxes according to the corresponding variance
 /// information, for RSS
-template <typename Scalar>
+template <typename S>
 void BVHExpand(
-    BVHModel<RSS<Scalar>>& model, const Variance3<Scalar>* ucs, Scalar r = 1.0);
+    BVHModel<RSS<S>>& model, const Variance3<S>* ucs, S r = 1.0);
 
 //============================================================================//
 //                                                                            //
@@ -74,10 +74,10 @@ void BVHExpand(
 template <typename BV>
 void BVHExpand(
     BVHModel<BV>& model,
-    const Variance3<typename BV::Scalar>* ucs,
-    typename BV::Scalar r)
+    const Variance3<typename BV::S>* ucs,
+    typename BV::S r)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   for(int i = 0; i < model.num_bvs; ++i)
   {
@@ -87,9 +87,9 @@ void BVHExpand(
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Variance3<Scalar>& uc = ucs[v_id];
+      const Variance3<S>& uc = ucs[v_id];
 
-      Vector3<Scalar>& v = model.vertices[bvnode.first_primitive + j];
+      Vector3<S>& v = model.vertices[bvnode.first_primitive + j];
 
       for(int k = 0; k < 3; ++k)
       {
@@ -103,33 +103,40 @@ void BVHExpand(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void BVHExpand(
-    BVHModel<OBB<Scalar>>& model,
-    const Variance3<Scalar>* ucs,
-    Scalar r)
+    BVHModel<OBB<S>>& model,
+    const Variance3<S>* ucs,
+    S r)
 {
   for(int i = 0; i < model.getNumBVs(); ++i)
   {
-    BVNode<OBB<Scalar>>& bvnode = model.getBV(i);
+    BVNode<OBB<S>>& bvnode = model.getBV(i);
 
-    Vector3<Scalar>* vs = new Vector3<Scalar>[bvnode.num_primitives * 6];
+    Vector3<S>* vs = new Vector3<S>[bvnode.num_primitives * 6];
+    // TODO(JS): We could use one std::vector outside of the outter for-loop,
+    // and reuse it rather than creating and destructing the array every
+    // iteration.
 
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Variance3<Scalar>& uc = ucs[v_id];
+      const Variance3<S>& uc = ucs[v_id];
 
-      Vector3<Scalar>&v = model.vertices[bvnode.first_primitive + j];
+      Vector3<S>&v = model.vertices[bvnode.first_primitive + j];
 
       for(int k = 0; k < 3; ++k)
       {
-        vs[6 * j + 2 * k] = v + uc.axis.col(k) * (r * uc.sigma[k]);
-        vs[6 * j + 2 * k + 1] = v - uc.axis.col(k) * (r * uc.sigma[k]);
+        const auto index1 = 6 * j + 2 * k;
+        const auto index2 = index1 + 1;
+        vs[index1] = v;
+        vs[index1].noalias() += uc.axis.col(k) * (r * uc.sigma[k]);
+        vs[index2] = v;
+        vs[index2].noalias() -= uc.axis.col(k) * (r * uc.sigma[k]);
       }
     }
 
-    OBB<Scalar> bv;
+    OBB<S> bv;
     fit(vs, bvnode.num_primitives * 6, bv);
 
     delete [] vs;
@@ -139,24 +146,27 @@ void BVHExpand(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void BVHExpand(
-    BVHModel<RSS<Scalar>>& model,
-    const Variance3<Scalar>* ucs,
-    Scalar r)
+    BVHModel<RSS<S>>& model,
+    const Variance3<S>* ucs,
+    S r)
 {
   for(int i = 0; i < model.getNumBVs(); ++i)
   {
-    BVNode<RSS<Scalar>>& bvnode = model.getBV(i);
+    BVNode<RSS<S>>& bvnode = model.getBV(i);
 
-    Vector3<Scalar>* vs = new Vector3<Scalar>[bvnode.num_primitives * 6];
+    Vector3<S>* vs = new Vector3<S>[bvnode.num_primitives * 6];
+    // TODO(JS): We could use one std::vector outside of the outter for-loop,
+    // and reuse it rather than creating and destructing the array every
+    // iteration.
 
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Variance3<Scalar>& uc = ucs[v_id];
+      const Variance3<S>& uc = ucs[v_id];
 
-      Vector3<Scalar>&v = model.vertices[bvnode.first_primitive + j];
+      Vector3<S>&v = model.vertices[bvnode.first_primitive + j];
 
       for(int k = 0; k < 3; ++k)
       {
@@ -165,7 +175,7 @@ void BVHExpand(
       }
     }
 
-    RSS<Scalar> bv;
+    RSS<S> bv;
     fit(vs, bvnode.num_primitives * 6, bv);
 
     delete [] vs;

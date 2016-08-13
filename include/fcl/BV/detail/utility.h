@@ -49,53 +49,53 @@ namespace detail
 
 /// \brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter_pointcloud(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent);
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent);
 
 /// \brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter_pointcloud(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    Transform3<Scalar>& tf,
-    Vector3<Scalar>& extent);
+    Transform3<S>& tf,
+    Vector3<S>& extent);
 
 /// \brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter_mesh(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent);
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent);
 
 /// \brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter_mesh(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    Transform3<Scalar>& tf,
-    Vector3<Scalar>& extent);
+    Transform3<S>& tf,
+    Vector3<S>& extent);
 
 //============================================================================//
 //                                                                            //
@@ -104,30 +104,33 @@ void getExtentAndCenter_mesh(
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter_pointcloud(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     unsigned int* indices,
     int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent)
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  auto real_max = std::numeric_limits<Scalar>::max();
+  auto real_max = std::numeric_limits<S>::max();
 
-  Vector3<Scalar> min_coord = Vector3<Scalar>::Constant(real_max);
-  Vector3<Scalar> max_coord = Vector3<Scalar>::Constant(-real_max);
+  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
+  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
 
   for(int i = 0; i < n; ++i)
   {
     int index = indirect_index ? indices[i] : i;
 
-    const Vector3<Scalar>& p = ps[index];
-    Vector3<Scalar> proj = axis.transpose() * p;
+    const Vector3<S>& p = ps[index];
+    Vector3<S> proj(
+        axis.col(0).dot(p),
+        axis.col(1).dot(p),
+        axis.col(2).dot(p));
 
     for(int j = 0; j < 3; ++j)
     {
@@ -140,8 +143,11 @@ void getExtentAndCenter_pointcloud(
 
     if(ps2)
     {
-      const Vector3<Scalar>& v = ps2[index];
-      proj = axis.transpose() * v;
+      const Vector3<S>& v = ps2[index];
+      Vector3<S> proj(
+          axis.col(0).dot(v),
+          axis.col(1).dot(v),
+          axis.col(2).dot(v));
 
       for(int j = 0; j < 3; ++j)
       {
@@ -154,35 +160,38 @@ void getExtentAndCenter_pointcloud(
     }
   }
 
-  const Vector3<Scalar> o = (max_coord + min_coord) / 2;
+  const Vector3<S> o = (max_coord + min_coord) / 2;
   center.noalias() = axis * o;
-  extent.noalias() = (max_coord - min_coord) / 2;
+  extent.noalias() = (max_coord - min_coord) * 0.5;
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter_pointcloud(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     unsigned int* indices,
     int n,
-    Transform3<Scalar>& tf,
-    Vector3<Scalar>& extent)
+    Transform3<S>& tf,
+    Vector3<S>& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  auto real_max = std::numeric_limits<Scalar>::max();
+  auto real_max = std::numeric_limits<S>::max();
 
-  Vector3<Scalar> min_coord = Vector3<Scalar>::Constant(real_max);
-  Vector3<Scalar> max_coord = Vector3<Scalar>::Constant(-real_max);
+  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
+  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
 
   for(int i = 0; i < n; ++i)
   {
     int index = indirect_index ? indices[i] : i;
 
-    const Vector3<Scalar>& p = ps[index];
-    Vector3<Scalar> proj = tf.linear().transpose() * p;
+    const Vector3<S>& p = ps[index];
+    Vector3<S> proj(
+        tf.linear().col(0).dot(p),
+        tf.linear().col(1).dot(p),
+        tf.linear().col(2).dot(p));
 
     for(int j = 0; j < 3; ++j)
     {
@@ -195,8 +204,11 @@ void getExtentAndCenter_pointcloud(
 
     if(ps2)
     {
-      const Vector3<Scalar>& v = ps2[index];
-      proj = tf.linear().transpose() * v;
+      const Vector3<S>& v = ps2[index];
+      Vector3<S> proj(
+          tf.linear().col(0).dot(v),
+          tf.linear().col(1).dot(v),
+          tf.linear().col(2).dot(v));
 
       for(int j = 0; j < 3; ++j)
       {
@@ -209,29 +221,29 @@ void getExtentAndCenter_pointcloud(
     }
   }
 
-  const Vector3<Scalar> o = (max_coord + min_coord) / 2;
+  const Vector3<S> o = (max_coord + min_coord) / 2;
   tf.translation().noalias() = tf.linear() * o;
   extent.noalias() = (max_coord - min_coord) / 2;
 }
 
 //==============================================================================
-template <typename Scalar>
-void getExtentAndCenter_mesh(Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+template <typename S>
+void getExtentAndCenter_mesh(Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent)
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  auto real_max = std::numeric_limits<Scalar>::max();
+  auto real_max = std::numeric_limits<S>::max();
 
-  Vector3<Scalar> min_coord = Vector3<Scalar>::Constant(real_max);
-  Vector3<Scalar> max_coord = Vector3<Scalar>::Constant(-real_max);
+  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
+  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
 
   for(int i = 0; i < n; ++i)
   {
@@ -241,8 +253,11 @@ void getExtentAndCenter_mesh(Vector3<Scalar>* ps,
     for(int j = 0; j < 3; ++j)
     {
       int point_id = t[j];
-      const Vector3<Scalar>& p = ps[point_id];
-      const Vector3<Scalar> proj = axis.transpose() * p;
+      const Vector3<S>& p = ps[point_id];
+      Vector3<S> proj(
+          axis.col(0).dot(p),
+          axis.col(1).dot(p),
+          axis.col(2).dot(p));
 
       for(int k = 0; k < 3; ++k)
       {
@@ -259,8 +274,11 @@ void getExtentAndCenter_mesh(Vector3<Scalar>* ps,
       for(int j = 0; j < 3; ++j)
       {
         int point_id = t[j];
-        const Vector3<Scalar>& p = ps2[point_id];
-        const Vector3<Scalar> proj = axis.transpose() * p;
+        const Vector3<S>& p = ps2[point_id];
+        Vector3<S> proj(
+            axis.col(0).dot(p),
+            axis.col(1).dot(p),
+            axis.col(2).dot(p));
 
         for(int k = 0; k < 3; ++k)
         {
@@ -274,29 +292,29 @@ void getExtentAndCenter_mesh(Vector3<Scalar>* ps,
     }
   }
 
-  const Vector3<Scalar> o = (max_coord + min_coord) / 2;
+  const Vector3<S> o = (max_coord + min_coord) / 2;
   center.noalias() = axis * o;
   extent.noalias() = (max_coord - min_coord) / 2;
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter_mesh(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    Transform3<Scalar>& tf,
-    Vector3<Scalar>& extent)
+    Transform3<S>& tf,
+    Vector3<S>& extent)
 {
   bool indirect_index = true;
   if(!indices) indirect_index = false;
 
-  auto real_max = std::numeric_limits<Scalar>::max();
+  auto real_max = std::numeric_limits<S>::max();
 
-  Vector3<Scalar> min_coord = Vector3<Scalar>::Constant(real_max);
-  Vector3<Scalar> max_coord = Vector3<Scalar>::Constant(-real_max);
+  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
+  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
 
   for(int i = 0; i < n; ++i)
   {
@@ -306,8 +324,11 @@ void getExtentAndCenter_mesh(
     for(int j = 0; j < 3; ++j)
     {
       const int point_id = t[j];
-      const Vector3<Scalar>& p = ps[point_id];
-      const Vector3<Scalar> proj = tf.linear().transpose() * p;
+      const Vector3<S>& p = ps[point_id];
+      const Vector3<S> proj(
+          tf.linear().col(0).dot(p),
+          tf.linear().col(1).dot(p),
+          tf.linear().col(2).dot(p));
 
       for(int k = 0; k < 3; ++k)
       {
@@ -324,8 +345,11 @@ void getExtentAndCenter_mesh(
       for(int j = 0; j < 3; ++j)
       {
         const int point_id = t[j];
-        const Vector3<Scalar>& p = ps2[point_id];
-        const Vector3<Scalar> proj = tf.linear().transpose() * p;
+        const Vector3<S>& p = ps2[point_id];
+        const Vector3<S> proj(
+            tf.linear().col(0).dot(p),
+            tf.linear().col(1).dot(p),
+            tf.linear().col(2).dot(p));
 
         for(int k = 0; k < 3; ++k)
         {
@@ -339,7 +363,7 @@ void getExtentAndCenter_mesh(
     }
   }
 
-  const Vector3<Scalar> o = (max_coord + min_coord) * 0.5;
+  const Vector3<S> o = (max_coord + min_coord) * 0.5;
   tf.translation().noalias() = tf.linear() * o;
   extent.noalias() = (max_coord - min_coord) * 0.5;
 }

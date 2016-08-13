@@ -46,11 +46,11 @@ namespace fcl
 namespace detail
 {
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Convex<ScalarT>>;
+template <typename S>
+struct BVComputer<S, AABB<S>, Convex<S>>;
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Convex<ScalarT>>;
+template <typename S>
+struct BVComputer<S, OBB<S>, Convex<S>>;
 
 //============================================================================//
 //                                                                            //
@@ -59,18 +59,18 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Convex<ScalarT>>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Convex<ScalarT>>
+template <typename S>
+struct BVComputer<S, AABB<S>, Convex<S>>
 {
-  static void compute(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  static void compute(const Convex<S>& s, const Transform3<S>& tf, AABB<S>& bv)
   {
-    const Matrix3<ScalarT>& R = tf.linear();
-    const Vector3<ScalarT>& T = tf.translation();
+    const Matrix3<S>& R = tf.linear();
+    const Vector3<S>& T = tf.translation();
 
-    AABB<ScalarT> bv_;
+    AABB<S> bv_;
     for(int i = 0; i < s.num_points; ++i)
     {
-      Vector3<ScalarT> new_p = R * s.points[i] + T;
+      Vector3<S> new_p = R * s.points[i] + T;
       bv_ += new_p;
     }
 
@@ -79,15 +79,15 @@ struct BVComputer<ScalarT, AABB<ScalarT>, Convex<ScalarT>>
 };
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Convex<ScalarT>>
+template <typename S>
+struct BVComputer<S, OBB<S>, Convex<S>>
 {
-  static void compute(const Convex<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  static void compute(const Convex<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
     fit(s.points, s.num_points, bv);
 
-    bv.frame.linear() = tf.linear();
-    bv.frame.translation() = tf * bv.frame.translation();
+    bv.axis = tf.linear();
+    bv.To = tf * bv.To;
   }
 };
 

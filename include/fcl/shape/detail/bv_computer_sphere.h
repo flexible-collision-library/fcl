@@ -46,11 +46,11 @@ namespace fcl
 namespace detail
 {
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Sphere<ScalarT>>;
+template <typename S>
+struct BVComputer<S, AABB<S>, Sphere<S>>;
 
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>;
+template <typename S>
+struct BVComputer<S, OBB<S>, Sphere<S>>;
 
 //============================================================================//
 //                                                                            //
@@ -59,25 +59,25 @@ struct BVComputer<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, AABB<ScalarT>, Sphere<ScalarT>>
+template <typename S>
+struct BVComputer<S, AABB<S>, Sphere<S>>
 {
-  static void compute(const Sphere<ScalarT>& s, const Transform3<ScalarT>& tf, AABB<ScalarT>& bv)
+  static void compute(const Sphere<S>& s, const Transform3<S>& tf, AABB<S>& bv)
   {
-    const Vector3<ScalarT> v_delta = Vector3<ScalarT>::Constant(s.radius);
+    const Vector3<S> v_delta = Vector3<S>::Constant(s.radius);
     bv.max_ = tf.translation() + v_delta;
     bv.min_ = tf.translation() - v_delta;
   }
 };
 
 //==============================================================================
-template <typename ScalarT>
-struct BVComputer<ScalarT, OBB<ScalarT>, Sphere<ScalarT>>
+template <typename S>
+struct BVComputer<S, OBB<S>, Sphere<S>>
 {
-  static void compute(const Sphere<ScalarT>& s, const Transform3<ScalarT>& tf, OBB<ScalarT>& bv)
+  static void compute(const Sphere<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
-    bv.frame.translation() = tf.translation();
-    bv.frame.linear().setIdentity();
+    bv.To = tf.translation();
+    bv.axis.setIdentity();
     bv.extent.setConstant(s.radius);
   }
 };

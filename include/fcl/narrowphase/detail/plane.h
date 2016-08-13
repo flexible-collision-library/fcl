@@ -46,8 +46,8 @@ namespace fcl
 namespace details
 {
 
-template <typename Scalar>
-Scalar planeIntersectTolerance();
+template <typename S>
+S planeIntersectTolerance();
 
 template <>
 double planeIntersectTolerance();
@@ -55,15 +55,15 @@ double planeIntersectTolerance();
 template <>
 float planeIntersectTolerance();
 
-template <typename Scalar>
-bool spherePlaneIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                          const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                          std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool spherePlaneIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
+                          const Plane<S>& s2, const Transform3<S>& tf2,
+                          std::vector<ContactPoint<S>>* contacts);
 
-template <typename Scalar>
-bool ellipsoidPlaneIntersect(const Ellipsoid<Scalar>& s1, const Transform3<Scalar>& tf1,
-                             const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                             std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool ellipsoidPlaneIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf1,
+                             const Plane<S>& s2, const Transform3<S>& tf2,
+                             std::vector<ContactPoint<S>>* contacts);
 
 /// @brief box half space, a, b, c  = +/- edge size
 /// n^T * (R(o + a v1 + b v2 + c v3) + T) ~ d
@@ -72,60 +72,60 @@ bool ellipsoidPlaneIntersect(const Ellipsoid<Scalar>& s1, const Transform3<Scala
 /// so need to check whether |d - n * T| <= |(R^T n)(a v1 + b v2 + c v3)|, the reason is as follows:
 /// (R^T n) (a v1 + b v2 + c v3) can get |(R^T n) (a v1 + b v2 + c v3)| for one a, b, c.
 /// if |d - n * T| <= |(R^T n)(a v1 + b v2 + c v3)| then can get both positive and negative value on the right side.
-template <typename Scalar>
-bool boxPlaneIntersect(const Box<Scalar>& s1, const Transform3<Scalar>& tf1,
-                       const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                       std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool boxPlaneIntersect(const Box<S>& s1, const Transform3<S>& tf1,
+                       const Plane<S>& s2, const Transform3<S>& tf2,
+                       std::vector<ContactPoint<S>>* contacts);
 
-template <typename Scalar>
-bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Plane<Scalar>& s2, const Transform3<Scalar>& tf2);
+template <typename S>
+bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
+                           const Plane<S>& s2, const Transform3<S>& tf2);
 
-template <typename Scalar>
-bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                           std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
+                           const Plane<S>& s2, const Transform3<S>& tf2,
+                           std::vector<ContactPoint<S>>* contacts);
 
 /// @brief cylinder-plane intersect
 /// n^T (R (r * cosa * v1 + r * sina * v2 + h * v3) + T) ~ d
 /// need one point to be positive and one to be negative
 /// (n^T * v3) * h + n * T -d + r * (cosa * (n^T * R * v1) + sina * (n^T * R * v2)) ~ 0
 /// (n^T * v3) * h + r * (cosa * (n^T * R * v1) + sina * (n^T * R * v2)) + n * T - d ~ 0
-template <typename Scalar>
-bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Plane<Scalar>& s2, const Transform3<Scalar>& tf2);
+template <typename S>
+bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
+                            const Plane<S>& s2, const Transform3<S>& tf2);
 
-template <typename Scalar>
-bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                            std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
+                            const Plane<S>& s2, const Transform3<S>& tf2,
+                            std::vector<ContactPoint<S>>* contacts);
 
-template <typename Scalar>
-bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
-                        const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                        std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool conePlaneIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
+                        const Plane<S>& s2, const Transform3<S>& tf2,
+                        std::vector<ContactPoint<S>>* contacts);
 
-template <typename Scalar>
-bool convexPlaneIntersect(const Convex<Scalar>& s1, const Transform3<Scalar>& tf1,
-                          const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                          Vector3<Scalar>* contact_points, Scalar* penetration_depth, Vector3<Scalar>* normal);
+template <typename S>
+bool convexPlaneIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
+                          const Plane<S>& s2, const Transform3<S>& tf2,
+                          Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
 
-template <typename Scalar>
-bool planeTriangleIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3, const Transform3<Scalar>& tf2,
-                            Vector3<Scalar>* contact_points, Scalar* penetration_depth, Vector3<Scalar>* normal);
+template <typename S>
+bool planeTriangleIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
+                            const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf2,
+                            Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
 
-template <typename Scalar>
-bool halfspacePlaneIntersect(const Halfspace<Scalar>& s1, const Transform3<Scalar>& tf1,
-                             const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                             Plane<Scalar>& pl, Vector3<Scalar>& p, Vector3<Scalar>& d,
-                             Scalar& penetration_depth,
+template <typename S>
+bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
+                             const Plane<S>& s2, const Transform3<S>& tf2,
+                             Plane<S>& pl, Vector3<S>& p, Vector3<S>& d,
+                             S& penetration_depth,
                              int& ret);
 
-template <typename Scalar>
-bool planeIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& tf1,
-                    const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                    std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool planeIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
+                    const Plane<S>& s2, const Transform3<S>& tf2,
+                    std::vector<ContactPoint<S>>* contacts);
 
 //============================================================================//
 //                                                                            //
@@ -134,8 +134,8 @@ bool planeIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& tf1,
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-Scalar planeIntersectTolerance()
+template <typename S>
+S planeIntersectTolerance()
 {
   return 0;
 }
@@ -155,26 +155,26 @@ inline float planeIntersectTolerance()
 }
 
 //==============================================================================
-template <typename Scalar>
-bool spherePlaneIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                          const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                          std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool spherePlaneIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
+                          const Plane<S>& s2, const Transform3<S>& tf2,
+                          std::vector<ContactPoint<S>>* contacts)
 {
-  const Plane<Scalar> new_s2 = transform(s2, tf2);
+  const Plane<S> new_s2 = transform(s2, tf2);
 
-  const Vector3<Scalar>& center = tf1.translation();
-  const Scalar signed_dist = new_s2.signedDistance(center);
-  const Scalar depth = - std::abs(signed_dist) + s1.radius;
+  const Vector3<S>& center = tf1.translation();
+  const S signed_dist = new_s2.signedDistance(center);
+  const S depth = - std::abs(signed_dist) + s1.radius;
 
   if(depth >= 0)
   {
     if (contacts)
     {
-      const Vector3<Scalar> normal = (signed_dist > 0) ? (-new_s2.n).eval() : new_s2.n;
-      const Vector3<Scalar> point = center - new_s2.n * signed_dist;
-      const Scalar penetration_depth = depth;
+      const Vector3<S> normal = (signed_dist > 0) ? (-new_s2.n).eval() : new_s2.n;
+      const Vector3<S> point = center - new_s2.n * signed_dist;
+      const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -186,39 +186,39 @@ bool spherePlaneIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf
 }
 
 //==============================================================================
-template <typename Scalar>
-bool ellipsoidPlaneIntersect(const Ellipsoid<Scalar>& s1, const Transform3<Scalar>& tf1,
-                             const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                             std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool ellipsoidPlaneIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf1,
+                             const Plane<S>& s2, const Transform3<S>& tf2,
+                             std::vector<ContactPoint<S>>* contacts)
 {
   // We first compute a single contact in the ellipsoid coordinates, tf1, then
   // will transform it to the world frame. So we use a new plane that is
   // expressed in the ellipsoid coordinates.
-  const Plane<Scalar>& new_s2 = transform(s2, tf1.inverse(Eigen::Isometry) * tf2);
+  const Plane<S>& new_s2 = transform(s2, tf1.inverse(Eigen::Isometry) * tf2);
 
   // Compute distance between the ellipsoid's center and a contact plane, whose
   // normal is equal to the plane's normal.
-  const Vector3<Scalar> normal2(std::pow(new_s2.n[0], 2), std::pow(new_s2.n[1], 2), std::pow(new_s2.n[2], 2));
-  const Vector3<Scalar> radii2(std::pow(s1.radii[0], 2), std::pow(s1.radii[1], 2), std::pow(s1.radii[2], 2));
-  const Scalar center_to_contact_plane = std::sqrt(normal2.dot(radii2));
+  const Vector3<S> normal2(std::pow(new_s2.n[0], 2), std::pow(new_s2.n[1], 2), std::pow(new_s2.n[2], 2));
+  const Vector3<S> radii2(std::pow(s1.radii[0], 2), std::pow(s1.radii[1], 2), std::pow(s1.radii[2], 2));
+  const S center_to_contact_plane = std::sqrt(normal2.dot(radii2));
 
-  const Scalar signed_dist = -new_s2.d;
+  const S signed_dist = -new_s2.d;
 
   // Depth is the distance between the contact plane and the given plane.
-  const Scalar depth = center_to_contact_plane - std::abs(signed_dist);
+  const S depth = center_to_contact_plane - std::abs(signed_dist);
 
   if (depth >= 0)
   {
     if (contacts)
     {
       // Transform the results to the world coordinates.
-      const Vector3<Scalar> normal = (signed_dist > 0) ? (tf1.linear() * -new_s2.n).eval() : (tf1.linear() * new_s2.n).eval(); // pointing from the ellipsoid's center to the plane
-      const Vector3<Scalar> support_vector = (1.0/center_to_contact_plane) * Vector3<Scalar>(radii2[0]*new_s2.n[0], radii2[1]*new_s2.n[1], radii2[2]*new_s2.n[2]);
-      const Vector3<Scalar> point_in_plane_coords = support_vector * (depth / new_s2.n.dot(support_vector) - 1.0);
-      const Vector3<Scalar> point = (signed_dist > 0) ? tf1 * point_in_plane_coords : tf1 * -point_in_plane_coords; // a middle point of the intersecting volume
-      const Scalar penetration_depth = depth;
+      const Vector3<S> normal = (signed_dist > 0) ? (tf1.linear() * -new_s2.n).eval() : (tf1.linear() * new_s2.n).eval(); // pointing from the ellipsoid's center to the plane
+      const Vector3<S> support_vector = (1.0/center_to_contact_plane) * Vector3<S>(radii2[0]*new_s2.n[0], radii2[1]*new_s2.n[1], radii2[2]*new_s2.n[2]);
+      const Vector3<S> point_in_plane_coords = support_vector * (depth / new_s2.n.dot(support_vector) - 1.0);
+      const Vector3<S> point = (signed_dist > 0) ? tf1 * point_in_plane_coords : tf1 * -point_in_plane_coords; // a middle point of the intersecting volume
+      const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -230,49 +230,49 @@ bool ellipsoidPlaneIntersect(const Ellipsoid<Scalar>& s1, const Transform3<Scala
 }
 
 //==============================================================================
-template <typename Scalar>
-bool boxPlaneIntersect(const Box<Scalar>& s1, const Transform3<Scalar>& tf1,
-                       const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                       std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool boxPlaneIntersect(const Box<S>& s1, const Transform3<S>& tf1,
+                       const Plane<S>& s2, const Transform3<S>& tf2,
+                       std::vector<ContactPoint<S>>* contacts)
 {
-  Plane<Scalar> new_s2 = transform(s2, tf2);
+  Plane<S> new_s2 = transform(s2, tf2);
 
-  const Matrix3<Scalar>& R = tf1.linear();
-  const Vector3<Scalar>& T = tf1.translation();
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
 
-  Vector3<Scalar> Q = R.transpose() * new_s2.n;
-  Vector3<Scalar> A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
-  Vector3<Scalar> B = A.cwiseAbs();
+  Vector3<S> Q = R.transpose() * new_s2.n;
+  Vector3<S> A(Q[0] * s1.side[0], Q[1] * s1.side[1], Q[2] * s1.side[2]);
+  Vector3<S> B = A.cwiseAbs();
 
-  Scalar signed_dist = new_s2.signedDistance(T);
-  Scalar depth = 0.5 * (B[0] + B[1] + B[2]) - std::abs(signed_dist);
+  S signed_dist = new_s2.signedDistance(T);
+  S depth = 0.5 * (B[0] + B[1] + B[2]) - std::abs(signed_dist);
   if(depth < 0) return false;
 
-  Vector3<Scalar> axis[3];
+  Vector3<S> axis[3];
   axis[0] = R.col(0);
   axis[1] = R.col(1);
   axis[2] = R.col(2);
 
   // find the deepest point
-  Vector3<Scalar> p = T;
+  Vector3<S> p = T;
 
   // when center is on the positive side of the plane, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the minimum
   // otherwise, use a, b, c make (R^T n) (a v1 + b v2 + c v3) the maximum
   int sign = (signed_dist > 0) ? 1 : -1;
 
-  if(std::abs(Q[0] - 1) < planeIntersectTolerance<Scalar>() || std::abs(Q[0] + 1) < planeIntersectTolerance<Scalar>())
+  if(std::abs(Q[0] - 1) < planeIntersectTolerance<S>() || std::abs(Q[0] + 1) < planeIntersectTolerance<S>())
   {
     int sign2 = (A[0] > 0) ? -1 : 1;
     sign2 *= sign;
     p += axis[0] * (0.5 * s1.side[0] * sign2);
   }
-  else if(std::abs(Q[1] - 1) < planeIntersectTolerance<Scalar>() || std::abs(Q[1] + 1) < planeIntersectTolerance<Scalar>())
+  else if(std::abs(Q[1] - 1) < planeIntersectTolerance<S>() || std::abs(Q[1] + 1) < planeIntersectTolerance<S>())
   {
     int sign2 = (A[1] > 0) ? -1 : 1;
     sign2 *= sign;
     p += axis[1] * (0.5 * s1.side[1] * sign2);
   }
-  else if(std::abs(Q[2] - 1) < planeIntersectTolerance<Scalar>() || std::abs(Q[2] + 1) < planeIntersectTolerance<Scalar>())
+  else if(std::abs(Q[2] - 1) < planeIntersectTolerance<S>() || std::abs(Q[2] + 1) < planeIntersectTolerance<S>())
   {
     int sign2 = (A[2] > 0) ? -1 : 1;
     sign2 *= sign;
@@ -291,32 +291,32 @@ bool boxPlaneIntersect(const Box<Scalar>& s1, const Transform3<Scalar>& tf1,
   // compute the contact point by project the deepest point onto the plane
   if (contacts)
   {
-    const Vector3<Scalar> normal = (signed_dist > 0) ? (-new_s2.n).eval() : new_s2.n;
-    const Vector3<Scalar> point = p - new_s2.n * new_s2.signedDistance(p);
-    const Scalar penetration_depth = depth;
+    const Vector3<S> normal = (signed_dist > 0) ? (-new_s2.n).eval() : new_s2.n;
+    const Vector3<S> point = p - new_s2.n * new_s2.signedDistance(p);
+    const S penetration_depth = depth;
 
-    contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+    contacts->emplace_back(normal, point, penetration_depth);
   }
 
   return true;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Plane<Scalar>& s2, const Transform3<Scalar>& tf2)
+template <typename S>
+bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
+                           const Plane<S>& s2, const Transform3<S>& tf2)
 {
-  Plane<Scalar> new_s2 = transform(s2, tf2);
+  Plane<S> new_s2 = transform(s2, tf2);
 
-  const Matrix3<Scalar>& R = tf1.linear();
-  const Vector3<Scalar>& T = tf1.translation();
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
 
-  Vector3<Scalar> dir_z = R.col(2);
-  Vector3<Scalar> p1 = T + dir_z * (0.5 * s1.lz);
-  Vector3<Scalar> p2 = T - dir_z * (0.5 * s1.lz);
+  Vector3<S> dir_z = R.col(2);
+  Vector3<S> p1 = T + dir_z * (0.5 * s1.lz);
+  Vector3<S> p2 = T - dir_z * (0.5 * s1.lz);
 
-  Scalar d1 = new_s2.signedDistance(p1);
-  Scalar d2 = new_s2.signedDistance(p2);
+  S d1 = new_s2.signedDistance(p1);
+  S d2 = new_s2.signedDistance(p2);
 
   // two end points on different side of the plane
   if(d1 * d2 <= 0)
@@ -327,10 +327,10 @@ bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& 
 }
 
 //==============================================================================
-template <typename Scalar>
-bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                           std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
+                           const Plane<S>& s2, const Transform3<S>& tf2,
+                           std::vector<ContactPoint<S>>* contacts)
 {
   if(!contacts)
   {
@@ -338,49 +338,49 @@ bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& 
   }
   else
   {
-    Plane<Scalar> new_s2 = transform(s2, tf2);
+    Plane<S> new_s2 = transform(s2, tf2);
 
-    const Matrix3<Scalar>& R = tf1.linear();
-    const Vector3<Scalar>& T = tf1.translation();
+    const Matrix3<S>& R = tf1.linear();
+    const Vector3<S>& T = tf1.translation();
 
-    Vector3<Scalar> dir_z = R.col(2);
+    Vector3<S> dir_z = R.col(2);
 
 
-    Vector3<Scalar> p1 = T + dir_z * (0.5 * s1.lz);
-    Vector3<Scalar> p2 = T - dir_z * (0.5 * s1.lz);
+    Vector3<S> p1 = T + dir_z * (0.5 * s1.lz);
+    Vector3<S> p2 = T - dir_z * (0.5 * s1.lz);
 
-    Scalar d1 = new_s2.signedDistance(p1);
-    Scalar d2 = new_s2.signedDistance(p2);
+    S d1 = new_s2.signedDistance(p1);
+    S d2 = new_s2.signedDistance(p2);
 
-    Scalar abs_d1 = std::abs(d1);
-    Scalar abs_d2 = std::abs(d2);
+    S abs_d1 = std::abs(d1);
+    S abs_d2 = std::abs(d2);
 
     // two end points on different side of the plane
     // the contact point is the intersect of axis with the plane
     // the normal is the direction to avoid intersection
     // the depth is the minimum distance to resolve the collision
-    if(d1 * d2 < -planeIntersectTolerance<Scalar>())
+    if(d1 * d2 < -planeIntersectTolerance<S>())
     {
       if(abs_d1 < abs_d2)
       {
         if (contacts)
         {
-          const Vector3<Scalar> normal = (d1 < 0) ? (-new_s2.n).eval() : new_s2.n;
-          const Vector3<Scalar> point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-          const Scalar penetration_depth = abs_d1 + s1.radius;
+          const Vector3<S> normal = (d1 < 0) ? (-new_s2.n).eval() : new_s2.n;
+          const Vector3<S> point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
+          const S penetration_depth = abs_d1 + s1.radius;
 
-          contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+          contacts->emplace_back(normal, point, penetration_depth);
         }
       }
       else
       {
         if (contacts)
         {
-          const Vector3<Scalar> normal = (d2 < 0) ? (-new_s2.n).eval() : new_s2.n;
-          const Vector3<Scalar> point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
-          const Scalar penetration_depth = abs_d2 + s1.radius;
+          const Vector3<S> normal = (d2 < 0) ? (-new_s2.n).eval() : new_s2.n;
+          const Vector3<S> point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
+          const S penetration_depth = abs_d2 + s1.radius;
 
-          contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+          contacts->emplace_back(normal, point, penetration_depth);
         }
       }
       return true;
@@ -394,29 +394,29 @@ bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& 
     {
       if (contacts)
       {
-        const Vector3<Scalar> normal = (d1 < 0) ? new_s2.n : (-new_s2.n).eval();
-        const Scalar penetration_depth = s1.radius - std::min(abs_d1, abs_d2);
-        Vector3<Scalar> point;
+        const Vector3<S> normal = (d1 < 0) ? new_s2.n : (-new_s2.n).eval();
+        const S penetration_depth = s1.radius - std::min(abs_d1, abs_d2);
+        Vector3<S> point;
         if(abs_d1 <= s1.radius && abs_d2 <= s1.radius)
         {
-          const Vector3<Scalar> c1 = p1 - new_s2.n * d2;
-          const Vector3<Scalar> c2 = p2 - new_s2.n * d1;
+          const Vector3<S> c1 = p1 - new_s2.n * d2;
+          const Vector3<S> c2 = p2 - new_s2.n * d1;
           point = (c1 + c2) * 0.5;
         }
         else if(abs_d1 <= s1.radius)
         {
-          const Vector3<Scalar> c = p1 - new_s2.n * d1;
+          const Vector3<S> c = p1 - new_s2.n * d1;
           point = c;
         }
         else // (abs_d2 <= s1.radius)
         {
           assert(abs_d2 <= s1.radius);
 
-          const Vector3<Scalar> c = p2 - new_s2.n * d2;
+          const Vector3<S> c = p2 - new_s2.n * d2;
           point = c;
         }
 
-        contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;
@@ -425,20 +425,20 @@ bool capsulePlaneIntersect(const Capsule<Scalar>& s1, const Transform3<Scalar>& 
 }
 
 //==============================================================================
-template <typename Scalar>
-bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Plane<Scalar>& s2, const Transform3<Scalar>& tf2)
+template <typename S>
+bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
+                            const Plane<S>& s2, const Transform3<S>& tf2)
 {
-  Plane<Scalar> new_s2 = transform(s2, tf2);
+  Plane<S> new_s2 = transform(s2, tf2);
 
-  const Matrix3<Scalar>& R = tf1.linear();
-  const Vector3<Scalar>& T = tf1.translation();
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
 
-  Vector3<Scalar> Q = R.transpose() * new_s2.n;
+  Vector3<S> Q = R.transpose() * new_s2.n;
 
-  Scalar term = std::abs(Q[2]) * s1.lz + s1.radius * std::sqrt(Q[0] * Q[0] + Q[1] * Q[1]);
-  Scalar dist = new_s2.distance(T);
-  Scalar depth = term - dist;
+  S term = std::abs(Q[2]) * s1.lz + s1.radius * std::sqrt(Q[0] * Q[0] + Q[1] * Q[1]);
+  S dist = new_s2.distance(T);
+  S depth = term - dist;
 
   if(depth < 0)
     return false;
@@ -447,10 +447,10 @@ bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>
 }
 
 //==============================================================================
-template <typename Scalar>
-bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                            std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
+                            const Plane<S>& s2, const Transform3<S>& tf2,
+                            std::vector<ContactPoint<S>>* contacts)
 {
   if(!contacts)
   {
@@ -458,48 +458,48 @@ bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>
   }
   else
   {
-    Plane<Scalar> new_s2 = transform(s2, tf2);
+    Plane<S> new_s2 = transform(s2, tf2);
 
-    const Matrix3<Scalar>& R = tf1.linear();
-    const Vector3<Scalar>& T = tf1.translation();
+    const Matrix3<S>& R = tf1.linear();
+    const Vector3<S>& T = tf1.translation();
 
-    Vector3<Scalar> dir_z = R.col(2);
-    Scalar cosa = dir_z.dot(new_s2.n);
+    Vector3<S> dir_z = R.col(2);
+    S cosa = dir_z.dot(new_s2.n);
 
-    if(std::abs(cosa) < planeIntersectTolerance<Scalar>())
+    if(std::abs(cosa) < planeIntersectTolerance<S>())
     {
-      Scalar d = new_s2.signedDistance(T);
-      Scalar depth = s1.radius - std::abs(d);
+      S d = new_s2.signedDistance(T);
+      S depth = s1.radius - std::abs(d);
       if(depth < 0) return false;
       else
       {
         if (contacts)
         {
-          const Vector3<Scalar> normal = (d < 0) ? new_s2.n : (-new_s2.n).eval();
-          const Vector3<Scalar> point = T - new_s2.n * d;
-          const Scalar penetration_depth = depth;
+          const Vector3<S> normal = (d < 0) ? new_s2.n : (-new_s2.n).eval();
+          const Vector3<S> point = T - new_s2.n * d;
+          const S penetration_depth = depth;
 
-          contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+          contacts->emplace_back(normal, point, penetration_depth);
         }
         return true;
       }
     }
     else
     {
-      Vector3<Scalar> C = dir_z * cosa - new_s2.n;
-      if(std::abs(cosa + 1) < planeIntersectTolerance<Scalar>() || std::abs(cosa - 1) < planeIntersectTolerance<Scalar>())
-        C = Vector3<Scalar>(0, 0, 0);
+      Vector3<S> C = dir_z * cosa - new_s2.n;
+      if(std::abs(cosa + 1) < planeIntersectTolerance<S>() || std::abs(cosa - 1) < planeIntersectTolerance<S>())
+        C = Vector3<S>(0, 0, 0);
       else
       {
-        Scalar s = C.norm();
+        S s = C.norm();
         s = s1.radius / s;
         C *= s;
       }
 
-      Vector3<Scalar> p1 = T + dir_z * (0.5 * s1.lz);
-      Vector3<Scalar> p2 = T - dir_z * (0.5 * s1.lz);
+      Vector3<S> p1 = T + dir_z * (0.5 * s1.lz);
+      Vector3<S> p2 = T - dir_z * (0.5 * s1.lz);
 
-      Vector3<Scalar> c1, c2;
+      Vector3<S> c1, c2;
       if(cosa > 0)
       {
         c1 = p1 - C;
@@ -511,34 +511,34 @@ bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>
         c2 = p2 - C;
       }
 
-      Scalar d1 = new_s2.signedDistance(c1);
-      Scalar d2 = new_s2.signedDistance(c2);
+      S d1 = new_s2.signedDistance(c1);
+      S d2 = new_s2.signedDistance(c2);
 
       if(d1 * d2 <= 0)
       {
-        Scalar abs_d1 = std::abs(d1);
-        Scalar abs_d2 = std::abs(d2);
+        S abs_d1 = std::abs(d1);
+        S abs_d2 = std::abs(d2);
 
         if(abs_d1 > abs_d2)
         {
           if (contacts)
           {
-            const Vector3<Scalar> normal = (d2 < 0) ? (-new_s2.n).eval() : new_s2.n;
-            const Vector3<Scalar> point = c2 - new_s2.n * d2;
-            const Scalar penetration_depth = abs_d2;
+            const Vector3<S> normal = (d2 < 0) ? (-new_s2.n).eval() : new_s2.n;
+            const Vector3<S> point = c2 - new_s2.n * d2;
+            const S penetration_depth = abs_d2;
 
-            contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+            contacts->emplace_back(normal, point, penetration_depth);
           }
         }
         else
         {
           if (contacts)
           {
-            const Vector3<Scalar> normal = (d1 < 0) ? (-new_s2.n).eval() : new_s2.n;
-            const Vector3<Scalar> point = c1 - new_s2.n * d1;
-            const Scalar penetration_depth = abs_d1;
+            const Vector3<S> normal = (d1 < 0) ? (-new_s2.n).eval() : new_s2.n;
+            const Vector3<S> point = c1 - new_s2.n * d1;
+            const S penetration_depth = abs_d1;
 
-            contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+            contacts->emplace_back(normal, point, penetration_depth);
           }
         }
         return true;
@@ -552,33 +552,33 @@ bool cylinderPlaneIntersect(const Cylinder<Scalar>& s1, const Transform3<Scalar>
 }
 
 //==============================================================================
-template <typename Scalar>
-bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
-                        const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                        std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool conePlaneIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
+                        const Plane<S>& s2, const Transform3<S>& tf2,
+                        std::vector<ContactPoint<S>>* contacts)
 {
-  Plane<Scalar> new_s2 = transform(s2, tf2);
+  Plane<S> new_s2 = transform(s2, tf2);
 
-  const Matrix3<Scalar>& R = tf1.linear();
-  const Vector3<Scalar>& T = tf1.translation();
+  const Matrix3<S>& R = tf1.linear();
+  const Vector3<S>& T = tf1.translation();
 
-  Vector3<Scalar> dir_z = R.col(2);
-  Scalar cosa = dir_z.dot(new_s2.n);
+  Vector3<S> dir_z = R.col(2);
+  S cosa = dir_z.dot(new_s2.n);
 
-  if(std::abs(cosa) < planeIntersectTolerance<Scalar>())
+  if(std::abs(cosa) < planeIntersectTolerance<S>())
   {
-    Scalar d = new_s2.signedDistance(T);
-    Scalar depth = s1.radius - std::abs(d);
+    S d = new_s2.signedDistance(T);
+    S depth = s1.radius - std::abs(d);
     if(depth < 0) return false;
     else
     {
       if (contacts)
       {
-        const Vector3<Scalar> normal = (d < 0) ? new_s2.n : (-new_s2.n).eval();
-        const Vector3<Scalar> point = T - dir_z * (0.5 * s1.lz) + dir_z * (0.5 * depth / s1.radius * s1.lz) - new_s2.n * d;
-        const Scalar penetration_depth = depth;
+        const Vector3<S> normal = (d < 0) ? new_s2.n : (-new_s2.n).eval();
+        const Vector3<S> point = T - dir_z * (0.5 * s1.lz) + dir_z * (0.5 * depth / s1.radius * s1.lz) - new_s2.n * d;
+        const S penetration_depth = depth;
 
-        contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;
@@ -586,22 +586,22 @@ bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
   }
   else
   {
-    Vector3<Scalar> C = dir_z * cosa - new_s2.n;
-    if(std::abs(cosa + 1) < planeIntersectTolerance<Scalar>() || std::abs(cosa - 1) < planeIntersectTolerance<Scalar>())
-      C = Vector3<Scalar>(0, 0, 0);
+    Vector3<S> C = dir_z * cosa - new_s2.n;
+    if(std::abs(cosa + 1) < planeIntersectTolerance<S>() || std::abs(cosa - 1) < planeIntersectTolerance<S>())
+      C = Vector3<S>(0, 0, 0);
     else
     {
-      Scalar s = C.norm();
+      S s = C.norm();
       s = s1.radius / s;
       C *= s;
     }
 
-    Vector3<Scalar> c[3];
+    Vector3<S> c[3];
     c[0] = T + dir_z * (0.5 * s1.lz);
     c[1] = T - dir_z * (0.5 * s1.lz) + C;
     c[2] = T - dir_z * (0.5 * s1.lz) - C;
 
-    Scalar d[3];
+    S d[3];
     d[0] = new_s2.signedDistance(c[0]);
     d[1] = new_s2.signedDistance(c[1]);
     d[2] = new_s2.signedDistance(c[2]);
@@ -615,7 +615,7 @@ bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
         positive[i] = (d[i] >= 0);
 
       int n_positive = 0;
-      Scalar d_positive = 0, d_negative = 0;
+      S d_positive = 0, d_negative = 0;
       for(std::size_t i = 0; i < 3; ++i)
       {
         if(positive[i])
@@ -631,15 +631,15 @@ bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
 
       if (contacts)
       {
-        const Vector3<Scalar> normal = (d_positive > d_negative) ? (-new_s2.n).eval() : new_s2.n;
-        const Scalar penetration_depth = std::min(d_positive, d_negative);
+        const Vector3<S> normal = (d_positive > d_negative) ? (-new_s2.n).eval() : new_s2.n;
+        const S penetration_depth = std::min(d_positive, d_negative);
 
-        Vector3<Scalar> point;
-        Vector3<Scalar> p[2] { Vector3<Scalar>::Zero(), Vector3<Scalar>::Zero() };
-        Vector3<Scalar> q = Vector3<Scalar>::Zero();
+        Vector3<S> point;
+        Vector3<S> p[2] { Vector3<S>::Zero(), Vector3<S>::Zero() };
+        Vector3<S> q = Vector3<S>::Zero();
 
-        Scalar p_d[2];
-        Scalar q_d(0);
+        S p_d[2];
+        S q_d(0);
 
         if(n_positive == 2)
         {
@@ -649,8 +649,8 @@ bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
             else { q = c[i]; q_d = d[i]; }
           }
 
-          const Vector3<Scalar> t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
-          const Vector3<Scalar> t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
+          const Vector3<S> t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
+          const Vector3<S> t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
           point = (t1 + t2) * 0.5;
         }
         else
@@ -661,12 +661,12 @@ bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
             else { q = c[i]; q_d = d[i]; }
           }
 
-          const Vector3<Scalar> t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
-          const Vector3<Scalar> t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
+          const Vector3<S> t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
+          const Vector3<S> t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
           point = (t1 + t2) * 0.5;
         }
 
-        contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;
@@ -675,21 +675,21 @@ bool conePlaneIntersect(const Cone<Scalar>& s1, const Transform3<Scalar>& tf1,
 }
 
 //==============================================================================
-template <typename Scalar>
-bool convexPlaneIntersect(const Convex<Scalar>& s1, const Transform3<Scalar>& tf1,
-                          const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                          Vector3<Scalar>* contact_points, Scalar* penetration_depth, Vector3<Scalar>* normal)
+template <typename S>
+bool convexPlaneIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
+                          const Plane<S>& s2, const Transform3<S>& tf2,
+                          Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal)
 {
-  Plane<Scalar> new_s2 = transform(s2, tf2);
+  Plane<S> new_s2 = transform(s2, tf2);
 
-  Vector3<Scalar> v_min, v_max;
-  Scalar d_min = std::numeric_limits<Scalar>::max(), d_max = -std::numeric_limits<Scalar>::max();
+  Vector3<S> v_min, v_max;
+  S d_min = std::numeric_limits<S>::max(), d_max = -std::numeric_limits<S>::max();
 
   for(int i = 0; i < s1.num_points; ++i)
   {
-    Vector3<Scalar> p = tf1 * s1.points[i];
+    Vector3<S> p = tf1 * s1.points[i];
 
-    Scalar d = new_s2.signedDistance(p);
+    S d = new_s2.signedDistance(p);
 
     if(d < d_min) { d_min = d; v_min = p; }
     if(d > d_max) { d_max = d; v_max = p; }
@@ -715,19 +715,19 @@ bool convexPlaneIntersect(const Convex<Scalar>& s1, const Transform3<Scalar>& tf
 }
 
 //==============================================================================
-template <typename Scalar>
-bool planeTriangleIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& tf1,
-                            const Vector3<Scalar>& P1, const Vector3<Scalar>& P2, const Vector3<Scalar>& P3, const Transform3<Scalar>& tf2,
-                            Vector3<Scalar>* contact_points, Scalar* penetration_depth, Vector3<Scalar>* normal)
+template <typename S>
+bool planeTriangleIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
+                            const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf2,
+                            Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal)
 {
-  Plane<Scalar> new_s1 = transform(s1, tf1);
+  Plane<S> new_s1 = transform(s1, tf1);
 
-  Vector3<Scalar> c[3];
+  Vector3<S> c[3];
   c[0] = tf2 * P1;
   c[1] = tf2 * P2;
   c[2] = tf2 * P3;
 
-  Scalar d[3];
+  S d[3];
   d[0] = new_s1.signedDistance(c[0]);
   d[1] = new_s1.signedDistance(c[1]);
   d[2] = new_s1.signedDistance(c[2]);
@@ -741,7 +741,7 @@ bool planeTriangleIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& t
       positive[i] = (d[i] > 0);
 
     int n_positive = 0;
-    Scalar d_positive = 0, d_negative = 0;
+    S d_positive = 0, d_negative = 0;
     for(std::size_t i = 0; i < 3; ++i)
     {
       if(positive[i])
@@ -759,11 +759,11 @@ bool planeTriangleIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& t
     if(normal) *normal = (d_positive > d_negative) ? new_s1.n : (-new_s1.n).eval();
     if(contact_points)
     {
-      Vector3<Scalar> p[2] = {Vector3<Scalar>::Zero(), Vector3<Scalar>::Zero()};
-      Vector3<Scalar> q = Vector3<Scalar>::Zero();
+      Vector3<S> p[2] = {Vector3<S>::Zero(), Vector3<S>::Zero()};
+      Vector3<S> q = Vector3<S>::Zero();
 
-      Scalar p_d[2];
-      Scalar q_d(0);
+      S p_d[2];
+      S q_d(0);
 
       if(n_positive == 2)
       {
@@ -773,8 +773,8 @@ bool planeTriangleIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& t
           else { q = c[i]; q_d = d[i]; }
         }
 
-        Vector3<Scalar> t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
-        Vector3<Scalar> t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
+        Vector3<S> t1 = (-p[0] * q_d + q * p_d[0]) / (-q_d + p_d[0]);
+        Vector3<S> t2 = (-p[1] * q_d + q * p_d[1]) / (-q_d + p_d[1]);
         *contact_points = (t1 + t2) * 0.5;
       }
       else
@@ -785,8 +785,8 @@ bool planeTriangleIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& t
           else { q = c[i]; q_d = d[i]; }
         }
 
-        Vector3<Scalar> t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
-        Vector3<Scalar> t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
+        Vector3<S> t1 = (p[0] * q_d - q * p_d[0]) / (q_d - p_d[0]);
+        Vector3<S> t2 = (p[1] * q_d - q * p_d[1]) / (q_d - p_d[1]);
         *contact_points = (t1 + t2) * 0.5;
       }
     }
@@ -795,26 +795,26 @@ bool planeTriangleIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& t
 }
 
 //==============================================================================
-template <typename Scalar>
-bool halfspacePlaneIntersect(const Halfspace<Scalar>& s1, const Transform3<Scalar>& tf1,
-                             const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                             Plane<Scalar>& pl, Vector3<Scalar>& p, Vector3<Scalar>& d,
-                             Scalar& penetration_depth,
+template <typename S>
+bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
+                             const Plane<S>& s2, const Transform3<S>& tf2,
+                             Plane<S>& pl, Vector3<S>& p, Vector3<S>& d,
+                             S& penetration_depth,
                              int& ret)
 {
   return planeHalfspaceIntersect(s2, tf2, s1, tf1, pl, p, d, penetration_depth, ret);
 }
 
 //==============================================================================
-template <typename Scalar>
-bool planeIntersect(const Plane<Scalar>& s1, const Transform3<Scalar>& tf1,
-                    const Plane<Scalar>& s2, const Transform3<Scalar>& tf2,
-                    std::vector<ContactPoint<Scalar>>* /*contacts*/)
+template <typename S>
+bool planeIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
+                    const Plane<S>& s2, const Transform3<S>& tf2,
+                    std::vector<ContactPoint<S>>* /*contacts*/)
 {
-  Plane<Scalar> new_s1 = transform(s1, tf1);
-  Plane<Scalar> new_s2 = transform(s2, tf2);
+  Plane<S> new_s1 = transform(s1, tf1);
+  Plane<S> new_s2 = transform(s2, tf2);
 
-  Scalar a = (new_s1.n).dot(new_s2.n);
+  S a = (new_s1.n).dot(new_s2.n);
   if(a == 1 && new_s1.d != new_s2.d)
     return false;
   if(a == -1 && new_s1.d != -new_s2.d)

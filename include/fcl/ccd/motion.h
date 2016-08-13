@@ -48,13 +48,13 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class TranslationMotion : public MotionBase<Scalar>
+template <typename S>
+class TranslationMotion : public MotionBase<S>
 {
 public:
   /// @brief Construct motion from intial and goal transform
-  TranslationMotion(const Transform3<Scalar>& tf1,
-                    const Transform3<Scalar>& tf2) : MotionBase<Scalar>(),
+  TranslationMotion(const Transform3<S>& tf1,
+                    const Transform3<S>& tf2) : MotionBase<S>(),
                                               rot(tf1.linear()),
                                               trans_start(tf1.translation()),
                                               trans_range(tf2.translation() - tf1.translation()),
@@ -62,8 +62,8 @@ public:
   {
   }
 
-  TranslationMotion(const Matrix3<Scalar>& R, const Vector3<Scalar>& T1, const Vector3<Scalar>& T2) : MotionBase<Scalar>(),
-                                                                           tf(Transform3<Scalar>::Identity())
+  TranslationMotion(const Matrix3<S>& R, const Vector3<S>& T1, const Vector3<S>& T2) : MotionBase<S>(),
+                                                                           tf(Transform3<S>::Identity())
   {
     rot = R;
     trans_start = T1;
@@ -72,7 +72,7 @@ public:
     tf.translation() = trans_start;
   }
 
-  bool integrate(Scalar dt) const override
+  bool integrate(S dt) const override
   {
     if(dt > 1)
       dt = 1;
@@ -83,60 +83,61 @@ public:
     return true;
   }
 
-  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const override
+  S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
-  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const override
+  S computeMotionBound(const TriangleMotionBoundVisitor<S>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
-  void getCurrentTransform(Transform3<Scalar>& tf_) const override
+  void getCurrentTransform(Transform3<S>& tf_) const override
   {
     tf_ = tf;
   }
 
-  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const override
+  void getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const override
   {
   }
 
-  Vector3<Scalar> getVelocity() const
+  Vector3<S> getVelocity() const
   {
     return trans_range;
   }
 
  private:
   /// @brief initial and goal transforms
-  Quaternion<Scalar> rot;
-  Vector3<Scalar> trans_start, trans_range;
+  Quaternion<S> rot;
+  Vector3<S> trans_start, trans_range;
 
-  mutable Transform3<Scalar> tf;
+  mutable Transform3<S> tf;
 
+public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using TranslationMotionf = TranslationMotion<float>;
 using TranslationMotiond = TranslationMotion<double>;
 
-template <typename Scalar>
-class SplineMotion : public MotionBase<Scalar>
+template <typename S>
+class SplineMotion : public MotionBase<S>
 {
 public:
   /// @brief Construct motion from 4 deBoor points
-  SplineMotion(const Vector3<Scalar>& Td0, const Vector3<Scalar>& Td1, const Vector3<Scalar>& Td2, const Vector3<Scalar>& Td3,
-               const Vector3<Scalar>& Rd0, const Vector3<Scalar>& Rd1, const Vector3<Scalar>& Rd2, const Vector3<Scalar>& Rd3);
+  SplineMotion(const Vector3<S>& Td0, const Vector3<S>& Td1, const Vector3<S>& Td2, const Vector3<S>& Td3,
+               const Vector3<S>& Rd0, const Vector3<S>& Rd1, const Vector3<S>& Rd2, const Vector3<S>& Rd3);
 
   // @brief Construct motion from initial and goal transform
-  SplineMotion(const Matrix3<Scalar>& R1, const Vector3<Scalar>& T1,
-               const Matrix3<Scalar>& R2, const Vector3<Scalar>& T2) : MotionBase<Scalar>()
+  SplineMotion(const Matrix3<S>& R1, const Vector3<S>& T1,
+               const Matrix3<S>& R2, const Vector3<S>& T2) : MotionBase<S>()
   {
     // TODO
   }
 
-  SplineMotion(const Transform3<Scalar>& tf1,
-               const Transform3<Scalar>& tf2) : MotionBase<Scalar>()
+  SplineMotion(const Transform3<S>& tf1,
+               const Transform3<S>& tf2) : MotionBase<S>()
   {
     // TODO
   }
@@ -144,30 +145,30 @@ public:
   
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
-  bool integrate(Scalar dt) const override;
+  bool integrate(S dt) const override;
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
-  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const override
+  S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
   /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor
-  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const override
+  S computeMotionBound(const TriangleMotionBoundVisitor<S>& mb_visitor) const override
   {
     return mb_visitor.visit(*this);
   }
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Transform3<Scalar>& tf_) const override
+  void getCurrentTransform(Transform3<S>& tf_) const override
   {
     tf_ = tf;
   }
 
-  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const override
+  void getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const override
   {
     // set tv
-    Vector3<Scalar> c[4];
+    Vector3<S> c[4];
     c[0] = (Td[0] + Td[1] * 4 + Td[2] + Td[3]) * (1/6.0);
     c[1] = (-Td[0] + Td[2]) * (1/2.0);
     c[2] = (Td[0] - Td[1] * 2 + Td[2]) * (1/2.0);
@@ -182,43 +183,43 @@ public:
     }
 
     // set tm
-    Matrix3<Scalar> I = Matrix3<Scalar>::Identity();
+    Matrix3<S> I = Matrix3<S>::Identity();
     // R(t) = R(t0) + R'(t0) (t-t0) + 1/2 R''(t0)(t-t0)^2 + 1 / 6 R'''(t0) (t-t0)^3 + 1 / 24 R''''(l)(t-t0)^4; t0 = 0.5
     /// 1. compute M(1/2)
-    Vector3<Scalar> Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
-    Scalar Rt0_len = Rt0.norm();
-    Scalar inv_Rt0_len = 1.0 / Rt0_len;
-    Scalar inv_Rt0_len_3 = inv_Rt0_len * inv_Rt0_len * inv_Rt0_len;
-    Scalar inv_Rt0_len_5 = inv_Rt0_len_3 * inv_Rt0_len * inv_Rt0_len;
-    Scalar theta0 = Rt0_len;
-    Scalar costheta0 = cos(theta0);
-    Scalar sintheta0 = sin(theta0);
+    Vector3<S> Rt0 = (Rd[0] + Rd[1] * 23 + Rd[2] * 23 + Rd[3]) * (1 / 48.0);
+    S Rt0_len = Rt0.norm();
+    S inv_Rt0_len = 1.0 / Rt0_len;
+    S inv_Rt0_len_3 = inv_Rt0_len * inv_Rt0_len * inv_Rt0_len;
+    S inv_Rt0_len_5 = inv_Rt0_len_3 * inv_Rt0_len * inv_Rt0_len;
+    S theta0 = Rt0_len;
+    S costheta0 = cos(theta0);
+    S sintheta0 = sin(theta0);
     
-    Vector3<Scalar> Wt0 = Rt0 * inv_Rt0_len;
-    Matrix3<Scalar> hatWt0;
+    Vector3<S> Wt0 = Rt0 * inv_Rt0_len;
+    Matrix3<S> hatWt0;
     hat(hatWt0, Wt0);
-    Matrix3<Scalar> hatWt0_sqr = hatWt0 * hatWt0;
-    Matrix3<Scalar> Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
+    Matrix3<S> hatWt0_sqr = hatWt0 * hatWt0;
+    Matrix3<S> Mt0 = I + hatWt0 * sintheta0 + hatWt0_sqr * (1 - costheta0);
     // TODO(JS): this could be improved by using exp(Wt0)
 
     /// 2. compute M'(1/2)
-    Vector3<Scalar> dRt0 = (-Rd[0] - Rd[1] * 5 + Rd[2] * 5 + Rd[3]) * (1 / 8.0);
-    Scalar Rt0_dot_dRt0 = Rt0.dot(dRt0);
-    Scalar dtheta0 = Rt0_dot_dRt0 * inv_Rt0_len;
-    Vector3<Scalar> dWt0 = dRt0 * inv_Rt0_len - Rt0 * (Rt0_dot_dRt0 * inv_Rt0_len_3);
-    Matrix3<Scalar> hatdWt0;
+    Vector3<S> dRt0 = (-Rd[0] - Rd[1] * 5 + Rd[2] * 5 + Rd[3]) * (1 / 8.0);
+    S Rt0_dot_dRt0 = Rt0.dot(dRt0);
+    S dtheta0 = Rt0_dot_dRt0 * inv_Rt0_len;
+    Vector3<S> dWt0 = dRt0 * inv_Rt0_len - Rt0 * (Rt0_dot_dRt0 * inv_Rt0_len_3);
+    Matrix3<S> hatdWt0;
     hat(hatdWt0, dWt0);
-    Matrix3<Scalar> dMt0 = hatdWt0 * sintheta0 + hatWt0 * (costheta0 * dtheta0) + hatWt0_sqr * (sintheta0 * dtheta0) + (hatWt0 * hatdWt0 + hatdWt0 * hatWt0) * (1 - costheta0);
+    Matrix3<S> dMt0 = hatdWt0 * sintheta0 + hatWt0 * (costheta0 * dtheta0) + hatWt0_sqr * (sintheta0 * dtheta0) + (hatWt0 * hatdWt0 + hatdWt0 * hatWt0) * (1 - costheta0);
 
     /// 3.1. compute M''(1/2)
-    Vector3<Scalar> ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
-    Scalar Rt0_dot_ddRt0 = Rt0.dot(ddRt0);
-    Scalar dRt0_dot_dRt0 = dRt0.squaredNorm();
-    Scalar ddtheta0 = (Rt0_dot_ddRt0 + dRt0_dot_dRt0) * inv_Rt0_len - Rt0_dot_dRt0 * Rt0_dot_dRt0 * inv_Rt0_len_3;
-    Vector3<Scalar> ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
-    Matrix3<Scalar> hatddWt0;
+    Vector3<S> ddRt0 = (Rd[0] - Rd[1] - Rd[2] + Rd[3]) * 0.5;
+    S Rt0_dot_ddRt0 = Rt0.dot(ddRt0);
+    S dRt0_dot_dRt0 = dRt0.squaredNorm();
+    S ddtheta0 = (Rt0_dot_ddRt0 + dRt0_dot_dRt0) * inv_Rt0_len - Rt0_dot_dRt0 * Rt0_dot_dRt0 * inv_Rt0_len_3;
+    Vector3<S> ddWt0 = ddRt0 * inv_Rt0_len - (dRt0 * (2 * Rt0_dot_dRt0) + Rt0 * (Rt0_dot_ddRt0 + dRt0_dot_dRt0)) * inv_Rt0_len_3 + (Rt0 * (3 * Rt0_dot_dRt0 * Rt0_dot_dRt0)) * inv_Rt0_len_5;
+    Matrix3<S> hatddWt0;
     hat(hatddWt0, ddWt0);
-    Matrix3<Scalar> ddMt0 =
+    Matrix3<S> ddMt0 =
       hatddWt0 * sintheta0 +
       hatWt0 * (costheta0 * dtheta0 - sintheta0 * dtheta0 * dtheta0 + costheta0 * ddtheta0) +
       hatdWt0 * (costheta0 * dtheta0) +
@@ -238,7 +239,7 @@ public:
         tm(i, j).coeff(2) = ddMt0(i, j) * 0.5;
         tm(i, j).coeff(3) = 0;
 
-        tm(i, j).remainder() = Interval<Scalar>(-1/48.0, 1/48.0); /// not correct, should fix
+        tm(i, j).remainder() = Interval<S>(-1/48.0, 1/48.0); /// not correct, should fix
       }
     } 
   }
@@ -248,30 +249,30 @@ protected:
   {
   }
 
-  Scalar getWeight0(Scalar t) const;
-  Scalar getWeight1(Scalar t) const;
-  Scalar getWeight2(Scalar t) const;
-  Scalar getWeight3(Scalar t) const;
+  S getWeight0(S t) const;
+  S getWeight1(S t) const;
+  S getWeight2(S t) const;
+  S getWeight3(S t) const;
   
-  Vector3<Scalar> Td[4];
-  Vector3<Scalar> Rd[4];
+  Vector3<S> Td[4];
+  Vector3<S> Rd[4];
 
-  Vector3<Scalar> TA, TB, TC;
-  Vector3<Scalar> RA, RB, RC;
+  Vector3<S> TA, TB, TC;
+  Vector3<S> RA, RB, RC;
 
-  Scalar Rd0Rd0, Rd0Rd1, Rd0Rd2, Rd0Rd3, Rd1Rd1, Rd1Rd2, Rd1Rd3, Rd2Rd2, Rd2Rd3, Rd3Rd3;
+  S Rd0Rd0, Rd0Rd1, Rd0Rd2, Rd0Rd3, Rd1Rd1, Rd1Rd2, Rd1Rd3, Rd2Rd2, Rd2Rd3, Rd3Rd3;
   //// @brief The transformation at current time t
-  mutable Transform3<Scalar> tf;
+  mutable Transform3<S> tf;
 
   /// @brief The time related with tf
-  mutable Scalar tf_t;
+  mutable S tf_t;
 
 public:
-  Scalar computeTBound(const Vector3<Scalar>& n) const;
+  S computeTBound(const Vector3<S>& n) const;
   
-  Scalar computeDWMax() const;
+  S computeDWMax() const;
 
-  Scalar getCurrentTime() const
+  S getCurrentTime() const
   {
     return tf_t;
   }
@@ -279,12 +280,12 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-template <typename Scalar>
-class ScrewMotion : public MotionBase<Scalar>
+template <typename S>
+class ScrewMotion : public MotionBase<S>
 {
 public:
   /// @brief Default transformations are all identities
-  ScrewMotion() : MotionBase<Scalar>(), axis(Vector3<Scalar>::UnitX())
+  ScrewMotion() : MotionBase<S>(), axis(Vector3<S>::UnitX())
   {
     // Default angular velocity is zero
     angular_vel = 0;
@@ -296,10 +297,10 @@ public:
   }
 
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation
-  ScrewMotion(const Matrix3<Scalar>& R1, const Vector3<Scalar>& T1,
-              const Matrix3<Scalar>& R2, const Vector3<Scalar>& T2) : MotionBase<Scalar>(),
-                                                     tf1(Transform3<Scalar>::Identity()),
-                                                     tf2(Transform3<Scalar>::Identity())
+  ScrewMotion(const Matrix3<S>& R1, const Vector3<S>& T1,
+              const Matrix3<S>& R2, const Vector3<S>& T2) : MotionBase<S>(),
+                                                     tf1(Transform3<S>::Identity()),
+                                                     tf2(Transform3<S>::Identity())
   {
     tf1.linear() = R1;
     tf1.translation() = T1;
@@ -313,8 +314,8 @@ public:
   }
 
   /// @brief Construct motion from the initial transform and goal transform
-  ScrewMotion(const Transform3<Scalar>& tf1_,
-              const Transform3<Scalar>& tf2_) : tf1(tf1_),
+  ScrewMotion(const Transform3<S>& tf1_,
+              const Transform3<S>& tf2_) : tf1(tf1_),
                                          tf2(tf2_),
                                          tf(tf1)
   {
@@ -329,51 +330,51 @@ public:
     
     tf.linear() = absoluteRotation(dt).toRotationMatrix();
     
-    Quaternion<Scalar> delta_rot = deltaRotation(dt);
+    Quaternion<S> delta_rot = deltaRotation(dt);
     tf.translation() = p + axis * (dt * linear_vel) + delta_rot * (tf1.translation() - p);
 
     return true;
   }
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
-  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const
+  S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const
   {
     return mb_visitor.visit(*this);
   }
 
   /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor
-  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const
+  S computeMotionBound(const TriangleMotionBoundVisitor<S>& mb_visitor) const
   {
     return mb_visitor.visit(*this);
   }
 
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Transform3<Scalar>& tf_) const
+  void getCurrentTransform(Transform3<S>& tf_) const
   {
     tf_ = tf;
   }
 
-  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const
+  void getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const
   {
-    Matrix3<Scalar> hat_axis;
+    Matrix3<S> hat_axis;
     hat(hat_axis, axis);
 
-    TaylorModel<Scalar> cos_model(this->getTimeInterval());
-    generateTaylorModelForCosFunc(cos_model, angular_vel, (Scalar)0);
+    TaylorModel<S> cos_model(this->getTimeInterval());
+    generateTaylorModelForCosFunc(cos_model, angular_vel, (S)0);
     
-    TaylorModel<Scalar> sin_model(this->getTimeInterval());
-    generateTaylorModelForSinFunc(sin_model, angular_vel, (Scalar)0);
+    TaylorModel<S> sin_model(this->getTimeInterval());
+    generateTaylorModelForSinFunc(sin_model, angular_vel, (S)0);
 
-    TMatrix3<Scalar> delta_R = hat_axis * sin_model
+    TMatrix3<S> delta_R = hat_axis * sin_model
         - (hat_axis * hat_axis).eval() * (cos_model - 1)
-        + Matrix3<Scalar>::Identity();
+        + Matrix3<S>::Identity();
 
-    TaylorModel<Scalar> a(this->getTimeInterval()), b(this->getTimeInterval()), c(this->getTimeInterval());
-    generateTaylorModelForLinearFunc(a, (Scalar)0, linear_vel * axis[0]);
-    generateTaylorModelForLinearFunc(b, (Scalar)0, linear_vel * axis[1]);
-    generateTaylorModelForLinearFunc(c, (Scalar)0, linear_vel * axis[2]);
-    TVector3<Scalar> delta_T = p - delta_R * p + TVector3<Scalar>(a, b, c);
+    TaylorModel<S> a(this->getTimeInterval()), b(this->getTimeInterval()), c(this->getTimeInterval());
+    generateTaylorModelForLinearFunc(a, (S)0, linear_vel * axis[0]);
+    generateTaylorModelForLinearFunc(b, (S)0, linear_vel * axis[1]);
+    generateTaylorModelForLinearFunc(c, (S)0, linear_vel * axis[2]);
+    TVector3<S> delta_T = p - delta_R * p + TVector3<S>(a, b, c);
 
     tm = delta_R * tf1.linear().eval();
     tv = delta_R * tf1.translation().eval() + delta_T;
@@ -382,7 +383,7 @@ public:
 protected:
   void computeScrewParameter()
   {
-    const AngleAxis<Scalar> aa(tf2.linear() * tf1.linear().transpose());
+    const AngleAxis<S> aa(tf2.linear() * tf1.linear().transpose());
 
     axis = aa.axis();
     angular_vel = aa.angle();
@@ -402,63 +403,63 @@ protected:
     }
     else
     {
-      Vector3<Scalar> o = tf2.translation() - tf1.translation();
+      Vector3<S> o = tf2.translation() - tf1.translation();
       p = (tf1.translation() + tf2.translation() + axis.cross(o) * (1.0 / tan(angular_vel / 2.0))) * 0.5;
       linear_vel = o.dot(axis);
     }
   }
 
-  Quaternion<Scalar> deltaRotation(Scalar dt) const
+  Quaternion<S> deltaRotation(S dt) const
   {
-    return Quaternion<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), axis));
+    return Quaternion<S>(AngleAxis<S>((S)(dt * angular_vel), axis));
   }
 
-  Quaternion<Scalar> absoluteRotation(Scalar dt) const
+  Quaternion<S> absoluteRotation(S dt) const
   {
-    Quaternion<Scalar> delta_t = deltaRotation(dt);
+    Quaternion<S> delta_t = deltaRotation(dt);
 
-    return delta_t * Quaternion<Scalar>(tf1.linear());
+    return delta_t * Quaternion<S>(tf1.linear());
   }
 
   /// @brief The transformation at time 0
-  Transform3<Scalar> tf1;
+  Transform3<S> tf1;
 
   /// @brief The transformation at time 1
-  Transform3<Scalar> tf2;
+  Transform3<S> tf2;
 
   /// @brief The transformation at current time t
-  mutable Transform3<Scalar> tf;
+  mutable Transform3<S> tf;
 
   /// @brief screw axis
-  Vector3<Scalar> axis;
+  Vector3<S> axis;
 
-  /// @brief A point on the axis S
-  Vector3<Scalar> p;
+  /// @brief A point on the axis
+  Vector3<S> p;
 
   /// @brief linear velocity along the axis
-  Scalar linear_vel;
+  S linear_vel;
 
   /// @brief angular velocity
-  Scalar angular_vel;
+  S angular_vel;
 
 public:
 
-  inline Scalar getLinearVelocity() const
+  inline S getLinearVelocity() const
   {
     return linear_vel;
   }
 
-  inline Scalar getAngularVelocity() const
+  inline S getAngularVelocity() const
   {
     return angular_vel;
   }
 
-  inline const Vector3<Scalar>& getAxis() const
+  inline const Vector3<S>& getAxis() const
   {
     return axis;
   }
 
-  inline const Vector3<Scalar>& getAxisOrigin() const
+  inline const Vector3<S>& getAxisOrigin() const
   {
     return p;
   }
@@ -474,67 +475,67 @@ public:
 /// Therefore, R(0) = R0, R(1) = R1
 ///            T(0) = T0 + R0 p_ref - p_ref
 ///            T(1) = T1 + R1 p_ref - p_ref
-template <typename Scalar>
-class InterpMotion : public MotionBase<Scalar>
+template <typename S>
+class InterpMotion : public MotionBase<S>
 {
 public:
   /// @brief Default transformations are all identities
   InterpMotion();
 
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation
-  InterpMotion(const Matrix3<Scalar>& R1, const Vector3<Scalar>& T1,
-               const Matrix3<Scalar>& R2, const Vector3<Scalar>& T2);
+  InterpMotion(const Matrix3<S>& R1, const Vector3<S>& T1,
+               const Matrix3<S>& R2, const Vector3<S>& T2);
 
-  InterpMotion(const Transform3<Scalar>& tf1_, const Transform3<Scalar>& tf2_);
+  InterpMotion(const Transform3<S>& tf1_, const Transform3<S>& tf2_);
 
   /// @brief Construct motion from the initial rotation/translation and goal rotation/translation related to some rotation center
-  InterpMotion(const Matrix3<Scalar>& R1, const Vector3<Scalar>& T1,
-               const Matrix3<Scalar>& R2, const Vector3<Scalar>& T2,
-               const Vector3<Scalar>& O);
+  InterpMotion(const Matrix3<S>& R1, const Vector3<S>& T1,
+               const Matrix3<S>& R2, const Vector3<S>& T2,
+               const Vector3<S>& O);
 
-  InterpMotion(const Transform3<Scalar>& tf1_, const Transform3<Scalar>& tf2_, const Vector3<Scalar>& O);
+  InterpMotion(const Transform3<S>& tf1_, const Transform3<S>& tf2_, const Vector3<S>& O);
 
   /// @brief Integrate the motion from 0 to dt
   /// We compute the current transformation from zero point instead of from last integrate time, for precision.
   bool integrate(double dt) const;
 
   /// @brief Compute the motion bound for a bounding volume along a given direction n, which is defined in the visitor
-  Scalar computeMotionBound(const BVMotionBoundVisitor<Scalar>& mb_visitor) const
+  S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const
   {
     return mb_visitor.visit(*this);
   }
 
   /// @brief Compute the motion bound for a triangle along a given direction n, which is defined in the visitor 
-  Scalar computeMotionBound(const TriangleMotionBoundVisitor<Scalar>& mb_visitor) const
+  S computeMotionBound(const TriangleMotionBoundVisitor<S>& mb_visitor) const
   {
     return mb_visitor.visit(*this);
   }
 
   /// @brief Get the rotation and translation in current step
-  void getCurrentTransform(Transform3<Scalar>& tf_) const
+  void getCurrentTransform(Transform3<S>& tf_) const
   {
     tf_ = tf;
   }
 
-  void getTaylorModel(TMatrix3<Scalar>& tm, TVector3<Scalar>& tv) const
+  void getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const
   {
-    Matrix3<Scalar> hat_angular_axis;
+    Matrix3<S> hat_angular_axis;
     hat(hat_angular_axis, angular_axis);
 
-    TaylorModel<Scalar> cos_model(this->getTimeInterval());
-    generateTaylorModelForCosFunc(cos_model, angular_vel, (Scalar)0);
-    TaylorModel<Scalar> sin_model(this->getTimeInterval());
-    generateTaylorModelForSinFunc(sin_model, angular_vel, (Scalar)0);
+    TaylorModel<S> cos_model(this->getTimeInterval());
+    generateTaylorModelForCosFunc(cos_model, angular_vel, (S)0);
+    TaylorModel<S> sin_model(this->getTimeInterval());
+    generateTaylorModelForSinFunc(sin_model, angular_vel, (S)0);
 
-    TMatrix3<Scalar> delta_R = hat_angular_axis * sin_model
+    TMatrix3<S> delta_R = hat_angular_axis * sin_model
         - (hat_angular_axis * hat_angular_axis).eval() * (cos_model - 1)
-        + Matrix3<Scalar>::Identity();
+        + Matrix3<S>::Identity();
 
-    TaylorModel<Scalar> a(this->getTimeInterval()), b(this->getTimeInterval()), c(this->getTimeInterval());
-    generateTaylorModelForLinearFunc(a, (Scalar)0, linear_vel[0]);
-    generateTaylorModelForLinearFunc(b, (Scalar)0, linear_vel[1]);
-    generateTaylorModelForLinearFunc(c, (Scalar)0, linear_vel[2]);
-    TVector3<Scalar> delta_T(a, b, c);
+    TaylorModel<S> a(this->getTimeInterval()), b(this->getTimeInterval()), c(this->getTimeInterval());
+    generateTaylorModelForLinearFunc(a, (S)0, linear_vel[0]);
+    generateTaylorModelForLinearFunc(b, (S)0, linear_vel[1]);
+    generateTaylorModelForLinearFunc(c, (S)0, linear_vel[2]);
+    TVector3<S> delta_T(a, b, c);
     
     tm = delta_R * tf1.linear().eval();
     tv = tf1 * reference_p
@@ -546,48 +547,48 @@ protected:
 
   void computeVelocity();
 
-  Quaternion<Scalar> deltaRotation(Scalar dt) const;
+  Quaternion<S> deltaRotation(S dt) const;
   
-  Quaternion<Scalar> absoluteRotation(Scalar dt) const;
+  Quaternion<S> absoluteRotation(S dt) const;
   
   /// @brief The transformation at time 0
-  Transform3<Scalar> tf1;
+  Transform3<S> tf1;
 
   /// @brief The transformation at time 1
-  Transform3<Scalar> tf2;
+  Transform3<S> tf2;
 
   /// @brief The transformation at current time t
-  mutable Transform3<Scalar> tf;
+  mutable Transform3<S> tf;
 
   /// @brief Linear velocity
-  Vector3<Scalar> linear_vel;
+  Vector3<S> linear_vel;
 
   /// @brief Angular speed
-  Scalar angular_vel;
+  S angular_vel;
 
   /// @brief Angular velocity axis
-  Vector3<Scalar> angular_axis;
+  Vector3<S> angular_axis;
 
   /// @brief Reference point for the motion (in the object's local frame)
-  Vector3<Scalar> reference_p;
+  Vector3<S> reference_p;
 
 public:
-  const Vector3<Scalar>& getReferencePoint() const
+  const Vector3<S>& getReferencePoint() const
   {
     return reference_p;
   }
 
-  const Vector3<Scalar>& getAngularAxis() const
+  const Vector3<S>& getAngularAxis() const
   {
     return angular_axis;
   }
 
-  Scalar getAngularVelocity() const
+  S getAngularVelocity() const
   {
     return angular_vel;
   }
 
-  const Vector3<Scalar>& getLinearVelocity() const
+  const Vector3<S>& getLinearVelocity() const
   {
     return linear_vel;
   }
@@ -602,9 +603,9 @@ public:
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-SplineMotion<Scalar>::SplineMotion(const Vector3<Scalar>& Td0, const Vector3<Scalar>& Td1, const Vector3<Scalar>& Td2, const Vector3<Scalar>& Td3,
-                           const Vector3<Scalar>& Rd0, const Vector3<Scalar>& Rd1, const Vector3<Scalar>& Rd2, const Vector3<Scalar>& Rd3) : MotionBase<Scalar>()
+template <typename S>
+SplineMotion<S>::SplineMotion(const Vector3<S>& Td0, const Vector3<S>& Td1, const Vector3<S>& Td2, const Vector3<S>& Td3,
+                           const Vector3<S>& Rd0, const Vector3<S>& Rd1, const Vector3<S>& Rd2, const Vector3<S>& Rd3) : MotionBase<S>()
 {
   Td[0] = Td0;
   Td[1] = Td1;
@@ -639,17 +640,17 @@ SplineMotion<Scalar>::SplineMotion(const Vector3<Scalar>& Td0, const Vector3<Sca
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SplineMotion<Scalar>::integrate(Scalar dt) const
+template <typename S>
+bool SplineMotion<S>::integrate(S dt) const
 {
   if(dt > 1) dt = 1;
 
-  Vector3<Scalar> cur_T = Td[0] * getWeight0(dt) + Td[1] * getWeight1(dt) + Td[2] * getWeight2(dt) + Td[3] * getWeight3(dt);
-  Vector3<Scalar> cur_w = Rd[0] * getWeight0(dt) + Rd[1] * getWeight1(dt) + Rd[2] * getWeight2(dt) + Rd[3] * getWeight3(dt);
-  Scalar cur_angle = cur_w.norm();
+  Vector3<S> cur_T = Td[0] * getWeight0(dt) + Td[1] * getWeight1(dt) + Td[2] * getWeight2(dt) + Td[3] * getWeight3(dt);
+  Vector3<S> cur_w = Rd[0] * getWeight0(dt) + Rd[1] * getWeight1(dt) + Rd[2] * getWeight2(dt) + Rd[3] * getWeight3(dt);
+  S cur_angle = cur_w.norm();
   cur_w.normalize();
 
-  tf.linear() = AngleAxis<Scalar>(cur_angle, cur_w).toRotationMatrix();
+  tf.linear() = AngleAxis<S>(cur_angle, cur_w).toRotationMatrix();
   tf.translation() = cur_T;
 
   tf_t = dt;
@@ -658,14 +659,14 @@ bool SplineMotion<Scalar>::integrate(Scalar dt) const
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar SplineMotion<Scalar>::computeTBound(const Vector3<Scalar>& n) const
+template <typename S>
+S SplineMotion<S>::computeTBound(const Vector3<S>& n) const
 {
-  Scalar Ta = TA.dot(n);
-  Scalar Tb = TB.dot(n);
-  Scalar Tc = TC.dot(n);
+  S Ta = TA.dot(n);
+  S Tb = TB.dot(n);
+  S Tc = TC.dot(n);
 
-  std::vector<Scalar> T_potential;
+  std::vector<S> T_potential;
   T_potential.push_back(tf_t);
   T_potential.push_back(1);
   if(Tb * Tb - 3 * Ta * Tc >= 0)
@@ -674,16 +675,16 @@ Scalar SplineMotion<Scalar>::computeTBound(const Vector3<Scalar>& n) const
     {
       if(Tb != 0)
       {
-        Scalar tmp = -Tc / (2 * Tb);
+        S tmp = -Tc / (2 * Tb);
         if(tmp < 1 && tmp > tf_t)
           T_potential.push_back(tmp);
       }
     }
     else
     {
-      Scalar tmp_delta = sqrt(Tb * Tb - 3 * Ta * Tc);
-      Scalar tmp1 = (-Tb + tmp_delta) / (3 * Ta);
-      Scalar tmp2 = (-Tb - tmp_delta) / (3 * Ta);
+      S tmp_delta = sqrt(Tb * Tb - 3 * Ta * Tc);
+      S tmp1 = (-Tb + tmp_delta) / (3 * Ta);
+      S tmp2 = (-Tb - tmp_delta) / (3 * Ta);
       if(tmp1 < 1 && tmp1 > tf_t)
         T_potential.push_back(tmp1);
       if(tmp2 < 1 && tmp2 > tf_t)
@@ -691,15 +692,15 @@ Scalar SplineMotion<Scalar>::computeTBound(const Vector3<Scalar>& n) const
     }
   }
 
-  Scalar T_bound = Ta * T_potential[0] * T_potential[0] * T_potential[0] + Tb * T_potential[0] * T_potential[0] + Tc * T_potential[0];
+  S T_bound = Ta * T_potential[0] * T_potential[0] * T_potential[0] + Tb * T_potential[0] * T_potential[0] + Tc * T_potential[0];
   for(unsigned int i = 1; i < T_potential.size(); ++i)
   {
-    Scalar T_bound_tmp = Ta * T_potential[i] * T_potential[i] * T_potential[i] + Tb * T_potential[i] * T_potential[i] + Tc * T_potential[i];
+    S T_bound_tmp = Ta * T_potential[i] * T_potential[i] * T_potential[i] + Tb * T_potential[i] * T_potential[i] + Tc * T_potential[i];
     if(T_bound_tmp > T_bound) T_bound = T_bound_tmp;
   }
 
 
-  Scalar cur_delta = Ta * tf_t * tf_t * tf_t + Tb * tf_t * tf_t + Tc * tf_t;
+  S cur_delta = Ta * tf_t * tf_t * tf_t + Tb * tf_t * tf_t + Tc * tf_t;
 
   T_bound -= cur_delta;
   T_bound /= 6.0;
@@ -708,8 +709,8 @@ Scalar SplineMotion<Scalar>::computeTBound(const Vector3<Scalar>& n) const
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar SplineMotion<Scalar>::computeDWMax() const
+template <typename S>
+S SplineMotion<S>::computeDWMax() const
 {
   // first compute ||w'||
   int a00[5] = {1,-4,6,-4,1};
@@ -723,7 +724,7 @@ Scalar SplineMotion<Scalar>::computeDWMax() const
   int a23[5] = {-3,2,1,0,0};
   int a33[5] = {1,0,0,0,0};
 
-  Scalar a[5];
+  S a[5];
 
   for(int i = 0; i < 5; ++i)
   {
@@ -746,7 +747,7 @@ Scalar SplineMotion<Scalar>::computeDWMax() const
   int da23[4] = {-12,6,2,0};
   int da33[4] = {4,0,0,0};
 
-  Scalar da[4];
+  S da[4];
   for(int i = 0; i < 4; ++i)
   {
     da[i] = Rd0Rd0 * da00[i] + Rd0Rd1 * da01[i] + Rd0Rd2 * da02[i] + Rd0Rd3 * da03[i]
@@ -756,20 +757,20 @@ Scalar SplineMotion<Scalar>::computeDWMax() const
     da[i] /= 4.0;
   }
 
-  Scalar roots[3];
+  S roots[3];
 
   int root_num = PolySolverd::solveCubic(da, roots);
 
-  Scalar dWdW_max = a[0] * tf_t * tf_t * tf_t + a[1] * tf_t * tf_t * tf_t + a[2] * tf_t * tf_t + a[3] * tf_t + a[4];
-  Scalar dWdW_1 = a[0] + a[1] + a[2] + a[3] + a[4];
+  S dWdW_max = a[0] * tf_t * tf_t * tf_t + a[1] * tf_t * tf_t * tf_t + a[2] * tf_t * tf_t + a[3] * tf_t + a[4];
+  S dWdW_1 = a[0] + a[1] + a[2] + a[3] + a[4];
   if(dWdW_max < dWdW_1) dWdW_max = dWdW_1;
   for(int i = 0; i < root_num; ++i)
   {
-    Scalar v = roots[i];
+    S v = roots[i];
 
     if(v >= tf_t && v <= 1)
     {
-      Scalar value = a[0] * v * v * v * v + a[1] * v * v * v + a[2] * v * v + a[3] * v + a[4];
+      S value = a[0] * v * v * v * v + a[1] * v * v * v + a[2] * v * v + a[3] * v + a[4];
       if(value > dWdW_max) dWdW_max = value;
     }
   }
@@ -778,29 +779,29 @@ Scalar SplineMotion<Scalar>::computeDWMax() const
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar SplineMotion<Scalar>::getWeight0(Scalar t) const
+template <typename S>
+S SplineMotion<S>::getWeight0(S t) const
 {
   return (1 - 3 * t + 3 * t * t - t * t * t) / 6.0;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar SplineMotion<Scalar>::getWeight1(Scalar t) const
+template <typename S>
+S SplineMotion<S>::getWeight1(S t) const
 {
   return (4 - 6 * t * t + 3 * t * t * t) / 6.0;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar SplineMotion<Scalar>::getWeight2(Scalar t) const
+template <typename S>
+S SplineMotion<S>::getWeight2(S t) const
 {
   return (1 + 3 * t + 3 * t * t - 3 * t * t * t) / 6.0;
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar SplineMotion<Scalar>::getWeight3(Scalar t) const
+template <typename S>
+S SplineMotion<S>::getWeight3(S t) const
 {
   return t * t * t / 6.0;
 }
@@ -809,8 +810,8 @@ Scalar SplineMotion<Scalar>::getWeight3(Scalar t) const
 
 
 //==============================================================================
-template <typename Scalar>
-InterpMotion<Scalar>::InterpMotion() : MotionBase<Scalar>(), angular_axis(Vector3<Scalar>::UnitX())
+template <typename S>
+InterpMotion<S>::InterpMotion() : MotionBase<S>(), angular_axis(Vector3<S>::UnitX())
 {
   // Default angular velocity is zero
   angular_vel = 0;
@@ -821,11 +822,11 @@ InterpMotion<Scalar>::InterpMotion() : MotionBase<Scalar>(), angular_axis(Vector
 }
 
 //==============================================================================
-template <typename Scalar>
-InterpMotion<Scalar>::InterpMotion(const Matrix3<Scalar>& R1, const Vector3<Scalar>& T1,
-                           const Matrix3<Scalar>& R2, const Vector3<Scalar>& T2) : MotionBase<Scalar>(),
-                                                                  tf1(Transform3<Scalar>::Identity()),
-                                                                  tf2(Transform3<Scalar>::Identity())
+template <typename S>
+InterpMotion<S>::InterpMotion(const Matrix3<S>& R1, const Vector3<S>& T1,
+                           const Matrix3<S>& R2, const Vector3<S>& T2) : MotionBase<S>(),
+                                                                  tf1(Transform3<S>::Identity()),
+                                                                  tf2(Transform3<S>::Identity())
 {
   tf1.linear() = R1;
   tf1.translation() = T1;
@@ -840,8 +841,8 @@ InterpMotion<Scalar>::InterpMotion(const Matrix3<Scalar>& R1, const Vector3<Scal
 }
 
 //==============================================================================
-template <typename Scalar>
-InterpMotion<Scalar>::InterpMotion(const Transform3<Scalar>& tf1_, const Transform3<Scalar>& tf2_) : MotionBase<Scalar>(),
+template <typename S>
+InterpMotion<S>::InterpMotion(const Transform3<S>& tf1_, const Transform3<S>& tf2_) : MotionBase<S>(),
                                                                                tf1(tf1_),
                                                                                tf2(tf2_),
                                                                                tf(tf1)
@@ -851,12 +852,12 @@ InterpMotion<Scalar>::InterpMotion(const Transform3<Scalar>& tf1_, const Transfo
 }
 
 //==============================================================================
-template <typename Scalar>
-InterpMotion<Scalar>::InterpMotion(const Matrix3<Scalar>& R1, const Vector3<Scalar>& T1,
-                           const Matrix3<Scalar>& R2, const Vector3<Scalar>& T2,
-                           const Vector3<Scalar>& O) : MotionBase<Scalar>(),
-                                             tf1(Transform3<Scalar>::Identity()),
-                                             tf2(Transform3<Scalar>::Identity()),
+template <typename S>
+InterpMotion<S>::InterpMotion(const Matrix3<S>& R1, const Vector3<S>& T1,
+                           const Matrix3<S>& R2, const Vector3<S>& T2,
+                           const Vector3<S>& O) : MotionBase<S>(),
+                                             tf1(Transform3<S>::Identity()),
+                                             tf2(Transform3<S>::Identity()),
                                              reference_p(O)
 {
   tf1.linear() = R1;
@@ -872,8 +873,8 @@ InterpMotion<Scalar>::InterpMotion(const Matrix3<Scalar>& R1, const Vector3<Scal
 }
 
 //==============================================================================
-template <typename Scalar>
-InterpMotion<Scalar>::InterpMotion(const Transform3<Scalar>& tf1_, const Transform3<Scalar>& tf2_, const Vector3<Scalar>& O) : MotionBase<Scalar>(),
+template <typename S>
+InterpMotion<S>::InterpMotion(const Transform3<S>& tf1_, const Transform3<S>& tf2_, const Vector3<S>& O) : MotionBase<S>(),
                                                                                                tf1(tf1_),
                                                                                                tf2(tf2_),
                                                                                                tf(tf1),
@@ -882,8 +883,8 @@ InterpMotion<Scalar>::InterpMotion(const Transform3<Scalar>& tf1_, const Transfo
 }
 
 //==============================================================================
-template <typename Scalar>
-bool InterpMotion<Scalar>::integrate(double dt) const
+template <typename S>
+bool InterpMotion<S>::integrate(double dt) const
 {
   if(dt > 1) dt = 1;
 
@@ -894,12 +895,12 @@ bool InterpMotion<Scalar>::integrate(double dt) const
 }
 
 //==============================================================================
-template <typename Scalar>
-void InterpMotion<Scalar>::computeVelocity()
+template <typename S>
+void InterpMotion<S>::computeVelocity()
 {
   linear_vel = tf2 * reference_p - tf1 * reference_p;
 
-  const AngleAxis<Scalar> aa(tf2.linear() * tf1.linear().transpose());
+  const AngleAxis<S> aa(tf2.linear() * tf1.linear().transpose());
   angular_axis = aa.axis();
   angular_vel = aa.angle();
 
@@ -911,18 +912,18 @@ void InterpMotion<Scalar>::computeVelocity()
 }
 
 //==============================================================================
-template <typename Scalar>
-Quaternion<Scalar> InterpMotion<Scalar>::deltaRotation(Scalar dt) const
+template <typename S>
+Quaternion<S> InterpMotion<S>::deltaRotation(S dt) const
 {
-  return Quaternion<Scalar>(AngleAxis<Scalar>((Scalar)(dt * angular_vel), angular_axis));
+  return Quaternion<S>(AngleAxis<S>((S)(dt * angular_vel), angular_axis));
 }
 
 //==============================================================================
-template <typename Scalar>
-Quaternion<Scalar> InterpMotion<Scalar>::absoluteRotation(Scalar dt) const
+template <typename S>
+Quaternion<S> InterpMotion<S>::absoluteRotation(S dt) const
 {
-  Quaternion<Scalar> delta_t = deltaRotation(dt);
-  return delta_t * Quaternion<Scalar>(tf1.linear());
+  Quaternion<S> delta_t = deltaRotation(dt);
+  return delta_t * Quaternion<S>(tf1.linear());
 }
 
 } // namespace fcl

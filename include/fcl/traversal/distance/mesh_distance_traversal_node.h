@@ -54,7 +54,7 @@ class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   MeshDistanceTraversalNode();
 
@@ -62,17 +62,17 @@ public:
   void leafTesting(int b1, int b2) const;
 
   /// @brief Whether the traversal process can stop early
-  bool canStop(Scalar c) const;
+  bool canStop(S c) const;
 
-  Vector3<Scalar>* vertices1;
-  Vector3<Scalar>* vertices2;
+  Vector3<S>* vertices1;
+  Vector3<S>* vertices2;
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
 
   /// @brief relative and absolute error, default value is 0.01 for both terms
-  Scalar rel_err;
-  Scalar abs_err;
+  S rel_err;
+  S abs_err;
 };
 
 /// @brief Initialize traversal node for distance computation between two
@@ -81,17 +81,17 @@ template <typename BV>
 bool initialize(
     MeshDistanceTraversalNode<BV>& node,
     BVHModel<BV>& model1,
-    Transform3<typename BV::Scalar>& tf1,
+    Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    Transform3<typename BV::Scalar>& tf2,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result,
+    Transform3<typename BV::S>& tf2,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result,
     bool use_refit = false, bool refit_bottomup = false);
 
 /// @brief Traversal node for distance computation between two meshes if their underlying BVH node is oriented node (RSS, OBBRSS, kIOS)
-template <typename Scalar>
+template <typename S>
 class MeshDistanceTraversalNodeRSS
-    : public MeshDistanceTraversalNode<RSS<Scalar>>
+    : public MeshDistanceTraversalNode<RSS<S>>
 {
 public:
   MeshDistanceTraversalNodeRSS();
@@ -100,16 +100,16 @@ public:
 
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const
+  S BVTesting(int b1, int b2) const
   {
     if (this->enable_statistics) this->num_bv_tests++;
 
-    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+    return distance(tf.linear(), tf.translation(), this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const;
 
-  Transform3<Scalar> tf;
+  Transform3<S> tf;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -119,19 +119,19 @@ using MeshDistanceTraversalNodeRSSd = MeshDistanceTraversalNodeRSS<double>;
 
 /// @brief Initialize traversal node for distance computation between two
 ///  meshes, specialized for RSS type
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshDistanceTraversalNodeRSS<Scalar>& node,
-    const BVHModel<RSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<RSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request,
-    DistanceResult<Scalar>& result);
+    MeshDistanceTraversalNodeRSS<S>& node,
+    const BVHModel<RSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<RSS<S>>& model2,
+    const Transform3<S>& tf2,
+    const DistanceRequest<S>& request,
+    DistanceResult<S>& result);
 
-template <typename Scalar>
+template <typename S>
 class MeshDistanceTraversalNodekIOS
-    : public MeshDistanceTraversalNode<kIOS<Scalar>>
+    : public MeshDistanceTraversalNode<kIOS<S>>
 {
 public:
   MeshDistanceTraversalNodekIOS();
@@ -140,16 +140,16 @@ public:
   
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const
+  S BVTesting(int b1, int b2) const
   {
     if (this->enable_statistics) this->num_bv_tests++;
 
-    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+    return distance(tf.linear(), tf.translation(), this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const;
 
-  Transform3<Scalar> tf;
+  Transform3<S> tf;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -159,19 +159,19 @@ using MeshDistanceTraversalNodekIOSd = MeshDistanceTraversalNodekIOS<double>;
 
 /// @brief Initialize traversal node for distance computation between two
 ///  meshes, specialized for kIOS type
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshDistanceTraversalNodekIOS<Scalar>& node,
-    const BVHModel<kIOS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<kIOS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request,
-    DistanceResult<Scalar>& result);
+    MeshDistanceTraversalNodekIOS<S>& node,
+    const BVHModel<kIOS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<kIOS<S>>& model2,
+    const Transform3<S>& tf2,
+    const DistanceRequest<S>& request,
+    DistanceResult<S>& result);
 
-template <typename Scalar>
+template <typename S>
 class MeshDistanceTraversalNodeOBBRSS
-    : public MeshDistanceTraversalNode<OBBRSS<Scalar>>
+    : public MeshDistanceTraversalNode<OBBRSS<S>>
 {
 public:
   MeshDistanceTraversalNodeOBBRSS();
@@ -180,16 +180,16 @@ public:
 
   void postprocess();
 
-  Scalar BVTesting(int b1, int b2) const
+  S BVTesting(int b1, int b2) const
   {
     if (this->enable_statistics) this->num_bv_tests++;
 
-    return distance(tf, this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
+    return distance(tf.linear(), tf.translation(), this->model1->getBV(b1).bv, this->model2->getBV(b2).bv);
   }
 
   void leafTesting(int b1, int b2) const;
 
-  Transform3<Scalar> tf;
+  Transform3<S> tf;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -199,15 +199,15 @@ using MeshDistanceTraversalNodeOBBRSSd = MeshDistanceTraversalNodeOBBRSS<double>
 
 /// @brief Initialize traversal node for distance computation between two
 ///  meshes, specialized for OBBRSS type
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshDistanceTraversalNodeOBBRSS<Scalar>& node,
-    const BVHModel<OBBRSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<OBBRSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request,
-    DistanceResult<Scalar>& result);
+    MeshDistanceTraversalNodeOBBRSS<S>& node,
+    const BVHModel<OBBRSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<OBBRSS<S>>& model2,
+    const Transform3<S>& tf2,
+    const DistanceRequest<S>& request,
+    DistanceResult<S>& result);
 
 namespace details
 {
@@ -219,16 +219,16 @@ void meshDistanceOrientedNodeLeafTesting(
     int b2,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
+    const Matrix3<typename BV::S>& R,
+    const Vector3<typename BV::S>& T,
     bool enable_statistics,
     int& num_leaf_tests,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result);
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result);
 
 template <typename BV>
 void meshDistanceOrientedNodeLeafTesting(
@@ -236,52 +236,52 @@ void meshDistanceOrientedNodeLeafTesting(
     int b2,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
-    const Transform3<typename BV::Scalar>& tf,
+    const Transform3<typename BV::S>& tf,
     bool enable_statistics,
     int& num_leaf_tests,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result);
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result);
 
 template <typename BV>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    const Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
     int init_tri_id1,
     int init_tri_id2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result);
+    const Matrix3<typename BV::S>& R,
+    const Vector3<typename BV::S>& T,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result);
 
 template <typename BV>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    const Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
     int init_tri_id1,
     int init_tri_id2,
-    const Transform3<typename BV::Scalar>& tf,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result);
+    const Transform3<typename BV::S>& tf,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result);
 
 template <typename BV>
 void distancePostprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Transform3<typename BV::Scalar>& tf1,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result);
+    const Transform3<typename BV::S>& tf1,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result);
 
 } // namespace details
 
@@ -295,10 +295,10 @@ void distancePostprocessOrientedNode(
 template <typename BV>
 MeshDistanceTraversalNode<BV>::MeshDistanceTraversalNode() : BVHDistanceTraversalNode<BV>()
 {
-  vertices1 = NULL;
-  vertices2 = NULL;
-  tri_indices1 = NULL;
-  tri_indices2 = NULL;
+  vertices1 = nullptr;
+  vertices2 = nullptr;
+  tri_indices1 = nullptr;
+  tri_indices2 = nullptr;
 
   rel_err = this->request.rel_err;
   abs_err = this->request.abs_err;
@@ -319,18 +319,18 @@ void MeshDistanceTraversalNode<BV>::leafTesting(int b1, int b2) const
   const Triangle& tri_id1 = tri_indices1[primitive_id1];
   const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-  const Vector3<Scalar>& t11 = vertices1[tri_id1[0]];
-  const Vector3<Scalar>& t12 = vertices1[tri_id1[1]];
-  const Vector3<Scalar>& t13 = vertices1[tri_id1[2]];
+  const Vector3<S>& t11 = vertices1[tri_id1[0]];
+  const Vector3<S>& t12 = vertices1[tri_id1[1]];
+  const Vector3<S>& t13 = vertices1[tri_id1[2]];
 
-  const Vector3<Scalar>& t21 = vertices2[tri_id2[0]];
-  const Vector3<Scalar>& t22 = vertices2[tri_id2[1]];
-  const Vector3<Scalar>& t23 = vertices2[tri_id2[2]];
+  const Vector3<S>& t21 = vertices2[tri_id2[0]];
+  const Vector3<S>& t22 = vertices2[tri_id2[1]];
+  const Vector3<S>& t23 = vertices2[tri_id2[2]];
 
   // nearest point pair
-  Vector3<Scalar> P1, P2;
+  Vector3<S> P1, P2;
 
-  Scalar d = TriangleDistance<Scalar>::triDistance(t11, t12, t13, t21, t22, t23,
+  S d = TriangleDistance<S>::triDistance(t11, t12, t13, t21, t22, t23,
                                            P1, P2);
 
   if(this->request.enable_nearest_points)
@@ -345,7 +345,7 @@ void MeshDistanceTraversalNode<BV>::leafTesting(int b1, int b2) const
 
 //==============================================================================
 template <typename BV>
-bool MeshDistanceTraversalNode<BV>::canStop(typename BV::Scalar c) const
+bool MeshDistanceTraversalNode<BV>::canStop(typename BV::S c) const
 {
   if((c >= this->result->min_distance - abs_err) && (c * (1 + rel_err) >= this->result->min_distance))
     return true;
@@ -357,26 +357,26 @@ template <typename BV>
 bool initialize(
     MeshDistanceTraversalNode<BV>& node,
     BVHModel<BV>& model1,
-    Transform3<typename BV::Scalar>& tf1,
+    Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    Transform3<typename BV::Scalar>& tf2,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result,
+    Transform3<typename BV::S>& tf2,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result,
     bool use_refit,
     bool refit_bottomup)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
 
   if(!tf1.matrix().isIdentity())
   {
-    std::vector<Vector3<Scalar>> vertices_transformed1(model1.num_vertices);
+    std::vector<Vector3<S>> vertices_transformed1(model1.num_vertices);
     for(int i = 0; i < model1.num_vertices; ++i)
     {
-      Vector3<Scalar>& p = model1.vertices[i];
-      Vector3<Scalar> new_v = tf1 * p;
+      Vector3<S>& p = model1.vertices[i];
+      Vector3<S> new_v = tf1 * p;
       vertices_transformed1[i] = new_v;
     }
 
@@ -389,11 +389,11 @@ bool initialize(
 
   if(!tf2.matrix().isIdentity())
   {
-    std::vector<Vector3<Scalar>> vertices_transformed2(model2.num_vertices);
+    std::vector<Vector3<S>> vertices_transformed2(model2.num_vertices);
     for(int i = 0; i < model2.num_vertices; ++i)
     {
-      Vector3<Scalar>& p = model2.vertices[i];
-      Vector3<Scalar> new_v = tf2 * p;
+      Vector3<S>& p = model2.vertices[i];
+      Vector3<S> new_v = tf2 * p;
       vertices_transformed2[i] = new_v;
     }
 
@@ -422,16 +422,16 @@ bool initialize(
 }
 
 //==============================================================================
-template <typename Scalar>
-MeshDistanceTraversalNodeRSS<Scalar>::MeshDistanceTraversalNodeRSS()
-  : MeshDistanceTraversalNode<RSS<Scalar>>(),
-    tf(Transform3<Scalar>::Identity())
+template <typename S>
+MeshDistanceTraversalNodeRSS<S>::MeshDistanceTraversalNodeRSS()
+  : MeshDistanceTraversalNode<RSS<S>>(),
+    tf(Transform3<S>::Identity())
 {
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodeRSS<Scalar>::preprocess()
+template <typename S>
+void MeshDistanceTraversalNodeRSS<S>::preprocess()
 {
   details::distancePreprocessOrientedNode(
         this->model1,
@@ -448,8 +448,8 @@ void MeshDistanceTraversalNodeRSS<Scalar>::preprocess()
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodeRSS<Scalar>::postprocess()
+template <typename S>
+void MeshDistanceTraversalNodeRSS<S>::postprocess()
 {
   details::distancePostprocessOrientedNode(
         this->model1,
@@ -460,8 +460,8 @@ void MeshDistanceTraversalNodeRSS<Scalar>::postprocess()
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodeRSS<Scalar>::leafTesting(int b1, int b2) const
+template <typename S>
+void MeshDistanceTraversalNodeRSS<S>::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(
         b1,
@@ -480,17 +480,17 @@ void MeshDistanceTraversalNodeRSS<Scalar>::leafTesting(int b1, int b2) const
 }
 
 //==============================================================================
-template <typename Scalar>
-MeshDistanceTraversalNodekIOS<Scalar>::MeshDistanceTraversalNodekIOS()
-  : MeshDistanceTraversalNode<kIOS<Scalar>>(),
-    tf(Transform3<Scalar>::Identity())
+template <typename S>
+MeshDistanceTraversalNodekIOS<S>::MeshDistanceTraversalNodekIOS()
+  : MeshDistanceTraversalNode<kIOS<S>>(),
+    tf(Transform3<S>::Identity())
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodekIOS<Scalar>::preprocess()
+template <typename S>
+void MeshDistanceTraversalNodekIOS<S>::preprocess()
 {
   details::distancePreprocessOrientedNode(
         this->model1,
@@ -507,8 +507,8 @@ void MeshDistanceTraversalNodekIOS<Scalar>::preprocess()
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodekIOS<Scalar>::postprocess()
+template <typename S>
+void MeshDistanceTraversalNodekIOS<S>::postprocess()
 {
   details::distancePostprocessOrientedNode(
         this->model1,
@@ -519,8 +519,8 @@ void MeshDistanceTraversalNodekIOS<Scalar>::postprocess()
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodekIOS<Scalar>::leafTesting(int b1, int b2) const
+template <typename S>
+void MeshDistanceTraversalNodekIOS<S>::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(
         b1,
@@ -539,17 +539,17 @@ void MeshDistanceTraversalNodekIOS<Scalar>::leafTesting(int b1, int b2) const
 }
 
 //==============================================================================
-template <typename Scalar>
-MeshDistanceTraversalNodeOBBRSS<Scalar>::MeshDistanceTraversalNodeOBBRSS()
-  : MeshDistanceTraversalNode<OBBRSS<Scalar>>(),
-    tf(Transform3<Scalar>::Identity())
+template <typename S>
+MeshDistanceTraversalNodeOBBRSS<S>::MeshDistanceTraversalNodeOBBRSS()
+  : MeshDistanceTraversalNode<OBBRSS<S>>(),
+    tf(Transform3<S>::Identity())
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodeOBBRSS<Scalar>::preprocess()
+template <typename S>
+void MeshDistanceTraversalNodeOBBRSS<S>::preprocess()
 {
   details::distancePreprocessOrientedNode(
         this->model1,
@@ -566,8 +566,8 @@ void MeshDistanceTraversalNodeOBBRSS<Scalar>::preprocess()
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodeOBBRSS<Scalar>::postprocess()
+template <typename S>
+void MeshDistanceTraversalNodeOBBRSS<S>::postprocess()
 {
   details::distancePostprocessOrientedNode(
         this->model1,
@@ -578,8 +578,8 @@ void MeshDistanceTraversalNodeOBBRSS<Scalar>::postprocess()
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshDistanceTraversalNodeOBBRSS<Scalar>::leafTesting(int b1, int b2) const
+template <typename S>
+void MeshDistanceTraversalNodeOBBRSS<S>::leafTesting(int b1, int b2) const
 {
   details::meshDistanceOrientedNodeLeafTesting(
         b1,
@@ -606,18 +606,18 @@ void meshDistanceOrientedNodeLeafTesting(int b1,
     int b2,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
+    const Matrix3<typename BV::S>& R,
+    const Vector3<typename BV::S>& T,
     bool enable_statistics,
     int& num_leaf_tests,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result)
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if(enable_statistics) num_leaf_tests++;
 
@@ -630,18 +630,18 @@ void meshDistanceOrientedNodeLeafTesting(int b1,
   const Triangle& tri_id1 = tri_indices1[primitive_id1];
   const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-  const Vector3<Scalar>& t11 = vertices1[tri_id1[0]];
-  const Vector3<Scalar>& t12 = vertices1[tri_id1[1]];
-  const Vector3<Scalar>& t13 = vertices1[tri_id1[2]];
+  const Vector3<S>& t11 = vertices1[tri_id1[0]];
+  const Vector3<S>& t12 = vertices1[tri_id1[1]];
+  const Vector3<S>& t13 = vertices1[tri_id1[2]];
 
-  const Vector3<Scalar>& t21 = vertices2[tri_id2[0]];
-  const Vector3<Scalar>& t22 = vertices2[tri_id2[1]];
-  const Vector3<Scalar>& t23 = vertices2[tri_id2[2]];
+  const Vector3<S>& t21 = vertices2[tri_id2[0]];
+  const Vector3<S>& t22 = vertices2[tri_id2[1]];
+  const Vector3<S>& t23 = vertices2[tri_id2[2]];
 
   // nearest point pair
-  Vector3<Scalar> P1, P2;
+  Vector3<S> P1, P2;
 
-  Scalar d = TriangleDistance<Scalar>::triDistance(t11, t12, t13, t21, t22, t23,
+  S d = TriangleDistance<S>::triDistance(t11, t12, t13, t21, t22, t23,
                                            R, T,
                                            P1, P2);
 
@@ -658,17 +658,17 @@ void meshDistanceOrientedNodeLeafTesting(
     int b2,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
-    const Transform3<typename BV::Scalar>& tf,
+    const Transform3<typename BV::S>& tf,
     bool enable_statistics,
     int& num_leaf_tests,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result)
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if(enable_statistics) num_leaf_tests++;
 
@@ -681,18 +681,18 @@ void meshDistanceOrientedNodeLeafTesting(
   const Triangle& tri_id1 = tri_indices1[primitive_id1];
   const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-  const Vector3<Scalar>& t11 = vertices1[tri_id1[0]];
-  const Vector3<Scalar>& t12 = vertices1[tri_id1[1]];
-  const Vector3<Scalar>& t13 = vertices1[tri_id1[2]];
+  const Vector3<S>& t11 = vertices1[tri_id1[0]];
+  const Vector3<S>& t12 = vertices1[tri_id1[1]];
+  const Vector3<S>& t13 = vertices1[tri_id1[2]];
 
-  const Vector3<Scalar>& t21 = vertices2[tri_id2[0]];
-  const Vector3<Scalar>& t22 = vertices2[tri_id2[1]];
-  const Vector3<Scalar>& t23 = vertices2[tri_id2[2]];
+  const Vector3<S>& t21 = vertices2[tri_id2[0]];
+  const Vector3<S>& t22 = vertices2[tri_id2[1]];
+  const Vector3<S>& t23 = vertices2[tri_id2[2]];
 
   // nearest point pair
-  Vector3<Scalar> P1, P2;
+  Vector3<S> P1, P2;
 
-  Scalar d = TriangleDistance<Scalar>::triDistance(
+  S d = TriangleDistance<S>::triDistance(
         t11, t12, t13, t21, t22, t23, tf, P1, P2);
 
   if(request.enable_nearest_points)
@@ -706,24 +706,24 @@ template <typename BV>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    const Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
     int init_tri_id1,
     int init_tri_id2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result)
+    const Matrix3<typename BV::S>& R,
+    const Vector3<typename BV::S>& T,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   const Triangle& init_tri1 = tri_indices1[init_tri_id1];
   const Triangle& init_tri2 = tri_indices2[init_tri_id2];
 
-  Vector3<Scalar> init_tri1_points[3];
-  Vector3<Scalar> init_tri2_points[3];
+  Vector3<S> init_tri1_points[3];
+  Vector3<S> init_tri2_points[3];
 
   init_tri1_points[0] = vertices1[init_tri1[0]];
   init_tri1_points[1] = vertices1[init_tri1[1]];
@@ -733,8 +733,8 @@ void distancePreprocessOrientedNode(
   init_tri2_points[1] = vertices2[init_tri2[1]];
   init_tri2_points[2] = vertices2[init_tri2[2]];
 
-  Vector3<Scalar> p1, p2;
-  Scalar distance = TriangleDistance<Scalar>::triDistance(init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
+  Vector3<S> p1, p2;
+  S distance = TriangleDistance<S>::triDistance(init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
       init_tri2_points[0], init_tri2_points[1], init_tri2_points[2],
       R, T, p1, p2);
 
@@ -749,23 +749,23 @@ template <typename BV>
 void distancePreprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Vector3<typename BV::Scalar>* vertices1,
-    Vector3<typename BV::Scalar>* vertices2,
+    const Vector3<typename BV::S>* vertices1,
+    Vector3<typename BV::S>* vertices2,
     Triangle* tri_indices1,
     Triangle* tri_indices2,
     int init_tri_id1,
     int init_tri_id2,
-    const Transform3<typename BV::Scalar>& tf,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result)
+    const Transform3<typename BV::S>& tf,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   const Triangle& init_tri1 = tri_indices1[init_tri_id1];
   const Triangle& init_tri2 = tri_indices2[init_tri_id2];
 
-  Vector3<Scalar> init_tri1_points[3];
-  Vector3<Scalar> init_tri2_points[3];
+  Vector3<S> init_tri1_points[3];
+  Vector3<S> init_tri2_points[3];
 
   init_tri1_points[0] = vertices1[init_tri1[0]];
   init_tri1_points[1] = vertices1[init_tri1[1]];
@@ -775,9 +775,9 @@ void distancePreprocessOrientedNode(
   init_tri2_points[1] = vertices2[init_tri2[1]];
   init_tri2_points[2] = vertices2[init_tri2[2]];
 
-  Vector3<Scalar> p1, p2;
-  Scalar distance
-      = TriangleDistance<Scalar>::triDistance(
+  Vector3<S> p1, p2;
+  S distance
+      = TriangleDistance<S>::triDistance(
         init_tri1_points[0], init_tri1_points[1], init_tri1_points[2],
         init_tri2_points[0], init_tri2_points[1], init_tri2_points[2],
         tf, p1, p2);
@@ -793,9 +793,9 @@ template <typename BV>
 void distancePostprocessOrientedNode(
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
-    const Transform3<typename BV::Scalar>& tf1,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result)
+    const Transform3<typename BV::S>& tf1,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
   /// the points obtained by triDistance are not in world space: both are in object1's local coordinate system, so we need to convert them into the world space.
   if(request.enable_nearest_points && (result.o1 == model1) && (result.o2 == model2))
@@ -812,10 +812,10 @@ namespace details
 template <typename BV, typename OrientedNode>
 static inline bool setupMeshDistanceOrientedNode(
     OrientedNode& node,
-    const BVHModel<BV>& model1, const Transform3<typename BV::Scalar>& tf1,
-    const BVHModel<BV>& model2, const Transform3<typename BV::Scalar>& tf2,
-    const DistanceRequest<typename BV::Scalar>& request,
-    DistanceResult<typename BV::Scalar>& result)
+    const BVHModel<BV>& model1, const Transform3<typename BV::S>& tf1,
+    const BVHModel<BV>& model2, const Transform3<typename BV::S>& tf2,
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -842,45 +842,45 @@ static inline bool setupMeshDistanceOrientedNode(
 } // namespace details
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshDistanceTraversalNodeRSS<Scalar>& node,
-    const BVHModel<RSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<RSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request,
-    DistanceResult<Scalar>& result)
+    MeshDistanceTraversalNodeRSS<S>& node,
+    const BVHModel<RSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<RSS<S>>& model2,
+    const Transform3<S>& tf2,
+    const DistanceRequest<S>& request,
+    DistanceResult<S>& result)
 {
   return details::setupMeshDistanceOrientedNode(
         node, model1, tf1, model2, tf2, request, result);
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshDistanceTraversalNodekIOS<Scalar>& node,
-    const BVHModel<kIOS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<kIOS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request,
-    DistanceResult<Scalar>& result)
+    MeshDistanceTraversalNodekIOS<S>& node,
+    const BVHModel<kIOS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<kIOS<S>>& model2,
+    const Transform3<S>& tf2,
+    const DistanceRequest<S>& request,
+    DistanceResult<S>& result)
 {
   return details::setupMeshDistanceOrientedNode(
         node, model1, tf1, model2, tf2, request, result);
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshDistanceTraversalNodeOBBRSS<Scalar>& node,
-    const BVHModel<OBBRSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<OBBRSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    const DistanceRequest<Scalar>& request,
-    DistanceResult<Scalar>& result)
+    MeshDistanceTraversalNodeOBBRSS<S>& node,
+    const BVHModel<OBBRSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<OBBRSS<S>>& model2,
+    const Transform3<S>& tf2,
+    const DistanceRequest<S>& request,
+    DistanceResult<S>& result)
 {
   return details::setupMeshDistanceOrientedNode(
         node, model1, tf1, model2, tf2, request, result);

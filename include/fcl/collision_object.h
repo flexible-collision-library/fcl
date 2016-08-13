@@ -48,12 +48,12 @@ namespace fcl
 
 /// @brief the object for collision or distance computation, contains the
 /// geometry and the transform information
-template <typename Scalar>
+template <typename S>
 class CollisionObject
 {
 public:
- CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_) :
-    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3<Scalar>::Identity())
+ CollisionObject(const std::shared_ptr<CollisionGeometry<S>> &cgeom_) :
+    cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3<S>::Identity())
   {
     if (cgeom)
     {
@@ -62,15 +62,15 @@ public:
     }
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Transform3<Scalar>& tf) :
+  CollisionObject(const std::shared_ptr<CollisionGeometry<S>> &cgeom_, const Transform3<S>& tf) :
     cgeom(cgeom_), cgeom_const(cgeom_), t(tf)
   {
     cgeom->computeLocalAABB();
     computeAABB();
   }
 
-  CollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>> &cgeom_, const Matrix3<Scalar>& R, const Vector3<Scalar>& T):
-      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3<Scalar>::Identity())
+  CollisionObject(const std::shared_ptr<CollisionGeometry<S>> &cgeom_, const Matrix3<S>& R, const Vector3<S>& T):
+      cgeom(cgeom_), cgeom_const(cgeom_), t(Transform3<S>::Identity())
   {
     t.linear() = R;
     t.translation() = T;
@@ -95,7 +95,7 @@ public:
   }
 
   /// @brief get the AABB in world space
-  const AABB<Scalar>& getAABB() const
+  const AABB<S>& getAABB() const
   {
     return aabb;
   }
@@ -109,8 +109,8 @@ public:
     }
     else
     {
-      Vector3<Scalar> center = t * cgeom->aabb_center;
-      Vector3<Scalar> delta = Vector3<Scalar>::Constant(cgeom->aabb_radius);
+      Vector3<S> center = t * cgeom->aabb_center;
+      Vector3<S> delta = Vector3<S>::Constant(cgeom->aabb_radius);
       aabb.min_ = center - delta;
       aabb.max_ = center + delta;
     }
@@ -129,63 +129,63 @@ public:
   }
 
   /// @brief get translation of the object
-  const Vector3<Scalar> getTranslation() const
+  const Vector3<S> getTranslation() const
   {
     return t.translation();
   }
 
   /// @brief get matrix rotation of the object
-  const Matrix3<Scalar> getRotation() const
+  const Matrix3<S> getRotation() const
   {
     return t.linear();
   }
 
   /// @brief get quaternion rotation of the object
-  const Quaternion<Scalar> getQuatRotation() const
+  const Quaternion<S> getQuatRotation() const
   {
-    return Quaternion<Scalar>(t.linear());
+    return Quaternion<S>(t.linear());
   }
 
   /// @brief get object's transform
-  const Transform3<Scalar>& getTransform() const
+  const Transform3<S>& getTransform() const
   {
     return t;
   }
 
   /// @brief set object's rotation matrix
-  void setRotation(const Matrix3<Scalar>& R)
+  void setRotation(const Matrix3<S>& R)
   {
     t.linear() = R;
   }
 
   /// @brief set object's translation
-  void setTranslation(const Vector3<Scalar>& T)
+  void setTranslation(const Vector3<S>& T)
   {
     t.translation() = T;
   }
 
   /// @brief set object's quatenrion rotation
-  void setQuatRotation(const Quaternion<Scalar>& q)
+  void setQuatRotation(const Quaternion<S>& q)
   {
     t.linear() = q.toRotationMatrix();
   }
 
   /// @brief set object's transform
-  void setTransform(const Matrix3<Scalar>& R, const Vector3<Scalar>& T)
+  void setTransform(const Matrix3<S>& R, const Vector3<S>& T)
   {
     setRotation(R);
     setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Quaternion<Scalar>& q, const Vector3<Scalar>& T)
+  void setTransform(const Quaternion<S>& q, const Vector3<S>& T)
   {
     setQuatRotation(q);
     setTranslation(T);
   }
 
   /// @brief set object's transform
-  void setTransform(const Transform3<Scalar>& tf)
+  void setTransform(const Transform3<S>& tf)
   {
     t = tf;
   }
@@ -204,25 +204,25 @@ public:
 
   /// @brief get geometry from the object instance
   FCL_DEPRECATED
-  const CollisionGeometry<Scalar>* getCollisionGeometry() const
+  const CollisionGeometry<S>* getCollisionGeometry() const
   {
     return cgeom.get();
   }
 
   /// @brief get geometry from the object instance
-  const std::shared_ptr<const CollisionGeometry<Scalar>>& collisionGeometry() const
+  const std::shared_ptr<const CollisionGeometry<S>>& collisionGeometry() const
   {
     return cgeom_const;
   }
 
   /// @brief get object's cost density
-  Scalar getCostDensity() const
+  S getCostDensity() const
   {
     return cgeom->cost_density;
   }
 
   /// @brief set object's cost density
-  void setCostDensity(Scalar c)
+  void setCostDensity(S c)
   {
     cgeom->cost_density = c;
   }
@@ -247,13 +247,13 @@ public:
 
 protected:
 
-  std::shared_ptr<CollisionGeometry<Scalar>> cgeom;
-  std::shared_ptr<const CollisionGeometry<Scalar>> cgeom_const;
+  std::shared_ptr<CollisionGeometry<S>> cgeom;
+  std::shared_ptr<const CollisionGeometry<S>> cgeom_const;
 
-  Transform3<Scalar> t;
+  Transform3<S> t;
 
-  /// @brief AABB<Scalar> in global coordinate
-  mutable AABB<Scalar> aabb;
+  /// @brief AABB<S> in global coordinate
+  mutable AABB<S> aabb;
 
   /// @brief pointer to user defined data specific to this object
   void *user_data;

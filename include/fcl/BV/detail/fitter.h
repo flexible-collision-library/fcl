@@ -47,10 +47,10 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct Fitter
 {
-  static void fit(Vector3<Scalar>* ps, int n, BV& bv)
+  static void fit(Vector3<S>* ps, int n, BV& bv)
   {
     for(int i = 0; i < n; ++i)
       bv += ps[i];
@@ -60,41 +60,41 @@ struct Fitter
 namespace OBB_fit_functions
 {
 
-template <typename Scalar>
-void fit1(Vector3<Scalar>* ps, OBB<Scalar>& bv)
+template <typename S>
+void fit1(Vector3<S>* ps, OBB<S>& bv)
 {
-  bv.frame.translation() = ps[0];
-  bv.frame.linear().setIdentity();
-  bv.extent.setConstant(0);
+  bv.To = ps[0];
+  bv.axis.setIdentity();
+  bv.extent.setZero();
 }
 
-template <typename Scalar>
-void fit2(Vector3<Scalar>* ps, OBB<Scalar>& bv)
+template <typename S>
+void fit2(Vector3<S>* ps, OBB<S>& bv)
 {
-  const Vector3<Scalar>& p1 = ps[0];
-  const Vector3<Scalar>& p2 = ps[1];
-  Vector3<Scalar> p1p2 = p1 - p2;
-  Scalar len_p1p2 = p1p2.norm();
+  const Vector3<S>& p1 = ps[0];
+  const Vector3<S>& p2 = ps[1];
+  Vector3<S> p1p2 = p1 - p2;
+  S len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
-  bv.frame.linear().col(0) = p1p2;
-  generateCoordinateSystem(bv.frame);
+  bv.axis.col(0) = p1p2;
+  generateCoordinateSystem(bv.axis);
 
   bv.extent << len_p1p2 * 0.5, 0, 0;
-  bv.frame.translation() = 0.5 * (p1 + p2);
+  bv.To.noalias() = 0.5 * (p1 + p2);
 }
 
-template <typename Scalar>
-void fit3(Vector3<Scalar>* ps, OBB<Scalar>& bv)
+template <typename S>
+void fit3(Vector3<S>* ps, OBB<S>& bv)
 {
-  const Vector3<Scalar>& p1 = ps[0];
-  const Vector3<Scalar>& p2 = ps[1];
-  const Vector3<Scalar>& p3 = ps[2];
-  Vector3<Scalar> e[3];
+  const Vector3<S>& p1 = ps[0];
+  const Vector3<S>& p2 = ps[1];
+  const Vector3<S>& p3 = ps[2];
+  Vector3<S> e[3];
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  Scalar len[3];
+  S len[3];
   len[0] = e[0].squaredNorm();
   len[1] = e[1].squaredNorm();
   len[2] = e[2].squaredNorm();
@@ -103,37 +103,37 @@ void fit3(Vector3<Scalar>* ps, OBB<Scalar>& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  bv.frame.linear().col(2) = e[0].cross(e[1]);
-  bv.frame.linear().col(2).normalize();
-  bv.frame.linear().col(0) = e[imax];
-  bv.frame.linear().col(0).normalize();
-  bv.frame.linear().col(1) = bv.frame.linear().col(2).cross(bv.frame.linear().col(0));
+  bv.axis.col(2).noalias() = e[0].cross(e[1]);
+  bv.axis.col(2).normalize();
+  bv.axis.col(0) = e[imax];
+  bv.axis.col(0).normalize();
+  bv.axis.col(1).noalias() = bv.axis.col(2).cross(bv.axis.col(0));
 
-  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, 3, bv.frame, bv.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, 3, bv.axis, bv.To, bv.extent);
 }
 
-template <typename Scalar>
-void fit6(Vector3<Scalar>* ps, OBB<Scalar>& bv)
+template <typename S>
+void fit6(Vector3<S>* ps, OBB<S>& bv)
 {
-  OBB<Scalar> bv1, bv2;
+  OBB<S> bv1, bv2;
   fit3(ps, bv1);
   fit3(ps + 3, bv2);
   bv = bv1 + bv2;
 }
 
-template <typename Scalar>
-void fitn(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
+template <typename S>
+void fitn(Vector3<S>* ps, int n, OBB<S>& bv)
 {
-  Matrix3<Scalar> M;
-  Matrix3<Scalar> E;
-  Vector3<Scalar> s = Vector3<Scalar>::Zero(); // three eigen values
+  Matrix3<S> M;
+  Matrix3<S> E;
+  Vector3<S> s = Vector3<S>::Zero(); // three eigen values
 
-  getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<S>(ps, nullptr, nullptr, nullptr, n, M);
   eigen_old(M, s, E);
-  axisFromEigen(E, s, bv.frame);
+  axisFromEigen(E, s, bv.axis);
 
   // set obb centers and extensions
-  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, n, bv.frame, bv.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, n, bv.axis, bv.To, bv.extent);
 }
 
 } // namespace OBB_fit_functions
@@ -141,45 +141,45 @@ void fitn(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
 
 namespace RSS_fit_functions {
 
-template <typename Scalar>
-void fit1(Vector3<Scalar>* ps, RSS<Scalar>& bv)
+template <typename S>
+void fit1(Vector3<S>* ps, RSS<S>& bv)
 {
-  bv.frame.translation() = ps[0];
-  bv.frame.linear().setIdentity();
+  bv.To = ps[0];
+  bv.axis.setIdentity();
   bv.l[0] = 0;
   bv.l[1] = 0;
   bv.r = 0;
 }
 
-template <typename Scalar>
-void fit2(Vector3<Scalar>* ps, RSS<Scalar>& bv)
+template <typename S>
+void fit2(Vector3<S>* ps, RSS<S>& bv)
 {
-  const Vector3<Scalar>& p1 = ps[0];
-  const Vector3<Scalar>& p2 = ps[1];
-  Vector3<Scalar> p1p2 = p1 - p2;
-  Scalar len_p1p2 = p1p2.norm();
+  const Vector3<S>& p1 = ps[0];
+  const Vector3<S>& p2 = ps[1];
+  Vector3<S> p1p2 = p1 - p2;
+  S len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
-  bv.frame.linear().col(0) = p1p2;
-  generateCoordinateSystem(bv.frame);
+  bv.axis.col(0) = p1p2;
+  generateCoordinateSystem(bv.axis);
   bv.l[0] = len_p1p2;
   bv.l[1] = 0;
 
-  bv.frame.translation() = p2;
+  bv.To = p2;
   bv.r = 0;
 }
 
-template <typename Scalar>
-void fit3(Vector3<Scalar>* ps, RSS<Scalar>& bv)
+template <typename S>
+void fit3(Vector3<S>* ps, RSS<S>& bv)
 {
-  const Vector3<Scalar>& p1 = ps[0];
-  const Vector3<Scalar>& p2 = ps[1];
-  const Vector3<Scalar>& p3 = ps[2];
-  Vector3<Scalar> e[3];
+  const Vector3<S>& p1 = ps[0];
+  const Vector3<S>& p2 = ps[1];
+  const Vector3<S>& p3 = ps[2];
+  Vector3<S> e[3];
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  Scalar len[3];
+  S len[3];
   len[0] = e[0].squaredNorm();
   len[1] = e[1].squaredNorm();
   len[2] = e[2].squaredNorm();
@@ -188,102 +188,102 @@ void fit3(Vector3<Scalar>* ps, RSS<Scalar>& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  bv.frame.linear().col(2) = e[0].cross(e[1]).normalized();
-  bv.frame.linear().col(0) = e[imax].normalized();
-  bv.frame.linear().col(1) = bv.frame.linear().col(2).cross(bv.frame.linear().col(0));
+  bv.axis.col(2).noalias() = e[0].cross(e[1]).normalized();
+  bv.axis.col(0).noalias() = e[imax].normalized();
+  bv.axis.col(1).noalias() = bv.axis.col(2).cross(bv.axis.col(0));
 
-  getRadiusAndOriginAndRectangleSize<Scalar>(ps, NULL, NULL, NULL, 3, bv.frame, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<S>(ps, nullptr, nullptr, nullptr, 3, bv.axis, bv.To, bv.l, bv.r);
 }
 
-template <typename Scalar>
-void fit6(Vector3<Scalar>* ps, RSS<Scalar>& bv)
+template <typename S>
+void fit6(Vector3<S>* ps, RSS<S>& bv)
 {
-  RSS<Scalar> bv1, bv2;
+  RSS<S> bv1, bv2;
   fit3(ps, bv1);
   fit3(ps + 3, bv2);
   bv = bv1 + bv2;
 }
 
-template <typename Scalar>
-void fitn(Vector3<Scalar>* ps, int n, RSS<Scalar>& bv)
+template <typename S>
+void fitn(Vector3<S>* ps, int n, RSS<S>& bv)
 {
-  Matrix3<Scalar> M; // row first matrix
-  Matrix3<Scalar> E; // row first eigen-vectors
-  Vector3<Scalar> s = Vector3<Scalar>::Zero();
+  Matrix3<S> M; // row first matrix
+  Matrix3<S> E; // row first eigen-vectors
+  Vector3<S> s = Vector3<S>::Zero();
 
-  getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<S>(ps, nullptr, nullptr, nullptr, n, M);
   eigen_old(M, s, E);
-  axisFromEigen(E, s, bv.frame);
+  axisFromEigen(E, s, bv.axis);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<Scalar>(ps, NULL, NULL, NULL, n, bv.frame, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<S>(ps, nullptr, nullptr, nullptr, n, bv.axis, bv.To, bv.l, bv.r);
 }
 
 } // namespace RSS_fit_functions
 
 namespace kIOS_fit_functions {
 
-template <typename Scalar>
-void fit1(Vector3<Scalar>* ps, kIOS<Scalar>& bv)
+template <typename S>
+void fit1(Vector3<S>* ps, kIOS<S>& bv)
 {
   bv.num_spheres = 1;
   bv.spheres[0].o = ps[0];
   bv.spheres[0].r = 0;
 
-  bv.obb.frame.linear().setIdentity();
+  bv.obb.axis.setIdentity();
   bv.obb.extent.setZero();
-  bv.obb.frame.translation() = ps[0];
+  bv.obb.To = ps[0];
 }
 
-template <typename Scalar>
-void fit2(Vector3<Scalar>* ps, kIOS<Scalar>& bv)
+template <typename S>
+void fit2(Vector3<S>* ps, kIOS<S>& bv)
 {
   bv.num_spheres = 5;
 
-  const Vector3<Scalar>& p1 = ps[0];
-  const Vector3<Scalar>& p2 = ps[1];
-  Vector3<Scalar> p1p2 = p1 - p2;
-  Scalar len_p1p2 = p1p2.norm();
+  const Vector3<S>& p1 = ps[0];
+  const Vector3<S>& p2 = ps[1];
+  Vector3<S> p1p2 = p1 - p2;
+  S len_p1p2 = p1p2.norm();
   p1p2.normalize();
 
-  bv.obb.frame.linear().col(0) = p1p2;
-  generateCoordinateSystem(bv.obb.frame);
+  bv.obb.axis.col(0) = p1p2;
+  generateCoordinateSystem(bv.obb.axis);
 
-  Scalar r0 = len_p1p2 * 0.5;
+  S r0 = len_p1p2 * 0.5;
   bv.obb.extent << r0, 0, 0;
-  bv.obb.frame.translation() = (p1 + p2) * 0.5;
+  bv.obb.To.noalias() = (p1 + p2) * 0.5;
 
-  bv.spheres[0].o = bv.obb.frame.translation();
+  bv.spheres[0].o = bv.obb.To;
   bv.spheres[0].r = r0;
 
-  Scalar r1 = r0 * kIOS<Scalar>::invSinA();
-  Scalar r1cosA = r1 * kIOS<Scalar>::cosA();
+  S r1 = r0 * kIOS<S>::invSinA();
+  S r1cosA = r1 * kIOS<S>::cosA();
   bv.spheres[1].r = r1;
   bv.spheres[2].r = r1;
-  Vector3<Scalar> delta = bv.obb.frame.linear().col(1) * r1cosA;
+  Vector3<S> delta = bv.obb.axis.col(1) * r1cosA;
   bv.spheres[1].o = bv.spheres[0].o - delta;
   bv.spheres[2].o = bv.spheres[0].o + delta;
 
   bv.spheres[3].r = r1;
   bv.spheres[4].r = r1;
-  delta = bv.obb.frame.linear().col(2) * r1cosA;
+  delta.noalias() = bv.obb.axis.col(2) * r1cosA;
   bv.spheres[3].o = bv.spheres[0].o - delta;
   bv.spheres[4].o = bv.spheres[0].o + delta;
 }
 
-template <typename Scalar>
-void fit3(Vector3<Scalar>* ps, kIOS<Scalar>& bv)
+template <typename S>
+void fit3(Vector3<S>* ps, kIOS<S>& bv)
 {
   bv.num_spheres = 3;
 
-  const Vector3<Scalar>& p1 = ps[0];
-  const Vector3<Scalar>& p2 = ps[1];
-  const Vector3<Scalar>& p3 = ps[2];
-  Vector3<Scalar> e[3];
+  const Vector3<S>& p1 = ps[0];
+  const Vector3<S>& p2 = ps[1];
+  const Vector3<S>& p3 = ps[2];
+  Vector3<S> e[3];
   e[0] = p1 - p2;
   e[1] = p2 - p3;
   e[2] = p3 - p1;
-  Scalar len[3];
+  S len[3];
   len[0] = e[0].squaredNorm();
   len[1] = e[1].squaredNorm();
   len[2] = e[2].squaredNorm();
@@ -292,22 +292,22 @@ void fit3(Vector3<Scalar>* ps, kIOS<Scalar>& bv)
   if(len[1] > len[0]) imax = 1;
   if(len[2] > len[imax]) imax = 2;
 
-  bv.obb.frame.linear().col(2) = e[0].cross(e[1]).normalized();
-  bv.obb.frame.linear().col(0) = e[imax].normalized();
-  bv.obb.frame.linear().col(1) = bv.obb.frame.linear().col(2).cross(bv.obb.frame.linear().col(0));
+  bv.obb.axis.col(2).noalias() = e[0].cross(e[1]).normalized();
+  bv.obb.axis.col(0) = e[imax].normalized();
+  bv.obb.axis.col(1).noalias() = bv.obb.axis.col(2).cross(bv.obb.axis.col(0));
 
-  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, 3, bv.obb.frame, bv.obb.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, 3, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   // compute radius and center
-  Scalar r0;
-  Vector3<Scalar> center;
+  S r0;
+  Vector3<S> center;
   circumCircleComputation(p1, p2, p3, center, r0);
 
   bv.spheres[0].o = center;
   bv.spheres[0].r = r0;
 
-  Scalar r1 = r0 * kIOS<Scalar>::invSinA();
-  Vector3<Scalar> delta = bv.obb.frame.linear().col(2) * (r1 * kIOS<Scalar>::cosA());
+  S r1 = r0 * kIOS<S>::invSinA();
+  Vector3<S> delta = bv.obb.axis.col(2) * (r1 * kIOS<S>::cosA());
 
   bv.spheres[1].r = r1;
   bv.spheres[1].o = center - delta;
@@ -315,29 +315,28 @@ void fit3(Vector3<Scalar>* ps, kIOS<Scalar>& bv)
   bv.spheres[2].o = center + delta;
 }
 
-template <typename Scalar>
-void fitn(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
+template <typename S>
+void fitn(Vector3<S>* ps, int n, kIOS<S>& bv)
 {
-  Matrix3<Scalar> M;
-  Matrix3<Scalar> E;
-  Vector3<Scalar> s = Vector3<Scalar>::Zero(); // three eigen values;
+  Matrix3<S> M;
+  Matrix3<S> E;
+  Vector3<S> s = Vector3<S>::Zero(); // three eigen values;
 
-  getCovariance<Scalar>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<S>(ps, nullptr, nullptr, nullptr, n, M);
   eigen_old(M, s, E);
+  axisFromEigen(E, s, bv.obb.axis);
 
-  axisFromEigen(E, s, bv.obb.frame);
-
-  getExtentAndCenter<Scalar>(ps, NULL, NULL, NULL, n, bv.obb.frame, bv.obb.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, n, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   // get center and extension
-  const Vector3<Scalar>& center = bv.obb.frame.translation();
-  const Vector3<Scalar>& extent = bv.obb.extent;
-  Scalar r0 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, center);
+  const Vector3<S>& center = bv.obb.To;
+  const Vector3<S>& extent = bv.obb.extent;
+  S r0 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, center);
 
-  // decide the k in kIOS<Scalar>
-  if(extent[0] > kIOS<Scalar>::ratio() * extent[2])
+  // decide the k in kIOS<S>
+  if(extent[0] > kIOS<S>::ratio() * extent[2])
   {
-    if(extent[0] > kIOS<Scalar>::ratio() * extent[1]) bv.num_spheres = 5;
+    if(extent[0] > kIOS<S>::ratio() * extent[1]) bv.num_spheres = 5;
     else bv.num_spheres = 3;
   }
   else bv.num_spheres = 1;
@@ -348,16 +347,16 @@ void fitn(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
 
   if(bv.num_spheres >= 3)
   {
-    Scalar r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<Scalar>::invSinA();
-    Vector3<Scalar> delta = bv.obb.frame.linear().col(2) * (r10 * kIOS<Scalar>::cosA() - extent[2]);
+    S r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<S>::invSinA();
+    Vector3<S> delta = bv.obb.axis.col(2) * (r10 * kIOS<S>::cosA() - extent[2]);
     bv.spheres[1].o = center - delta;
     bv.spheres[2].o = center + delta;
 
-    Scalar r11 = 0, r12 = 0;
-    r11 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[1].o);
-    r12 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[2].o);
-    bv.spheres[1].o += bv.obb.frame.linear().col(2) * (-r10 + r11);
-    bv.spheres[2].o += bv.obb.frame.linear().col(2) * (r10 - r12);
+    S r11 = 0, r12 = 0;
+    r11 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[1].o);
+    r12 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[2].o);
+    bv.spheres[1].o.noalias() += bv.obb.axis.col(2) * (-r10 + r11);
+    bv.spheres[2].o.noalias() += bv.obb.axis.col(2) * (r10 - r12);
 
     bv.spheres[1].r = r10;
     bv.spheres[2].r = r10;
@@ -365,17 +364,17 @@ void fitn(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
 
   if(bv.num_spheres >= 5)
   {
-    Scalar r10 = bv.spheres[1].r;
-    Vector3<Scalar> delta = bv.obb.frame.linear().col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+    S r10 = bv.spheres[1].r;
+    Vector3<S> delta = bv.obb.axis.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
     bv.spheres[3].o = bv.spheres[0].o - delta;
     bv.spheres[4].o = bv.spheres[0].o + delta;
 
-    Scalar r21 = 0, r22 = 0;
-    r21 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[3].o);
-    r22 = maximumDistance<Scalar>(ps, NULL, NULL, NULL, n, bv.spheres[4].o);
+    S r21 = 0, r22 = 0;
+    r21 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[3].o);
+    r22 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[4].o);
 
-    bv.spheres[3].o += bv.obb.frame.linear().col(1) * (-r10 + r21);
-    bv.spheres[4].o += bv.obb.frame.linear().col(1) * (r10 - r22);
+    bv.spheres[3].o.noalias() += bv.obb.axis.col(1) * (-r10 + r21);
+    bv.spheres[4].o.noalias() += bv.obb.axis.col(1) * (r10 - r22);
 
     bv.spheres[3].r = r10;
     bv.spheres[4].r = r10;
@@ -386,29 +385,29 @@ void fitn(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
 
 namespace OBBRSS_fit_functions {
 
-template <typename Scalar>
-void fit1(Vector3<Scalar>* ps, OBBRSS<Scalar>& bv)
+template <typename S>
+void fit1(Vector3<S>* ps, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fit1(ps, bv.obb);
   RSS_fit_functions::fit1(ps, bv.rss);
 }
 
-template <typename Scalar>
-void fit2(Vector3<Scalar>* ps, OBBRSS<Scalar>& bv)
+template <typename S>
+void fit2(Vector3<S>* ps, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fit2(ps, bv.obb);
   RSS_fit_functions::fit2(ps, bv.rss);
 }
 
-template <typename Scalar>
-void fit3(Vector3<Scalar>* ps, OBBRSS<Scalar>& bv)
+template <typename S>
+void fit3(Vector3<S>* ps, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fit3(ps, bv.obb);
   RSS_fit_functions::fit3(ps, bv.rss);
 }
 
-template <typename Scalar>
-void fitn(Vector3<Scalar>* ps, int n, OBBRSS<Scalar>& bv)
+template <typename S>
+void fitn(Vector3<S>* ps, int n, OBBRSS<S>& bv)
 {
   OBB_fit_functions::fitn(ps, n, bv.obb);
   RSS_fit_functions::fitn(ps, n, bv.rss);
@@ -417,10 +416,10 @@ void fitn(Vector3<Scalar>* ps, int n, OBBRSS<Scalar>& bv)
 } // namespace OBBRSS_fit_functions
 
 //==============================================================================
-template <typename Scalar>
-struct Fitter<Scalar, OBB<Scalar>>
+template <typename S>
+struct Fitter<S, OBB<S>>
 {
-  static void fit(Vector3<Scalar>* ps, int n, OBB<Scalar>& bv)
+  static void fit(Vector3<S>* ps, int n, OBB<S>& bv)
   {
     switch(n)
     {
@@ -443,10 +442,10 @@ struct Fitter<Scalar, OBB<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct Fitter<Scalar, RSS<Scalar>>
+template <typename S>
+struct Fitter<S, RSS<S>>
 {
-  static void fit(Vector3<Scalar>* ps, int n, RSS<Scalar>& bv)
+  static void fit(Vector3<S>* ps, int n, RSS<S>& bv)
   {
     switch(n)
     {
@@ -466,10 +465,10 @@ struct Fitter<Scalar, RSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct Fitter<Scalar, kIOS<Scalar>>
+template <typename S>
+struct Fitter<S, kIOS<S>>
 {
-  static void fit(Vector3<Scalar>* ps, int n, kIOS<Scalar>& bv)
+  static void fit(Vector3<S>* ps, int n, kIOS<S>& bv)
   {
     switch(n)
     {
@@ -489,10 +488,10 @@ struct Fitter<Scalar, kIOS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct Fitter<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct Fitter<S, OBBRSS<S>>
 {
-  static void fit(Vector3<Scalar>* ps, int n, OBBRSS<Scalar>& bv)
+  static void fit(Vector3<S>* ps, int n, OBBRSS<S>& bv)
   {
     switch(n)
     {

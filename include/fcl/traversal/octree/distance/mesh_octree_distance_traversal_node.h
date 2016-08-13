@@ -54,20 +54,20 @@ namespace fcl
 /// @brief Traversal node for mesh-octree distance
 template <typename BV, typename NarrowPhaseSolver>
 class MeshOcTreeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename BV::Scalar>
+    : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   MeshOcTreeDistanceTraversalNode();
 
-  Scalar BVTesting(int, int) const;
+  S BVTesting(int, int) const;
 
   void leafTesting(int, int) const;
 
   const BVHModel<BV>* model1;
-  const OcTree<Scalar>* model2;
+  const OcTree<S>* model2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 
@@ -79,12 +79,12 @@ template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
     MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
     const BVHModel<BV>& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename BV::S>& tf1,
+    const OcTree<typename BV::S>& model2,
+    const Transform3<typename BV::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result);
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result);
 
 //============================================================================//
 //                                                                            //
@@ -97,15 +97,15 @@ template <typename BV, typename NarrowPhaseSolver>
 MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>::
 MeshOcTreeDistanceTraversalNode()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
-  otsolver = NULL;
+  otsolver = nullptr;
 }
 
 //==============================================================================
 template <typename BV, typename NarrowPhaseSolver>
-typename BV::Scalar MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>::
+typename BV::S MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>::
 BVTesting(int, int) const
 {
   return -1;
@@ -125,12 +125,12 @@ template <typename BV, typename NarrowPhaseSolver>
 bool initialize(
     MeshOcTreeDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
     const BVHModel<BV>& model1,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf1,
-    const OcTree<typename NarrowPhaseSolver::Scalar>& model2,
-    const Transform3<typename NarrowPhaseSolver::Scalar>& tf2,
+    const Transform3<typename BV::S>& tf1,
+    const OcTree<typename BV::S>& model2,
+    const Transform3<typename BV::S>& tf2,
     const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::Scalar>& request,
-    DistanceResult<typename NarrowPhaseSolver::Scalar>& result)
+    const DistanceRequest<typename BV::S>& request,
+    DistanceResult<typename BV::S>& result)
 {
   node.request = request;
   node.result = &result;

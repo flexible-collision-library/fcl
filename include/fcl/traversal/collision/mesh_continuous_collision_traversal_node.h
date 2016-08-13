@@ -45,12 +45,12 @@ namespace fcl
 {
 
 /// @brief Traversal node for continuous collision between BVH models
-template <typename Scalar>
+template <typename S>
 struct BVHContinuousCollisionPair
 {
   BVHContinuousCollisionPair();
 
-  BVHContinuousCollisionPair(int id1_, int id2_, Scalar time);
+  BVHContinuousCollisionPair(int id1_, int id2_, S time);
 
   /// @brief The index of one in-collision primitive
   int id1;
@@ -59,7 +59,7 @@ struct BVHContinuousCollisionPair
   int id2;
 
   /// @brief Collision time normalized in [0, 1]. The collision time out of [0, 1] means collision-free
-  Scalar collision_time;
+  S collision_time;
 };
 
 /// @brief Traversal node for continuous collision between meshes
@@ -69,7 +69,7 @@ class MeshContinuousCollisionTraversalNode
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   MeshContinuousCollisionTraversalNode();
 
@@ -79,21 +79,21 @@ public:
   /// @brief Whether the traversal process can stop early
   bool canStop() const;
 
-  Vector3<Scalar>* vertices1;
-  Vector3<Scalar>* vertices2;
+  Vector3<S>* vertices1;
+  Vector3<S>* vertices2;
 
   Triangle* tri_indices1;
   Triangle* tri_indices2;
 
-  Vector3<Scalar>* prev_vertices1;
-  Vector3<Scalar>* prev_vertices2;
+  Vector3<S>* prev_vertices1;
+  Vector3<S>* prev_vertices2;
 
   mutable int num_vf_tests;
   mutable int num_ee_tests;
 
-  mutable std::vector<BVHContinuousCollisionPair<Scalar>> pairs;
+  mutable std::vector<BVHContinuousCollisionPair<S>> pairs;
 
-  mutable Scalar time_of_contact;
+  mutable S time_of_contact;
 };
 
 /// @brief Initialize traversal node for continuous collision detection between
@@ -102,10 +102,10 @@ template <typename BV>
 bool initialize(
     MeshContinuousCollisionTraversalNode<BV>& node,
     const BVHModel<BV>& model1,
-    const Transform3<typename BV::Scalar>& tf1,
+    const Transform3<typename BV::S>& tf1,
     const BVHModel<BV>& model2,
-    const Transform3<typename BV::Scalar>& tf2,
-    const CollisionRequest<typename BV::Scalar>& request);
+    const Transform3<typename BV::S>& tf2,
+    const CollisionRequest<typename BV::S>& request);
 
 //============================================================================//
 //                                                                            //
@@ -114,16 +114,16 @@ bool initialize(
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-BVHContinuousCollisionPair<Scalar>::BVHContinuousCollisionPair()
+template <typename S>
+BVHContinuousCollisionPair<S>::BVHContinuousCollisionPair()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-BVHContinuousCollisionPair<Scalar>::BVHContinuousCollisionPair(
-    int id1_, int id2_, Scalar time)
+template <typename S>
+BVHContinuousCollisionPair<S>::BVHContinuousCollisionPair(
+    int id1_, int id2_, S time)
   : id1(id1_), id2(id2_), collision_time(time)
 {
   // Do nothing
@@ -134,12 +134,12 @@ template <typename BV>
 MeshContinuousCollisionTraversalNode<BV>::MeshContinuousCollisionTraversalNode()
   : BVHCollisionTraversalNode<BV>()
 {
-  vertices1 = NULL;
-  vertices2 = NULL;
-  tri_indices1 = NULL;
-  tri_indices2 = NULL;
-  prev_vertices1 = NULL;
-  prev_vertices2 = NULL;
+  vertices1 = nullptr;
+  vertices2 = nullptr;
+  tri_indices1 = nullptr;
+  tri_indices2 = nullptr;
+  prev_vertices1 = nullptr;
+  prev_vertices2 = nullptr;
 
   num_vf_tests = 0;
   num_ee_tests = 0;
@@ -155,8 +155,8 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
   const BVNode<BV>& node1 = this->model1->getBV(b1);
   const BVNode<BV>& node2 = this->model2->getBV(b2);
 
-  Scalar collision_time = 2;
-  Vector3<Scalar> collision_pos;
+  S collision_time = 2;
+  Vector3<S> collision_pos;
 
   int primitive_id1 = node1.primitiveId();
   int primitive_id2 = node2.primitiveId();
@@ -164,10 +164,10 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
   const Triangle& tri_id1 = tri_indices1[primitive_id1];
   const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-  Vector3<Scalar>* S0[3];
-  Vector3<Scalar>* S1[3];
-  Vector3<Scalar>* T0[3];
-  Vector3<Scalar>* T1[3];
+  Vector3<S>* S0[3];
+  Vector3<S>* S1[3];
+  Vector3<S>* T0[3];
+  Vector3<S>* T1[3];
 
   for(int i = 0; i < 3; ++i)
   {
@@ -177,14 +177,14 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
     T1[i] = vertices2 + tri_id2[i];
   }
 
-  Scalar tmp;
-  Vector3<Scalar> tmpv;
+  S tmp;
+  Vector3<S> tmpv;
 
   // 6 VF checks
   for(int i = 0; i < 3; ++i)
   {
     if(this->enable_statistics) num_vf_tests++;
-    if(Intersect<Scalar>::intersect_VF(*(S0[0]), *(S0[1]), *(S0[2]), *(T0[i]), *(S1[0]), *(S1[1]), *(S1[2]), *(T1[i]), &tmp, &tmpv))
+    if(Intersect<S>::intersect_VF(*(S0[0]), *(S0[1]), *(S0[2]), *(T0[i]), *(S1[0]), *(S1[1]), *(S1[2]), *(T1[i]), &tmp, &tmpv))
     {
       if(collision_time > tmp)
       {
@@ -193,7 +193,7 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
     }
 
     if(this->enable_statistics) num_vf_tests++;
-    if(Intersect<Scalar>::intersect_VF(*(T0[0]), *(T0[1]), *(T0[2]), *(S0[i]), *(T1[0]), *(T1[1]), *(T1[2]), *(S1[i]), &tmp, &tmpv))
+    if(Intersect<S>::intersect_VF(*(T0[0]), *(T0[1]), *(T0[2]), *(S0[i]), *(T1[0]), *(T1[1]), *(T1[2]), *(S1[i]), &tmp, &tmpv))
     {
       if(collision_time > tmp)
       {
@@ -215,7 +215,7 @@ void MeshContinuousCollisionTraversalNode<BV>::leafTesting(int b1, int b2) const
       if(T_id2 == 3) T_id2 = 0;
 
       num_ee_tests++;
-      if(Intersect<Scalar>::intersect_EE(*(S0[S_id1]), *(S0[S_id2]), *(T0[T_id1]), *(T0[T_id2]), *(S1[S_id1]), *(S1[S_id2]), *(T1[T_id1]), *(T1[T_id2]), &tmp, &tmpv))
+      if(Intersect<S>::intersect_EE(*(S0[S_id1]), *(S0[S_id2]), *(T0[T_id1]), *(T0[T_id2]), *(S1[S_id1]), *(S1[S_id2]), *(T1[T_id1]), *(T1[T_id2]), &tmp, &tmpv))
       {
         if(collision_time > tmp)
         {
@@ -244,10 +244,10 @@ template <typename BV>
 bool initialize(
     MeshContinuousCollisionTraversalNode<BV>& node,
     const BVHModel<BV>& model1,
-    const Transform3<typename BV::Scalar>& tf1,
+    const Transform3<typename BV::S>& tf1,
     const BVHModel<BV>& model2,
-    const Transform3<typename BV::Scalar>& tf2,
-    const CollisionRequest<typename BV::Scalar>& request)
+    const Transform3<typename BV::S>& tf2,
+    const CollisionRequest<typename BV::S>& request)
 {
   node.model1 = &model1;
   node.tf1 = tf1;

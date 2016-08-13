@@ -48,7 +48,7 @@ namespace fcl
 /// bounding volume of type BV2 in identity configuration.
 template <typename BV1, typename BV2>
 void convertBV(
-    const BV1& bv1, const Transform3<typename BV1::Scalar>& tf1, BV2& bv2);
+    const BV1& bv1, const Transform3<typename BV1::S>& tf1, BV2& bv2);
 
 //============================================================================//
 //                                                                            //
@@ -59,12 +59,12 @@ void convertBV(
 //==============================================================================
 template <typename BV1, typename BV2>
 void convertBV(
-    const BV1& bv1, const Transform3<typename BV1::Scalar>& tf1, BV2& bv2)
+    const BV1& bv1, const Transform3<typename BV1::S>& tf1, BV2& bv2)
 {
-  static_assert(std::is_same<typename BV1::Scalar, typename BV2::Scalar>::value,
+  static_assert(std::is_same<typename BV1::S, typename BV2::S>::value,
                 "The scalar type of BV1 and BV2 should be the same");
 
-  detail::Converter<typename BV1::Scalar, BV1, BV2>::convert(bv1, tf1, bv2);
+  detail::Converter<typename BV1::S, BV1, BV2>::convert(bv1, tf1, bv2);
 }
 
 } // namespace fcl

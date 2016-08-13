@@ -47,16 +47,16 @@ namespace fcl
 {
 
 /// @brief Rigorous SAP collision manager
-template <typename Scalar>
-class SaPCollisionManager : public BroadPhaseCollisionManager<Scalar>
+template <typename S>
+class SaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
 
   SaPCollisionManager()
   {
-    elist[0] = NULL;
-    elist[1] = NULL;
-    elist[2] = NULL;
+    elist[0] = nullptr;
+    elist[1] = nullptr;
+    elist[2] = nullptr;
 
     optimal_axis = 0;
   }
@@ -67,13 +67,13 @@ public:
   }
 
   /// @brief add objects to the manager
-  void registerObjects(const std::vector<CollisionObject<Scalar>*>& other_objs);
+  void registerObjects(const std::vector<CollisionObject<S>*>& other_objs);
 
   /// @brief remove one object from the manager
-  void registerObject(CollisionObject<Scalar>* obj);
+  void registerObject(CollisionObject<S>* obj);
 
   /// @brief add one object to the manager
-  void unregisterObject(CollisionObject<Scalar>* obj);
+  void unregisterObject(CollisionObject<S>* obj);
 
   /// @brief initialize the manager, related with the specific type of manager
   void setup();
@@ -82,34 +82,34 @@ public:
   void update();
 
   /// @brief update the manager by explicitly given the object updated
-  void update(CollisionObject<Scalar>* updated_obj);
+  void update(CollisionObject<S>* updated_obj);
 
   /// @brief update the manager by explicitly given the set of objects update
-  void update(const std::vector<CollisionObject<Scalar>*>& updated_objs);
+  void update(const std::vector<CollisionObject<S>*>& updated_objs);
 
   /// @brief clear the manager
   void clear();
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObject<Scalar>*>& objs) const;
+  void getObjects(std::vector<CollisionObject<S>*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(BroadPhaseCollisionManager<S>* other_manager, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(BroadPhaseCollisionManager<S>* other_manager, void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
@@ -125,7 +125,7 @@ protected:
   struct SaPAABB
   {
     /// @brief object
-    CollisionObject<Scalar>* obj;
+    CollisionObject<S>* obj;
 
     /// @brief lower bound end point of the interval
     EndPoint* lo;
@@ -133,8 +133,8 @@ protected:
     /// @brief higher bound end point of the interval
     EndPoint* hi;
 
-    /// @brief cached AABB<Scalar> value
-    AABB<Scalar> cached;
+    /// @brief cached AABB<S> value
+    AABB<S> cached;
   };
 
   /// @brief End point for an interval
@@ -152,20 +152,20 @@ protected:
     EndPoint* next[3];
 
     /// @brief get the value of the end point
-    inline const Vector3<Scalar>& getVal() const
+    inline const Vector3<S>& getVal() const
     {
       if(minmax) return aabb->cached.max_;
       else return aabb->cached.min_;
     }
 
     /// @brief set the value of the end point
-    inline Vector3<Scalar>& getVal()
+    inline Vector3<S>& getVal()
     {
       if(minmax) return aabb->cached.max_;
       else return aabb->cached.min_;
     }
 
-    inline Scalar getVal(size_t i) const
+    inline S getVal(size_t i) const
     {
       if(minmax)
         return aabb->cached.max_[i];
@@ -173,7 +173,7 @@ protected:
         return aabb->cached.min_[i];
     }
 
-    inline Scalar& getVal(size_t i)
+    inline S& getVal(size_t i)
     {
       if(minmax)
         return aabb->cached.max_[i];
@@ -186,7 +186,7 @@ protected:
   /// @brief A pair of objects that are not culling away and should further check collision
   struct SaPPair
   {
-    SaPPair(CollisionObject<Scalar>* a, CollisionObject<Scalar>* b)
+    SaPPair(CollisionObject<S>* a, CollisionObject<S>* b)
     {
       if(a < b)
       {
@@ -200,8 +200,8 @@ protected:
       }
     }
 
-    CollisionObject<Scalar>* obj1;
-    CollisionObject<Scalar>* obj2;
+    CollisionObject<S>* obj1;
+    CollisionObject<S>* obj2;
 
     bool operator == (const SaPPair& other) const
     {
@@ -212,10 +212,10 @@ protected:
   /// @brief Functor to help unregister one object
   class isUnregistered
   {
-    CollisionObject<Scalar>* obj;
+    CollisionObject<S>* obj;
 
   public:
-    isUnregistered(CollisionObject<Scalar>* obj_) : obj(obj_)
+    isUnregistered(CollisionObject<S>* obj_) : obj(obj_)
     {}
 
     bool operator() (const SaPPair& pair) const
@@ -227,11 +227,11 @@ protected:
   /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
   class isNotValidPair
   {
-    CollisionObject<Scalar>* obj1;
-    CollisionObject<Scalar>* obj2;
+    CollisionObject<S>* obj1;
+    CollisionObject<S>* obj2;
 
   public:
-    isNotValidPair(CollisionObject<Scalar>* obj1_, CollisionObject<Scalar>* obj2_) : obj1(obj1_),
+    isNotValidPair(CollisionObject<S>* obj1_, CollisionObject<S>* obj2_) : obj1(obj1_),
                                                                      obj2(obj2_)
     {}
 
@@ -273,11 +273,11 @@ protected:
 
   size_t optimal_axis;
 
-  std::map<CollisionObject<Scalar>*, SaPAABB*> obj_aabb_map;
+  std::map<CollisionObject<S>*, SaPAABB*> obj_aabb_map;
 
-  bool distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const;
+  bool distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
-  bool collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  bool collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
   void addToOverlapPairs(const SaPPair& p)
   {
@@ -322,8 +322,8 @@ using SaPCollisionManagerd = SaPCollisionManager<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
+template <typename S>
+void SaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
 {
   auto it = AABB_arr.begin();
   for(auto end = AABB_arr.end(); it != end; ++it)
@@ -339,12 +339,12 @@ void SaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
     return;
 
   SaPAABB* curr = *it;
-  *it = NULL;
+  *it = nullptr;
 
   for(int coord = 0; coord < 3; ++coord)
   {
     //first delete the lo endpoint of the interval.
-    if(curr->lo->prev[coord] == NULL)
+    if(curr->lo->prev[coord] == nullptr)
       elist[coord] = curr->lo->next[coord];
     else
       curr->lo->prev[coord]->next[coord] = curr->lo->next[coord];
@@ -352,12 +352,12 @@ void SaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
     curr->lo->next[coord]->prev[coord] = curr->lo->prev[coord];
 
     //then, delete the "hi" endpoint.
-    if(curr->hi->prev[coord] == NULL)
+    if(curr->hi->prev[coord] == nullptr)
       elist[coord] = curr->hi->next[coord];
     else
       curr->hi->prev[coord]->next[coord] = curr->hi->next[coord];
 
-    if(curr->hi->next[coord] != NULL)
+    if(curr->hi->next[coord] != nullptr)
       curr->hi->next[coord]->prev[coord] = curr->hi->prev[coord];
   }
 
@@ -369,13 +369,13 @@ void SaPCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
 }
 \
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObject<Scalar>*>& other_objs)
+template <typename S>
+void SaPCollisionManager<S>::registerObjects(const std::vector<CollisionObject<S>*>& other_objs)
 {
   if(other_objs.empty()) return;
 
   if(size() > 0)
-    BroadPhaseCollisionManager<Scalar>::registerObjects(other_objs);
+    BroadPhaseCollisionManager<S>::registerObjects(other_objs);
   else
   {
     std::vector<EndPoint*> endpoints(2 * other_objs.size());
@@ -398,15 +398,15 @@ void SaPCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObj
     }
 
 
-    Scalar scale[3];
+    S scale[3];
     for(size_t coord = 0; coord < 3; ++coord)
     {
       std::sort(endpoints.begin(), endpoints.end(),
-                std::bind(std::less<Scalar>(),
-                            std::bind(static_cast<Scalar (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_1, coord),
-                            std::bind(static_cast<Scalar (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_2, coord)));
+                std::bind(std::less<S>(),
+                            std::bind(static_cast<S (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_1, coord),
+                            std::bind(static_cast<S (EndPoint::*)(size_t) const >(&EndPoint::getVal), std::placeholders::_2, coord)));
 
-      endpoints[0]->prev[coord] = NULL;
+      endpoints[0]->prev[coord] = nullptr;
       endpoints[0]->next[coord] = endpoints[1];
       for(size_t i = 1; i < endpoints.size() - 1; ++i)
       {
@@ -414,7 +414,7 @@ void SaPCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObj
         endpoints[i]->next[coord] = endpoints[i+1];
       }
       endpoints[endpoints.size() - 1]->prev[coord] = endpoints[endpoints.size() - 2];
-      endpoints[endpoints.size() - 1]->next[coord] = NULL;
+      endpoints[endpoints.size() - 1]->next[coord] = nullptr;
 
       elist[coord] = endpoints[0];
 
@@ -427,23 +427,23 @@ void SaPCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObj
 
     EndPoint* pos = elist[axis];
 
-    while(pos != NULL)
+    while(pos != nullptr)
     {
-      EndPoint* pos_next = NULL;
+      EndPoint* pos_next = nullptr;
       SaPAABB* aabb = pos->aabb;
       EndPoint* pos_it = pos->next[axis];
 
-      while(pos_it != NULL)
+      while(pos_it != nullptr)
       {
         if(pos_it->aabb == aabb)
         {
-          if(pos_next == NULL) pos_next = pos_it;
+          if(pos_next == nullptr) pos_next = pos_it;
           break;
         }
 
         if(pos_it->minmax == 0)
         {
-          if(pos_next == NULL) pos_next = pos_it;
+          if(pos_next == nullptr) pos_next = pos_it;
           if(pos_it->aabb->cached.overlap(aabb->cached))
             overlap_pairs.emplace_back(pos_it->aabb->obj, aabb->obj);
         }
@@ -458,8 +458,8 @@ void SaPCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObj
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
+template <typename S>
+void SaPCollisionManager<S>::registerObject(CollisionObject<S>* obj)
 {
   SaPAABB* curr = new SaPAABB;
   curr->cached = obj->getAABB();
@@ -477,23 +477,23 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
     EndPoint* current = elist[coord];
 
     // first insert the lo end point
-    if(current == NULL) // empty list
+    if(current == nullptr) // empty list
     {
       elist[coord] = curr->lo;
-      curr->lo->prev[coord] = curr->lo->next[coord] = NULL;
+      curr->lo->prev[coord] = curr->lo->next[coord] = nullptr;
     }
     else // otherwise, find the correct location in the list and insert
     {
       EndPoint* curr_lo = curr->lo;
-      Scalar curr_lo_val = curr_lo->getVal()[coord];
-      while((current->getVal()[coord] < curr_lo_val) && (current->next[coord] != NULL))
+      S curr_lo_val = curr_lo->getVal()[coord];
+      while((current->getVal()[coord] < curr_lo_val) && (current->next[coord] != nullptr))
         current = current->next[coord];
 
       if(current->getVal()[coord] >= curr_lo_val)
       {
         curr_lo->prev[coord] = current->prev[coord];
         curr_lo->next[coord] = current;
-        if(current->prev[coord] == NULL)
+        if(current->prev[coord] == nullptr)
           elist[coord] = curr_lo;
         else
           current->prev[coord]->next[coord] = curr_lo;
@@ -503,7 +503,7 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
       else
       {
         curr_lo->prev[coord] = current;
-        curr_lo->next[coord] = NULL;
+        curr_lo->next[coord] = nullptr;
         current->next[coord] = curr_lo;
       }
     }
@@ -512,11 +512,11 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
     current = curr->lo;
 
     EndPoint* curr_hi = curr->hi;
-    Scalar curr_hi_val = curr_hi->getVal()[coord];
+    S curr_hi_val = curr_hi->getVal()[coord];
 
     if(coord == 0)
     {
-      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != NULL))
+      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != nullptr))
       {
         if(current != curr->lo)
           if(current->aabb->cached.overlap(curr->cached))
@@ -527,7 +527,7 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
     }
     else
     {
-      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != NULL))
+      while((current->getVal()[coord] < curr_hi_val) && (current->next[coord] != nullptr))
         current = current->next[coord];
     }
 
@@ -535,7 +535,7 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
     {
       curr_hi->prev[coord] = current->prev[coord];
       curr_hi->next[coord] = current;
-      if(current->prev[coord] == NULL)
+      if(current->prev[coord] == nullptr)
         elist[coord] = curr_hi;
       else
         current->prev[coord]->next[coord] = curr_hi;
@@ -545,7 +545,7 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
     else
     {
       curr_hi->prev[coord] = current;
-      curr_hi->next[coord] = NULL;
+      curr_hi->next[coord] = nullptr;
       current->next[coord] = curr_hi;
     }
   }
@@ -558,12 +558,12 @@ void SaPCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::setup()
+template <typename S>
+void SaPCollisionManager<S>::setup()
 {
   if(size() == 0) return;
 
-  Scalar scale[3];
+  S scale[3];
   scale[0] = (velist[0].back())->getVal(0) - velist[0][0]->getVal(0);
   scale[1] = (velist[1].back())->getVal(1) - velist[1][0]->getVal(1);;
   scale[2] = (velist[2].back())->getVal(2) - velist[2][0]->getVal(2);
@@ -574,16 +574,16 @@ void SaPCollisionManager<Scalar>::setup()
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
+template <typename S>
+void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
 {
   if(updated_aabb->cached.equal(updated_aabb->obj->getAABB()))
     return;
 
   SaPAABB* current = updated_aabb;
 
-  Vector3<Scalar> new_min = current->obj->getAABB().min_;
-  Vector3<Scalar> new_max = current->obj->getAABB().max_;
+  Vector3<S> new_min = current->obj->getAABB().min_;
+  Vector3<S> new_max = current->obj->getAABB().max_;
 
   SaPAABB dummy;
   dummy.cached = current->obj->getAABB();
@@ -602,10 +602,10 @@ void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
     if(direction == -1)
     {
       //first update the "lo" endpoint of the interval
-      if(current->lo->prev[coord] != NULL)
+      if(current->lo->prev[coord] != nullptr)
       {
         temp = current->lo;
-        while((temp != NULL) && (temp->getVal(coord) > new_min[coord]))
+        while((temp != nullptr) && (temp->getVal(coord) > new_min[coord]))
         {
           if(temp->minmax == 1)
             if(temp->aabb->cached.overlap(dummy.cached))
@@ -613,11 +613,11 @@ void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
           temp = temp->prev[coord];
         }
 
-        if(temp == NULL)
+        if(temp == nullptr)
         {
           current->lo->prev[coord]->next[coord] = current->lo->next[coord];
           current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
-          current->lo->prev[coord] = NULL;
+          current->lo->prev[coord] = nullptr;
           current->lo->next[coord] = elist[coord];
           elist[coord]->prev[coord] = current->lo;
           elist[coord] = current->lo;
@@ -645,11 +645,11 @@ void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
       }
 
       current->hi->prev[coord]->next[coord] = current->hi->next[coord];
-      if(current->hi->next[coord] != NULL)
+      if(current->hi->next[coord] != nullptr)
         current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
       current->hi->prev[coord] = temp;
       current->hi->next[coord] = temp->next[coord];
-      if(temp->next[coord] != NULL)
+      if(temp->next[coord] != nullptr)
         temp->next[coord]->prev[coord] = current->hi;
       temp->next[coord] = current->hi;
 
@@ -658,10 +658,10 @@ void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
     else if(direction == 1)
     {
       //here, we first update the "hi" endpoint.
-      if(current->hi->next[coord] != NULL)
+      if(current->hi->next[coord] != nullptr)
       {
         temp = current->hi;
-        while((temp->next[coord] != NULL) && (temp->getVal(coord) < new_max[coord]))
+        while((temp->next[coord] != nullptr) && (temp->getVal(coord) < new_max[coord]))
         {
           if(temp->minmax == 0)
             if(temp->aabb->cached.overlap(dummy.cached))
@@ -674,7 +674,7 @@ void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
           current->hi->prev[coord]->next[coord] = current->hi->next[coord];
           current->hi->next[coord]->prev[coord] = current->hi->prev[coord];
           current->hi->prev[coord] = temp;
-          current->hi->next[coord] = NULL;
+          current->hi->next[coord] = nullptr;
           temp->next[coord] = current->hi;
         }
         else
@@ -700,14 +700,14 @@ void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
         temp = temp->next[coord];
       }
 
-      if(current->lo->prev[coord] != NULL)
+      if(current->lo->prev[coord] != nullptr)
         current->lo->prev[coord]->next[coord] = current->lo->next[coord];
       else
         elist[coord] = current->lo->next[coord];
       current->lo->next[coord]->prev[coord] = current->lo->prev[coord];
       current->lo->prev[coord] = temp->prev[coord];
       current->lo->next[coord] = temp;
-      if(temp->prev[coord] != NULL)
+      if(temp->prev[coord] != nullptr)
         temp->prev[coord]->next[coord] = current->lo;
       else
         elist[coord] = current->lo;
@@ -718,8 +718,8 @@ void SaPCollisionManager<Scalar>::update_(SaPAABB* updated_aabb)
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::update(CollisionObject<Scalar>* updated_obj)
+template <typename S>
+void SaPCollisionManager<S>::update(CollisionObject<S>* updated_obj)
 {
   update_(obj_aabb_map[updated_obj]);
 
@@ -729,8 +729,8 @@ void SaPCollisionManager<Scalar>::update(CollisionObject<Scalar>* updated_obj)
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::update(const std::vector<CollisionObject<Scalar>*>& updated_objs)
+template <typename S>
+void SaPCollisionManager<S>::update(const std::vector<CollisionObject<S>*>& updated_objs)
 {
   for(size_t i = 0; i < updated_objs.size(); ++i)
     update_(obj_aabb_map[updated_objs[i]]);
@@ -741,8 +741,8 @@ void SaPCollisionManager<Scalar>::update(const std::vector<CollisionObject<Scala
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::update()
+template <typename S>
+void SaPCollisionManager<S>::update()
 {
   for(auto it = AABB_arr.cbegin(), end = AABB_arr.cend(); it != end; ++it)
   {
@@ -755,23 +755,23 @@ void SaPCollisionManager<Scalar>::update()
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::clear()
+template <typename S>
+void SaPCollisionManager<S>::clear()
 {
   for(auto it = AABB_arr.begin(), end = AABB_arr.end(); it != end; ++it)
   {
     delete (*it)->hi;
     delete (*it)->lo;
     delete *it;
-    *it = NULL;
+    *it = nullptr;
   }
 
   AABB_arr.clear();
   overlap_pairs.clear();
 
-  elist[0] = NULL;
-  elist[1] = NULL;
-  elist[2] = NULL;
+  elist[0] = nullptr;
+  elist[1] = nullptr;
+  elist[2] = nullptr;
 
   velist[0].clear();
   velist[1].clear();
@@ -781,8 +781,8 @@ void SaPCollisionManager<Scalar>::clear()
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::getObjects(std::vector<CollisionObject<Scalar>*>& objs) const
+template <typename S>
+void SaPCollisionManager<S>::getObjects(std::vector<CollisionObject<S>*>& objs) const
 {
   objs.resize(AABB_arr.size());
   int i = 0;
@@ -793,14 +793,14 @@ void SaPCollisionManager<Scalar>::getObjects(std::vector<CollisionObject<Scalar>
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SaPCollisionManager<Scalar>::collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+bool SaPCollisionManager<S>::collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   size_t axis = optimal_axis;
-  const AABB<Scalar>& obj_aabb = obj->getAABB();
+  const AABB<S>& obj_aabb = obj->getAABB();
 
-  Scalar min_val = obj_aabb.min_[axis];
-  //  Scalar max_val = obj_aabb.max_[axis];
+  S min_val = obj_aabb.min_[axis];
+  //  S max_val = obj_aabb.max_[axis];
 
   EndPoint dummy;
   SaPAABB dummy_aabb;
@@ -810,11 +810,11 @@ bool SaPCollisionManager<Scalar>::collide_(CollisionObject<Scalar>* obj, void* c
 
   // compute stop_pos by binary search, this is cheaper than check it in while iteration linearly
   const auto res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
-                                                                   std::bind(std::less<Scalar>(),
-                                                                               std::bind(static_cast<Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
-                                                                               std::bind(static_cast<Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
+                                                                   std::bind(std::less<S>(),
+                                                                               std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
+                                                                               std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
 
-  EndPoint* end_pos = NULL;
+  EndPoint* end_pos = nullptr;
   if(res_it != velist[axis].end())
     end_pos = *res_it;
 
@@ -838,8 +838,8 @@ bool SaPCollisionManager<Scalar>::collide_(CollisionObject<Scalar>* obj, void* c
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void SaPCollisionManager<S>::collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
 
@@ -847,30 +847,30 @@ void SaPCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* cd
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const
+template <typename S>
+bool SaPCollisionManager<S>::distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const
 {
-  Vector3<Scalar> delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  AABB<Scalar> aabb = obj->getAABB();
+  Vector3<S> delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  AABB<S> aabb = obj->getAABB();
 
-  if(min_dist < std::numeric_limits<Scalar>::max())
+  if(min_dist < std::numeric_limits<S>::max())
   {
-    Vector3<Scalar> min_dist_delta(min_dist, min_dist, min_dist);
+    Vector3<S> min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
   size_t axis = optimal_axis;
 
   int status = 1;
-  Scalar old_min_distance;
+  S old_min_distance;
 
   EndPoint* start_pos = elist[axis];
 
   while(1)
   {
     old_min_distance = min_dist;
-    Scalar min_val = aabb.min_[axis];
-    //    Scalar max_val = aabb.max_[axis];
+    S min_val = aabb.min_[axis];
+    //    S max_val = aabb.max_[axis];
 
     EndPoint dummy;
     SaPAABB dummy_aabb;
@@ -880,11 +880,11 @@ bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* 
 
 
     const auto res_it = std::upper_bound(velist[axis].begin(), velist[axis].end(), &dummy,
-                                                                     std::bind(std::less<Scalar>(),
-                                                                                 std::bind(static_cast<Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
-                                                                                 std::bind(static_cast<Scalar (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
+                                                                     std::bind(std::less<S>(),
+                                                                                 std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_1, axis),
+                                                                                 std::bind(static_cast<S (EndPoint::*)(size_t) const>(&EndPoint::getVal), std::placeholders::_2, axis)));
 
-    EndPoint* end_pos = NULL;
+    EndPoint* end_pos = nullptr;
     if(res_it != velist[axis].end())
       end_pos = *res_it;
 
@@ -896,7 +896,7 @@ bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* 
       // but this seems slower.
       if((pos->minmax == 0) && (pos->aabb->hi->getVal(axis) >= min_val))
       {
-        CollisionObject<Scalar>* curr_obj = pos->aabb->obj;
+        CollisionObject<S>* curr_obj = pos->aabb->obj;
         if(curr_obj != obj)
         {
           if(!this->enable_tested_set_)
@@ -928,14 +928,14 @@ bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* 
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<Scalar>::max())
+      if(old_min_distance < std::numeric_limits<S>::max())
         break;
       else
       {
         if(min_dist < old_min_distance)
         {
-          Vector3<Scalar> min_dist_delta(min_dist, min_dist, min_dist);
-          aabb = AABB<Scalar>(obj->getAABB(), min_dist_delta);
+          Vector3<S> min_dist_delta(min_dist, min_dist, min_dist);
+          aabb = AABB<S>(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else
@@ -955,26 +955,26 @@ bool SaPCollisionManager<Scalar>::distance_(CollisionObject<Scalar>* obj, void* 
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void SaPCollisionManager<S>::distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
 
   distance_(obj, cdata, callback, min_dist);
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void SaPCollisionManager<S>::collide(void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
 
   for(auto it = overlap_pairs.cbegin(), end = overlap_pairs.cend(); it != end; ++it)
   {
-    CollisionObject<Scalar>* obj1 = it->obj1;
-    CollisionObject<Scalar>* obj2 = it->obj2;
+    CollisionObject<S>* obj1 = it->obj1;
+    CollisionObject<S>* obj2 = it->obj2;
 
     if(callback(obj1, obj2, cdata))
       return;
@@ -982,15 +982,15 @@ void SaPCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar>
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void SaPCollisionManager<S>::distance(void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
 
   this->enable_tested_set_ = true;
   this->tested_set.clear();
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
 
   for(auto it = AABB_arr.cbegin(), end = AABB_arr.cend(); it != end; ++it)
   {
@@ -1003,8 +1003,8 @@ void SaPCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scalar>
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void SaPCollisionManager<S>::collide(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, CollisionCallBack<S> callback) const
 {
   SaPCollisionManager* other_manager = static_cast<SaPCollisionManager*>(other_manager_);
 
@@ -1035,8 +1035,8 @@ void SaPCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* ot
 }
 
 //==============================================================================
-template <typename Scalar>
-void SaPCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void SaPCollisionManager<S>::distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const
 {
   SaPCollisionManager* other_manager = static_cast<SaPCollisionManager*>(other_manager_);
 
@@ -1048,7 +1048,7 @@ void SaPCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* o
     return;
   }
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
 
   if(this->size() < other_manager->size())
   {
@@ -1069,8 +1069,8 @@ void SaPCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* o
 }
 
 //==============================================================================
-template <typename Scalar>
-bool SaPCollisionManager<Scalar>::empty() const
+template <typename S>
+bool SaPCollisionManager<S>::empty() const
 {
   return AABB_arr.size();
 }

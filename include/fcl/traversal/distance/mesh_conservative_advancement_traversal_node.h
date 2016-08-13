@@ -52,40 +52,40 @@ class MeshConservativeAdvancementTraversalNode
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  MeshConservativeAdvancementTraversalNode(Scalar w_ = 1);
+  MeshConservativeAdvancementTraversalNode(S w_ = 1);
 
   /// @brief BV culling test in one BVTT node
-  Scalar BVTesting(int b1, int b2) const;
+  S BVTesting(int b1, int b2) const;
 
   /// @brief Conservative advancement testing between leaves (two triangles)
   void leafTesting(int b1, int b2) const;
 
   /// @brief Whether the traversal process can stop early
-  bool canStop(Scalar c) const;
+  bool canStop(S c) const;
 
-  mutable Scalar min_distance;
+  mutable S min_distance;
  
-  mutable Vector3<Scalar> closest_p1, closest_p2;
+  mutable Vector3<S> closest_p1, closest_p2;
   
   mutable int last_tri_id1, last_tri_id2;
 
   /// @brief CA controlling variable: early stop for the early iterations of CA
-  Scalar w;
+  S w;
 
   /// @brief The time from beginning point
-  Scalar toc;
-  Scalar t_err;
+  S toc;
+  S t_err;
 
   /// @brief The delta_t each step
-  mutable Scalar delta_t;
+  mutable S delta_t;
 
   /// @brief Motions for the two objects in query
   const MotionBased* motion1;
   const MotionBased* motion2;
 
-  mutable std::vector<ConservativeAdvancementStackData<Scalar>> stack;
+  mutable std::vector<ConservativeAdvancementStackData<S>> stack;
 
   template <typename, typename>
   friend struct CanStopImpl;
@@ -97,27 +97,27 @@ template <typename BV>
 bool initialize(
     MeshConservativeAdvancementTraversalNode<BV>& node,
     BVHModel<BV>& model1,
-    const Transform3<typename BV::Scalar>& tf1,
+    const Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    const Transform3<typename BV::Scalar>& tf2,
-    typename BV::Scalar w = 1,
+    const Transform3<typename BV::S>& tf2,
+    typename BV::S w = 1,
     bool use_refit = false,
     bool refit_bottomup = false);
 
-template <typename Scalar>
+template <typename S>
 class MeshConservativeAdvancementTraversalNodeRSS
-    : public MeshConservativeAdvancementTraversalNode<RSS<Scalar>>
+    : public MeshConservativeAdvancementTraversalNode<RSS<S>>
 {
 public:
-  MeshConservativeAdvancementTraversalNodeRSS(Scalar w_ = 1);
+  MeshConservativeAdvancementTraversalNodeRSS(S w_ = 1);
 
-  Scalar BVTesting(int b1, int b2) const
+  S BVTesting(int b1, int b2) const
   {
     if (this->enable_statistics)
       this->num_bv_tests++;
 
-    Vector3<Scalar> P1, P2;
-    Scalar d = distance(
+    Vector3<S> P1, P2;
+    S d = distance(
         tf,
 		this->model1->getBV(b1).bv,
 		this->model2->getBV(b2).bv, &P1, &P2);
@@ -129,9 +129,9 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  bool canStop(Scalar c) const;
+  bool canStop(S c) const;
 
-  Transform3<Scalar> tf;
+  Transform3<S> tf;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -141,29 +141,29 @@ using MeshConservativeAdvancementTraversalNodeRSSd = MeshConservativeAdvancement
 
 /// @brief Initialize traversal node for conservative advancement computation
 /// between two meshes, given the current transforms, specialized for RSS
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshConservativeAdvancementTraversalNodeRSS<Scalar>& node,
-    const BVHModel<RSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<RSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    Scalar w = 1);
+    MeshConservativeAdvancementTraversalNodeRSS<S>& node,
+    const BVHModel<RSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<RSS<S>>& model2,
+    const Transform3<S>& tf2,
+    S w = 1);
 
-template <typename Scalar>
+template <typename S>
 class MeshConservativeAdvancementTraversalNodeOBBRSS
-    : public MeshConservativeAdvancementTraversalNode<OBBRSS<Scalar>>
+    : public MeshConservativeAdvancementTraversalNode<OBBRSS<S>>
 {
 public:
-  MeshConservativeAdvancementTraversalNodeOBBRSS(Scalar w_ = 1);
+  MeshConservativeAdvancementTraversalNodeOBBRSS(S w_ = 1);
 
-  Scalar BVTesting(int b1, int b2) const
+  S BVTesting(int b1, int b2) const
   {
     if (this->enable_statistics)
       this->num_bv_tests++;
 
-    Vector3<Scalar> P1, P2;
-    Scalar d = distance(
+    Vector3<S> P1, P2;
+    S d = distance(
         tf,
         this->model1->getBV(b1).bv,
         this->model2->getBV(b2).bv, &P1, &P2);
@@ -175,9 +175,9 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  bool canStop(Scalar c) const;
+  bool canStop(S c) const;
 
-  Transform3<Scalar> tf;
+  Transform3<S> tf;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -185,48 +185,48 @@ public:
 using MeshConservativeAdvancementTraversalNodeOBBRSSf = MeshConservativeAdvancementTraversalNodeOBBRSS<float>;
 using MeshConservativeAdvancementTraversalNodeOBBRSSd = MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>& node,
-    const BVHModel<OBBRSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<OBBRSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    Scalar w = 1);
+    MeshConservativeAdvancementTraversalNodeOBBRSS<S>& node,
+    const BVHModel<OBBRSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<OBBRSS<S>>& model2,
+    const Transform3<S>& tf2,
+    S w = 1);
 
 namespace details
 {
 
-template <typename Scalar, typename BV>
-const Vector3<Scalar> getBVAxis(const BV& bv, int i);
+template <typename S, typename BV>
+const Vector3<S> getBVAxis(const BV& bv, int i);
 
 template <typename BV>
 bool meshConservativeAdvancementTraversalNodeCanStop(
-    typename BV::Scalar c,
-    typename BV::Scalar min_distance,
-    typename BV::Scalar abs_err,
-    typename BV::Scalar rel_err,
-    typename BV::Scalar w,
+    typename BV::S c,
+    typename BV::S min_distance,
+    typename BV::S abs_err,
+    typename BV::S rel_err,
+    typename BV::S w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
     const MotionBased* motion1,
     const MotionBased* motion2,
-    std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
-    typename BV::Scalar& delta_t);
+    std::vector<ConservativeAdvancementStackData<typename BV::S>>& stack,
+    typename BV::S& delta_t);
 
 template <typename BV>
 bool meshConservativeAdvancementOrientedNodeCanStop(
-    typename BV::Scalar c,
-    typename BV::Scalar min_distance,
-    typename BV::Scalar abs_err,
-    typename BV::Scalar rel_err,
-    typename BV::Scalar w,
+    typename BV::S c,
+    typename BV::S min_distance,
+    typename BV::S abs_err,
+    typename BV::S rel_err,
+    typename BV::S w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
     const MotionBased* motion1,
     const MotionBased* motion2,
-    std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
-    typename BV::Scalar& delta_t);
+    std::vector<ConservativeAdvancementStackData<typename BV::S>>& stack,
+    typename BV::S& delta_t);
 
 template <typename BV>
 void meshConservativeAdvancementOrientedNodeLeafTesting(
@@ -236,19 +236,19 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
     const BVHModel<BV>* model2,
     const Triangle* tri_indices1,
     const Triangle* tri_indices2,
-    const Vector3<typename BV::Scalar>* vertices1,
-    const Vector3<typename BV::Scalar>* vertices2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
+    const Vector3<typename BV::S>* vertices1,
+    const Vector3<typename BV::S>* vertices2,
+    const Matrix3<typename BV::S>& R,
+    const Vector3<typename BV::S>& T,
     const MotionBased* motion1,
     const MotionBased* motion2,
     bool enable_statistics,
-    typename BV::Scalar& min_distance,
-    Vector3<typename BV::Scalar>& p1,
-    Vector3<typename BV::Scalar>& p2,
+    typename BV::S& min_distance,
+    Vector3<typename BV::S>& p1,
+    Vector3<typename BV::S>& p2,
     int& last_tri_id1,
     int& last_tri_id2,
-    typename BV::Scalar& delta_t,
+    typename BV::S& delta_t,
     int& num_leaf_tests);
 
 } // namespace details
@@ -262,27 +262,27 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
 //==============================================================================
 template <typename BV>
 MeshConservativeAdvancementTraversalNode<BV>::
-MeshConservativeAdvancementTraversalNode(typename BV::Scalar w_)
+MeshConservativeAdvancementTraversalNode(typename BV::S w_)
   : MeshDistanceTraversalNode<BV>()
 {
   delta_t = 1;
   toc = 0;
-  t_err = (Scalar)0.00001;
+  t_err = (S)0.00001;
 
   w = w_;
 
-  motion1 = NULL;
-  motion2 = NULL;
+  motion1 = nullptr;
+  motion2 = nullptr;
 }
 
 //==============================================================================
 template <typename BV>
-typename BV::Scalar
+typename BV::S
 MeshConservativeAdvancementTraversalNode<BV>::BVTesting(int b1, int b2) const
 {
   if(this->enable_statistics) this->num_bv_tests++;
-  Vector3<Scalar> P1, P2;
-  Scalar d = this->model1->getBV(b1).distance(this->model2->getBV(b2), &P1, &P2);
+  Vector3<S> P1, P2;
+  S d = this->model1->getBV(b1).distance(this->model2->getBV(b2), &P1, &P2);
 
   stack.emplace_back(P1, P2, b1, b2, d);
 
@@ -304,18 +304,18 @@ void MeshConservativeAdvancementTraversalNode<BV>::leafTesting(int b1, int b2) c
   const Triangle& tri_id1 = this->tri_indices1[primitive_id1];
   const Triangle& tri_id2 = this->tri_indices2[primitive_id2];
 
-  const Vector3<Scalar>& p1 = this->vertices1[tri_id1[0]];
-  const Vector3<Scalar>& p2 = this->vertices1[tri_id1[1]];
-  const Vector3<Scalar>& p3 = this->vertices1[tri_id1[2]];
+  const Vector3<S>& p1 = this->vertices1[tri_id1[0]];
+  const Vector3<S>& p2 = this->vertices1[tri_id1[1]];
+  const Vector3<S>& p3 = this->vertices1[tri_id1[2]];
 
-  const Vector3<Scalar>& q1 = this->vertices2[tri_id2[0]];
-  const Vector3<Scalar>& q2 = this->vertices2[tri_id2[1]];
-  const Vector3<Scalar>& q3 = this->vertices2[tri_id2[2]];
+  const Vector3<S>& q1 = this->vertices2[tri_id2[0]];
+  const Vector3<S>& q2 = this->vertices2[tri_id2[1]];
+  const Vector3<S>& q3 = this->vertices2[tri_id2[2]];
 
   // nearest point pair
-  Vector3<Scalar> P1, P2;
+  Vector3<S> P1, P2;
 
-  Scalar d = TriangleDistance<Scalar>::triDistance(p1, p2, p3, q1, q2, q3,
+  S d = TriangleDistance<S>::triDistance(p1, p2, p3, q1, q2, q3,
                                            P1, P2);
 
   if(d < this->min_distance)
@@ -329,16 +329,16 @@ void MeshConservativeAdvancementTraversalNode<BV>::leafTesting(int b1, int b2) c
     last_tri_id2 = primitive_id2;
   }
 
-  Vector3<Scalar> n = P2 - P1;
+  Vector3<S> n = P2 - P1;
   n.normalize();
   // here n is already in global frame as we assume the body is in original configuration (I, 0) for general BVH
-  TriangleMotionBoundVisitor<Scalar> mb_visitor1(p1, p2, p3, n), mb_visitor2(q1, q2, q3, n);
-  Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
-  Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
+  TriangleMotionBoundVisitor<S> mb_visitor1(p1, p2, p3, n), mb_visitor2(q1, q2, q3, n);
+  S bound1 = motion1->computeMotionBound(mb_visitor1);
+  S bound2 = motion2->computeMotionBound(mb_visitor2);
 
-  Scalar bound = bound1 + bound2;
+  S bound = bound1 + bound2;
 
-  Scalar cur_delta_t;
+  S cur_delta_t;
   if(bound <= d) cur_delta_t = 1;
   else cur_delta_t = d / bound;
 
@@ -347,23 +347,23 @@ void MeshConservativeAdvancementTraversalNode<BV>::leafTesting(int b1, int b2) c
 }
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct CanStopImpl
 {
   static bool run(
-      const MeshConservativeAdvancementTraversalNode<BV>& node, Scalar c)
+      const MeshConservativeAdvancementTraversalNode<BV>& node, S c)
   {
     if((c >= node.w * (node.min_distance - node.abs_err))
        && (c * (1 + node.rel_err) >= node.w * node.min_distance))
     {
-      const ConservativeAdvancementStackData<Scalar>& data = node.stack.back();
-      Scalar d = data.d;
-      Vector3<Scalar> n;
+      const ConservativeAdvancementStackData<S>& data = node.stack.back();
+      S d = data.d;
+      Vector3<S> n;
       int c1, c2;
 
       if(d > c)
       {
-        const ConservativeAdvancementStackData<Scalar>& data2 = node.stack[node.stack.size() - 2];
+        const ConservativeAdvancementStackData<S>& data2 = node.stack[node.stack.size() - 2];
         d = data2.d;
         n = data2.P2 - data2.P1; n.normalize();
         c1 = data2.c1;
@@ -380,12 +380,12 @@ struct CanStopImpl
       assert(c == d);
 
       TBVMotionBoundVisitor<BV> mb_visitor1(node.model1->getBV(c1).bv, n), mb_visitor2(node.model2->getBV(c2).bv, n);
-      Scalar bound1 = node.motion1->computeMotionBound(mb_visitor1);
-      Scalar bound2 = node.motion2->computeMotionBound(mb_visitor2);
+      S bound1 = node.motion1->computeMotionBound(mb_visitor1);
+      S bound2 = node.motion2->computeMotionBound(mb_visitor2);
 
-      Scalar bound = bound1 + bound2;
+      S bound = bound1 + bound2;
 
-      Scalar cur_delta_t;
+      S cur_delta_t;
       if(bound <= c) cur_delta_t = 1;
       else cur_delta_t = c / bound;
 
@@ -398,8 +398,8 @@ struct CanStopImpl
     }
     else
     {
-      const ConservativeAdvancementStackData<Scalar>& data = node.stack.back();
-      Scalar d = data.d;
+      const ConservativeAdvancementStackData<S>& data = node.stack.back();
+      S d = data.d;
 
       if(d > c)
         node.stack[node.stack.size() - 2] = node.stack[node.stack.size() - 1];
@@ -414,18 +414,18 @@ struct CanStopImpl
 //==============================================================================
 template <typename BV>
 bool MeshConservativeAdvancementTraversalNode<BV>::canStop(
-    typename BV::Scalar c) const
+    typename BV::S c) const
 {
-  return CanStopImpl<typename BV::Scalar, BV>::run(*this, c);
+  return CanStopImpl<typename BV::S, BV>::run(*this, c);
 }
 
 //==============================================================================
-template <typename Scalar>
-struct CanStopImpl<Scalar, OBB<Scalar>>
+template <typename S>
+struct CanStopImpl<S, OBB<S>>
 {
   static bool run(
-      const MeshConservativeAdvancementTraversalNode<OBB<Scalar>>& node,
-      Scalar c)
+      const MeshConservativeAdvancementTraversalNode<OBB<S>>& node,
+      S c)
   {
     return details::meshConservativeAdvancementTraversalNodeCanStop(
           c,
@@ -443,12 +443,12 @@ struct CanStopImpl<Scalar, OBB<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct CanStopImpl<Scalar, RSS<Scalar>>
+template <typename S>
+struct CanStopImpl<S, RSS<S>>
 {
   static bool run(
-      const MeshConservativeAdvancementTraversalNode<RSS<Scalar>>& node,
-      Scalar c)
+      const MeshConservativeAdvancementTraversalNode<RSS<S>>& node,
+      S c)
   {
     return details::meshConservativeAdvancementTraversalNodeCanStop(
           c,
@@ -466,12 +466,12 @@ struct CanStopImpl<Scalar, RSS<Scalar>>
 };
 
 //==============================================================================
-template <typename Scalar>
-struct CanStopImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct CanStopImpl<S, OBBRSS<S>>
 {
   static bool run(
-      const MeshConservativeAdvancementTraversalNode<OBBRSS<Scalar>>& node,
-      Scalar c)
+      const MeshConservativeAdvancementTraversalNode<OBBRSS<S>>& node,
+      S c)
   {
     return details::meshConservativeAdvancementTraversalNodeCanStop(
           c,
@@ -493,28 +493,28 @@ template <typename BV>
 bool initialize(
     MeshConservativeAdvancementTraversalNode<BV>& node,
     BVHModel<BV>& model1,
-    const Transform3<typename BV::Scalar>& tf1,
+    const Transform3<typename BV::S>& tf1,
     BVHModel<BV>& model2,
-    const Transform3<typename BV::Scalar>& tf2,
-    typename BV::Scalar w,
+    const Transform3<typename BV::S>& tf2,
+    typename BV::S w,
     bool use_refit,
     bool refit_bottomup)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
-  std::vector<Vector3<Scalar>> vertices_transformed1(model1.num_vertices);
+  std::vector<Vector3<S>> vertices_transformed1(model1.num_vertices);
   for(int i = 0; i < model1.num_vertices; ++i)
   {
-    Vector3<Scalar>& p = model1.vertices[i];
-    Vector3<Scalar> new_v = tf1 * p;
+    Vector3<S>& p = model1.vertices[i];
+    Vector3<S> new_v = tf1 * p;
     vertices_transformed1[i] = new_v;
   }
 
-  std::vector<Vector3<Scalar>> vertices_transformed2(model2.num_vertices);
+  std::vector<Vector3<S>> vertices_transformed2(model2.num_vertices);
   for(int i = 0; i < model2.num_vertices; ++i)
   {
-    Vector3<Scalar>& p = model2.vertices[i];
-    Vector3<Scalar> new_v = tf2 * p;
+    Vector3<S>& p = model2.vertices[i];
+    Vector3<S> new_v = tf2 * p;
     vertices_transformed2[i] = new_v;
   }
 
@@ -541,16 +541,16 @@ bool initialize(
 }
 
 //==============================================================================
-template <typename Scalar>
-MeshConservativeAdvancementTraversalNodeRSS<Scalar>::MeshConservativeAdvancementTraversalNodeRSS(Scalar w_)
-  : MeshConservativeAdvancementTraversalNode<RSS<Scalar>>(w_)
+template <typename S>
+MeshConservativeAdvancementTraversalNodeRSS<S>::MeshConservativeAdvancementTraversalNodeRSS(S w_)
+  : MeshConservativeAdvancementTraversalNode<RSS<S>>(w_)
 {
   tf.linear().setIdentity();
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshConservativeAdvancementTraversalNodeRSS<Scalar>::leafTesting(int b1, int b2) const
+template <typename S>
+void MeshConservativeAdvancementTraversalNodeRSS<S>::leafTesting(int b1, int b2) const
 {
   details::meshConservativeAdvancementOrientedNodeLeafTesting(
         b1,
@@ -576,8 +576,8 @@ void MeshConservativeAdvancementTraversalNodeRSS<Scalar>::leafTesting(int b1, in
 }
 
 //==============================================================================
-template <typename Scalar>
-bool MeshConservativeAdvancementTraversalNodeRSS<Scalar>::canStop(Scalar c) const
+template <typename S>
+bool MeshConservativeAdvancementTraversalNodeRSS<S>::canStop(S c) const
 {
   return details::meshConservativeAdvancementOrientedNodeCanStop(
         c,
@@ -594,17 +594,17 @@ bool MeshConservativeAdvancementTraversalNodeRSS<Scalar>::canStop(Scalar c) cons
 }
 
 //==============================================================================
-template <typename Scalar>
-MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>::
-MeshConservativeAdvancementTraversalNodeOBBRSS(Scalar w_)
-  : MeshConservativeAdvancementTraversalNode<OBBRSS<Scalar>>(w_)
+template <typename S>
+MeshConservativeAdvancementTraversalNodeOBBRSS<S>::
+MeshConservativeAdvancementTraversalNodeOBBRSS(S w_)
+  : MeshConservativeAdvancementTraversalNode<OBBRSS<S>>(w_)
 {
   tf.linear().setIdentity();
 }
 
 //==============================================================================
-template <typename Scalar>
-void MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>::
+template <typename S>
+void MeshConservativeAdvancementTraversalNodeOBBRSS<S>::
 leafTesting(int b1, int b2) const
 {
   details::meshConservativeAdvancementOrientedNodeLeafTesting(
@@ -631,8 +631,8 @@ leafTesting(int b1, int b2) const
 }
 
 //==============================================================================
-template <typename Scalar>
-bool MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>::canStop(Scalar c) const
+template <typename S>
+bool MeshConservativeAdvancementTraversalNodeOBBRSS<S>::canStop(S c) const
 {
   return details::meshConservativeAdvancementOrientedNodeCanStop(
         c,
@@ -653,10 +653,10 @@ namespace details
 {
 
 //==============================================================================
-template <typename Scalar, typename BV>
+template <typename S, typename BV>
 struct GetBVAxisImpl
 {
-  const Vector3<Scalar> operator()(const BV& bv, int i)
+  const Vector3<S> operator()(const BV& bv, int i)
   {
     return bv.axis.col(i);
   }
@@ -664,49 +664,49 @@ struct GetBVAxisImpl
 
 //==============================================================================
 template <typename BV>
-const Vector3<typename BV::Scalar> getBVAxis(const BV& bv, int i)
+const Vector3<typename BV::S> getBVAxis(const BV& bv, int i)
 {
-  GetBVAxisImpl<typename BV::Scalar, BV> getBVAxisImpl;
+  GetBVAxisImpl<typename BV::S, BV> getBVAxisImpl;
   return getBVAxisImpl(bv, i);
 }
 
 //==============================================================================
-template <typename Scalar>
-struct GetBVAxisImpl<Scalar, OBBRSS<Scalar>>
+template <typename S>
+struct GetBVAxisImpl<S, OBBRSS<S>>
 {
-  const Vector3<Scalar> operator()(const OBBRSS<Scalar>& bv, int i)
+  const Vector3<S> operator()(const OBBRSS<S>& bv, int i)
   {
-    return bv.obb.frame.linear().col(i);
+    return bv.obb.axis.col(i);
   }
 };
 
 //==============================================================================
 template <typename BV>
 bool meshConservativeAdvancementTraversalNodeCanStop(
-    typename BV::Scalar c,
-    typename BV::Scalar min_distance,
-    typename BV::Scalar abs_err,
-    typename BV::Scalar rel_err,
-    typename BV::Scalar w,
+    typename BV::S c,
+    typename BV::S min_distance,
+    typename BV::S abs_err,
+    typename BV::S rel_err,
+    typename BV::S w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
     const MotionBased* motion1,
     const MotionBased* motion2,
-    std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
-    typename BV::Scalar& delta_t)
+    std::vector<ConservativeAdvancementStackData<typename BV::S>>& stack,
+    typename BV::S& delta_t)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
   {
-    const ConservativeAdvancementStackData<Scalar>& data = stack.back();
-    Scalar d = data.d;
-    Vector3<Scalar> n;
+    const ConservativeAdvancementStackData<S>& data = stack.back();
+    S d = data.d;
+    Vector3<S> n;
     int c1, c2;
 
     if(d > c)
     {
-      const ConservativeAdvancementStackData<Scalar>& data2 = stack[stack.size() - 2];
+      const ConservativeAdvancementStackData<S>& data2 = stack[stack.size() - 2];
       d = data2.d;
       n = data2.P2 - data2.P1; n.normalize();
       c1 = data2.c1;
@@ -722,18 +722,18 @@ bool meshConservativeAdvancementTraversalNodeCanStop(
 
     assert(c == d);
 
-    Vector3<Scalar> n_transformed =
+    Vector3<S> n_transformed =
         getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
         getBVAxis(model1->getBV(c1).bv, 1) * n[1] +
         getBVAxis(model1->getBV(c1).bv, 2) * n[2];
 
     TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, n_transformed);
-    Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
-    Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
+    S bound1 = motion1->computeMotionBound(mb_visitor1);
+    S bound2 = motion2->computeMotionBound(mb_visitor2);
 
-    Scalar bound = bound1 + bound2;
+    S bound = bound1 + bound2;
 
-    Scalar cur_delta_t;
+    S cur_delta_t;
     if(bound <= c) cur_delta_t = 1;
     else cur_delta_t = c / bound;
 
@@ -746,8 +746,8 @@ bool meshConservativeAdvancementTraversalNodeCanStop(
   }
   else
   {
-    const ConservativeAdvancementStackData<Scalar>& data = stack.back();
-    Scalar d = data.d;
+    const ConservativeAdvancementStackData<S>& data = stack.back();
+    S d = data.d;
 
     if(d > c)
       stack[stack.size() - 2] = stack[stack.size() - 1];
@@ -761,30 +761,30 @@ bool meshConservativeAdvancementTraversalNodeCanStop(
 //==============================================================================
 template <typename BV>
 bool meshConservativeAdvancementOrientedNodeCanStop(
-    typename BV::Scalar c,
-    typename BV::Scalar min_distance,
-    typename BV::Scalar abs_err,
-    typename BV::Scalar rel_err,
-    typename BV::Scalar w,
+    typename BV::S c,
+    typename BV::S min_distance,
+    typename BV::S abs_err,
+    typename BV::S rel_err,
+    typename BV::S w,
     const BVHModel<BV>* model1,
     const BVHModel<BV>* model2,
     const MotionBased* motion1,
     const MotionBased* motion2,
-    std::vector<ConservativeAdvancementStackData<typename BV::Scalar>>& stack,
-    typename BV::Scalar& delta_t)
+    std::vector<ConservativeAdvancementStackData<typename BV::S>>& stack,
+    typename BV::S& delta_t)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))
   {
-    const ConservativeAdvancementStackData<Scalar>& data = stack.back();
-    Scalar d = data.d;
-    Vector3<Scalar> n;
+    const ConservativeAdvancementStackData<S>& data = stack.back();
+    S d = data.d;
+    Vector3<S> n;
     int c1, c2;
 
     if(d > c)
     {
-      const ConservativeAdvancementStackData<Scalar>& data2 = stack[stack.size() - 2];
+      const ConservativeAdvancementStackData<S>& data2 = stack[stack.size() - 2];
       d = data2.d;
       n = data2.P2 - data2.P1; n.normalize();
       c1 = data2.c1;
@@ -801,22 +801,22 @@ bool meshConservativeAdvancementOrientedNodeCanStop(
     assert(c == d);
 
     // n is in local frame of c1, so we need to turn n into the global frame
-    Vector3<Scalar> n_transformed =
+    Vector3<S> n_transformed =
       getBVAxis(model1->getBV(c1).bv, 0) * n[0] +
       getBVAxis(model1->getBV(c1).bv, 1) * n[2] +  // TODO(JS): not n[1]?
       getBVAxis(model1->getBV(c1).bv, 2) * n[2];
-    Quaternion<Scalar> R0;
+    Quaternion<S> R0;
     motion1->getCurrentRotation(R0);
     n_transformed = R0 * n_transformed;
     n_transformed.normalize();
 
     TBVMotionBoundVisitor<BV> mb_visitor1(model1->getBV(c1).bv, n_transformed), mb_visitor2(model2->getBV(c2).bv, -n_transformed);
-    Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
-    Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
+    S bound1 = motion1->computeMotionBound(mb_visitor1);
+    S bound2 = motion2->computeMotionBound(mb_visitor2);
 
-    Scalar bound = bound1 + bound2;
+    S bound = bound1 + bound2;
 
-    Scalar cur_delta_t;
+    S cur_delta_t;
     if(bound <= c) cur_delta_t = 1;
     else cur_delta_t = c / bound;
 
@@ -829,8 +829,8 @@ bool meshConservativeAdvancementOrientedNodeCanStop(
   }
   else
   {
-    const ConservativeAdvancementStackData<Scalar>& data = stack.back();
-    Scalar d = data.d;
+    const ConservativeAdvancementStackData<S>& data = stack.back();
+    S d = data.d;
 
     if(d > c)
       stack[stack.size() - 2] = stack[stack.size() - 1];
@@ -850,22 +850,22 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
     const BVHModel<BV>* model2,
     const Triangle* tri_indices1,
     const Triangle* tri_indices2,
-    const Vector3<typename BV::Scalar>* vertices1,
-    const Vector3<typename BV::Scalar>* vertices2,
-    const Matrix3<typename BV::Scalar>& R,
-    const Vector3<typename BV::Scalar>& T,
+    const Vector3<typename BV::S>* vertices1,
+    const Vector3<typename BV::S>* vertices2,
+    const Matrix3<typename BV::S>& R,
+    const Vector3<typename BV::S>& T,
     const MotionBased* motion1,
     const MotionBased* motion2,
     bool enable_statistics,
-    typename BV::Scalar& min_distance,
-    Vector3<typename BV::Scalar>& p1,
-    Vector3<typename BV::Scalar>& p2,
+    typename BV::S& min_distance,
+    Vector3<typename BV::S>& p1,
+    Vector3<typename BV::S>& p2,
     int& last_tri_id1,
     int& last_tri_id2,
-    typename BV::Scalar& delta_t,
+    typename BV::S& delta_t,
     int& num_leaf_tests)
 {
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   if(enable_statistics) num_leaf_tests++;
 
@@ -878,18 +878,18 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
   const Triangle& tri_id1 = tri_indices1[primitive_id1];
   const Triangle& tri_id2 = tri_indices2[primitive_id2];
 
-  const Vector3<Scalar>& t11 = vertices1[tri_id1[0]];
-  const Vector3<Scalar>& t12 = vertices1[tri_id1[1]];
-  const Vector3<Scalar>& t13 = vertices1[tri_id1[2]];
+  const Vector3<S>& t11 = vertices1[tri_id1[0]];
+  const Vector3<S>& t12 = vertices1[tri_id1[1]];
+  const Vector3<S>& t13 = vertices1[tri_id1[2]];
 
-  const Vector3<Scalar>& t21 = vertices2[tri_id2[0]];
-  const Vector3<Scalar>& t22 = vertices2[tri_id2[1]];
-  const Vector3<Scalar>& t23 = vertices2[tri_id2[2]];
+  const Vector3<S>& t21 = vertices2[tri_id2[0]];
+  const Vector3<S>& t22 = vertices2[tri_id2[1]];
+  const Vector3<S>& t23 = vertices2[tri_id2[2]];
 
   // nearest point pair
-  Vector3<Scalar> P1, P2;
+  Vector3<S> P1, P2;
 
-  Scalar d = TriangleDistance<Scalar>::triDistance(t11, t12, t13, t21, t22, t23,
+  S d = TriangleDistance<S>::triDistance(t11, t12, t13, t21, t22, t23,
                                            R, T,
                                            P1, P2);
 
@@ -906,20 +906,20 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
 
 
   /// n is the local frame of object 1, pointing from object 1 to object2
-  Vector3<Scalar> n = P2 - P1;
+  Vector3<S> n = P2 - P1;
   /// turn n into the global frame, pointing from object 1 to object 2
-  Quaternion<Scalar> R0;
+  Quaternion<S> R0;
   motion1->getCurrentRotation(R0);
-  Vector3<Scalar> n_transformed = R0 * n;
+  Vector3<S> n_transformed = R0 * n;
   n_transformed.normalize(); // normalized here
 
-  TriangleMotionBoundVisitor<Scalar> mb_visitor1(t11, t12, t13, n_transformed), mb_visitor2(t21, t22, t23, -n_transformed);
-  Scalar bound1 = motion1->computeMotionBound(mb_visitor1);
-  Scalar bound2 = motion2->computeMotionBound(mb_visitor2);
+  TriangleMotionBoundVisitor<S> mb_visitor1(t11, t12, t13, n_transformed), mb_visitor2(t21, t22, t23, -n_transformed);
+  S bound1 = motion1->computeMotionBound(mb_visitor1);
+  S bound2 = motion2->computeMotionBound(mb_visitor2);
 
-  Scalar bound = bound1 + bound2;
+  S bound = bound1 + bound2;
 
-  Scalar cur_delta_t;
+  S cur_delta_t;
   if(bound <= d) cur_delta_t = 1;
   else cur_delta_t = d / bound;
 
@@ -931,9 +931,9 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
 template <typename BV, typename OrientedDistanceNode>
 bool setupMeshConservativeAdvancementOrientedDistanceNode(
     OrientedDistanceNode& node,
-    const BVHModel<BV>& model1, const Transform3<typename BV::Scalar>& tf1,
-    const BVHModel<BV>& model2, const Transform3<typename BV::Scalar>& tf2,
-    typename BV::Scalar w)
+    const BVHModel<BV>& model1, const Transform3<typename BV::S>& tf1,
+    const BVHModel<BV>& model2, const Transform3<typename BV::S>& tf2,
+    typename BV::S w)
 {
   if(model1.getModelType() != BVH_MODEL_TRIANGLES || model2.getModelType() != BVH_MODEL_TRIANGLES)
     return false;
@@ -957,28 +957,28 @@ bool setupMeshConservativeAdvancementOrientedDistanceNode(
 } // namespace detials
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshConservativeAdvancementTraversalNodeRSS<Scalar>& node,
-    const BVHModel<RSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<RSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    Scalar w)
+    MeshConservativeAdvancementTraversalNodeRSS<S>& node,
+    const BVHModel<RSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<RSS<S>>& model2,
+    const Transform3<S>& tf2,
+    S w)
 {
   return details::setupMeshConservativeAdvancementOrientedDistanceNode(
         node, model1, tf1, model2, tf2, w);
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool initialize(
-    MeshConservativeAdvancementTraversalNodeOBBRSS<Scalar>& node,
-    const BVHModel<OBBRSS<Scalar>>& model1,
-    const Transform3<Scalar>& tf1,
-    const BVHModel<OBBRSS<Scalar>>& model2,
-    const Transform3<Scalar>& tf2,
-    Scalar w)
+    MeshConservativeAdvancementTraversalNodeOBBRSS<S>& node,
+    const BVHModel<OBBRSS<S>>& model1,
+    const Transform3<S>& tf1,
+    const BVHModel<OBBRSS<S>>& model2,
+    const Transform3<S>& tf2,
+    S w)
 {
   return details::setupMeshConservativeAdvancementOrientedDistanceNode(
         node, model1, tf1, model2, tf2, w);

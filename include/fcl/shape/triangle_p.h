@@ -45,31 +45,31 @@ namespace fcl
 {
 
 /// @brief Triangle stores the points instead of only indices of points
-template <typename ScalarT>
-class TriangleP : public ShapeBase<ScalarT>
+template <typename S_>
+class TriangleP : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
-  TriangleP(const Vector3<ScalarT>& a,
-            const Vector3<ScalarT>& b,
-            const Vector3<ScalarT>& c);
+  TriangleP(const Vector3<S>& a,
+            const Vector3<S>& b,
+            const Vector3<S>& c);
 
-  /// @brief virtual function of compute AABB<ScalarT> in local coordinate
+  /// @brief virtual function of compute AABB<S> in local coordinate
   void computeLocalAABB() override;
   
   // Documentation inherited
   NODE_TYPE getNodeType() const override;
 
-  Vector3<ScalarT> a;
-  Vector3<ScalarT> b;
-  Vector3<ScalarT> c;
+  Vector3<S> a;
+  Vector3<S> b;
+  Vector3<S> c;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(
+      const Transform3<S>& tf) const;
 };
 
 using TrianglePf = TriangleP<float>;
@@ -82,38 +82,38 @@ using TrianglePd = TriangleP<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-TriangleP<ScalarT>::TriangleP(
-    const Vector3<ScalarT>& a,
-    const Vector3<ScalarT>& b,
-    const Vector3<ScalarT>& c)
-  : ShapeBase<ScalarT>(), a(a), b(b), c(c)
+template <typename S>
+TriangleP<S>::TriangleP(
+    const Vector3<S>& a,
+    const Vector3<S>& b,
+    const Vector3<S>& c)
+  : ShapeBase<S>(), a(a), b(b), c(c)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-void TriangleP<ScalarT>::computeLocalAABB()
+template <typename S>
+void TriangleP<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE TriangleP<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE TriangleP<S>::getNodeType() const
 {
   return GEOM_TRIANGLE;
 }
 
 //==============================================================================
-template <typename ScalarT>
-std::vector<Vector3<ScalarT>> TriangleP<ScalarT>::getBoundVertices(
-    const Transform3<ScalarT>& tf) const
+template <typename S>
+std::vector<Vector3<S>> TriangleP<S>::getBoundVertices(
+    const Transform3<S>& tf) const
 {
-  std::vector<Vector3<ScalarT>> result(3);
+  std::vector<Vector3<S>> result(3);
   result[0] = tf * a;
   result[1] = tf * b;
   result[2] = tf * c;

@@ -46,21 +46,21 @@ namespace fcl
 {
 
 /// @brief Center at zero cylinder 
-template <typename ScalarT>
-class Cylinder : public ShapeBase<ScalarT>
+template <typename S_>
+class Cylinder : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Constructor
-  Cylinder(ScalarT radius, ScalarT lz);
+  Cylinder(S radius, S lz);
   
   /// @brief Radius of the cylinder 
-  ScalarT radius;
+  S radius;
 
   /// @brief Length along z axis 
-  ScalarT lz;
+  S lz;
 
   /// @brief Compute AABBd 
   void computeLocalAABB() override;
@@ -69,15 +69,15 @@ public:
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  ScalarT computeVolume() const override;
+  S computeVolume() const override;
 
   // Documentation inherited
-  Matrix3<ScalarT> computeMomentofInertia() const override;
+  Matrix3<S> computeMomentofInertia() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(
+      const Transform3<S>& tf) const;
 };
 
 using Cylinderf = Cylinder<float>;
@@ -90,72 +90,72 @@ using Cylinderd = Cylinder<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Cylinder<ScalarT>::Cylinder(ScalarT radius, ScalarT lz)
-  : ShapeBase<ScalarT>(), radius(radius), lz(lz)
+template <typename S>
+Cylinder<S>::Cylinder(S radius, S lz)
+  : ShapeBase<S>(), radius(radius), lz(lz)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Cylinder<ScalarT>::computeLocalAABB()
+template <typename S>
+void Cylinder<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Cylinder<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Cylinder<S>::getNodeType() const
 {
   return GEOM_CYLINDER;
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Cylinder<ScalarT>::computeVolume() const
+template <typename S>
+S Cylinder<S>::computeVolume() const
 {
-  return constants<Scalar>::pi() * radius * radius * lz;
+  return constants<S>::pi() * radius * radius * lz;
 }
 
 //==============================================================================
-template <typename ScalarT>
-Matrix3<ScalarT> Cylinder<ScalarT>::computeMomentofInertia() const
+template <typename S>
+Matrix3<S> Cylinder<S>::computeMomentofInertia() const
 {
-  ScalarT V = computeVolume();
-  ScalarT ix = V * (3 * radius * radius + lz * lz) / 12;
-  ScalarT iz = V * radius * radius / 2;
+  S V = computeVolume();
+  S ix = V * (3 * radius * radius + lz * lz) / 12;
+  S iz = V * radius * radius / 2;
 
-  return Vector3<ScalarT>(ix, ix, iz).asDiagonal();
+  return Vector3<S>(ix, ix, iz).asDiagonal();
 }
 
 //==============================================================================
-template <typename ScalarT>
-std::vector<Vector3<ScalarT>> Cylinder<ScalarT>::getBoundVertices(
-    const Transform3<ScalarT>& tf) const
+template <typename S>
+std::vector<Vector3<S>> Cylinder<S>::getBoundVertices(
+    const Transform3<S>& tf) const
 {
-  std::vector<Vector3<ScalarT>> result(12);
+  std::vector<Vector3<S>> result(12);
 
   auto hl = lz * 0.5;
   auto r2 = radius * 2 / std::sqrt(3.0);
   auto a = 0.5 * r2;
   auto b = radius;
 
-  result[0] = tf * Vector3<ScalarT>(r2, 0, -hl);
-  result[1] = tf * Vector3<ScalarT>(a, b, -hl);
-  result[2] = tf * Vector3<ScalarT>(-a, b, -hl);
-  result[3] = tf * Vector3<ScalarT>(-r2, 0, -hl);
-  result[4] = tf * Vector3<ScalarT>(-a, -b, -hl);
-  result[5] = tf * Vector3<ScalarT>(a, -b, -hl);
+  result[0] = tf * Vector3<S>(r2, 0, -hl);
+  result[1] = tf * Vector3<S>(a, b, -hl);
+  result[2] = tf * Vector3<S>(-a, b, -hl);
+  result[3] = tf * Vector3<S>(-r2, 0, -hl);
+  result[4] = tf * Vector3<S>(-a, -b, -hl);
+  result[5] = tf * Vector3<S>(a, -b, -hl);
 
-  result[6] = tf * Vector3<ScalarT>(r2, 0, hl);
-  result[7] = tf * Vector3<ScalarT>(a, b, hl);
-  result[8] = tf * Vector3<ScalarT>(-a, b, hl);
-  result[9] = tf * Vector3<ScalarT>(-r2, 0, hl);
-  result[10] = tf * Vector3<ScalarT>(-a, -b, hl);
-  result[11] = tf * Vector3<ScalarT>(a, -b, hl);
+  result[6] = tf * Vector3<S>(r2, 0, hl);
+  result[7] = tf * Vector3<S>(a, b, hl);
+  result[8] = tf * Vector3<S>(-a, b, hl);
+  result[9] = tf * Vector3<S>(-r2, 0, hl);
+  result[10] = tf * Vector3<S>(-a, -b, hl);
+  result[11] = tf * Vector3<S>(a, -b, hl);
 
   return result;
 }

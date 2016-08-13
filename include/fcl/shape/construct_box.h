@@ -48,53 +48,53 @@ namespace fcl
 {
 
 /// @brief construct a box shape (with a configuration) from a given bounding volume
-template <typename Scalar>
-void constructBox(const AABB<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const AABB<S>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const OBB<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const OBB<S>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const OBBRSS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const OBBRSS<S>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const kIOS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const kIOS<S>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const RSS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const RSS<S>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 16>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const KDOP<S, 16>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 18>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const KDOP<S, 18>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 24>& bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const KDOP<S, 24>& bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const AABB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const AABB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const OBB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const OBB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const OBBRSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const OBBRSS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const kIOS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const kIOS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const RSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const RSS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 16>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const KDOP<S, 16>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 18>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const KDOP<S, 18>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 24>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf);
+template <typename S>
+void constructBox(const KDOP<S, 24>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 //============================================================================//
 //                                                                            //
@@ -103,139 +103,145 @@ void constructBox(const KDOP<Scalar, 24>& bv, const Transform3<Scalar>& tf_bv, B
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const AABB<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const AABB<S>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.max_ - bv.min_);
+  box = Box<S>(bv.max_ - bv.min_);
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const OBB<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const OBB<S>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.extent * 2);
-  tf.linear() = bv.frame.linear();
-  tf.translation() = bv.frame.translation();
+  box = Box<S>(bv.extent * 2);
+  tf.linear() = bv.axis;
+  tf.translation() = bv.To;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const OBBRSS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const OBBRSS<S>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.obb.extent * 2);
-  tf.linear() = bv.obb.frame.linear();
-  tf.translation() = bv.obb.frame.translation();
+  box = Box<S>(bv.obb.extent * 2);
+  tf.linear() = bv.obb.axis;
+  tf.translation() = bv.obb.To;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const kIOS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const kIOS<S>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.obb.extent * 2);
-  tf.linear() = bv.obb.frame.linear();
-  tf.translation() = bv.obb.frame.translation();
+  box = Box<S>(bv.obb.extent * 2);
+  tf.linear() = bv.obb.axis;
+  tf.translation() = bv.obb.To;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const RSS<Scalar>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const RSS<S>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  tf.linear() = bv.frame.linear();
-  tf.translation() = bv.frame.translation();
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
+  tf.linear() = bv.axis;
+  tf.translation() = bv.To;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 16>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const KDOP<S, 16>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 18>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const KDOP<S, 18>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 24>& bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const KDOP<S, 24>& bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
   tf.linear().setIdentity();
   tf.translation() = bv.center();
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const AABB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const AABB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.max_ - bv.min_);
-  tf = tf_bv * Translation3<Scalar>(bv.center());
+  box = Box<S>(bv.max_ - bv.min_);
+  tf = tf_bv * Translation3<S>(bv.center());
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const OBB<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const OBB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.extent * 2);
-  tf = bv.frame;
+  box = Box<S>(bv.extent * 2);
+  tf.linear() = bv.axis;
+  tf.translation() = bv.To;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const OBBRSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const OBBRSS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.obb.extent * 2);
-  tf = tf_bv * bv.obb.frame;
+  box = Box<S>(bv.obb.extent * 2);
+  tf.linear() = bv.obb.axis;
+  tf.translation() = bv.obb.To;
+  tf = tf_bv * tf;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const kIOS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const kIOS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.obb.extent * 2);
-  tf = tf_bv * bv.obb.frame;
+  box = Box<S>(bv.obb.extent * 2);
+  tf.linear() = bv.obb.axis;
+  tf.translation() = bv.obb.To;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const RSS<Scalar>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const RSS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * bv.frame;
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
+  tf.linear() = bv.axis;
+  tf.translation() = bv.To;
+  tf = tf_bv * tf;
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 16>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const KDOP<S, 16>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Translation3<Scalar>(bv.center());
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
+  tf = tf_bv * Translation3<S>(bv.center());
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 18>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const KDOP<S, 18>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Translation3<Scalar>(bv.center());
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
+  tf = tf_bv * Translation3<S>(bv.center());
 }
 
 //==============================================================================
-template <typename Scalar>
-void constructBox(const KDOP<Scalar, 24>& bv, const Transform3<Scalar>& tf_bv, Box<Scalar>& box, Transform3<Scalar>& tf)
+template <typename S>
+void constructBox(const KDOP<S, 24>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
-  box = Box<Scalar>(bv.width(), bv.height(), bv.depth());
-  tf = tf_bv * Translation3<Scalar>(bv.center());
+  box = Box<S>(bv.width(), bv.height(), bv.depth());
+  tf = tf_bv * Translation3<S>(bv.center());
 }
 
 } // namespace fcl

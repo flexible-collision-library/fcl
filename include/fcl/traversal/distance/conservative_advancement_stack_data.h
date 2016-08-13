@@ -43,19 +43,19 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 struct ConservativeAdvancementStackData
 {
   ConservativeAdvancementStackData(
-      const Vector3<Scalar>& P1_,
-      const Vector3<Scalar>& P2_,
-      int c1_, int c2_, Scalar d_);
+      const Vector3<S>& P1_,
+      const Vector3<S>& P2_,
+      int c1_, int c2_, S d_);
 
-  Vector3<Scalar> P1;
-  Vector3<Scalar> P2;
+  Vector3<S> P1;
+  Vector3<S> P2;
   int c1;
   int c2;
-  Scalar d;
+  S d;
 };
 
 //============================================================================//
@@ -65,11 +65,11 @@ struct ConservativeAdvancementStackData
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-ConservativeAdvancementStackData<Scalar>::ConservativeAdvancementStackData(
-    const Vector3<Scalar>& P1_,
-    const Vector3<Scalar>& P2_,
-    int c1_, int c2_, Scalar d_)
+template <typename S>
+ConservativeAdvancementStackData<S>::ConservativeAdvancementStackData(
+    const Vector3<S>& P1_,
+    const Vector3<S>& P2_,
+    int c1_, int c2_, S d_)
   : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_)
 {
   // Do nothing

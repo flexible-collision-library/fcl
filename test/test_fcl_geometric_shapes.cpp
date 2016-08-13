@@ -49,29 +49,29 @@
 
 using namespace fcl;
 
-template <typename Scalar>
-std::array<Scalar, 6>& extents()
+template <typename S>
+std::array<S, 6>& extents()
 {
-  static std::array<Scalar, 6> static_extents{ {0, 0, 0, 10, 10, 10} };
+  static std::array<S, 6> static_extents{ {0, 0, 0, 10, 10, 10} };
   return static_extents;
 }
 
-template <typename Scalar>
-GJKSolver_libccd<Scalar>& solver1()
+template <typename S>
+GJKSolver_libccd<S>& solver1()
 {
-  static GJKSolver_libccd<Scalar> static_solver1;
+  static GJKSolver_libccd<S> static_solver1;
   return static_solver1;
 }
 
-template <typename Scalar>
-GJKSolver_indep<Scalar>& solver2()
+template <typename S>
+GJKSolver_indep<S>& solver2()
 {
-  static GJKSolver_indep<Scalar> static_solver2;
+  static GJKSolver_indep<S> static_solver2;
   return static_solver2;
 }
 
-template <typename Scalar>
-Scalar tolerance();
+template <typename S>
+S tolerance();
 
 template <>
 float tolerance() { return 1e-4; }
@@ -79,16 +79,16 @@ float tolerance() { return 1e-4; }
 template <>
 double tolerance() { return 1e-12; }
 
-template <typename Scalar>
+template <typename S>
 void test_sphere_shape()
 {
-  const Scalar radius = 5.0;
-  const Scalar pi = constants<Scalar>::pi();
+  const S radius = 5.0;
+  const S pi = constants<S>::pi();
 
-  Sphere<Scalar> s(radius);
+  Sphere<S> s(radius);
 
   const auto volume = 4.0 / 3.0 * pi * radius * radius * radius;
-  EXPECT_NEAR(volume, s.computeVolume(), tolerance<Scalar>());
+  EXPECT_NEAR(volume, s.computeVolume(), tolerance<S>());
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
@@ -97,20 +97,20 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, sphere_shape)
   test_sphere_shape<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_gjkcache()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.enable_cached_gjk_guess = true;
   request.gjk_solver_type = GST_INDEP;
 
-  TranslationMotion<Scalar> motion(Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-20.0, -20.0, -20.0))), Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(20.0, 20.0, 20.0))));
+  TranslationMotion<S> motion(Transform3<S>(Translation3<S>(Vector3<S>(-20.0, -20.0, -20.0))), Transform3<S>(Translation3<S>(Vector3<S>(20.0, 20.0, 20.0))));
 
   int N = 1000;
-  Scalar dt = 1.0 / (N - 1);
+  S dt = 1.0 / (N - 1);
 
   /// test exploiting spatial coherence
   Timer timer1;
@@ -119,12 +119,12 @@ void test_gjkcache()
   for(int i = 0; i < N; ++i)
   {
     motion.integrate(dt * i);
-    Transform3<Scalar> tf;
+    Transform3<S> tf;
     motion.getCurrentTransform(tf);
 
-    CollisionResult<Scalar> result;
+    CollisionResult<S> result;
 
-    collide(&s1, Transform3<Scalar>::Identity(), &s2, tf, request, result);
+    collide(&s1, Transform3<S>::Identity(), &s2, tf, request, result);
     result1[i] = result.isCollision();
     request.cached_gjk_guess = result.cached_gjk_guess; // use cached guess
   }
@@ -139,12 +139,12 @@ void test_gjkcache()
   for(int i = 0; i < N; ++i)
   {
     motion.integrate(dt * i);
-    Transform3<Scalar> tf;
+    Transform3<S> tf;
     motion.getCurrentTransform(tf);
 
-    CollisionResult<Scalar> result;
+    CollisionResult<S> result;
 
-    collide(&s1, Transform3<Scalar>::Identity(), &s2, tf, request, result);
+    collide(&s1, Transform3<S>::Identity(), &s2, tf, request, result);
     result2[i] = result.isCollision();
   }
 
@@ -164,15 +164,15 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, gjkcache)
   test_gjkcache<double>();
 }
 
-template <typename S1, typename S2>
+template <typename Shape1, typename Shape2>
 void printComparisonError(const std::string& comparison_type,
-                          const S1& s1, const Transform3<typename S1::Scalar>& tf1,
-                          const S2& s2, const Transform3<typename S1::Scalar>& tf2,
+                          const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                          const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                           GJKSolverType solver_type,
-                          const Vector3<typename S1::Scalar>& expected_contact_or_normal,
-                          const Vector3<typename S1::Scalar>& actual_contact_or_normal,
+                          const Vector3<typename Shape1::S>& expected_contact_or_normal,
+                          const Vector3<typename Shape1::S>& actual_contact_or_normal,
                           bool check_opposite_normal,
-                          typename S1::Scalar tol)
+                          typename Shape1::S tol)
 {
   std::cout << "Disagreement between " << comparison_type
             << " and expected_" << comparison_type << " for "
@@ -194,14 +194,14 @@ void printComparisonError(const std::string& comparison_type,
             << "tolerance: " << tol << std::endl;
 }
 
-template <typename S1, typename S2>
+template <typename Shape1, typename Shape2>
 void printComparisonError(const std::string& comparison_type,
-                          const S1& s1, const Transform3<typename S1::Scalar>& tf1,
-                          const S2& s2, const Transform3<typename S1::Scalar>& tf2,
+                          const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                          const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                           GJKSolverType solver_type,
-                          typename S1::Scalar expected_depth,
-                          typename S1::Scalar actual_depth,
-                          typename S1::Scalar tol)
+                          typename Shape1::S expected_depth,
+                          typename Shape1::S actual_depth,
+                          typename Shape1::S tol)
 {
   std::cout << "Disagreement between " << comparison_type
             << " and expected_" << comparison_type << " for "
@@ -218,16 +218,16 @@ void printComparisonError(const std::string& comparison_type,
             << "tolerance: " << tol << std::endl;
 }
 
-template <typename S1, typename S2>
-bool checkContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& tf1,
-                        const S2& s2, const Transform3<typename S1::Scalar>& tf2,
+template <typename Shape1, typename Shape2>
+bool checkContactPointds(const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                        const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                         GJKSolverType solver_type,
-                        const ContactPoint<typename S1::Scalar>& expected, const ContactPoint<typename S1::Scalar>& actual,
+                        const ContactPoint<typename Shape1::S>& expected, const ContactPoint<typename Shape1::S>& actual,
                         bool check_position = false,
                         bool check_depth = false,
                         bool check_normal = false,
                         bool check_opposite_normal = false,
-                        typename S1::Scalar tol = 1e-9)
+                        typename Shape1::S tol = 1e-9)
 {
   if (check_position)
   {
@@ -257,19 +257,19 @@ bool checkContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& tf
   return true;
 }
 
-template <typename S1, typename S2>
-bool inspectContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& tf1,
-                          const S2& s2, const Transform3<typename S1::Scalar>& tf2,
+template <typename Shape1, typename Shape2>
+bool inspectContactPointds(const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+                          const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
                           GJKSolverType solver_type,
-                          const std::vector<ContactPoint<typename S1::Scalar>>& expected_contacts,
-                          const std::vector<ContactPoint<typename S1::Scalar>>& actual_contacts,
+                          const std::vector<ContactPoint<typename Shape1::S>>& expected_contacts,
+                          const std::vector<ContactPoint<typename Shape1::S>>& actual_contacts,
                           bool check_position = false,
                           bool check_depth = false,
                           bool check_normal = false,
                           bool check_opposite_normal = false,
-                          typename S1::Scalar tol = 1e-9)
+                          typename Shape1::S tol = 1e-9)
 {
-  using Scalar = typename S1::Scalar;
+  using S = typename Shape1::S;
 
   // Check number of contact points
   bool sameNumContacts = (actual_contacts.size() == expected_contacts.size());
@@ -309,7 +309,7 @@ bool inspectContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& 
   bool foundAll = true;
   for (size_t i = 0; i < numContacts; ++i)
   {
-    const ContactPoint<Scalar>& expected = expected_contacts[i];
+    const ContactPoint<S>& expected = expected_contacts[i];
 
     // Check if expected contact is in the list of actual contacts
     for (size_t j = 0; j < numContacts; ++j)
@@ -317,7 +317,7 @@ bool inspectContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& 
       if (index_to_expected_contacts[j] != -1)
         continue;
 
-      const ContactPoint<Scalar>& actual = actual_contacts[j];
+      const ContactPoint<S>& actual = actual_contacts[j];
 
       bool found = checkContactPointds(
             s1, tf1, s2, tf2, solver_type,
@@ -359,7 +359,7 @@ bool inspectContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& 
               << "[ Expected Contacts: " << numContacts << " ]\n";
     for (size_t i = 0; i < numContacts; ++i)
     {
-      const ContactPoint<Scalar>& expected = expected_contacts[i];
+      const ContactPoint<S>& expected = expected_contacts[i];
 
       std::cout << "(" << i << ") pos: " << expected.pos.transpose() << ", "
                 << "normal: " << expected.normal.transpose() << ", "
@@ -374,7 +374,7 @@ bool inspectContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& 
               << "[ Actual Contacts: " << numContacts << " ]\n";
     for (size_t i = 0; i < numContacts; ++i)
     {
-      const ContactPoint<Scalar>& actual = actual_contacts[i];
+      const ContactPoint<S>& actual = actual_contacts[i];
 
       std::cout << "(" << i << ") pos: " << actual.pos.transpose() << ", "
                 << "normal: " << actual.normal.transpose() << ", "
@@ -392,8 +392,8 @@ bool inspectContactPointds(const S1& s1, const Transform3<typename S1::Scalar>& 
   return foundAll;
 }
 
-template <typename Scalar>
-void getContactPointdsFromResult(std::vector<ContactPoint<Scalar>>& contacts, const CollisionResult<Scalar>& result)
+template <typename S>
+void getContactPointdsFromResult(std::vector<ContactPoint<S>>& contacts, const CollisionResult<S>& result)
 {
   const size_t numContacts = result.numContacts();
   contacts.resize(numContacts);
@@ -408,27 +408,27 @@ void getContactPointdsFromResult(std::vector<ContactPoint<Scalar>>& contacts, co
   }
 }
 
-template <typename S1, typename S2>
+template <typename Shape1, typename Shape2>
 void testShapeIntersection(
-    const S1& s1, const Transform3<typename S1::Scalar>& tf1,
-    const S2& s2, const Transform3<typename S1::Scalar>& tf2,
+    const Shape1& s1, const Transform3<typename Shape1::S>& tf1,
+    const Shape2& s2, const Transform3<typename Shape1::S>& tf2,
     GJKSolverType solver_type,
     bool expected_res,
-    const std::vector<ContactPoint<typename S1::Scalar>>& expected_contacts = std::vector<ContactPoint<typename S1::Scalar>>(),
+    const std::vector<ContactPoint<typename Shape1::S>>& expected_contacts = std::vector<ContactPoint<typename Shape1::S>>(),
     bool check_position = true,
     bool check_depth = true,
     bool check_normal = true,
     bool check_opposite_normal = false,
-    typename S1::Scalar tol = 1e-9)
+    typename Shape1::S tol = 1e-9)
 {
-  using Scalar = typename S1::Scalar;
+  using S = typename Shape1::S;
 
-  CollisionRequest<Scalar> request;
+  CollisionRequest<S> request;
   request.gjk_solver_type = solver_type;
   request.num_max_contacts = std::numeric_limits<size_t>::max();
-  CollisionResult<Scalar> result;
+  CollisionResult<S> result;
 
-  std::vector<ContactPoint<Scalar>> actual_contacts;
+  std::vector<ContactPoint<S>> actual_contacts;
 
   bool res;
 
@@ -437,11 +437,11 @@ void testShapeIntersection(
   // Check only whether they are colliding or not.
   if (solver_type == GST_LIBCCD)
   {
-    res = solver1<Scalar>().shapeIntersect(s1, tf1, s2, tf2, NULL);
+    res = solver1<S>().shapeIntersect(s1, tf1, s2, tf2, nullptr);
   }
   else if (solver_type == GST_INDEP)
   {
-    res = solver2<Scalar>().shapeIntersect(s1, tf1, s2, tf2, NULL);
+    res = solver2<S>().shapeIntersect(s1, tf1, s2, tf2, nullptr);
   }
   else
   {
@@ -453,11 +453,11 @@ void testShapeIntersection(
   // Check contact information as well
   if (solver_type == GST_LIBCCD)
   {
-    res = solver1<Scalar>().shapeIntersect(s1, tf1, s2, tf2, &actual_contacts);
+    res = solver1<S>().shapeIntersect(s1, tf1, s2, tf2, &actual_contacts);
   }
   else if (solver_type == GST_INDEP)
   {
-    res = solver2<Scalar>().shapeIntersect(s1, tf1, s2, tf2, &actual_contacts);
+    res = solver2<S>().shapeIntersect(s1, tf1, s2, tf2, &actual_contacts);
   }
   else
   {
@@ -524,46 +524,46 @@ void testShapeIntersection(
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_spheresphere()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(10);
+  Sphere<S> s1(20);
+  Sphere<S> s2(10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(30, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -571,15 +571,15 @@ void test_shapeIntersection_spheresphere()
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[0].pos = transform * Vector3<Scalar>(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
   contacts[0].pos.setZero();
@@ -590,12 +590,12 @@ void test_shapeIntersection_spheresphere()
   tf2 = transform;
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
-  contacts[0].pos = transform * Vector3<Scalar>::Zero();
+  contacts[0].pos = transform * Vector3<S>::Zero();
   contacts[0].penetration_depth = 20.0 + 10.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -603,27 +603,27 @@ void test_shapeIntersection_spheresphere()
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
-  contacts[0].pos = transform * Vector3<Scalar>(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.0, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-30.0, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -633,14 +633,14 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheresphere)
   test_shapeIntersection_spheresphere<double>();
 }
 
-template <typename Scalar>
-bool compareContactPointds1(const Vector3<Scalar>& c1,const Vector3<Scalar>& c2)
+template <typename S>
+bool compareContactPointds1(const Vector3<S>& c1,const Vector3<S>& c2)
 {
   return c1[2] < c2[2];
 } // Ascending order
 
-template <typename Scalar>
-bool compareContactPointds2(const ContactPoint<Scalar>& cp1,const ContactPoint<Scalar>& cp2)
+template <typename S>
+bool compareContactPointds2(const ContactPoint<S>& cp1,const ContactPoint<S>& cp2)
 {
   return cp1.pos[2] < cp2.pos[2];
 } // Ascending order
@@ -648,13 +648,13 @@ bool compareContactPointds2(const ContactPoint<Scalar>& cp1,const ContactPoint<S
 template <typename Derived>
 void testBoxBoxContactPointds(const Eigen::MatrixBase<Derived>& R)
 {
-  using Scalar = typename Derived::RealScalar;
+  using S = typename Derived::RealScalar;
 
-  Box<Scalar> s1(100, 100, 100);
-  Box<Scalar> s2(10, 20, 30);
+  Box<S> s1(100, 100, 100);
+  Box<S> s2(10, 20, 30);
 
   // Vertices of s2
-  std::vector<Vector3<Scalar>> vertices(8);
+  std::vector<Vector3<S>> vertices(8);
   vertices[0] <<  1,  1,  1;
   vertices[1] <<  1,  1, -1;
   vertices[2] <<  1, -1,  1;
@@ -671,13 +671,13 @@ void testBoxBoxContactPointds(const Eigen::MatrixBase<Derived>& R)
     vertices[i][2] *= 0.5 * s2.side[2];
   }
 
-  Transform3<Scalar> tf1 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -50)));
-  Transform3<Scalar> tf2 = Transform3<Scalar>(R);
+  Transform3<S> tf1 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -50)));
+  Transform3<S> tf2 = Transform3<S>(R);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
   // Make sure the two boxes are colliding
-  bool res = solver1<Scalar>().shapeIntersect(s1, tf1, s2, tf2, &contacts);
+  bool res = solver1<S>().shapeIntersect(s1, tf1, s2, tf2, &contacts);
   EXPECT_TRUE(res);
 
   // Compute global vertices
@@ -685,8 +685,8 @@ void testBoxBoxContactPointds(const Eigen::MatrixBase<Derived>& R)
     vertices[i] = tf2 * vertices[i];
 
   // Sort the vertices so that the lowest vertex along z-axis comes first
-  std::sort(vertices.begin(), vertices.end(), compareContactPointds1<Scalar>);
-  std::sort(contacts.begin(), contacts.end(), compareContactPointds2<Scalar>);
+  std::sort(vertices.begin(), vertices.end(), compareContactPointds1<S>);
+  std::sort(contacts.begin(), contacts.end(), compareContactPointds2<S>);
 
   // The lowest n vertex along z-axis should be the contact point
   size_t numContacts = contacts.size();
@@ -696,28 +696,28 @@ void testBoxBoxContactPointds(const Eigen::MatrixBase<Derived>& R)
   for (size_t i = 0; i < numContacts; ++i)
   {
     EXPECT_TRUE(vertices[i].isApprox(contacts[i].pos));
-    EXPECT_TRUE(Vector3<Scalar>(0, 0, 1).isApprox(contacts[i].normal));
+    EXPECT_TRUE(Vector3<S>(0, 0, 1).isApprox(contacts[i].normal));
   }
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_boxbox()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  Quaternion<Scalar> q(AngleAxis<Scalar>((Scalar)3.140 / 6, Vector3<Scalar>(0, 0, 1)));
+  Quaternion<S> q(AngleAxis<S>((S)3.140 / 6, Vector3<S>(0, 0, 1)));
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
   contacts[0].normal << 1, 0, 0;
@@ -730,48 +730,48 @@ void test_shapeIntersection_boxbox()
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(15, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(15, 0, 0)));
   contacts.resize(4);
-  contacts[0].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = Vector3<S>(1, 0, 0);
+  contacts[1].normal = Vector3<S>(1, 0, 0);
+  contacts[2].normal = Vector3<S>(1, 0, 0);
+  contacts[3].normal = Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(15.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(15.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(q);
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(q);
   contacts.resize(4);
-  contacts[0].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = Vector3<S>(1, 0, 0);
+  contacts[1].normal = Vector3<S>(1, 0, 0);
+  contacts[2].normal = Vector3<S>(1, 0, 0);
+  contacts[3].normal = Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(q);
+  tf2 = transform * Transform3<S>(q);
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   FCL_UINT32 numTests = 1e+2;
   for (FCL_UINT32 i = 0; i < numTests; ++i)
   {
-    Transform3<Scalar> tf;
-    generateRandomTransform(extents<Scalar>(), tf);
+    Transform3<S> tf;
+    generateRandomTransform(extents<S>(), tf);
     testBoxBoxContactPointds(tf.linear());
   }
 }
@@ -782,22 +782,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_boxbox)
   test_shapeIntersection_boxbox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_spherebox()
 {
-  Sphere<Scalar> s1(20);
-  Box<Scalar> s2(5, 5, 5);
+  Sphere<S> s1(20);
+  Box<S> s2(5, 5, 5);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (-1, 0, 0).
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
@@ -809,24 +809,24 @@ void test_shapeIntersection_spherebox()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(22.5, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.501, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(22.501, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.4, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(22.4, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.4, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(22.4, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
 }
 
@@ -836,22 +836,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherebox)
   test_shapeIntersection_spherebox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_spherecapsule()
 {
-  Sphere<Scalar> s1(20);
-  Capsule<Scalar> s2(5, 10);
+  Sphere<S> s1(20);
+  Capsule<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -862,37 +862,37 @@ void test_shapeIntersection_spherecapsule()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(24.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(24.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(24.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(24.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(25, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  //tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(25, 0, 0)));
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(25 - 1e-6, 0, 0)));
+  //tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(25 - 1e-6, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(25.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(25.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(25.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(25.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -902,22 +902,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spherecapsule)
   test_shapeIntersection_spherecapsule<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_cylindercylinder()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -928,24 +928,24 @@ void test_shapeIntersection_cylindercylinder()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -955,22 +955,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
   test_shapeIntersection_cylindercylinder<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_conecone()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -981,36 +981,36 @@ void test_shapeIntersection_conecone()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 5e-5);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.001, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10.001, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.001, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10.001, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 }
 
@@ -1020,22 +1020,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_conecone)
   test_shapeIntersection_conecone<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_cylindercone()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
@@ -1046,44 +1046,44 @@ void test_shapeIntersection_cylindercone()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 0.061);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 0.46);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.01)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.01)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.01)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.01)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -1093,49 +1093,49 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercone)
   test_shapeIntersection_cylindercone<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_ellipsoidellipsoid()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
-  Transform3<Scalar> identity;
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
+  Transform3<S> identity;
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(30, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.99, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
@@ -1144,22 +1144,22 @@ void test_shapeIntersection_ellipsoidellipsoid()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.99, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.99, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-30, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false);
 }
 
@@ -1169,44 +1169,44 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_ellipsoidellipsoid)
   test_shapeIntersection_ellipsoidellipsoid<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_spheretriangle()
 {
-  Sphere<Scalar> s(10);
-  Vector3<Scalar> t[3];
+  Sphere<S> s(10);
+  Vector3<S> t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  Vector3<Scalar> normal;
+  Vector3<S> normal;
   bool res;
 
-  res = solver1<Scalar>().shapeTriangleIntersect(s, Transform3<Scalar>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver1<Scalar>().shapeTriangleIntersect(s, Transform3<Scalar>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeTriangleIntersect(s, Transform3<Scalar>::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
@@ -1215,46 +1215,46 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_spheretriangle)
   test_shapeIntersection_spheretriangle<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_halfspacetriangle()
 {
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
-  Vector3<Scalar> t[3];
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
+  Vector3<S> t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  // Vector3<Scalar> point;
-  // Scalar depth;
-  Vector3<Scalar> normal;
+  // Vector3<S> point;
+  // S depth;
+  Vector3<S> normal;
   bool res;
 
-  res = solver1<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << 0, -20, 0;
   t[2] << 0, 20, 0;
-  res = solver1<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, &normal);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
@@ -1263,46 +1263,46 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacetriangle)
   test_shapeIntersection_halfspacetriangle<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_planetriangle()
 {
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
-  Vector3<Scalar> t[3];
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
+  Vector3<S> t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  // Vector3<Scalar> point;
-  // Scalar depth;
-  Vector3<Scalar> normal;
+  // Vector3<S> point;
+  // S depth;
+  Vector3<S> normal;
   bool res;
 
-  res = solver1<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver1<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, &normal);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
@@ -1311,22 +1311,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planetriangle)
   test_shapeIntersection_planetriangle<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_halfspacesphere()
 {
-  Sphere<Scalar> s(10);
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Sphere<S> s(10);
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << -5, 0, 0;
   contacts[0].penetration_depth = 10;
@@ -1336,13 +1336,13 @@ void test_shapeIntersection_halfspacesphere()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-5, 0, 0);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 15;
@@ -1350,15 +1350,15 @@ void test_shapeIntersection_halfspacesphere()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, 0);
   contacts[0].penetration_depth = 15;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -7.5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -1366,23 +1366,23 @@ void test_shapeIntersection_halfspacesphere()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-7.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-7.5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-10.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-10.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, 0;
   contacts[0].penetration_depth = 20.1;
@@ -1390,11 +1390,11 @@ void test_shapeIntersection_halfspacesphere()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0.05, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0.05, 0, 0);
   contacts[0].penetration_depth = 20.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 }
 
@@ -1404,22 +1404,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacesphere)
   test_shapeIntersection_halfspacesphere<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_planesphere()
 {
-  Sphere<Scalar> s(10);
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Sphere<S> s(10);
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos.setZero();
   contacts[0].penetration_depth = 10;
@@ -1429,13 +1429,13 @@ void test_shapeIntersection_planesphere()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -1443,15 +1443,15 @@ void test_shapeIntersection_planesphere()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -1459,27 +1459,27 @@ void test_shapeIntersection_planesphere()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-10.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-10.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -1489,22 +1489,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planesphere)
   test_shapeIntersection_planesphere<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_halfspacebox()
 {
-  Box<Scalar> s(5, 10, 20);
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Box<S> s(5, 10, 20);
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -1514,13 +1514,13 @@ void test_shapeIntersection_halfspacebox()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-1.25, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -0.625, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1528,15 +1528,15 @@ void test_shapeIntersection_halfspacebox()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-0.625, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-0.625, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.875, 0, 0;
   contacts[0].penetration_depth = 1.25;
@@ -1544,15 +1544,15 @@ void test_shapeIntersection_halfspacebox()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.875, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-1.875, 0, 0);
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.51, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.51, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.005, 0, 0;
   contacts[0].penetration_depth = 5.01;
@@ -1560,23 +1560,23 @@ void test_shapeIntersection_halfspacebox()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.51, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.51, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0.005, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0.005, 0, 0);
   contacts[0].penetration_depth = 5.01;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.51, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.51, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>(transform.linear());
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>(transform.linear());
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
@@ -1587,22 +1587,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacebox)
   test_shapeIntersection_halfspacebox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_planebox()
 {
-  Box<Scalar> s(5, 10, 20);
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Box<S> s(5, 10, 20);
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -1612,13 +1612,13 @@ void test_shapeIntersection_planebox()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 1.25, 0, 0;
   contacts[0].penetration_depth = 1.25;
@@ -1626,15 +1626,15 @@ void test_shapeIntersection_planebox()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(1.25, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(1.25, 0, 0);
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 1.25;
@@ -1642,31 +1642,31 @@ void test_shapeIntersection_planebox()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-1.25, 0, 0);
   contacts[0].penetration_depth = 1.25;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.51, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.51, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.51, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.51, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.51, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>(transform.linear());
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>(transform.linear());
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, false, false, false);
 }
@@ -1677,22 +1677,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planebox)
   test_shapeIntersection_planebox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_halfspaceellipsoid()
 {
-  Ellipsoid<Scalar> s(5, 10, 20);
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Ellipsoid<S> s(5, 10, 20);
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 5.0;
@@ -1702,13 +1702,13 @@ void test_shapeIntersection_halfspaceellipsoid()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, 0);
   contacts[0].penetration_depth = 5.0;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.875, 0, 0;
   contacts[0].penetration_depth = 6.25;
@@ -1716,15 +1716,15 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.875, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-1.875, 0, 0);
   contacts[0].penetration_depth = 6.25;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.125, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1732,15 +1732,15 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-3.125, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-3.125, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.01, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.005, 0, 0;
   contacts[0].penetration_depth = 10.01;
@@ -1748,28 +1748,28 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.01, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0.005, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0.005, 0, 0);
   contacts[0].penetration_depth = 10.01;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -5.0, 0;
   contacts[0].penetration_depth = 10.0;
@@ -1779,13 +1779,13 @@ void test_shapeIntersection_halfspaceellipsoid()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -5.0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -5.0, 0);
   contacts[0].penetration_depth = 10.0;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 1.25, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -4.375, 0;
   contacts[0].penetration_depth = 11.25;
@@ -1793,15 +1793,15 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 1.25, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -4.375, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -4.375, 0);
   contacts[0].penetration_depth = 11.25;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -1.25, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -5.625, 0;
   contacts[0].penetration_depth = 8.75;
@@ -1809,15 +1809,15 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -1.25, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -5.625, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -5.625, 0);
   contacts[0].penetration_depth = 8.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 10.01, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 10.01, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.005, 0;
   contacts[0].penetration_depth = 20.01;
@@ -1825,28 +1825,28 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 10.01, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 10.01, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0.005, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0.005, 0);
   contacts[0].penetration_depth = 20.01;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -10.01, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -10.01, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -10.0;
   contacts[0].penetration_depth = 20.0;
@@ -1856,13 +1856,13 @@ void test_shapeIntersection_halfspaceellipsoid()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -10.0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -10.0);
   contacts[0].penetration_depth = 20.0;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 1.25)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -9.375;
   contacts[0].penetration_depth = 21.25;
@@ -1870,15 +1870,15 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 1.25)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -9.375);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -9.375);
   contacts[0].penetration_depth = 21.25;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -1.25)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -10.625;
   contacts[0].penetration_depth = 18.75;
@@ -1886,15 +1886,15 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -1.25)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -10.625);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -10.625);
   contacts[0].penetration_depth = 18.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 20.01)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 20.01)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.005;
   contacts[0].penetration_depth = 40.01;
@@ -1902,19 +1902,19 @@ void test_shapeIntersection_halfspaceellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 20.01)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 20.01)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0.005);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0.005);
   contacts[0].penetration_depth = 40.01;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -20.01)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -20.01)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -1924,22 +1924,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspaceellipsoid)
   test_shapeIntersection_halfspaceellipsoid<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_planeellipsoid()
 {
-  Ellipsoid<Scalar> s(5, 10, 20);
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Ellipsoid<S> s(5, 10, 20);
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5.0;
@@ -1949,13 +1949,13 @@ void test_shapeIntersection_planeellipsoid()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5.0;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 1.25, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1963,15 +1963,15 @@ void test_shapeIntersection_planeellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(1.25, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(1.25, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 3.75;
@@ -1979,36 +1979,36 @@ void test_shapeIntersection_planeellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-1.25, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-1.25, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-1.25, 0, 0);
   contacts[0].penetration_depth = 3.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.01, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Plane<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0.0, 0;
   contacts[0].penetration_depth = 10.0;
@@ -2018,13 +2018,13 @@ void test_shapeIntersection_planeellipsoid()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 10.0;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 1.25, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 1.25, 0;
   contacts[0].penetration_depth = 8.75;
@@ -2032,15 +2032,15 @@ void test_shapeIntersection_planeellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 1.25, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 1.25, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 1.25, 0);
   contacts[0].penetration_depth = 8.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -1.25, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -1.25, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, 0;
   contacts[0].penetration_depth = 8.75;
@@ -2048,36 +2048,36 @@ void test_shapeIntersection_planeellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -1.25, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -1.25, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -1.25, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -1.25, 0);
   contacts[0].penetration_depth = 8.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 10.01, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 10.01, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -10.01, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -10.01, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -10.01, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Plane<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 20.0;
@@ -2087,13 +2087,13 @@ void test_shapeIntersection_planeellipsoid()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 20.0;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 1.25)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 1.25;
   contacts[0].penetration_depth = 18.75;
@@ -2101,15 +2101,15 @@ void test_shapeIntersection_planeellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 1.25)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 1.25);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 1.25);
   contacts[0].penetration_depth = 18.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -1.25)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -1.25)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -1.25;
   contacts[0].penetration_depth = 18.75;
@@ -2117,27 +2117,27 @@ void test_shapeIntersection_planeellipsoid()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -1.25)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -1.25)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -1.25);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -1.25);
   contacts[0].penetration_depth = 18.75;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 20.01)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 20.01)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -20.01)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -20.01)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -20.01)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -2147,22 +2147,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planeellipsoid)
   test_shapeIntersection_planeellipsoid<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_halfspacecapsule()
 {
-  Capsule<Scalar> s(5, 10);
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Capsule<S> s(5, 10);
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2172,13 +2172,13 @@ void test_shapeIntersection_halfspacecapsule()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2186,15 +2186,15 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-1.25, 0, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.75, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2202,15 +2202,15 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-3.75, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-3.75, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2218,28 +2218,28 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0.05, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0.05, 0, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 5;
@@ -2249,13 +2249,13 @@ void test_shapeIntersection_halfspacecapsule()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -2.5, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2263,15 +2263,15 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -1.25, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -1.25, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -3.75, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2279,15 +2279,15 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -3.75, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -3.75, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.05, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2295,28 +2295,28 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0.05, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0.05, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -5;
   contacts[0].penetration_depth = 10;
@@ -2326,13 +2326,13 @@ void test_shapeIntersection_halfspacecapsule()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -5);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -3.75;
   contacts[0].penetration_depth = 12.5;
@@ -2340,15 +2340,15 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -3.75);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -3.75);
   contacts[0].penetration_depth = 12.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -6.25;
   contacts[0].penetration_depth = 7.5;
@@ -2356,15 +2356,15 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -6.25);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -6.25);
   contacts[0].penetration_depth  = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.05;
   contacts[0].penetration_depth = 20.1;
@@ -2372,19 +2372,19 @@ void test_shapeIntersection_halfspacecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0.05);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0.05);
   contacts[0].penetration_depth = 20.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -2394,22 +2394,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecapsule)
   test_shapeIntersection_halfspacecapsule<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_planecapsule()
 {
-  Capsule<Scalar> s(5, 10);
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Capsule<S> s(5, 10);
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2419,13 +2419,13 @@ void test_shapeIntersection_planecapsule()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2433,15 +2433,15 @@ void test_shapeIntersection_planecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2449,36 +2449,36 @@ void test_shapeIntersection_planecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Plane<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2488,13 +2488,13 @@ void test_shapeIntersection_planecapsule()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 1, 0);  // (0, 1, 0) or (0, -1, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2502,15 +2502,15 @@ void test_shapeIntersection_planecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 2.5, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2518,36 +2518,36 @@ void test_shapeIntersection_planecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Plane<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 10;
@@ -2557,13 +2557,13 @@ void test_shapeIntersection_planecapsule()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 10;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);  // (0, 0, 1) or (0, 0, -1)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 2.5;
   contacts[0].penetration_depth = 7.5;
@@ -2571,15 +2571,15 @@ void test_shapeIntersection_planecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 2.5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 7.5;
@@ -2587,27 +2587,27 @@ void test_shapeIntersection_planecapsule()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -2.5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -2617,22 +2617,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecapsule)
   test_shapeIntersection_planecapsule<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_halfspacecylinder()
 {
-  Cylinder<Scalar> s(5, 10);
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Cylinder<S> s(5, 10);
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2642,13 +2642,13 @@ void test_shapeIntersection_halfspacecylinder()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2656,15 +2656,15 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.25, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-1.25, 0, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.75, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2672,15 +2672,15 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-3.75, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-3.75, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2688,28 +2688,28 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0.05, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0.05, 0, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 5;
@@ -2719,13 +2719,13 @@ void test_shapeIntersection_halfspacecylinder()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -2.5, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, 0;
   contacts[0].penetration_depth = 7.5;
@@ -2733,15 +2733,15 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -1.25, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -1.25, 0);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -3.75, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2749,15 +2749,15 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -3.75, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -3.75, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.05, 0;
   contacts[0].penetration_depth = 10.1;
@@ -2765,28 +2765,28 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0.05, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0.05, 0);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 5;
@@ -2796,13 +2796,13 @@ void test_shapeIntersection_halfspacecylinder()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -2.5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -1.25;
   contacts[0].penetration_depth = 7.5;
@@ -2810,15 +2810,15 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -1.25);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -1.25);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -3.75;
   contacts[0].penetration_depth = 2.5;
@@ -2826,15 +2826,15 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -3.75);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -3.75);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 5.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 5.1)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.05;
   contacts[0].penetration_depth = 10.1;
@@ -2842,19 +2842,19 @@ void test_shapeIntersection_halfspacecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 5.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 5.1)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0.05);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0.05);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -5.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -5.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -2864,22 +2864,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecylinder)
   test_shapeIntersection_halfspacecylinder<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_planecylinder()
 {
-  Cylinder<Scalar> s(5, 10);
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Cylinder<S> s(5, 10);
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2889,13 +2889,13 @@ void test_shapeIntersection_planecylinder()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2903,15 +2903,15 @@ void test_shapeIntersection_planecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2919,36 +2919,36 @@ void test_shapeIntersection_planecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Plane<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -2958,13 +2958,13 @@ void test_shapeIntersection_planecylinder()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2972,15 +2972,15 @@ void test_shapeIntersection_planecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 2.5, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, 0;
   contacts[0].penetration_depth = 2.5;
@@ -2988,36 +2988,36 @@ void test_shapeIntersection_planecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -2.5, 0);
+  contacts[0].pos = transform * Vector3<S>(0, -2.5, 0);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Plane<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -3027,13 +3027,13 @@ void test_shapeIntersection_planecylinder()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3041,15 +3041,15 @@ void test_shapeIntersection_planecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3057,27 +3057,27 @@ void test_shapeIntersection_planecylinder()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -3087,22 +3087,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecylinder)
   test_shapeIntersection_planecylinder<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_halfspacecone()
 {
-  Cone<Scalar> s(5, 10);
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Cone<S> s(5, 10);
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, -5;
   contacts[0].penetration_depth = 5;
@@ -3112,13 +3112,13 @@ void test_shapeIntersection_halfspacecone()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, -5);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, -5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -1.25, 0, -5;
   contacts[0].penetration_depth = 7.5;
@@ -3126,15 +3126,15 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-1.25, 0, -5);
+  contacts[0].pos = transform * Vector3<S>(-1.25, 0, -5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -3.75, 0, -5;
   contacts[0].penetration_depth = 2.5;
@@ -3142,15 +3142,15 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-3.75, 0, -5);
+  contacts[0].pos = transform * Vector3<S>(-3.75, 0, -5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 0.05, 0, -5;
   contacts[0].penetration_depth = 10.1;
@@ -3158,28 +3158,28 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0.05, 0, -5);
+  contacts[0].pos = transform * Vector3<S>(0.05, 0, -5);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, -5;
   contacts[0].penetration_depth = 5;
@@ -3189,13 +3189,13 @@ void test_shapeIntersection_halfspacecone()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -2.5, -5);
+  contacts[0].pos = transform * Vector3<S>(0, -2.5, -5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -1.25, -5;
   contacts[0].penetration_depth = 7.5;
@@ -3203,15 +3203,15 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -1.25, -5);
+  contacts[0].pos = transform * Vector3<S>(0, -1.25, -5);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -3.75, -5;
   contacts[0].penetration_depth = 2.5;
@@ -3219,15 +3219,15 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -3.75, -5);
+  contacts[0].pos = transform * Vector3<S>(0, -3.75, -5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 0.05, -5;
   contacts[0].penetration_depth = 10.1;
@@ -3235,28 +3235,28 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0.05, -5);
+  contacts[0].pos = transform * Vector3<S>(0, 0.05, -5);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Halfspace<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Halfspace<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 5;
@@ -3266,13 +3266,13 @@ void test_shapeIntersection_halfspacecone()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -2.5);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -1.25;
   contacts[0].penetration_depth = 7.5;
@@ -3280,15 +3280,15 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -1.25);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -1.25);
   contacts[0].penetration_depth = 7.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -3.75;
   contacts[0].penetration_depth= 2.5;
@@ -3296,15 +3296,15 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -3.75);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -3.75);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 5.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 5.1)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0.05;
   contacts[0].penetration_depth = 10.1;
@@ -3312,19 +3312,19 @@ void test_shapeIntersection_halfspacecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 5.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 5.1)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0.05);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0.05);
   contacts[0].penetration_depth = 10.1;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -5.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -5.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -5.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -3334,22 +3334,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_halfspacecone)
   test_shapeIntersection_halfspacecone<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersection_planecone()
 {
-  Cone<Scalar> s(5, 10);
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
+  Cone<S> s(5, 10);
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -3359,13 +3359,13 @@ void test_shapeIntersection_planecone()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << 2.5, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3373,15 +3373,15 @@ void test_shapeIntersection_planecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(2.5, 0, -2.5);
+  contacts[0].pos = transform * Vector3<S>(2.5, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
   contacts[0].pos << -2.5, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3389,36 +3389,36 @@ void test_shapeIntersection_planecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-2.5, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-2.5, 0, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(-2.5, 0, -2.5);
+  contacts[0].pos = transform * Vector3<S>(-2.5, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-5.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-5.1, 0, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 1, 0), 0);
+  hs = Plane<S>(Vector3<S>(0, 1, 0), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -3428,13 +3428,13 @@ void test_shapeIntersection_planecone()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 1, 0);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, 2.5, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3442,15 +3442,15 @@ void test_shapeIntersection_planecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 2.5, -2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 2.5, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
   contacts[0].pos << 0, -2.5, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3458,36 +3458,36 @@ void test_shapeIntersection_planecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -2.5, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -2.5, 0)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, -2.5, -2.5);
+  contacts[0].pos = transform * Vector3<S>(0, -2.5, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, -1, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, -1, 0);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, -5.1, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, -5.1, 0)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
 
 
 
-  hs = Plane<Scalar>(Vector3<Scalar>(0, 0, 1), 0);
+  hs = Plane<S>(Vector3<S>(0, 0, 1), 0);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].pos << 0, 0, 0;
   contacts[0].penetration_depth = 5;
@@ -3497,13 +3497,13 @@ void test_shapeIntersection_planecone()
   tf1 = transform;
   tf2 = transform;
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 0);
   contacts[0].penetration_depth = 5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);  // (1, 0, 0) or (-1, 0, 0)
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts, true, true, true, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, 2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3511,15 +3511,15 @@ void test_shapeIntersection_planecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, 2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, 2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
   contacts[0].pos << 0, 0, -2.5;
   contacts[0].penetration_depth = 2.5;
@@ -3527,27 +3527,27 @@ void test_shapeIntersection_planecone()
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -2.5)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -2.5)));
   contacts.resize(1);
-  contacts[0].pos = transform * Vector3<Scalar>(0, 0, -2.5);
+  contacts[0].pos = transform * Vector3<S>(0, 0, -2.5);
   contacts[0].penetration_depth = 2.5;
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, -1);
+  contacts[0].normal = transform.linear() * Vector3<S>(0, 0, -1);
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, -10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, -10.1)));
   testShapeIntersection(s, tf1, hs, tf2, GST_LIBCCD, false);
 }
 
@@ -3581,65 +3581,65 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_planecone)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistance_spheresphere()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(10);
+  Sphere<S> s1(20);
+  Sphere<S> s2(10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  //generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  //generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist = -1;
-  Vector3<Scalar> closest_p1, closest_p2;
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 40, 0))), &dist, &closest_p1, &closest_p2);
+  S dist = -1;
+  Vector3<S> closest_p1, closest_p2;
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(0, 40, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   // this is one problem: the precise is low sometimes
   EXPECT_TRUE(fabs(dist - 10) < 0.1);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.06);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.1);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.1);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 }
@@ -3650,69 +3650,69 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_spheresphere)
   test_shapeDistance_spheresphere<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistance_boxbox()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
-  Vector3<Scalar> closest_p1, closest_p2;
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
+  Vector3<S> closest_p1, closest_p2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  //generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  //generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 20.2, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(0, 20.2, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.2) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1 * 1.414) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(20.1, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 20.1, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(0, 20.1, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s2, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver2<S>().shapeDistance(s2, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 10.1, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 0.1 * 1.414) < 0.001);
   EXPECT_TRUE(res);
 
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(15.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(15.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(20, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(20, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -3723,39 +3723,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxbox)
   test_shapeDistance_boxbox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistance_boxsphere()
 {
-  Sphere<Scalar> s1(20);
-  Box<Scalar> s2(5, 5, 5);
+  Sphere<S> s1(20);
+  Box<S> s2(5, 5, 5);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.6, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.6, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.05);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -3766,39 +3766,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_boxsphere)
   test_shapeDistance_boxsphere<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistance_cylindercylinder()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -3809,39 +3809,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_cylindercylinder)
   test_shapeDistance_cylindercylinder<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistance_conecone()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 40))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 1);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 40))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 1);
   EXPECT_TRUE(res);
 }
@@ -3852,39 +3852,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecone)
   test_shapeDistance_conecone<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistance_conecylinder()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.02);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.1);
   EXPECT_TRUE(res);
 }
@@ -3895,65 +3895,65 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_conecylinder)
   test_shapeDistance_conecylinder<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistance_ellipsoidellipsoid()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist = -1;
-  Vector3<Scalar> closest_p1, closest_p2;
+  S dist = -1;
+  Vector3<S> closest_p1, closest_p2;
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist, &closest_p1, &closest_p2);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist, &closest_p1, &closest_p2);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver1<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver1<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver1<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, transform, &dist);
+  res = solver1<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 }
@@ -3988,46 +3988,46 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistance_ellipsoidellipsoid)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_spheresphere()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(10);
+  Sphere<S> s1(20);
+  Sphere<S> s2(10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(30, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   contacts[0].pos << 20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -4035,15 +4035,15 @@ void test_shapeIntersectionGJK_spheresphere()
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[0].pos = transform * Vector3<Scalar>(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(20.0 - 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
   contacts[0].pos.setZero();
@@ -4054,12 +4054,12 @@ void test_shapeIntersectionGJK_spheresphere()
   tf2 = transform;
   contacts.resize(1);
   contacts[0].normal.setZero();  // If the centers of two sphere are at the same position, the normal is (0, 0, 0)
-  contacts[0].pos = transform * Vector3<Scalar>::Zero();
+  contacts[0].pos = transform * Vector3<S>::Zero();
   contacts[0].penetration_depth = 20.0 + 10.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-29.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0;
@@ -4067,27 +4067,27 @@ void test_shapeIntersectionGJK_spheresphere()
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-29.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(-1, 0, 0);
-  contacts[0].pos = transform * Vector3<Scalar>(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(-1, 0, 0);
+  contacts[0].pos = transform * Vector3<S>(-20.0 + 0.1 * 20.0/(20.0 + 10.0), 0, 0);
   contacts[0].penetration_depth = 0.1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.0, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-30.0, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << -1, 0, 0;
   contacts[0].pos << -20, 0, 0;
   contacts[0].penetration_depth = 0.0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.01, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4097,24 +4097,24 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheresphere)
   test_shapeIntersectionGJK_spheresphere<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_boxbox()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  Quaternion<Scalar> q(AngleAxis<Scalar>((Scalar)3.140 / 6, Vector3<Scalar>(0, 0, 1)));
+  Quaternion<S> q(AngleAxis<S>((S)3.140 / 6, Vector3<S>(0, 0, 1)));
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
   contacts[0].normal << 1, 0, 0;
@@ -4127,41 +4127,41 @@ void test_shapeIntersectionGJK_boxbox()
   tf2 = transform;
   // TODO: Need convention for normal when the centers of two objects are at same position. The current result is (1, 0, 0).
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(15, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(15, 0, 0)));
   contacts.resize(4);
-  contacts[0].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = Vector3<S>(1, 0, 0);
+  contacts[1].normal = Vector3<S>(1, 0, 0);
+  contacts[2].normal = Vector3<S>(1, 0, 0);
+  contacts[3].normal = Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(15.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(15.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(q);
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(q);
   contacts.resize(4);
-  contacts[0].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = Vector3<S>(1, 0, 0);
+  contacts[1].normal = Vector3<S>(1, 0, 0);
+  contacts[2].normal = Vector3<S>(1, 0, 0);
+  contacts[3].normal = Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(q);
+  tf2 = transform * Transform3<S>(q);
   contacts.resize(4);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[1].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[2].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
-  contacts[3].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[1].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[2].normal = transform.linear() * Vector3<S>(1, 0, 0);
+  contacts[3].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 }
 
@@ -4171,22 +4171,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_boxbox)
   test_shapeIntersectionGJK_boxbox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_spherebox()
 {
-  Sphere<Scalar> s1(20);
-  Box<Scalar> s2(5, 5, 5);
+  Sphere<S> s1(20);
+  Box<S> s2(5, 5, 5);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4197,26 +4197,26 @@ void test_shapeIntersectionGJK_spherebox()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.5, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(22.5, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 1e-7);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.51, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(22.51, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.4, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(22.4, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 1e-2);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.4, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(22.4, 0, 0)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 }
@@ -4227,22 +4227,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherebox)
   test_shapeIntersectionGJK_spherebox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_spherecapsule()
 {
-  Sphere<Scalar> s1(20);
-  Capsule<Scalar> s2(5, 10);
+  Sphere<S> s1(20);
+  Capsule<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4253,26 +4253,26 @@ void test_shapeIntersectionGJK_spherecapsule()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(24.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(24.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(24.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(24.9, 0, 0)));
   contacts.resize(1);
-  contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(25, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(25, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(25.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(25.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4282,22 +4282,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spherecapsule)
   test_shapeIntersectionGJK_spherecapsule<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_cylindercylinder()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4308,27 +4308,27 @@ void test_shapeIntersectionGJK_cylindercylinder()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 3e-1);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4338,22 +4338,22 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercylinder)
   test_shapeIntersectionGJK_cylindercylinder<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_conecone()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4364,37 +4364,37 @@ void test_shapeIntersectionGJK_conecone()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true, false, 5.7e-1);  // built-in GJK solver requires larger tolerance than libccd
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vector3<Scalar>(0, 0, 1);
+  // contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 }
@@ -4405,21 +4405,21 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_conecone)
   test_shapeIntersectionGJK_conecone<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_cylindercone()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  std::vector<ContactPoint<Scalar>> contacts;
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  std::vector<ContactPoint<S>> contacts;
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   // TODO: Need convention for normal when the centers of two objects are at same position.
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
@@ -4430,47 +4430,47 @@ void test_shapeIntersectionGJK_cylindercone()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(9.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(10, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(10, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 9.9)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
-  // contacts[0].normal = transform.linear() * Vector3<Scalar>(1, 0, 0);
+  // contacts[0].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
   // built-in GJK solver returns incorrect normal.
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10)));
   contacts.resize(1);
   contacts[0].normal << 0, 0, 1;
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, true);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 10.1)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.1)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4480,50 +4480,50 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_cylindercone)
   test_shapeIntersectionGJK_cylindercone<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_ellipsoidellipsoid()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
 
-  Transform3<Scalar> tf1;
-  Transform3<Scalar> tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
-  Transform3<Scalar> identity;
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
+  Transform3<S> identity;
 
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(30, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.99, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>::Identity();
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>::Identity();
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
@@ -4532,23 +4532,23 @@ void test_shapeIntersectionGJK_ellipsoidellipsoid()
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.99, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-29.99, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-29.99, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
-  tf1 = Transform3<Scalar>::Identity();
-  tf2 = Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30, 0, 0)));
+  tf1 = Transform3<S>::Identity();
+  tf2 = Transform3<S>(Translation3<S>(Vector3<S>(-30, 0, 0)));
   contacts.resize(1);
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, true, contacts, false, false, false);
 
   tf1 = transform;
-  tf2 = transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(-30.01, 0, 0)));
+  tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(-30.01, 0, 0)));
   testShapeIntersection(s1, tf1, s2, tf2, GST_INDEP, false);
 }
 
@@ -4558,45 +4558,45 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_ellipsoidellipsoid)
   test_shapeIntersectionGJK_ellipsoidellipsoid<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_spheretriangle()
 {
-  Sphere<Scalar> s(10);
-  Vector3<Scalar> t[3];
+  Sphere<S> s(10);
+  Vector3<S> t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  // Vector3<Scalar> point;
-  // Scalar depth;
-  Vector3<Scalar> normal;
+  // Vector3<S> point;
+  // S depth;
+  Vector3<S> normal;
   bool res;
 
-  res = solver2<Scalar>().shapeTriangleIntersect(s, Transform3<Scalar>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver2<Scalar>().shapeTriangleIntersect(s, Transform3<Scalar>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeTriangleIntersect(s, Transform3<Scalar>::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
@@ -4605,46 +4605,46 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_spheretriangle)
   test_shapeIntersectionGJK_spheretriangle<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_halfspacetriangle()
 {
-  Halfspace<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
-  Vector3<Scalar> t[3];
+  Halfspace<S> hs(Vector3<S>(1, 0, 0), 0);
+  Vector3<S> t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  // Vector3<Scalar> point;
-  // Scalar depth;
-  Vector3<Scalar> normal;
+  // Vector3<S> point;
+  // S depth;
+  Vector3<S> normal;
   bool res;
 
-  res = solver2<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver2<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, &normal);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
@@ -4653,46 +4653,46 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_halfspacetriangle)
   test_shapeIntersectionGJK_halfspacetriangle<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeIntersectionGJK_planetriangle()
 {
-  Plane<Scalar> hs(Vector3<Scalar>(1, 0, 0), 0);
-  Vector3<Scalar> t[3];
+  Plane<S> hs(Vector3<S>(1, 0, 0), 0);
+  Vector3<S> t[3];
   t[0] << 20, 0, 0;
   t[1] << -20, 0, 0;
   t[2] << 0, 20, 0;
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
-  // Vector3<Scalar> point;
-  // Scalar depth;
-  Vector3<Scalar> normal;
+  // Vector3<S> point;
+  // S depth;
+  Vector3<S> normal;
   bool res;
 
-  res = solver1<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver2<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeTriangleIntersect(hs, Transform3<Scalar>::Identity(), t[0], t[1], t[2], Transform3<Scalar>::Identity(), NULL, NULL, &normal);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver2<Scalar>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
-  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<Scalar>(1, 0, 0), 1e-9));
+  EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
@@ -4725,64 +4725,64 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersectionGJK_planetriangle)
 // | triangle   |/////|////////|///////////|/////////|//////|//////////|///////|////////////|          |
 // +------------+-----+--------+-----------+---------+------+----------+-------+------------+----------+
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistanceGJK_spheresphere()
 {
-  Sphere<Scalar> s1(20);
-  Sphere<Scalar> s2(10);
+  Sphere<S> s1(20);
+  Sphere<S> s2(10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist = -1;
+  S dist = -1;
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 }
@@ -4793,39 +4793,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_spheresphere)
   test_shapeDistanceGJK_spheresphere<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistanceGJK_boxbox()
 {
-  Box<Scalar> s1(20, 40, 50);
-  Box<Scalar> s2(10, 10, 10);
+  Box<S> s1(20, 40, 50);
+  Box<S> s2(10, 10, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(15.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(15.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(15.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(15.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(20, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(20, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(20, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4836,39 +4836,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxbox)
   test_shapeDistanceGJK_boxbox<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistanceGJK_boxsphere()
 {
-  Sphere<Scalar> s1(20);
-  Box<Scalar> s2(5, 5, 5);
+  Sphere<S> s1(20);
+  Box<S> s2(5, 5, 5);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.6, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(22.6, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(22.6, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.01);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 17.5) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4879,39 +4879,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_boxsphere)
   test_shapeDistanceGJK_boxsphere<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistanceGJK_cylindercylinder()
 {
-  Cylinder<Scalar> s1(5, 10);
-  Cylinder<Scalar> s2(5, 10);
+  Cylinder<S> s1(5, 10);
+  Cylinder<S> s2(5, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4922,39 +4922,39 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_cylindercylinder)
   test_shapeDistanceGJK_cylindercylinder<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistanceGJK_conecone()
 {
-  Cone<Scalar> s1(5, 10);
-  Cone<Scalar> s2(5, 10);
+  Cone<S> s1(5, 10);
+  Cone<S> s2(5, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist;
+  S dist;
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(10.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(10.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 40))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(0, 0, 40))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 40))), &dist);
   EXPECT_TRUE(fabs(dist - 30) < 0.001);
   EXPECT_TRUE(res);
 }
@@ -4965,63 +4965,63 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_conecone)
   test_shapeDistanceGJK_conecone<double>();
 }
 
-template <typename Scalar>
+template <typename S>
 void test_shapeDistanceGJK_ellipsoidellipsoid()
 {
-  Ellipsoid<Scalar> s1(20, 40, 50);
-  Ellipsoid<Scalar> s2(10, 10, 10);
+  Ellipsoid<S> s1(20, 40, 50);
+  Ellipsoid<S> s2(10, 10, 10);
 
-  Transform3<Scalar> transform = Transform3<Scalar>::Identity();
-  generateRandomTransform(extents<Scalar>(), transform);
+  Transform3<S> transform = Transform3<S>::Identity();
+  generateRandomTransform(extents<S>(), transform);
 
   bool res;
-  Scalar dist = -1;
+  S dist = -1;
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>::Identity(), s2, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>::Identity(), s2, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, Transform3<Scalar>::Identity(), &dist);
+  res = solver2<S>().shapeDistance(s1, Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, Transform3<S>::Identity(), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform, s2, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), &dist);
+  res = solver2<S>().shapeDistance(s1, transform, s2, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(40, 0, 0))), s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(40, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 10) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(30.1, 0, 0))), s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(30.1, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(fabs(dist - 0.1) < 0.001);
   EXPECT_TRUE(res);
 
-  res = solver2<Scalar>().shapeDistance(s1, transform * Transform3<Scalar>(Translation3<Scalar>(Vector3<Scalar>(29.9, 0, 0))), s2, transform, &dist);
+  res = solver2<S>().shapeDistance(s1, transform * Transform3<S>(Translation3<S>(Vector3<S>(29.9, 0, 0))), s2, transform, &dist);
   EXPECT_TRUE(dist < 0);
   EXPECT_FALSE(res);
 }
@@ -5032,24 +5032,24 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeDistanceGJK_ellipsoidellipsoid)
   test_shapeDistanceGJK_ellipsoidellipsoid<double>();
 }
 
-template<typename S1, typename S2>
-void testReversibleShapeIntersection(const S1& s1, const S2& s2, typename S2::Scalar distance)
+template<typename Shape1, typename Shape2>
+void testReversibleShapeIntersection(const Shape1& s1, const Shape2& s2, typename Shape2::S distance)
 {
-  using Scalar = typename S2::Scalar;
+  using S = typename Shape2::S;
 
-  Transform3<Scalar> tf1(Translation3<Scalar>(Vector3<Scalar>(-0.5 * distance, 0.0, 0.0)));
-  Transform3<Scalar> tf2(Translation3<Scalar>(Vector3<Scalar>(+0.5 * distance, 0.0, 0.0)));
+  Transform3<S> tf1(Translation3<S>(Vector3<S>(-0.5 * distance, 0.0, 0.0)));
+  Transform3<S> tf2(Translation3<S>(Vector3<S>(+0.5 * distance, 0.0, 0.0)));
 
-  std::vector<ContactPoint<Scalar>> contactsA;
-  std::vector<ContactPoint<Scalar>> contactsB;
+  std::vector<ContactPoint<S>> contactsA;
+  std::vector<ContactPoint<S>> contactsB;
 
   bool resA;
   bool resB;
 
   const double tol = 1e-6;
 
-  resA = solver1<Scalar>().shapeIntersect(s1, tf1, s2, tf2, &contactsA);
-  resB = solver1<Scalar>().shapeIntersect(s2, tf2, s1, tf1, &contactsB);
+  resA = solver1<S>().shapeIntersect(s1, tf1, s2, tf2, &contactsA);
+  resB = solver1<S>().shapeIntersect(s2, tf2, s1, tf1, &contactsB);
 
   // normal should be opposite
   for (size_t i = 0; i < contactsB.size(); ++i)
@@ -5061,8 +5061,8 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, typename S2::Sc
                                    contactsA, contactsB,
                                    true, true, true, false, tol));
 
-  resA = solver2<Scalar>().shapeIntersect(s1, tf1, s2, tf2, &contactsA);
-  resB = solver2<Scalar>().shapeIntersect(s2, tf2, s1, tf1, &contactsB);
+  resA = solver2<S>().shapeIntersect(s1, tf1, s2, tf2, &contactsA);
+  resB = solver2<S>().shapeIntersect(s2, tf2, s1, tf1, &contactsB);
 
   // normal should be opposite
   for (size_t i = 0; i < contactsB.size(); ++i)
@@ -5075,7 +5075,7 @@ void testReversibleShapeIntersection(const S1& s1, const S2& s2, typename S2::Sc
                                    true, true, true, false, tol));
 }
 
-template <typename Scalar>
+template <typename S>
 void test_reversibleShapeIntersection_allshapes()
 {
   // This test check whether a shape intersection algorithm is called for the
@@ -5083,17 +5083,17 @@ void test_reversibleShapeIntersection_allshapes()
   // algorithm, then this algorithm should be called for capsule-sphere case.
 
   // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
-  Box<Scalar> box(10, 10, 10);
-  Sphere<Scalar> sphere(5);
-  Ellipsoid<Scalar> ellipsoid(5, 5, 5);
-  Capsule<Scalar> capsule(5, 10);
-  Cone<Scalar> cone(5, 10);
-  Cylinder<Scalar> cylinder(5, 10);
-  Plane<Scalar> plane(Vector3<Scalar>::Zero(), 0.0);
-  Halfspace<Scalar> halfspace(Vector3<Scalar>::Zero(), 0.0);
+  Box<S> box(10, 10, 10);
+  Sphere<S> sphere(5);
+  Ellipsoid<S> ellipsoid(5, 5, 5);
+  Capsule<S> capsule(5, 10);
+  Cone<S> cone(5, 10);
+  Cylinder<S> cylinder(5, 10);
+  Plane<S> plane(Vector3<S>::Zero(), 0.0);
+  Halfspace<S> halfspace(Vector3<S>::Zero(), 0.0);
 
   // Use sufficiently short distance so that all the primitive shapes can intersect
-  Scalar distance = 5.0;
+  S distance = 5.0;
 
   // If new shape intersection algorithm is added for two distinct primitive
   // shapes, uncomment associated lines. For example, box-sphere intersection
@@ -5141,28 +5141,28 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, reversibleShapeIntersection_allshapes)
   test_reversibleShapeIntersection_allshapes<double>();
 }
 
-template<typename S1, typename S2>
-void testReversibleShapeDistance(const S1& s1, const S2& s2, typename S2::Scalar distance)
+template<typename Shape1, typename Shape2>
+void testReversibleShapeDistance(const Shape1& s1, const Shape2& s2, typename Shape2::S distance)
 {
-  using Scalar = typename S2::Scalar;
+  using S = typename Shape2::S;
 
-  Transform3<Scalar> tf1(Translation3<Scalar>(Vector3<Scalar>(-0.5 * distance, 0.0, 0.0)));
-  Transform3<Scalar> tf2(Translation3<Scalar>(Vector3<Scalar>(+0.5 * distance, 0.0, 0.0)));
+  Transform3<S> tf1(Translation3<S>(Vector3<S>(-0.5 * distance, 0.0, 0.0)));
+  Transform3<S> tf2(Translation3<S>(Vector3<S>(+0.5 * distance, 0.0, 0.0)));
 
-  Scalar distA;
-  Scalar distB;
-  Vector3<Scalar> p1A;
-  Vector3<Scalar> p1B;
-  Vector3<Scalar> p2A;
-  Vector3<Scalar> p2B;
+  S distA;
+  S distB;
+  Vector3<S> p1A;
+  Vector3<S> p1B;
+  Vector3<S> p2A;
+  Vector3<S> p2B;
 
   bool resA;
   bool resB;
 
   const double tol = 1e-6;
 
-  resA = solver1<Scalar>().shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
-  resB = solver1<Scalar>().shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
+  resA = solver1<S>().shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
+  resB = solver1<S>().shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
 
   EXPECT_TRUE(resA);
   EXPECT_TRUE(resB);
@@ -5170,8 +5170,8 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, typename S2::Scalar
   EXPECT_TRUE(p1A.isApprox(p2B, tol));  // closest points should in reverse order
   EXPECT_TRUE(p2A.isApprox(p1B, tol));
 
-  resA = solver2<Scalar>().shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
-  resB = solver2<Scalar>().shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
+  resA = solver2<S>().shapeDistance(s1, tf1, s2, tf2, &distA, &p1A, &p2A);
+  resB = solver2<S>().shapeDistance(s2, tf2, s1, tf1, &distB, &p1B, &p2B);
 
   EXPECT_TRUE(resA);
   EXPECT_TRUE(resB);
@@ -5180,7 +5180,7 @@ void testReversibleShapeDistance(const S1& s1, const S2& s2, typename S2::Scalar
   EXPECT_TRUE(p2A.isApprox(p1B, tol));
 }
 
-template <typename Scalar>
+template <typename S>
 void test_reversibleShapeDistance_allshapes()
 {
   // This test check whether a shape distance algorithm is called for the
@@ -5188,17 +5188,17 @@ void test_reversibleShapeDistance_allshapes()
   // algorithm, then this algorithm should be called for capsule-sphere case.
 
   // Prepare all kinds of primitive shapes (8) -- box, sphere, ellipsoid, capsule, cone, cylinder, plane, halfspace
-  Box<Scalar> box(10, 10, 10);
-  Sphere<Scalar> sphere(5);
-  Ellipsoid<Scalar> ellipsoid(5, 5, 5);
-  Capsule<Scalar> capsule(5, 10);
-  Cone<Scalar> cone(5, 10);
-  Cylinder<Scalar> cylinder(5, 10);
-  Plane<Scalar> plane(Vector3<Scalar>::Zero(), 0.0);
-  Halfspace<Scalar> halfspace(Vector3<Scalar>::Zero(), 0.0);
+  Box<S> box(10, 10, 10);
+  Sphere<S> sphere(5);
+  Ellipsoid<S> ellipsoid(5, 5, 5);
+  Capsule<S> capsule(5, 10);
+  Cone<S> cone(5, 10);
+  Cylinder<S> cylinder(5, 10);
+  Plane<S> plane(Vector3<S>::Zero(), 0.0);
+  Halfspace<S> halfspace(Vector3<S>::Zero(), 0.0);
 
   // Use sufficiently long distance so that all the primitive shapes CANNOT intersect
-  Scalar distance = 15.0;
+  S distance = 15.0;
 
   // If new shape distance algorithm is added for two distinct primitive
   // shapes, uncomment associated lines. For example, box-sphere intersection

@@ -52,24 +52,24 @@ namespace fcl
 /// @brief Half Space: this is equivalent to the Planed in ODE. The separation plane is defined as n * x = d;
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
 /// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
-template <typename ScalarT>
-class Halfspace : public ShapeBase<ScalarT>
+template <typename S_>
+class Halfspace : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Construct a half space with normal direction and offset
-  Halfspace(const Vector3<ScalarT>& n, ScalarT d);
+  Halfspace(const Vector3<S>& n, S d);
 
   /// @brief Construct a plane with normal direction and offset
-  Halfspace(ScalarT a, ScalarT b, ScalarT c, ScalarT d_);
+  Halfspace(S a, S b, S c, S d_);
 
   Halfspace();
 
-  ScalarT signedDistance(const Vector3<ScalarT>& p) const;
+  S signedDistance(const Vector3<S>& p) const;
 
-  ScalarT distance(const Vector3<ScalarT>& p) const;
+  S distance(const Vector3<S>& p) const;
 
   /// @brief Compute AABB
   void computeLocalAABB() override;
@@ -78,10 +78,10 @@ public:
   NODE_TYPE getNodeType() const override;
   
   /// @brief Planed normal
-  Vector3<ScalarT> n;
+  Vector3<S> n;
   
   /// @brief Planed offset
-  ScalarT d;
+  S d;
 
 protected:
 
@@ -92,9 +92,9 @@ protected:
 using Halfspacef = Halfspace<float>;
 using Halfspaced = Halfspace<double>;
 
-template <typename ScalarT>
-Halfspace<ScalarT> transform(
-    const Halfspace<ScalarT>& a, const Transform3<ScalarT>& tf)
+template <typename S>
+Halfspace<S> transform(
+    const Halfspace<S>& a, const Transform3<S>& tf)
 {
   /// suppose the initial halfspace is n * x <= d
   /// after transform (R, T), x --> x' = R x + T
@@ -102,10 +102,10 @@ Halfspace<ScalarT> transform(
   /// where n' = R * n
   ///   and d' = d + n' * T
 
-  Vector3<ScalarT> n = tf.linear() * a.n;
-  ScalarT d = a.d + n.dot(tf.translation());
+  Vector3<S> n = tf.linear() * a.n;
+  S d = a.d + n.dot(tf.translation());
 
-  return Halfspace<ScalarT>(n, d);
+  return Halfspace<S>(n, d);
 }
 
 //============================================================================//
@@ -115,66 +115,66 @@ Halfspace<ScalarT> transform(
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Halfspace<ScalarT>::Halfspace(const Vector3<ScalarT>& n, ScalarT d)
-  : ShapeBase<ScalarT>(), n(n), d(d)
+template <typename S>
+Halfspace<S>::Halfspace(const Vector3<S>& n, S d)
+  : ShapeBase<S>(), n(n), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename ScalarT>
-Halfspace<ScalarT>::Halfspace(ScalarT a, ScalarT b, ScalarT c, ScalarT d)
-  : ShapeBase<ScalarT>(), n(a, b, c), d(d)
+template <typename S>
+Halfspace<S>::Halfspace(S a, S b, S c, S d)
+  : ShapeBase<S>(), n(a, b, c), d(d)
 {
   unitNormalTest();
 }
 
 //==============================================================================
-template <typename ScalarT>
-Halfspace<ScalarT>::Halfspace() : ShapeBase<ScalarT>(), n(1, 0, 0), d(0)
+template <typename S>
+Halfspace<S>::Halfspace() : ShapeBase<S>(), n(1, 0, 0), d(0)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Halfspace<ScalarT>::signedDistance(const Vector3<ScalarT>& p) const
+template <typename S>
+S Halfspace<S>::signedDistance(const Vector3<S>& p) const
 {
   return n.dot(p) - d;
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Halfspace<ScalarT>::distance(const Vector3<ScalarT>& p) const
+template <typename S>
+S Halfspace<S>::distance(const Vector3<S>& p) const
 {
   return std::abs(n.dot(p) - d);
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Halfspace<ScalarT>::computeLocalAABB()
+template <typename S>
+void Halfspace<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Halfspace<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Halfspace<S>::getNodeType() const
 {
   return GEOM_HALFSPACE;
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Halfspace<ScalarT>::unitNormalTest()
+template <typename S>
+void Halfspace<S>::unitNormalTest()
 {
-  ScalarT l = n.norm();
+  S l = n.norm();
   if(l > 0)
   {
-    ScalarT inv_l = 1.0 / l;
+    S inv_l = 1.0 / l;
     n *= inv_l;
     d *= inv_l;
   }

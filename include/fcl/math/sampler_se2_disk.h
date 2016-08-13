@@ -44,26 +44,26 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class SamplerSE2_disk : public SamplerBase<Scalar>
+template <typename S>
+class SamplerSE2_disk : public SamplerBase<S>
 {
 public:
   SamplerSE2_disk();
 
-  SamplerSE2_disk(Scalar cx, Scalar cy,
-                  Scalar r1, Scalar r2,
-                  Scalar crefx, Scalar crefy);
+  SamplerSE2_disk(S cx, S cy,
+                  S r1, S r2,
+                  S crefx, S crefy);
 
-  void setBound(Scalar cx, Scalar cy,
-                Scalar r1, Scalar r2,
-                Scalar crefx, Scalar crefy);
+  void setBound(S cx, S cy,
+                S r1, S r2,
+                S crefx, S crefy);
 
-  Vector3<Scalar> sample() const;
+  Vector3<S> sample() const;
 
 protected:
-  Scalar c[2];
-  Scalar cref[2];
-  Scalar r_min, r_max;
+  S c[2];
+  S cref[2];
+  S r_min, r_max;
 };
 
 using SamplerSE2_diskf = SamplerSE2_disk<float>;
@@ -76,19 +76,19 @@ using SamplerSE2_diskd = SamplerSE2_disk<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE2_disk<Scalar>::SamplerSE2_disk() {}
+template <typename S>
+SamplerSE2_disk<S>::SamplerSE2_disk() {}
 
 //==============================================================================
-template <typename Scalar>
-SamplerSE2_disk<Scalar>::SamplerSE2_disk(Scalar cx, Scalar cy, Scalar r1, Scalar r2, Scalar crefx, Scalar crefy)
+template <typename S>
+SamplerSE2_disk<S>::SamplerSE2_disk(S cx, S cy, S r1, S r2, S crefx, S crefy)
 {
   setBound(cx, cy, r1, r2, crefx, crefy);
 }
 
 //==============================================================================
-template <typename Scalar>
-void SamplerSE2_disk<Scalar>::setBound(Scalar cx, Scalar cy, Scalar r1, Scalar r2, Scalar crefx, Scalar crefy)
+template <typename S>
+void SamplerSE2_disk<S>::setBound(S cx, S cy, S r1, S r2, S crefx, S crefy)
 {
   c[0] = cx; c[1] = cy;
   cref[0] = crefx; cref[1] = crefy;
@@ -97,15 +97,15 @@ void SamplerSE2_disk<Scalar>::setBound(Scalar cx, Scalar cy, Scalar r1, Scalar r
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> SamplerSE2_disk<Scalar>::sample() const
+template <typename S>
+Vector3<S> SamplerSE2_disk<S>::sample() const
 {
-  Vector3<Scalar> q;
-  Scalar x, y;
+  Vector3<S> q;
+  S x, y;
   this->rng.disk(r_min, r_max, x, y);
   q[0] = x + c[0] - cref[0];
   q[1] = y + c[1] - cref[1];
-  q[2] = this->rng.uniformReal(-constants<Scalar>::pi(), constants<Scalar>::pi());
+  q[2] = this->rng.uniformReal(-constants<S>::pi(), constants<S>::pi());
 
   return q;
 }

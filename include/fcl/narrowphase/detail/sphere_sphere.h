@@ -46,15 +46,15 @@ namespace fcl
 namespace details
 {
 
-template <typename Scalar>
-bool sphereSphereIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Sphere<Scalar>& s2, const Transform3<Scalar>& tf2,
-                           std::vector<ContactPoint<Scalar>>* contacts);
+template <typename S>
+bool sphereSphereIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
+                           const Sphere<S>& s2, const Transform3<S>& tf2,
+                           std::vector<ContactPoint<S>>* contacts);
 
-template <typename Scalar>
-bool sphereSphereDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                          const Sphere<Scalar>& s2, const Transform3<Scalar>& tf2,
-                          Scalar* dist, Vector3<Scalar>* p1, Vector3<Scalar>* p2);
+template <typename S>
+bool sphereSphereDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
+                          const Sphere<S>& s2, const Transform3<S>& tf2,
+                          S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
 //============================================================================//
 //                                                                            //
@@ -63,13 +63,13 @@ bool sphereSphereDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-bool sphereSphereIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                           const Sphere<Scalar>& s2, const Transform3<Scalar>& tf2,
-                           std::vector<ContactPoint<Scalar>>* contacts)
+template <typename S>
+bool sphereSphereIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
+                           const Sphere<S>& s2, const Transform3<S>& tf2,
+                           std::vector<ContactPoint<S>>* contacts)
 {
-  Vector3<Scalar> diff = tf2.translation() - tf1.translation();
-  Scalar len = diff.norm();
+  Vector3<S> diff = tf2.translation() - tf1.translation();
+  S len = diff.norm();
   if(len > s1.radius + s2.radius)
     return false;
 
@@ -77,25 +77,25 @@ bool sphereSphereIntersect(const Sphere<Scalar>& s1, const Transform3<Scalar>& t
   {
     // If the centers of two sphere are at the same position, the normal is (0, 0, 0).
     // Otherwise, normal is pointing from center of object 1 to center of object 2
-    const Vector3<Scalar> normal = len > 0 ? (diff / len).eval() : diff;
-    const Vector3<Scalar> point = tf1.translation() + diff * s1.radius / (s1.radius + s2.radius);
-    const Scalar penetration_depth = s1.radius + s2.radius - len;
-    contacts->push_back(ContactPoint<Scalar>(normal, point, penetration_depth));
+    const Vector3<S> normal = len > 0 ? (diff / len).eval() : diff;
+    const Vector3<S> point = tf1.translation() + diff * s1.radius / (s1.radius + s2.radius);
+    const S penetration_depth = s1.radius + s2.radius - len;
+    contacts->emplace_back(normal, point, penetration_depth);
   }
 
   return true;
 }
 
 //==============================================================================
-template <typename Scalar>
-bool sphereSphereDistance(const Sphere<Scalar>& s1, const Transform3<Scalar>& tf1,
-                          const Sphere<Scalar>& s2, const Transform3<Scalar>& tf2,
-                          Scalar* dist, Vector3<Scalar>* p1, Vector3<Scalar>* p2)
+template <typename S>
+bool sphereSphereDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
+                          const Sphere<S>& s2, const Transform3<S>& tf2,
+                          S* dist, Vector3<S>* p1, Vector3<S>* p2)
 {
-  Vector3<Scalar> o1 = tf1.translation();
-  Vector3<Scalar> o2 = tf2.translation();
-  Vector3<Scalar> diff = o1 - o2;
-  Scalar len = diff.norm();
+  Vector3<S> o1 = tf1.translation();
+  Vector3<S> o2 = tf2.translation();
+  Vector3<S> diff = o1 - o2;
+  S len = diff.norm();
   if(len > s1.radius + s2.radius)
   {
     if(dist) *dist = len - (s1.radius + s2.radius);

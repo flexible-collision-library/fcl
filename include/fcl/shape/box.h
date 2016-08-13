@@ -45,24 +45,24 @@ namespace fcl
 {
 
 /// @brief Center at zero point, axis aligned box
-template <typename ScalarT>
-class Box : public ShapeBase<ScalarT>
+template <typename S_>
+class Box : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
   /// @brief Constructor
-  Box(ScalarT x, ScalarT y, ScalarT z);
+  Box(S x, S y, S z);
 
   /// @brief Constructor
-  Box(const Vector3<ScalarT>& side);
+  Box(const Vector3<S>& side);
 
   /// @brief Constructor
   Box();
 
   /// @brief box side length
-  Vector3<ScalarT> side;
+  Vector3<S> side;
 
   /// @brief Compute AABBd
   void computeLocalAABB() override;
@@ -71,15 +71,15 @@ public:
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  ScalarT computeVolume() const override;
+  S computeVolume() const override;
 
   // Documentation inherited
-  Matrix3<ScalarT> computeMomentofInertia() const override;
+  Matrix3<S> computeMomentofInertia() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(
+      const Transform3<S>& tf) const;
 };
 
 using Boxf = Box<float>;
@@ -92,84 +92,84 @@ using Boxd = Box<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Box<ScalarT>::Box(ScalarT x, ScalarT y, ScalarT z)
-  : ShapeBase<ScalarT>(), side(x, y, z)
+template <typename S>
+Box<S>::Box(S x, S y, S z)
+  : ShapeBase<S>(), side(x, y, z)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-Box<ScalarT>::Box(const Vector3<ScalarT>& side_)
-  : ShapeBase<ScalarT>(), side(side_)
+template <typename S>
+Box<S>::Box(const Vector3<S>& side_)
+  : ShapeBase<S>(), side(side_)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-Box<ScalarT>::Box()
-  : ShapeBase<ScalarT>(), side(Vector3<ScalarT>::Zero())
+template <typename S>
+Box<S>::Box()
+  : ShapeBase<S>(), side(Vector3<S>::Zero())
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Box<ScalarT>::computeLocalAABB()
+template <typename S>
+void Box<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Box<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Box<S>::getNodeType() const
 {
   return GEOM_BOX;
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Box<ScalarT>::computeVolume() const
+template <typename S>
+S Box<S>::computeVolume() const
 {
   return side.prod();
 }
 
 //==============================================================================
-template <typename ScalarT>
-Matrix3<ScalarT> Box<ScalarT>::computeMomentofInertia() const
+template <typename S>
+Matrix3<S> Box<S>::computeMomentofInertia() const
 {
-  ScalarT V = computeVolume();
+  S V = computeVolume();
 
-  ScalarT a2 = side[0] * side[0] * V;
-  ScalarT b2 = side[1] * side[1] * V;
-  ScalarT c2 = side[2] * side[2] * V;
+  S a2 = side[0] * side[0] * V;
+  S b2 = side[1] * side[1] * V;
+  S c2 = side[2] * side[2] * V;
 
-  Vector3<ScalarT> I((b2 + c2) / 12, (a2 + c2) / 12, (a2 + b2) / 12);
+  Vector3<S> I((b2 + c2) / 12, (a2 + c2) / 12, (a2 + b2) / 12);
 
   return I.asDiagonal();
 }
 
 //==============================================================================
-template <typename ScalarT>
-std::vector<Vector3<ScalarT>> Box<ScalarT>::getBoundVertices(
-    const Transform3<ScalarT>& tf) const
+template <typename S>
+std::vector<Vector3<S>> Box<S>::getBoundVertices(
+    const Transform3<S>& tf) const
 {
-  std::vector<Vector3<ScalarT>> result(8);
+  std::vector<Vector3<S>> result(8);
   auto a = side[0] / 2;
   auto b = side[1] / 2;
   auto c = side[2] / 2;
-  result[0] = tf * Vector3<ScalarT>(a, b, c);
-  result[1] = tf * Vector3<ScalarT>(a, b, -c);
-  result[2] = tf * Vector3<ScalarT>(a, -b, c);
-  result[3] = tf * Vector3<ScalarT>(a, -b, -c);
-  result[4] = tf * Vector3<ScalarT>(-a, b, c);
-  result[5] = tf * Vector3<ScalarT>(-a, b, -c);
-  result[6] = tf * Vector3<ScalarT>(-a, -b, c);
-  result[7] = tf * Vector3<ScalarT>(-a, -b, -c);
+  result[0] = tf * Vector3<S>(a, b, c);
+  result[1] = tf * Vector3<S>(a, b, -c);
+  result[2] = tf * Vector3<S>(a, -b, c);
+  result[3] = tf * Vector3<S>(a, -b, -c);
+  result[4] = tf * Vector3<S>(-a, b, c);
+  result[5] = tf * Vector3<S>(-a, b, -c);
+  result[6] = tf * Vector3<S>(-a, -b, c);
+  result[7] = tf * Vector3<S>(-a, -b, -c);
 
   return result;
 }

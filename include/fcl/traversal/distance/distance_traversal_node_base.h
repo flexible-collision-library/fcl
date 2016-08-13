@@ -45,8 +45,8 @@ namespace fcl
 {
 
 /// @brief Node structure encoding the information required for distance traversal.
-template <typename Scalar>
-class DistanceTraversalNodeBase : public TraversalNodeBase<Scalar>
+template <typename S>
+class DistanceTraversalNodeBase : public TraversalNodeBase<S>
 {
 public:
   DistanceTraversalNodeBase();
@@ -54,22 +54,22 @@ public:
   virtual ~DistanceTraversalNodeBase();
 
   /// @brief BV test between b1 and b2
-  virtual Scalar BVTesting(int b1, int b2) const;
+  virtual S BVTesting(int b1, int b2) const;
 
   /// @brief Leaf test between node b1 and b2, if they are both leafs
   virtual void leafTesting(int b1, int b2) const;
 
   /// @brief Check whether the traversal can stop
-  virtual bool canStop(Scalar c) const;
+  virtual bool canStop(S c) const;
 
   /// @brief Whether store some statistics information during traversal
   void enableStatistics(bool enable);
 
   /// @brief request setting for distance
-  DistanceRequest<Scalar> request;
+  DistanceRequest<S> request;
 
   /// @brief distance result kept during the traversal iteration
-  DistanceResult<Scalar>* result;
+  DistanceResult<S>* result;
 
   /// @brief Whether stores statistics
   bool enable_statistics;
@@ -82,44 +82,44 @@ public:
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-DistanceTraversalNodeBase<Scalar>::DistanceTraversalNodeBase()
-  : result(NULL), enable_statistics(false)
+template <typename S>
+DistanceTraversalNodeBase<S>::DistanceTraversalNodeBase()
+  : result(nullptr), enable_statistics(false)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-DistanceTraversalNodeBase<Scalar>::~DistanceTraversalNodeBase()
+template <typename S>
+DistanceTraversalNodeBase<S>::~DistanceTraversalNodeBase()
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-Scalar DistanceTraversalNodeBase<Scalar>::BVTesting(int b1, int b2) const
+template <typename S>
+S DistanceTraversalNodeBase<S>::BVTesting(int b1, int b2) const
 {
-  return std::numeric_limits<Scalar>::max();
+  return std::numeric_limits<S>::max();
 }
 
 //==============================================================================
-template <typename Scalar>
-void DistanceTraversalNodeBase<Scalar>::leafTesting(int b1, int b2) const
+template <typename S>
+void DistanceTraversalNodeBase<S>::leafTesting(int b1, int b2) const
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename Scalar>
-bool DistanceTraversalNodeBase<Scalar>::canStop(Scalar c) const
+template <typename S>
+bool DistanceTraversalNodeBase<S>::canStop(S c) const
 {
   return false;
 }
 
 //==============================================================================
-template <typename Scalar>
-void DistanceTraversalNodeBase<Scalar>::enableStatistics(bool enable)
+template <typename S>
+void DistanceTraversalNodeBase<S>::enableStatistics(bool enable)
 {
   enable_statistics = enable;
 }

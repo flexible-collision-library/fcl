@@ -47,10 +47,10 @@ namespace fcl
 namespace details
 {
 
-template <typename Scalar>
-void lineClosestApproach(const Vector3<Scalar>& pa, const Vector3<Scalar>& ua,
-                         const Vector3<Scalar>& pb, const Vector3<Scalar>& ub,
-                         Scalar* alpha, Scalar* beta);
+template <typename S>
+void lineClosestApproach(const Vector3<S>& pa, const Vector3<S>& ua,
+                         const Vector3<S>& pb, const Vector3<S>& ub,
+                         S* alpha, S* beta);
 
 // find all the intersection points between the 2D rectangle with vertices
 // at (+/-h[0],+/-h[1]) and the 2D quadrilateral with vertices (p[0],p[1]),
@@ -59,8 +59,8 @@ void lineClosestApproach(const Vector3<Scalar>& pa, const Vector3<Scalar>& ua,
 // the intersection points are returned as x,y pairs in the 'ret' array.
 // the number of intersection points is returned by the function (this will
 // be in the range 0 to 8).
-template <typename Scalar>
-int intersectRectQuad2(Scalar h[2], Scalar p[8], Scalar ret[16]);
+template <typename S>
+int intersectRectQuad2(S h[2], S p[8], S ret[16]);
 
 // given n points in the plane (array p, of size 2*n), generate m points that
 // best represent the whole set. the definition of 'best' here is not
@@ -69,39 +69,39 @@ int intersectRectQuad2(Scalar h[2], Scalar p[8], Scalar ret[16]);
 // array iret (of size m). 'i0' is always the first entry in the array.
 // n must be in the range [1..8]. m must be in the range [1..n]. i0 must be
 // in the range [0..n-1].
-template <typename Scalar>
-void cullPoints2(int n, Scalar p[], int m, int i0, int iret[]);
+template <typename S>
+void cullPoints2(int n, S p[], int m, int i0, int iret[]);
 
-template <typename Scalar, typename DerivedA, typename DerivedB>
+template <typename S, typename DerivedA, typename DerivedB>
 int boxBox2(
-    const Vector3<Scalar>& side1,
+    const Vector3<S>& side1,
     const Eigen::MatrixBase<DerivedA>& R1,
     const Eigen::MatrixBase<DerivedB>& T1,
-    const Vector3<Scalar>& side2,
+    const Vector3<S>& side2,
     const Eigen::MatrixBase<DerivedA>& R2,
     const Eigen::MatrixBase<DerivedB>& T2,
-    Vector3<Scalar>& normal,
-    Scalar* depth,
+    Vector3<S>& normal,
+    S* depth,
     int* return_code,
     int maxc,
-    std::vector<ContactPoint<Scalar>>& contacts);
+    std::vector<ContactPoint<S>>& contacts);
 
-template <typename Scalar>
+template <typename S>
 int boxBox2(
-    const Vector3<Scalar>& side1,
-    const Transform3<Scalar>& tf1,
-    const Vector3<Scalar>& side2,
-    const Transform3<Scalar>& tf2,
-    Vector3<Scalar>& normal,
-    Scalar* depth,
+    const Vector3<S>& side1,
+    const Transform3<S>& tf1,
+    const Vector3<S>& side2,
+    const Transform3<S>& tf2,
+    Vector3<S>& normal,
+    S* depth,
     int* return_code,
     int maxc,
-    std::vector<ContactPoint<Scalar>>& contacts);
+    std::vector<ContactPoint<S>>& contacts);
 
-template <typename Scalar>
-bool boxBoxIntersect(const Box<Scalar>& s1, const Transform3<Scalar>& tf1,
-                     const Box<Scalar>& s2, const Transform3<Scalar>& tf2,
-                     std::vector<ContactPoint<Scalar>>* contacts_);
+template <typename S>
+bool boxBoxIntersect(const Box<S>& s1, const Transform3<S>& tf1,
+                     const Box<S>& s2, const Transform3<S>& tf2,
+                     std::vector<ContactPoint<S>>* contacts_);
 
 //============================================================================//
 //                                                                            //
@@ -110,17 +110,17 @@ bool boxBoxIntersect(const Box<Scalar>& s1, const Transform3<Scalar>& tf1,
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-void lineClosestApproach(const Vector3<Scalar>& pa, const Vector3<Scalar>& ua,
-                         const Vector3<Scalar>& pb, const Vector3<Scalar>& ub,
-                         Scalar* alpha, Scalar* beta)
+template <typename S>
+void lineClosestApproach(const Vector3<S>& pa, const Vector3<S>& ua,
+                         const Vector3<S>& pb, const Vector3<S>& ub,
+                         S* alpha, S* beta)
 {
-  Vector3<Scalar> p = pb - pa;
-  Scalar uaub = ua.dot(ub);
-  Scalar q1 = ua.dot(p);
-  Scalar q2 = -ub.dot(p);
-  Scalar d = 1 - uaub * uaub;
-  if(d <= (Scalar)(0.0001f))
+  Vector3<S> p = pb - pa;
+  S uaub = ua.dot(ub);
+  S q1 = ua.dot(p);
+  S q2 = -ub.dot(p);
+  S d = 1 - uaub * uaub;
+  if(d <= (S)(0.0001f))
   {
     *alpha = 0;
     *beta = 0;
@@ -134,23 +134,23 @@ void lineClosestApproach(const Vector3<Scalar>& pa, const Vector3<Scalar>& ua,
 }
 
 //==============================================================================
-template <typename Scalar>
-int intersectRectQuad2(Scalar h[2], Scalar p[8], Scalar ret[16])
+template <typename S>
+int intersectRectQuad2(S h[2], S p[8], S ret[16])
 {
   // q (and r) contain nq (and nr) coordinate points for the current (and
   // chopped) polygons
   int nq = 4, nr = 0;
-  Scalar buffer[16];
-  Scalar* q = p;
-  Scalar* r = ret;
+  S buffer[16];
+  S* q = p;
+  S* r = ret;
   for(int dir = 0; dir <= 1; ++dir)
   {
     // direction notation: xy[0] = x axis, xy[1] = y axis
     for(int sign = -1; sign <= 1; sign += 2)
     {
       // chop q along the line xy[dir] = sign*h[dir]
-      Scalar* pq = q;
-      Scalar* pr = r;
+      S* pq = q;
+      S* pr = r;
       nr = 0;
       for(int i = nq; i > 0; --i)
       {
@@ -168,7 +168,7 @@ int intersectRectQuad2(Scalar h[2], Scalar p[8], Scalar ret[16])
             goto done;
           }
         }
-        Scalar* nextq = (i > 1) ? pq+2 : q;
+        S* nextq = (i > 1) ? pq+2 : q;
         if((sign*pq[dir] < h[dir]) ^ (sign*nextq[dir] < h[dir]))
         {
           // this line crosses the chopping line
@@ -192,16 +192,16 @@ int intersectRectQuad2(Scalar h[2], Scalar p[8], Scalar ret[16])
   }
 
  done:
-  if(q != ret) memcpy(ret, q, nr*2*sizeof(Scalar));
+  if(q != ret) memcpy(ret, q, nr*2*sizeof(S));
   return nr;
 }
 
 //==============================================================================
-template <typename Scalar>
-void cullPoints2(int n, Scalar p[], int m, int i0, int iret[])
+template <typename S>
+void cullPoints2(int n, S p[], int m, int i0, int iret[])
 {
   // compute the centroid of the polygon in cx,cy
-  Scalar a, cx, cy, q;
+  S a, cx, cy, q;
   switch(n)
   {
   case 1:
@@ -224,7 +224,7 @@ void cullPoints2(int n, Scalar p[], int m, int i0, int iret[])
       cy += q*(p[i*2+1]+p[i*2+3]);
     }
     q = p[n*2-2]*p[1] - p[0]*p[n*2-1];
-    if(std::abs(a+q) > std::numeric_limits<Scalar>::epsilon())
+    if(std::abs(a+q) > std::numeric_limits<S>::epsilon())
       a = 1/(3*(a+q));
     else
       a= 1e18f;
@@ -235,7 +235,7 @@ void cullPoints2(int n, Scalar p[], int m, int i0, int iret[])
 
 
   // compute the angle of each point w.r.t. the centroid
-  Scalar A[8];
+  S A[8];
   for(int i = 0; i < n; ++i)
     A[i] = atan2(p[i*2+1]-cy,p[i*2]-cx);
 
@@ -245,12 +245,12 @@ void cullPoints2(int n, Scalar p[], int m, int i0, int iret[])
   avail[i0] = 0;
   iret[0] = i0;
   iret++;
-  const Scalar pi = constants<Scalar>::pi();
+  const S pi = constants<S>::pi();
   for(int j = 1; j < m; ++j)
   {
     a = j*(2*pi/m) + A[i0];
     if (a > pi) a -= 2*pi;
-    Scalar maxdiff= 1e9, diff;
+    S maxdiff= 1e9, diff;
 
     *iret = i0;	// iret is not allowed to keep this value, but it sometimes does, when diff=#QNAN0
     for(int i = 0; i < n; ++i)
@@ -272,35 +272,35 @@ void cullPoints2(int n, Scalar p[], int m, int i0, int iret[])
 }
 
 //==============================================================================
-template <typename Scalar, typename DerivedA, typename DerivedB>
+template <typename S, typename DerivedA, typename DerivedB>
 int boxBox2(
-    const Vector3<Scalar>& side1,
+    const Vector3<S>& side1,
     const Eigen::MatrixBase<DerivedA>& R1,
     const Eigen::MatrixBase<DerivedB>& T1,
-    const Vector3<Scalar>& side2,
+    const Vector3<S>& side2,
     const Eigen::MatrixBase<DerivedA>& R2,
     const Eigen::MatrixBase<DerivedB>& T2,
-    Vector3<Scalar>& normal,
-    Scalar* depth,
+    Vector3<S>& normal,
+    S* depth,
     int* return_code,
     int maxc,
-    std::vector<ContactPoint<Scalar>>& contacts)
+    std::vector<ContactPoint<S>>& contacts)
 {
-  const Scalar fudge_factor = Scalar(1.05);
-  Vector3<Scalar> normalC;
-  Scalar s, s2, l;
+  const S fudge_factor = S(1.05);
+  Vector3<S> normalC;
+  S s, s2, l;
   int invert_normal, code;
 
-  Vector3<Scalar> p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
-  Vector3<Scalar> pp = R1.transpose() * p; // get pp = p relative to body 1
+  Vector3<S> p = T2 - T1; // get vector from centers of box 1 to box 2, relative to box 1
+  Vector3<S> pp = R1.transpose() * p; // get pp = p relative to body 1
 
   // get side lengths / 2
-  Vector3<Scalar> A = side1 * 0.5;
-  Vector3<Scalar> B = side2 * 0.5;
+  Vector3<S> A = side1 * 0.5;
+  Vector3<S> B = side2 * 0.5;
 
   // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
-  Matrix3<Scalar> R = R1.transpose() * R2;
-  Matrix3<Scalar> Q = R.cwiseAbs();
+  Matrix3<S> R = R1.transpose() * R2;
+  Matrix3<S> Q = R.cwiseAbs();
 
 
   // for all 15 possible separating axes:
@@ -315,9 +315,9 @@ int boxBox2(
 
   int best_col_id = -1;
   const Eigen::MatrixBase<DerivedA>* normalR = 0;
-  Scalar tmp = 0;
+  S tmp = 0;
 
-  s = - std::numeric_limits<Scalar>::max();
+  s = - std::numeric_limits<S>::max();
   invert_normal = 0;
   code = 0;
 
@@ -396,17 +396,17 @@ int boxBox2(
   }
 
 
-  Scalar fudge2(1.0e-6);
+  S fudge2(1.0e-6);
   Q.array() += fudge2;
 
-  Vector3<Scalar> n;
-  Scalar eps = std::numeric_limits<Scalar>::epsilon();
+  Vector3<S> n;
+  S eps = std::numeric_limits<S>::epsilon();
 
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
   s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(0, -R(2, 0), R(1, 0));
+  n = Vector3<S>(0, -R(2, 0), R(1, 0));
   l = n.norm();
   if(l > eps)
   {
@@ -424,7 +424,7 @@ int boxBox2(
   tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
   s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(0, -R(2, 1), R(1, 1));
+  n = Vector3<S>(0, -R(2, 1), R(1, 1));
   l = n.norm();
   if(l > eps)
   {
@@ -442,7 +442,7 @@ int boxBox2(
   tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
   s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(0, -R(2, 2), R(1, 2));
+  n = Vector3<S>(0, -R(2, 2), R(1, 2));
   l = n.norm();
   if(l > eps)
   {
@@ -461,7 +461,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 0) - pp[2] * R(0, 0);
   s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(R(2, 0), 0, -R(0, 0));
+  n = Vector3<S>(R(2, 0), 0, -R(0, 0));
   l = n.norm();
   if(l > eps)
   {
@@ -479,7 +479,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
   s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(R(2, 1), 0, -R(0, 1));
+  n = Vector3<S>(R(2, 1), 0, -R(0, 1));
   l = n.norm();
   if(l > eps)
   {
@@ -497,7 +497,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
   s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(R(2, 2), 0, -R(0, 2));
+  n = Vector3<S>(R(2, 2), 0, -R(0, 2));
   l = n.norm();
   if(l > eps)
   {
@@ -516,7 +516,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 0) - pp[0] * R(1, 0);
   s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(-R(1, 0), R(0, 0), 0);
+  n = Vector3<S>(-R(1, 0), R(0, 0), 0);
   l = n.norm();
   if(l > eps)
   {
@@ -534,7 +534,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
   s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(-R(1, 1), R(0, 1), 0);
+  n = Vector3<S>(-R(1, 1), R(0, 1), 0);
   l = n.norm();
   if(l > eps)
   {
@@ -552,7 +552,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
   s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(-R(1, 2), R(0, 2), 0);
+  n = Vector3<S>(-R(1, 2), R(0, 2), 0);
   l = n.norm();
   if(l > eps)
   {
@@ -589,8 +589,8 @@ int boxBox2(
   {
     // an edge from box 1 touches an edge from box 2.
     // find a point pa on the intersecting edge of box 1
-    Vector3<Scalar> pa(T1);
-    Scalar sign;
+    Vector3<S> pa(T1);
+    S sign;
 
     for(int j = 0; j < 3; ++j)
     {
@@ -599,7 +599,7 @@ int boxBox2(
     }
 
     // find a point pb on the intersecting edge of box 2
-    Vector3<Scalar> pb(T2);
+    Vector3<S> pb(T2);
 
     for(int j = 0; j < 3; ++j)
     {
@@ -607,17 +607,17 @@ int boxBox2(
       pb += R2.col(j) * (B[j] * sign);
     }
 
-    Scalar alpha, beta;
-    Vector3<Scalar> ua(R1.col((code-7)/3));
-    Vector3<Scalar> ub(R2.col((code-7)%3));
+    S alpha, beta;
+    Vector3<S> ua(R1.col((code-7)/3));
+    Vector3<S> ub(R2.col((code-7)%3));
 
     lineClosestApproach(pa, ua, pb, ub, &alpha, &beta);
     pa += ua * alpha;
     pb += ub * beta;
 
 
-    // Vector3<Scalar> pointInWorld((pa + pb) * 0.5);
-    // contacts.push_back(ContactPoint<Scalar>(-normal, pointInWorld, -*depth));
+    // Vector3<S> pointInWorld((pa + pb) * 0.5);
+    // contacts.push_back(ContactPoint<S>(-normal, pointInWorld, -*depth));
     contacts.emplace_back(normal, pb, -*depth);
     *return_code = code;
 
@@ -631,7 +631,7 @@ int boxBox2(
 
   const Eigen::MatrixBase<DerivedA> *Ra, *Rb;
   const Eigen::MatrixBase<DerivedB> *pa, *pb;
-  const Vector3<Scalar> *Sa, *Sb;
+  const Vector3<S> *Sa, *Sb;
 
   if(code <= 3)
   {
@@ -654,7 +654,7 @@ int boxBox2(
 
   // nr = normal vector of reference face dotted with axes of incident box.
   // anr = absolute values of nr.
-  Vector3<Scalar> normal2, nr, anr;
+  Vector3<S> normal2, nr, anr;
   if(code <= 3)
     normal2 = normal;
   else
@@ -699,7 +699,7 @@ int boxBox2(
   }
 
   // compute center point of incident face, in reference-face coordinates
-  Vector3<Scalar> center;
+  Vector3<S> center;
   if(nr[lanr] < 0)
     center = (*pb) - (*pa) + Rb->col(lanr) * ((*Sb)[lanr]);
   else
@@ -728,24 +728,24 @@ int boxBox2(
   }
 
   // find the four corners of the incident face, in reference-face coordinates
-  Scalar quad[8]; // 2D coordinate of incident face (x,y pairs)
-  Scalar c1, c2, m11, m12, m21, m22;
+  S quad[8]; // 2D coordinate of incident face (x,y pairs)
+  S c1, c2, m11, m12, m21, m22;
   c1 = Ra->col(code1).dot(center);
   c2 = Ra->col(code2).dot(center);
   // optimize this? - we have already computed this data above, but it is not
   // stored in an easy-to-index format. for now it's quicker just to recompute
   // the four dot products.
-  Vector3<Scalar> tempRac = Ra->col(code1);
+  Vector3<S> tempRac = Ra->col(code1);
   m11 = Rb->col(a1).dot(tempRac);
   m12 = Rb->col(a2).dot(tempRac);
   tempRac = Ra->col(code2);
   m21 = Rb->col(a1).dot(tempRac);
   m22 = Rb->col(a2).dot(tempRac);
 
-  Scalar k1 = m11 * (*Sb)[a1];
-  Scalar k2 = m21 * (*Sb)[a1];
-  Scalar k3 = m12 * (*Sb)[a2];
-  Scalar k4 = m22 * (*Sb)[a2];
+  S k1 = m11 * (*Sb)[a1];
+  S k2 = m21 * (*Sb)[a1];
+  S k3 = m12 * (*Sb)[a2];
+  S k4 = m22 * (*Sb)[a2];
   quad[0] = c1 - k1 - k3;
   quad[1] = c2 - k2 - k4;
   quad[2] = c1 - k1 + k3;
@@ -756,12 +756,12 @@ int boxBox2(
   quad[7] = c2 + k2 - k4;
 
   // find the size of the reference face
-  Scalar rect[2];
+  S rect[2];
   rect[0] = (*Sa)[code1];
   rect[1] = (*Sa)[code2];
 
   // intersect the incident and reference faces
-  Scalar ret[16];
+  S ret[16];
   int n_intersect = intersectRectQuad2(rect, quad, ret);
   if(n_intersect < 1) { *return_code = code; return 0; } // this should never happen
 
@@ -769,9 +769,9 @@ int boxBox2(
   // and compute the contact position and depth for each point. only keep
   // those points that have a positive (penetrating) depth. delete points in
   // the 'ret' array as necessary so that 'point' and 'ret' correspond.
-  Vector3<Scalar> points[8]; // penetrating contact points
-  Scalar dep[8]; // depths for those points
-  Scalar det1 = 1.f/(m11*m22 - m12*m21);
+  Vector3<S> points[8]; // penetrating contact points
+  S dep[8]; // depths for those points
+  S det1 = 1.f/(m11*m22 - m12*m21);
   m11 *= det1;
   m12 *= det1;
   m21 *= det1;
@@ -779,8 +779,8 @@ int boxBox2(
   int cnum = 0;	// number of penetrating contact points found
   for(int j = 0; j < n_intersect; ++j)
   {
-    Scalar k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
-    Scalar k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
+    S k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
+    S k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
     points[cnum] = center + Rb->col(a1) * k1 + Rb->col(a2) * k2;
     dep[cnum] = (*Sa)[codeN] - normal2.dot(points[cnum]);
     if(dep[cnum] >= 0)
@@ -803,7 +803,7 @@ int boxBox2(
       // we have less contacts than we need, so we use them all
       for(int j = 0; j < cnum; ++j)
       {
-        Vector3<Scalar> pointInWorld = points[j] + (*pa);
+        Vector3<S> pointInWorld = points[j] + (*pa);
         contacts.emplace_back(normal, pointInWorld, -dep[j]);
       }
     }
@@ -812,7 +812,7 @@ int boxBox2(
       // we have less contacts than we need, so we use them all
       for(int j = 0; j < cnum; ++j)
       {
-        Vector3<Scalar> pointInWorld = points[j] + (*pa) - normal * dep[j];
+        Vector3<S> pointInWorld = points[j] + (*pa) - normal * dep[j];
         contacts.emplace_back(normal, pointInWorld, -dep[j]);
       }
     }
@@ -822,7 +822,7 @@ int boxBox2(
     // we have more contacts than are wanted, some of them must be culled.
     // find the deepest point, it is always the first contact.
     int i1 = 0;
-    Scalar maxdepth = dep[0];
+    S maxdepth = dep[0];
     for(int i = 1; i < cnum; ++i)
     {
       if(dep[i] > maxdepth)
@@ -837,7 +837,7 @@ int boxBox2(
 
     for(int j = 0; j < maxc; ++j)
     {
-      Vector3<Scalar> posInWorld = points[iret[j]] + (*pa);
+      Vector3<S> posInWorld = points[iret[j]] + (*pa);
       if(code < 4)
         contacts.emplace_back(normal, posInWorld, -dep[iret[j]]);
       else
@@ -851,31 +851,31 @@ int boxBox2(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 int boxBox2(
-    const Vector3<Scalar>& side1,
-    const Transform3<Scalar>& tf1,
-    const Vector3<Scalar>& side2,
-    const Transform3<Scalar>& tf2,
-    Vector3<Scalar>& normal,
-    Scalar* depth,
+    const Vector3<S>& side1,
+    const Transform3<S>& tf1,
+    const Vector3<S>& side2,
+    const Transform3<S>& tf2,
+    Vector3<S>& normal,
+    S* depth,
     int* return_code,
     int maxc,
-    std::vector<ContactPoint<Scalar>>& contacts)
+    std::vector<ContactPoint<S>>& contacts)
 {
-  const Scalar fudge_factor = Scalar(1.05);
-  Vector3<Scalar> normalC;
+  const S fudge_factor = S(1.05);
+  Vector3<S> normalC;
 
-  const Vector3<Scalar> p = tf2.translation() - tf1.translation(); // get vector from centers of box 1 to box 2, relative to box 1
-  const Vector3<Scalar> pp = tf1.linear().transpose() * p; // get pp = p relative to body 1
+  const Vector3<S> p = tf2.translation() - tf1.translation(); // get vector from centers of box 1 to box 2, relative to box 1
+  const Vector3<S> pp = tf1.linear().transpose() * p; // get pp = p relative to body 1
 
   // get side lengths / 2
-  const Vector3<Scalar> A = side1 * 0.5;
-  const Vector3<Scalar> B = side2 * 0.5;
+  const Vector3<S> A = side1 * 0.5;
+  const Vector3<S> B = side2 * 0.5;
 
   // Rij is R1'*R2, i.e. the relative rotation between R1 and R2
-  const Matrix3<Scalar> R = tf1.linear().transpose() * tf2.linear();
-  Matrix3<Scalar> Q = R.cwiseAbs();
+  const Matrix3<S> R = tf1.linear().transpose() * tf2.linear();
+  Matrix3<S> Q = R.cwiseAbs();
 
   // for all 15 possible separating axes:
   //   * see if the axis separates the boxes. if so, return 0.
@@ -888,15 +888,15 @@ int boxBox2(
   // the normal should be flipped.
 
   int best_col_id = -1;
-  const Transform3<Scalar>* normalT = nullptr;
+  const Transform3<S>* normalT = nullptr;
 
-  Scalar s = - std::numeric_limits<Scalar>::max();
+  S s = - std::numeric_limits<S>::max();
   int invert_normal = 0;
   int code = 0;
 
   // separating axis = u1, u2, u3
-  Scalar tmp = pp[0];
-  Scalar s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
+  S tmp = pp[0];
+  S s2 = std::abs(tmp) - (Q.row(0).dot(B) + A[0]);
   if(s2 > 0) { *return_code = 0; return 0; }
   if(s2 > s)
   {
@@ -969,18 +969,18 @@ int boxBox2(
   }
 
 
-  Scalar fudge2(1.0e-6);
+  S fudge2(1.0e-6);
   Q.array() += fudge2;
 
-  Vector3<Scalar> n;
-  Scalar eps = std::numeric_limits<Scalar>::epsilon();
+  Vector3<S> n;
+  S eps = std::numeric_limits<S>::epsilon();
 
   // separating axis = u1 x (v1,v2,v3)
   tmp = pp[2] * R(1, 0) - pp[1] * R(2, 0);
   s2 = std::abs(tmp) - (A[1] * Q(2, 0) + A[2] * Q(1, 0) + B[1] * Q(0, 2) + B[2] * Q(0, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(0, -R(2, 0), R(1, 0));
-  Scalar l = n.norm();
+  n = Vector3<S>(0, -R(2, 0), R(1, 0));
+  S l = n.norm();
   if(l > eps)
   {
     s2 /= l;
@@ -997,7 +997,7 @@ int boxBox2(
   tmp = pp[2] * R(1, 1) - pp[1] * R(2, 1);
   s2 = std::abs(tmp) - (A[1] * Q(2, 1) + A[2] * Q(1, 1) + B[0] * Q(0, 2) + B[2] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(0, -R(2, 1), R(1, 1));
+  n = Vector3<S>(0, -R(2, 1), R(1, 1));
   l = n.norm();
   if(l > eps)
   {
@@ -1015,7 +1015,7 @@ int boxBox2(
   tmp = pp[2] * R(1, 2) - pp[1] * R(2, 2);
   s2 = std::abs(tmp) - (A[1] * Q(2, 2) + A[2] * Q(1, 2) + B[0] * Q(0, 1) + B[1] * Q(0, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(0, -R(2, 2), R(1, 2));
+  n = Vector3<S>(0, -R(2, 2), R(1, 2));
   l = n.norm();
   if(l > eps)
   {
@@ -1034,7 +1034,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 0) - pp[2] * R(0, 0);
   s2 = std::abs(tmp) - (A[0] * Q(2, 0) + A[2] * Q(0, 0) + B[1] * Q(1, 2) + B[2] * Q(1, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(R(2, 0), 0, -R(0, 0));
+  n = Vector3<S>(R(2, 0), 0, -R(0, 0));
   l = n.norm();
   if(l > eps)
   {
@@ -1052,7 +1052,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 1) - pp[2] * R(0, 1);
   s2 = std::abs(tmp) - (A[0] * Q(2, 1) + A[2] * Q(0, 1) + B[0] * Q(1, 2) + B[2] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(R(2, 1), 0, -R(0, 1));
+  n = Vector3<S>(R(2, 1), 0, -R(0, 1));
   l = n.norm();
   if(l > eps)
   {
@@ -1070,7 +1070,7 @@ int boxBox2(
   tmp = pp[0] * R(2, 2) - pp[2] * R(0, 2);
   s2 = std::abs(tmp) - (A[0] * Q(2, 2) + A[2] * Q(0, 2) + B[0] * Q(1, 1) + B[1] * Q(1, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(R(2, 2), 0, -R(0, 2));
+  n = Vector3<S>(R(2, 2), 0, -R(0, 2));
   l = n.norm();
   if(l > eps)
   {
@@ -1089,7 +1089,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 0) - pp[0] * R(1, 0);
   s2 = std::abs(tmp) - (A[0] * Q(1, 0) + A[1] * Q(0, 0) + B[1] * Q(2, 2) + B[2] * Q(2, 1));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(-R(1, 0), R(0, 0), 0);
+  n = Vector3<S>(-R(1, 0), R(0, 0), 0);
   l = n.norm();
   if(l > eps)
   {
@@ -1107,7 +1107,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 1) - pp[0] * R(1, 1);
   s2 = std::abs(tmp) - (A[0] * Q(1, 1) + A[1] * Q(0, 1) + B[0] * Q(2, 2) + B[2] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(-R(1, 1), R(0, 1), 0);
+  n = Vector3<S>(-R(1, 1), R(0, 1), 0);
   l = n.norm();
   if(l > eps)
   {
@@ -1125,7 +1125,7 @@ int boxBox2(
   tmp = pp[1] * R(0, 2) - pp[0] * R(1, 2);
   s2 = std::abs(tmp) - (A[0] * Q(1, 2) + A[1] * Q(0, 2) + B[0] * Q(2, 1) + B[1] * Q(2, 0));
   if(s2 > 0) { *return_code = 0; return 0; }
-  n = Vector3<Scalar>(-R(1, 2), R(0, 2), 0);
+  n = Vector3<S>(-R(1, 2), R(0, 2), 0);
   l = n.norm();
   if(l > eps)
   {
@@ -1162,8 +1162,8 @@ int boxBox2(
   {
     // an edge from box 1 touches an edge from box 2.
     // find a point pa on the intersecting edge of box 1
-    Vector3<Scalar> pa(tf1.translation());
-    Scalar sign;
+    Vector3<S> pa(tf1.translation());
+    S sign;
 
     for(int j = 0; j < 3; ++j)
     {
@@ -1172,7 +1172,7 @@ int boxBox2(
     }
 
     // find a point pb on the intersecting edge of box 2
-    Vector3<Scalar> pb(tf2.translation());
+    Vector3<S> pb(tf2.translation());
 
     for(int j = 0; j < 3; ++j)
     {
@@ -1180,17 +1180,17 @@ int boxBox2(
       pb += tf2.linear().col(j) * (B[j] * sign);
     }
 
-    Scalar alpha, beta;
-    Vector3<Scalar> ua(tf1.linear().col((code-7)/3));
-    Vector3<Scalar> ub(tf2.linear().col((code-7)%3));
+    S alpha, beta;
+    Vector3<S> ua(tf1.linear().col((code-7)/3));
+    Vector3<S> ub(tf2.linear().col((code-7)%3));
 
     lineClosestApproach(pa, ua, pb, ub, &alpha, &beta);
     pa += ua * alpha;
     pb += ub * beta;
 
 
-    // Vector3<Scalar> pointInWorld((pa + pb) * 0.5);
-    // contacts.push_back(ContactPoint<Scalar>(-normal, pointInWorld, -*depth));
+    // Vector3<S> pointInWorld((pa + pb) * 0.5);
+    // contacts.push_back(ContactPoint<S>(-normal, pointInWorld, -*depth));
     contacts.emplace_back(normal, pb, -*depth);
     *return_code = code;
 
@@ -1202,8 +1202,8 @@ int boxBox2(
   // face (i.e. the normal vector is perpendicular to this) and face 'b' to be
   // the incident face (the closest face of the other box).
 
-  const Transform3<Scalar> *Ta, *Tb;
-  const Vector3<Scalar> *Sa, *Sb;
+  const Transform3<S> *Ta, *Tb;
+  const Vector3<S> *Sa, *Sb;
 
   if(code <= 3)
   {
@@ -1222,7 +1222,7 @@ int boxBox2(
 
   // nr = normal vector of reference face dotted with axes of incident box.
   // anr = absolute values of nr.
-  Vector3<Scalar> normal2, nr, anr;
+  Vector3<S> normal2, nr, anr;
   if(code <= 3)
     normal2 = normal;
   else
@@ -1267,7 +1267,7 @@ int boxBox2(
   }
 
   // compute center point of incident face, in reference-face coordinates
-  Vector3<Scalar> center;
+  Vector3<S> center;
   if(nr[lanr] < 0)
     center = Tb->translation() - Ta->translation() + Tb->linear().col(lanr) * ((*Sb)[lanr]);
   else
@@ -1296,24 +1296,24 @@ int boxBox2(
   }
 
   // find the four corners of the incident face, in reference-face coordinates
-  Scalar quad[8]; // 2D coordinate of incident face (x,y pairs)
-  Scalar c1, c2, m11, m12, m21, m22;
+  S quad[8]; // 2D coordinate of incident face (x,y pairs)
+  S c1, c2, m11, m12, m21, m22;
   c1 = Ta->linear().col(code1).dot(center);
   c2 = Ta->linear().col(code2).dot(center);
   // optimize this? - we have already computed this data above, but it is not
   // stored in an easy-to-index format. for now it's quicker just to recompute
   // the four dot products.
-  Vector3<Scalar> tempRac = Ta->linear().col(code1);
+  Vector3<S> tempRac = Ta->linear().col(code1);
   m11 = Tb->linear().col(a1).dot(tempRac);
   m12 = Tb->linear().col(a2).dot(tempRac);
   tempRac = Ta->linear().col(code2);
   m21 = Tb->linear().col(a1).dot(tempRac);
   m22 = Tb->linear().col(a2).dot(tempRac);
 
-  Scalar k1 = m11 * (*Sb)[a1];
-  Scalar k2 = m21 * (*Sb)[a1];
-  Scalar k3 = m12 * (*Sb)[a2];
-  Scalar k4 = m22 * (*Sb)[a2];
+  S k1 = m11 * (*Sb)[a1];
+  S k2 = m21 * (*Sb)[a1];
+  S k3 = m12 * (*Sb)[a2];
+  S k4 = m22 * (*Sb)[a2];
   quad[0] = c1 - k1 - k3;
   quad[1] = c2 - k2 - k4;
   quad[2] = c1 - k1 + k3;
@@ -1324,12 +1324,12 @@ int boxBox2(
   quad[7] = c2 + k2 - k4;
 
   // find the size of the reference face
-  Scalar rect[2];
+  S rect[2];
   rect[0] = (*Sa)[code1];
   rect[1] = (*Sa)[code2];
 
   // intersect the incident and reference faces
-  Scalar ret[16];
+  S ret[16];
   int n_intersect = intersectRectQuad2(rect, quad, ret);
   if(n_intersect < 1) { *return_code = code; return 0; } // this should never happen
 
@@ -1337,9 +1337,9 @@ int boxBox2(
   // and compute the contact position and depth for each point. only keep
   // those points that have a positive (penetrating) depth. delete points in
   // the 'ret' array as necessary so that 'point' and 'ret' correspond.
-  Vector3<Scalar> points[8]; // penetrating contact points
-  Scalar dep[8]; // depths for those points
-  Scalar det1 = 1.f/(m11*m22 - m12*m21);
+  Vector3<S> points[8]; // penetrating contact points
+  S dep[8]; // depths for those points
+  S det1 = 1.f/(m11*m22 - m12*m21);
   m11 *= det1;
   m12 *= det1;
   m21 *= det1;
@@ -1347,8 +1347,8 @@ int boxBox2(
   int cnum = 0;	// number of penetrating contact points found
   for(int j = 0; j < n_intersect; ++j)
   {
-    Scalar k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
-    Scalar k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
+    S k1 =  m22*(ret[j*2]-c1) - m12*(ret[j*2+1]-c2);
+    S k2 = -m21*(ret[j*2]-c1) + m11*(ret[j*2+1]-c2);
     points[cnum] = center + Tb->linear().col(a1) * k1 + Tb->linear().col(a2) * k2;
     dep[cnum] = (*Sa)[codeN] - normal2.dot(points[cnum]);
     if(dep[cnum] >= 0)
@@ -1371,7 +1371,7 @@ int boxBox2(
       // we have less contacts than we need, so we use them all
       for(int j = 0; j < cnum; ++j)
       {
-        Vector3<Scalar> pointInWorld = points[j] + Ta->translation();
+        Vector3<S> pointInWorld = points[j] + Ta->translation();
         contacts.emplace_back(normal, pointInWorld, -dep[j]);
       }
     }
@@ -1380,7 +1380,7 @@ int boxBox2(
       // we have less contacts than we need, so we use them all
       for(int j = 0; j < cnum; ++j)
       {
-        Vector3<Scalar> pointInWorld = points[j] + Ta->translation() - normal * dep[j];
+        Vector3<S> pointInWorld = points[j] + Ta->translation() - normal * dep[j];
         contacts.emplace_back(normal, pointInWorld, -dep[j]);
       }
     }
@@ -1390,7 +1390,7 @@ int boxBox2(
     // we have more contacts than are wanted, some of them must be culled.
     // find the deepest point, it is always the first contact.
     int i1 = 0;
-    Scalar maxdepth = dep[0];
+    S maxdepth = dep[0];
     for(int i = 1; i < cnum; ++i)
     {
       if(dep[i] > maxdepth)
@@ -1405,7 +1405,7 @@ int boxBox2(
 
     for(int j = 0; j < maxc; ++j)
     {
-      Vector3<Scalar> posInWorld = points[iret[j]] + Ta->translation();
+      Vector3<S> posInWorld = points[iret[j]] + Ta->translation();
       if(code < 4)
         contacts.emplace_back(normal, posInWorld, -dep[iret[j]]);
       else
@@ -1419,15 +1419,15 @@ int boxBox2(
 }
 
 //==============================================================================
-template <typename Scalar>
-bool boxBoxIntersect(const Box<Scalar>& s1, const Transform3<Scalar>& tf1,
-                     const Box<Scalar>& s2, const Transform3<Scalar>& tf2,
-                     std::vector<ContactPoint<Scalar>>* contacts_)
+template <typename S>
+bool boxBoxIntersect(const Box<S>& s1, const Transform3<S>& tf1,
+                     const Box<S>& s2, const Transform3<S>& tf2,
+                     std::vector<ContactPoint<S>>* contacts_)
 {
-  std::vector<ContactPoint<Scalar>> contacts;
+  std::vector<ContactPoint<S>> contacts;
   int return_code;
-  Vector3<Scalar> normal;
-  Scalar depth;
+  Vector3<S> normal;
+  S depth;
   /* int cnum = */ boxBox2(s1.side, tf1,
                            s2.side, tf2,
                            normal, &depth, &return_code,

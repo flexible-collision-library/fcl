@@ -47,16 +47,16 @@ namespace fcl
 
 /// @brief the object for continuous collision or distance computation, contains
 /// the geometry and the motion information
-template <typename Scalar>
+template <typename S>
 class ContinuousCollisionObject
 {
 public:
-  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>>& cgeom_) :
+  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry<S>>& cgeom_) :
     cgeom(cgeom_), cgeom_const(cgeom_)
   {
   }
 
-  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry<Scalar>>& cgeom_, const std::shared_ptr<MotionBased>& motion_) :
+  ContinuousCollisionObject(const std::shared_ptr<CollisionGeometry<S>>& cgeom_, const std::shared_ptr<MotionBased>& motion_) :
     cgeom(cgeom_), cgeom_const(cgeom), motion(motion_)
   {
   }
@@ -75,21 +75,21 @@ public:
     return cgeom->getNodeType();
   }
 
-  /// @brief get the AABB<Scalar> in the world space for the motion
-  const AABB<Scalar>& getAABB() const
+  /// @brief get the AABB<S> in the world space for the motion
+  const AABB<S>& getAABB() const
   {
     return aabb;
   }
 
-  /// @brief compute the AABB<Scalar> in the world space for the motion
+  /// @brief compute the AABB<S> in the world space for the motion
   void computeAABB()
   {
-    IVector3<Scalar> box;
-    TMatrix3<Scalar> R;
-    TVector3<Scalar> T;
+    IVector3<S> box;
+    TMatrix3<S> R;
+    TVector3<S> T;
     motion->getTaylorModel(R, T);
 
-    Vector3<Scalar> p = cgeom->aabb_local.min_;
+    Vector3<S> p = cgeom->aabb_local.min_;
     box = (R * p + T).getTightBound();
 
     p[2] = cgeom->aabb_local.max_[2];
@@ -141,26 +141,26 @@ public:
 
   /// @brief get geometry from the object instance
   FCL_DEPRECATED
-  const CollisionGeometry<Scalar>* getCollisionGeometry() const
+  const CollisionGeometry<S>* getCollisionGeometry() const
   {
     return cgeom.get();
   }
 
   /// @brief get geometry from the object instance
-  const std::shared_ptr<const CollisionGeometry<Scalar>>& collisionGeometry() const
+  const std::shared_ptr<const CollisionGeometry<S>>& collisionGeometry() const
   {
     return cgeom_const;
   }
 
 protected:
 
-  std::shared_ptr<CollisionGeometry<Scalar>> cgeom;
-  std::shared_ptr<const CollisionGeometry<Scalar>> cgeom_const;
+  std::shared_ptr<CollisionGeometry<S>> cgeom;
+  std::shared_ptr<const CollisionGeometry<S>> cgeom_const;
 
   std::shared_ptr<MotionBased> motion;
 
-  /// @brief AABB<Scalar> in the global coordinate for the motion
-  mutable AABB<Scalar> aabb;
+  /// @brief AABB<S> in the global coordinate for the motion
+  mutable AABB<S> aabb;
 
   /// @brief pointer to user defined data specific to this object
   void* user_data;

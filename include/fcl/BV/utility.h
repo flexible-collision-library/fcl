@@ -47,40 +47,40 @@ namespace fcl
 {
 
 /// @brief Compute the bounding volume extent and center for a set or subset of points, given the BV axises.
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent);
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent);
 
 /// @brief Compute the bounding volume extent and center for a set or subset of
 /// points, given the BV axises.
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    Transform3<Scalar>& tf,
-    Vector3<Scalar>& extent);
+    Transform3<S>& tf,
+    Vector3<S>& extent);
 
 /// @brief Compute the covariance matrix for a set or subset of points. if
 /// ts = null, then indices refer to points directly; otherwise refer to
 /// triangles
-template <typename Scalar>
+template <typename S>
 void getCovariance(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    Matrix3<Scalar>& M);
+    Matrix3<S>& M);
 
 //============================================================================//
 //                                                                            //
@@ -89,16 +89,16 @@ void getCovariance(
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    const Matrix3<Scalar>& axis,
-    Vector3<Scalar>& center,
-    Vector3<Scalar>& extent)
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent)
 {
   if(ts)
     detail::getExtentAndCenter_mesh(ps, ps2, ts, indices, n, axis, center, extent);
@@ -107,15 +107,15 @@ void getExtentAndCenter(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void getExtentAndCenter(
-    Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
     int n,
-    Transform3<Scalar>& tf,
-    Vector3<Scalar>& extent)
+    Transform3<S>& tf,
+    Vector3<S>& extent)
 {
   if(ts)
     detail::getExtentAndCenter_mesh(ps, ps2, ts, indices, n, tf, extent);
@@ -124,16 +124,16 @@ void getExtentAndCenter(
 }
 
 //==============================================================================
-template <typename Scalar>
-void getCovariance(Vector3<Scalar>* ps,
-    Vector3<Scalar>* ps2,
+template <typename S>
+void getCovariance(Vector3<S>* ps,
+    Vector3<S>* ps2,
     Triangle* ts,
     unsigned int* indices,
-    int n, Matrix3<Scalar>& M)
+    int n, Matrix3<S>& M)
 {
-  Vector3<Scalar> S1 = Vector3<Scalar>::Zero();
-  Vector3<Scalar> S2[3] = {
-    Vector3<Scalar>::Zero(), Vector3<Scalar>::Zero(), Vector3<Scalar>::Zero()
+  Vector3<S> S1 = Vector3<S>::Zero();
+  Vector3<S> S2[3] = {
+    Vector3<S>::Zero(), Vector3<S>::Zero(), Vector3<S>::Zero()
   };
 
   if(ts)
@@ -142,11 +142,11 @@ void getCovariance(Vector3<Scalar>* ps,
     {
       const Triangle& t = (indices) ? ts[indices[i]] : ts[i];
 
-      const Vector3<Scalar>& p1 = ps[t[0]];
-      const Vector3<Scalar>& p2 = ps[t[1]];
-      const Vector3<Scalar>& p3 = ps[t[2]];
+      const Vector3<S>& p1 = ps[t[0]];
+      const Vector3<S>& p2 = ps[t[1]];
+      const Vector3<S>& p3 = ps[t[2]];
 
-      S1 += p1 + p2 + p3;
+      S1 += (p1 + p2 + p3).eval();
 
       S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
       S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
@@ -157,11 +157,11 @@ void getCovariance(Vector3<Scalar>* ps,
 
       if(ps2)
       {
-        const Vector3<Scalar>& p1 = ps2[t[0]];
-        const Vector3<Scalar>& p2 = ps2[t[1]];
-        const Vector3<Scalar>& p3 = ps2[t[2]];
+        const Vector3<S>& p1 = ps2[t[0]];
+        const Vector3<S>& p2 = ps2[t[1]];
+        const Vector3<S>& p3 = ps2[t[2]];
 
-        S1 += p1 + p2 + p3;
+        S1 += (p1 + p2 + p3).eval();
 
         S2[0][0] += (p1[0] * p1[0] + p2[0] * p2[0] + p3[0] * p3[0]);
         S2[1][1] += (p1[1] * p1[1] + p2[1] * p2[1] + p3[1] * p3[1]);
@@ -176,7 +176,7 @@ void getCovariance(Vector3<Scalar>* ps,
   {
     for(int i = 0; i < n; ++i)
     {
-      const Vector3<Scalar>& p = (indices) ? ps[indices[i]] : ps[i];
+      const Vector3<S>& p = (indices) ? ps[indices[i]] : ps[i];
       S1 += p;
       S2[0][0] += (p[0] * p[0]);
       S2[1][1] += (p[1] * p[1]);
@@ -187,7 +187,7 @@ void getCovariance(Vector3<Scalar>* ps,
 
       if(ps2) // another frame
       {
-        const Vector3<Scalar>& p = (indices) ? ps2[indices[i]] : ps2[i];
+        const Vector3<S>& p = (indices) ? ps2[indices[i]] : ps2[i];
         S1 += p;
         S2[0][0] += (p[0] * p[0]);
         S2[1][1] += (p[1] * p[1]);

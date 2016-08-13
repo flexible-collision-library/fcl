@@ -56,7 +56,7 @@ public:
   ModelParseError(const std::string& error_msg) : std::runtime_error(error_msg) {}
 };
 
-template <typename Scalar>
+template <typename S>
 class Model
 {
 public:
@@ -96,14 +96,14 @@ protected:
 };
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::shared_ptr<Link> Model::getRoot() const
 {
   return root_link_;
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::shared_ptr<Link> Model::getLink(const std::string& name) const
 {
   std::shared_ptr<Link> ptr;
@@ -116,7 +116,7 @@ std::shared_ptr<Link> Model::getLink(const std::string& name) const
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::shared_ptr<Joint> Model::getJoint(const std::string& name) const
 {
   std::shared_ptr<Joint> ptr;
@@ -129,14 +129,14 @@ std::shared_ptr<Joint> Model::getJoint(const std::string& name) const
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 const std::string& Model::getName() const
 {
   return name_;
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::vector<std::shared_ptr<Link> > Model::getLinks() const
 {
   std::vector<std::shared_ptr<Link> > links;
@@ -149,21 +149,21 @@ std::vector<std::shared_ptr<Link> > Model::getLinks() const
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::size_t Model::getNumLinks() const
 {
   return links_.size();
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::size_t Model::getNumJoints() const
 {
   return joints_.size();
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 std::size_t Model::getNumDofs() const
 {
   std::size_t dof = 0;
@@ -176,21 +176,21 @@ std::size_t Model::getNumDofs() const
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void Model::addLink(const std::shared_ptr<Link>& link)
 {
   links_[link->getName()] = link;
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void Model::addJoint(const std::shared_ptr<Joint>& joint)
 {
   joints_[joint->getName()] = joint;
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void Model::initRoot(const std::map<std::string, std::string>& link_parent_tree)
 {
   root_link_.reset();
@@ -217,7 +217,7 @@ void Model::initRoot(const std::map<std::string, std::string>& link_parent_tree)
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 void Model::initTree(std::map<std::string, std::string>& link_parent_tree)
 {
   for(std::map<std::string, std::shared_ptr<Joint> >::iterator it = joints_.begin(); it != joints_.end(); ++it)

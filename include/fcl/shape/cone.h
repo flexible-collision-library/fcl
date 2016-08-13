@@ -46,40 +46,40 @@ namespace fcl
 {
 
 /// @brief Center at zero cone 
-template <typename ScalarT>
-class Cone : public ShapeBase<ScalarT>
+template <typename S_>
+class Cone : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
-  Cone(ScalarT radius, ScalarT lz);
+  Cone(S radius, S lz);
 
   /// @brief Radius of the cone 
-  ScalarT radius;
+  S radius;
 
   /// @brief Length along z axis 
-  ScalarT lz;
+  S lz;
 
-  /// @brief Compute AABB<ScalarT>
+  /// @brief Compute AABB<S>
   void computeLocalAABB() override;
 
   /// @brief Get node type: a cone 
   NODE_TYPE getNodeType() const override;
 
   // Documentation inherited
-  ScalarT computeVolume() const override;
+  S computeVolume() const override;
 
   // Documentation inherited
-  Matrix3<ScalarT> computeMomentofInertia() const override;
+  Matrix3<S> computeMomentofInertia() const override;
 
   // Documentation inherited
-  Vector3<ScalarT> computeCOM() const override;
+  Vector3<S> computeCOM() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(
+      const Transform3<S>& tf) const;
 };
 
 using Conef = Cone<float>;
@@ -92,74 +92,74 @@ using Coned = Cone<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Cone<ScalarT>::Cone(ScalarT radius, ScalarT lz)
-  : ShapeBase<ScalarT>(), radius(radius), lz(lz)
+template <typename S>
+Cone<S>::Cone(S radius, S lz)
+  : ShapeBase<S>(), radius(radius), lz(lz)
 {
   // Do nothing
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Cone<ScalarT>::computeLocalAABB()
+template <typename S>
+void Cone<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Cone<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Cone<S>::getNodeType() const
 {
   return GEOM_CONE;
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Cone<ScalarT>::computeVolume() const
+template <typename S>
+S Cone<S>::computeVolume() const
 {
-  return constants<Scalar>::pi() * radius * radius * lz / 3;
+  return constants<S>::pi() * radius * radius * lz / 3;
 }
 
 //==============================================================================
-template <typename ScalarT>
-Matrix3<ScalarT> Cone<ScalarT>::computeMomentofInertia() const
+template <typename S>
+Matrix3<S> Cone<S>::computeMomentofInertia() const
 {
-  ScalarT V = computeVolume();
-  ScalarT ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
-  ScalarT iz = 0.3 * V * radius * radius;
+  S V = computeVolume();
+  S ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
+  S iz = 0.3 * V * radius * radius;
 
-  return Vector3<ScalarT>(ix, ix, iz).asDiagonal();
+  return Vector3<S>(ix, ix, iz).asDiagonal();
 }
 
 //==============================================================================
-template <typename ScalarT>
-Vector3<ScalarT> Cone<ScalarT>::computeCOM() const
+template <typename S>
+Vector3<S> Cone<S>::computeCOM() const
 {
-  return Vector3<ScalarT>(0, 0, -0.25 * lz);
+  return Vector3<S>(0, 0, -0.25 * lz);
 }
 
 //==============================================================================
-template <typename ScalarT>
-std::vector<Vector3<ScalarT>> Cone<ScalarT>::getBoundVertices(
-    const Transform3<ScalarT>& tf) const
+template <typename S>
+std::vector<Vector3<S>> Cone<S>::getBoundVertices(
+    const Transform3<S>& tf) const
 {
-  std::vector<Vector3<ScalarT>> result(7);
+  std::vector<Vector3<S>> result(7);
 
   auto hl = lz * 0.5;
   auto r2 = radius * 2 / std::sqrt(3.0);
   auto a = 0.5 * r2;
   auto b = radius;
 
-  result[0] = tf * Vector3<ScalarT>(r2, 0, -hl);
-  result[1] = tf * Vector3<ScalarT>(a, b, -hl);
-  result[2] = tf * Vector3<ScalarT>(-a, b, -hl);
-  result[3] = tf * Vector3<ScalarT>(-r2, 0, -hl);
-  result[4] = tf * Vector3<ScalarT>(-a, -b, -hl);
-  result[5] = tf * Vector3<ScalarT>(a, -b, -hl);
+  result[0] = tf * Vector3<S>(r2, 0, -hl);
+  result[1] = tf * Vector3<S>(a, b, -hl);
+  result[2] = tf * Vector3<S>(-a, b, -hl);
+  result[3] = tf * Vector3<S>(-r2, 0, -hl);
+  result[4] = tf * Vector3<S>(-a, -b, -hl);
+  result[5] = tf * Vector3<S>(a, -b, -hl);
 
-  result[6] = tf * Vector3<ScalarT>(0, 0, hl);
+  result[6] = tf * Vector3<S>(0, 0, hl);
 
   return result;
 }

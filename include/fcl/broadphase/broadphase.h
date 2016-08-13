@@ -52,21 +52,21 @@ namespace fcl
 
 /// @brief Callback for collision between two objects. Return value is whether
 /// can stop now.
-template <typename Scalar>
+template <typename S>
 using CollisionCallBack = bool (*)(
-    CollisionObject<Scalar>* o1, CollisionObject<Scalar>* o2, void* cdata);
+    CollisionObject<S>* o1, CollisionObject<S>* o2, void* cdata);
 
 /// @brief Callback for distance between two objects, Return value is whether
 /// can stop now, also return the minimum distance till now.
-template <typename Scalar>
+template <typename S>
 using DistanceCallBack = bool (*)(
-    CollisionObject<Scalar>* o1,
-    CollisionObject<Scalar>* o2, void* cdata, Scalar& dist);
+    CollisionObject<S>* o1,
+    CollisionObject<S>* o2, void* cdata, S& dist);
 
 /// @brief Base class for broad phase collision. It helps to accelerate the
 /// collision/distance between N objects. Also support self collision, self
 /// distance and collision/distance with another M objects.
-template <typename Scalar>
+template <typename S>
 class BroadPhaseCollisionManager
 {
 public:
@@ -77,17 +77,17 @@ public:
   virtual ~BroadPhaseCollisionManager() {}
 
   /// @brief add objects to the manager
-  virtual void registerObjects(const std::vector<CollisionObject<Scalar>*>& other_objs)
+  virtual void registerObjects(const std::vector<CollisionObject<S>*>& other_objs)
   {
     for(size_t i = 0; i < other_objs.size(); ++i)
       registerObject(other_objs[i]);
   }
 
   /// @brief add one object to the manager
-  virtual void registerObject(CollisionObject<Scalar>* obj) = 0;
+  virtual void registerObject(CollisionObject<S>* obj) = 0;
 
   /// @brief remove one object from the manager
-  virtual void unregisterObject(CollisionObject<Scalar>* obj) = 0;
+  virtual void unregisterObject(CollisionObject<S>* obj) = 0;
 
   /// @brief initialize the manager, related with the specific type of manager
   virtual void setup() = 0;
@@ -96,13 +96,13 @@ public:
   virtual void update() = 0;
 
   /// @brief update the manager by explicitly given the object updated
-  virtual void update(CollisionObject<Scalar>* updated_obj)
+  virtual void update(CollisionObject<S>* updated_obj)
   {
     update();
   }
 
   /// @brief update the manager by explicitly given the set of objects update
-  virtual void update(const std::vector<CollisionObject<Scalar>*>& updated_objs)
+  virtual void update(const std::vector<CollisionObject<S>*>& updated_objs)
   {
     update();
   }
@@ -111,25 +111,25 @@ public:
   virtual void clear() = 0;
 
   /// @brief return the objects managed by the manager
-  virtual void getObjects(std::vector<CollisionObject<Scalar>*>& objs) const = 0;
+  virtual void getObjects(std::vector<CollisionObject<S>*>& objs) const = 0;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  virtual void collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const = 0;
+  virtual void collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const = 0;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  virtual void distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const = 0;
+  virtual void distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const = 0;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  virtual void collide(void* cdata, CollisionCallBack<Scalar> callback) const = 0;
+  virtual void collide(void* cdata, CollisionCallBack<S> callback) const = 0;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  virtual void distance(void* cdata, DistanceCallBack<Scalar> callback) const = 0;
+  virtual void distance(void* cdata, DistanceCallBack<S> callback) const = 0;
 
   /// @brief perform collision test with objects belonging to another manager
-  virtual void collide(BroadPhaseCollisionManager* other_manager, void* cdata, CollisionCallBack<Scalar> callback) const = 0;
+  virtual void collide(BroadPhaseCollisionManager* other_manager, void* cdata, CollisionCallBack<S> callback) const = 0;
 
   /// @brief perform distance test with objects belonging to another manager
-  virtual void distance(BroadPhaseCollisionManager* other_manager, void* cdata, DistanceCallBack<Scalar> callback) const = 0;
+  virtual void distance(BroadPhaseCollisionManager* other_manager, void* cdata, DistanceCallBack<S> callback) const = 0;
 
   /// @brief whether the manager is empty
   virtual bool empty() const = 0;
@@ -140,16 +140,16 @@ public:
 protected:
 
   /// @brief tools help to avoid repeating collision or distance callback for the pairs of objects tested before. It can be useful for some of the broadphase algorithms.
-  mutable std::set<std::pair<CollisionObject<Scalar>*, CollisionObject<Scalar>*> > tested_set;
+  mutable std::set<std::pair<CollisionObject<S>*, CollisionObject<S>*> > tested_set;
   mutable bool enable_tested_set_;
 
-  bool inTestedSet(CollisionObject<Scalar>* a, CollisionObject<Scalar>* b) const
+  bool inTestedSet(CollisionObject<S>* a, CollisionObject<S>* b) const
   {
     if(a < b) return tested_set.find(std::make_pair(a, b)) != tested_set.end();
     else return tested_set.find(std::make_pair(b, a)) != tested_set.end();
   }
 
-  void insertTestedSet(CollisionObject<Scalar>* a, CollisionObject<Scalar>* b) const
+  void insertTestedSet(CollisionObject<S>* a, CollisionObject<S>* b) const
   {
     if(a < b) tested_set.insert(std::make_pair(a, b));
     else tested_set.insert(std::make_pair(b, a));
@@ -162,22 +162,22 @@ using BroadPhaseCollisionManagerd = BroadPhaseCollisionManager<double>;
 
 /// @brief Callback for continuous collision between two objects. Return value
 /// is whether can stop now.
-template <typename Scalar>
+template <typename S>
 using ContinuousCollisionCallBack = bool (*)(
-    ContinuousCollisionObject<Scalar>* o1,
-    ContinuousCollisionObject<Scalar>* o2, void* cdata);
+    ContinuousCollisionObject<S>* o1,
+    ContinuousCollisionObject<S>* o2, void* cdata);
 
 /// @brief Callback for continuous distance between two objects, Return value is
 /// whether can stop now, also return the minimum distance till now.
-template <typename Scalar>
+template <typename S>
 using ContinuousDistanceCallBack = bool (*)(
-    ContinuousCollisionObject<Scalar>* o1,
-    ContinuousCollisionObject<Scalar>* o2, void* cdata, Scalar& dist);
+    ContinuousCollisionObject<S>* o1,
+    ContinuousCollisionObject<S>* o2, void* cdata, S& dist);
 
 /// @brief Base class for broad phase continuous collision. It helps to
 /// accelerate the continuous collision/distance between N objects. Also support
 /// self collision, self distance and collision/distance with another M objects.
-template <typename Scalar>
+template <typename S>
 class BroadPhaseContinuousCollisionManager
 {
 public:
@@ -188,17 +188,17 @@ public:
   virtual ~BroadPhaseContinuousCollisionManager() {}
 
   /// @brief add objects to the manager
-  virtual void registerObjects(const std::vector<ContinuousCollisionObject<Scalar>*>& other_objs)
+  virtual void registerObjects(const std::vector<ContinuousCollisionObject<S>*>& other_objs)
   {
     for(size_t i = 0; i < other_objs.size(); ++i)
       registerObject(other_objs[i]);
   }
 
   /// @brief add one object to the manager
-  virtual void registerObject(ContinuousCollisionObject<Scalar>* obj) = 0;
+  virtual void registerObject(ContinuousCollisionObject<S>* obj) = 0;
 
   /// @brief remove one object from the manager
-  virtual void unregisterObject(ContinuousCollisionObject<Scalar>* obj) = 0;
+  virtual void unregisterObject(ContinuousCollisionObject<S>* obj) = 0;
 
   /// @brief initialize the manager, related with the specific type of manager
   virtual void setup() = 0;
@@ -207,13 +207,13 @@ public:
   virtual void update() = 0;
 
   /// @brief update the manager by explicitly given the object updated
-  virtual void update(ContinuousCollisionObject<Scalar>* updated_obj)
+  virtual void update(ContinuousCollisionObject<S>* updated_obj)
   {
     update();
   }
 
   /// @brief update the manager by explicitly given the set of objects update
-  virtual void update(const std::vector<ContinuousCollisionObject<Scalar>*>& updated_objs)
+  virtual void update(const std::vector<ContinuousCollisionObject<S>*>& updated_objs)
   {
     update();
   }
@@ -222,25 +222,25 @@ public:
   virtual void clear() = 0;
 
   /// @brief return the objects managed by the manager
-  virtual void getObjects(std::vector<ContinuousCollisionObject<Scalar>*>& objs) const = 0;
+  virtual void getObjects(std::vector<ContinuousCollisionObject<S>*>& objs) const = 0;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  virtual void collide(ContinuousCollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const = 0;
+  virtual void collide(ContinuousCollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const = 0;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  virtual void distance(ContinuousCollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const = 0;
+  virtual void distance(ContinuousCollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const = 0;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  virtual void collide(void* cdata, CollisionCallBack<Scalar> callback) const = 0;
+  virtual void collide(void* cdata, CollisionCallBack<S> callback) const = 0;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  virtual void distance(void* cdata, DistanceCallBack<Scalar> callback) const = 0;
+  virtual void distance(void* cdata, DistanceCallBack<S> callback) const = 0;
 
   /// @brief perform collision test with objects belonging to another manager
-  virtual void collide(BroadPhaseContinuousCollisionManager<Scalar>* other_manager, void* cdata, CollisionCallBack<Scalar> callback) const = 0;
+  virtual void collide(BroadPhaseContinuousCollisionManager<S>* other_manager, void* cdata, CollisionCallBack<S> callback) const = 0;
 
   /// @brief perform distance test with objects belonging to another manager
-  virtual void distance(BroadPhaseContinuousCollisionManager<Scalar>* other_manager, void* cdata, DistanceCallBack<Scalar> callback) const = 0;
+  virtual void distance(BroadPhaseContinuousCollisionManager<S>* other_manager, void* cdata, DistanceCallBack<S> callback) const = 0;
 
   /// @brief whether the manager is empty
   virtual bool empty() const = 0;

@@ -35,90 +35,39 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_BROAD_PHASE_SPATIAL_HASH_H
-#define FCL_BROAD_PHASE_SPATIAL_HASH_H
+#ifndef FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
+#define FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
 
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/hash.h"
-#include "fcl/BV/AABB.h"
 #include <list>
 #include <map>
+#include "fcl/BV/AABB.h"
+#include "fcl/broadphase/broadphase.h"
+#include "fcl/broadphase/simple_hash_table.h"
+#include "fcl/broadphase/spatial_hash.h"
 
 namespace fcl
 {
 
-/// @brief Spatial hash function: hash an AABB to a set of integer values
-template <typename Scalar>
-struct SpatialHash
-{
-  SpatialHash(const AABB<Scalar>& scene_limit_, Scalar cell_size_) : cell_size(cell_size_),
-                                                               scene_limit(scene_limit_)
-  {
-    width[0] = std::ceil(scene_limit.width() / cell_size);
-    width[1] = std::ceil(scene_limit.height() / cell_size);
-    width[2] = std::ceil(scene_limit.depth() / cell_size);
-  }
-    
-  std::vector<unsigned int> operator() (const AABB<Scalar>& aabb) const
-  {
-    int min_x = std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size);
-    int max_x = std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size);
-    int min_y = std::floor((aabb.min_[1] - scene_limit.min_[1]) / cell_size);
-    int max_y = std::ceil((aabb.max_[1] - scene_limit.min_[1]) / cell_size);
-    int min_z = std::floor((aabb.min_[2] - scene_limit.min_[2]) / cell_size);
-    int max_z = std::ceil((aabb.max_[2] - scene_limit.min_[2]) / cell_size);
-
-    std::vector<unsigned int> keys((max_x - min_x) * (max_y - min_y) * (max_z - min_z));
-    int id = 0;
-    for(int x = min_x; x < max_x; ++x)
-    {
-      for(int y = min_y; y < max_y; ++y)
-      {
-        for(int z = min_z; z < max_z; ++z)
-        {
-          keys[id++] = x + y * width[0] + z * width[0] * width[1];
-        }
-      }
-    }
-    return keys;
-  }
-
-private:
-
-  Scalar cell_size;
-  AABB<Scalar> scene_limit;
-  unsigned int width[3];
-};
-
-using SpatialHashf = SpatialHash<float>;
-using SpatialHashd = SpatialHash<double>;
-
 /// @brief spatial hashing collision mananger
-template<typename Scalar, typename HashTable = SimpleHashTable<AABB<Scalar>, CollisionObject<Scalar>*, SpatialHash<Scalar>> >
-class SpatialHashingCollisionManager : public BroadPhaseCollisionManager<Scalar>
+template<typename S,
+         typename HashTable
+             = SimpleHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >
+class SpatialHashingCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   SpatialHashingCollisionManager(
-      Scalar cell_size,
-      const Vector3<Scalar>& scene_min,
-      const Vector3<Scalar>& scene_max,
-      unsigned int default_table_size = 1000)
-    : scene_limit(AABB<Scalar>(scene_min, scene_max)),
-      hash_table(new HashTable(SpatialHash<Scalar>(scene_limit, cell_size)))
-  {
-    hash_table->init(default_table_size);
-  }
+      S cell_size,
+      const Vector3<S>& scene_min,
+      const Vector3<S>& scene_max,
+      unsigned int default_table_size = 1000);
 
-  ~SpatialHashingCollisionManager()
-  {
-    delete hash_table;
-  }
+  ~SpatialHashingCollisionManager();
 
   /// @brief add one object to the manager
-  void registerObject(CollisionObject<Scalar>* obj);
+  void registerObject(CollisionObject<S>* obj);
 
   /// @brief remove one object from the manager
-  void unregisterObject(CollisionObject<Scalar>* obj);
+  void unregisterObject(CollisionObject<S>* obj);
 
   /// @brief initialize the manager, related with the specific type of manager
   void setup();
@@ -127,34 +76,34 @@ public:
   void update();
 
   /// @brief update the manager by explicitly given the object updated
-  void update(CollisionObject<Scalar>* updated_obj);
+  void update(CollisionObject<S>* updated_obj);
 
   /// @brief update the manager by explicitly given the set of objects update
-  void update(const std::vector<CollisionObject<Scalar>*>& updated_objs);
+  void update(const std::vector<CollisionObject<S>*>& updated_objs);
 
   /// @brief clear the manager
   void clear();
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObject<Scalar>*>& objs) const;
+  void getObjects(std::vector<CollisionObject<S>*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging ot the manager
-  void distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e, N^2 self collision)
-  void collide(void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(BroadPhaseCollisionManager<S>* other_manager, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager<Scalar>* other_manager, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(BroadPhaseCollisionManager<S>* other_manager, void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief whether the manager is empty
   bool empty() const;
@@ -163,39 +112,51 @@ public:
   size_t size() const;
 
   /// @brief compute the bound for the environent
-  static void computeBound(std::vector<CollisionObject<Scalar>*>& objs, Vector3<Scalar>& l, Vector3<Scalar>& u)
-  {
-    AABB<Scalar> bound;
-    for(unsigned int i = 0; i < objs.size(); ++i)
-      bound += objs[i]->getAABB();
-    
-    l = bound.min_;
-    u = bound.max_;
-  }
+  static void computeBound(std::vector<CollisionObject<S>*>& objs, Vector3<S>& l, Vector3<S>& u);
 
 protected:
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  bool collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  bool collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging ot the manager
-  bool distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const;
-
+  bool distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
   /// @brief all objects in the scene
-  std::list<CollisionObject<Scalar>*> objs;
+  std::list<CollisionObject<S>*> objs;
+
+  /// @brief objects partially penetrating (not totally inside nor outside) the
+  /// scene limit are in another list
+  std::list<CollisionObject<S>*> objs_partially_penetrating_scene_limit;
 
   /// @brief objects outside the scene limit are in another list
-  std::list<CollisionObject<Scalar>*> objs_outside_scene_limit;
+  std::list<CollisionObject<S>*> objs_outside_scene_limit;
 
   /// @brief the size of the scene
-  AABB<Scalar> scene_limit;
+  AABB<S> scene_limit;
 
   /// @brief store the map between objects and their aabbs. will make update more convenient
-  std::map<CollisionObject<Scalar>*, AABB<Scalar>> obj_aabb_map;
+  std::map<CollisionObject<S>*, AABB<S>> obj_aabb_map;
 
   /// @brief objects in the scene limit (given by scene_min and scene_max) are in the spatial hash table
   HashTable* hash_table;
+
+private:
+
+  enum ObjectStatus
+  {
+    Inside,
+    PartiallyPenetrating,
+    Outside
+  };
+
+  template <typename Container>
+  bool distanceObjectToObjects(
+      CollisionObject<S>* obj,
+      const Container& objs,
+      void* cdata,
+      DistanceCallBack<S> callback,
+      S& min_dist) const;
 
 };
 
@@ -212,119 +173,236 @@ using SpatialHashingCollisionManagerd = SpatialHashingCollisionManager<double, H
 //============================================================================//
 
 //==============================================================================
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::registerObject(CollisionObject<Scalar>* obj)
+template<typename S, typename HashTable>
+SpatialHashingCollisionManager<S, HashTable>::SpatialHashingCollisionManager(
+    S cell_size,
+    const Vector3<S>& scene_min,
+    const Vector3<S>& scene_max,
+    unsigned int default_table_size)
+  : scene_limit(AABB<S>(scene_min, scene_max)),
+    hash_table(new HashTable(SpatialHash<S>(scene_limit, cell_size)))
+{
+  hash_table->init(default_table_size);
+}
+
+//==============================================================================
+template<typename S, typename HashTable>
+SpatialHashingCollisionManager<S, HashTable>::~SpatialHashingCollisionManager()
+{
+  delete hash_table;
+}
+
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::registerObject(
+    CollisionObject<S>* obj)
 {
   objs.push_back(obj);
 
-  const AABB<Scalar>& obj_aabb = obj->getAABB();
-  AABB<Scalar> overlap_aabb;
+  const AABB<S>& obj_aabb = obj->getAABB();
+  AABB<S> overlap_aabb;
 
   if(scene_limit.overlap(obj_aabb, overlap_aabb))
   {
     if(!scene_limit.contain(obj_aabb))
-      objs_outside_scene_limit.push_back(obj);
+      objs_partially_penetrating_scene_limit.push_back(obj);
 
     hash_table->insert(overlap_aabb, obj);
   }
   else
+  {
     objs_outside_scene_limit.push_back(obj);
+  }
 
   obj_aabb_map[obj] = obj_aabb;
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::unregisterObject(CollisionObject<Scalar>* obj)
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::unregisterObject(CollisionObject<S>* obj)
 {
   objs.remove(obj);
 
-  const AABB<Scalar>& obj_aabb = obj->getAABB();
-  AABB<Scalar> overlap_aabb;
+  const AABB<S>& obj_aabb = obj->getAABB();
+  AABB<S> overlap_aabb;
 
   if(scene_limit.overlap(obj_aabb, overlap_aabb))
   {
     if(!scene_limit.contain(obj_aabb))
-      objs_outside_scene_limit.remove(obj);
+      objs_partially_penetrating_scene_limit.remove(obj);
 
     hash_table->remove(overlap_aabb, obj);
   }
   else
+  {
     objs_outside_scene_limit.remove(obj);
+  }
 
   obj_aabb_map.erase(obj);
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::setup()
-{}
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::setup()
+{
+  // Do nothing
+}
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::update()
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::update()
 {
   hash_table->clear();
+  objs_partially_penetrating_scene_limit.clear();
   objs_outside_scene_limit.clear();
 
   for(auto it = objs.cbegin(), end = objs.cend(); it != end; ++it)
   {
-    CollisionObject<Scalar>* obj = *it;
-    const AABB<Scalar>& obj_aabb = obj->getAABB();
-    AABB<Scalar> overlap_aabb;
+    CollisionObject<S>* obj = *it;
+    const AABB<S>& obj_aabb = obj->getAABB();
+    AABB<S> overlap_aabb;
 
     if(scene_limit.overlap(obj_aabb, overlap_aabb))
     {
       if(!scene_limit.contain(obj_aabb))
-        objs_outside_scene_limit.push_back(obj);
+        objs_partially_penetrating_scene_limit.push_back(obj);
 
       hash_table->insert(overlap_aabb, obj);
     }
     else
+    {
       objs_outside_scene_limit.push_back(obj);
+    }
 
     obj_aabb_map[obj] = obj_aabb;
   }
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::update(CollisionObject<Scalar>* updated_obj)
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::update(CollisionObject<S>* updated_obj)
 {
-  const AABB<Scalar>& new_aabb = updated_obj->getAABB();
-  const AABB<Scalar>& old_aabb = obj_aabb_map[updated_obj];
+  const AABB<S>& new_aabb = updated_obj->getAABB();
+  const AABB<S>& old_aabb = obj_aabb_map[updated_obj];
 
-  if(!scene_limit.contain(old_aabb)) // previously not completely in scene limit
+  AABB<S> old_overlap_aabb;
+  const auto is_old_aabb_overlapping
+      = scene_limit.overlap(old_aabb, old_overlap_aabb);
+  if(is_old_aabb_overlapping)
+    hash_table->remove(old_overlap_aabb, updated_obj);
+
+  AABB<S> new_overlap_aabb;
+  const auto is_new_aabb_overlapping
+      = scene_limit.overlap(new_aabb, new_overlap_aabb);
+  if(is_new_aabb_overlapping)
+    hash_table->insert(new_overlap_aabb, updated_obj);
+
+  ObjectStatus old_status;
+  if(is_old_aabb_overlapping)
+  {
+    if(scene_limit.contain(old_aabb))
+      old_status = Inside;
+    else
+      old_status = PartiallyPenetrating;
+  }
+  else
+  {
+    old_status = Outside;
+  }
+
+  if(is_new_aabb_overlapping)
   {
     if(scene_limit.contain(new_aabb))
     {
-      auto find_it = std::find(objs_outside_scene_limit.begin(),
-                               objs_outside_scene_limit.end(),
-                               updated_obj);
+      if (old_status == PartiallyPenetrating)
+      {
+        // Status change: PartiallyPenetrating --> Inside
+        // Required action(s):
+        // - remove object from "objs_partially_penetrating_scene_limit"
 
-      objs_outside_scene_limit.erase(find_it);
+        auto find_it = std::find(objs_partially_penetrating_scene_limit.begin(),
+                                 objs_partially_penetrating_scene_limit.end(),
+                                 updated_obj);
+        objs_partially_penetrating_scene_limit.erase(find_it);
+      }
+      else if (old_status == Outside)
+      {
+        // Status change: Outside --> Inside
+        // Required action(s):
+        // - remove object from "objs_outside_scene_limit"
+
+        auto find_it = std::find(objs_outside_scene_limit.begin(),
+                                 objs_outside_scene_limit.end(),
+                                 updated_obj);
+        objs_outside_scene_limit.erase(find_it);
+      }
+    }
+    else
+    {
+      if (old_status == Inside)
+      {
+        // Status change: Inside --> PartiallyPenetrating
+        // Required action(s):
+        // - add object to "objs_partially_penetrating_scene_limit"
+
+        objs_partially_penetrating_scene_limit.push_back(updated_obj);
+      }
+      else if (old_status == Outside)
+      {
+        // Status change: Outside --> PartiallyPenetrating
+        // Required action(s):
+        // - remove object from "objs_outside_scene_limit"
+        // - add object to "objs_partially_penetrating_scene_limit"
+
+        auto find_it = std::find(objs_outside_scene_limit.begin(),
+                                 objs_outside_scene_limit.end(),
+                                 updated_obj);
+        objs_outside_scene_limit.erase(find_it);
+
+        objs_partially_penetrating_scene_limit.push_back(updated_obj);
+      }
     }
   }
-  else if(!scene_limit.contain(new_aabb)) // previous completely in scenelimit, now not
-    objs_outside_scene_limit.push_back(updated_obj);
+  else
+  {
+    if (old_status == Inside)
+    {
+      // Status change: Inside --> Outside
+      // Required action(s):
+      // - add object to "objs_outside_scene_limit"
 
-  AABB<Scalar> old_overlap_aabb;
-  if(scene_limit.overlap(old_aabb, old_overlap_aabb))
-    hash_table->remove(old_overlap_aabb, updated_obj);
+      objs_outside_scene_limit.push_back(updated_obj);
+    }
+    else if (old_status == PartiallyPenetrating)
+    {
+      // Status change: PartiallyPenetrating --> Outside
+      // Required action(s):
+      // - remove object from "objs_partially_penetrating_scene_limit"
+      // - add object to "objs_outside_scene_limit"
 
-  AABB<Scalar> new_overlap_aabb;
-  if(scene_limit.overlap(new_aabb, new_overlap_aabb))
-    hash_table->insert(new_overlap_aabb, updated_obj);
+      auto find_it = std::find(objs_partially_penetrating_scene_limit.begin(),
+                               objs_partially_penetrating_scene_limit.end(),
+                               updated_obj);
+      objs_partially_penetrating_scene_limit.erase(find_it);
+
+      objs_outside_scene_limit.push_back(updated_obj);
+    }
+  }
 
   obj_aabb_map[updated_obj] = new_aabb;
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::update(const std::vector<CollisionObject<Scalar>*>& updated_objs)
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::update(const std::vector<CollisionObject<S>*>& updated_objs)
 {
   for(size_t i = 0; i < updated_objs.size(); ++i)
     update(updated_objs[i]);
 }
 
-
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::clear()
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::clear()
 {
   objs.clear();
   hash_table->clear();
@@ -332,82 +410,104 @@ void SpatialHashingCollisionManager<Scalar, HashTable>::clear()
   obj_aabb_map.clear();
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::getObjects(std::vector<CollisionObject<Scalar>*>& objs_) const
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::getObjects(std::vector<CollisionObject<S>*>& objs_) const
 {
   objs_.resize(objs.size());
   std::copy(objs.begin(), objs.end(), objs_.begin());
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
   collide_(obj, cdata, callback);
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
   distance_(obj, cdata, callback, min_dist);
 }
 
-template<typename Scalar, typename HashTable>
-bool SpatialHashingCollisionManager<Scalar, HashTable>::collide_(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+//==============================================================================
+template<typename S, typename HashTable>
+bool SpatialHashingCollisionManager<S, HashTable>::collide_(
+    CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
-  const AABB<Scalar>& obj_aabb = obj->getAABB();
-  AABB<Scalar> overlap_aabb;
+  const auto& obj_aabb = obj->getAABB();
+  AABB<S> overlap_aabb;
 
   if(scene_limit.overlap(obj_aabb, overlap_aabb))
   {
-    if(!scene_limit.contain(obj_aabb))
+    const auto query_result = hash_table->query(overlap_aabb);
+    for(const auto& obj2 : query_result)
     {
-      for(auto it = objs_outside_scene_limit.cbegin(), end = objs_outside_scene_limit.cend();
-          it != end; ++it)
-      {
-        if(obj == *it) continue;
-        if(callback(obj, *it, cdata)) return true;
-      }
+      if(obj == obj2)
+        continue;
+
+      if(callback(obj, obj2, cdata))
+        return true;
     }
 
-    std::vector<CollisionObject<Scalar>*> query_result = hash_table->query(overlap_aabb);
-    for(unsigned int i = 0; i < query_result.size(); ++i)
+    if(!scene_limit.contain(obj_aabb))
     {
-      if(obj == query_result[i]) continue;
-      if(callback(obj, query_result[i], cdata)) return true;
+      for(const auto& obj2 : objs_outside_scene_limit)
+      {
+        if(obj == obj2)
+          continue;
+
+        if(callback(obj, obj2, cdata))
+          return true;
+      }
     }
   }
   else
   {
-    ;
-    for(auto it = objs_outside_scene_limit.cbegin(), end = objs_outside_scene_limit.cend();
-        it != end; ++it)
+    for(const auto& obj2 : objs_partially_penetrating_scene_limit)
     {
-      if(obj == *it) continue;
-      if(callback(obj, *it, cdata)) return true;
+      if(obj == obj2)
+        continue;
+
+      if(callback(obj, obj2, cdata))
+        return true;
+    }
+
+    for(const auto& obj2 : objs_outside_scene_limit)
+    {
+      if(obj == obj2)
+        continue;
+
+      if(callback(obj, obj2, cdata))
+        return true;
     }
   }
 
   return false;
 }
 
-template<typename Scalar, typename HashTable>
-bool SpatialHashingCollisionManager<Scalar, HashTable>::distance_(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist) const
+//==============================================================================
+template<typename S, typename HashTable>
+bool SpatialHashingCollisionManager<S, HashTable>::distance_(
+    CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const
 {
-  Vector3<Scalar> delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
-  AABB<Scalar> aabb = obj->getAABB();
-  if(min_dist < std::numeric_limits<Scalar>::max())
+  auto delta = (obj->getAABB().max_ - obj->getAABB().min_) * 0.5;
+  auto aabb = obj->getAABB();
+  if(min_dist < std::numeric_limits<S>::max())
   {
-    Vector3<Scalar> min_dist_delta(min_dist, min_dist, min_dist);
+    Vector3<S> min_dist_delta(min_dist, min_dist, min_dist);
     aabb.expand(min_dist_delta);
   }
 
-  AABB<Scalar> overlap_aabb;
+  AABB<S> overlap_aabb;
 
-  int status = 1;
-  Scalar old_min_distance;
+  auto status = 1;
+  S old_min_distance;
 
   while(1)
   {
@@ -415,82 +515,48 @@ bool SpatialHashingCollisionManager<Scalar, HashTable>::distance_(CollisionObjec
 
     if(scene_limit.overlap(aabb, overlap_aabb))
     {
-      if(!scene_limit.contain(aabb))
+      if (distanceObjectToObjects(
+            obj, hash_table->query(overlap_aabb), cdata, callback, min_dist))
       {
-        for(auto it = objs_outside_scene_limit.cbegin(), end = objs_outside_scene_limit.cend();
-            it != end; ++it)
-        {
-          if(obj == *it) continue;
-          if(!this->enable_tested_set_)
-          {
-            if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
-              if(callback(obj, *it, cdata, min_dist)) return true;
-          }
-          else
-          {
-            if(!this->inTestedSet(obj, *it))
-            {
-              if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
-                if(callback(obj, *it, cdata, min_dist)) return true;
-              this->insertTestedSet(obj, *it);
-            }
-          }
-        }
+        return true;
       }
 
-      std::vector<CollisionObject<Scalar>*> query_result = hash_table->query(overlap_aabb);
-      for(unsigned int i = 0; i < query_result.size(); ++i)
+      if(!scene_limit.contain(aabb))
       {
-        if(obj == query_result[i]) continue;
-        if(!this->enable_tested_set_)
+        if (distanceObjectToObjects(
+              obj, objs_outside_scene_limit, cdata, callback, min_dist))
         {
-          if(obj->getAABB().distance(query_result[i]->getAABB()) < min_dist)
-            if(callback(obj, query_result[i], cdata, min_dist)) return true;
-        }
-        else
-        {
-          if(!this->inTestedSet(obj, query_result[i]))
-          {
-            if(obj->getAABB().distance(query_result[i]->getAABB()) < min_dist)
-              if(callback(obj, query_result[i], cdata, min_dist)) return true;
-            this->insertTestedSet(obj, query_result[i]);
-          }
+          return true;
         }
       }
     }
     else
     {
-      for(auto it = objs_outside_scene_limit.cbegin(), end = objs_outside_scene_limit.cend();
-          it != end; ++it)
+      if (distanceObjectToObjects(
+            obj, objs_partially_penetrating_scene_limit, cdata, callback, min_dist))
       {
-        if(obj == *it) continue;
-        if(!this->enable_tested_set_)
-        {
-          if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
-            if(callback(obj, *it, cdata, min_dist)) return true;
-        }
-        else
-        {
-          if(!this->inTestedSet(obj, *it))
-          {
-            if(obj->getAABB().distance((*it)->getAABB()) < min_dist)
-              if(callback(obj, *it, cdata, min_dist)) return true;
-            this->insertTestedSet(obj, *it);
-          }
-        }
+        return true;
+      }
+
+      if (distanceObjectToObjects(
+            obj, objs_outside_scene_limit, cdata, callback, min_dist))
+      {
+        return true;
       }
     }
 
     if(status == 1)
     {
-      if(old_min_distance < std::numeric_limits<Scalar>::max())
+      if(old_min_distance < std::numeric_limits<S>::max())
+      {
         break;
+      }
       else
       {
         if(min_dist < old_min_distance)
         {
-          Vector3<Scalar> min_dist_delta(min_dist, min_dist, min_dist);
-          aabb = AABB<Scalar>(obj->getAABB(), min_dist_delta);
+          Vector3<S> min_dist_delta(min_dist, min_dist, min_dist);
+          aabb = AABB<S>(obj->getAABB(), min_dist_delta);
           status = 0;
         }
         else
@@ -503,73 +569,105 @@ bool SpatialHashingCollisionManager<Scalar, HashTable>::distance_(CollisionObjec
       }
     }
     else if(status == 0)
+    {
       break;
+    }
   }
 
   return false;
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::collide(void* cdata, CollisionCallBack<Scalar> callback) const
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::collide(
+    void* cdata, CollisionCallBack<S> callback) const
 {
-  if(size() == 0) return;
+  if(size() == 0)
+    return;
 
-  for(auto it1 = objs.cbegin(), end1 = objs.cend(); it1 != end1; ++it1)
+  for(const auto& obj1 : objs)
   {
-    const AABB<Scalar>& obj_aabb = (*it1)->getAABB();
-    AABB<Scalar> overlap_aabb;
+    const auto& obj_aabb = obj1->getAABB();
+    AABB<S> overlap_aabb;
 
     if(scene_limit.overlap(obj_aabb, overlap_aabb))
     {
-      if(!scene_limit.contain(obj_aabb))
+      auto query_result = hash_table->query(overlap_aabb);
+      for(const auto& obj2 : query_result)
       {
-        for(auto it2 = objs_outside_scene_limit.cbegin(), end2 = objs_outside_scene_limit.cend();
-            it2 != end2; ++it2)
+        if(obj1 < obj2)
         {
-          if(*it1 < *it2) { if(callback(*it1, *it2, cdata)) return; }
+          if(callback(obj1, obj2, cdata))
+            return;
         }
       }
 
-      std::vector<CollisionObject<Scalar>*> query_result = hash_table->query(overlap_aabb);
-      for(unsigned int i = 0; i < query_result.size(); ++i)
+      if(!scene_limit.contain(obj_aabb))
       {
-        if(*it1 < query_result[i]) { if(callback(*it1, query_result[i], cdata)) return; }
+        for(const auto& obj2 : objs_outside_scene_limit)
+        {
+          if(obj1 < obj2)
+          {
+            if(callback(obj1, obj2, cdata))
+              return;
+          }
+        }
       }
     }
     else
     {
-      for(auto it2 = objs_outside_scene_limit.cbegin(), end2 = objs_outside_scene_limit.cend();
-          it2 != end2; ++it2)
+      for(const auto& obj2 : objs_partially_penetrating_scene_limit)
       {
-        if(*it1 < *it2) { if(callback(*it1, *it2, cdata)) return; }
+        if(obj1 < obj2)
+        {
+          if(callback(obj1, obj2, cdata))
+            return;
+        }
+      }
+
+      for(const auto& obj2 : objs_outside_scene_limit)
+      {
+        if(obj1 < obj2)
+        {
+          if(callback(obj1, obj2, cdata))
+            return;
+        }
       }
     }
   }
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::distance(void* cdata, DistanceCallBack<Scalar> callback) const
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::distance(
+    void* cdata, DistanceCallBack<S> callback) const
 {
-  if(size() == 0) return;
+  if(size() == 0)
+    return;
 
   this->enable_tested_set_ = true;
   this->tested_set.clear();
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
 
-  for(auto it = objs.cbegin(), end = objs.cend(); it != end; ++it)
-    if(distance_(*it, cdata, callback, min_dist)) break;
+  for(const auto& obj : objs)
+  {
+    if(distance_(obj, cdata, callback, min_dist))
+      break;
+  }
 
   this->enable_tested_set_ = false;
   this->tested_set.clear();
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::collide(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, CollisionCallBack<Scalar> callback) const
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::collide(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, CollisionCallBack<S> callback) const
 {
-  auto* other_manager = static_cast<SpatialHashingCollisionManager<Scalar, HashTable>* >(other_manager_);
+  auto* other_manager = static_cast<SpatialHashingCollisionManager<S, HashTable>* >(other_manager_);
 
-  if((size() == 0) || (other_manager->size() == 0)) return;
+  if((size() == 0) || (other_manager->size() == 0))
+    return;
 
   if(this == other_manager)
   {
@@ -579,22 +677,30 @@ void SpatialHashingCollisionManager<Scalar, HashTable>::collide(BroadPhaseCollis
 
   if(this->size() < other_manager->size())
   {
-    for(auto it = objs.cbegin(), end = objs.cend(); it != end; ++it)
-      if(other_manager->collide_(*it, cdata, callback)) return;
+    for(const auto& obj : objs)
+    {
+      if(other_manager->collide_(obj, cdata, callback))
+        return;
+    }
   }
   else
   {
-    for(auto it = other_manager->objs.cbegin(), end = other_manager->objs.cend(); it != end; ++it)
-      if(collide_(*it, cdata, callback)) return;
+    for(const auto& obj : other_manager->objs)
+    {
+      if(collide_(obj, cdata, callback))
+        return;
+    }
   }
 }
 
-template<typename Scalar, typename HashTable>
-void SpatialHashingCollisionManager<Scalar, HashTable>::distance(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, DistanceCallBack<Scalar> callback) const
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const
 {
-  auto* other_manager = static_cast<SpatialHashingCollisionManager<Scalar, HashTable>* >(other_manager_);
+  auto* other_manager = static_cast<SpatialHashingCollisionManager<S, HashTable>* >(other_manager_);
 
-  if((size() == 0) || (other_manager->size() == 0)) return;
+  if((size() == 0) || (other_manager->size() == 0))
+    return;
 
   if(this == other_manager)
   {
@@ -602,30 +708,86 @@ void SpatialHashingCollisionManager<Scalar, HashTable>::distance(BroadPhaseColli
     return;
   }
 
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
 
   if(this->size() < other_manager->size())
   {
-    for(auto it = objs.cbegin(), end = objs.cend(); it != end; ++it)
-      if(other_manager->distance_(*it, cdata, callback, min_dist)) return;
+    for(const auto& obj : objs)
+      if(other_manager->distance_(obj, cdata, callback, min_dist)) return;
   }
   else
   {
-    for(auto it = other_manager->objs.cbegin(), end = other_manager->objs.cend(); it != end; ++it)
-      if(distance_(*it, cdata, callback, min_dist)) return;
+    for(const auto& obj : other_manager->objs)
+      if(distance_(obj, cdata, callback, min_dist)) return;
   }
 }
 
-template<typename Scalar, typename HashTable>
-bool SpatialHashingCollisionManager<Scalar, HashTable>::empty() const
+//==============================================================================
+template<typename S, typename HashTable>
+bool SpatialHashingCollisionManager<S, HashTable>::empty() const
 {
   return objs.empty();
 }
 
-template<typename Scalar, typename HashTable>
-size_t SpatialHashingCollisionManager<Scalar, HashTable>::size() const
+//==============================================================================
+template<typename S, typename HashTable>
+size_t SpatialHashingCollisionManager<S, HashTable>::size() const
 {
   return objs.size();
+}
+
+//==============================================================================
+template<typename S, typename HashTable>
+void SpatialHashingCollisionManager<S, HashTable>::computeBound(
+    std::vector<CollisionObject<S>*>& objs, Vector3<S>& l, Vector3<S>& u)
+{
+  AABB<S> bound;
+  for(unsigned int i = 0; i < objs.size(); ++i)
+    bound += objs[i]->getAABB();
+
+  l = bound.min_;
+  u = bound.max_;
+}
+
+//==============================================================================
+template<typename S, typename HashTable>
+template<typename Container>
+bool SpatialHashingCollisionManager<S, HashTable>::distanceObjectToObjects(
+    CollisionObject<S>* obj,
+    const Container& objs,
+    void* cdata,
+    DistanceCallBack<S> callback,
+    S& min_dist) const
+{
+  for(auto& obj2 : objs)
+  {
+    if(obj == obj2)
+      continue;
+
+    if(!this->enable_tested_set_)
+    {
+      if(obj->getAABB().distance(obj2->getAABB()) < min_dist)
+      {
+        if(callback(obj, obj2, cdata, min_dist))
+          return true;
+      }
+    }
+    else
+    {
+      if(!this->inTestedSet(obj, obj2))
+      {
+        if(obj->getAABB().distance(obj2->getAABB()) < min_dist)
+        {
+          if(callback(obj, obj2, cdata, min_dist))
+            return true;
+        }
+
+        this->insertTestedSet(obj, obj2);
+      }
+    }
+  }
+
+  return false;
 }
 
 } // namespace fcl

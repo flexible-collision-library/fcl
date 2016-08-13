@@ -46,32 +46,32 @@ namespace fcl
 {
 
 /// @brief Center at zero point sphere
-template <typename ScalarT>
-class Sphere : public ShapeBase<ScalarT>
+template <typename S_>
+class Sphere : public ShapeBase<S_>
 {
 public:
 
-  using Scalar = ScalarT;
+  using S = S_;
 
-  Sphere(ScalarT radius);
+  Sphere(S radius);
 
   /// @brief Radius of the sphere
-  ScalarT radius;
+  S radius;
 
-  /// @brief Compute AABB<ScalarT>
+  /// @brief Compute AABB<S>
   void computeLocalAABB() override;
 
   /// @brief Get node type: a sphere
   NODE_TYPE getNodeType() const override;
 
-  Matrix3<ScalarT> computeMomentofInertia() const override;
+  Matrix3<S> computeMomentofInertia() const override;
 
-  ScalarT computeVolume() const override;
+  S computeVolume() const override;
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<ScalarT>> getBoundVertices(
-      const Transform3<ScalarT>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(
+      const Transform3<S>& tf) const;
 };
 
 using Spheref = Sphere<float>;
@@ -84,67 +84,67 @@ using Sphered = Sphere<double>;
 //============================================================================//
 
 //==============================================================================
-template <typename ScalarT>
-Sphere<ScalarT>::Sphere(ScalarT radius) : ShapeBase<ScalarT>(), radius(radius)
+template <typename S>
+Sphere<S>::Sphere(S radius) : ShapeBase<S>(), radius(radius)
 {
 }
 
 //==============================================================================
-template <typename ScalarT>
-void Sphere<ScalarT>::computeLocalAABB()
+template <typename S>
+void Sphere<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<ScalarT>::Identity(), this->aabb_local);
+  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = radius;
 }
 
 //==============================================================================
-template <typename ScalarT>
-NODE_TYPE Sphere<ScalarT>::getNodeType() const
+template <typename S>
+NODE_TYPE Sphere<S>::getNodeType() const
 {
   return GEOM_SPHERE; }
 
 //==============================================================================
-template <typename ScalarT>
-Matrix3<ScalarT> Sphere<ScalarT>::computeMomentofInertia() const
+template <typename S>
+Matrix3<S> Sphere<S>::computeMomentofInertia() const
 {
-  ScalarT I = (ScalarT)0.4 * radius * radius * computeVolume();
+  S I = (S)0.4 * radius * radius * computeVolume();
 
-  return Vector3<ScalarT>::Constant(I).asDiagonal();
+  return Vector3<S>::Constant(I).asDiagonal();
 }
 
 //==============================================================================
-template <typename ScalarT>
-ScalarT Sphere<ScalarT>::computeVolume() const
+template <typename S>
+S Sphere<S>::computeVolume() const
 {
-  return (ScalarT)4.0 * constants<ScalarT>::pi() * radius * radius * radius / (ScalarT)3.0;
+  return (S)4.0 * constants<S>::pi() * radius * radius * radius / (S)3.0;
 }
 
 //==============================================================================
-template <typename ScalarT>
-std::vector<Vector3<ScalarT>> Sphere<ScalarT>::getBoundVertices(
-    const Transform3<ScalarT>& tf) const
+template <typename S>
+std::vector<Vector3<S>> Sphere<S>::getBoundVertices(
+    const Transform3<S>& tf) const
 {
   // we use icosahedron to bound the sphere
 
-  std::vector<Vector3<ScalarT>> result(12);
+  std::vector<Vector3<S>> result(12);
   const auto m = (1 + std::sqrt(5.0)) / 2.0;
   auto edge_size = radius * 6 / (std::sqrt(27.0) + std::sqrt(15.0));
 
   auto a = edge_size;
   auto b = m * edge_size;
-  result[0] = tf * Vector3<ScalarT>(0, a, b);
-  result[1] = tf * Vector3<ScalarT>(0, -a, b);
-  result[2] = tf * Vector3<ScalarT>(0, a, -b);
-  result[3] = tf * Vector3<ScalarT>(0, -a, -b);
-  result[4] = tf * Vector3<ScalarT>(a, b, 0);
-  result[5] = tf * Vector3<ScalarT>(-a, b, 0);
-  result[6] = tf * Vector3<ScalarT>(a, -b, 0);
-  result[7] = tf * Vector3<ScalarT>(-a, -b, 0);
-  result[8] = tf * Vector3<ScalarT>(b, 0, a);
-  result[9] = tf * Vector3<ScalarT>(b, 0, -a);
-  result[10] = tf * Vector3<ScalarT>(-b, 0, a);
-  result[11] = tf * Vector3<ScalarT>(-b, 0, -a);
+  result[0] = tf * Vector3<S>(0, a, b);
+  result[1] = tf * Vector3<S>(0, -a, b);
+  result[2] = tf * Vector3<S>(0, a, -b);
+  result[3] = tf * Vector3<S>(0, -a, -b);
+  result[4] = tf * Vector3<S>(a, b, 0);
+  result[5] = tf * Vector3<S>(-a, b, 0);
+  result[6] = tf * Vector3<S>(a, -b, 0);
+  result[7] = tf * Vector3<S>(-a, -b, 0);
+  result[8] = tf * Vector3<S>(b, 0, a);
+  result[9] = tf * Vector3<S>(b, 0, -a);
+  result[10] = tf * Vector3<S>(-b, 0, a);
+  result[11] = tf * Vector3<S>(-b, 0, -a);
 
   return result;
 }

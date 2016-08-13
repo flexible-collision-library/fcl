@@ -54,13 +54,13 @@
 namespace fcl
 {
 
-template <typename Scalar>
-class DynamicAABBTreeCollisionManager : public BroadPhaseCollisionManager<Scalar>
+template <typename S>
+class DynamicAABBTreeCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
 
-  using DynamicAABBNode = NodeBase<AABB<Scalar>>;
-  using DynamicAABBTable = std::unordered_map<CollisionObject<Scalar>*, DynamicAABBNode*> ;
+  using DynamicAABBNode = NodeBase<AABB<S>>;
+  using DynamicAABBTable = std::unordered_map<CollisionObject<S>*, DynamicAABBNode*> ;
 
   int max_tree_nonbalanced_level;
   int tree_incremental_balance_pass;
@@ -88,13 +88,13 @@ public:
   }
 
   /// @brief add objects to the manager
-  void registerObjects(const std::vector<CollisionObject<Scalar>*>& other_objs);
+  void registerObjects(const std::vector<CollisionObject<S>*>& other_objs);
   
   /// @brief add one object to the manager
-  void registerObject(CollisionObject<Scalar>* obj);
+  void registerObject(CollisionObject<S>* obj);
 
   /// @brief remove one object from the manager
-  void unregisterObject(CollisionObject<Scalar>* obj);
+  void unregisterObject(CollisionObject<S>* obj);
 
   /// @brief initialize the manager, related with the specific type of manager
   void setup();
@@ -103,10 +103,10 @@ public:
   void update();
 
   /// @brief update the manager by explicitly given the object updated
-  void update(CollisionObject<Scalar>* updated_obj);
+  void update(CollisionObject<S>* updated_obj);
 
   /// @brief update the manager by explicitly given the set of objects update
-  void update(const std::vector<CollisionObject<Scalar>*>& updated_objs);
+  void update(const std::vector<CollisionObject<S>*>& updated_objs);
 
   /// @brief clear the manager
   void clear()
@@ -116,29 +116,29 @@ public:
   }
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObject<Scalar>*>& objs) const
+  void getObjects(std::vector<CollisionObject<S>*>& objs) const
   {
     objs.resize(this->size());
     std::transform(table.begin(), table.end(), objs.begin(), std::bind(&DynamicAABBTable::value_type::first, std::placeholders::_1));
   }
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
-  void collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance computation between one object and all the objects belonging to the manager
-  void distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test for the objects belonging to the manager (i.e., N^2 self collision)
-  void collide(void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test for the objects belonging to the manager (i.e., N^2 self distance)
-  void distance(void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(void* cdata, DistanceCallBack<S> callback) const;
 
   /// @brief perform collision test with objects belonging to another manager
-  void collide(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, CollisionCallBack<Scalar> callback) const;
+  void collide(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, CollisionCallBack<S> callback) const;
 
   /// @brief perform distance test with objects belonging to another manager
-  void distance(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, DistanceCallBack<Scalar> callback) const;
+  void distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const;
   
   /// @brief whether the manager is empty
   bool empty() const
@@ -152,16 +152,16 @@ public:
     return dtree.size();
   }
 
-  const HierarchyTree<AABB<Scalar>>& getTree() const { return dtree; }
+  const HierarchyTree<AABB<S>>& getTree() const { return dtree; }
 
 
 private:
-  HierarchyTree<AABB<Scalar>> dtree;
-  std::unordered_map<CollisionObject<Scalar>*, DynamicAABBNode*> table;
+  HierarchyTree<AABB<S>> dtree;
+  std::unordered_map<CollisionObject<S>*, DynamicAABBNode*> table;
 
   bool setup_;
 
-  void update_(CollisionObject<Scalar>* updated_obj);
+  void update_(CollisionObject<S>* updated_obj);
 };
 
 using DynamicAABBTreeCollisionManagerf = DynamicAABBTreeCollisionManager<float>;
@@ -181,46 +181,46 @@ namespace dynamic_AABB_tree
 
 #if FCL_HAVE_OCTOMAP
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool collisionRecurse_(
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
-    const OcTree<Scalar>* tree2,
-    const typename OcTree<Scalar>::OcTreeNode* root2,
-    const AABB<Scalar>& root2_bv,
-    const Transform3<Scalar>& tf2,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1,
+    const OcTree<S>* tree2,
+    const typename OcTree<S>::OcTreeNode* root2,
+    const AABB<S>& root2_bv,
+    const Transform3<S>& tf2,
     void* cdata,
-    CollisionCallBack<Scalar> callback)
+    CollisionCallBack<S> callback)
 {
   if(!root2)
   {
     if(root1->isLeaf())
     {
-      CollisionObject<Scalar>* obj1 = static_cast<CollisionObject<Scalar>*>(root1->data);
+      CollisionObject<S>* obj1 = static_cast<CollisionObject<S>*>(root1->data);
 
       if(!obj1->isFree())
       {
-        OBB<Scalar> obb1, obb2;
-        convertBV(root1->bv, Transform3<Scalar>::Identity(), obb1);
+        OBB<S> obb1, obb2;
+        convertBV(root1->bv, Transform3<S>::Identity(), obb1);
         convertBV(root2_bv, tf2, obb2);
 
         if(obb1.overlap(obb2))
         {
-          Box<Scalar>* box = new Box<Scalar>();
-          Transform3<Scalar> box_tf;
+          Box<S>* box = new Box<S>();
+          Transform3<S> box_tf;
           constructBox(root2_bv, tf2, *box, box_tf);
 
           box->cost_density = tree2->getDefaultOccupancy();
 
-          CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
+          CollisionObject<S> obj2(std::shared_ptr<CollisionGeometry<S>>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
     }
     else
     {
-      if(collisionRecurse_<Scalar>(root1->children[0], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[0], tree2, nullptr, root2_bv, tf2, cdata, callback))
         return true;
-      if(collisionRecurse_<Scalar>(root1->children[1], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[1], tree2, nullptr, root2_bv, tf2, cdata, callback))
         return true;
     }
 
@@ -228,24 +228,24 @@ bool collisionRecurse_(
   }
   else if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
-    CollisionObject<Scalar>* obj1 = static_cast<CollisionObject<Scalar>*>(root1->data);
+    CollisionObject<S>* obj1 = static_cast<CollisionObject<S>*>(root1->data);
 
     if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {
-      OBB<Scalar> obb1, obb2;
-      convertBV(root1->bv, Transform3<Scalar>::Identity(), obb1);
+      OBB<S> obb1, obb2;
+      convertBV(root1->bv, Transform3<S>::Identity(), obb1);
       convertBV(root2_bv, tf2, obb2);
 
       if(obb1.overlap(obb2))
       {
-        Box<Scalar>* box = new Box<Scalar>();
-        Transform3<Scalar> box_tf;
+        Box<S>* box = new Box<S>();
+        Transform3<S> box_tf;
         constructBox(root2_bv, tf2, *box, box_tf);
 
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
+        CollisionObject<S> obj2(std::shared_ptr<CollisionGeometry<S>>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -253,8 +253,8 @@ bool collisionRecurse_(
     else return false;
   }
 
-  OBB<Scalar> obb1, obb2;
-  convertBV(root1->bv, Transform3<Scalar>::Identity(), obb1);
+  OBB<S> obb1, obb2;
+  convertBV(root1->bv, Transform3<S>::Identity(), obb1);
   convertBV(root2_bv, tf2, obb2);
 
   if(tree2->isNodeFree(root2) || !obb1.overlap(obb2)) return false;
@@ -272,8 +272,8 @@ bool collisionRecurse_(
     {
       if(tree2->nodeChildExists(root2, i))
       {
-        const typename OcTree<Scalar>::OcTreeNode* child = tree2->getNodeChild(root2, i);
-        AABB<Scalar> child_bv;
+        const typename OcTree<S>::OcTreeNode* child = tree2->getNodeChild(root2, i);
+        AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
         if(collisionRecurse_(root1, tree2, child, child_bv, tf2, cdata, callback))
@@ -281,9 +281,9 @@ bool collisionRecurse_(
       }
       else
       {
-        AABB<Scalar> child_bv;
+        AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_<Scalar>(root1, tree2, NULL, child_bv, tf2, cdata, callback))
+        if(collisionRecurse_<S>(root1, tree2, nullptr, child_bv, tf2, cdata, callback))
           return true;
       }
     }
@@ -292,45 +292,45 @@ bool collisionRecurse_(
 }
 
 //==============================================================================
-template <typename Scalar, typename Derived>
+template <typename S, typename Derived>
 bool collisionRecurse_(
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
-    const OcTree<Scalar>* tree2,
-    const typename OcTree<Scalar>::OcTreeNode* root2,
-    const AABB<Scalar>& root2_bv,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1,
+    const OcTree<S>* tree2,
+    const typename OcTree<S>::OcTreeNode* root2,
+    const AABB<S>& root2_bv,
     const Eigen::MatrixBase<Derived>& translation2,
     void* cdata,
-    CollisionCallBack<Scalar> callback)
+    CollisionCallBack<S> callback)
 {
   if(!root2)
   {
     if(root1->isLeaf())
     {
-      CollisionObject<Scalar>* obj1 = static_cast<CollisionObject<Scalar>*>(root1->data);
+      CollisionObject<S>* obj1 = static_cast<CollisionObject<S>*>(root1->data);
 
       if(!obj1->isFree())
       {
-        const AABB<Scalar>& root2_bv_t = translate(root2_bv, translation2);
+        const AABB<S>& root2_bv_t = translate(root2_bv, translation2);
         if(root1->bv.overlap(root2_bv_t))
         {
-          Box<Scalar>* box = new Box<Scalar>();
-          Transform3<Scalar> box_tf;
-          Transform3<Scalar> tf2 = Transform3<Scalar>::Identity();
+          Box<S>* box = new Box<S>();
+          Transform3<S> box_tf;
+          Transform3<S> tf2 = Transform3<S>::Identity();
           tf2.translation() = translation2;
           constructBox(root2_bv, tf2, *box, box_tf);
 
           box->cost_density = tree2->getOccupancyThres(); // thresholds are 0, 1, so uncertain
 
-          CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
+          CollisionObject<S> obj2(std::shared_ptr<CollisionGeometry<S>>(box), box_tf);
           return callback(obj1, &obj2, cdata);
         }
       }
     }
     else
     {
-      if(collisionRecurse_<Scalar>(root1->children[0], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[0], tree2, nullptr, root2_bv, translation2, cdata, callback))
         return true;
-      if(collisionRecurse_<Scalar>(root1->children[1], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[1], tree2, nullptr, root2_bv, translation2, cdata, callback))
         return true;
     }
 
@@ -338,23 +338,23 @@ bool collisionRecurse_(
   }
   else if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
-    CollisionObject<Scalar>* obj1 = static_cast<CollisionObject<Scalar>*>(root1->data);
+    CollisionObject<S>* obj1 = static_cast<CollisionObject<S>*>(root1->data);
 
     if(!tree2->isNodeFree(root2) && !obj1->isFree())
     {
-      const AABB<Scalar>& root2_bv_t = translate(root2_bv, translation2);
+      const AABB<S>& root2_bv_t = translate(root2_bv, translation2);
       if(root1->bv.overlap(root2_bv_t))
       {
-        Box<Scalar>* box = new Box<Scalar>();
-        Transform3<Scalar> box_tf;
-        Transform3<Scalar> tf2 = Transform3<Scalar>::Identity();
+        Box<S>* box = new Box<S>();
+        Transform3<S> box_tf;
+        Transform3<S> tf2 = Transform3<S>::Identity();
         tf2.translation() = translation2;
         constructBox(root2_bv, tf2, *box, box_tf);
 
         box->cost_density = root2->getOccupancy();
         box->threshold_occupied = tree2->getOccupancyThres();
 
-        CollisionObject<Scalar> obj2(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
+        CollisionObject<S> obj2(std::shared_ptr<CollisionGeometry<S>>(box), box_tf);
         return callback(obj1, &obj2, cdata);
       }
       else return false;
@@ -362,7 +362,7 @@ bool collisionRecurse_(
     else return false;
   }
 
-  const AABB<Scalar>& root2_bv_t = translate(root2_bv, translation2);
+  const AABB<S>& root2_bv_t = translate(root2_bv, translation2);
   if(tree2->isNodeFree(root2) || !root1->bv.overlap(root2_bv_t)) return false;
 
   if(!tree2->nodeHasChildren(root2) || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
@@ -378,8 +378,8 @@ bool collisionRecurse_(
     {
       if(tree2->nodeChildExists(root2, i))
       {
-        const typename OcTree<Scalar>::OcTreeNode* child = tree2->getNodeChild(root2, i);
-        AABB<Scalar> child_bv;
+        const typename OcTree<S>::OcTreeNode* child = tree2->getNodeChild(root2, i);
+        AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
         if(collisionRecurse_(root1, tree2, child, child_bv, translation2, cdata, callback))
@@ -387,9 +387,9 @@ bool collisionRecurse_(
       }
       else
       {
-        AABB<Scalar> child_bv;
+        AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_<Scalar>(root1, tree2, NULL, child_bv, translation2, cdata, callback))
+        if(collisionRecurse_<S>(root1, tree2, nullptr, child_bv, translation2, cdata, callback))
           return true;
       }
     }
@@ -398,26 +398,26 @@ bool collisionRecurse_(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool distanceRecurse_(
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
-    const OcTree<Scalar>* tree2,
-    const typename OcTree<Scalar>::OcTreeNode* root2,
-    const AABB<Scalar>& root2_bv,
-    const Transform3<Scalar>& tf2,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1,
+    const OcTree<S>* tree2,
+    const typename OcTree<S>::OcTreeNode* root2,
+    const AABB<S>& root2_bv,
+    const Transform3<S>& tf2,
     void* cdata,
-    DistanceCallBack<Scalar> callback,
-    Scalar& min_dist)
+    DistanceCallBack<S> callback,
+    S& min_dist)
 {
   if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
     if(tree2->isNodeOccupied(root2))
     {
-      Box<Scalar>* box = new Box<Scalar>();
-      Transform3<Scalar> box_tf;
+      Box<S>* box = new Box<S>();
+      Transform3<S> box_tf;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject<Scalar> obj(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
-      return callback(static_cast<CollisionObject<Scalar>*>(root1->data), &obj, cdata, min_dist);
+      CollisionObject<S> obj(std::shared_ptr<CollisionGeometry<S>>(box), box_tf);
+      return callback(static_cast<CollisionObject<S>*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;
   }
@@ -426,11 +426,11 @@ bool distanceRecurse_(
 
   if(!tree2->nodeHasChildren(root2) || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
-    AABB<Scalar> aabb2;
+    AABB<S> aabb2;
     convertBV(root2_bv, tf2, aabb2);
 
-    Scalar d1 = aabb2.distance(root1->children[0]->bv);
-    Scalar d2 = aabb2.distance(root1->children[1]->bv);
+    S d1 = aabb2.distance(root1->children[0]->bv);
+    S d2 = aabb2.distance(root1->children[1]->bv);
 
     if(d2 < d1)
     {
@@ -467,13 +467,13 @@ bool distanceRecurse_(
     {
       if(tree2->nodeChildExists(root2, i))
       {
-        const typename OcTree<Scalar>::OcTreeNode* child = tree2->getNodeChild(root2, i);
-        AABB<Scalar> child_bv;
+        const typename OcTree<S>::OcTreeNode* child = tree2->getNodeChild(root2, i);
+        AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
 
-        AABB<Scalar> aabb2;
+        AABB<S> aabb2;
         convertBV(child_bv, tf2, aabb2);
-        Scalar d = root1->bv.distance(aabb2);
+        S d = root1->bv.distance(aabb2);
 
         if(d < min_dist)
         {
@@ -488,15 +488,15 @@ bool distanceRecurse_(
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool collisionRecurse(
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
-    const OcTree<Scalar>* tree2,
-    const typename OcTree<Scalar>::OcTreeNode* root2,
-    const AABB<Scalar>& root2_bv,
-    const Transform3<Scalar>& tf2,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1,
+    const OcTree<S>* tree2,
+    const typename OcTree<S>::OcTreeNode* root2,
+    const AABB<S>& root2_bv,
+    const Transform3<S>& tf2,
     void* cdata,
-    CollisionCallBack<Scalar> callback)
+    CollisionCallBack<S> callback)
 {
   if(tf2.linear().isIdentity())
     return collisionRecurse_(root1, tree2, root2, root2_bv, tf2.translation(), cdata, callback);
@@ -505,28 +505,28 @@ bool collisionRecurse(
 }
 
 //==============================================================================
-template <typename Scalar, typename Derived>
+template <typename S, typename Derived>
 bool distanceRecurse_(
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
-    const OcTree<Scalar>* tree2,
-    const typename OcTree<Scalar>::OcTreeNode* root2,
-    const AABB<Scalar>& root2_bv,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1,
+    const OcTree<S>* tree2,
+    const typename OcTree<S>::OcTreeNode* root2,
+    const AABB<S>& root2_bv,
     const Eigen::MatrixBase<Derived>& translation2,
     void* cdata,
-    DistanceCallBack<Scalar> callback,
-    Scalar& min_dist)
+    DistanceCallBack<S> callback,
+    S& min_dist)
 {
   if(root1->isLeaf() && !tree2->nodeHasChildren(root2))
   {
     if(tree2->isNodeOccupied(root2))
     {
-      Box<Scalar>* box = new Box<Scalar>();
-      Transform3<Scalar> box_tf;
-      Transform3<Scalar> tf2 = Transform3<Scalar>::Identity();
+      Box<S>* box = new Box<S>();
+      Transform3<S> box_tf;
+      Transform3<S> tf2 = Transform3<S>::Identity();
       tf2.translation() = translation2;
       constructBox(root2_bv, tf2, *box, box_tf);
-      CollisionObject<Scalar> obj(std::shared_ptr<CollisionGeometry<Scalar>>(box), box_tf);
-      return callback(static_cast<CollisionObject<Scalar>*>(root1->data), &obj, cdata, min_dist);
+      CollisionObject<S> obj(std::shared_ptr<CollisionGeometry<S>>(box), box_tf);
+      return callback(static_cast<CollisionObject<S>*>(root1->data), &obj, cdata, min_dist);
     }
     else return false;
   }
@@ -535,9 +535,9 @@ bool distanceRecurse_(
 
   if(!tree2->nodeHasChildren(root2) || (!root1->isLeaf() && (root1->bv.size() > root2_bv.size())))
   {
-    const AABB<Scalar>& aabb2 = translate(root2_bv, translation2);
-    Scalar d1 = aabb2.distance(root1->children[0]->bv);
-    Scalar d2 = aabb2.distance(root1->children[1]->bv);
+    const AABB<S>& aabb2 = translate(root2_bv, translation2);
+    S d1 = aabb2.distance(root1->children[0]->bv);
+    S d2 = aabb2.distance(root1->children[1]->bv);
 
     if(d2 < d1)
     {
@@ -574,12 +574,12 @@ bool distanceRecurse_(
     {
       if(tree2->nodeChildExists(root2, i))
       {
-        const typename OcTree<Scalar>::OcTreeNode* child = tree2->getNodeChild(root2, i);
-        AABB<Scalar> child_bv;
+        const typename OcTree<S>::OcTreeNode* child = tree2->getNodeChild(root2, i);
+        AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        const AABB<Scalar>& aabb2 = translate(child_bv, translation2);
+        const AABB<S>& aabb2 = translate(child_bv, translation2);
 
-        Scalar d = root1->bv.distance(aabb2);
+        S d = root1->bv.distance(aabb2);
 
         if(d < min_dist)
         {
@@ -594,8 +594,8 @@ bool distanceRecurse_(
 }
 
 //==============================================================================
-template <typename Scalar>
-bool distanceRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1, const OcTree<Scalar>* tree2, const typename OcTree<Scalar>::OcTreeNode* root2, const AABB<Scalar>& root2_bv, const Transform3<Scalar>& tf2, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist)
+template <typename S>
+bool distanceRecurse(typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1, const OcTree<S>* tree2, const typename OcTree<S>::OcTreeNode* root2, const AABB<S>& root2_bv, const Transform3<S>& tf2, void* cdata, DistanceCallBack<S> callback, S& min_dist)
 {
   if(tf2.linear().isIdentity())
     return distanceRecurse_(root1, tree2, root2, root2_bv, tf2.translation(), cdata, callback, min_dist);
@@ -606,17 +606,17 @@ bool distanceRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAA
 #endif
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool collisionRecurse(
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root2,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root2,
     void* cdata,
-    CollisionCallBack<Scalar> callback)
+    CollisionCallBack<S> callback)
 {
   if(root1->isLeaf() && root2->isLeaf())
   {
     if(!root1->bv.overlap(root2->bv)) return false;
-    return callback(static_cast<CollisionObject<Scalar>*>(root1->data), static_cast<CollisionObject<Scalar>*>(root2->data), cdata);
+    return callback(static_cast<CollisionObject<S>*>(root1->data), static_cast<CollisionObject<S>*>(root2->data), cdata);
   }
 
   if(!root1->bv.overlap(root2->bv)) return false;
@@ -639,13 +639,13 @@ bool collisionRecurse(
 }
 
 //==============================================================================
-template <typename Scalar>
-bool collisionRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root, CollisionObject<Scalar>* query, void* cdata, CollisionCallBack<Scalar> callback)
+template <typename S>
+bool collisionRecurse(typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root, CollisionObject<S>* query, void* cdata, CollisionCallBack<S> callback)
 {
   if(root->isLeaf())
   {
     if(!root->bv.overlap(query->getAABB())) return false;
-    return callback(static_cast<CollisionObject<Scalar>*>(root->data), query, cdata);
+    return callback(static_cast<CollisionObject<S>*>(root->data), query, cdata);
   }
 
   if(!root->bv.overlap(query->getAABB())) return false;
@@ -662,8 +662,8 @@ bool collisionRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicA
 }
 
 //==============================================================================
-template <typename Scalar>
-bool selfCollisionRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root, void* cdata, CollisionCallBack<Scalar> callback)
+template <typename S>
+bool selfCollisionRecurse(typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root, void* cdata, CollisionCallBack<S> callback)
 {
   if(root->isLeaf()) return false;
 
@@ -680,25 +680,25 @@ bool selfCollisionRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::Dyna
 }
 
 //==============================================================================
-template <typename Scalar>
+template <typename S>
 bool distanceRecurse(
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root1,
-    typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root2,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root1,
+    typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root2,
     void* cdata,
-    DistanceCallBack<Scalar> callback,
-    Scalar& min_dist)
+    DistanceCallBack<S> callback,
+    S& min_dist)
 {
   if(root1->isLeaf() && root2->isLeaf())
   {
-    CollisionObject<Scalar>* root1_obj = static_cast<CollisionObject<Scalar>*>(root1->data);
-    CollisionObject<Scalar>* root2_obj = static_cast<CollisionObject<Scalar>*>(root2->data);
+    CollisionObject<S>* root1_obj = static_cast<CollisionObject<S>*>(root1->data);
+    CollisionObject<S>* root2_obj = static_cast<CollisionObject<S>*>(root2->data);
     return callback(root1_obj, root2_obj, cdata, min_dist);
   }
 
   if(root2->isLeaf() || (!root1->isLeaf() && (root1->bv.size() > root2->bv.size())))
   {
-    Scalar d1 = root2->bv.distance(root1->children[0]->bv);
-    Scalar d2 = root2->bv.distance(root1->children[1]->bv);
+    S d1 = root2->bv.distance(root1->children[0]->bv);
+    S d2 = root2->bv.distance(root1->children[1]->bv);
 
     if(d2 < d1)
     {
@@ -731,8 +731,8 @@ bool distanceRecurse(
   }
   else
   {
-    Scalar d1 = root1->bv.distance(root2->children[0]->bv);
-    Scalar d2 = root1->bv.distance(root2->children[1]->bv);
+    S d1 = root1->bv.distance(root2->children[0]->bv);
+    S d2 = root1->bv.distance(root2->children[1]->bv);
 
     if(d2 < d1)
     {
@@ -768,17 +768,17 @@ bool distanceRecurse(
 }
 
 //==============================================================================
-template <typename Scalar>
-bool distanceRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root, CollisionObject<Scalar>* query, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist)
+template <typename S>
+bool distanceRecurse(typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root, CollisionObject<S>* query, void* cdata, DistanceCallBack<S> callback, S& min_dist)
 {
   if(root->isLeaf())
   {
-    CollisionObject<Scalar>* root_obj = static_cast<CollisionObject<Scalar>*>(root->data);
+    CollisionObject<S>* root_obj = static_cast<CollisionObject<S>*>(root->data);
     return callback(root_obj, query, cdata, min_dist);
   }
 
-  Scalar d1 = query->getAABB().distance(root->children[0]->bv);
-  Scalar d2 = query->getAABB().distance(root->children[1]->bv);
+  S d1 = query->getAABB().distance(root->children[0]->bv);
+  S d2 = query->getAABB().distance(root->children[1]->bv);
 
   if(d2 < d1)
   {
@@ -813,8 +813,8 @@ bool distanceRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAA
 }
 
 //==============================================================================
-template <typename Scalar>
-bool selfDistanceRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::DynamicAABBNode* root, void* cdata, DistanceCallBack<Scalar> callback, Scalar& min_dist)
+template <typename S>
+bool selfDistanceRecurse(typename DynamicAABBTreeCollisionManager<S>::DynamicAABBNode* root, void* cdata, DistanceCallBack<S> callback, S& min_dist)
 {
   if(root->isLeaf()) return false;
 
@@ -835,14 +835,14 @@ bool selfDistanceRecurse(typename DynamicAABBTreeCollisionManager<Scalar>::Dynam
 } // details
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::registerObjects(const std::vector<CollisionObject<Scalar>*>& other_objs)
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::registerObjects(const std::vector<CollisionObject<S>*>& other_objs)
 {
   if(other_objs.empty()) return;
 
   if(size() > 0)
   {
-    BroadPhaseCollisionManager<Scalar>::registerObjects(other_objs);
+    BroadPhaseCollisionManager<S>::registerObjects(other_objs);
   }
   else
   {
@@ -852,8 +852,8 @@ void DynamicAABBTreeCollisionManager<Scalar>::registerObjects(const std::vector<
     {
       DynamicAABBNode* node = new DynamicAABBNode; // node will be managed by the dtree
       node->bv = other_objs[i]->getAABB();
-      node->parent = NULL;
-      node->children[1] = NULL;
+      node->parent = nullptr;
+      node->children[1] = nullptr;
       node->data = other_objs[i];
       table[other_objs[i]] = node;
       leaves[i] = node;
@@ -866,16 +866,16 @@ void DynamicAABBTreeCollisionManager<Scalar>::registerObjects(const std::vector<
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::registerObject(CollisionObject<Scalar>* obj)
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::registerObject(CollisionObject<S>* obj)
 {
   DynamicAABBNode* node = dtree.insert(obj->getAABB(), obj);
   table[obj] = node;
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::unregisterObject(CollisionObject<Scalar>* obj)
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
 {
   DynamicAABBNode* node = table[obj];
   table.erase(obj);
@@ -883,8 +883,8 @@ void DynamicAABBTreeCollisionManager<Scalar>::unregisterObject(CollisionObject<S
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::setup()
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::setup()
 {
   if(!setup_)
   {
@@ -898,7 +898,7 @@ void DynamicAABBTreeCollisionManager<Scalar>::setup()
     int height = dtree.getMaxHeight();
 
 
-    if(height - std::log((Scalar)num) / std::log(2.0) < max_tree_nonbalanced_level)
+    if(height - std::log((S)num) / std::log(2.0) < max_tree_nonbalanced_level)
       dtree.balanceIncremental(tree_incremental_balance_pass);
     else
       dtree.balanceTopdown();
@@ -908,12 +908,12 @@ void DynamicAABBTreeCollisionManager<Scalar>::setup()
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::update()
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::update()
 {
   for(auto it = table.cbegin(); it != table.cend(); ++it)
   {
-    CollisionObject<Scalar>* obj = it->first;
+    CollisionObject<S>* obj = it->first;
     DynamicAABBNode* node = it->second;
     node->bv = obj->getAABB();
   }
@@ -925,8 +925,8 @@ void DynamicAABBTreeCollisionManager<Scalar>::update()
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::update_(CollisionObject<Scalar>* updated_obj)
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::update_(CollisionObject<S>* updated_obj)
 {
   const auto it = table.find(updated_obj);
   if(it != table.end())
@@ -939,16 +939,16 @@ void DynamicAABBTreeCollisionManager<Scalar>::update_(CollisionObject<Scalar>* u
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::update(CollisionObject<Scalar>* updated_obj)
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::update(CollisionObject<S>* updated_obj)
 {
   update_(updated_obj);
   setup();
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::update(const std::vector<CollisionObject<Scalar>*>& updated_objs)
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::update(const std::vector<CollisionObject<S>*>& updated_objs)
 {
   for(size_t i = 0, size = updated_objs.size(); i < size; ++i)
     update_(updated_objs[i]);
@@ -956,8 +956,8 @@ void DynamicAABBTreeCollisionManager<Scalar>::update(const std::vector<Collision
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::collide(CollisionObject<Scalar>* obj, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
   switch(obj->collisionGeometry()->getNodeType())
@@ -967,7 +967,7 @@ void DynamicAABBTreeCollisionManager<Scalar>::collide(CollisionObject<Scalar>* o
     {
       if(!octree_as_geometry_collide)
       {
-        const OcTree<Scalar>* octree = static_cast<const OcTree<Scalar>*>(obj->collisionGeometry().get());
+        const OcTree<S>* octree = static_cast<const OcTree<S>*>(obj->collisionGeometry().get());
         details::dynamic_AABB_tree::collisionRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback);
       }
       else
@@ -981,11 +981,11 @@ void DynamicAABBTreeCollisionManager<Scalar>::collide(CollisionObject<Scalar>* o
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::distance(CollisionObject<Scalar>* obj, void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::distance(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
   switch(obj->collisionGeometry()->getNodeType())
   {
 #if FCL_HAVE_OCTOMAP
@@ -993,7 +993,7 @@ void DynamicAABBTreeCollisionManager<Scalar>::distance(CollisionObject<Scalar>* 
     {
       if(!octree_as_geometry_distance)
       {
-        const OcTree<Scalar>* octree = static_cast<const OcTree<Scalar>*>(obj->collisionGeometry().get());
+        const OcTree<S>* octree = static_cast<const OcTree<S>*>(obj->collisionGeometry().get());
         details::dynamic_AABB_tree::distanceRecurse(dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
       }
       else
@@ -1007,25 +1007,25 @@ void DynamicAABBTreeCollisionManager<Scalar>::distance(CollisionObject<Scalar>* 
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::collide(void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::collide(void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
   details::dynamic_AABB_tree::selfCollisionRecurse(dtree.getRoot(), cdata, callback);
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::distance(void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::distance(void* cdata, DistanceCallBack<S> callback) const
 {
   if(size() == 0) return;
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
   details::dynamic_AABB_tree::selfDistanceRecurse(dtree.getRoot(), cdata, callback, min_dist);
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::collide(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, CollisionCallBack<Scalar> callback) const
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::collide(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, CollisionCallBack<S> callback) const
 {
   DynamicAABBTreeCollisionManager* other_manager = static_cast<DynamicAABBTreeCollisionManager*>(other_manager_);
   if((size() == 0) || (other_manager->size() == 0)) return;
@@ -1033,12 +1033,12 @@ void DynamicAABBTreeCollisionManager<Scalar>::collide(BroadPhaseCollisionManager
 }
 
 //==============================================================================
-template <typename Scalar>
-void DynamicAABBTreeCollisionManager<Scalar>::distance(BroadPhaseCollisionManager<Scalar>* other_manager_, void* cdata, DistanceCallBack<Scalar> callback) const
+template <typename S>
+void DynamicAABBTreeCollisionManager<S>::distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const
 {
   DynamicAABBTreeCollisionManager* other_manager = static_cast<DynamicAABBTreeCollisionManager*>(other_manager_);
   if((size() == 0) || (other_manager->size() == 0)) return;
-  Scalar min_dist = std::numeric_limits<Scalar>::max();
+  S min_dist = std::numeric_limits<S>::max();
   details::dynamic_AABB_tree::distanceRecurse(dtree.getRoot(), other_manager->dtree.getRoot(), cdata, callback, min_dist);
 }
 

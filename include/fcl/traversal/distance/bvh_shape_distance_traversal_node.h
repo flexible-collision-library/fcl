@@ -45,13 +45,13 @@ namespace fcl
 {
 
 /// @brief Traversal node for distance computation between BVH and shape
-template<typename BV, typename S>
+template<typename BV, typename Shape>
 class BVHShapeDistanceTraversalNode
-    : public DistanceTraversalNodeBase<typename BV::Scalar>
+    : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:
 
-  using Scalar = typename BV::Scalar;
+  using S = typename BV::S;
 
   BVHShapeDistanceTraversalNode();
 
@@ -65,15 +65,15 @@ public:
   int getFirstRightChild(int b) const;
 
   /// @brief BV culling test in one BVTT node
-  Scalar BVTesting(int b1, int b2) const;
+  S BVTesting(int b1, int b2) const;
 
   const BVHModel<BV>* model1;
-  const S* model2;
+  const Shape* model2;
   BV model2_bv;
 
   mutable int num_bv_tests;
   mutable int num_leaf_tests;
-  mutable Scalar query_time_seconds;
+  mutable S query_time_seconds;
 };
 
 //============================================================================//
@@ -83,12 +83,12 @@ public:
 //============================================================================//
 
 //==============================================================================
-template<typename BV, typename S>
-BVHShapeDistanceTraversalNode<BV, S>::BVHShapeDistanceTraversalNode()
-  : DistanceTraversalNodeBase<typename BV::Scalar>()
+template<typename BV, typename Shape>
+BVHShapeDistanceTraversalNode<BV, Shape>::BVHShapeDistanceTraversalNode()
+  : DistanceTraversalNodeBase<typename BV::S>()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
   num_bv_tests = 0;
   num_leaf_tests = 0;
@@ -96,29 +96,29 @@ BVHShapeDistanceTraversalNode<BV, S>::BVHShapeDistanceTraversalNode()
 }
 
 //==============================================================================
-template<typename BV, typename S>
-bool BVHShapeDistanceTraversalNode<BV, S>::isFirstNodeLeaf(int b) const
+template<typename BV, typename Shape>
+bool BVHShapeDistanceTraversalNode<BV, Shape>::isFirstNodeLeaf(int b) const
 {
   return model1->getBV(b).isLeaf();
 }
 
 //==============================================================================
-template<typename BV, typename S>
-int BVHShapeDistanceTraversalNode<BV, S>::getFirstLeftChild(int b) const
+template<typename BV, typename Shape>
+int BVHShapeDistanceTraversalNode<BV, Shape>::getFirstLeftChild(int b) const
 {
   return model1->getBV(b).leftChild();
 }
 
 //==============================================================================
-template<typename BV, typename S>
-int BVHShapeDistanceTraversalNode<BV, S>::getFirstRightChild(int b) const
+template<typename BV, typename Shape>
+int BVHShapeDistanceTraversalNode<BV, Shape>::getFirstRightChild(int b) const
 {
   return model1->getBV(b).rightChild();
 }
 
 //==============================================================================
-template<typename BV, typename S>
-typename BV::Scalar BVHShapeDistanceTraversalNode<BV, S>::BVTesting(
+template<typename BV, typename Shape>
+typename BV::S BVHShapeDistanceTraversalNode<BV, Shape>::BVTesting(
     int b1, int b2) const
 {
   return model1->getBV(b1).bv.distance(model2_bv);

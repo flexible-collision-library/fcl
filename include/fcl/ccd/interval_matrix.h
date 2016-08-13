@@ -45,39 +45,39 @@
 namespace fcl
 {
 
-template <typename Scalar>
+template <typename S>
 struct IMatrix3
 {
-  IVector3<Scalar> v_[3];
+  IVector3<S> v_[3];
 
   IMatrix3();
-  IMatrix3(Scalar v);
-  IMatrix3(const Matrix3<Scalar>& m);
-  IMatrix3(Scalar m[3][3][2]);
-  IMatrix3(Scalar m[3][3]);
-  IMatrix3(Interval<Scalar> m[3][3]);
-  IMatrix3(const IVector3<Scalar>& v1, const IVector3<Scalar>& v2, const IVector3<Scalar>& v3);
+  IMatrix3(S v);
+  IMatrix3(const Matrix3<S>& m);
+  IMatrix3(S m[3][3][2]);
+  IMatrix3(S m[3][3]);
+  IMatrix3(Interval<S> m[3][3]);
+  IMatrix3(const IVector3<S>& v1, const IVector3<S>& v2, const IVector3<S>& v3);
 
   void setIdentity();
 
-  IVector3<Scalar> getColumn(size_t i) const;
-  const IVector3<Scalar>& getRow(size_t i) const;
+  IVector3<S> getColumn(size_t i) const;
+  const IVector3<S>& getRow(size_t i) const;
 
-  Vector3<Scalar> getColumnLow(size_t i) const;
-  Vector3<Scalar> getRowLow(size_t i) const;
+  Vector3<S> getColumnLow(size_t i) const;
+  Vector3<S> getRowLow(size_t i) const;
 
-  Vector3<Scalar> getColumnHigh(size_t i) const;
-  Vector3<Scalar> getRowHigh(size_t i) const;
+  Vector3<S> getColumnHigh(size_t i) const;
+  Vector3<S> getRowHigh(size_t i) const;
 
-  Matrix3<Scalar> getLow() const;
-  Matrix3<Scalar> getHigh() const;
+  Matrix3<S> getLow() const;
+  Matrix3<S> getHigh() const;
 
-  inline const Interval<Scalar>& operator () (size_t i, size_t j) const
+  inline const Interval<S>& operator () (size_t i, size_t j) const
   {
     return v_[i][j];
   }
 
-  inline Interval<Scalar>& operator () (size_t i, size_t j)
+  inline Interval<S>& operator () (size_t i, size_t j)
   {
     return v_[i][j];
   }
@@ -88,21 +88,21 @@ struct IMatrix3
   IMatrix3 operator - (const IMatrix3& m) const;
   IMatrix3& operator -= (const IMatrix3& m);
 
-  IVector3<Scalar> operator * (const Vector3<Scalar>& v) const;
-  IVector3<Scalar> operator * (const IVector3<Scalar>& v) const;
+  IVector3<S> operator * (const Vector3<S>& v) const;
+  IVector3<S> operator * (const IVector3<S>& v) const;
   IMatrix3 operator * (const IMatrix3& m) const;
-  IMatrix3 operator * (const Matrix3<Scalar>& m) const;
+  IMatrix3 operator * (const Matrix3<S>& m) const;
 
   IMatrix3& operator *= (const IMatrix3& m);
-  IMatrix3& operator *= (const Matrix3<Scalar>& m);
+  IMatrix3& operator *= (const Matrix3<S>& m);
 
   IMatrix3& rotationConstrain();
 
   void print() const;
 };
 
-template <typename Scalar>
-IMatrix3<Scalar> rotationConstrain(const IMatrix3<Scalar>& m);
+template <typename S>
+IMatrix3<S> rotationConstrain(const IMatrix3<S>& m);
 
 //============================================================================//
 //                                                                            //
@@ -111,12 +111,12 @@ IMatrix3<Scalar> rotationConstrain(const IMatrix3<Scalar>& m);
 //============================================================================//
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>::IMatrix3() {}
+template <typename S>
+IMatrix3<S>::IMatrix3() {}
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>::IMatrix3(Scalar v)
+template <typename S>
+IMatrix3<S>::IMatrix3(S v)
 {
   v_[0].setValue(v);
   v_[1].setValue(v);
@@ -124,8 +124,8 @@ IMatrix3<Scalar>::IMatrix3(Scalar v)
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>::IMatrix3(const Matrix3<Scalar>& m)
+template <typename S>
+IMatrix3<S>::IMatrix3(const Matrix3<S>& m)
 {
   v_[0].setValue(m.row(0)[0], m.row(0)[1], m.row(0)[2]);
   v_[1].setValue(m.row(1)[0], m.row(1)[1], m.row(1)[2]);
@@ -133,8 +133,8 @@ IMatrix3<Scalar>::IMatrix3(const Matrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>::IMatrix3(Scalar m[3][3][2])
+template <typename S>
+IMatrix3<S>::IMatrix3(S m[3][3][2])
 {
   v_[0].setValue(m[0]);
   v_[1].setValue(m[1]);
@@ -142,8 +142,8 @@ IMatrix3<Scalar>::IMatrix3(Scalar m[3][3][2])
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>::IMatrix3(Scalar m[3][3])
+template <typename S>
+IMatrix3<S>::IMatrix3(S m[3][3])
 {
   v_[0].setValue(m[0]);
   v_[1].setValue(m[1]);
@@ -151,8 +151,8 @@ IMatrix3<Scalar>::IMatrix3(Scalar m[3][3])
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>::IMatrix3(Interval<Scalar> m[3][3])
+template <typename S>
+IMatrix3<S>::IMatrix3(Interval<S> m[3][3])
 {
   v_[0].setValue(m[0]);
   v_[1].setValue(m[1]);
@@ -160,8 +160,8 @@ IMatrix3<Scalar>::IMatrix3(Interval<Scalar> m[3][3])
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>::IMatrix3(const IVector3<Scalar>& v1, const IVector3<Scalar>& v2, const IVector3<Scalar>& v3)
+template <typename S>
+IMatrix3<S>::IMatrix3(const IVector3<S>& v1, const IVector3<S>& v2, const IVector3<S>& v3)
 {
   v_[0] = v1;
   v_[1] = v2;
@@ -169,8 +169,8 @@ IMatrix3<Scalar>::IMatrix3(const IVector3<Scalar>& v1, const IVector3<Scalar>& v
 }
 
 //==============================================================================
-template <typename Scalar>
-void IMatrix3<Scalar>::setIdentity()
+template <typename S>
+void IMatrix3<S>::setIdentity()
 {
   v_[0].setValue(1, 0, 0);
   v_[1].setValue(0, 1, 0);
@@ -178,52 +178,52 @@ void IMatrix3<Scalar>::setIdentity()
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> IMatrix3<Scalar>::getColumn(size_t i) const
+template <typename S>
+IVector3<S> IMatrix3<S>::getColumn(size_t i) const
 {
-  return IVector3<Scalar>(v_[0][i], v_[1][i], v_[2][i]);
+  return IVector3<S>(v_[0][i], v_[1][i], v_[2][i]);
 }
 
 //==============================================================================
-template <typename Scalar>
-const IVector3<Scalar>& IMatrix3<Scalar>::getRow(size_t i) const
+template <typename S>
+const IVector3<S>& IMatrix3<S>::getRow(size_t i) const
 {
   return v_[i];
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> IMatrix3<Scalar>::getColumnLow(size_t i) const
+template <typename S>
+Vector3<S> IMatrix3<S>::getColumnLow(size_t i) const
 {
-  return Vector3<Scalar>(v_[0][i][0], v_[1][i][0], v_[2][i][0]);
+  return Vector3<S>(v_[0][i][0], v_[1][i][0], v_[2][i][0]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> IMatrix3<Scalar>::getRowLow(size_t i) const
+template <typename S>
+Vector3<S> IMatrix3<S>::getRowLow(size_t i) const
 {
-  return Vector3<Scalar>(v_[i][0][0], v_[i][1][0], v_[i][2][0]);
+  return Vector3<S>(v_[i][0][0], v_[i][1][0], v_[i][2][0]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> IMatrix3<Scalar>::getColumnHigh(size_t i) const
+template <typename S>
+Vector3<S> IMatrix3<S>::getColumnHigh(size_t i) const
 {
-  return Vector3<Scalar>(v_[0][i][1], v_[1][i][1], v_[2][i][1]);
+  return Vector3<S>(v_[0][i][1], v_[1][i][1], v_[2][i][1]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Vector3<Scalar> IMatrix3<Scalar>::getRowHigh(size_t i) const
+template <typename S>
+Vector3<S> IMatrix3<S>::getRowHigh(size_t i) const
 {
-  return Vector3<Scalar>(v_[i][0][1], v_[i][1][1], v_[i][2][1]);
+  return Vector3<S>(v_[i][0][1], v_[i][1][1], v_[i][2][1]);
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> IMatrix3<Scalar>::getLow() const
+template <typename S>
+Matrix3<S> IMatrix3<S>::getLow() const
 {
-  Matrix3<Scalar> m;
+  Matrix3<S> m;
   m << v_[0][0][1], v_[0][1][1], v_[0][2][1],
        v_[1][0][1], v_[1][1][1], v_[1][2][1],
        v_[2][0][1], v_[2][1][1], v_[2][2][1];
@@ -231,10 +231,10 @@ Matrix3<Scalar> IMatrix3<Scalar>::getLow() const
 }
 
 //==============================================================================
-template <typename Scalar>
-Matrix3<Scalar> IMatrix3<Scalar>::getHigh() const
+template <typename S>
+Matrix3<S> IMatrix3<S>::getHigh() const
 {
-  Matrix3<Scalar> m;
+  Matrix3<S> m;
   m << v_[0][0][1], v_[0][1][1], v_[0][2][1],
        v_[1][0][1], v_[1][1][1], v_[1][2][1],
        v_[2][0][1], v_[2][1][1], v_[2][2][1];
@@ -242,44 +242,44 @@ Matrix3<Scalar> IMatrix3<Scalar>::getHigh() const
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> IMatrix3<Scalar>::operator * (const Matrix3<Scalar>& m) const
+template <typename S>
+IMatrix3<S> IMatrix3<S>::operator * (const Matrix3<S>& m) const
 {
-  return IMatrix3(IVector3<Scalar>(v_[0].dot(m.col(0)), v_[0].dot(m.col(1)), v_[0].dot(m.col(2))),
-                  IVector3<Scalar>(v_[1].dot(m.col(0)), v_[1].dot(m.col(1)), v_[1].dot(m.col(2))),
-                  IVector3<Scalar>(v_[2].dot(m.col(0)), v_[2].dot(m.col(1)), v_[2].dot(m.col(2))));
+  return IMatrix3(IVector3<S>(v_[0].dot(m.col(0)), v_[0].dot(m.col(1)), v_[0].dot(m.col(2))),
+                  IVector3<S>(v_[1].dot(m.col(0)), v_[1].dot(m.col(1)), v_[1].dot(m.col(2))),
+                  IVector3<S>(v_[2].dot(m.col(0)), v_[2].dot(m.col(1)), v_[2].dot(m.col(2))));
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> IMatrix3<Scalar>::operator * (const Vector3<Scalar>& v) const
+template <typename S>
+IVector3<S> IMatrix3<S>::operator * (const Vector3<S>& v) const
 {
-  return IVector3<Scalar>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
+  return IVector3<S>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 //==============================================================================
-template <typename Scalar>
-IVector3<Scalar> IMatrix3<Scalar>::operator * (const IVector3<Scalar>& v) const
+template <typename S>
+IVector3<S> IMatrix3<S>::operator * (const IVector3<S>& v) const
 {
-  return IVector3<Scalar>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
+  return IVector3<S>(v_[0].dot(v), v_[1].dot(v), v_[2].dot(v));
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> IMatrix3<Scalar>::operator * (const IMatrix3<Scalar>& m) const
+template <typename S>
+IMatrix3<S> IMatrix3<S>::operator * (const IMatrix3<S>& m) const
 {
-  const IVector3<Scalar>& mc0 = m.getColumn(0);
-  const IVector3<Scalar>& mc1 = m.getColumn(1);
-  const IVector3<Scalar>& mc2 = m.getColumn(2);
+  const IVector3<S>& mc0 = m.getColumn(0);
+  const IVector3<S>& mc1 = m.getColumn(1);
+  const IVector3<S>& mc2 = m.getColumn(2);
 
-  return IMatrix3(IVector3<Scalar>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
-                  IVector3<Scalar>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
-                  IVector3<Scalar>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
+  return IMatrix3(IVector3<S>(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2)),
+                  IVector3<S>(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2)),
+                  IVector3<S>(v_[2].dot(mc0), v_[2].dot(mc1), v_[2].dot(mc2)));
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>& IMatrix3<Scalar>::operator *= (const Matrix3<Scalar>& m)
+template <typename S>
+IMatrix3<S>& IMatrix3<S>::operator *= (const Matrix3<S>& m)
 {
   v_[0].setValue(v_[0].dot(m.col(0)), v_[0].dot(m.col(1)), v_[0].dot(m.col(2)));
   v_[1].setValue(v_[1].dot(m.col(0)), v_[1].dot(m.col(1)), v_[1].dot(m.col(2)));
@@ -288,12 +288,12 @@ IMatrix3<Scalar>& IMatrix3<Scalar>::operator *= (const Matrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>& IMatrix3<Scalar>::operator *= (const IMatrix3<Scalar>& m)
+template <typename S>
+IMatrix3<S>& IMatrix3<S>::operator *= (const IMatrix3<S>& m)
 {
-  const IVector3<Scalar>& mc0 = m.getColumn(0);
-  const IVector3<Scalar>& mc1 = m.getColumn(1);
-  const IVector3<Scalar>& mc2 = m.getColumn(2);
+  const IVector3<S>& mc0 = m.getColumn(0);
+  const IVector3<S>& mc1 = m.getColumn(1);
+  const IVector3<S>& mc2 = m.getColumn(2);
 
   v_[0].setValue(v_[0].dot(mc0), v_[0].dot(mc1), v_[0].dot(mc2));
   v_[1].setValue(v_[1].dot(mc0), v_[1].dot(mc1), v_[1].dot(mc2));
@@ -302,15 +302,15 @@ IMatrix3<Scalar>& IMatrix3<Scalar>::operator *= (const IMatrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> IMatrix3<Scalar>::operator + (const IMatrix3<Scalar>& m) const
+template <typename S>
+IMatrix3<S> IMatrix3<S>::operator + (const IMatrix3<S>& m) const
 {
   return IMatrix3(v_[0] + m.v_[0], v_[1] + m.v_[1], v_[2] + m.v_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>& IMatrix3<Scalar>::operator += (const IMatrix3<Scalar>& m)
+template <typename S>
+IMatrix3<S>& IMatrix3<S>::operator += (const IMatrix3<S>& m)
 {
   v_[0] += m.v_[0];
   v_[1] += m.v_[1];
@@ -319,15 +319,15 @@ IMatrix3<Scalar>& IMatrix3<Scalar>::operator += (const IMatrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> IMatrix3<Scalar>::operator - (const IMatrix3<Scalar>& m) const
+template <typename S>
+IMatrix3<S> IMatrix3<S>::operator - (const IMatrix3<S>& m) const
 {
   return IMatrix3(v_[0] - m.v_[0], v_[1] - m.v_[1], v_[2] - m.v_[2]);
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>& IMatrix3<Scalar>::operator -= (const IMatrix3<Scalar>& m)
+template <typename S>
+IMatrix3<S>& IMatrix3<S>::operator -= (const IMatrix3<S>& m)
 {
   v_[0] -= m.v_[0];
   v_[1] -= m.v_[1];
@@ -336,8 +336,8 @@ IMatrix3<Scalar>& IMatrix3<Scalar>::operator -= (const IMatrix3<Scalar>& m)
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar>& IMatrix3<Scalar>::rotationConstrain()
+template <typename S>
+IMatrix3<S>& IMatrix3<S>::rotationConstrain()
 {
   for(std::size_t i = 0; i < 3; ++i)
   {
@@ -355,8 +355,8 @@ IMatrix3<Scalar>& IMatrix3<Scalar>::rotationConstrain()
 }
 
 //==============================================================================
-template <typename Scalar>
-void IMatrix3<Scalar>::print() const
+template <typename S>
+void IMatrix3<S>::print() const
 {
   std::cout << "[" << v_[0][0][0] << "," << v_[0][0][1] << "]" << " [" << v_[0][1][0] << "," << v_[0][1][1] << "]" << " [" << v_[0][2][0] << "," << v_[0][2][1] << "]" << std::endl;
   std::cout << "[" << v_[1][0][0] << "," << v_[1][0][1] << "]" << " [" << v_[1][1][0] << "," << v_[1][1][1] << "]" << " [" << v_[1][2][0] << "," << v_[1][2][1] << "]" << std::endl;
@@ -364,10 +364,10 @@ void IMatrix3<Scalar>::print() const
 }
 
 //==============================================================================
-template <typename Scalar>
-IMatrix3<Scalar> rotationConstrain(const IMatrix3<Scalar>& m)
+template <typename S>
+IMatrix3<S> rotationConstrain(const IMatrix3<S>& m)
 {
-  IMatrix3<Scalar> res;
+  IMatrix3<S> res;
   for(std::size_t i = 0; i < 3; ++i)
   {
     for(std::size_t j = 0; j < 3; ++j)

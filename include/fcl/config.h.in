@@ -33,8 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FCL_CONFIG_
-#define FCL_CONFIG_
+#ifndef FCL_CONFIG_H
+#define FCL_CONFIG_H
 
 #define FCL_VERSION "@FCL_VERSION@"
 #define FCL_MAJOR_VERSION @FCL_MAJOR_VERSION@
@@ -45,8 +45,7 @@
 #cmakedefine01 FCL_HAVE_OCTOMAP
 #cmakedefine01 FCL_HAVE_TINYXML
 
-#cmakedefine01 FCL_BUILD_TYPE_DEBUG
-#cmakedefine01 FCL_BUILD_TYPE_RELEASE
+#cmakedefine01 FCL_ENABLE_PROFILING
 
 // Detect the compiler
 #if defined(__clang__)
