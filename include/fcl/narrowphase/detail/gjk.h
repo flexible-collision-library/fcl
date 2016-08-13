@@ -118,6 +118,8 @@ struct MinkowskiDiff
     else
       return support0(d, v);
   }
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MinkowskiDifff = MinkowskiDiff<float>;

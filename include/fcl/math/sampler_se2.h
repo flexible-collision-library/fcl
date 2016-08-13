@@ -70,6 +70,8 @@ protected:
   Vector2<S> lower_bound;
   Vector2<S> upper_bound;
 
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using SamplerSE2f = SamplerSE2<float>;

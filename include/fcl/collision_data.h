@@ -380,6 +380,8 @@ struct ContinuousCollisionResult
   Transform3<S> contact_tf1, contact_tf2;
   
   ContinuousCollisionResult();
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using ContinuousCollisionResultf = ContinuousCollisionResult<float>;
@@ -413,6 +415,8 @@ struct PenetrationDepthResult
 
   /// @brief the transform where the collision is resolved
   Transform3<S> resolved_tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 //============================================================================//
