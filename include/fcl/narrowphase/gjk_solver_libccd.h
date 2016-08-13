@@ -240,7 +240,7 @@ struct ShapeIntersectLibccdImpl
             &point,
             &depth,
             &normal);
-      contacts->push_back(ContactPoint<S>(normal, point, depth));
+      contacts->emplace_back(normal, point, depth);
     }
     else
     {

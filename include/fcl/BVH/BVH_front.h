@@ -83,7 +83,7 @@ inline BVHFrontNode::BVHFrontNode(int left_, int right_)
 //==============================================================================
 inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
 {
-  if(front_list) front_list->push_back(BVHFrontNode(b1, b2));
+  if(front_list) front_list->emplace_back(b1, b2);
 }
 
 } // namespace fcl

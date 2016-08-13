@@ -117,7 +117,7 @@ bool sphereCapsuleIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
     const Vector3<S> point = tf2 * (segment_point + local_normal * distance);
     const S penetration_depth = -distance;
 
-    contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+    contacts->emplace_back(normal, point, penetration_depth);
   }
 
   return true;

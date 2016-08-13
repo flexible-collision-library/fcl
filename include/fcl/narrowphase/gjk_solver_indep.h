@@ -260,7 +260,7 @@ struct ShapeIntersectIndepImpl
             Vector3<S> normal = epa.normal;
             Vector3<S> point = tf1 * (w0 - epa.normal*(epa.depth *0.5));
             S depth = -epa.depth;
-            contacts->push_back(ContactPoint<S>(normal, point, depth));
+            contacts->emplace_back(normal, point, depth);
           }
           return true;
         }

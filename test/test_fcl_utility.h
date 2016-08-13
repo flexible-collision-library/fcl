@@ -291,8 +291,7 @@ void loadOBJFile(const char* filename, std::vector<Vector3<S>>& points, std::vec
           S x = (S)atof(strtok(nullptr, "\t "));
           S y = (S)atof(strtok(nullptr, "\t "));
           S z = (S)atof(strtok(nullptr, "\t "));
-          Vector3<S> p(x, y, z);
-          points.push_back(p);
+          points.emplace_back(x, y, z);
         }
       }
       break;
