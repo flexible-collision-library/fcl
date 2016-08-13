@@ -228,10 +228,10 @@ template <typename BV, typename Shape, typename NarrowPhaseSolver>
 MeshShapeCollisionTraversalNode<BV, Shape, NarrowPhaseSolver>::MeshShapeCollisionTraversalNode()
   : BVHShapeCollisionTraversalNode<BV, Shape>()
 {
-  vertices = NULL;
-  tri_indices = NULL;
+  vertices = nullptr;
+  tri_indices = nullptr;
 
-  nsolver = NULL;
+  nsolver = nullptr;
 }
 
 //==============================================================================
@@ -255,7 +255,7 @@ void MeshShapeCollisionTraversalNode<BV, Shape, NarrowPhaseSolver>::leafTesting(
 
     if(!this->request.enable_contact)
     {
-      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
+      if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, nullptr, nullptr, nullptr))
       {
         is_intersect = true;
         if(this->request.num_max_contacts > this->result->numContacts())
@@ -287,7 +287,7 @@ void MeshShapeCollisionTraversalNode<BV, Shape, NarrowPhaseSolver>::leafTesting(
   }
   if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
   {
-    if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, NULL, NULL, NULL))
+    if(nsolver->shapeTriangleIntersect(*(this->model2), this->tf2, p1, p2, p3, nullptr, nullptr, nullptr))
     {
       AABB<S> overlap_part;
       AABB<S> shape_aabb;
@@ -398,7 +398,7 @@ void meshShapeCollisionOrientedNodeLeafTesting(
 
     if(!request.enable_contact) // only interested in collision or not
     {
-      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
+      if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, nullptr, nullptr, nullptr))
       {
         is_intersect = true;
         if(request.num_max_contacts > result.numContacts())
@@ -430,7 +430,7 @@ void meshShapeCollisionOrientedNodeLeafTesting(
   }
   else if((!model1->isFree() || model2.isFree()) && request.enable_cost)
   {
-    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, NULL, NULL, NULL))
+    if(nsolver->shapeTriangleIntersect(model2, tf2, p1, p2, p3, tf1, nullptr, nullptr, nullptr))
     {
       AABB<S> overlap_part;
       AABB<S> shape_aabb;

@@ -652,8 +652,8 @@ struct ApplyImpl<S, OBBRSS<S>>
 template <typename BV>
 void BVSplitter<BV>::clear()
 {
-  vertices = NULL;
-  tri_indices = NULL;
+  vertices = nullptr;
+  tri_indices = nullptr;
   type = BVH_MODEL_UNKNOWN;
 }
 

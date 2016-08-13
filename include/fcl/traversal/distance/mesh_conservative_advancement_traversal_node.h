@@ -271,8 +271,8 @@ MeshConservativeAdvancementTraversalNode(typename BV::S w_)
 
   w = w_;
 
-  motion1 = NULL;
-  motion2 = NULL;
+  motion1 = nullptr;
+  motion2 = nullptr;
 }
 
 //==============================================================================

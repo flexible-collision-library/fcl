@@ -109,7 +109,7 @@ void fit3(Vector3<S>* ps, OBB<S>& bv)
   bv.axis.col(0).normalize();
   bv.axis.col(1).noalias() = bv.axis.col(2).cross(bv.axis.col(0));
 
-  getExtentAndCenter<S>(ps, NULL, NULL, NULL, 3, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, 3, bv.axis, bv.To, bv.extent);
 }
 
 template <typename S>
@@ -128,12 +128,12 @@ void fitn(Vector3<S>* ps, int n, OBB<S>& bv)
   Matrix3<S> E;
   Vector3<S> s = Vector3<S>::Zero(); // three eigen values
 
-  getCovariance<S>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<S>(ps, nullptr, nullptr, nullptr, n, M);
   eigen_old(M, s, E);
   axisFromEigen(E, s, bv.axis);
 
   // set obb centers and extensions
-  getExtentAndCenter<S>(ps, NULL, NULL, NULL, n, bv.axis, bv.To, bv.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, n, bv.axis, bv.To, bv.extent);
 }
 
 } // namespace OBB_fit_functions
@@ -192,7 +192,7 @@ void fit3(Vector3<S>* ps, RSS<S>& bv)
   bv.axis.col(0).noalias() = e[imax].normalized();
   bv.axis.col(1).noalias() = bv.axis.col(2).cross(bv.axis.col(0));
 
-  getRadiusAndOriginAndRectangleSize<S>(ps, NULL, NULL, NULL, 3, bv.axis, bv.To, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<S>(ps, nullptr, nullptr, nullptr, 3, bv.axis, bv.To, bv.l, bv.r);
 }
 
 template <typename S>
@@ -211,12 +211,12 @@ void fitn(Vector3<S>* ps, int n, RSS<S>& bv)
   Matrix3<S> E; // row first eigen-vectors
   Vector3<S> s = Vector3<S>::Zero();
 
-  getCovariance<S>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<S>(ps, nullptr, nullptr, nullptr, n, M);
   eigen_old(M, s, E);
   axisFromEigen(E, s, bv.axis);
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<S>(ps, NULL, NULL, NULL, n, bv.axis, bv.To, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<S>(ps, nullptr, nullptr, nullptr, n, bv.axis, bv.To, bv.l, bv.r);
 }
 
 } // namespace RSS_fit_functions
@@ -296,7 +296,7 @@ void fit3(Vector3<S>* ps, kIOS<S>& bv)
   bv.obb.axis.col(0) = e[imax].normalized();
   bv.obb.axis.col(1).noalias() = bv.obb.axis.col(2).cross(bv.obb.axis.col(0));
 
-  getExtentAndCenter<S>(ps, NULL, NULL, NULL, 3, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, 3, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   // compute radius and center
   S r0;
@@ -322,16 +322,16 @@ void fitn(Vector3<S>* ps, int n, kIOS<S>& bv)
   Matrix3<S> E;
   Vector3<S> s = Vector3<S>::Zero(); // three eigen values;
 
-  getCovariance<S>(ps, NULL, NULL, NULL, n, M);
+  getCovariance<S>(ps, nullptr, nullptr, nullptr, n, M);
   eigen_old(M, s, E);
   axisFromEigen(E, s, bv.obb.axis);
 
-  getExtentAndCenter<S>(ps, NULL, NULL, NULL, n, bv.obb.axis, bv.obb.To, bv.obb.extent);
+  getExtentAndCenter<S>(ps, nullptr, nullptr, nullptr, n, bv.obb.axis, bv.obb.To, bv.obb.extent);
 
   // get center and extension
   const Vector3<S>& center = bv.obb.To;
   const Vector3<S>& extent = bv.obb.extent;
-  S r0 = maximumDistance<S>(ps, NULL, NULL, NULL, n, center);
+  S r0 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, center);
 
   // decide the k in kIOS<S>
   if(extent[0] > kIOS<S>::ratio() * extent[2])
@@ -353,8 +353,8 @@ void fitn(Vector3<S>* ps, int n, kIOS<S>& bv)
     bv.spheres[2].o = center + delta;
 
     S r11 = 0, r12 = 0;
-    r11 = maximumDistance<S>(ps, NULL, NULL, NULL, n, bv.spheres[1].o);
-    r12 = maximumDistance<S>(ps, NULL, NULL, NULL, n, bv.spheres[2].o);
+    r11 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[1].o);
+    r12 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[2].o);
     bv.spheres[1].o.noalias() += bv.obb.axis.col(2) * (-r10 + r11);
     bv.spheres[2].o.noalias() += bv.obb.axis.col(2) * (r10 - r12);
 
@@ -370,8 +370,8 @@ void fitn(Vector3<S>* ps, int n, kIOS<S>& bv)
     bv.spheres[4].o = bv.spheres[0].o + delta;
 
     S r21 = 0, r22 = 0;
-    r21 = maximumDistance<S>(ps, NULL, NULL, NULL, n, bv.spheres[3].o);
-    r22 = maximumDistance<S>(ps, NULL, NULL, NULL, n, bv.spheres[4].o);
+    r21 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[3].o);
+    r22 = maximumDistance<S>(ps, nullptr, nullptr, nullptr, n, bv.spheres[4].o);
 
     bv.spheres[3].o.noalias() += bv.obb.axis.col(1) * (-r10 + r21);
     bv.spheres[4].o.noalias() += bv.obb.axis.col(1) * (r10 - r22);

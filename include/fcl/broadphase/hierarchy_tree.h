@@ -60,7 +60,7 @@ struct NodeBase
   NodeBase<BV>* parent;
 
   /// @brief whether is a leaf
-  bool isLeaf() const { return (children[1] == NULL); }
+  bool isLeaf() const { return (children[1] == nullptr); }
 
   /// @brief whether is internal node
   bool isInternal() const { return !isLeaf(); }
@@ -77,9 +77,9 @@ struct NodeBase
 
   NodeBase()
   {
-    parent = NULL;
-    children[0] = NULL;
-    children[1] = NULL;
+    parent = nullptr;
+    children[0] = nullptr;
+    children[1] = nullptr;
   }
 };
 
@@ -619,9 +619,9 @@ const size_t HierarchyTree<BV>::NULL_NODE;
 template<typename BV>
 HierarchyTree<BV>::HierarchyTree(int bu_threshold_, int topdown_level_)
 {
-  root_node = NULL;
+  root_node = nullptr;
   n_leaves = 0;
-  free_node = NULL;
+  free_node = nullptr;
   max_lookahead_level = -1;
   opath = 0;
   bu_threshold = bu_threshold_;
@@ -659,7 +659,7 @@ void HierarchyTree<BV>::init(std::vector<NodeType*>& leaves, int level)
 template<typename BV>
 typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::insert(const BV& bv, void* data)
 {
-  NodeType* leaf = createNode(NULL, bv, data);
+  NodeType* leaf = createNode(nullptr, bv, data);
   insertLeaf(root_node, leaf);
   ++n_leaves;
   return leaf;
@@ -680,7 +680,7 @@ void HierarchyTree<BV>::clear()
     recurseDeleteNode(root_node);
   n_leaves = 0;
   delete free_node;
-  free_node = NULL;
+  free_node = nullptr;
   max_lookahead_level = -1;
   opath = 0;
 }
@@ -688,7 +688,7 @@ void HierarchyTree<BV>::clear()
 template<typename BV>
 bool HierarchyTree<BV>::empty() const
 {
-  return (NULL == root_node);
+  return (nullptr == root_node);
 }
 
 template<typename BV>
@@ -898,7 +898,7 @@ void HierarchyTree<BV>::bottomup(const NodeVecIterator lbeg, const NodeVecIterat
     }
 
     NodeType* n[2] = {*min_it1, *min_it2};
-    NodeType* p = createNode(NULL, n[0]->bv, n[1]->bv, NULL);
+    NodeType* p = createNode(nullptr, n[0]->bv, n[1]->bv, nullptr);
     p->children[0] = n[0];
     p->children[1] = n[1];
     n[0]->parent = p;
@@ -973,7 +973,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_0(const NodeVec
       NodeVecIterator lcenter = lbeg + num_leaves / 2;
       std::nth_element(lbeg, lcenter, lend, std::bind(&nodeBaseLess<BV>, std::placeholders::_1, std::placeholders::_2, std::ref(best_axis)));
 
-      NodeType* node = createNode(NULL, vol, NULL);
+      NodeType* node = createNode(nullptr, vol, nullptr);
       node->children[0] = topdown_0(lbeg, lcenter);
       node->children[1] = topdown_0(lcenter, lend);
       node->children[0]->parent = node;
@@ -1044,7 +1044,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::topdown_1(const NodeVec
         }
       }
 
-      NodeType* node = createNode(NULL, vol, NULL);
+      NodeType* node = createNode(nullptr, vol, nullptr);
       node->children[0] = topdown_1(lbeg, lcenter);
       node->children[1] = topdown_1(lcenter, lend);
       node->children[0]->parent = node;
@@ -1174,7 +1174,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_0(const N
 
         NodeType* child1 = mortonRecurse_0(lbeg, lcenter, split1, bits - 1);
         NodeType* child2 = mortonRecurse_0(lcenter, lend, split2, bits - 1);
-        NodeType* node = createNode(NULL, NULL);
+        NodeType* node = createNode(nullptr, nullptr);
         node->children[0] = child1;
         node->children[1] = child2;
         child1->parent = node;
@@ -1221,7 +1221,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_1(const N
 
         NodeType* child1 = mortonRecurse_1(lbeg, lcenter, split1, bits - 1);
         NodeType* child2 = mortonRecurse_1(lcenter, lend, split2, bits - 1);
-        NodeType* node = createNode(NULL, NULL);
+        NodeType* node = createNode(nullptr, nullptr);
         node->children[0] = child1;
         node->children[1] = child2;
         child1->parent = node;
@@ -1233,7 +1233,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_1(const N
     {
       NodeType* child1 = mortonRecurse_1(lbeg, lbeg + num_leaves / 2, 0, bits - 1);
       NodeType* child2 = mortonRecurse_1(lbeg + num_leaves / 2, lend, 0, bits - 1);
-      NodeType* node = createNode(NULL, NULL);
+      NodeType* node = createNode(nullptr, nullptr);
       node->children[0] = child1;
       node->children[1] = child2;
       child1->parent = node;
@@ -1253,7 +1253,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::mortonRecurse_2(const N
   {
     NodeType* child1 = mortonRecurse_2(lbeg, lbeg + num_leaves / 2);
     NodeType* child2 = mortonRecurse_2(lbeg + num_leaves / 2, lend);
-    NodeType* node = createNode(NULL, NULL);
+    NodeType* node = createNode(nullptr, nullptr);
     node->children[0] = child1;
     node->children[1] = child2;
     child1->parent = node;
@@ -1316,7 +1316,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
   if(!root_node)
   {
     root_node = leaf;
-    leaf->parent = NULL;
+    leaf->parent = nullptr;
   }
   else
   {
@@ -1330,7 +1330,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
     }
 
     NodeType* prev = root->parent;
-    NodeType* node = createNode(prev, leaf->bv, root->bv, NULL);
+    NodeType* node = createNode(prev, leaf->bv, root->bv, nullptr);
     if(prev)
     {
       prev->children[indexOf(root)] = node;
@@ -1343,7 +1343,7 @@ void HierarchyTree<BV>::insertLeaf(NodeType* root, NodeType* leaf)
         else
           break;
         node = prev;
-      } while (NULL != (prev = node->parent));
+      } while (nullptr != (prev = node->parent));
     }
     else
     {
@@ -1359,8 +1359,8 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* le
 {
   if(leaf == root_node)
   {
-    root_node = NULL;
-    return NULL;
+    root_node = nullptr;
+    return nullptr;
   }
   else
   {
@@ -1388,7 +1388,7 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::removeLeaf(NodeType* le
     else
     {
       root_node = sibling;
-      sibling->parent = NULL;
+      sibling->parent = nullptr;
       deleteNode(parent);
       return root_node;
     }
@@ -1414,7 +1414,7 @@ void HierarchyTree<BV>::fetchLeaves(NodeType* root, std::vector<NodeType*>& leav
 template<typename BV>
 size_t HierarchyTree<BV>::indexOf(NodeType* node)
 {
-  // node cannot be NULL
+  // node cannot be nullptr
   return (node->parent->children[1] == node);
 }
 
@@ -1443,11 +1443,11 @@ typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::createNode(NodeType* pa
 template<typename BV>
 typename HierarchyTree<BV>::NodeType* HierarchyTree<BV>::createNode(NodeType* parent, void* data)
 {
-  NodeType* node = NULL;
+  NodeType* node = nullptr;
   if(free_node)
   {
     node = free_node;
-    free_node = NULL;
+    free_node = nullptr;
   }
   else
     node = new NodeType();
@@ -1476,7 +1476,7 @@ void HierarchyTree<BV>::recurseDeleteNode(NodeType* node)
     recurseDeleteNode(node->children[1]);
   }
 
-  if(node == root_node) root_node = NULL;
+  if(node == root_node) root_node = nullptr;
   deleteNode(node);
 }
 
@@ -1999,7 +1999,7 @@ void HierarchyTree<BV>::bottomup(size_t* lbeg, size_t* lend)
   size_t* lcur_end = lend;
   while(lbeg < lcur_end - 1)
   {
-    size_t* min_it1 = NULL, *min_it2 = NULL;
+    size_t* min_it1 = nullptr, *min_it2 = nullptr;
     S min_size = std::numeric_limits<S>::max();
     for(size_t* it1 = lbeg; it1 < lcur_end; ++it1)
     {
@@ -2015,7 +2015,7 @@ void HierarchyTree<BV>::bottomup(size_t* lbeg, size_t* lend)
       }
     }
 
-    size_t p = createNode(NULL_NODE, nodes[*min_it1].bv, nodes[*min_it2].bv, NULL);
+    size_t p = createNode(NULL_NODE, nodes[*min_it1].bv, nodes[*min_it2].bv, nullptr);
     nodes[p].children[0] = *min_it1;
     nodes[p].children[1] = *min_it2;
     nodes[*min_it1].parent = p;
@@ -2065,7 +2065,7 @@ size_t HierarchyTree<BV>::topdown_0(size_t* lbeg, size_t* lend)
       size_t* lcenter = lbeg + num_leaves / 2;
       std::nth_element(lbeg, lcenter, lend, comp);
 
-      size_t node = createNode(NULL_NODE, vol, NULL);
+      size_t node = createNode(NULL_NODE, vol, nullptr);
       nodes[node].children[0] = topdown_0(lbeg, lcenter);
       nodes[node].children[1] = topdown_0(lcenter, lend);
       nodes[nodes[node].children[0]].parent = node;
@@ -2135,7 +2135,7 @@ size_t HierarchyTree<BV>::topdown_1(size_t* lbeg, size_t* lend)
         }
       }
 
-      size_t node = createNode(NULL_NODE, vol, NULL);
+      size_t node = createNode(NULL_NODE, vol, nullptr);
       nodes[node].children[0] = topdown_1(lbeg, lcenter);
       nodes[node].children[1] = topdown_1(lcenter, lend);
       nodes[nodes[node].children[0]].parent = node;
@@ -2181,7 +2181,7 @@ size_t HierarchyTree<BV>::mortonRecurse_0(size_t* lbeg, size_t* lend, const FCL_
 
         size_t child1 = mortonRecurse_0(lbeg, lcenter, split1, bits - 1);
         size_t child2 = mortonRecurse_0(lcenter, lend, split2, bits - 1);
-        size_t node = createNode(NULL_NODE, NULL);
+        size_t node = createNode(NULL_NODE, nullptr);
         nodes[node].children[0] = child1;
         nodes[node].children[1] = child2;
         nodes[child1].parent = node;
@@ -2229,7 +2229,7 @@ size_t HierarchyTree<BV>::mortonRecurse_1(size_t* lbeg, size_t* lend, const FCL_
 
         size_t child1 = mortonRecurse_1(lbeg, lcenter, split1, bits - 1);
         size_t child2 = mortonRecurse_1(lcenter, lend, split2, bits - 1);
-        size_t node = createNode(NULL_NODE, NULL);
+        size_t node = createNode(NULL_NODE, nullptr);
         nodes[node].children[0] = child1;
         nodes[node].children[1] = child2;
         nodes[child1].parent = node;
@@ -2241,7 +2241,7 @@ size_t HierarchyTree<BV>::mortonRecurse_1(size_t* lbeg, size_t* lend, const FCL_
     {
       size_t child1 = mortonRecurse_1(lbeg, lbeg + num_leaves / 2, 0, bits - 1);
       size_t child2 = mortonRecurse_1(lbeg + num_leaves / 2, lend, 0, bits - 1);
-      size_t node = createNode(NULL_NODE, NULL);
+      size_t node = createNode(NULL_NODE, nullptr);
       nodes[node].children[0] = child1;
       nodes[node].children[1] = child2;
       nodes[child1].parent = node;
@@ -2261,7 +2261,7 @@ size_t HierarchyTree<BV>::mortonRecurse_2(size_t* lbeg, size_t* lend)
   {
     size_t child1 = mortonRecurse_2(lbeg, lbeg + num_leaves / 2);
     size_t child2 = mortonRecurse_2(lbeg + num_leaves / 2, lend);
-    size_t node = createNode(NULL_NODE, NULL);
+    size_t node = createNode(NULL_NODE, nullptr);
     nodes[node].children[0] = child1;
     nodes[node].children[1] = child2;
     nodes[child1].parent = node;
@@ -2292,7 +2292,7 @@ void HierarchyTree<BV>::insertLeaf(size_t root, size_t leaf)
     }
 
     size_t prev = nodes[root].parent;
-    size_t node = createNode(prev, nodes[leaf].bv, nodes[root].bv, NULL);
+    size_t node = createNode(prev, nodes[leaf].bv, nodes[root].bv, nullptr);
     if(prev != NULL_NODE)
     {
       nodes[prev].children[indexOf(root)] = node;

@@ -112,8 +112,8 @@ public:
   const Vector3<S> center() const;
 
   /// @brief Distance between two OBBs, not implemented.
-  S distance(const OBB& other, Vector3<S>* P = NULL,
-                  Vector3<S>* Q = NULL) const;
+  S distance(const OBB& other, Vector3<S>* P = nullptr,
+                  Vector3<S>* Q = nullptr) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -368,7 +368,7 @@ OBB<S> merge_largedist(const OBB<S>& b1, const OBB<S>& b2)
     vertex_proj[i].noalias() -= b.axis.col(0) * vertex[i].dot(b.axis.col(0));
   }
 
-  getCovariance<S>(vertex_proj, NULL, NULL, NULL, 16, M);
+  getCovariance<S>(vertex_proj, nullptr, nullptr, nullptr, 16, M);
   eigen_old(M, s, E);
 
   int min, mid, max;
@@ -403,7 +403,7 @@ OBB<S> merge_largedist(const OBB<S>& b1, const OBB<S>& b2)
 
   // set obb centers and extensions
   getExtentAndCenter<S>(
-        vertex, NULL, NULL, NULL, 16, b.axis, b.To, b.extent);
+        vertex, nullptr, nullptr, nullptr, 16, b.axis, b.To, b.extent);
 
   return b;
 }

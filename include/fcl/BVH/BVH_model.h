@@ -161,7 +161,7 @@ public:
   /// @brief Geometry point data
   Vector3<S>* vertices;
 
-  /// @brief Geometry triangle index data, will be NULL for point clouds
+  /// @brief Geometry triangle index data, will be nullptr for point clouds
   Triangle* tri_indices;
 
   /// @brief Geometry point data in previous frame
@@ -248,9 +248,9 @@ BVHModelType BVHModel<BV>::getModelType() const
 
 //==============================================================================
 template <typename BV>
-BVHModel<BV>::BVHModel() : vertices(NULL),
-  tri_indices(NULL),
-  prev_vertices(NULL),
+BVHModel<BV>::BVHModel() : vertices(nullptr),
+  tri_indices(nullptr),
+  prev_vertices(nullptr),
   num_tris(0),
   num_vertices(0),
   build_state(BVH_BUILD_STATE_EMPTY),
@@ -260,8 +260,8 @@ BVHModel<BV>::BVHModel() : vertices(NULL),
   num_vertices_allocated(0),
   num_bvs_allocated(0),
   num_vertex_updated(0),
-  primitive_indices(NULL),
-  bvs(NULL),
+  primitive_indices(nullptr),
+  bvs(nullptr),
   num_bvs(0)
 {
   // Do nothing
@@ -285,7 +285,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     memcpy(vertices, other.vertices, sizeof(Vector3<S>) * num_vertices);
   }
   else
-    vertices = NULL;
+    vertices = nullptr;
 
   if(other.tri_indices)
   {
@@ -293,7 +293,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     memcpy(tri_indices, other.tri_indices, sizeof(Triangle) * num_tris);
   }
   else
-    tri_indices = NULL;
+    tri_indices = nullptr;
 
   if(other.prev_vertices)
   {
@@ -301,7 +301,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     memcpy(prev_vertices, other.prev_vertices, sizeof(Vector3<S>) * num_vertices);
   }
   else
-    prev_vertices = NULL;
+    prev_vertices = nullptr;
 
   if(other.primitive_indices)
   {
@@ -322,7 +322,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     memcpy(primitive_indices, other.primitive_indices, sizeof(unsigned int) * num_primitives);
   }
   else
-    primitive_indices = NULL;
+    primitive_indices = nullptr;
 
   num_bvs = num_bvs_allocated = other.num_bvs;
   if(other.bvs)
@@ -331,7 +331,7 @@ BVHModel<BV>::BVHModel(const BVHModel<BV>& other)
     memcpy(bvs, other.bvs, sizeof(BVNode<BV>) * num_bvs);
   }
   else
-    bvs = NULL;
+    bvs = nullptr;
 }
 
 //==============================================================================
@@ -397,11 +397,11 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
 {
   if(build_state != BVH_BUILD_STATE_EMPTY)
   {
-    delete [] vertices; vertices = NULL;
-    delete [] tri_indices; tri_indices = NULL;
-    delete [] bvs; bvs = NULL;
-    delete [] prev_vertices; prev_vertices = NULL;
-    delete [] primitive_indices; primitive_indices = NULL;
+    delete [] vertices; vertices = nullptr;
+    delete [] tri_indices; tri_indices = nullptr;
+    delete [] bvs; bvs = nullptr;
+    delete [] prev_vertices; prev_vertices = nullptr;
+    delete [] primitive_indices; primitive_indices = nullptr;
 
     num_vertices_allocated = num_vertices = num_tris_allocated = num_tris = num_bvs_allocated = num_bvs = 0;
   }
@@ -704,7 +704,7 @@ int BVHModel<BV>::beginReplaceModel()
     return BVH_ERR_BUILD_EMPTY_PREVIOUS_FRAME;
   }
 
-  if(prev_vertices) delete [] prev_vertices; prev_vertices = NULL;
+  if(prev_vertices) delete [] prev_vertices; prev_vertices = nullptr;
 
   num_vertex_updated = 0;
 

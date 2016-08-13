@@ -86,12 +86,12 @@ struct BVNode : public BVNodeBase
   /// @brief Check whether two BVNode collide
   bool overlap(const BVNode& other) const;
 
-  /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and
+  /// @brief Compute the distance between two BVNode. P1 and P2, if not nullptr and
   /// the underlying BV supports distance, return the nearest points.
   S distance(
       const BVNode& other,
-      Vector3<S>* P1 = NULL,
-      Vector3<S>* P2 = NULL) const;
+      Vector3<S>* P1 = nullptr,
+      Vector3<S>* P2 = nullptr) const;
 
   /// @brief Access the center of the BV
   Vector3<S> getCenter() const;

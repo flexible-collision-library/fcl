@@ -166,9 +166,9 @@ BV BVFitter<BV>::fit(unsigned int* primitive_indices, int num_primitives)
 template <typename BV>
 void BVFitter<BV>::clear()
 {
-  vertices = NULL;
-  prev_vertices = NULL;
-  tri_indices = NULL;
+  vertices = nullptr;
+  prev_vertices = nullptr;
+  tri_indices = nullptr;
   type = BVH_MODEL_UNKNOWN;
 }
 
@@ -183,7 +183,7 @@ struct SetImpl
       BVHModelType type_)
   {
     fitter.vertices = vertices_;
-    fitter.prev_vertices = NULL;
+    fitter.prev_vertices = nullptr;
     fitter.tri_indices = tri_indices_;
     fitter.type = type_;
   }
@@ -213,7 +213,7 @@ struct SetImpl<S, OBB<S>>
       BVHModelType type_)
   {
     fitter.vertices = vertices_;
-    fitter.prev_vertices = NULL;
+    fitter.prev_vertices = nullptr;
     fitter.tri_indices = tri_indices_;
     fitter.type = type_;
   }
@@ -243,7 +243,7 @@ struct SetImpl<S, RSS<S>>
       BVHModelType type_)
   {
     fitter.vertices = vertices_;
-    fitter.prev_vertices = NULL;
+    fitter.prev_vertices = nullptr;
     fitter.tri_indices = tri_indices_;
     fitter.type = type_;
   }
@@ -273,7 +273,7 @@ struct SetImpl<S, kIOS<S>>
       BVHModelType type_)
   {
     fitter.vertices = vertices_;
-    fitter.prev_vertices = NULL;
+    fitter.prev_vertices = nullptr;
     fitter.tri_indices = tri_indices_;
     fitter.type = type_;
   }
@@ -303,7 +303,7 @@ struct SetImpl<S, OBBRSS<S>>
       BVHModelType type_)
   {
     fitter.vertices = vertices_;
-    fitter.prev_vertices = NULL;
+    fitter.prev_vertices = nullptr;
     fitter.tri_indices = tri_indices_;
     fitter.type = type_;
   }

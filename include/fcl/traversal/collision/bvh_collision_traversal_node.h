@@ -102,8 +102,8 @@ template <typename BV>
 BVHCollisionTraversalNode<BV>::BVHCollisionTraversalNode()
   : CollisionTraversalNodeBase<typename BV::S>()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
   num_bv_tests = 0;
   num_leaf_tests = 0;
