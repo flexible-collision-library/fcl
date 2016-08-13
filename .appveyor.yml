@@ -23,11 +23,13 @@ configuration:
   - Release
 
 before_build:
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
   - cmd: if not exist C:\"Program Files"\libccd\lib\ccd.lib (
             curl -L -o libccd-2.0.tar.gz https://github.com/danfis/libccd/archive/v2.0.tar.gz &&
             cmake -E tar zxf libccd-2.0.tar.gz &&
             cd libccd-2.0 &&
-            cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%Configuration% . &&
+            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% . &&
             cmake --build . --target install --config %Configuration% &&
             cd ..
          ) else (echo Using cached libccd)
@@ -37,14 +39,14 @@ before_build:
             cd eigen-eigen-dc6cfdf9bcec &&
             mkdir build &&
             cd build &&
-            cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%Configuration% .. &&
+            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% .. &&
             cmake --build . --target install --config %Configuration% &&
             cd ..\..
          ) else (echo Using cached Eigen3)
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIRS="C:\Program Files\libccd\include" -DCCD_LIBRARY="C:\Program Files\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\Program Files\Eigen\include\eigen3" ..
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIRS="C:\Program Files\libccd\include" -DCCD_LIBRARY="C:\Program Files\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\Program Files\Eigen\include\eigen3" ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
