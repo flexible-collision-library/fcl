@@ -25,6 +25,8 @@ configuration:
 before_build:
   - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015
   - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
+  - cmd: if "%platform%"=="Win32" set PROGRAM_FILES_PATH=Program Files (x86)
+  - cmd: if "%platform%"=="x64"   set PROGRAM_FILES_PATH=Program Files
   - cmd: if not exist C:\"Program Files"\libccd\lib\ccd.lib (
             curl -L -o libccd-2.0.tar.gz https://github.com/danfis/libccd/archive/v2.0.tar.gz &&
             cmake -E tar zxf libccd-2.0.tar.gz &&
@@ -46,7 +48,7 @@ before_build:
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIRS="C:\Program Files\libccd\include" -DCCD_LIBRARY="C:\Program Files\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\Program Files\Eigen\include\eigen3" ..
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIRS="C:\%PROGRAM_FILES_PATH%\libccd\include" -DCCD_LIBRARY="C:\%PROGRAM_FILES_PATH%\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\%PROGRAM_FILES_PATH%\Eigen\include\eigen3" ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
