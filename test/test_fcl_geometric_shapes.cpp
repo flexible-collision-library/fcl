@@ -956,6 +956,57 @@ GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder)
 }
 
 template <typename S>
+void test_shapeIntersection_cylindercylinder_fingers()
+{
+  Cylinder<S> s1(0.007, 0.040);
+  Cylinder<S> s2(0.007, 0.025);
+  Transform3<S> tf1;
+  Transform3<S> tf2;
+  std::vector<ContactPoint<S>> contacts;
+
+  Transform3<S> tfj1pos(Translation3<S>(Vector3<S>(0.011, 0, 0.004)));
+  Transform3<S> tfs1center(Translation3<S>(Vector3<S>(0.0, 0, 0.025)));
+  Transform3<S> tfs2center(Translation3<S>(Vector3<S>(0.0, 0, 0.0575)));
+  Transform3<S> tfj2pos(Translation3<S>(Vector3<S>(-0.011, 0, 0.0)));
+
+  Quaternion<S> q(AngleAxis<S>((S)-0.13, Vector3<S>(0, -1, 0)));
+  Transform3<S> tfj1rot = Transform3<S>(q);
+  q = AngleAxis<S>((S)0.12, Vector3<S>(0, 1, 0));
+  Transform3<S> tfj2rot = Transform3<S>(q);
+  std::cout << "test: no proximal / middle offset (both at same height)\n";
+  // without offset
+  tf1 = tfj1pos;
+  tf2 = tfj2pos;
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false, contacts, false, false, false, false);
+  std::cout << "test: proximal and middle as in the hand\n";
+  // without rotation
+  tf1 = tfj1pos *  tfs1center;
+  tf2 = tfj2pos *  tfs2center;
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false, contacts, false, false, false, false);
+  std::cout << "test: proximal and middle as in the hand with 0.12 rad angle\n";
+  // with rotation ok
+  tf1 = tfj1pos * tfj1rot * tfs1center;
+  tf2 = tfj2pos * tfj2rot * tfs2center;
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false, contacts, false, false, false, false);
+
+  std::cout << "test: proximal and middle as in the hand with 0.13 rad angle\n";
+  // with rotation 0.01 RAD more
+  q = AngleAxis<S>((S)0.13, Vector3<S>(0, 1, 0));
+  tfj2rot = Transform3<S>(q);
+
+  tf1 = tfj1pos * tfj1rot * tfs1center;
+  tf2 = tfj2pos * tfj2rot * tfs2center;
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, false, contacts, false, false, false, false);
+
+}
+
+GTEST_TEST(FCL_GEOMETRIC_SHAPES, shapeIntersection_cylindercylinder_fingers)
+{
+//  test_shapeIntersection_cylindercylinder_fingers<float>();
+  test_shapeIntersection_cylindercylinder_fingers<double>();
+}
+
+template <typename S>
 void test_shapeIntersection_conecone()
 {
   Cone<S> s1(5, 10);
