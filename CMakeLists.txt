@@ -36,14 +36,13 @@ else()
 endif()
 
 # Whether to enable SSE
-option(FCL_USE_SSE "Whether FCL should SSE instructions" OFF)
-set(FCL_HAVE_SSE 0)
+option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
 if(FCL_USE_SSE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(FCL_HAVE_SSE 0) #always disable, for now
     add_definitions(-march=native)
+  elseif(MSVC)
+    add_definitions(/arch:SSE2)
   endif()
-  # TODO: do something similar for other compilers
 endif()
 
 # Coveralls support
