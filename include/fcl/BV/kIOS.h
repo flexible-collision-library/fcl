@@ -114,7 +114,7 @@ public:
   /// @brief The distance between two kIOS
   S distance(
       const kIOS<S>& other,
-      Vector3<S>* P = NULL, Vector3<S>* Q = NULL) const;
+      Vector3<S>* P = nullptr, Vector3<S>* Q = nullptr) const;
 
   static constexpr S ratio() { return 1.5; }
   static constexpr S invSinA() { return 2; }
@@ -155,8 +155,8 @@ S distance(
     const Eigen::MatrixBase<DerivedB>& T0,
     const kIOS<S>& b1,
     const kIOS<S>& b2,
-    Vector3<S>* P = NULL,
-    Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
 
 /// @brief Approximate distance between two kIOS bounding volumes
 /// @todo P and Q is not returned, need implementation
@@ -165,8 +165,8 @@ S distance(
     const Transform3<S>& tf,
     const kIOS<S>& b1,
     const kIOS<S>& b2,
-    Vector3<S>* P = NULL,
-    Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
 
 //============================================================================//
 //                                                                            //

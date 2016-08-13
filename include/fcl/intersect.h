@@ -115,10 +115,10 @@ public:
   /// @brief CD intersect between two triangles [P1, P2, P3] and [Q1, Q2, Q3] 
   static bool intersect_Triangle(const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3,
                                  const Vector3<S>& Q1, const Vector3<S>& Q2, const Vector3<S>& Q3,
-                                 Vector3<S>* contact_points = NULL,
-                                 unsigned int* num_contact_points = NULL,
-                                 S* penetration_depth = NULL,
-                                 Vector3<S>* normal = NULL);
+                                 Vector3<S>* contact_points = nullptr,
+                                 unsigned int* num_contact_points = nullptr,
+                                 S* penetration_depth = nullptr,
+                                 Vector3<S>* normal = nullptr);
 
   static bool intersect_Triangle(
       const Vector3<S>& P1,
@@ -129,10 +129,10 @@ public:
       const Vector3<S>& Q3,
       const Matrix3<S>& R,
       const Vector3<S>& T,
-      Vector3<S>* contact_points = NULL,
-      unsigned int* num_contact_points = NULL,
-      S* penetration_depth = NULL,
-      Vector3<S>* normal = NULL);
+      Vector3<S>* contact_points = nullptr,
+      unsigned int* num_contact_points = nullptr,
+      S* penetration_depth = nullptr,
+      Vector3<S>* normal = nullptr);
 
   static bool intersect_Triangle(
       const Vector3<S>& P1,
@@ -142,10 +142,10 @@ public:
       const Vector3<S>& Q2,
       const Vector3<S>& Q3,
       const Transform3<S>& tf,
-      Vector3<S>* contact_points = NULL,
-      unsigned int* num_contact_points = NULL,
-      S* penetration_depth = NULL,
-      Vector3<S>* normal = NULL);
+      Vector3<S>* contact_points = nullptr,
+      unsigned int* num_contact_points = nullptr,
+      S* penetration_depth = nullptr,
+      Vector3<S>* normal = nullptr);
   
 private:
 
@@ -160,7 +160,7 @@ private:
   /// @brief Solve the cubic function using Newton method, also satisfies the interval restriction 
   static bool solveCubicWithIntervalNewton(const Vector3<S>& a0, const Vector3<S>& b0, const Vector3<S>& c0, const Vector3<S>& d0,
                                            const Vector3<S>& va, const Vector3<S>& vb, const Vector3<S>& vc, const Vector3<S>& vd,
-                                           S& l, S& r, bool bVF, S coeffs[], Vector3<S>* data = NULL);
+                                           S& l, S& r, bool bVF, S coeffs[], Vector3<S>* data = nullptr);
 
   /// @brief Check whether one point p is within triangle [a, b, c] 
   static bool insideTriangle(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, const Vector3<S>&p);
@@ -184,7 +184,7 @@ private:
   /// @brief Check whether a root for EE intersection is valid (i.e. within the two edges intersected at the given time 
   static bool checkRootValidity_EE(const Vector3<S>& a0, const Vector3<S>& b0, const Vector3<S>& c0, const Vector3<S>& d0,
                                    const Vector3<S>& va, const Vector3<S>& vb, const Vector3<S>& vc, const Vector3<S>& vd,
-                                   S t, Vector3<S>* q_i = NULL);
+                                   S t, Vector3<S>* q_i = nullptr);
 
   /// @brief Check whether a root for VE intersection is valid 
   static bool checkRootValidity_VE(const Vector3<S>& a0, const Vector3<S>& b0, const Vector3<S>& p0,

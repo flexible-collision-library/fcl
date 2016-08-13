@@ -132,7 +132,7 @@ public:
   /// @brief The distance between two KDOP<S, N>. Not implemented.
   S distance(
       const KDOP<S, N>& other,
-      Vector3<S>* P = NULL, Vector3<S>* Q = NULL) const;
+      Vector3<S>* P = nullptr, Vector3<S>* Q = nullptr) const;
 
 private:
   /// @brief Origin's distances to N KDOP planes

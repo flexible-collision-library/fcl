@@ -54,7 +54,7 @@ public:
   IntervalTreeCollisionManager() : setup_(false)
   {
     for(int i = 0; i < 3; ++i)
-      interval_trees[i] = NULL;
+      interval_trees[i] = nullptr;
   }
 
   ~IntervalTreeCollisionManager()
@@ -444,9 +444,9 @@ void IntervalTreeCollisionManager<S>::clear()
   endpoints[1].clear();
   endpoints[2].clear();
 
-  delete interval_trees[0]; interval_trees[0] = NULL;
-  delete interval_trees[1]; interval_trees[1] = NULL;
-  delete interval_trees[2]; interval_trees[2] = NULL;
+  delete interval_trees[0]; interval_trees[0] = nullptr;
+  delete interval_trees[1]; interval_trees[1] = nullptr;
+  delete interval_trees[2]; interval_trees[2] = nullptr;
 
   for(int i = 0; i < 3; ++i)
   {

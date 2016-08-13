@@ -94,10 +94,10 @@ ShapeCollisionTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
 ShapeCollisionTraversalNode()
   : CollisionTraversalNodeBase<typename Shape1::S>()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
-  nsolver = NULL;
+  nsolver = nullptr;
 }
 
 //==============================================================================
@@ -145,7 +145,7 @@ leafTesting(int, int) const
     }
     else
     {
-      if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, NULL))
+      if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, nullptr))
       {
         is_collision = true;
         if(this->request.num_max_contacts > this->result->numContacts())
@@ -165,7 +165,7 @@ leafTesting(int, int) const
   }
   else if((!model1->isFree() && !model2->isFree()) && this->request.enable_cost)
   {
-    if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, NULL))
+    if(nsolver->shapeIntersect(*model1, this->tf1, *model2, this->tf2, nullptr))
     {
       AABB<S> aabb1, aabb2;
       computeBV(*model1, this->tf1, aabb1);

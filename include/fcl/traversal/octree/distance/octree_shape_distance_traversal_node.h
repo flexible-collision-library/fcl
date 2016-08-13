@@ -96,10 +96,10 @@ template <typename Shape, typename NarrowPhaseSolver>
 OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
 OcTreeShapeDistanceTraversalNode()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
-  otsolver = NULL;
+  otsolver = nullptr;
 }
 
 //==============================================================================

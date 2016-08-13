@@ -95,8 +95,8 @@ ShapeConservativeAdvancementTraversalNode()
   toc = 0;
   t_err = (S)0.0001;
 
-  motion1 = NULL;
-  motion2 = NULL;
+  motion1 = nullptr;
+  motion2 = nullptr;
 }
 
 //==============================================================================

@@ -486,7 +486,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
   for(int i = 0; i < NODE_COUNT; ++i)
   {
     for(int j = 0; j < NODE_COUNT; ++j)
-      distance_matrix[i][j] = NULL;
+      distance_matrix[i][j] = nullptr;
   }
 
   distance_matrix[GEOM_BOX][GEOM_BOX] = &ShapeShapeDistance<Box<S>, Box<S>, NarrowPhaseSolver>;

@@ -57,7 +57,7 @@ void test_Sphere_Capsule_Intersect_test_separated_z()
   Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(0., 0., 200)));
 
-  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
+  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, nullptr));
 }
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
@@ -78,7 +78,7 @@ void test_Sphere_Capsule_Intersect_test_separated_z_negative()
   Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(0., 0., -200)));
 
-  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
+  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, nullptr));
 }
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negative)
@@ -99,7 +99,7 @@ void test_Sphere_Capsule_Intersect_test_separated_x()
   Capsule<S> capsule (50, 200.);
   Transform3<S> capsule_transform(Translation3<S>(Vector3<S>(150., 0., 0.)));
 
-  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
+  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, nullptr));
 }
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
@@ -127,7 +127,7 @@ void test_Sphere_Capsule_Intersect_test_separated_capsule_rotated()
   capsule_transform.linear() = rotation;
   capsule_transform.translation() = Vector3<S>(150., 0., 0.);
 
-  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, NULL));
+  EXPECT_TRUE (!solver.shapeIntersect(sphere1, sphere1_transform, capsule, capsule_transform, nullptr));
 }
 
 GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_rotated)

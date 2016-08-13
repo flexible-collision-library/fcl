@@ -125,7 +125,7 @@ void test_OBB_Box_test()
     GJKSolver_libccd<S> solver;
 
     bool overlap_obb = obb1.overlap(obb2);
-    bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, NULL);
+    bool overlap_box = solver.shapeIntersect(box1, box1_tf, box2, box2_tf, nullptr);
 
     EXPECT_TRUE(overlap_obb == overlap_box);
   }
@@ -165,7 +165,7 @@ void test_OBB_shape_test()
       computeBV(sphere, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_sphere = solver.shapeIntersect(box1, box1_tf, sphere, transforms[i], NULL);
+      bool overlap_sphere = solver.shapeIntersect(box1, box1_tf, sphere, transforms[i], nullptr);
       EXPECT_TRUE(overlap_obb >= overlap_sphere);
     }
 
@@ -174,7 +174,7 @@ void test_OBB_shape_test()
       computeBV(ellipsoid, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_ellipsoid = solver.shapeIntersect(box1, box1_tf, ellipsoid, transforms[i], NULL);
+      bool overlap_ellipsoid = solver.shapeIntersect(box1, box1_tf, ellipsoid, transforms[i], nullptr);
       EXPECT_TRUE(overlap_obb >= overlap_ellipsoid);
     }
 
@@ -183,7 +183,7 @@ void test_OBB_shape_test()
       computeBV(capsule, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_capsule = solver.shapeIntersect(box1, box1_tf, capsule, transforms[i], NULL);
+      bool overlap_capsule = solver.shapeIntersect(box1, box1_tf, capsule, transforms[i], nullptr);
       EXPECT_TRUE(overlap_obb >= overlap_capsule);
     }
 
@@ -192,7 +192,7 @@ void test_OBB_shape_test()
       computeBV(cone, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_cone = solver.shapeIntersect(box1, box1_tf, cone, transforms[i], NULL);
+      bool overlap_cone = solver.shapeIntersect(box1, box1_tf, cone, transforms[i], nullptr);
       EXPECT_TRUE(overlap_obb >= overlap_cone);
     }
 
@@ -201,7 +201,7 @@ void test_OBB_shape_test()
       computeBV(cylinder, transforms[i], obb2);
 
       bool overlap_obb = obb1.overlap(obb2);
-      bool overlap_cylinder = solver.shapeIntersect(box1, box1_tf, cylinder, transforms[i], NULL);
+      bool overlap_cylinder = solver.shapeIntersect(box1, box1_tf, cylinder, transforms[i], nullptr);
       EXPECT_TRUE(overlap_obb >= overlap_cylinder);
     }
   }

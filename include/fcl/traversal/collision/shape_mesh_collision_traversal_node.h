@@ -198,10 +198,10 @@ template <typename Shape, typename BV, typename NarrowPhaseSolver>
 ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNode()
   : ShapeBVHCollisionTraversalNode<Shape, BV>()
 {
-  vertices = NULL;
-  tri_indices = NULL;
+  vertices = nullptr;
+  tri_indices = nullptr;
 
-  nsolver = NULL;
+  nsolver = nullptr;
 }
 
 //==============================================================================
@@ -227,7 +227,7 @@ void ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::leafTesting(
 
     if(!this->request.enable_contact)
     {
-      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
+      if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, nullptr, nullptr, nullptr))
       {
         is_intersect = true;
         if(this->request.num_max_contacts > this->result->numContacts())
@@ -259,7 +259,7 @@ void ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::leafTesting(
   }
   else if((!this->model1->isFree() && !this->model2->isFree()) && this->request.enable_cost)
   {
-    if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, NULL, NULL, NULL))
+    if(nsolver->shapeTriangleIntersect(*(this->model1), this->tf1, p1, p2, p3, nullptr, nullptr, nullptr))
     {
       AABB<S> overlap_part;
       AABB<S> shape_aabb;

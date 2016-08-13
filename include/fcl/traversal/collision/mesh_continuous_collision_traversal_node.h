@@ -134,12 +134,12 @@ template <typename BV>
 MeshContinuousCollisionTraversalNode<BV>::MeshContinuousCollisionTraversalNode()
   : BVHCollisionTraversalNode<BV>()
 {
-  vertices1 = NULL;
-  vertices2 = NULL;
-  tri_indices1 = NULL;
-  tri_indices2 = NULL;
-  prev_vertices1 = NULL;
-  prev_vertices2 = NULL;
+  vertices1 = nullptr;
+  vertices2 = nullptr;
+  tri_indices1 = nullptr;
+  tri_indices2 = nullptr;
+  prev_vertices1 = nullptr;
+  prev_vertices2 = nullptr;
 
   num_vf_tests = 0;
   num_ee_tests = 0;

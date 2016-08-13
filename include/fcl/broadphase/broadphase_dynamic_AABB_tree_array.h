@@ -219,9 +219,9 @@ bool collisionRecurse_(
     }
     else
     {
-      if(collisionRecurse_<S>(nodes1, root1->children[0], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<S>(nodes1, root1->children[0], tree2, nullptr, root2_bv, tf2, cdata, callback))
         return true;
-      if(collisionRecurse_<S>(nodes1, root1->children[1], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<S>(nodes1, root1->children[1], tree2, nullptr, root2_bv, tf2, cdata, callback))
         return true;
     }
 
@@ -283,7 +283,7 @@ bool collisionRecurse_(
       {
         AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_<S>(nodes1, root1_id, tree2, NULL, child_bv, tf2, cdata, callback))
+        if(collisionRecurse_<S>(nodes1, root1_id, tree2, nullptr, child_bv, tf2, cdata, callback))
           return true;
       }
     }
@@ -331,9 +331,9 @@ bool collisionRecurse_(
     }
     else
     {
-      if(collisionRecurse_<S>(nodes1, root1->children[0], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<S>(nodes1, root1->children[0], tree2, nullptr, root2_bv, translation2, cdata, callback))
         return true;
-      if(collisionRecurse_<S>(nodes1, root1->children[1], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<S>(nodes1, root1->children[1], tree2, nullptr, root2_bv, translation2, cdata, callback))
         return true;
     }
 
@@ -391,7 +391,7 @@ bool collisionRecurse_(
       {
         AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_<S>(nodes1, root1_id, tree2, NULL, child_bv, translation2, cdata, callback))
+        if(collisionRecurse_<S>(nodes1, root1_id, tree2, nullptr, child_bv, translation2, cdata, callback))
           return true;
       }
     }
