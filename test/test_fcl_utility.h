@@ -275,22 +275,22 @@ void loadOBJFile(const char* filename, std::vector<Vector3<S>>& points, std::vec
       {
         if(first_token[1] == 'n')
         {
-          strtok(NULL, "\t ");
-          strtok(NULL, "\t ");
-          strtok(NULL, "\t ");
+          strtok(nullptr, "\t ");
+          strtok(nullptr, "\t ");
+          strtok(nullptr, "\t ");
           has_normal = true;
         }
         else if(first_token[1] == 't')
         {
-          strtok(NULL, "\t ");
-          strtok(NULL, "\t ");
+          strtok(nullptr, "\t ");
+          strtok(nullptr, "\t ");
           has_texture = true;
         }
         else
         {
-          S x = (S)atof(strtok(NULL, "\t "));
-          S y = (S)atof(strtok(NULL, "\t "));
-          S z = (S)atof(strtok(NULL, "\t "));
+          S x = (S)atof(strtok(nullptr, "\t "));
+          S y = (S)atof(strtok(nullptr, "\t "));
+          S z = (S)atof(strtok(nullptr, "\t "));
           Vector3<S> p(x, y, z);
           points.push_back(p);
         }
@@ -301,7 +301,7 @@ void loadOBJFile(const char* filename, std::vector<Vector3<S>>& points, std::vec
         Triangle tri;
         char* data[30];
         int n = 0;
-        while((data[n] = strtok(NULL, "\t \r\n")) != NULL)
+        while((data[n] = strtok(nullptr, "\t \r\n")) != nullptr)
         {
           if(strlen(data[n]))
             n++;

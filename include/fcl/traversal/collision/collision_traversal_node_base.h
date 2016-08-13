@@ -87,7 +87,7 @@ using CollisionTraversalNodeBased = CollisionTraversalNodeBase<double>;
 //==============================================================================
 template <typename S>
 CollisionTraversalNodeBase<S>::CollisionTraversalNodeBase()
-  : result(NULL), enable_statistics(false)
+  : result(nullptr), enable_statistics(false)
 {
   // Do nothing
 }

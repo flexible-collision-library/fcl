@@ -110,10 +110,10 @@ public:
   /// @brief The RSS center
   const Vector3<S> center() const;
 
-  /// @brief the distance between two RSS; P and Q, if not NULL, return the nearest points
+  /// @brief the distance between two RSS; P and Q, if not nullptr, return the nearest points
   S distance(const RSS<S>& other,
-                  Vector3<S>* P = NULL,
-                  Vector3<S>* Q = NULL) const;
+                  Vector3<S>* P = nullptr,
+                  Vector3<S>* Q = nullptr) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -161,8 +161,8 @@ S rectDistance(
     const Vector3<S>& Tab,
     const S a[2],
     const S b[2],
-    Vector3<S>* P = NULL,
-    Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
 
 /// @brief Distance between two oriented rectangles; P and Q (optional return
 /// values) are the closest points in the rectangles, both are in the local
@@ -172,8 +172,8 @@ S rectDistance(
     const Transform3<S>& tfab,
     const S a[2],
     const S b[2],
-    Vector3<S>* P = NULL,
-    Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles,
@@ -186,8 +186,8 @@ S distance(
     const Eigen::MatrixBase<DerivedB>& T0,
     const RSS<S>& b1,
     const RSS<S>& b2,
-    Vector3<S>* P = NULL,
-    Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
 
 /// @brief distance between two RSS bounding volumes
 /// P and Q (optional return values) are the closest points in the rectangles,
@@ -199,8 +199,8 @@ S distance(
     const Transform3<S>& tf,
     const RSS<S>& b1,
     const RSS<S>& b2,
-    Vector3<S>* P = NULL,
-    Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
 
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
@@ -488,7 +488,7 @@ RSS<S> RSS<S>::operator +(const RSS<S>& other) const
   Matrix3<S> E; // row first eigen-vectors
   Vector3<S> s(0, 0, 0);
 
-  getCovariance<S>(v, NULL, NULL, NULL, 16, M);
+  getCovariance<S>(v, nullptr, nullptr, nullptr, 16, M);
   eigen_old(M, s, E);
 
   int min, mid, max;
@@ -504,7 +504,7 @@ RSS<S> RSS<S>::operator +(const RSS<S>& other) const
   bv.axis.col(2).noalias() = axis.col(0).cross(axis.col(1));
 
   // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<S>(v, NULL, NULL, NULL, 16, bv.axis, bv.To, bv.l, bv.r);
+  getRadiusAndOriginAndRectangleSize<S>(v, nullptr, nullptr, nullptr, 16, bv.axis, bv.To, bv.l, bv.r);
 
   return bv;
 }

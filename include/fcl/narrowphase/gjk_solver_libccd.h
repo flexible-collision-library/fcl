@@ -73,7 +73,7 @@ struct GJKSolver_libccd
       const Transform3<S>& tf1,
       const Shape2& s2,
       const Transform3<S>& tf2,
-      std::vector<ContactPoint<S>>* contacts = NULL) const;
+      std::vector<ContactPoint<S>>* contacts = nullptr) const;
 
   /// @brief intersection checking between one shape and a triangle
   template<typename Shape>
@@ -83,9 +83,9 @@ struct GJKSolver_libccd
       const Vector3<S>& P1,
       const Vector3<S>& P2,
       const Vector3<S>& P3,
-      Vector3<S>* contact_points = NULL,
-      S* penetration_depth = NULL,
-      Vector3<S>* normal = NULL) const;
+      Vector3<S>* contact_points = nullptr,
+      S* penetration_depth = nullptr,
+      Vector3<S>* normal = nullptr) const;
 
   //// @brief intersection checking between one shape and a triangle with transformation
   template<typename Shape>
@@ -96,9 +96,9 @@ struct GJKSolver_libccd
       const Vector3<S>& P2,
       const Vector3<S>& P3,
       const Transform3<S>& tf2,
-      Vector3<S>* contact_points = NULL,
-      S* penetration_depth = NULL,
-      Vector3<S>* normal = NULL) const;
+      Vector3<S>* contact_points = nullptr,
+      S* penetration_depth = nullptr,
+      Vector3<S>* normal = nullptr) const;
 
   /// @brief distance computation between two shapes
   template<typename Shape1, typename Shape2>
@@ -107,9 +107,9 @@ struct GJKSolver_libccd
       const Transform3<S>& tf1,
       const Shape2& s2,
       const Transform3<S>& tf2,
-      S* dist = NULL,
-      Vector3<S>* p1 = NULL,
-      Vector3<S>* p2 = NULL) const;
+      S* dist = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
 
   /// @brief distance computation between one shape and a triangle
   template<typename Shape>
@@ -119,9 +119,9 @@ struct GJKSolver_libccd
       const Vector3<S>& P1,
       const Vector3<S>& P2,
       const Vector3<S>& P3,
-      S* dist = NULL,
-      Vector3<S>* p1 = NULL,
-      Vector3<S>* p2 = NULL) const;
+      S* dist = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
   
   /// @brief distance computation between one shape and a triangle with transformation
   template<typename Shape>
@@ -132,9 +132,9 @@ struct GJKSolver_libccd
       const Vector3<S>& P2,
       const Vector3<S>& P3,
       const Transform3<S>& tf2,
-      S* dist = NULL,
-      Vector3<S>* p1 = NULL,
-      Vector3<S>* p2 = NULL) const;
+      S* dist = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
 
   /// @brief default setting for GJK algorithm
   GJKSolver_libccd();
@@ -203,7 +203,7 @@ bool GJKSolver_libccd<S>::shapeIntersect(
   }
   else
   {
-    res = shapeIntersect(s1, tf1, s2, tf2, NULL);
+    res = shapeIntersect(s1, tf1, s2, tf2, nullptr);
   }
 
   return res;
@@ -253,9 +253,9 @@ struct ShapeIntersectLibccdImpl
             details::GJKInitializer<S, Shape2>::getCenterFunction(),
             gjkSolver.max_collision_iterations,
             gjkSolver.collision_tolerance,
-            NULL,
-            NULL,
-            NULL);
+            nullptr,
+            nullptr,
+            nullptr);
     }
 
     details::GJKInitializer<S, Shape1>::deleteGJKObject(o1);

@@ -51,23 +51,23 @@ namespace fcl
 
 /// @brief collision on collision traversal node; can use front list to accelerate
 template <typename S>
-void collide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = NULL);
+void collide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief self collision on collision traversal node; can use front list to accelerate
 template <typename S>
-void selfCollide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = NULL);
+void selfCollide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 template <typename S>
-void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list = NULL, int qsize = 2);
+void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr, int qsize = 2);
 
 /// @brief special collision on OBBd traversal node
 template <typename S>
-void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list = NULL);
+void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief special collision on RSSd traversal node
 template <typename S>
-void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list = NULL);
+void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list = nullptr);
 
 //============================================================================//
 //                                                                            //
