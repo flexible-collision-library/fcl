@@ -107,8 +107,8 @@ public:
 
   void leafTesting(int b1, int b2, const Transform3<S>& tf) const;
 
-  Matrix3d R;
-  Vector3d T;
+  Matrix3<S> R;
+  Vector3<S> T;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -148,8 +148,8 @@ public:
 
   void leafTesting(int b1, int b2, const Transform3<S>& tf) const;
 
-  Matrix3d R;
-  Vector3d T;
+  Matrix3<S> R;
+  Vector3<S> T;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -179,8 +179,8 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3d R;
-  Vector3d T;
+  Matrix3<S> R;
+  Vector3<S> T;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -211,8 +211,8 @@ public:
 
   void leafTesting(int b1, int b2) const;
 
-  Matrix3d R;
-  Vector3d T;
+  Matrix3<S> R;
+  Vector3<S> T;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
