@@ -380,6 +380,8 @@ struct ContinuousCollisionResult
   Transform3<S> contact_tf1, contact_tf2;
   
   ContinuousCollisionResult();
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using ContinuousCollisionResultf = ContinuousCollisionResult<float>;
@@ -413,6 +415,8 @@ struct PenetrationDepthResult
 
   /// @brief the transform where the collision is resolved
   Transform3<S> resolved_tf;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 //============================================================================//
@@ -450,8 +454,8 @@ bool comparePenDepth(const ContactPoint<S>& _cp1, const ContactPoint<S>& _cp2)
 //==============================================================================
 template <typename S>
 Contact<S>::Contact()
-  : o1(NULL),
-    o2(NULL),
+  : o1(nullptr),
+    o2(nullptr),
     b1(NONE),
     b2(NONE)
 {
@@ -662,8 +666,8 @@ bool DistanceRequest<S>::isSatisfied(
 template <typename S>
 DistanceResult<S>::DistanceResult(S min_distance_)
   : min_distance(min_distance_),
-    o1(NULL),
-    o2(NULL),
+    o1(nullptr),
+    o2(nullptr),
     b1(NONE),
     b2(NONE)
 {
@@ -721,8 +725,8 @@ template <typename S>
 void DistanceResult<S>::clear()
 {
   min_distance = std::numeric_limits<S>::max();
-  o1 = NULL;
-  o2 = NULL;
+  o1 = nullptr;
+  o2 = nullptr;
   b1 = NONE;
   b2 = NONE;
 }

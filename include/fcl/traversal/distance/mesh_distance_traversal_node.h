@@ -295,10 +295,10 @@ void distancePostprocessOrientedNode(
 template <typename BV>
 MeshDistanceTraversalNode<BV>::MeshDistanceTraversalNode() : BVHDistanceTraversalNode<BV>()
 {
-  vertices1 = NULL;
-  vertices2 = NULL;
-  tri_indices1 = NULL;
-  tri_indices2 = NULL;
+  vertices1 = nullptr;
+  vertices2 = nullptr;
+  tri_indices1 = nullptr;
+  tri_indices2 = nullptr;
 
   rel_err = this->request.rel_err;
   abs_err = this->request.abs_err;

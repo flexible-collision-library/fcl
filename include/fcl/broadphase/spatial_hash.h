@@ -71,8 +71,7 @@ using SpatialHashd = SpatialHash<double>;
 
 //==============================================================================
 template <typename S>
-SpatialHash<S>::SpatialHash(
-    const AABB<SpatialHash::S>& scene_limit_, SpatialHash::S cell_size_)
+SpatialHash<S>::SpatialHash(const AABB<S>& scene_limit_, S cell_size_)
   : cell_size(cell_size_), scene_limit(scene_limit_)
 {
   width[0] = std::ceil(scene_limit.width() / cell_size);
@@ -82,8 +81,7 @@ SpatialHash<S>::SpatialHash(
 
 //==============================================================================
 template <typename S>
-std::vector<unsigned int> SpatialHash<S>::operator()(
-    const AABB<SpatialHash::S>& aabb) const
+std::vector<unsigned int> SpatialHash<S>::operator()(const AABB<S>& aabb) const
 {
   int min_x = std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size);
   int max_x = std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size);

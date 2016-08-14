@@ -118,6 +118,8 @@ struct MinkowskiDiff
     else
       return support0(d, v);
   }
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 using MinkowskiDifff = MinkowskiDiff<float>;
@@ -234,10 +236,10 @@ private:
   {
     SimplexF* root;
     size_t count;
-    SimplexList() : root(NULL), count(0) {}
+    SimplexList() : root(nullptr), count(0) {}
     void append(SimplexF* face)
     {
-      face->l[0] = NULL;
+      face->l[0] = nullptr;
       face->l[1] = root;
       if(root) root->l[0] = face;
       root = face;
@@ -264,7 +266,7 @@ private:
     SimplexF* cf; // current face in the horizon
     SimplexF* ff; // first face in the horizon
     size_t nf; // number of faces in the horizon
-    SimplexHorizon() : cf(NULL), ff(NULL), nf(0) {}
+    SimplexHorizon() : cf(nullptr), ff(nullptr), nf(0) {}
   };
 
 private:
@@ -482,7 +484,7 @@ void GJK<S>::initialize()
   status = Failed;
   current = 0;
   distance = 0.0;
-  simplex = NULL;
+  simplex = nullptr;
 }
 
 //==============================================================================
@@ -798,11 +800,11 @@ typename EPA<S>::SimplexF* EPA<S>::newFace(
 
     hull.remove(face);
     stock.append(face);
-    return NULL;
+    return nullptr;
   }
 
   status = stock.root ? OutOfVertices : OutOfFaces;
-  return NULL;
+  return nullptr;
 }
 
 //==============================================================================

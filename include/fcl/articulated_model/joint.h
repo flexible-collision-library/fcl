@@ -101,6 +101,9 @@ protected:
   std::shared_ptr<JointConfig> joint_cfg_;
 
   Transform3<S> transform_to_parent_;
+
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 template <typename S>

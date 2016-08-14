@@ -437,11 +437,11 @@ void testShapeIntersection(
   // Check only whether they are colliding or not.
   if (solver_type == GST_LIBCCD)
   {
-    res = solver1<S>().shapeIntersect(s1, tf1, s2, tf2, NULL);
+    res = solver1<S>().shapeIntersect(s1, tf1, s2, tf2, nullptr);
   }
   else if (solver_type == GST_INDEP)
   {
-    res = solver2<S>().shapeIntersect(s1, tf1, s2, tf2, NULL);
+    res = solver2<S>().shapeIntersect(s1, tf1, s2, tf2, nullptr);
   }
   else
   {
@@ -1184,27 +1184,27 @@ void test_shapeIntersection_spheretriangle()
   Vector3<S> normal;
   bool res;
 
-  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver1<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
@@ -1232,27 +1232,27 @@ void test_shapeIntersection_halfspacetriangle()
   Vector3<S> normal;
   bool res;
 
-  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << 0, -20, 0;
   t[2] << 0, 20, 0;
-  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, &normal);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
@@ -1280,27 +1280,27 @@ void test_shapeIntersection_planetriangle()
   Vector3<S> normal;
   bool res;
 
-  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, &normal);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
@@ -4575,26 +4575,26 @@ void test_shapeIntersectionGJK_spheretriangle()
   Vector3<S> normal;
   bool res;
 
-  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
   t[0] << 30, 0, 0;
   t[1] << 9.9, -20, 0;
   t[2] << 9.9, 20, 0;
-  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], NULL, NULL, &normal);
+  res = solver2<S>().shapeTriangleIntersect(s, Transform3<S>::Identity(), t[0], t[1], t[2], nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2<S>().shapeTriangleIntersect(s, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
@@ -4622,27 +4622,27 @@ void test_shapeIntersectionGJK_halfspacetriangle()
   Vector3<S> normal;
   bool res;
 
-  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, &normal);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }
@@ -4670,27 +4670,27 @@ void test_shapeIntersectionGJK_planetriangle()
   Vector3<S> normal;
   bool res;
 
-  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
 
   t[0] << 20, 0, 0;
   t[1] << -0.1, -20, 0;
   t[2] << -0.1, 20, 0;
-  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, NULL);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, NULL);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
-  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), NULL, NULL, &normal);
+  res = solver2<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
-  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, NULL, NULL, &normal);
+  res =  solver2<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(transform.linear() * Vector3<S>(1, 0, 0), 1e-9));
 }

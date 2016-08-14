@@ -95,9 +95,9 @@ public:
   /// @brief Center of the OBBRSS
   const Vector3<S> center() const;
 
-  /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
+  /// @brief Distance between two OBBRSS; P and Q , is not nullptr, returns the nearest points
   S distance(const OBBRSS<S>& other,
-                  Vector3<S>* P = NULL, Vector3<S>* Q = NULL) const;
+                  Vector3<S>* P = nullptr, Vector3<S>* Q = nullptr) const;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -126,23 +126,23 @@ bool overlap(
     const OBBRSS<S>& b2);
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
-/// and b2 is in indentity; P and Q, is not NULL, returns the nearest points
+/// and b2 is in indentity; P and Q, is not nullptr, returns the nearest points
 template <typename S, typename DerivedA, typename DerivedB>
 S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
     const OBBRSS<S>& b1, const OBBRSS<S>& b2,
-    Vector3<S>* P = NULL, Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr, Vector3<S>* Q = nullptr);
 
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
-/// and b2 is in indentity; P and Q, is not NULL, returns the nearest points
+/// and b2 is in indentity; P and Q, is not nullptr, returns the nearest points
 template <typename S>
 S distance(
     const Transform3<S>& tf,
     const OBBRSS<S>& b1,
     const OBBRSS<S>& b2,
-    Vector3<S>* P = NULL,
-    Vector3<S>* Q = NULL);
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
 
 //============================================================================//
 //                                                                            //

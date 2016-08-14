@@ -73,7 +73,7 @@ struct GJKSolver_indep
       const Transform3<S>& tf1,
       const Shape2& s2,
       const Transform3<S>& tf2,
-      std::vector<ContactPoint<S>>* contacts = NULL) const;
+      std::vector<ContactPoint<S>>* contacts = nullptr) const;
 
   /// @brief intersection checking between one shape and a triangle
   template<typename Shape>
@@ -83,9 +83,9 @@ struct GJKSolver_indep
       const Vector3<S>& P1,
       const Vector3<S>& P2,
       const Vector3<S>& P3,
-      Vector3<S>* contact_points = NULL,
-      S* penetration_depth = NULL,
-      Vector3<S>* normal = NULL) const;
+      Vector3<S>* contact_points = nullptr,
+      S* penetration_depth = nullptr,
+      Vector3<S>* normal = nullptr) const;
 
   //// @brief intersection checking between one shape and a triangle with transformation
   template<typename Shape>
@@ -96,9 +96,9 @@ struct GJKSolver_indep
       const Vector3<S>& P2,
       const Vector3<S>& P3,
       const Transform3<S>& tf2,
-      Vector3<S>* contact_points = NULL,
-      S* penetration_depth = NULL,
-      Vector3<S>* normal = NULL) const;
+      Vector3<S>* contact_points = nullptr,
+      S* penetration_depth = nullptr,
+      Vector3<S>* normal = nullptr) const;
 
   /// @brief distance computation between two shapes
   template<typename Shape1, typename Shape2>
@@ -107,9 +107,9 @@ struct GJKSolver_indep
       const Transform3<S>& tf1,
       const Shape2& s2,
       const Transform3<S>& tf2,
-      S* distance = NULL,
-      Vector3<S>* p1 = NULL,
-      Vector3<S>* p2 = NULL) const;
+      S* distance = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
 
   /// @brief distance computation between one shape and a triangle
   template<typename Shape>
@@ -119,9 +119,9 @@ struct GJKSolver_indep
       const Vector3<S>& P1,
       const Vector3<S>& P2,
       const Vector3<S>& P3,
-      S* distance = NULL,
-      Vector3<S>* p1 = NULL,
-      Vector3<S>* p2 = NULL) const;
+      S* distance = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
   
   /// @brief distance computation between one shape and a triangle with transformation
   template<typename Shape>
@@ -132,9 +132,9 @@ struct GJKSolver_indep
       const Vector3<S>& P2,
       const Vector3<S>& P3,
       const Transform3<S>& tf2,
-      S* distance = NULL,
-      Vector3<S>* p1 = NULL,
-      Vector3<S>* p2 = NULL) const;
+      S* distance = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
   
   /// @brief default setting for GJK algorithm
   GJKSolver_indep();
@@ -211,7 +211,7 @@ bool GJKSolver_indep<S>::shapeIntersect(const Shape1& s1, const Transform3<S>& t
   }
   else
   {
-    res = shapeIntersect(s1, tf1, s2, tf2, NULL);
+    res = shapeIntersect(s1, tf1, s2, tf2, nullptr);
   }
 
   return res;
@@ -260,7 +260,7 @@ struct ShapeIntersectIndepImpl
             Vector3<S> normal = epa.normal;
             Vector3<S> point = tf1 * (w0 - epa.normal*(epa.depth *0.5));
             S depth = -epa.depth;
-            contacts->push_back(ContactPoint<S>(normal, point, depth));
+            contacts->emplace_back(normal, point, depth);
           }
           return true;
         }

@@ -174,7 +174,7 @@ bool spherePlaneIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
       const Vector3<S> point = center - new_s2.n * signed_dist;
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -218,7 +218,7 @@ bool ellipsoidPlaneIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf1,
       const Vector3<S> point = (signed_dist > 0) ? tf1 * point_in_plane_coords : tf1 * -point_in_plane_coords; // a middle point of the intersecting volume
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -295,7 +295,7 @@ bool boxPlaneIntersect(const Box<S>& s1, const Transform3<S>& tf1,
     const Vector3<S> point = p - new_s2.n * new_s2.signedDistance(p);
     const S penetration_depth = depth;
 
-    contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+    contacts->emplace_back(normal, point, penetration_depth);
   }
 
   return true;
@@ -369,7 +369,7 @@ bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
           const Vector3<S> point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
           const S penetration_depth = abs_d1 + s1.radius;
 
-          contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+          contacts->emplace_back(normal, point, penetration_depth);
         }
       }
       else
@@ -380,7 +380,7 @@ bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
           const Vector3<S> point = p1 * (abs_d2 / (abs_d1 + abs_d2)) + p2 * (abs_d1 / (abs_d1 + abs_d2));
           const S penetration_depth = abs_d2 + s1.radius;
 
-          contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+          contacts->emplace_back(normal, point, penetration_depth);
         }
       }
       return true;
@@ -416,7 +416,7 @@ bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
           point = c;
         }
 
-        contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;
@@ -479,7 +479,7 @@ bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
           const Vector3<S> point = T - new_s2.n * d;
           const S penetration_depth = depth;
 
-          contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+          contacts->emplace_back(normal, point, penetration_depth);
         }
         return true;
       }
@@ -527,7 +527,7 @@ bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
             const Vector3<S> point = c2 - new_s2.n * d2;
             const S penetration_depth = abs_d2;
 
-            contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+            contacts->emplace_back(normal, point, penetration_depth);
           }
         }
         else
@@ -538,7 +538,7 @@ bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
             const Vector3<S> point = c1 - new_s2.n * d1;
             const S penetration_depth = abs_d1;
 
-            contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+            contacts->emplace_back(normal, point, penetration_depth);
           }
         }
         return true;
@@ -578,7 +578,7 @@ bool conePlaneIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
         const Vector3<S> point = T - dir_z * (0.5 * s1.lz) + dir_z * (0.5 * depth / s1.radius * s1.lz) - new_s2.n * d;
         const S penetration_depth = depth;
 
-        contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;
@@ -666,7 +666,7 @@ bool conePlaneIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
           point = (t1 + t2) * 0.5;
         }
 
-        contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;

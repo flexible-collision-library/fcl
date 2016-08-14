@@ -80,7 +80,7 @@ bool sphereSphereIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
     const Vector3<S> normal = len > 0 ? (diff / len).eval() : diff;
     const Vector3<S> point = tf1.translation() + diff * s1.radius / (s1.radius + s2.radius);
     const S penetration_depth = s1.radius + s2.radius - len;
-    contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+    contacts->emplace_back(normal, point, penetration_depth);
   }
 
   return true;

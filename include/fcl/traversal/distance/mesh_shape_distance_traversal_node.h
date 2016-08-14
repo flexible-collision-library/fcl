@@ -224,13 +224,13 @@ MeshShapeDistanceTraversalNode<BV, Shape, NarrowPhaseSolver>::
 MeshShapeDistanceTraversalNode()
   : BVHShapeDistanceTraversalNode<BV, Shape>()
 {
-  vertices = NULL;
-  tri_indices = NULL;
+  vertices = nullptr;
+  tri_indices = nullptr;
 
   rel_err = 0;
   abs_err = 0;
 
-  nsolver = NULL;
+  nsolver = nullptr;
 }
 
 //==============================================================================

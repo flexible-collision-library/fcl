@@ -683,7 +683,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
   for(int i = 0; i < NODE_COUNT; ++i)
   {
     for(int j = 0; j < NODE_COUNT; ++j)
-      collision_matrix[i][j] = NULL;
+      collision_matrix[i][j] = nullptr;
   }
 
   collision_matrix[GEOM_BOX][GEOM_BOX] = &ShapeShapeCollide<Box<S>, Box<S>, NarrowPhaseSolver>;

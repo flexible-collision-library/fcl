@@ -337,7 +337,7 @@ void distance_Test_Oriented(const Transform3<typename BV::S>& tf,
 
   node.enable_statistics = verbose;
 
-  distance(&node, NULL, qsize);
+  distance(&node, nullptr, qsize);
 
   // points are in local coordinate, to global coordinate
   Vector3<S> p1 = local_result.nearest_points[0];
@@ -393,7 +393,7 @@ void distance_Test(const Transform3<typename BV::S>& tf,
 
   node.enable_statistics = verbose;
 
-  distance(&node, NULL, qsize);
+  distance(&node, nullptr, qsize);
 
   distance_result.distance = local_result.min_distance;
   distance_result.p1 = local_result.nearest_points[0];

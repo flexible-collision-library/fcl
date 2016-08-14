@@ -84,7 +84,7 @@ public:
 //==============================================================================
 template <typename S>
 DistanceTraversalNodeBase<S>::DistanceTraversalNodeBase()
-  : result(NULL), enable_statistics(false)
+  : result(nullptr), enable_statistics(false)
 {
   // Do nothing
 }

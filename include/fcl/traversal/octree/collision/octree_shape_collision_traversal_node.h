@@ -72,6 +72,8 @@ public:
   Transform3<S> tf1, tf2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /// @brief Initialize traversal node for collision between one octree and one
@@ -98,10 +100,10 @@ template <typename Shape, typename NarrowPhaseSolver>
 OcTreeShapeCollisionTraversalNode<Shape, NarrowPhaseSolver>::
 OcTreeShapeCollisionTraversalNode()
 {
-  model1 = NULL;
-  model2 = NULL;
+  model1 = nullptr;
+  model2 = nullptr;
 
-  otsolver = NULL;
+  otsolver = nullptr;
 }
 
 //==============================================================================

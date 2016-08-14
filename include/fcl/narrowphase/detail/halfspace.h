@@ -180,7 +180,7 @@ bool sphereHalfspaceIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
       const Vector3<S> point = center - new_s2.n * s1.radius + new_s2.n * (depth * 0.5);
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -222,7 +222,7 @@ bool ellipsoidHalfspaceIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf
       const Vector3<S> point = tf1 * point_in_halfspace_coords; // roughly speaking, a middle point of the intersecting volume
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -315,7 +315,7 @@ bool boxHalfspaceIntersect(const Box<S>& s1, const Transform3<S>& tf1,
       const Vector3<S> point = p + new_s2.n * (depth * 0.5);
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -348,7 +348,7 @@ bool capsuleHalfspaceIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
       const Vector3<S> point = T + new_s2.n * (0.5 * depth - s1.radius);
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -368,7 +368,7 @@ bool capsuleHalfspaceIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
       const Vector3<S> point = p - new_s2.n * s1.radius + new_s2.n * (0.5 * depth);  // deepest point
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -401,7 +401,7 @@ bool cylinderHalfspaceIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
       const Vector3<S> point = T + new_s2.n * (0.5 * depth - s1.radius);
       const S penetration_depth = depth;
 
-      contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+      contacts->emplace_back(normal, point, penetration_depth);
     }
 
     return true;
@@ -431,7 +431,7 @@ bool cylinderHalfspaceIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
         const Vector3<S> point = p + new_s2.n * (0.5 * depth);
         const S penetration_depth = depth;
 
-        contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;
@@ -466,7 +466,7 @@ bool coneHalfspaceIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
         const Vector3<S> point = T - dir_z * (s1.lz * 0.5) + new_s2.n * (0.5 * depth - s1.radius);
         const S penetration_depth = depth;
 
-        contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;
@@ -499,7 +499,7 @@ bool coneHalfspaceIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
         const Vector3<S> normal = -new_s2.n;
         const Vector3<S> point = ((d1 < d2) ? p1 : p2) + new_s2.n * (0.5 * penetration_depth);
 
-        contacts->push_back(ContactPoint<S>(normal, point, penetration_depth));
+        contacts->emplace_back(normal, point, penetration_depth);
       }
 
       return true;

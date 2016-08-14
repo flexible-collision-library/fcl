@@ -218,9 +218,9 @@ bool collisionRecurse_(
     }
     else
     {
-      if(collisionRecurse_<S>(root1->children[0], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[0], tree2, nullptr, root2_bv, tf2, cdata, callback))
         return true;
-      if(collisionRecurse_<S>(root1->children[1], tree2, NULL, root2_bv, tf2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[1], tree2, nullptr, root2_bv, tf2, cdata, callback))
         return true;
     }
 
@@ -283,7 +283,7 @@ bool collisionRecurse_(
       {
         AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_<S>(root1, tree2, NULL, child_bv, tf2, cdata, callback))
+        if(collisionRecurse_<S>(root1, tree2, nullptr, child_bv, tf2, cdata, callback))
           return true;
       }
     }
@@ -328,9 +328,9 @@ bool collisionRecurse_(
     }
     else
     {
-      if(collisionRecurse_<S>(root1->children[0], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[0], tree2, nullptr, root2_bv, translation2, cdata, callback))
         return true;
-      if(collisionRecurse_<S>(root1->children[1], tree2, NULL, root2_bv, translation2, cdata, callback))
+      if(collisionRecurse_<S>(root1->children[1], tree2, nullptr, root2_bv, translation2, cdata, callback))
         return true;
     }
 
@@ -389,7 +389,7 @@ bool collisionRecurse_(
       {
         AABB<S> child_bv;
         computeChildBV(root2_bv, i, child_bv);
-        if(collisionRecurse_<S>(root1, tree2, NULL, child_bv, translation2, cdata, callback))
+        if(collisionRecurse_<S>(root1, tree2, nullptr, child_bv, translation2, cdata, callback))
           return true;
       }
     }
@@ -852,8 +852,8 @@ void DynamicAABBTreeCollisionManager<S>::registerObjects(const std::vector<Colli
     {
       DynamicAABBNode* node = new DynamicAABBNode; // node will be managed by the dtree
       node->bv = other_objs[i]->getAABB();
-      node->parent = NULL;
-      node->children[1] = NULL;
+      node->parent = nullptr;
+      node->children[1] = nullptr;
       node->data = other_objs[i];
       table[other_objs[i]] = node;
       leaves[i] = node;

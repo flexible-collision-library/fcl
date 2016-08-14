@@ -287,10 +287,10 @@ template <typename BV>
 MeshCollisionTraversalNode<BV>::MeshCollisionTraversalNode()
   : BVHCollisionTraversalNode<BV>()
 {
-  vertices1 = NULL;
-  vertices2 = NULL;
-  tri_indices1 = NULL;
-  tri_indices2 = NULL;
+  vertices1 = nullptr;
+  vertices2 = nullptr;
+  tri_indices1 = nullptr;
+  tri_indices2 = nullptr;
 }
 
 //==============================================================================

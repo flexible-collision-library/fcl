@@ -182,10 +182,10 @@ template <typename NarrowPhaseSolver>
 OcTreeSolver<NarrowPhaseSolver>::OcTreeSolver(
     const NarrowPhaseSolver* solver_)
   : solver(solver_),
-    crequest(NULL),
-    drequest(NULL),
-    cresult(NULL),
-    dresult(NULL)
+    crequest(nullptr),
+    drequest(nullptr),
+    cresult(nullptr),
+    dresult(nullptr)
 {
 }
 
@@ -471,7 +471,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
       Transform3<S> box_tf;
       constructBox(bv1, tf1, box, box_tf);
 
-      if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
+      if(solver->shapeIntersect(box, box_tf, s, tf2, nullptr))
       {
         AABB<S> overlap_part;
         AABB<S> aabb1, aabb2;
@@ -499,7 +499,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
         bool is_intersect = false;
         if(!crequest->enable_contact)
         {
-          if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
+          if(solver->shapeIntersect(box, box_tf, s, tf2, nullptr))
           {
             is_intersect = true;
             if(cresult->numContacts() < crequest->num_max_contacts)
@@ -557,7 +557,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
         Transform3<S> box_tf;
         constructBox(bv1, tf1, box, box_tf);
 
-        if(solver->shapeIntersect(box, box_tf, s, tf2, NULL))
+        if(solver->shapeIntersect(box, box_tf, s, tf2, nullptr))
         {
           AABB<S> overlap_part;
           AABB<S> aabb1, aabb2;
@@ -601,7 +601,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeShapeIntersectRecurse(const OcTree<S
       AABB<S> child_bv;
       computeChildBV(bv1, i, child_bv);
 
-      if(OcTreeShapeIntersectRecurse(tree1, NULL, child_bv, s, obb2, tf1, tf2))
+      if(OcTreeShapeIntersectRecurse(tree1, nullptr, child_bv, s, obb2, tf1, tf2))
         return true;
     }
   }
@@ -723,7 +723,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<S>
         const Vector3<S>& p2 = tree2->vertices[tri_id[1]];
         const Vector3<S>& p3 = tree2->vertices[tri_id[2]];
 
-        if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
+        if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, nullptr, nullptr, nullptr))
         {
           AABB<S> overlap_part;
           AABB<S> aabb1;
@@ -769,7 +769,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<S>
         bool is_intersect = false;
         if(!crequest->enable_contact)
         {
-          if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
+          if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, nullptr, nullptr, nullptr))
           {
             is_intersect = true;
             if(cresult->numContacts() < crequest->num_max_contacts)
@@ -822,7 +822,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeMeshIntersectRecurse(const OcTree<S>
         const Vector3<S>& p2 = tree2->vertices[tri_id[1]];
         const Vector3<S>& p3 = tree2->vertices[tri_id[2]];
 
-        if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, NULL, NULL, NULL))
+        if(solver->shapeTriangleIntersect(box, box_tf, p1, p2, p3, tf2, nullptr, nullptr, nullptr))
         {
           AABB<S> overlap_part;
           AABB<S> aabb1;
@@ -870,7 +870,7 @@ else if(!tree2->isFree() && crequest->enable_cost)
         AABB<S> child_bv;
         computeChildBV(bv1, i, child_bv);
 
-        if(OcTreeMeshIntersectRecurse(tree1, NULL, child_bv, tree2, root2, tf1, tf2))
+        if(OcTreeMeshIntersectRecurse(tree1, nullptr, child_bv, tree2, root2, tf1, tf2))
           return true;
       }
     }
@@ -1013,21 +1013,21 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<S>* tr
           const typename OcTree<S>::OcTreeNode* child = tree2->getNodeChild(root2, i);
           AABB<S> child_bv;
           computeChildBV(bv2, i, child_bv);
-          if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, child, child_bv, tf1, tf2))
+          if(OcTreeIntersectRecurse(tree1, nullptr, bv1, tree2, child, child_bv, tf1, tf2))
             return true;
         }
         else
         {
           AABB<S> child_bv;
           computeChildBV(bv2, i, child_bv);
-          if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, child_bv, tf1, tf2))
+          if(OcTreeIntersectRecurse(tree1, nullptr, bv1, tree2, nullptr, child_bv, tf1, tf2))
             return true;
         }
       }
     }
     else
     {
-      if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, bv2, tf1, tf2))
+      if(OcTreeIntersectRecurse(tree1, nullptr, bv1, tree2, nullptr, bv2, tf1, tf2))
         return true;
     }
 
@@ -1044,21 +1044,21 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<S>* tr
           const typename OcTree<S>::OcTreeNode* child = tree1->getNodeChild(root1, i);
           AABB<S> child_bv;
           computeChildBV(bv1, i,  child_bv);
-          if(OcTreeIntersectRecurse(tree1, child, child_bv, tree2, NULL, bv2, tf1, tf2))
+          if(OcTreeIntersectRecurse(tree1, child, child_bv, tree2, nullptr, bv2, tf1, tf2))
             return true;
         }
         else
         {
           AABB<S> child_bv;
           computeChildBV(bv1, i, child_bv);
-          if(OcTreeIntersectRecurse(tree1, NULL, child_bv, tree2, NULL, bv2, tf1, tf2))
+          if(OcTreeIntersectRecurse(tree1, nullptr, child_bv, tree2, nullptr, bv2, tf1, tf2))
             return true;
         }
       }
     }
     else
     {
-      if(OcTreeIntersectRecurse(tree1, NULL, bv1, tree2, NULL, bv2, tf1, tf2))
+      if(OcTreeIntersectRecurse(tree1, nullptr, bv1, tree2, nullptr, bv2, tf1, tf2))
         return true;
     }
 
@@ -1192,7 +1192,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<S>* tr
         AABB<S> child_bv;
         computeChildBV(bv1, i, child_bv);
 
-        if(OcTreeIntersectRecurse(tree1, NULL, child_bv,
+        if(OcTreeIntersectRecurse(tree1, nullptr, child_bv,
                                   tree2, root2, bv2,
                                   tf1, tf2))
           return true;
@@ -1220,7 +1220,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<S>* tr
         computeChildBV(bv2, i, child_bv);
 
         if(OcTreeIntersectRecurse(tree1, root1, bv1,
-                                  tree2, NULL, child_bv,
+                                  tree2, nullptr, child_bv,
                                   tf1, tf2))
           return true;
       }
