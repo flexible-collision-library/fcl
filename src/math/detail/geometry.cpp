@@ -35,49 +35,56 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_MATH_VARIANCE3_H
-#define FCL_MATH_VARIANCE3_H
-
-#include <cmath>
-
-#include "fcl/common/types.h"
 #include "fcl/math/geometry.h"
 
 namespace fcl
 {
-
-/// @brief Class for variance matrix in 3d
-template <typename S>
-class Variance3
+namespace detail
 {
-public:
-  /// @brief Variation matrix
-  Matrix3<S> Sigma;
 
-  /// @brief Variations along the eign axes
-  Vector3<S> sigma;
+//==============================================================================
+template <>
+void getExtentAndCenter_pointcloud(
+    Vector3d* ps,
+    Vector3d* ps2,
+    unsigned int* indices,
+    int n,
+    const Matrix3d& axis,
+    Vector3d& center,
+    Vector3d& extent);
 
-  /// @brief Matrix whose columns are eigenvectors of Sigma
-  Matrix3<S> axis;
+//==============================================================================
+template <>
+void getExtentAndCenter_pointcloud(
+    Vector3d* ps,
+    Vector3d* ps2,
+    unsigned int* indices,
+    int n,
+    Transform3d& tf,
+    Vector3d& extent);
 
-  Variance3();
+//==============================================================================
+template <>
+void getExtentAndCenter_mesh(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Matrix3d& axis,
+    Vector3d& center,
+    Vector3d& extent);
 
-  Variance3(const Matrix3<S>& sigma);
+//==============================================================================
+template <>
+void getExtentAndCenter_mesh(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    Transform3d& tf,
+    Vector3d& extent);
 
-  /// @brief init the Variance
-  void init();
-
-  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition
-  /// result, this is useful when the uncertainty matrix is initialized as a
-  /// square variation matrix
-  Variance3<S>& sqrt();
-};
-
-using Variance3f = Variance3<float>;
-using Variance3d = Variance3<double>;
-
+} // namespace detail
 } // namespace fcl
-
-#include "fcl/math/variance3-inl.h"
-
-#endif

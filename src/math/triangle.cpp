@@ -35,49 +35,39 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_MATH_VARIANCE3_H
-#define FCL_MATH_VARIANCE3_H
-
-#include <cmath>
-
-#include "fcl/common/types.h"
-#include "fcl/math/geometry.h"
+#include "fcl/math/triangle.h"
 
 namespace fcl
 {
 
-/// @brief Class for variance matrix in 3d
-template <typename S>
-class Variance3
+//==============================================================================
+Triangle::Triangle()
 {
-public:
-  /// @brief Variation matrix
-  Matrix3<S> Sigma;
+  // Do nothing
+}
 
-  /// @brief Variations along the eign axes
-  Vector3<S> sigma;
+//==============================================================================
+Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+{
+  set(p1, p2, p3);
+}
 
-  /// @brief Matrix whose columns are eigenvectors of Sigma
-  Matrix3<S> axis;
+//==============================================================================
+void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+{
+  vids[0] = p1; vids[1] = p2; vids[2] = p3;
+}
 
-  Variance3();
+//==============================================================================
+std::size_t Triangle::operator[](int i) const
+{
+  return vids[i];
+}
 
-  Variance3(const Matrix3<S>& sigma);
-
-  /// @brief init the Variance
-  void init();
-
-  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition
-  /// result, this is useful when the uncertainty matrix is initialized as a
-  /// square variation matrix
-  Variance3<S>& sqrt();
-};
-
-using Variance3f = Variance3<float>;
-using Variance3d = Variance3<double>;
+//==============================================================================
+std::size_t& Triangle::operator[](int i)
+{
+  return vids[i];
+}
 
 } // namespace fcl
-
-#include "fcl/math/variance3-inl.h"
-
-#endif

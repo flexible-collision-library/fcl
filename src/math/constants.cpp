@@ -1,8 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
- *  Copyright (c) 2014-2016, Open Source Robotics Foundation
+ *  Copyright (c) 2016, Rice University
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -15,7 +14,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Open Source Robotics Foundation nor the names of its
+ *   * Neither the name of Rice University nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -33,51 +32,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Jia Pan */
+/** @author Mark Moll */
 
-#ifndef FCL_MATH_VARIANCE3_H
-#define FCL_MATH_VARIANCE3_H
-
-#include <cmath>
-
-#include "fcl/common/types.h"
-#include "fcl/math/geometry.h"
+#include "fcl/math/constants.h"
 
 namespace fcl
 {
 
-/// @brief Class for variance matrix in 3d
-template <typename S>
-class Variance3
-{
-public:
-  /// @brief Variation matrix
-  Matrix3<S> Sigma;
-
-  /// @brief Variations along the eign axes
-  Vector3<S> sigma;
-
-  /// @brief Matrix whose columns are eigenvectors of Sigma
-  Matrix3<S> axis;
-
-  Variance3();
-
-  Variance3(const Matrix3<S>& sigma);
-
-  /// @brief init the Variance
-  void init();
-
-  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition
-  /// result, this is useful when the uncertainty matrix is initialized as a
-  /// square variation matrix
-  Variance3<S>& sqrt();
-};
-
-using Variance3f = Variance3<float>;
-using Variance3d = Variance3<double>;
+template <>
+struct constants<double>;
 
 } // namespace fcl
-
-#include "fcl/math/variance3-inl.h"
-
-#endif
