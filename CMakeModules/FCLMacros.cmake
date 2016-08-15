@@ -28,7 +28,7 @@ macro(fcl_get_filename_components _var _cacheDesc _suffix_to_remove)
       if(${header} MATCHES "/detail/")
         continue()
       endif()
-      if(${header} MATCHES "-impl.h")
+      if(${header} MATCHES "-inl.h")
         continue()
       endif()
     fcl_append_to_cached_string(

@@ -38,9 +38,7 @@
 #ifndef FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
 #define FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
 
-#include <set>
-#include <vector>
-
+#include "fcl/broadphase/broadphase_collision_manager.h"
 #include "fcl/object/collision_object.h"
 #include "fcl/object/continuous_collision_object.h"
 
@@ -124,51 +122,8 @@ public:
   virtual size_t size() const = 0;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-BroadPhaseContinuousCollisionManager<S>::BroadPhaseContinuousCollisionManager()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-BroadPhaseContinuousCollisionManager<S>::~BroadPhaseContinuousCollisionManager()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void BroadPhaseContinuousCollisionManager<S>::registerObjects(
-    const std::vector<ContinuousCollisionObject<S>*>& other_objs)
-{
-  for(size_t i = 0; i < other_objs.size(); ++i)
-    registerObject(other_objs[i]);
-}
-
-//==============================================================================
-template <typename S>
-void BroadPhaseContinuousCollisionManager<S>::update(
-    ContinuousCollisionObject<S>* updated_obj)
-{
-  update();
-}
-
-//==============================================================================
-template <typename S>
-void BroadPhaseContinuousCollisionManager<S>::update(
-    const std::vector<ContinuousCollisionObject<S>*>& updated_objs)
-{
-  update();
-}
-
 } // namespace fcl
+
+#include "fcl/broadphase/broadphase_continuous_collision_manager-inl.h"
 
 #endif

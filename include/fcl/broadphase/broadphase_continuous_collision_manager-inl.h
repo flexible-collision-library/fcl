@@ -31,53 +31,52 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */
+ */ 
 
-/** @author Jia Pan  */
+/** @author Jia Pan */
 
-#ifndef FCL_BROADPHASE_DETAIL_NODEBASE_H
-#define FCL_BROADPHASE_DETAIL_NODEBASE_H
-
-#include "fcl/common/types.h"
+#include "fcl/broadphase/broadphase_continuous_collision_manager.h"
 
 namespace fcl
 {
 
-namespace detail
+//==============================================================================
+template <typename S>
+BroadPhaseContinuousCollisionManager<S>::BroadPhaseContinuousCollisionManager()
 {
+  // Do nothing
+}
 
-/// @brief dynamic AABB<S> tree node
-template<typename BV>
-struct NodeBase
+//==============================================================================
+template <typename S>
+BroadPhaseContinuousCollisionManager<S>::~BroadPhaseContinuousCollisionManager()
 {
-  /// @brief the bounding volume for the node
-  BV bv;
+  // Do nothing
+}
 
-  /// @brief pointer to parent node
-  NodeBase<BV>* parent;
+//==============================================================================
+template <typename S>
+void BroadPhaseContinuousCollisionManager<S>::registerObjects(
+    const std::vector<ContinuousCollisionObject<S>*>& other_objs)
+{
+  for(size_t i = 0; i < other_objs.size(); ++i)
+    registerObject(other_objs[i]);
+}
 
-  /// @brief whether is a leaf
-  bool isLeaf() const;
+//==============================================================================
+template <typename S>
+void BroadPhaseContinuousCollisionManager<S>::update(
+    ContinuousCollisionObject<S>* updated_obj)
+{
+  update();
+}
 
-  /// @brief whether is internal node
-  bool isInternal() const;
+//==============================================================================
+template <typename S>
+void BroadPhaseContinuousCollisionManager<S>::update(
+    const std::vector<ContinuousCollisionObject<S>*>& updated_objs)
+{
+  update();
+}
 
-  union
-  {
-    /// @brief for leaf node, children nodes
-    NodeBase<BV>* children[2];
-    void* data;
-  };
-
-  /// @brief morton code for current BV
-  uint32 code;
-
-  NodeBase();
-};
-
-} // namespace detail
 } // namespace fcl
-
-#include "fcl/broadphase/detail/node_base-inl.h"
-
-#endif

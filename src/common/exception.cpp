@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -33,51 +33,30 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Jia Pan  */
+/** @author Jia Pan */
 
-#ifndef FCL_BROADPHASE_DETAIL_NODEBASE_H
-#define FCL_BROADPHASE_DETAIL_NODEBASE_H
-
-#include "fcl/common/types.h"
+#include "fcl/common/exception.h"
 
 namespace fcl
 {
 
-namespace detail
+//==============================================================================
+Exception::Exception(const std::string& what) : std::runtime_error(what)
 {
+  // Do nothing
+}
 
-/// @brief dynamic AABB<S> tree node
-template<typename BV>
-struct NodeBase
+//==============================================================================
+Exception::Exception(const std::string& prefix, const std::string& what)
+  : std::runtime_error(prefix + ": " + what)
 {
-  /// @brief the bounding volume for the node
-  BV bv;
+  // Do nothing
+}
 
-  /// @brief pointer to parent node
-  NodeBase<BV>* parent;
+//==============================================================================
+Exception::~Exception() throw()
+{
+  // Do nothing
+}
 
-  /// @brief whether is a leaf
-  bool isLeaf() const;
-
-  /// @brief whether is internal node
-  bool isInternal() const;
-
-  union
-  {
-    /// @brief for leaf node, children nodes
-    NodeBase<BV>* children[2];
-    void* data;
-  };
-
-  /// @brief morton code for current BV
-  uint32 code;
-
-  NodeBase();
-};
-
-} // namespace detail
 } // namespace fcl
-
-#include "fcl/broadphase/detail/node_base-inl.h"
-
-#endif

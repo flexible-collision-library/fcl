@@ -83,82 +83,9 @@ public:
   void clear();
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template<typename Key, typename Data, typename HashFnc>
-SimpleHashTable<Key, Data, HashFnc>::SimpleHashTable(const HashFnc& h)
-  : h_(h)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template<typename Key, typename Data, typename HashFnc>
-void SimpleHashTable<Key, Data, HashFnc>::init(size_t size)
-{
-  if(size == 0)
-  {
-    throw std::logic_error("SimpleHashTable must have non-zero size.");
-  }
-
-  table_.resize(size);
-  table_size_ = size;
-}
-
-//==============================================================================
-template<typename Key, typename Data, typename HashFnc>
-void SimpleHashTable<Key, Data, HashFnc>::insert(Key key, Data value)
-{
-  std::vector<unsigned int> indices = h_(key);
-  size_t range = table_.size();
-  for(size_t i = 0; i < indices.size(); ++i)
-    table_[indices[i] % range].push_back(value);
-}
-
-//==============================================================================
-template<typename Key, typename Data, typename HashFnc>
-std::vector<Data> SimpleHashTable<Key, Data, HashFnc>::query(Key key) const
-{
-  size_t range = table_.size();
-  std::vector<unsigned int> indices = h_(key);
-  std::set<Data> result;
-  for(size_t i = 0; i < indices.size(); ++i)
-  {
-    unsigned int index = indices[i] % range;
-    std::copy(table_[index].begin(), table_[index].end(),
-              std::inserter(result, result.end()));
-  }
-
-  return std::vector<Data>(result.begin(), result.end());
-}
-
-//==============================================================================
-template<typename Key, typename Data, typename HashFnc>
-void SimpleHashTable<Key, Data, HashFnc>::remove(Key key, Data value)
-{
-  size_t range = table_.size();
-  std::vector<unsigned int> indices = h_(key);
-  for(size_t i = 0; i < indices.size(); ++i)
-  {
-    unsigned int index = indices[i] % range;
-    table_[index].remove(value);
-  }
-}
-
-//==============================================================================
-template<typename Key, typename Data, typename HashFnc>
-void SimpleHashTable<Key, Data, HashFnc>::clear()
-{
-  table_.clear();
-  table_.resize(table_size_);
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/broadphase/detail/simple_hash_table-inl.h"
 
 #endif

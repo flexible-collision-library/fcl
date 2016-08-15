@@ -83,82 +83,9 @@ public:
   void clear();
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename Key, typename Data, typename HashFnc,
-          template<typename, typename> class TableT>
-SparseHashTable<Key, Data, HashFnc, TableT>::SparseHashTable(const HashFnc& h)
-  : h_(h)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename Key, typename Data, typename HashFnc,
-          template<typename, typename> class TableT>
-void SparseHashTable<Key, Data, HashFnc, TableT>::init(size_t)
-{
-  table_.clear();
-}
-
-//==============================================================================
-template <typename Key, typename Data, typename HashFnc,
-          template<typename, typename> class TableT>
-void SparseHashTable<Key, Data, HashFnc, TableT>::insert(Key key, Data value)
-{
-  std::vector<unsigned int> indices = h_(key);
-  for(size_t i = 0; i < indices.size(); ++i)
-    table_[indices[i]].push_back(value);
-}
-
-//==============================================================================
-template <typename Key, typename Data, typename HashFnc,
-          template<typename, typename> class TableT>
-std::vector<Data> SparseHashTable<Key, Data, HashFnc, TableT>::query(Key key) const
-{
-  std::vector<unsigned int> indices = h_(key);
-  std::set<Data> result;
-  for(size_t i = 0; i < indices.size(); ++i)
-  {
-    unsigned int index = indices[i];
-    typename Table::const_iterator p = table_.find(index);
-    if(p != table_.end())
-    {
-      std::copy((*p).second.begin(), (*p).second.end(), std
-                ::inserter(result, result.end()));
-    }
-  }
-
-  return std::vector<Data>(result.begin(), result.end());
-}
-
-//==============================================================================
-template <typename Key, typename Data, typename HashFnc,
-          template<typename, typename> class TableT>
-void SparseHashTable<Key, Data, HashFnc, TableT>::remove(Key key, Data value)
-{
-  std::vector<unsigned int> indices = h_(key);
-  for(size_t i = 0; i < indices.size(); ++i)
-  {
-    unsigned int index = indices[i];
-    table_[index].remove(value);
-  }
-}
-
-//==============================================================================
-template <typename Key, typename Data, typename HashFnc,
-          template<typename, typename> class TableT>
-void SparseHashTable<Key, Data, HashFnc, TableT>::clear()
-{
-  table_.clear();
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/broadphase/detail/sparse_hash_table-inl.h"
 
 #endif

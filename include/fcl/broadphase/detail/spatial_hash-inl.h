@@ -31,12 +31,11 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */
+ */ 
 
 /** @author Jia Pan */
 
-#ifndef FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
-#define FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
+#include "fcl/broadphase/detail/spatial_hash.h"
 
 namespace fcl
 {
@@ -44,23 +43,47 @@ namespace fcl
 namespace detail
 {
 
-/// @brief Interval trees implemented using red-black-trees as described in
-/// the book Introduction_To_Algorithms_ by Cormen, Leisserson, and Rivest.
-template <typename S>
-struct SimpleInterval
-{
-public:
-  virtual ~SimpleInterval();
-  
-  virtual void print();
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
 
-  /// @brief interval is defined as [low, high]
-  S low, high;
-};
+//==============================================================================
+template <typename S>
+SpatialHash<S>::SpatialHash(const AABB<S>& scene_limit_, S cell_size_)
+  : cell_size(cell_size_), scene_limit(scene_limit_)
+{
+  width[0] = std::ceil(scene_limit.width() / cell_size);
+  width[1] = std::ceil(scene_limit.height() / cell_size);
+  width[2] = std::ceil(scene_limit.depth() / cell_size);
+}
+
+//==============================================================================
+template <typename S>
+std::vector<unsigned int> SpatialHash<S>::operator()(const AABB<S>& aabb) const
+{
+  int min_x = std::floor((aabb.min_[0] - scene_limit.min_[0]) / cell_size);
+  int max_x = std::ceil((aabb.max_[0] - scene_limit.min_[0]) / cell_size);
+  int min_y = std::floor((aabb.min_[1] - scene_limit.min_[1]) / cell_size);
+  int max_y = std::ceil((aabb.max_[1] - scene_limit.min_[1]) / cell_size);
+  int min_z = std::floor((aabb.min_[2] - scene_limit.min_[2]) / cell_size);
+  int max_z = std::ceil((aabb.max_[2] - scene_limit.min_[2]) / cell_size);
+
+  std::vector<unsigned int> keys((max_x - min_x) * (max_y - min_y) * (max_z - min_z));
+  int id = 0;
+  for(int x = min_x; x < max_x; ++x)
+  {
+    for(int y = min_y; y < max_y; ++y)
+    {
+      for(int z = min_z; z < max_z; ++z)
+      {
+        keys[id++] = x + y * width[0] + z * width[0] * width[1];
+      }
+    }
+  }
+  return keys;
+}
 
 } // namespace detail
 } // namespace fcl
-
-#include "fcl/broadphase/detail/simple_interval-inl.h"
-
-#endif

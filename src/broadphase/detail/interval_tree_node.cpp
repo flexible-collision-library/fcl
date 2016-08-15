@@ -33,12 +33,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** @author Jia Pan  */
+/** @author Jia Pan */
 
-#ifndef FCL_BROADPHASE_DETAIL_NODEBASE_H
-#define FCL_BROADPHASE_DETAIL_NODEBASE_H
-
-#include "fcl/common/types.h"
+#include "fcl/broadphase/detail/interval_tree_node.h"
 
 namespace fcl
 {
@@ -46,38 +43,8 @@ namespace fcl
 namespace detail
 {
 
-/// @brief dynamic AABB<S> tree node
-template<typename BV>
-struct NodeBase
-{
-  /// @brief the bounding volume for the node
-  BV bv;
-
-  /// @brief pointer to parent node
-  NodeBase<BV>* parent;
-
-  /// @brief whether is a leaf
-  bool isLeaf() const;
-
-  /// @brief whether is internal node
-  bool isInternal() const;
-
-  union
-  {
-    /// @brief for leaf node, children nodes
-    NodeBase<BV>* children[2];
-    void* data;
-  };
-
-  /// @brief morton code for current BV
-  uint32 code;
-
-  NodeBase();
-};
+template <>
+class IntervalTreeNode<double>;
 
 } // namespace detail
 } // namespace fcl
-
-#include "fcl/broadphase/detail/node_base-inl.h"
-
-#endif

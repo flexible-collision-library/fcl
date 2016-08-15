@@ -31,62 +31,70 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */
+ */ 
 
 /** @author Jia Pan */
 
-#ifndef FCL_BROADPHASE_DETAIL_INTERVALTREENODE_H
-#define FCL_BROADPHASE_DETAIL_INTERVALTREENODE_H
-
-#include "fcl/broadphase/detail/simple_interval.h"
+#include "fcl/broadphase/broadphase_collision_manager.h"
 
 namespace fcl
 {
 
-namespace detail
-{
-
-/// @brief The node for interval tree
+//==============================================================================
 template <typename S>
-class IntervalTreeNode
+BroadPhaseCollisionManager<S>::BroadPhaseCollisionManager()
+  : enable_tested_set_(false)
 {
-  template <typename>
-  friend class IntervalTree;
-public:
-  /// @brief Print the interval node information: set left = nil and right = root
-  void print(IntervalTreeNode* left, IntervalTreeNode* right) const;
-  
-  /// @brief Create an empty node
-  IntervalTreeNode();
+  // Do nothing
+}
 
-  /// @brief Create an node storing the interval
-  IntervalTreeNode(SimpleInterval<S>* new_interval);
+//==============================================================================
+template <typename S>
+BroadPhaseCollisionManager<S>::~BroadPhaseCollisionManager()
+{
+  // Do nothing
+}
 
-  ~IntervalTreeNode();
+//==============================================================================
+template <typename S>
+void BroadPhaseCollisionManager<S>::registerObjects(
+    const std::vector<CollisionObject<S>*>& other_objs)
+{
+  for(size_t i = 0; i < other_objs.size(); ++i)
+    registerObject(other_objs[i]);
+}
 
-protected:
-  /// @brief interval stored in the node
-  SimpleInterval<S>* stored_interval;
+//==============================================================================
+template <typename S>
+void BroadPhaseCollisionManager<S>::update(CollisionObject<S>* updated_obj)
+{
+  update();
+}
 
-  S key;
+//==============================================================================
+template <typename S>
+void BroadPhaseCollisionManager<S>::update(
+    const std::vector<CollisionObject<S>*>& updated_objs)
+{
+  update();
+}
 
-  S high;
+//==============================================================================
+template <typename S>
+bool BroadPhaseCollisionManager<S>::inTestedSet(
+    CollisionObject<S>* a, CollisionObject<S>* b) const
+{
+  if(a < b) return tested_set.find(std::make_pair(a, b)) != tested_set.end();
+  else return tested_set.find(std::make_pair(b, a)) != tested_set.end();
+}
 
-  S max_high;
+//==============================================================================
+template <typename S>
+void BroadPhaseCollisionManager<S>::insertTestedSet(
+    CollisionObject<S>* a, CollisionObject<S>* b) const
+{
+  if(a < b) tested_set.insert(std::make_pair(a, b));
+  else tested_set.insert(std::make_pair(b, a));
+}
 
-  /// @brief red or black node: if red = false then the node is black
-  bool red;  
-
-  IntervalTreeNode* left;
-
-  IntervalTreeNode* right;
-
-  IntervalTreeNode* parent;
-};
-
-} // namespace detail
 } // namespace fcl
-
-#include "fcl/broadphase/detail/interval_tree_node-inl.h"
-
-#endif
