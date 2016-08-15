@@ -51,7 +51,13 @@
 #include "fcl/object/geometry/shape/plane.h"
 #include "fcl/object/geometry/shape/sphere.h"
 #include "fcl/object/geometry/shape/triangle_p.h"
+#include "fcl/narrowphase/continuous_collision_request.h"
+#include "fcl/narrowphase/continuous_collision_result.h"
 #include "fcl/narrowphase/detail/traversal/traversal_recurse.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_conservative_advancement_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/shape_conservative_advancement_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_shape_conservative_advancement_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/shape_mesh_conservative_advancement_traversal_node.h"
 
 namespace fcl
 {
@@ -64,7 +70,14 @@ struct ConservativeAdvancementFunctionMatrix
 {
   using S = typename NarrowPhaseSolver::S;
 
-  typedef S (*ConservativeAdvancementFunc)(const CollisionGeometry<S>* o1, const MotionBase<S>* motion1, const CollisionGeometry<S>* o2, const MotionBase<S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<S>& request, ContinuousCollisionResult<S>& result);
+  using ConservativeAdvancementFunc
+      = S (*)(const CollisionGeometry<S>* o1,
+              const MotionBase<S>* motion1,
+              const CollisionGeometry<S>* o2,
+              const MotionBase<S>* motion2,
+              const NarrowPhaseSolver* nsolver,
+              const ContinuousCollisionRequest<S>& request,
+              ContinuousCollisionResult<S>& result);
 
   ConservativeAdvancementFunc conservative_advancement_matrix[NODE_COUNT][NODE_COUNT];
 

@@ -43,6 +43,7 @@
 #include "fcl/math/bv/AABB.h"
 #include "fcl/broadphase/broadphase_collision_manager.h"
 #include "fcl/broadphase/detail/simple_hash_table.h"
+#include "fcl/broadphase/detail/sparse_hash_table.h"
 #include "fcl/broadphase/detail/spatial_hash.h"
 
 namespace fcl

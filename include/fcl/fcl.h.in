@@ -34,9 +34,11 @@
 
 /** @author Jeongseok Lee <jslee02@gmail.com> */
 
+// Automatically generated file by cmake
+
 #ifndef FCL_FCL_H
 #define FCL_FCL_H
 
-// TODO(JS): fill necessary headers here
+${fcl_headers}
 
 #endif

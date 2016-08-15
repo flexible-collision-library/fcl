@@ -25,6 +25,7 @@ endif (MSVC OR MSVC90 OR MSVC10)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+include(FCLMacros)
 include(CompilerSettings)
 include(FCLVersion)
 include(GNUInstallDirs)

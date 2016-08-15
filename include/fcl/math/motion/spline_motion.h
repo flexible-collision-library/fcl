@@ -42,6 +42,7 @@
 #include <vector>
 #include "fcl/math/geometry.h"
 #include "fcl/math/motion/motion_base.h"
+#include "fcl/math/detail/polysolver.h"
 
 namespace fcl
 {
@@ -399,7 +400,7 @@ S SplineMotion<S>::computeDWMax() const
 
   S roots[3];
 
-  int root_num = PolySolver<S>::solveCubic(da, roots);
+  int root_num = detail::PolySolver<S>::solveCubic(da, roots);
 
   S dWdW_max = a[0] * tf_t * tf_t * tf_t + a[1] * tf_t * tf_t * tf_t + a[2] * tf_t * tf_t + a[3] * tf_t + a[4];
   S dWdW_1 = a[0] + a[1] + a[2] + a[3] + a[4];
