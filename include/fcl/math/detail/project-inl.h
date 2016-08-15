@@ -35,64 +35,13 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_NARROWPHASE_DETAIL_PROJECT_H
-#define FCL_NARROWPHASE_DETAIL_PROJECT_H
-
-#include "fcl/common/types.h"
-#include "fcl/math/geometry.h"
+#include "fcl/math/detail/project.h"
 
 namespace fcl
 {
 
 namespace detail
 {
-
-/// @brief Project functions
-template <typename S>
-class Project
-{
-public:
-  struct ProjectResult
-  {
-    /// @brief Parameterization of the projected point (based on the simplex to be projected, use 2 or 3 or 4 of the array)
-    S parameterization[4];
-
-    /// @brief square distance from the query point to the projected simplex
-    S sqr_distance;
-
-    /// @brief the code of the projection type
-    unsigned int encode;
-
-    ProjectResult();
-  };
-
-  /// @brief Project point p onto line a-b
-  static ProjectResult projectLine(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& p);
-
-  /// @brief Project point p onto triangle a-b-c
-  static ProjectResult projectTriangle(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, const Vector3<S>& p);
-
-  /// @brief Project point p onto tetrahedra a-b-c-d
-  static ProjectResult projectTetrahedra(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, const Vector3<S>& d, const Vector3<S>& p);
-
-  /// @brief Project origin (0) onto line a-b
-  static ProjectResult projectLineOrigin(const Vector3<S>& a, const Vector3<S>& b);
-
-  /// @brief Project origin (0) onto triangle a-b-c
-  static ProjectResult projectTriangleOrigin(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c);
-
-  /// @brief Project origin (0) onto tetrahedran a-b-c-d
-  static ProjectResult projectTetrahedraOrigin(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& c, const Vector3<S>& d);
-};
-
-using Projectf = Project<float>;
-using Projectd = Project<double>;
-
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
 
 //==============================================================================
 template <typename S>
@@ -360,5 +309,3 @@ Project<S>::ProjectResult::ProjectResult()
 
 } // namespace detail
 } // namespace fcl
-
-#endif

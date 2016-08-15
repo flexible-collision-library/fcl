@@ -38,6 +38,8 @@
 #ifndef FCL_NARROWPHASE_DETAIL_SPHERESPHERE_H
 #define FCL_NARROWPHASE_DETAIL_SPHERESPHERE_H
 
+#include "fcl/object/geometry/shape/sphere.h"
+#include "fcl/narrowphase/contact_point.h"
 
 namespace fcl
 {
@@ -55,60 +57,9 @@ bool sphereSphereDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
                           const Sphere<S>& s2, const Transform3<S>& tf2,
                           S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-bool sphereSphereIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
-                           const Sphere<S>& s2, const Transform3<S>& tf2,
-                           std::vector<ContactPoint<S>>* contacts)
-{
-  Vector3<S> diff = tf2.translation() - tf1.translation();
-  S len = diff.norm();
-  if(len > s1.radius + s2.radius)
-    return false;
-
-  if(contacts)
-  {
-    // If the centers of two sphere are at the same position, the normal is (0, 0, 0).
-    // Otherwise, normal is pointing from center of object 1 to center of object 2
-    const Vector3<S> normal = len > 0 ? (diff / len).eval() : diff;
-    const Vector3<S> point = tf1.translation() + diff * s1.radius / (s1.radius + s2.radius);
-    const S penetration_depth = s1.radius + s2.radius - len;
-    contacts->emplace_back(normal, point, penetration_depth);
-  }
-
-  return true;
-}
-
-//==============================================================================
-template <typename S>
-bool sphereSphereDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
-                          const Sphere<S>& s2, const Transform3<S>& tf2,
-                          S* dist, Vector3<S>* p1, Vector3<S>* p2)
-{
-  Vector3<S> o1 = tf1.translation();
-  Vector3<S> o2 = tf2.translation();
-  Vector3<S> diff = o1 - o2;
-  S len = diff.norm();
-  if(len > s1.radius + s2.radius)
-  {
-    if(dist) *dist = len - (s1.radius + s2.radius);
-    if(p1) *p1 = tf1.inverse(Eigen::Isometry) * (o1 - diff * (s1.radius / len));
-    if(p2) *p2 = tf2.inverse(Eigen::Isometry) * (o2 + diff * (s2.radius / len));
-    return true;
-  }
-
-  if(dist) *dist = -1;
-  return false;
-}
-
 } // namespace detail
-
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_sphere-inl.h"
 
 #endif

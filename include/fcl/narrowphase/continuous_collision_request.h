@@ -39,7 +39,7 @@
 #define FCL_CONTINUOUSCOLLISIONREQUEST_H
 
 #include <cstddef>
-#include "fcl/narrowphase/gjk_solver.h"
+#include "fcl/narrowphase/gjk_solver_type.h"
 
 namespace fcl
 {
@@ -76,29 +76,8 @@ struct ContinuousCollisionRequest
 using ContinuousCollisionRequestf = ContinuousCollisionRequest<float>;
 using ContinuousCollisionRequestd = ContinuousCollisionRequest<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-ContinuousCollisionRequest<S>::ContinuousCollisionRequest(
-    std::size_t num_max_iterations_,
-    S toc_err_,
-    CCDMotionType ccd_motion_type_,
-    GJKSolverType gjk_solver_type_,
-    CCDSolverType ccd_solver_type_)
-  : num_max_iterations(num_max_iterations_),
-    toc_err(toc_err_),
-    ccd_motion_type(ccd_motion_type_),
-    gjk_solver_type(gjk_solver_type_),
-    ccd_solver_type(ccd_solver_type_)
-{
-  // Do nothing
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/continuous_collision_request-inl.h"
 
 #endif

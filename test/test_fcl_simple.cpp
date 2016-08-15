@@ -37,7 +37,7 @@
 
 #include <sstream>
 
-#include "fcl/narrowphase/detail/convexity_based_algorithm/project.h"
+#include "fcl/math/detail/project.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/object/geometry/bvh/BVH_model.h"
 #include "fcl_resources/config.h"

@@ -39,7 +39,7 @@
 #define FCL_COLLISIONREQUEST_H
 
 #include "fcl/common/types.h"
-#include "fcl/narrowphase/gjk_solver.h"
+#include "fcl/narrowphase/gjk_solver_type.h"
 
 namespace fcl
 {
@@ -88,43 +88,8 @@ struct CollisionRequest
 using CollisionRequestf = CollisionRequest<float>;
 using CollisionRequestd = CollisionRequest<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-CollisionRequest<S>::CollisionRequest(
-    size_t num_max_contacts_,
-    bool enable_contact_,
-    size_t num_max_cost_sources_,
-    bool enable_cost_,
-    bool use_approximate_cost_,
-    GJKSolverType gjk_solver_type_)
-  : num_max_contacts(num_max_contacts_),
-    enable_contact(enable_contact_),
-    num_max_cost_sources(num_max_cost_sources_),
-    enable_cost(enable_cost_),
-    use_approximate_cost(use_approximate_cost_),
-    gjk_solver_type(gjk_solver_type_),
-    enable_cached_gjk_guess(false),
-    cached_gjk_guess(Vector3<S>::UnitX())
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool CollisionRequest<S>::isSatisfied(
-    const CollisionResult<S>& result) const
-{
-  return (!enable_cost)
-      && result.isCollision()
-      && (num_max_contacts <= result.numContacts());
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/collision_request-inl.h"
 
 #endif
