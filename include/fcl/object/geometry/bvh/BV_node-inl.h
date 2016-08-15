@@ -35,42 +35,78 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_BVH_FRONT_H
-#define FCL_BVH_FRONT_H
-
-#include <list>
+#include "fcl/object/geometry/bvh/BV_node.h"
 
 namespace fcl
 {
 
-namespace detail
+//==============================================================================
+template <typename BV>
+bool BVNode<BV>::overlap(const BVNode& other) const
 {
+  return bv.overlap(other.bv);
+}
 
-/// @brief Front list acceleration for collision
-/// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time
-/// instance. The front list reﬂects the subset of a BVTT that is traversed for
-/// that particular proximity query.
-struct BVHFrontNode
+//==============================================================================
+template <typename BV>
+typename BVNode<BV>::S BVNode<BV>::distance(
+    const BVNode& other, Vector3<S>* P1, Vector3<S>* P2) const
 {
-  /// @brief The nodes to start in the future, i.e. the wave front of the
-  /// traversal tree.
-  int left, right;
+  return bv.distance(other.bv, P1, P2);
+}
 
-  /// @brief The front node is not valid when collision is detected on the front
-  /// node.
-  bool valid;
+//==============================================================================
+template <typename BV>
+Vector3<typename BVNode<BV>::S> BVNode<BV>::getCenter() const
+{
+  return bv.center();
+}
 
-  BVHFrontNode(int left_, int right_);
+//==============================================================================
+template <typename S, typename BV>
+struct GetOrientationImpl
+{
+  static Matrix3<S> run(const BVNode<BV>& /*node*/)
+  {
+    return Matrix3<S>::Identity();
+  }
 };
 
-/// @brief BVH front list is a list of front nodes.
-using BVHFrontList = std::list<BVHFrontNode>;
+//==============================================================================
+template <typename BV>
+Matrix3<typename BV::S> BVNode<BV>::getOrientation() const
+{
+  return GetOrientationImpl<typename BV::S, BV>::run(bv);
+}
 
-/// @brief Add new front node into the front list
-void updateFrontList(BVHFrontList* front_list, int b1, int b2);
+//==============================================================================
+template <typename S>
+struct GetOrientationImpl<S, OBB<S>>
+{
+  static Matrix3<S> run(const OBB<S>& bv)
+  {
+    return bv.axis;
+  }
+};
 
-} // namespace detail
+//==============================================================================
+template <typename S>
+struct GetOrientationImpl<S, RSS<S>>
+{
+  static Matrix3<S> run(const RSS<S>& bv)
+  {
+    return bv.axis;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct GetOrientationImpl<S, OBBRSS<S>>
+{
+  static Matrix3<S> run(const OBBRSS<S>& bv)
+  {
+    return bv.obb.axis;
+  }
+};
+
 } // namespace fcl
-
-#endif

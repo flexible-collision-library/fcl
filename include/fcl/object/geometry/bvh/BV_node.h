@@ -35,7 +35,6 @@
 
 /** @author Jia Pan */
 
-
 #ifndef FCL_BV_BVNODE_H
 #define FCL_BV_BVNODE_H
 
@@ -43,38 +42,10 @@
 #include "fcl/math/bv/OBB.h"
 #include "fcl/math/bv/RSS.h"
 #include "fcl/math/bv/OBBRSS.h"
+#include "fcl/object/geometry/bvh/BV_node_base.h"
 
 namespace fcl
 {
-
-/// @brief BVNodeBase encodes the tree structure for BVH
-struct BVNodeBase
-{
-  /// @brief An index for first child node or primitive
-  /// If the value is positive, it is the index of the first child bv node
-  /// If the value is negative, it is -(primitive index + 1)
-  /// Zero is not used.
-  int first_child;
-
-  /// @brief The start id the primitive belonging to the current node. The index is referred to the primitive_indices in BVHModel and from that
-  /// we can obtain the primitive's index in original data indirectly.
-  int first_primitive;
-
-  /// @brief The number of primitives belonging to the current node 
-  int num_primitives;
-
-  /// @brief Whether current node is a leaf node (i.e. contains a primitive index
-  bool isLeaf() const;
-
-  /// @brief Return the primitive index. The index is referred to the original data (i.e. vertices or tri_indices) in BVHModel
-  int primitiveId() const;
-
-  /// @brief Return the index of the first child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
-  int leftChild() const;
-
-  /// @brief Return the index of the second child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
-  int rightChild() const;
-};
 
 /// @brief A class describing a bounding volume node. It includes the tree structure providing in BVNodeBase and also the geometry data provided in BV template parameter.
 template <typename BV>
@@ -102,105 +73,8 @@ struct BVNode : public BVNodeBase
   Matrix3<S> getOrientation() const;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-inline bool BVNodeBase::isLeaf() const
-{
-  return first_child < 0;
-}
-
-//==============================================================================
-inline int BVNodeBase::primitiveId() const
-{
-  return -(first_child + 1);
-}
-
-//==============================================================================
-inline int BVNodeBase::leftChild() const
-{
-  return first_child;
-}
-
-//==============================================================================
-inline int BVNodeBase::rightChild() const
-{
-  return first_child + 1;
-}
-
-//==============================================================================
-template <typename BV>
-bool BVNode<BV>::overlap(const BVNode& other) const
-{
-  return bv.overlap(other.bv);
-}
-
-//==============================================================================
-template <typename BV>
-typename BVNode<BV>::S BVNode<BV>::distance(
-    const BVNode& other, Vector3<S>* P1, Vector3<S>* P2) const
-{
-  return bv.distance(other.bv, P1, P2);
-}
-
-//==============================================================================
-template <typename BV>
-Vector3<typename BVNode<BV>::S> BVNode<BV>::getCenter() const
-{
-  return bv.center();
-}
-
-//==============================================================================
-template <typename S, typename BV>
-struct GetOrientationImpl
-{
-  static Matrix3<S> run(const BVNode<BV>& /*node*/)
-  {
-    return Matrix3<S>::Identity();
-  }
-};
-
-//==============================================================================
-template <typename BV>
-Matrix3<typename BV::S> BVNode<BV>::getOrientation() const
-{
-  return GetOrientationImpl<typename BV::S, BV>::run(bv);
-}
-
-//==============================================================================
-template <typename S>
-struct GetOrientationImpl<S, OBB<S>>
-{
-  static Matrix3<S> run(const OBB<S>& bv)
-  {
-    return bv.axis;
-  }
-};
-
-//==============================================================================
-template <typename S>
-struct GetOrientationImpl<S, RSS<S>>
-{
-  static Matrix3<S> run(const RSS<S>& bv)
-  {
-    return bv.axis;
-  }
-};
-
-//==============================================================================
-template <typename S>
-struct GetOrientationImpl<S, OBBRSS<S>>
-{
-  static Matrix3<S> run(const OBBRSS<S>& bv)
-  {
-    return bv.obb.axis;
-  }
-};
-
 } // namespace fcl
+
+#include "fcl/object/geometry/bvh/BV_node-inl.h"
 
 #endif

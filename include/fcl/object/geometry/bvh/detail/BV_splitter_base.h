@@ -35,10 +35,15 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_BVH_FRONT_H
-#define FCL_BVH_FRONT_H
+#ifndef FCL_BV_SPLITTERBASE_H
+#define FCL_BV_SPLITTERBASE_H
 
-#include <list>
+#include "fcl/math/triangle.h"
+#include "fcl/object/geometry/bvh/BVH_internal.h"
+#include "fcl/math/bv/kIOS.h"
+#include "fcl/math/bv/OBBRSS.h"
+#include <vector>
+#include <iostream>
 
 namespace fcl
 {
@@ -46,29 +51,31 @@ namespace fcl
 namespace detail
 {
 
-/// @brief Front list acceleration for collision
-/// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time
-/// instance. The front list reﬂects the subset of a BVTT that is traversed for
-/// that particular proximity query.
-struct BVHFrontNode
+/// @brief Base interface for BV splitting algorithm
+template <typename BV>
+class BVSplitterBase
 {
-  /// @brief The nodes to start in the future, i.e. the wave front of the
-  /// traversal tree.
-  int left, right;
+public:
 
-  /// @brief The front node is not valid when collision is detected on the front
-  /// node.
-  bool valid;
+  using S = typename BV::S;
 
-  BVHFrontNode(int left_, int right_);
+  /// @brief Set the geometry data needed by the split rule
+  virtual void set(
+      Vector3<S>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_) = 0;
+
+  /// @brief Compute the split rule according to a subset of geometry and the
+  /// corresponding BV node
+  virtual void computeRule(
+      const BV& bv, unsigned int* primitive_indices, int num_primitives) = 0;
+
+  /// @brief Apply the split rule on a given point
+  virtual bool apply(const Vector3<S>& q) const = 0;
+
+  /// @brief Clear the geometry data set before
+  virtual void clear() = 0;
 };
-
-/// @brief BVH front list is a list of front nodes.
-using BVHFrontList = std::list<BVHFrontNode>;
-
-/// @brief Add new front node into the front list
-void updateFrontList(BVHFrontList* front_list, int b1, int b2);
 
 } // namespace detail
 } // namespace fcl

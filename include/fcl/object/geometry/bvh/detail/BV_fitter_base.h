@@ -35,10 +35,14 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_BVH_FRONT_H
-#define FCL_BVH_FRONT_H
+#ifndef FCL_BV_FITTERBASE_H
+#define FCL_BV_FITTERBASE_H
 
-#include <list>
+#include "fcl/math/triangle.h"
+#include "fcl/object/geometry/bvh/BVH_internal.h"
+#include "fcl/math/bv/kIOS.h"
+#include "fcl/math/bv/OBBRSS.h"
+#include <iostream>
 
 namespace fcl
 {
@@ -46,29 +50,26 @@ namespace fcl
 namespace detail
 {
 
-/// @brief Front list acceleration for collision
-/// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time
-/// instance. The front list reﬂects the subset of a BVTT that is traversed for
-/// that particular proximity query.
-struct BVHFrontNode
+/// @brief Interface for fitting a bv given the triangles or points inside it.
+template <typename BV>
+class BVFitterBase
 {
-  /// @brief The nodes to start in the future, i.e. the wave front of the
-  /// traversal tree.
-  int left, right;
+public:
 
-  /// @brief The front node is not valid when collision is detected on the front
-  /// node.
-  bool valid;
+  using S = typename BV::S;
 
-  BVHFrontNode(int left_, int right_);
+  /// @brief Set the primitives to be processed by the fitter
+  virtual void set(Vector3<S>* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+
+  /// @brief Set the primitives to be processed by the fitter, for deformable mesh.
+  virtual void set(Vector3<S>* vertices_, Vector3<S>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+
+  /// @brief Compute the fitting BV
+  virtual BV fit(unsigned int* primitive_indices, int num_primitives) = 0;
+
+  /// @brief clear the temporary data generated.
+  virtual void clear() = 0;
 };
-
-/// @brief BVH front list is a list of front nodes.
-using BVHFrontList = std::list<BVHFrontNode>;
-
-/// @brief Add new front node into the front list
-void updateFrontList(BVHFrontList* front_list, int b1, int b2);
 
 } // namespace detail
 } // namespace fcl

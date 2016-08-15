@@ -35,42 +35,46 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_BVH_FRONT_H
-#define FCL_BVH_FRONT_H
+#ifndef FCL_BV_BVNODEBASE_H
+#define FCL_BV_BVNODEBASE_H
 
-#include <list>
+#include <iostream>
+#include "fcl/math/bv/OBB.h"
+#include "fcl/math/bv/RSS.h"
+#include "fcl/math/bv/OBBRSS.h"
 
 namespace fcl
 {
 
-namespace detail
+/// @brief BVNodeBase encodes the tree structure for BVH
+struct BVNodeBase
 {
+  /// @brief An index for first child node or primitive
+  /// If the value is positive, it is the index of the first child bv node
+  /// If the value is negative, it is -(primitive index + 1)
+  /// Zero is not used.
+  int first_child;
 
-/// @brief Front list acceleration for collision
-/// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time
-/// instance. The front list reﬂects the subset of a BVTT that is traversed for
-/// that particular proximity query.
-struct BVHFrontNode
-{
-  /// @brief The nodes to start in the future, i.e. the wave front of the
-  /// traversal tree.
-  int left, right;
+  /// @brief The start id the primitive belonging to the current node. The index is referred to the primitive_indices in BVHModel and from that
+  /// we can obtain the primitive's index in original data indirectly.
+  int first_primitive;
 
-  /// @brief The front node is not valid when collision is detected on the front
-  /// node.
-  bool valid;
+  /// @brief The number of primitives belonging to the current node 
+  int num_primitives;
 
-  BVHFrontNode(int left_, int right_);
+  /// @brief Whether current node is a leaf node (i.e. contains a primitive index
+  bool isLeaf() const;
+
+  /// @brief Return the primitive index. The index is referred to the original data (i.e. vertices or tri_indices) in BVHModel
+  int primitiveId() const;
+
+  /// @brief Return the index of the first child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
+  int leftChild() const;
+
+  /// @brief Return the index of the second child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
+  int rightChild() const;
 };
 
-/// @brief BVH front list is a list of front nodes.
-using BVHFrontList = std::list<BVHFrontNode>;
-
-/// @brief Add new front node into the front list
-void updateFrontList(BVHFrontList* front_list, int b1, int b2);
-
-} // namespace detail
 } // namespace fcl
 
 #endif

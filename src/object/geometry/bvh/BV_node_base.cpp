@@ -35,42 +35,33 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_BVH_FRONT_H
-#define FCL_BVH_FRONT_H
-
-#include <list>
+#include "fcl/object/geometry/bvh/BV_node_base.h"
 
 namespace fcl
 {
 
-namespace detail
+//==============================================================================
+bool BVNodeBase::isLeaf() const
 {
+  return first_child < 0;
+}
 
-/// @brief Front list acceleration for collision
-/// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time
-/// instance. The front list reﬂects the subset of a BVTT that is traversed for
-/// that particular proximity query.
-struct BVHFrontNode
+//==============================================================================
+int BVNodeBase::primitiveId() const
 {
-  /// @brief The nodes to start in the future, i.e. the wave front of the
-  /// traversal tree.
-  int left, right;
+  return -(first_child + 1);
+}
 
-  /// @brief The front node is not valid when collision is detected on the front
-  /// node.
-  bool valid;
+//==============================================================================
+int BVNodeBase::leftChild() const
+{
+  return first_child;
+}
 
-  BVHFrontNode(int left_, int right_);
-};
+//==============================================================================
+int BVNodeBase::rightChild() const
+{
+  return first_child + 1;
+}
 
-/// @brief BVH front list is a list of front nodes.
-using BVHFrontList = std::list<BVHFrontNode>;
-
-/// @brief Add new front node into the front list
-void updateFrontList(BVHFrontList* front_list, int b1, int b2);
-
-} // namespace detail
 } // namespace fcl
-
-#endif
