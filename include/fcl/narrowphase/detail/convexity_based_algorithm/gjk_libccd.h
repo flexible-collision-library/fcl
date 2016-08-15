@@ -41,9 +41,8 @@
 #include <ccd/ccd.h>
 #include <ccd/quat.h>
 #include <ccd/vec3.h>
-#include <ccd/simplex.h>
-#include <ccd/simplex.h>
 #include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/simplex.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
 namespace fcl
