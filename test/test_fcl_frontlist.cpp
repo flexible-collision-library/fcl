@@ -48,20 +48,20 @@ template<typename BV>
 bool collide_front_list_Test(const Transform3<typename BV::S>& tf1, const Transform3<typename BV::S>& tf2,
                              const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                              const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2,
-                             SplitMethodType split_method,
+                             detail::SplitMethodType split_method,
                              bool refit_bottomup, bool verbose);
 
 template<typename BV, typename TraversalNode>
 bool collide_front_list_Test_Oriented(const Transform3<typename BV::S>& tf1, const Transform3<typename BV::S>& tf2,
                                       const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                                       const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2,
-                                      SplitMethodType split_method, bool verbose);
+                                      detail::SplitMethodType split_method, bool verbose);
 
 
 template<typename BV>
 bool collide_Test(const Transform3<typename BV::S>& tf,
                   const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
-                  const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
+                  const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method, bool verbose);
 
 // TODO: randomly still have some runtime error
 template <typename S>
@@ -90,106 +90,106 @@ void test_front_list()
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<AABB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test<AABB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
+    res = collide_Test<AABB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test<AABB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<AABB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test<AABB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
+    res = collide_Test<AABB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test<AABB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<AABB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test<AABB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
+    res = collide_Test<AABB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test<AABB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, false, verbose);
     EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test<OBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
+    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test<OBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test<OBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
+    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test<OBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test<OBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
+    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test<OBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, false, verbose);
     EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
     // Disabled broken test lines. Please see #25.
-    // res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    // res2 = collide_front_list_Test<RSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
+    // res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    // res2 = collide_front_list_Test<RSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, false, verbose);
     // EXPECT_TRUE(res == res2);
-    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test<RSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
+    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test<RSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test<RSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    EXPECT_TRUE(res == res2);
-  }
-
-  for(std::size_t i = 0; i < transforms.size(); ++i)
-  {
-    res = collide_Test<KDOP<S, 16> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 16> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    EXPECT_TRUE(res == res2);
-    res = collide_Test<KDOP<S, 16> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 16> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    EXPECT_TRUE(res == res2);
-    res = collide_Test<KDOP<S, 16> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 16> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
+    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test<RSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, false, verbose);
     EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<KDOP<S, 18> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 18> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
+    res = collide_Test<KDOP<S, 16> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 16> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<KDOP<S, 18> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 18> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
+    res = collide_Test<KDOP<S, 16> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 16> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<KDOP<S, 18> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 18> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
-    EXPECT_TRUE(res == res2);
-  }
-
-  for(std::size_t i = 0; i < transforms.size(); ++i)
-  {
-    res = collide_Test<KDOP<S, 24> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 24> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, false, verbose);
-    EXPECT_TRUE(res == res2);
-    res = collide_Test<KDOP<S, 24> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 24> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, false, verbose);
-    EXPECT_TRUE(res == res2);
-    res = collide_Test<KDOP<S, 24> >(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test<KDOP<S, 24> >(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, false, verbose);
+    res = collide_Test<KDOP<S, 16> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 16> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, false, verbose);
     EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test_Oriented<RSS<S>, MeshCollisionTraversalNodeRSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    res = collide_Test<KDOP<S, 18> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 18> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test_Oriented<RSS<S>, MeshCollisionTraversalNodeRSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    res = collide_Test<KDOP<S, 18> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 18> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test_Oriented<RSS<S>, MeshCollisionTraversalNodeRSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    res = collide_Test<KDOP<S, 18> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 18> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, false, verbose);
     EXPECT_TRUE(res == res2);
   }
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
-    res2 = collide_front_list_Test_Oriented<OBB<S>, MeshCollisionTraversalNodeOBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, verbose);
+    res = collide_Test<KDOP<S, 24> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 24> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
-    res2 = collide_front_list_Test_Oriented<OBB<S>, MeshCollisionTraversalNodeOBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    res = collide_Test<KDOP<S, 24> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 24> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, false, verbose);
     EXPECT_TRUE(res == res2);
-    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
-    res2 = collide_front_list_Test_Oriented<OBB<S>, MeshCollisionTraversalNodeOBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, verbose);
+    res = collide_Test<KDOP<S, 24> >(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test<KDOP<S, 24> >(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, false, verbose);
+    EXPECT_TRUE(res == res2);
+  }
+
+  for(std::size_t i = 0; i < transforms.size(); ++i)
+  {
+    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test_Oriented<RSS<S>, detail::MeshCollisionTraversalNodeRSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    EXPECT_TRUE(res == res2);
+    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test_Oriented<RSS<S>, detail::MeshCollisionTraversalNodeRSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    EXPECT_TRUE(res == res2);
+    res = collide_Test<RSS<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test_Oriented<RSS<S>, detail::MeshCollisionTraversalNodeRSS<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    EXPECT_TRUE(res == res2);
+  }
+
+  for(std::size_t i = 0; i < transforms.size(); ++i)
+  {
+    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    res2 = collide_front_list_Test_Oriented<OBB<S>, detail::MeshCollisionTraversalNodeOBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, verbose);
+    EXPECT_TRUE(res == res2);
+    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    res2 = collide_front_list_Test_Oriented<OBB<S>, detail::MeshCollisionTraversalNodeOBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
+    EXPECT_TRUE(res == res2);
+    res = collide_Test<OBB<S>>(transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
+    res2 = collide_front_list_Test_Oriented<OBB<S>, detail::MeshCollisionTraversalNodeOBB<S>>(transforms[i], transforms2[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, verbose);
     EXPECT_TRUE(res == res2);
   }
 
@@ -205,17 +205,17 @@ template<typename BV>
 bool collide_front_list_Test(const Transform3<typename BV::S>& tf1, const Transform3<typename BV::S>& tf2,
                              const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                              const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2,
-                             SplitMethodType split_method,
+                             detail::SplitMethodType split_method,
                              bool refit_bottomup, bool verbose)
 {
   using S = typename BV::S;
 
   BVHModel<BV> m1;
   BVHModel<BV> m2;
-  m1.bv_splitter.reset(new BVSplitter<BV>(split_method));
-  m2.bv_splitter.reset(new BVSplitter<BV>(split_method));
+  m1.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
+  m2.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
 
-  BVHFrontList front_list;
+  detail::BVHFrontList front_list;
 
 
   std::vector<Vector3<S>> vertices1_new(vertices1.size());
@@ -236,9 +236,9 @@ bool collide_front_list_Test(const Transform3<typename BV::S>& tf1, const Transf
   Transform3<S> pose2 = Transform3<S>::Identity();
 
   CollisionResult<S> local_result;
-  MeshCollisionTraversalNode<BV> node;
+  detail::MeshCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
+  if(!detail::initialize<BV>(node, m1, pose1, m2, pose2,
                      CollisionRequest<S>(std::numeric_limits<int>::max(), false), local_result))
     std::cout << "initialize error" << std::endl;
 
@@ -279,16 +279,16 @@ template<typename BV, typename TraversalNode>
 bool collide_front_list_Test_Oriented(const Transform3<typename BV::S>& tf1, const Transform3<typename BV::S>& tf2,
                                       const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                                       const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2,
-                                      SplitMethodType split_method, bool verbose)
+                                      detail::SplitMethodType split_method, bool verbose)
 {
   using S = typename BV::S;
 
   BVHModel<BV> m1;
   BVHModel<BV> m2;
-  m1.bv_splitter.reset(new BVSplitter<BV>(split_method));
-  m2.bv_splitter.reset(new BVSplitter<BV>(split_method));
+  m1.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
+  m2.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
 
-  BVHFrontList front_list;
+  detail::BVHFrontList front_list;
 
   m1.beginModel();
   m1.addSubModel(vertices1, triangles1);
@@ -333,14 +333,14 @@ bool collide_front_list_Test_Oriented(const Transform3<typename BV::S>& tf1, con
 template<typename BV>
 bool collide_Test(const Transform3<typename BV::S>& tf,
                   const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
-                  const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+                  const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method, bool verbose)
 {
   using S = typename BV::S;
 
   BVHModel<BV> m1;
   BVHModel<BV> m2;
-  m1.bv_splitter.reset(new BVSplitter<BV>(split_method));
-  m2.bv_splitter.reset(new BVSplitter<BV>(split_method));
+  m1.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
+  m2.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
 
   m1.beginModel();
   m1.addSubModel(vertices1, triangles1);
@@ -354,9 +354,9 @@ bool collide_Test(const Transform3<typename BV::S>& tf,
   Transform3<S> pose2 = Transform3<S>::Identity();
 
   CollisionResult<S> local_result;
-  MeshCollisionTraversalNode<BV> node;
+  detail::MeshCollisionTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2,
+  if(!detail::initialize<BV>(node, m1, pose1, m2, pose2,
                      CollisionRequest<S>(std::numeric_limits<int>::max(), false), local_result))
     std::cout << "initialize error" << std::endl;
 

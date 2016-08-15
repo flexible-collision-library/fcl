@@ -44,6 +44,8 @@
 namespace fcl
 {
 
+namespace detail {
+
 /// @brief A class solves polynomial degree (1,2,3) equations 
 template <typename S>
 class PolySolver
@@ -220,6 +222,7 @@ constexpr S PolySolver<S>::getNearZeroThreshold()
   return 1e-9;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -38,16 +38,19 @@
 #ifndef FCL_TRAVERSAL_MESHCOLLISIONTRAVERSALNODE_H
 #define FCL_TRAVERSAL_MESHCOLLISIONTRAVERSALNODE_H
 
-#include "fcl/narrowphase/contact.h"
-#include "fcl/narrowphase/cost_source.h"
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/intersect.h"
-#include "fcl/narrowphase/detail/traversal/collision/bvh_collision_traversal_node.h"
 #include "fcl/math/bv/OBB.h"
 #include "fcl/math/bv/RSS.h"
 #include "fcl/math/bv/OBBRSS.h"
 #include "fcl/math/bv/kIOS.h"
+#include "fcl/narrowphase/contact.h"
+#include "fcl/narrowphase/cost_source.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/intersect.h"
+#include "fcl/narrowphase/detail/traversal/collision/bvh_collision_traversal_node.h"
 
 namespace fcl
+{
+
+namespace detail
 {
 
 /// @brief Traversal node for collision between two meshes
@@ -234,9 +237,6 @@ bool initialize(
     const CollisionRequest<S>& request,
     CollisionResult<S>& result);
 
-namespace detail
-{
-
 template <typename BV>
 void meshCollisionOrientedNodeLeafTesting(
     int b1,
@@ -275,8 +275,6 @@ void meshCollisionOrientedNodeLeafTesting(
     int& num_leaf_tests,
     const CollisionRequest<typename BV::S>& request,
     CollisionResult<typename BV::S>& result);
-
-} // namespace detail
 
 //============================================================================//
 //                                                                            //
@@ -694,9 +692,6 @@ void MeshCollisionTraversalNodeOBBRSS<S>::leafTesting(int b1, int b2) const
         *this->result);
 }
 
-namespace detail
-{
-
 template <typename BV>
 void meshCollisionOrientedNodeLeafTesting(
     int b1, int b2,
@@ -886,11 +881,6 @@ void meshCollisionOrientedNodeLeafTesting(
   }
 }
 
-} // namespace detail
-
-namespace detail
-{
-
 template<typename BV, typename OrientedNode>
 bool setupMeshCollisionOrientedNode(
     OrientedNode& node,
@@ -922,8 +912,6 @@ bool setupMeshCollisionOrientedNode(
 
   return true;
 }
-
-} // namespace detail
 
 //==============================================================================
 template <typename S>
@@ -985,6 +973,7 @@ bool initialize(
         node, model1, tf1, model2, tf2, request, result);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

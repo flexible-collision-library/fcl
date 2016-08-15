@@ -44,6 +44,7 @@
 
 namespace fcl
 {
+
 /// @brief Expand the BVH bounding boxes according to the variance matrix
 /// corresponding to the data stored within each BV node
 template <typename BV>

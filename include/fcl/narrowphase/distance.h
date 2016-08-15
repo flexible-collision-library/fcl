@@ -67,9 +67,9 @@ S distance(
 
 //==============================================================================
 template <typename GJKSolver>
-DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
+detail::DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
 {
-  static DistanceFunctionMatrix<GJKSolver> table;
+  static detail::DistanceFunctionMatrix<GJKSolver> table;
   return table;
 }
 
@@ -157,13 +157,13 @@ S distance(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<S> solver;
-      return distance<GJKSolver_libccd<S>>(o1, o2, &solver, request, result);
+      detail::GJKSolver_libccd<S> solver;
+      return distance(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<S> solver;
-      return distance<GJKSolver_indep<S>>(o1, o2, &solver, request, result);
+      detail::GJKSolver_indep<S> solver;
+      return distance(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -181,13 +181,13 @@ S distance(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<S> solver;
-      return distance<GJKSolver_libccd<S>>(o1, tf1, o2, tf2, &solver, request, result);
+      detail::GJKSolver_libccd<S> solver;
+      return distance(o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<S> solver;
-      return distance<GJKSolver_indep<S>>(o1, tf1, o2, tf2, &solver, request, result);
+      detail::GJKSolver_indep<S> solver;
+      return distance(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     return -1;

@@ -50,6 +50,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 namespace implementation_array
 {
 
@@ -1363,6 +1366,7 @@ struct SelectImpl<S, AABB<S>>
 };
 
 } // namespace implementation_array
+} // namespace detail
 } // namespace fcl
 
 #endif

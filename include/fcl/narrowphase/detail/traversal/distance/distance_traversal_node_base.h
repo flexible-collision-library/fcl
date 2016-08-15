@@ -45,6 +45,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Node structure encoding the information required for distance traversal.
 template <typename S>
 class DistanceTraversalNodeBase : public TraversalNodeBase<S>
@@ -125,6 +128,7 @@ void DistanceTraversalNodeBase<S>::enableStatistics(bool enable)
   enable_statistics = enable;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -295,6 +295,6 @@ bool NaiveCollisionManager<S>::empty() const
   return objs.empty();
 }
 
-} // namespace
+} // namespace fcl
 
 #endif

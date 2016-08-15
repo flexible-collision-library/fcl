@@ -51,6 +51,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for mesh-octree collision
 template <typename BV, typename NarrowPhaseSolver>
 class MeshOcTreeCollisionTraversalNode
@@ -149,6 +152,7 @@ bool initialize(
   return true;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

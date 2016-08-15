@@ -212,10 +212,10 @@ void broad_phase_collision_test(S env_scale, std::size_t env_size, std::size_t q
   S ncell_per_axis = 20;
   S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / ncell_per_axis, (upper_limit[1] - lower_limit[1]) / ncell_per_axis), (upper_limit[2] - lower_limit[2]) / ncell_per_axis);
   // managers.push_back(new SpatialHashingCollisionManager<S>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager<S>());
 

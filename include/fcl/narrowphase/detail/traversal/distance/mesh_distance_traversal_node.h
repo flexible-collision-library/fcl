@@ -48,6 +48,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for distance computation between two meshes
 template <typename BV>
 class MeshDistanceTraversalNode : public BVHDistanceTraversalNode<BV>
@@ -209,9 +212,6 @@ bool initialize(
     const DistanceRequest<S>& request,
     DistanceResult<S>& result);
 
-namespace detail
-{
-
 template <typename BV>
 FCL_DEPRECATED
 void meshDistanceOrientedNodeLeafTesting(
@@ -282,8 +282,6 @@ void distancePostprocessOrientedNode(
     const Transform3<typename BV::S>& tf1,
     const DistanceRequest<typename BV::S>& request,
     DistanceResult<typename BV::S>& result);
-
-} // namespace detail
 
 //============================================================================//
 //                                                                            //
@@ -597,9 +595,6 @@ void MeshDistanceTraversalNodeOBBRSS<S>::leafTesting(int b1, int b2) const
         *this->result);
 }
 
-namespace detail
-{
-
 //==============================================================================
 template <typename BV>
 void meshDistanceOrientedNodeLeafTesting(int b1,
@@ -805,10 +800,6 @@ void distancePostprocessOrientedNode(
   }
 }
 
-} // namespace detail
-
-namespace detail
-{
 template <typename BV, typename OrientedNode>
 static bool setupMeshDistanceOrientedNode(
     OrientedNode& node,
@@ -838,8 +829,6 @@ static bool setupMeshDistanceOrientedNode(
 
   return true;
 }
-
-} // namespace detail
 
 //==============================================================================
 template <typename S>
@@ -886,6 +875,7 @@ bool initialize(
         node, model1, tf1, model2, tf2, request, result);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for distance between shape and mesh
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
 class ShapeMeshDistanceTraversalNode
@@ -453,8 +456,6 @@ leafTesting(int b1, int b2) const
         *(this->result));
 }
 
-namespace detail
-{
 template <typename Shape, typename BV, typename NarrowPhaseSolver, template <typename, typename> class OrientedNode>
 static bool setupShapeMeshDistanceOrientedNode(OrientedNode<Shape, NarrowPhaseSolver>& node,
                                                       const Shape& model1, const Transform3<typename BV::S>& tf1,
@@ -484,8 +485,6 @@ static bool setupShapeMeshDistanceOrientedNode(OrientedNode<Shape, NarrowPhaseSo
 
   return true;
 }
-}
-
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
@@ -523,6 +522,7 @@ bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& 
   return detail::setupShapeMeshDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

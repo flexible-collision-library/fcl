@@ -56,7 +56,6 @@ typedef FCL_DEPRECATED std::uint64_t FCL_UINT64;
 typedef FCL_DEPRECATED std::int32_t  FCL_INT32;
 typedef FCL_DEPRECATED std::uint32_t FCL_UINT32;
 
-using real = double;
 using int64 = std::int64_t;
 using uint64 = std::uint64_t;
 using int32 = std::int32_t;
@@ -196,6 +195,6 @@ inline std::shared_ptr<_Tp> make_aligned_shared(_Args&&... __args)
 
 #endif
 
-}  // namespace Eigen
+} // namespace Eigen
 
 #endif

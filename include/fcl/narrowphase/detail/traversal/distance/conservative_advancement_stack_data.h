@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 template <typename S>
 struct ConservativeAdvancementStackData
 {
@@ -75,6 +78,7 @@ ConservativeAdvancementStackData<S>::ConservativeAdvancementStackData(
   // Do nothing
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

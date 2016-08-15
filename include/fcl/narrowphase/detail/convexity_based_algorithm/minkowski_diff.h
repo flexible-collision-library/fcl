@@ -310,7 +310,7 @@ Vector3<S> MinkowskiDiff<S>::support(const Vector3<S>& d, const Vector3<S>& v, s
     return support0(d, v);
 }
 
-} // detail
+} // namespace detail
 } // namespace fcl
 
 #endif

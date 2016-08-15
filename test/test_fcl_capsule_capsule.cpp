@@ -50,7 +50,7 @@ using namespace fcl;
 template <typename S>
 void test_distance_capsulecapsule_origin()
 {
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 
@@ -75,7 +75,7 @@ void test_distance_capsulecapsule_origin()
 template <typename S>
 void test_distance_capsulecapsule_transformXY()
 {
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 
@@ -101,7 +101,7 @@ void test_distance_capsulecapsule_transformXY()
 template <typename S>
 void test_distance_capsulecapsule_transformZ()
 {
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 
@@ -128,7 +128,7 @@ void test_distance_capsulecapsule_transformZ2()
 {
   const S Pi = constants<S>::pi();
 
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 

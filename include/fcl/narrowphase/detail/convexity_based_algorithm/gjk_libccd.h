@@ -187,9 +187,6 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  unsigned int max_iterations, S tolerance,
                  S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
-
-} // detail
-
 //============================================================================//
 //                                                                            //
 //                              Implementations                               //
@@ -197,9 +194,6 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
 //============================================================================//
 
 //==============================================================================
-namespace detail
-{
-
 struct ccd_obj_t
 {
   ccd_vec3_t pos;
@@ -250,7 +244,6 @@ struct ccd_triangle_t : public ccd_obj_t
 
 namespace libccd_extension
 {
-
 
 static ccd_real_t simplexReduceToTriangle(ccd_simplex_t *simplex,
                                           ccd_real_t dist,
@@ -659,8 +652,7 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
   return -CCD_REAL(1.);
 }
 
-}
-
+} // namespace libccd_extension
 
 /** Basic shape to ccd shape */
 template <typename S>
@@ -1266,8 +1258,7 @@ inline void triDeleteGJKObject(void* o_)
   delete o;
 }
 
-} // detail
-
+} // namespace detail
 } // namespace fcl
 
 #endif

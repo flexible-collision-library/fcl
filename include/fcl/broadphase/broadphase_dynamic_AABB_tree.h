@@ -59,7 +59,7 @@ class DynamicAABBTreeCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
 
-  using DynamicAABBNode = NodeBase<AABB<S>>;
+  using DynamicAABBNode = detail::NodeBase<AABB<S>>;
   using DynamicAABBTable = std::unordered_map<CollisionObject<S>*, DynamicAABBNode*> ;
 
   int max_tree_nonbalanced_level;
@@ -124,10 +124,10 @@ public:
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
-  const HierarchyTree<AABB<S>>& getTree() const;
+  const detail::HierarchyTree<AABB<S>>& getTree() const;
 
 private:
-  HierarchyTree<AABB<S>> dtree;
+  detail::HierarchyTree<AABB<S>> dtree;
   std::unordered_map<CollisionObject<S>*, DynamicAABBNode*> table;
 
   bool setup_;
@@ -801,15 +801,15 @@ bool selfDistanceRecurse(typename DynamicAABBTreeCollisionManager<S>::DynamicAAB
   return false;
 }
 
-} // dynamic_AABB_tree
+} // namespace dynamic_AABB_tree
 
-} // detail
+} // namespace detail
 
 //==============================================================================
 template <typename S>
 DynamicAABBTreeCollisionManager<S>::DynamicAABBTreeCollisionManager()
   : tree_topdown_balance_threshold(dtree.bu_threshold),
-  tree_topdown_level(dtree.topdown_level)
+    tree_topdown_level(dtree.topdown_level)
 {
   max_tree_nonbalanced_level = 10;
   tree_incremental_balance_pass = 10;
@@ -1064,7 +1064,8 @@ size_t DynamicAABBTreeCollisionManager<S>::size() const
 
 //==============================================================================
 template <typename S>
-const HierarchyTree<AABB<S>>& DynamicAABBTreeCollisionManager<S>::getTree() const
+const detail::HierarchyTree<AABB<S>>&
+DynamicAABBTreeCollisionManager<S>::getTree() const
 {
   return dtree;
 }

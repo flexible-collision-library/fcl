@@ -448,8 +448,7 @@ bool EPA<S>::expand(size_t pass, SimplexV* w, SimplexF* f, size_t e, SimplexHori
   return false;
 }
 
-} // detail
-
+} // namespace detail
 } // namespace fcl
 
 #endif

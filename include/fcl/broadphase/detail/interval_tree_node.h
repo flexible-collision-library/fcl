@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief The node for interval tree
 template <typename S>
 class IntervalTreeNode
@@ -112,6 +115,7 @@ IntervalTreeNode<S>::~IntervalTreeNode()
   // Do nothing
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

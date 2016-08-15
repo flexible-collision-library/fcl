@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeConservativeAdvancementTraversalNode
     : public ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>
@@ -156,6 +159,7 @@ bool initialize(
   return true;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

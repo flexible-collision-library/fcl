@@ -44,10 +44,10 @@
 #include "fcl/math/bv/OBB.h"
 #include "fcl/math/bv/kDOP.h"
 #include "fcl/object/geometry/collision_geometry.h"
-#include "fcl/object/geometry/bvh/BV_node.h"
 #include "fcl/object/geometry/bvh/BVH_internal.h"
-#include "fcl/object/geometry/bvh/BV_splitter.h"
-#include "fcl/object/geometry/bvh/BV_fitter.h"
+#include "fcl/object/geometry/bvh/BV_node.h"
+#include "fcl/object/geometry/bvh/detail/BV_splitter.h"
+#include "fcl/object/geometry/bvh/detail/BV_fitter.h"
 
 namespace fcl
 {
@@ -177,10 +177,10 @@ public:
   BVHBuildState build_state;
 
   /// @brief Split rule to split one BV node into two children
-  std::shared_ptr<BVSplitterBase<BV>> bv_splitter;
+  std::shared_ptr<detail::BVSplitterBase<BV>> bv_splitter;
 
   /// @brief Fitting rule to fit a BV node to a set of geometry primitives
-  std::shared_ptr<BVFitterBase<BV>> bv_fitter;
+  std::shared_ptr<detail::BVFitterBase<BV>> bv_fitter;
 
 
 private:
@@ -254,8 +254,8 @@ BVHModel<BV>::BVHModel() : vertices(nullptr),
   num_tris(0),
   num_vertices(0),
   build_state(BVH_BUILD_STATE_EMPTY),
-  bv_splitter(new BVSplitter<BV>(SPLIT_METHOD_MEAN)),
-  bv_fitter(new BVFitter<BV>()),
+  bv_splitter(new detail::BVSplitter<BV>(detail::SPLIT_METHOD_MEAN)),
+  bv_fitter(new detail::BVFitter<BV>()),
   num_tris_allocated(0),
   num_vertices_allocated(0),
   num_bvs_allocated(0),

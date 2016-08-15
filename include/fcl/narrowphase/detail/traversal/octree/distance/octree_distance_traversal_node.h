@@ -50,6 +50,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for octree distance
 template <typename NarrowPhaseSolver>
 class OcTreeDistanceTraversalNode
@@ -145,6 +148,7 @@ bool initialize(
   return true;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

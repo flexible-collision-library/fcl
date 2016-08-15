@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for continuous collision between BVH models
 template <typename S>
 struct BVHContinuousCollisionPair
@@ -268,6 +271,7 @@ bool initialize(
   return true;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

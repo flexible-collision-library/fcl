@@ -47,7 +47,7 @@ using namespace fcl;
 template <typename S>
 S getDistance(const Vector3<S>& p)
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   S dist;
 

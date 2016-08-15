@@ -46,6 +46,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief A simple hash table implemented as multiple buckets. HashFnc is any
 /// extended hash function: HashFnc(key) = {index1, index2, ..., }
 template<typename Key, typename Data, typename HashFnc>
@@ -155,6 +158,7 @@ void SimpleHashTable<Key, Data, HashFnc>::clear()
   table_.resize(table_size_);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

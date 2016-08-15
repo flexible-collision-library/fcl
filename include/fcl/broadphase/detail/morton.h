@@ -60,9 +60,6 @@ static inline uint32 morton_code(uint32 x, uint32 y, uint32 z);
 /// @brief compute 60 bit morton code
 static inline uint64 morton_code60(uint32 x, uint32 y, uint32 z);
 
-}
-/// @endcond
-
 /// @brief Functor to compute the morton code for a given AABB<S>
 /// This is specialized for 32- and 64-bit unsigned integers giving
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
@@ -122,11 +119,6 @@ struct morton_functor<S, std::bitset<N>>
 //============================================================================//
 
 //==============================================================================
-/// @cond IGNORE
-namespace detail
-{
-
-//==============================================================================
 template <typename S>
 uint32 quantize(S x, uint32 n)
 {
@@ -167,8 +159,6 @@ static inline uint64 morton_code60(uint32 x, uint32 y, uint32 z)
   return (uint64(morton_code(hi_x, hi_y, hi_z)) << 30)
       | uint64(morton_code(lo_x, lo_y, lo_z));
 }
-
-} // namespace detail
 
 //==============================================================================
 template<typename S>
@@ -274,8 +264,8 @@ constexpr size_t morton_functor<S, std::bitset<N>>::bits()
   return N;
 }
 
+} // namespace detail
 /// @endcond
-
 } // namespace fcl
 
 #endif

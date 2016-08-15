@@ -47,6 +47,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Interface for fitting a bv given the triangles or points inside it.
 template <typename BV>
 class BVFitterBase
@@ -548,6 +551,7 @@ struct FitImpl<S, OBBRSS<S>>
   }
 };
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -46,6 +46,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief CCD intersect kernel among primitives 
 template <typename S>
 class Intersect
@@ -1350,6 +1353,7 @@ constexpr unsigned int Intersect<S>::getMaxTriangleClips()
   return 8;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

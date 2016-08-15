@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief continuous collision node using conservative advancement. when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
 template <typename BV>
 class MeshConservativeAdvancementTraversalNode
@@ -193,9 +196,6 @@ bool initialize(
     const Transform3<S>& tf2,
     S w = 1);
 
-namespace detail
-{
-
 template <typename S, typename BV>
 const Vector3<S> getBVAxis(const BV& bv, int i);
 
@@ -249,8 +249,6 @@ void meshConservativeAdvancementOrientedNodeLeafTesting(
     int& last_tri_id2,
     typename BV::S& delta_t,
     int& num_leaf_tests);
-
-} // namespace detail
 
 //============================================================================//
 //                                                                            //
@@ -648,8 +646,6 @@ bool MeshConservativeAdvancementTraversalNodeOBBRSS<S>::canStop(S c) const
 }
 
 /// @brief for OBB and RSS, there is local coordinate of BV, so normal need to be transformed
-namespace detail
-{
 
 //==============================================================================
 template <typename S, typename BV>
@@ -953,8 +949,6 @@ bool setupMeshConservativeAdvancementOrientedDistanceNode(
   return true;
 }
 
-} // namespace detials
-
 //==============================================================================
 template <typename S>
 bool initialize(
@@ -983,6 +977,7 @@ bool initialize(
         node, model1, tf1, model2, tf2, w);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Node structure encoding the information required for traversal.
 template <typename S>
 class TraversalNodeBase
@@ -163,6 +166,7 @@ int TraversalNodeBase<S>::getSecondRightChild(int b) const
   return b;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

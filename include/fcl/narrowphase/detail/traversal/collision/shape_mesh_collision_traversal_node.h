@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for collision between shape and mesh
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
 class ShapeMeshCollisionTraversalNode
@@ -428,9 +431,6 @@ void ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::leafTestin
   // may need to change the order in pairs
 }
 
-/// @cond IGNORE
-namespace detail
-{
 template <typename Shape, typename BV, typename NarrowPhaseSolver, template <typename, typename> class OrientedNode>
 static bool setupShapeMeshCollisionOrientedNode(OrientedNode<Shape, NarrowPhaseSolver>& node,
                                                        const Shape& model1, const Transform3<typename BV::S>& tf1,
@@ -460,9 +460,6 @@ static bool setupShapeMeshCollisionOrientedNode(OrientedNode<Shape, NarrowPhaseS
 
   return true;
 }
-
-} // namespace detail
-/// @endcond
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
@@ -528,6 +525,7 @@ bool initialize(
         node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

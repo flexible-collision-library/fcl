@@ -58,7 +58,7 @@ class DynamicAABBTreeCollisionManager_Array : public BroadPhaseCollisionManager<
 {
 public:
 
-  using DynamicAABBNode = implementation_array::NodeBase<AABB<S>>;
+  using DynamicAABBNode = detail::implementation_array::NodeBase<AABB<S>>;
   using DynamicAABBTable = std::unordered_map<CollisionObject<S>*, size_t>;
 
   int max_tree_nonbalanced_level;
@@ -123,10 +123,10 @@ public:
   /// @brief the number of objects managed by the manager
   size_t size() const;
 
-  const implementation_array::HierarchyTree<AABB<S>>& getTree() const;
+  const detail::implementation_array::HierarchyTree<AABB<S>>& getTree() const;
 
 private:
-  implementation_array::HierarchyTree<AABB<S>> dtree;
+  detail::implementation_array::HierarchyTree<AABB<S>> dtree;
   std::unordered_map<CollisionObject<S>*, size_t> table;
 
   bool setup_;
@@ -803,14 +803,15 @@ bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicA
 
 #endif
 
-} // dynamic_AABB_tree_array
+} // namespace dynamic_AABB_tree_array
 
-} // detail
+} // namespace detail
 
 //==============================================================================
 template <typename S>
-DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBTreeCollisionManager_Array() : tree_topdown_balance_threshold(dtree.bu_threshold),
-  tree_topdown_level(dtree.topdown_level)
+DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBTreeCollisionManager_Array()
+  : tree_topdown_balance_threshold(dtree.bu_threshold),
+    tree_topdown_level(dtree.topdown_level)
 {
   max_tree_nonbalanced_level = 10;
   tree_incremental_balance_pass = 10;
@@ -826,7 +827,8 @@ DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBTreeCollisionManager_Array(
 
 //==============================================================================
 template <typename S>
-void DynamicAABBTreeCollisionManager_Array<S>::registerObjects(const std::vector<CollisionObject<S>*>& other_objs)
+void DynamicAABBTreeCollisionManager_Array<S>::registerObjects(
+    const std::vector<CollisionObject<S>*>& other_objs)
 {
   if(other_objs.empty()) return;
 
@@ -1064,7 +1066,7 @@ size_t DynamicAABBTreeCollisionManager_Array<S>::size() const
 
 //==============================================================================
 template <typename S>
-const implementation_array::HierarchyTree<AABB<S>>&
+const detail::implementation_array::HierarchyTree<AABB<S>>&
 DynamicAABBTreeCollisionManager_Array<S>::getTree() const
 {
   return dtree;

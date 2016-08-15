@@ -47,6 +47,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 template<typename U, typename V>
 class unordered_map_hash_table : public std::unordered_map<U, V> {};
 
@@ -155,6 +158,7 @@ void SparseHashTable<Key, Data, HashFnc, TableT>::clear()
   table_.clear();
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

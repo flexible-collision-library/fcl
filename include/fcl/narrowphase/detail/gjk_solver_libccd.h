@@ -52,6 +52,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief collision and distance solver based on libccd library.
 template <typename S_>
 struct GJKSolver_libccd
@@ -973,6 +976,7 @@ Vector3<S> GJKSolver_libccd<S>::getCachedGuess() const
   return Vector3<S>(-1, 0, 0);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

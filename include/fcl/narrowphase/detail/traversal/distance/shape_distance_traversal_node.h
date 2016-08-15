@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for distance between two shapes
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeDistanceTraversalNode
@@ -157,6 +160,7 @@ bool initialize(
   return true;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

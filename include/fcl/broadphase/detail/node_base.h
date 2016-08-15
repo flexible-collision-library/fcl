@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief dynamic AABB<S> tree node
 template<typename BV>
 struct NodeBase
@@ -101,6 +104,7 @@ NodeBase<BV>::NodeBase()
   children[1] = nullptr;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

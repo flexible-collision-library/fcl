@@ -38,14 +38,43 @@
 #ifndef FCL_DISTANCE_FUNC_MATRIX_H
 #define FCL_DISTANCE_FUNC_MATRIX_H
 
+#include "fcl/config.h"
+
 #include "fcl/common/types.h"
+
 #include "fcl/object/collision_object.h"
+
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
-#include "fcl/narrowphase/detail/traversal/traversal_nodes.h"
+
+#include "fcl/narrowphase/detail/traversal/distance/bvh_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/bvh_shape_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_conservative_advancement_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_shape_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_shape_conservative_advancement_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/shape_bvh_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/shape_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/shape_conservative_advancement_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/shape_mesh_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/shape_mesh_conservative_advancement_traversal_node.h"
+
+#if FCL_HAVE_OCTOMAP
+
+#include "fcl/narrowphase/detail/traversal/octree/distance/mesh_octree_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/distance/octree_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/distance/octree_mesh_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/distance/octree_shape_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/distance/shape_octree_distance_traversal_node.h"
+
+#endif // FCL_HAVE_OCTOMAP
 
 namespace fcl
+{
+
+namespace detail
 {
 
 /// @brief distance matrix stores the functions for distance between different types of objects and provides a uniform call interface
@@ -253,9 +282,6 @@ struct BVHShapeDistancer
   }
 };
 
-namespace detail
-{
-
 template <typename OrientedMeshShapeDistanceTraversalNode,
           typename BV, typename Shape, typename NarrowPhaseSolver>
 typename Shape::S orientedBVHShapeDistance(
@@ -277,8 +303,6 @@ typename Shape::S orientedBVHShapeDistance(
 
   return result.min_distance;
 }
-
-} // namespace detail
 
 template <typename Shape, typename NarrowPhaseSolver>
 struct BVHShapeDistancer<RSS<typename Shape::S>, Shape, NarrowPhaseSolver>
@@ -387,9 +411,6 @@ typename BV::S BVHDistance(
         o1, tf1, o2, tf2, request, result);
 }
 
-namespace detail
-{
-
 template <typename OrientedMeshDistanceTraversalNode, typename BV>
 typename BV::S orientedMeshDistance(
     const CollisionGeometry<typename BV::S>* o1,
@@ -409,8 +430,6 @@ typename BV::S orientedMeshDistance(
 
   return result.min_distance;
 }
-
-} // namespace detail
 
 //==============================================================================
 template <typename S>
@@ -713,6 +732,7 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

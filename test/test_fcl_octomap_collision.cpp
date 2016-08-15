@@ -39,7 +39,6 @@
 
 #include "fcl/config.h"
 #include "fcl/object/geometry/octree/octree.h"
-#include "fcl/narrowphase/detail/traversal/traversal_nodes.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/broadphase/broadphase_bruteforce.h"
 #include "fcl/broadphase/broadphase_spatialhash.h"

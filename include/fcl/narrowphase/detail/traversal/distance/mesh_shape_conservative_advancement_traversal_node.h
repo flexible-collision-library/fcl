@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for conservative advancement computation between BVH and shape
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 class MeshShapeConservativeAdvancementTraversalNode
@@ -98,9 +101,6 @@ bool initialize(
     typename BV::S w = 1,
     bool use_refit = false,
     bool refit_bottomup = false);
-
-namespace detail
-{
 
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void meshShapeConservativeAdvancementOrientedNodeLeafTesting(
@@ -218,8 +218,6 @@ bool meshShapeConservativeAdvancementOrientedNodeCanStop(
     return false;
   }
 }
-
-} // namespace detail
 
 template <typename Shape, typename NarrowPhaseSolver>
 class MeshShapeConservativeAdvancementTraversalNodeRSS
@@ -589,6 +587,7 @@ bool initialize(
   return true;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

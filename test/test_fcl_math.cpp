@@ -111,10 +111,10 @@ template <typename S>
 void test_morton()
 {
   AABB<S> bbox(Vector3<S>(0, 0, 0), Vector3<S>(1000, 1000, 1000));
-  morton_functor<S, std::bitset<30>> F1(bbox);
-  morton_functor<S, std::bitset<60>> F2(bbox);
-  morton_functor<S, uint64> F3(bbox); // 60 bits
-  morton_functor<S, uint32> F4(bbox); // 30 bits
+  detail::morton_functor<S, std::bitset<30>> F1(bbox);
+  detail::morton_functor<S, std::bitset<60>> F2(bbox);
+  detail::morton_functor<S, uint64> F3(bbox); // 60 bits
+  detail::morton_functor<S, uint32> F4(bbox); // 30 bits
 
   Vector3<S> p(254, 873, 674);
 

@@ -41,6 +41,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Interval trees implemented using red-black-trees as described in
 /// the book Introduction_To_Algorithms_ by Cormen, Leisserson, and Rivest.
 template <typename S>
@@ -75,6 +78,7 @@ void SimpleInterval<S>::print()
   // Do nothing
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

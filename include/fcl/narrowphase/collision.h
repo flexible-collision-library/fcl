@@ -73,9 +73,9 @@ std::size_t collide(const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
 
 //==============================================================================
 template<typename GJKSolver>
-CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
+detail::CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 {
-  static CollisionFunctionMatrix<GJKSolver> table;
+  static detail::CollisionFunctionMatrix<GJKSolver> table;
   return table;
 }
 
@@ -157,13 +157,13 @@ std::size_t collide(const CollisionObject<S>* o1, const CollisionObject<S>* o2,
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<S> solver;
-      return collide<S, GJKSolver_libccd<S>>(o1, o2, &solver, request, result);
+      detail::GJKSolver_libccd<S> solver;
+      return collide(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<S> solver;
-      return collide<S, GJKSolver_indep<S>>(o1, o2, &solver, request, result);
+      detail::GJKSolver_indep<S> solver;
+      return collide(o1, o2, &solver, request, result);
     }
   default:
     return -1; // error
@@ -184,15 +184,13 @@ std::size_t collide(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<S> solver;
-      return collide<S, GJKSolver_libccd<S>>(
-          o1, tf1, o2, tf2, &solver, request, result);
+      detail::GJKSolver_libccd<S> solver;
+      return collide(o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<S> solver;
-      return collide<S, GJKSolver_indep<S>>(
-          o1, tf1, o2, tf2, &solver, request, result);
+      detail::GJKSolver_indep<S> solver;
+      return collide(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
     std::cerr << "Warning! Invalid GJK solver" << std::endl;

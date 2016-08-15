@@ -51,10 +51,12 @@
 #include "fcl/object/geometry/shape/plane.h"
 #include "fcl/object/geometry/shape/sphere.h"
 #include "fcl/object/geometry/shape/triangle_p.h"
-#include "fcl/narrowphase/detail/traversal/traversal_nodes.h"
 #include "fcl/narrowphase/detail/traversal/traversal_recurse.h"
 
 namespace fcl
+{
+
+namespace detail
 {
 
 template<typename NarrowPhaseSolver>
@@ -150,9 +152,6 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
   return false;
 }
 
-namespace detail
-{
-
 template<typename BV, typename ConservativeAdvancementOrientedNode>
 bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
                                          const MotionBase<typename BV::S>* motion1,
@@ -222,9 +221,6 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
     return true;
 
   return false;
-}
-
-
 }
 
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
@@ -364,9 +360,6 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
   return false;
 }
 
-namespace detail
-{
-
 template<typename BV, typename Shape, typename NarrowPhaseSolver, typename ConservativeAdvancementOrientedNode>
 bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
                                               const MotionBase<typename BV::S>* motion1,
@@ -433,9 +426,6 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
 
   return false;
 }
-
-}
-
 
 template<typename Shape, typename NarrowPhaseSolver>
 bool conservativeAdvancement(const BVHModel<RSS<typename Shape::S>>& o1,
@@ -536,9 +526,6 @@ bool conservativeAdvancement(const Shape& o1,
   return false;
 }
 
-namespace detail
-{
-
 template<typename Shape, typename BV, typename NarrowPhaseSolver, typename ConservativeAdvancementOrientedNode>
 bool conservativeAdvancementShapeMeshOriented(const Shape& o1,
                                               const MotionBase<typename BV::S>* motion1,
@@ -603,8 +590,6 @@ bool conservativeAdvancementShapeMeshOriented(const Shape& o1,
     return true;
 
   return false;
-}
-
 }
 
 //==============================================================================
@@ -1022,7 +1007,7 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
 }
 
-
+} // namespace detail
 } // namespace fcl
 
 #endif

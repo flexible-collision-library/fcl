@@ -39,7 +39,7 @@
 #ifndef FCL_COLLISION_NODE_H
 #define FCL_COLLISION_NODE_H
 
-#include "fcl/object/geometry/bvh/BVH_front.h"
+#include "fcl/object/geometry/bvh/detail/BVH_front.h"
 #include "fcl/narrowphase/detail/traversal/traversal_recurse.h"
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"
@@ -47,6 +47,9 @@
 
 /// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
 namespace fcl
+{
+
+namespace detail
 {
 
 /// @brief collision on collision traversal node; can use front list to accelerate
@@ -154,6 +157,7 @@ void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list, int 
   node->postprocess();
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

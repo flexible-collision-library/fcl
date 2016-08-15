@@ -53,6 +53,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
 template <typename S_>
 struct GJKSolver_indep
@@ -1072,6 +1075,7 @@ Vector3<S> GJKSolver_indep<S>::getCachedGuess() const
   return cached_guess;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 namespace implementation_array
 {
 
@@ -90,6 +93,7 @@ bool NodeBase<BV>::isInternal() const
 }
 
 } // namespace implementation_array
+} // namespace detail
 } // namespace fcl
 
 #endif

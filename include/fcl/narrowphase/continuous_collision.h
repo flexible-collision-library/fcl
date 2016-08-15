@@ -82,9 +82,9 @@ S collide(
 
 //==============================================================================
 template<typename GJKSolver>
-ConservativeAdvancementFunctionMatrix<GJKSolver>& getConservativeAdvancementFunctionLookTable()
+detail::ConservativeAdvancementFunctionMatrix<GJKSolver>& getConservativeAdvancementFunctionLookTable()
 {
-  static ConservativeAdvancementFunctionMatrix<GJKSolver> table;
+  static detail::ConservativeAdvancementFunctionMatrix<GJKSolver> table;
   return table;
 }
 
@@ -153,6 +153,7 @@ S continuousCollideNaive(
 
 namespace detail
 {
+
 template<typename BV>
 typename BV::S continuousCollideBVHPolynomial(
     const CollisionGeometry<typename BV::S>* o1_,
@@ -337,12 +338,12 @@ S continuousCollideConservativeAdvancement(
   {
   case GST_LIBCCD:
     {
-      GJKSolver_libccd<S> solver;
+      detail::GJKSolver_libccd<S> solver;
       return detail::continuousCollideConservativeAdvancement(o1, motion1, o2, motion2, &solver, request, result);
     }
   case GST_INDEP:
     {
-      GJKSolver_indep<S> solver;
+      detail::GJKSolver_indep<S> solver;
       return detail::continuousCollideConservativeAdvancement(o1, motion1, o2, motion2, &solver, request, result);
     }
   default:

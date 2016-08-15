@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Triangle distance functions
 template <typename S>
 class TriangleDistance
@@ -521,6 +524,7 @@ S TriangleDistance<S>::triDistance(const Vector3<S>& S1, const Vector3<S>& S2, c
   return triDistance(S1, S2, S3, T1_transformed, T2_transformed, T3_transformed, P, Q);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Front list acceleration for collision
 /// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
 /// the traversal terminates while performing a query during a given time
@@ -86,6 +89,7 @@ inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
   if(front_list) front_list->emplace_back(b1, b2);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Project functions
 template <typename S>
 class Project
@@ -355,6 +358,7 @@ Project<S>::ProjectResult::ProjectResult()
   // Do nothing
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

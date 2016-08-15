@@ -47,6 +47,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Class describes the information needed when we take the
 /// right branch in searching for intervals but possibly come back
 /// and check the left branch as well.
@@ -654,6 +657,7 @@ std::deque<SimpleInterval<S>*> IntervalTree<S>::query(double low, double high)
   return result_stack;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

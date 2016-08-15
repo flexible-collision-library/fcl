@@ -40,13 +40,16 @@
 #define FCL_TRAVERSAL_RECURSE_H
 
 #include <queue>
-#include "fcl/object/geometry/bvh/BVH_front.h"
+#include "fcl/object/geometry/bvh/detail/BVH_front.h"
 #include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
 
 namespace fcl
+{
+
+namespace detail
 {
 
 /// @brief Recurse function for collision
@@ -511,6 +514,7 @@ void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<S>* node, 
   }
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

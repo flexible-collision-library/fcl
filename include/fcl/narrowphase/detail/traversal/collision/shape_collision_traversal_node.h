@@ -45,6 +45,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for collision between two shapes
 template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 class ShapeCollisionTraversalNode
@@ -204,6 +207,7 @@ bool initialize(
   return true;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

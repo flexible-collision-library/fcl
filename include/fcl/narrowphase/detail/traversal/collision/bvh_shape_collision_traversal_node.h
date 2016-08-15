@@ -45,6 +45,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for collision between BVH and shape
 template <typename BV, typename Shape>
 class BVHShapeCollisionTraversalNode
@@ -125,6 +128,7 @@ bool BVHShapeCollisionTraversalNode<Shape, BV>::BVTesting(int b1, int b2) const
   return !model1->getBV(b1).bv.overlap(model2_bv);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

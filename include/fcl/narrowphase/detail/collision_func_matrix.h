@@ -39,6 +39,8 @@
 #ifndef FCL_COLLISION_FUNC_MATRIX_H
 #define FCL_COLLISION_FUNC_MATRIX_H
 
+#include "fcl/config.h"
+
 #include "fcl/object/collision_object.h"
 
 #include "fcl/object/geometry/shape/box.h"
@@ -54,9 +56,31 @@
 #include "fcl/object/geometry/shape/construct_box.h"
 
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
-#include "fcl/narrowphase/detail/traversal/traversal_nodes.h"
+
+#include "fcl/narrowphase/detail/traversal/collision/bvh_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/collision/bvh_shape_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
+#include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/collision/mesh_continuous_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/collision/mesh_shape_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/collision/shape_bvh_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/collision/shape_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/collision/shape_mesh_collision_traversal_node.h"
+
+#if FCL_HAVE_OCTOMAP
+
+#include "fcl/narrowphase/detail/traversal/octree/collision/mesh_octree_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/collision/octree_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/collision/octree_mesh_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/collision/octree_shape_collision_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/octree/collision/shape_octree_collision_traversal_node.h"
+
+#endif // FCL_HAVE_OCTOMAP
 
 namespace fcl
+{
+
+namespace detail
 {
 
 /// @brief collision matrix stores the functions for collision between different types of objects and provides a uniform call interface
@@ -345,7 +369,7 @@ struct BVHShapeCollider
       const Shape* obj2 = static_cast<const Shape*>(o2);
 
       initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, no_cost_request, result);
-      fcl::collide(&node);
+      fcl::detail::collide(&node);
 
       delete obj1_tmp;
 
@@ -369,7 +393,7 @@ struct BVHShapeCollider
       const Shape* obj2 = static_cast<const Shape*>(o2);
 
       initialize(node, *obj1_tmp, tf1_tmp, *obj2, tf2, nsolver, request, result);
-      fcl::collide(&node);
+      fcl::detail::collide(&node);
 
       delete obj1_tmp;
     }
@@ -377,9 +401,6 @@ struct BVHShapeCollider
     return result.numContacts();
   }
 };
-
-namespace detail
-{
 
 //==============================================================================
 template <typename OrientMeshShapeCollisionTraveralNode,
@@ -407,7 +428,7 @@ std::size_t orientedBVHShapeCollide(
     const Shape* obj2 = static_cast<const Shape*>(o2);
 
     initialize(node, *obj1, tf1, *obj2, tf2, nsolver, no_cost_request, result);
-    fcl::collide(&node);
+    fcl::detail::collide(&node);
 
     Box<S> box;
     Transform3<S> box_tf;
@@ -427,13 +448,11 @@ std::size_t orientedBVHShapeCollide(
     const Shape* obj2 = static_cast<const Shape*>(o2);
 
     initialize(node, *obj1, tf1, *obj2, tf2, nsolver, request, result);
-    fcl::collide(&node);
+    fcl::detail::collide(&node);
   }
 
   return result.numContacts();
 }
-
-} // namespace detail
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
@@ -578,9 +597,6 @@ std::size_t BVHCollide(
         o1, tf1, o2, tf2, request, result);
 }
 
-namespace detail
-{
-
 //==============================================================================
 template <typename OrientedMeshCollisionTraversalNode, typename BV>
 std::size_t orientedMeshCollide(
@@ -602,8 +618,6 @@ std::size_t orientedMeshCollide(
 
   return result.numContacts();
 }
-
-} // namespace detail
 
 //==============================================================================
 template <typename S>
@@ -906,6 +920,7 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 #endif
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

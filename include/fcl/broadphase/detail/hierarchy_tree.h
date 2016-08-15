@@ -50,6 +50,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Class for hierarchy tree structure
 template<typename BV>
 class HierarchyTree
@@ -1341,6 +1344,7 @@ struct SelectImpl<S, AABB<S>>
   }
 };
 
+} // namespace detail
 } // namespace fcl
 
 #endif

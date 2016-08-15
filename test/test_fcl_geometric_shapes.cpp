@@ -57,16 +57,16 @@ std::array<S, 6>& extents()
 }
 
 template <typename S>
-GJKSolver_libccd<S>& solver1()
+detail::GJKSolver_libccd<S>& solver1()
 {
-  static GJKSolver_libccd<S> static_solver1;
+  static detail::GJKSolver_libccd<S> static_solver1;
   return static_solver1;
 }
 
 template <typename S>
-GJKSolver_indep<S>& solver2()
+detail::GJKSolver_indep<S>& solver2()
 {
-  static GJKSolver_indep<S> static_solver2;
+  static detail::GJKSolver_indep<S> static_solver2;
   return static_solver2;
 }
 

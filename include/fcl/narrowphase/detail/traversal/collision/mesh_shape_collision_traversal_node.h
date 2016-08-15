@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for collision between mesh and shape
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 class MeshShapeCollisionTraversalNode
@@ -83,10 +86,6 @@ bool initialize(
     CollisionResult<typename BV::S>& result,
     bool use_refit = false, bool refit_bottomup = false);
 
-/// @cond IGNORE
-namespace detail
-{
-
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void meshShapeCollisionOrientedNodeLeafTesting(
     int b1,
@@ -103,10 +102,6 @@ void meshShapeCollisionOrientedNodeLeafTesting(
     int& num_leaf_tests,
     const CollisionRequest<typename BV::S>& request,
     CollisionResult<typename BV::S>& result);
-
-} // namespace detials
-
-/// @endcond
 
 /// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
 template <typename Shape, typename NarrowPhaseSolver>
@@ -360,10 +355,6 @@ bool initialize(
   return true;
 }
 
-/// @cond IGNORE
-namespace detail
-{
-
 //==============================================================================
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void meshShapeCollisionOrientedNodeLeafTesting(
@@ -440,8 +431,6 @@ void meshShapeCollisionOrientedNodeLeafTesting(
     }
   }
 }
-
-} // namespace detials
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
@@ -541,10 +530,6 @@ void MeshShapeCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::leafTestin
                                                      this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->cost_density, this->num_leaf_tests, this->request, *(this->result));
 }
 
-/// @cond IGNORE
-namespace detail
-{
-
 template <typename BV, typename Shape, typename NarrowPhaseSolver,
           template <typename, typename> class OrientedNode>
 bool setupMeshShapeCollisionOrientedNode(
@@ -577,9 +562,6 @@ bool setupMeshShapeCollisionOrientedNode(
 
   return true;
 }
-
-} // namespace detail
-/// @endcond
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
@@ -645,6 +627,7 @@ bool initialize(
         node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

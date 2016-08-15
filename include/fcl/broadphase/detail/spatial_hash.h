@@ -43,6 +43,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Spatial hash function: hash an AABB to a set of integer values
 template <typename S_>
 struct SpatialHash
@@ -105,6 +108,7 @@ std::vector<unsigned int> SpatialHash<S>::operator()(const AABB<S>& aabb) const
   return keys;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

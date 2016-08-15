@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for distance between mesh and shape
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 class MeshShapeDistanceTraversalNode
@@ -69,10 +72,6 @@ public:
     
   const NarrowPhaseSolver* nsolver;
 };
-
-/// @cond IGNORE
-namespace detail
-{
 
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void meshShapeDistanceOrientedNodeLeafTesting(
@@ -102,10 +101,6 @@ void distancePreprocessOrientedNode(
     const NarrowPhaseSolver* nsolver,
     const DistanceRequest<typename BV::S>& /* request */,
     DistanceResult<typename BV::S>& result);
-
-} // namespace detail
-
-/// @endcond
 
 /// @brief Initialize traversal node for distance computation between one mesh
 /// and one shape, given the current transforms
@@ -327,10 +322,6 @@ bool initialize(
   return true;
 }
 
-/// @cond IGNORE
-namespace detail
-{
-
 //==============================================================================
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void meshShapeDistanceOrientedNodeLeafTesting(
@@ -406,8 +397,6 @@ void distancePreprocessOrientedNode(
         closest_p1,
         closest_p2);
 }
-
-} // namespace detail
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
@@ -550,10 +539,6 @@ void MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::leafTesting
                                                     this->tf1, this->tf2, this->nsolver, this->enable_statistics, this->num_leaf_tests, this->request, *(this->result));
 }
 
-/// @cond IGNORE
-namespace detail
-{
-
 template <typename BV, typename Shape, typename NarrowPhaseSolver, template <typename, typename> class OrientedNode>
 static bool setupMeshShapeDistanceOrientedNode(OrientedNode<Shape, NarrowPhaseSolver>& node,
                                                       const BVHModel<BV>& model1, const Transform3<typename BV::S>& tf1,
@@ -581,9 +566,6 @@ static bool setupMeshShapeDistanceOrientedNode(OrientedNode<Shape, NarrowPhaseSo
 
   return true;
 }
-
-} // namespace detail
-/// @endcond
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
@@ -624,6 +606,7 @@ bool initialize(
   return detail::setupMeshShapeDistanceOrientedNode(node, model1, tf1, model2, tf2, nsolver, request, result);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

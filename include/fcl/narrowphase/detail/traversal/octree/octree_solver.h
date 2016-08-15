@@ -51,6 +51,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Algorithms for collision related with octree
 template <typename NarrowPhaseSolver>
 class OcTreeSolver
@@ -1230,6 +1233,7 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<S>* tr
   return false;
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif

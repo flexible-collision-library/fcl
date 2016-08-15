@@ -44,6 +44,9 @@
 namespace fcl
 {
 
+namespace detail
+{
+
 /// @brief Traversal node for distance computation between BVH and shape
 template<typename BV, typename Shape>
 class BVHShapeDistanceTraversalNode
@@ -124,6 +127,7 @@ typename BV::S BVHShapeDistanceTraversalNode<BV, Shape>::BVTesting(
   return model1->getBV(b1).bv.distance(model2_bv);
 }
 
+} // namespace detail
 } // namespace fcl
 
 #endif
