@@ -41,7 +41,16 @@
 #include <ccd/ccd.h>
 #include <ccd/quat.h>
 #include <ccd/vec3.h>
-#include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/object/geometry/shape/box.h"
+#include "fcl/object/geometry/shape/capsule.h"
+#include "fcl/object/geometry/shape/cone.h"
+#include "fcl/object/geometry/shape/convex.h"
+#include "fcl/object/geometry/shape/cylinder.h"
+#include "fcl/object/geometry/shape/ellipsoid.h"
+#include "fcl/object/geometry/shape/halfspace.h"
+#include "fcl/object/geometry/shape/plane.h"
+#include "fcl/object/geometry/shape/sphere.h"
+#include "fcl/object/geometry/shape/triangle_p.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/simplex.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 

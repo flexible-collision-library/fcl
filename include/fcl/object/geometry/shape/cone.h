@@ -85,87 +85,8 @@ public:
 using Conef = Cone<float>;
 using Coned = Cone<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-Cone<S>::Cone(S radius, S lz)
-  : ShapeBase<S>(), radius(radius), lz(lz)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void Cone<S>::computeLocalAABB()
-{
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
-  this->aabb_center = this->aabb_local.center();
-  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
-}
-
-//==============================================================================
-template <typename S>
-NODE_TYPE Cone<S>::getNodeType() const
-{
-  return GEOM_CONE;
-}
-
-//==============================================================================
-template <typename S>
-S Cone<S>::computeVolume() const
-{
-  return constants<S>::pi() * radius * radius * lz / 3;
-}
-
-//==============================================================================
-template <typename S>
-Matrix3<S> Cone<S>::computeMomentofInertia() const
-{
-  S V = computeVolume();
-  S ix = V * (0.1 * lz * lz + 3 * radius * radius / 20);
-  S iz = 0.3 * V * radius * radius;
-
-  return Vector3<S>(ix, ix, iz).asDiagonal();
-}
-
-//==============================================================================
-template <typename S>
-Vector3<S> Cone<S>::computeCOM() const
-{
-  return Vector3<S>(0, 0, -0.25 * lz);
-}
-
-//==============================================================================
-template <typename S>
-std::vector<Vector3<S>> Cone<S>::getBoundVertices(
-    const Transform3<S>& tf) const
-{
-  std::vector<Vector3<S>> result(7);
-
-  auto hl = lz * 0.5;
-  auto r2 = radius * 2 / std::sqrt(3.0);
-  auto a = 0.5 * r2;
-  auto b = radius;
-
-  result[0] = tf * Vector3<S>(r2, 0, -hl);
-  result[1] = tf * Vector3<S>(a, b, -hl);
-  result[2] = tf * Vector3<S>(-a, b, -hl);
-  result[3] = tf * Vector3<S>(-r2, 0, -hl);
-  result[4] = tf * Vector3<S>(-a, -b, -hl);
-  result[5] = tf * Vector3<S>(a, -b, -hl);
-
-  result[6] = tf * Vector3<S>(0, 0, hl);
-
-  return result;
-}
-
 } // namespace fcl
 
-#include "fcl/object/geometry/shape/detail/bv_computer_cone.h"
+#include "fcl/object/geometry/shape/cone-inl.h"
 
 #endif

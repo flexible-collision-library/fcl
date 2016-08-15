@@ -75,54 +75,8 @@ public:
 using TrianglePf = TriangleP<float>;
 using TrianglePd = TriangleP<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-TriangleP<S>::TriangleP(
-    const Vector3<S>& a,
-    const Vector3<S>& b,
-    const Vector3<S>& c)
-  : ShapeBase<S>(), a(a), b(b), c(c)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void TriangleP<S>::computeLocalAABB()
-{
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
-  this->aabb_center = this->aabb_local.center();
-  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
-}
-
-//==============================================================================
-template <typename S>
-NODE_TYPE TriangleP<S>::getNodeType() const
-{
-  return GEOM_TRIANGLE;
-}
-
-//==============================================================================
-template <typename S>
-std::vector<Vector3<S>> TriangleP<S>::getBoundVertices(
-    const Transform3<S>& tf) const
-{
-  std::vector<Vector3<S>> result(3);
-  result[0] = tf * a;
-  result[1] = tf * b;
-  result[2] = tf * c;
-
-  return result;
-}
-
 } // namespace fcl
 
-#include "fcl/object/geometry/shape/detail/bv_computer_triangle_p.h"
+#include "fcl/object/geometry/shape/triangle_p-inl.h"
 
 #endif

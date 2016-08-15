@@ -38,7 +38,6 @@
 #include <gtest/gtest.h>
 
 #include "fcl/math/bv/utility.h"
-#include "fcl/object/geometry/shape/geometric_shapes.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"

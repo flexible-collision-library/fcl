@@ -35,50 +35,12 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_SPHERE_H
-#define FCL_SHAPE_SPHERE_H
-
-#include "fcl/object/geometry/shape/shape_base.h"
-#include "fcl/object/geometry/shape/compute_bv.h"
-#include "fcl/math/bv/OBB.h"
+#include "fcl/object/geometry/shape/cone.h"
 
 namespace fcl
 {
 
-/// @brief Center at zero point sphere
-template <typename S_>
-class Sphere : public ShapeBase<S_>
-{
-public:
-
-  using S = S_;
-
-  Sphere(S radius);
-
-  /// @brief Radius of the sphere
-  S radius;
-
-  /// @brief Compute AABB<S>
-  void computeLocalAABB() override;
-
-  /// @brief Get node type: a sphere
-  NODE_TYPE getNodeType() const override;
-
-  Matrix3<S> computeMomentofInertia() const override;
-
-  S computeVolume() const override;
-
-  /// @brief get the vertices of some convex shape which can bound this shape in
-  /// a specific configuration
-  std::vector<Vector3<S>> getBoundVertices(
-      const Transform3<S>& tf) const;
-};
-
-using Spheref = Sphere<float>;
-using Sphered = Sphere<double>;
+template <>
+class Cone<double>;
 
 } // namespace fcl
-
-#include "fcl/object/geometry/shape/sphere-inl.h"
-
-#endif

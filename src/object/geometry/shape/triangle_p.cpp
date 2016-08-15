@@ -35,18 +35,12 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_GEOMETRICSHAPES_H
-#define FCL_SHAPE_GEOMETRICSHAPES_H
-
-#include "fcl/object/geometry/shape/box.h"
-#include "fcl/object/geometry/shape/capsule.h"
-#include "fcl/object/geometry/shape/cone.h"
-#include "fcl/object/geometry/shape/convex.h"
-#include "fcl/object/geometry/shape/cylinder.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/halfspace.h"
-#include "fcl/object/geometry/shape/plane.h"
-#include "fcl/object/geometry/shape/sphere.h"
 #include "fcl/object/geometry/shape/triangle_p.h"
 
-#endif
+namespace fcl
+{
+
+template <>
+class TriangleP<double>;
+
+} // namespace fcl

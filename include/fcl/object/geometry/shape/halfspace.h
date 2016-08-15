@@ -108,85 +108,8 @@ Halfspace<S> transform(
   return Halfspace<S>(n, d);
 }
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-Halfspace<S>::Halfspace(const Vector3<S>& n, S d)
-  : ShapeBase<S>(), n(n), d(d)
-{
-  unitNormalTest();
-}
-
-//==============================================================================
-template <typename S>
-Halfspace<S>::Halfspace(S a, S b, S c, S d)
-  : ShapeBase<S>(), n(a, b, c), d(d)
-{
-  unitNormalTest();
-}
-
-//==============================================================================
-template <typename S>
-Halfspace<S>::Halfspace() : ShapeBase<S>(), n(1, 0, 0), d(0)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-S Halfspace<S>::signedDistance(const Vector3<S>& p) const
-{
-  return n.dot(p) - d;
-}
-
-//==============================================================================
-template <typename S>
-S Halfspace<S>::distance(const Vector3<S>& p) const
-{
-  return std::abs(n.dot(p) - d);
-}
-
-//==============================================================================
-template <typename S>
-void Halfspace<S>::computeLocalAABB()
-{
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
-  this->aabb_center = this->aabb_local.center();
-  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
-}
-
-//==============================================================================
-template <typename S>
-NODE_TYPE Halfspace<S>::getNodeType() const
-{
-  return GEOM_HALFSPACE;
-}
-
-//==============================================================================
-template <typename S>
-void Halfspace<S>::unitNormalTest()
-{
-  S l = n.norm();
-  if(l > 0)
-  {
-    S inv_l = 1.0 / l;
-    n *= inv_l;
-    d *= inv_l;
-  }
-  else
-  {
-    n << 1, 0, 0;
-    d = 0;
-  }
-}
-
 } // namespace fcl
 
-#include "fcl/object/geometry/shape/detail/bv_computer_halfspace.h"
+#include "fcl/object/geometry/shape/halfspace-inl.h"
 
 #endif

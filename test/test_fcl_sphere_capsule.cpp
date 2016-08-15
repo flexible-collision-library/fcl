@@ -39,7 +39,6 @@
 
 #include "fcl/math/constants.h"
 #include "fcl/narrowphase/collision.h"
-#include "fcl/object/geometry/shape/geometric_shapes.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 

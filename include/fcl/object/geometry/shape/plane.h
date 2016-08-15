@@ -105,85 +105,8 @@ Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf)
   return Plane<S>(n, d);
 }
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-Plane<S>::Plane(const Vector3<S>& n, S d)
-  : ShapeBase<S>(), n(n), d(d)
-{
-  unitNormalTest();
-}
-
-//==============================================================================
-template <typename S>
-Plane<S>::Plane(S a, S b, S c, S d)
-  : ShapeBase<S>(), n(a, b, c), d(d)
-{
-  unitNormalTest();
-}
-
-//==============================================================================
-template <typename S>
-Plane<S>::Plane() : ShapeBase<S>(), n(1, 0, 0), d(0)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-S Plane<S>::signedDistance(const Vector3<S>& p) const
-{
-  return n.dot(p) - d;
-}
-
-//==============================================================================
-template <typename S>
-S Plane<S>::distance(const Vector3<S>& p) const
-{
-  return std::abs(n.dot(p) - d);
-}
-
-//==============================================================================
-template <typename S>
-void Plane<S>::computeLocalAABB()
-{
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
-  this->aabb_center = this->aabb_local.center();
-  this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
-}
-
-//==============================================================================
-template <typename S>
-NODE_TYPE Plane<S>::getNodeType() const
-{
-  return GEOM_PLANE;
-}
-
-//==============================================================================
-template <typename S>
-void Plane<S>::unitNormalTest()
-{
-  S l = n.norm();
-  if(l > 0)
-  {
-    S inv_l = 1.0 / l;
-    n *= inv_l;
-    d *= inv_l;
-  }
-  else
-  {
-    n << 1, 0, 0;
-    d = 0;
-  }
-}
-
 } // namespace fcl
 
-#include "fcl/object/geometry/shape/detail/bv_computer_plane.h"
+#include "fcl/object/geometry/shape/plane-inl.h"
 
 #endif

@@ -58,6 +58,12 @@ namespace detail
 template <typename S>
 S halfspaceIntersectTolerance();
 
+template <>
+float halfspaceIntersectTolerance();
+
+template <>
+double halfspaceIntersectTolerance();
+
 template <typename S>
 bool sphereHalfspaceIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
                               const Halfspace<S>& s2, const Transform3<S>& tf2,

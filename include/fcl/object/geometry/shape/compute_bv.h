@@ -48,21 +48,8 @@ namespace fcl
 template <typename BV, typename Shape>
 void computeBV(const Shape& s, const Transform3<typename BV::S>& tf, BV& bv);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename BV, typename Shape>
-void computeBV(const Shape& s, const Transform3<typename BV::S>& tf, BV& bv)
-{
-  using S = typename BV::S;
-
-  detail::BVComputer<S, BV, Shape>::compute(s, tf, bv);
-}
-
 } // namespace fcl
+
+#include "fcl/object/geometry/shape/compute_bv-inl.h"
 
 #endif

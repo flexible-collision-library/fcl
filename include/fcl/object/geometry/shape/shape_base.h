@@ -35,7 +35,6 @@
 
 /** @author Jia Pan */
 
-
 #ifndef FCL_SHAPE_SHAPE_BASE_H
 #define FCL_SHAPE_SHAPE_BASE_H
 
@@ -61,27 +60,8 @@ public:
 using ShapeBasef = ShapeBase<float>;
 using ShapeBased = ShapeBase<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
+} // namespace fcl
 
-//==============================================================================
-template <typename S>
-ShapeBase<S>::ShapeBase()
-  : CollisionGeometry<S>()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-OBJECT_TYPE ShapeBase<S>::getObjectType() const
-{
-  return OT_GEOM;
-}
-
-}
+#include "fcl/object/geometry/shape/shape_base-inl.h"
 
 #endif
