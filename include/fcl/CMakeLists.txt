@@ -7,11 +7,6 @@ file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" FCL_CONFIG_OUT_DIR)
 configure_file("${FCL_CONFIG_IN_DIR}/config.h.in" "${FCL_CONFIG_OUT_DIR}/config.h")
 install(FILES "${FCL_CONFIG_OUT_DIR}/config.h" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fcl)
 
-file(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" FCL_TOP_HEADER_IN_DIR)
-file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" FCL_TOP_HEADER_OUT_DIR)
-configure_file("${FCL_CONFIG_IN_DIR}/config.h.in" "${FCL_CONFIG_OUT_DIR}/config.h")
-install(FILES "${FCL_CONFIG_OUT_DIR}/config.h" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fcl)
-
 fcl_get_filename_components(
   fcl_header_rel_paths
   "fcl headers"
