@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_ARRAY_H
 #define FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_ARRAY_H
@@ -41,13 +41,13 @@
 #include <unordered_map>
 #include <functional>
 #include <limits>
-#include "fcl/shape/box.h"
-#include "fcl/shape/construct_box.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/hierarchy_tree.h"
-#include "fcl/BV/convert_bv.h"
+#include "fcl/math/bv/utility.h"
+#include "fcl/object/geometry/shape/box.h"
+#include "fcl/object/geometry/shape/construct_box.h"
+#include "fcl/broadphase/broadphase_collision_manager.h"
+#include "fcl/broadphase/detail/hierarchy_tree_array.h"
 #if FCL_HAVE_OCTOMAP
-#include "fcl/octree.h"
+#include "fcl/object/geometry/octree/octree.h"
 #endif
 
 namespace fcl
@@ -70,20 +70,7 @@ public:
   bool octree_as_geometry_collide;
   bool octree_as_geometry_distance;
   
-  DynamicAABBTreeCollisionManager_Array() : tree_topdown_balance_threshold(dtree.bu_threshold),
-                                            tree_topdown_level(dtree.topdown_level)
-  {
-    max_tree_nonbalanced_level = 10;
-    tree_incremental_balance_pass = 10;
-    tree_topdown_balance_threshold = 2;
-    tree_topdown_level = 0;
-    tree_init_level = 0;
-    setup_ = false;
-
-    // from experiment, this is the optimal setting
-    octree_as_geometry_collide = true;
-    octree_as_geometry_distance = false;
-  }
+  DynamicAABBTreeCollisionManager_Array();
 
   /// @brief add objects to the manager
   void registerObjects(const std::vector<CollisionObject<S>*>& other_objs);
@@ -107,18 +94,10 @@ public:
   void update(const std::vector<CollisionObject<S>*>& updated_objs);
 
   /// @brief clear the manager
-  void clear()
-  {
-    dtree.clear();
-    table.clear();
-  }
+  void clear();
 
   /// @brief return the objects managed by the manager
-  void getObjects(std::vector<CollisionObject<S>*>& objs) const
-  {
-    objs.resize(this->size());
-    std::transform(table.begin(), table.end(), objs.begin(), std::bind(&DynamicAABBTable::value_type::first, std::placeholders::_1));
-  }
+  void getObjects(std::vector<CollisionObject<S>*>& objs) const;
 
   /// @brief perform collision test between one object and all the objects belonging to the manager
   void collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
@@ -139,19 +118,12 @@ public:
   void distance(BroadPhaseCollisionManager<S>* other_manager_, void* cdata, DistanceCallBack<S> callback) const;
   
   /// @brief whether the manager is empty
-  bool empty() const
-  {
-    return dtree.empty();
-  }
+  bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  size_t size() const
-  {
-    return dtree.size();
-  }
+  size_t size() const;
 
-
-  const implementation_array::HierarchyTree<AABB<S>>& getTree() const { return dtree; }
+  const implementation_array::HierarchyTree<AABB<S>>& getTree() const;
 
 private:
   implementation_array::HierarchyTree<AABB<S>> dtree;
@@ -171,7 +143,7 @@ using DynamicAABBTreeCollisionManager_Arrayd = DynamicAABBTreeCollisionManager_A
 //                                                                            //
 //============================================================================//
 
-namespace details
+namespace detail
 {
 
 namespace dynamic_AABB_tree_array
@@ -833,7 +805,24 @@ bool distanceRecurse(typename DynamicAABBTreeCollisionManager_Array<S>::DynamicA
 
 } // dynamic_AABB_tree_array
 
-} // details
+} // detail
+
+//==============================================================================
+template <typename S>
+DynamicAABBTreeCollisionManager_Array<S>::DynamicAABBTreeCollisionManager_Array() : tree_topdown_balance_threshold(dtree.bu_threshold),
+  tree_topdown_level(dtree.topdown_level)
+{
+  max_tree_nonbalanced_level = 10;
+  tree_incremental_balance_pass = 10;
+  tree_topdown_balance_threshold = 2;
+  tree_topdown_level = 0;
+  tree_init_level = 0;
+  setup_ = false;
+
+  // from experiment, this is the optimal setting
+  octree_as_geometry_collide = true;
+  octree_as_geometry_distance = false;
+}
 
 //==============================================================================
 template <typename S>
@@ -958,6 +947,22 @@ void DynamicAABBTreeCollisionManager_Array<S>::update(const std::vector<Collisio
 
 //==============================================================================
 template <typename S>
+void DynamicAABBTreeCollisionManager_Array<S>::clear()
+{
+  dtree.clear();
+  table.clear();
+}
+
+//==============================================================================
+template <typename S>
+void DynamicAABBTreeCollisionManager_Array<S>::getObjects(std::vector<CollisionObject<S>*>& objs) const
+{
+  objs.resize(this->size());
+  std::transform(table.begin(), table.end(), objs.begin(), std::bind(&DynamicAABBTable::value_type::first, std::placeholders::_1));
+}
+
+//==============================================================================
+template <typename S>
 void DynamicAABBTreeCollisionManager_Array<S>::collide(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
@@ -969,15 +974,15 @@ void DynamicAABBTreeCollisionManager_Array<S>::collide(CollisionObject<S>* obj, 
       if(!octree_as_geometry_collide)
       {
         const OcTree<S>* octree = static_cast<const OcTree<S>*>(obj->collisionGeometry().get());
-        details::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback);
+        detail::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback);
       }
       else
-        details::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
+        detail::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
     }
     break;
 #endif
   default:
-    details::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
+    detail::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback);
   }
 }
 
@@ -995,15 +1000,15 @@ void DynamicAABBTreeCollisionManager_Array<S>::distance(CollisionObject<S>* obj,
       if(!octree_as_geometry_distance)
       {
         const OcTree<S>* octree = static_cast<const OcTree<S>*>(obj->collisionGeometry().get());
-        details::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
+        detail::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), octree, octree->getRoot(), octree->getRootBV(), obj->getTransform(), cdata, callback, min_dist);
       }
       else
-        details::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
+        detail::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
     }
     break;
 #endif
   default:
-    details::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
+    detail::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), obj, cdata, callback, min_dist);
   }
 }
 
@@ -1012,7 +1017,7 @@ template <typename S>
 void DynamicAABBTreeCollisionManager_Array<S>::collide(void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
-  details::dynamic_AABB_tree_array::selfCollisionRecurse(dtree.getNodes(), dtree.getRoot(), cdata, callback);
+  detail::dynamic_AABB_tree_array::selfCollisionRecurse(dtree.getNodes(), dtree.getRoot(), cdata, callback);
 }
 
 //==============================================================================
@@ -1021,7 +1026,7 @@ void DynamicAABBTreeCollisionManager_Array<S>::distance(void* cdata, DistanceCal
 {
   if(size() == 0) return;
   S min_dist = std::numeric_limits<S>::max();
-  details::dynamic_AABB_tree_array::selfDistanceRecurse(dtree.getNodes(), dtree.getRoot(), cdata, callback, min_dist);
+  detail::dynamic_AABB_tree_array::selfDistanceRecurse(dtree.getNodes(), dtree.getRoot(), cdata, callback, min_dist);
 }
 
 //==============================================================================
@@ -1030,7 +1035,7 @@ void DynamicAABBTreeCollisionManager_Array<S>::collide(BroadPhaseCollisionManage
 {
   DynamicAABBTreeCollisionManager_Array* other_manager = static_cast<DynamicAABBTreeCollisionManager_Array*>(other_manager_);
   if((size() == 0) || (other_manager->size() == 0)) return;
-  details::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(), other_manager->dtree.getRoot(), cdata, callback);
+  detail::dynamic_AABB_tree_array::collisionRecurse(dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(), other_manager->dtree.getRoot(), cdata, callback);
 }
 
 //==============================================================================
@@ -1040,7 +1045,29 @@ void DynamicAABBTreeCollisionManager_Array<S>::distance(BroadPhaseCollisionManag
   DynamicAABBTreeCollisionManager_Array* other_manager = static_cast<DynamicAABBTreeCollisionManager_Array*>(other_manager_);
   if((size() == 0) || (other_manager->size() == 0)) return;
   S min_dist = std::numeric_limits<S>::max();
-  details::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(), other_manager->dtree.getRoot(), cdata, callback, min_dist);
+  detail::dynamic_AABB_tree_array::distanceRecurse(dtree.getNodes(), dtree.getRoot(), other_manager->dtree.getNodes(), other_manager->dtree.getRoot(), cdata, callback, min_dist);
+}
+
+//==============================================================================
+template <typename S>
+bool DynamicAABBTreeCollisionManager_Array<S>::empty() const
+{
+  return dtree.empty();
+}
+
+//==============================================================================
+template <typename S>
+size_t DynamicAABBTreeCollisionManager_Array<S>::size() const
+{
+  return dtree.size();
+}
+
+//==============================================================================
+template <typename S>
+const implementation_array::HierarchyTree<AABB<S>>&
+DynamicAABBTreeCollisionManager_Array<S>::getTree() const
+{
+  return dtree;
 }
 
 } // namespace fcl

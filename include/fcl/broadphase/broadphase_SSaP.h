@@ -33,13 +33,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
-
+/** @author Jia Pan */
 
 #ifndef FCL_BROAD_PHASE_SSAP_H
 #define FCL_BROAD_PHASE_SSAP_H
 
-#include "fcl/broadphase/broadphase.h"
+#include "fcl/broadphase/broadphase_collision_manager.h"
 
 namespace fcl
 {
@@ -49,8 +48,7 @@ template <typename S>
 class SSaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
-  SSaPCollisionManager() : setup_(false)
-  {}
+  SSaPCollisionManager();
 
   /// @brief remove one object from the manager
   void registerObject(CollisionObject<S>* obj);
@@ -92,7 +90,7 @@ public:
   bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  inline size_t size() const { return objs_x.size(); }
+  size_t size() const;
 
 protected:
   /// @brief check collision between one object and a list of objects, return value is whether stop is possible
@@ -107,7 +105,7 @@ protected:
   
   bool distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
-  static inline size_t selectOptimalAxis(const std::vector<CollisionObject<S>*>& objs_x, const std::vector<CollisionObject<S>*>& objs_y, const std::vector<CollisionObject<S>*>& objs_z, typename std::vector<CollisionObject<S>*>::const_iterator& it_beg, typename std::vector<CollisionObject<S>*>::const_iterator& it_end)
+  static size_t selectOptimalAxis(const std::vector<CollisionObject<S>*>& objs_x, const std::vector<CollisionObject<S>*>& objs_y, const std::vector<CollisionObject<S>*>& objs_z, typename std::vector<CollisionObject<S>*>::const_iterator& it_beg, typename std::vector<CollisionObject<S>*>::const_iterator& it_end)
   {
     /// simple sweep and prune method
     S delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
@@ -162,7 +160,7 @@ using SSaPCollisionManagerd = SSaPCollisionManager<double>;
 //                                                                            //
 //============================================================================//
 
-/** \brief Functor sorting objects according to the AABB<S> lower x bound */
+/** @brief Functor sorting objects according to the AABB<S> lower x bound */
 template <typename S>
 struct SortByXLow
 {
@@ -174,7 +172,7 @@ struct SortByXLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB<S> lower y bound */
+/** @brief Functor sorting objects according to the AABB<S> lower y bound */
 template <typename S>
 struct SortByYLow
 {
@@ -186,7 +184,7 @@ struct SortByYLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB<S> lower z bound */
+/** @brief Functor sorting objects according to the AABB<S> lower z bound */
 template <typename S>
 struct SortByZLow
 {
@@ -198,7 +196,7 @@ struct SortByZLow
   }
 };
 
-/** \brief Dummy collision object with a point AABB<S> */
+/** @brief Dummy collision object with a point AABB<S> */
 template <typename S>
 class DummyCollisionObject : public CollisionObject<S>
 {
@@ -257,6 +255,13 @@ void SSaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
     }
     ++pos_start3;
   }
+}
+
+//==============================================================================
+template <typename S>
+SSaPCollisionManager<S>::SSaPCollisionManager() : setup_(false)
+{
+  // Do nothing
 }
 
 //==============================================================================
@@ -650,6 +655,13 @@ template <typename S>
 bool SSaPCollisionManager<S>::empty() const
 {
   return objs_x.empty();
+}
+
+//==============================================================================
+template <typename S>
+size_t SSaPCollisionManager<S>::size() const
+{
+  return objs_x.size();
 }
 
 } // namespace

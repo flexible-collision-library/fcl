@@ -33,17 +33,19 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
-#include "fcl/collision_node.h"
-#include "fcl/collision.h"
-#include "fcl/BV/convert_bv.h"
-#include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/gjk_solver_indep.h"
-#include "fcl/narrowphase/gjk_solver_libccd.h"
+#include "fcl/math/bv/utility.h"
+#include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/narrowphase/detail/gjk_solver_indep.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
+#include "fcl/narrowphase/detail/traversal/collision_node.h"
+
 #include "test_fcl_utility.h"
+
 #include "fcl_resources/config.h"
 
 using namespace fcl;
@@ -91,7 +93,7 @@ void test_OBB_Box_test()
 {
   S r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   Eigen::aligned_vector<Transform3<S>> rotate_transform;
-  generateRandomTransforms(r_extents, rotate_transform, 1);
+  test::generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB<S> aabb1;
   aabb1.min_ = Vector3<S>(-600, -600, -600);
@@ -107,7 +109,7 @@ void test_OBB_Box_test()
   std::size_t n = 1000;
 
   Eigen::aligned_vector<Transform3<S>> transforms;
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
@@ -136,7 +138,7 @@ void test_OBB_shape_test()
 {
   S r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   Eigen::aligned_vector<Transform3<S>> rotate_transform;
-  generateRandomTransforms(r_extents, rotate_transform, 1);
+  test::generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB<S> aabb1;
   aabb1.min_ = Vector3<S>(-600, -600, -600);
@@ -152,7 +154,7 @@ void test_OBB_shape_test()
   std::size_t n = 1000;
 
   Eigen::aligned_vector<Transform3<S>> transforms;
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
@@ -214,7 +216,7 @@ void test_OBB_AABB_test()
   std::size_t n = 1000;
 
   Eigen::aligned_vector<Transform3<S>> transforms;
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   AABB<S> aabb1;
   aabb1.min_ = Vector3<S>(-600, -600, -600);
@@ -255,8 +257,8 @@ void test_mesh_mesh()
   std::vector<Vector3<S>> p1, p2;
   std::vector<Triangle> t1, t2;
 
-  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
-  loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
   Eigen::aligned_vector<Transform3<S>> transforms;
   S extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
@@ -267,7 +269,7 @@ void test_mesh_mesh()
 #endif
   bool verbose = false;
 
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   // collision
   for(std::size_t i = 0; i < transforms.size(); ++i)

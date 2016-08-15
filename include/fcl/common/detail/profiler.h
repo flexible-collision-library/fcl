@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Author Ioan Sucan */
+/** @author Ioan Sucan */
 
 #ifndef FCL_COMMON_DETAIL_PROFILER_H
 #define FCL_COMMON_DETAIL_PROFILER_H
@@ -49,7 +49,6 @@
 #include <thread>
 #include <vector>
 #include "fcl/common/time.h"
-#include "fcl/common/detail/profiler.h"
 
 namespace fcl {
 namespace detail {
@@ -448,12 +447,14 @@ inline bool Profiler::Running()
   return Instance().running();
 }
 
+//==============================================================================
 struct dataIntVal
 {
   std::string       name;
   unsigned long int value;
 };
 
+//==============================================================================
 struct SortIntByValue
 {
   bool operator()(const dataIntVal &a, const dataIntVal &b) const
@@ -462,12 +463,14 @@ struct SortIntByValue
   }
 };
 
+//==============================================================================
 struct dataDoubleVal
 {
   std::string  name;
   double       value;
 };
 
+//==============================================================================
 struct SortDoubleByValue
 {
   bool operator()(const dataDoubleVal &a, const dataDoubleVal &b) const
@@ -602,7 +605,7 @@ inline Profiler::ScopedBlock::~ScopedBlock()
   prof_.end(name_);
 }
 
-} // namespace tools
+} // namespace detail
 } // namespace fcl
 
 #endif // #ifndef FCL_COMMON_DETAIL_PROFILER_H

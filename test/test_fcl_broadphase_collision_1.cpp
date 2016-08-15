@@ -33,15 +33,21 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
 #include "fcl/config.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/sparse_hash_table.h"
-#include "fcl/broadphase/spatial_hash.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/broadphase/broadphase_bruteforce.h"
+#include "fcl/broadphase/broadphase_spatialhash.h"
+#include "fcl/broadphase/broadphase_SaP.h"
+#include "fcl/broadphase/broadphase_SSaP.h"
+#include "fcl/broadphase/broadphase_interval_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/broadphase/detail/sparse_hash_table.h"
+#include "fcl/broadphase/detail/spatial_hash.h"
+#include "fcl/object/geometry/shape/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 
 #if USE_GOOGLEHASH
@@ -196,11 +202,11 @@ bool collisionFunctionForUniquenessChecking(
 template <typename S>
 void broad_phase_duplicate_check_test(S env_scale, std::size_t env_size, bool verbose)
 {
-  std::vector<TStruct> ts;
-  std::vector<Timer> timers;
+  std::vector<test::TStruct> ts;
+  std::vector<test::Timer> timers;
 
   std::vector<CollisionObject<S>*> env;
-  generateEnvironments(env, env_scale, env_size);
+  test::generateEnvironments(env, env_scale, env_size);
 
 //  for (auto i = 0u; i < env_size; ++i)
 //    env.emplace_back(new CollisionObject<S>(std::make_shared<Sphere<S>>(10)));
@@ -345,20 +351,20 @@ void broad_phase_duplicate_check_test(S env_scale, std::size_t env_size, bool ve
 template <typename S>
 void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::size_t query_size, std::size_t num_max_contacts, bool exhaustive, bool use_mesh)
 {
-  std::vector<TStruct> ts;
-  std::vector<Timer> timers;
+  std::vector<test::TStruct> ts;
+  std::vector<test::Timer> timers;
 
   std::vector<CollisionObject<S>*> env;
   if(use_mesh)
-    generateEnvironmentsMesh(env, env_scale, env_size);
+    test::generateEnvironmentsMesh(env, env_scale, env_size);
   else
-    generateEnvironments(env, env_scale, env_size);
+    test::generateEnvironments(env, env_scale, env_size);
 
   std::vector<CollisionObject<S>*> query;
   if(use_mesh)
-    generateEnvironmentsMesh(query, env_scale, query_size);
+    test::generateEnvironmentsMesh(query, env_scale, query_size);
   else
-    generateEnvironments(query, env_scale, query_size);
+    test::generateEnvironments(query, env_scale, query_size);
 
   std::vector<BroadPhaseCollisionManager<S>*> managers;
 
@@ -444,7 +450,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
     ts[i].push_back(timers[i].getElapsedTime());
   }
 
-  std::vector<CollisionData<S>> self_data(managers.size());
+  std::vector<test::CollisionData<S>> self_data(managers.size());
   for(size_t i = 0; i < managers.size(); ++i)
   {
     if(exhaustive) self_data[i].request.num_max_contacts = 100000;
@@ -454,7 +460,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
   for(size_t i = 0; i < managers.size(); ++i)
   {
     timers[i].start();
-    managers[i]->collide(&self_data[i], defaultCollisionFunction);
+    managers[i]->collide(&self_data[i], test::defaultCollisionFunction);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
   }
@@ -485,7 +491,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<CollisionData<S>> query_data(managers.size());
+    std::vector<test::CollisionData<S>> query_data(managers.size());
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       if(exhaustive) query_data[j].request.num_max_contacts = 100000;
@@ -495,7 +501,7 @@ void broad_phase_update_collision_test(S env_scale, std::size_t env_size, std::s
     for(size_t j = 0; j < query_data.size(); ++j)
     {
       timers[j].start();
-      managers[j]->collide(query[i], &query_data[j], defaultCollisionFunction);
+      managers[j]->collide(query[i], &query_data[j], test::defaultCollisionFunction);
       timers[j].stop();
       ts[j].push_back(timers[j].getElapsedTime());
     }

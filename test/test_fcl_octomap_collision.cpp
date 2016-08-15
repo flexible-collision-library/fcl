@@ -33,16 +33,22 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
 #include "fcl/config.h"
-#include "fcl/octree.h"
-#include "fcl/traversal/traversal_nodes.h"
-#include "fcl/collision.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/object/geometry/octree/octree.h"
+#include "fcl/narrowphase/detail/traversal/traversal_nodes.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/broadphase/broadphase_bruteforce.h"
+#include "fcl/broadphase/broadphase_spatialhash.h"
+#include "fcl/broadphase/broadphase_SaP.h"
+#include "fcl/broadphase/broadphase_SSaP.h"
+#include "fcl/broadphase/broadphase_interval_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/object/geometry/shape/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -164,7 +170,7 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
   std::vector<Vector3<S>> p1;
   std::vector<Triangle> t1;
 
-  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
 
   BVHModel<BV>* m1 = new BVHModel<BV>();
   std::shared_ptr<CollisionGeometry<S>> m1_ptr(m1);
@@ -173,13 +179,13 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry<S>> tree_ptr(tree);
 
   Eigen::aligned_vector<Transform3<S>> transforms;
   S extents[] = {-10, -10, 10, 10, 10, 10};
 
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < n; ++i)
   {
@@ -187,14 +193,14 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
 
     CollisionObject<S> obj1(m1_ptr, tf);
     CollisionObject<S> obj2(tree_ptr, tf);
-    CollisionData<S> cdata;
+    test::CollisionData<S> cdata;
     if(exhaustive) cdata.request.num_max_contacts = 100000;
 
-    defaultCollisionFunction(&obj1, &obj2, &cdata);
+    test::defaultCollisionFunction(&obj1, &obj2, &cdata);
 
 
     std::vector<CollisionObject<S>*> boxes;
-    generateBoxesFromOctomap(boxes, *tree);
+    test::generateBoxesFromOctomap(boxes, *tree);
     for(std::size_t j = 0; j < boxes.size(); ++j)
       boxes[j]->setTransform(tf * boxes[j]->getTransform());
 
@@ -202,9 +208,9 @@ void octomap_collision_test_BVH(std::size_t n, bool exhaustive, double resolutio
     manager->registerObjects(boxes);
     manager->setup();
 
-    CollisionData<S> cdata2;
+    test::CollisionData<S> cdata2;
     if(exhaustive) cdata2.request.num_max_contacts = 100000;
-    manager->collide(&obj1, &cdata2, defaultCollisionFunction);
+    manager->collide(&obj1, &cdata2, test::defaultCollisionFunction);
 
     for(std::size_t j = 0; j < boxes.size(); ++j)
       delete boxes[j];
@@ -229,51 +235,51 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
   // srand(1);
   std::vector<CollisionObject<S>*> env;
   if(use_mesh)
-    generateEnvironmentsMesh(env, env_scale, env_size);
+    test::generateEnvironmentsMesh(env, env_scale, env_size);
   else
-    generateEnvironments(env, env_scale, env_size);
+    test::generateEnvironments(env, env_scale, env_size);
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
   CollisionObject<S> tree_obj((std::shared_ptr<CollisionGeometry<S>>(tree)));
 
   DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
   manager->registerObjects(env);
   manager->setup();
 
-  CollisionData<S> cdata;
+  test::CollisionData<S> cdata;
   if(exhaustive) cdata.request.num_max_contacts = 100000;
   else cdata.request.num_max_contacts = num_max_contacts;
 
-  TStruct t1;
-  Timer timer1;
+  test::TStruct t1;
+  test::Timer timer1;
   timer1.start();
   manager->octree_as_geometry_collide = false;
   manager->octree_as_geometry_distance = false;
-  manager->collide(&tree_obj, &cdata, defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata, test::defaultCollisionFunction);
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
-  CollisionData<S> cdata3;
+  test::CollisionData<S> cdata3;
   if(exhaustive) cdata3.request.num_max_contacts = 100000;
   else cdata3.request.num_max_contacts = num_max_contacts;
 
-  TStruct t3;
-  Timer timer3;
+  test::TStruct t3;
+  test::Timer timer3;
   timer3.start();
   manager->octree_as_geometry_collide = true;
   manager->octree_as_geometry_distance = true;
-  manager->collide(&tree_obj, &cdata3, defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata3, test::defaultCollisionFunction);
   timer3.stop();
   t3.push_back(timer3.getElapsedTime());
 
-  TStruct t2;
-  Timer timer2;
+  test::TStruct t2;
+  test::Timer timer2;
   timer2.start();
   std::vector<CollisionObject<S>*> boxes;
   if(use_mesh_octomap)
-    generateBoxesFromOctomapMesh(boxes, *tree);
+    test::generateBoxesFromOctomapMesh(boxes, *tree);
   else
-    generateBoxesFromOctomap(boxes, *tree);
+    test::generateBoxesFromOctomap(boxes, *tree);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
@@ -285,12 +291,12 @@ void octomap_collision_test(S env_scale, std::size_t env_size, bool exhaustive, 
   t2.push_back(timer2.getElapsedTime());
 
 
-  CollisionData<S> cdata2;
+  test::CollisionData<S> cdata2;
   if(exhaustive) cdata2.request.num_max_contacts = 100000;
   else cdata2.request.num_max_contacts = num_max_contacts;
 
   timer2.start();
-  manager->collide(manager2, &cdata2, defaultCollisionFunction);
+  manager->collide(manager2, &cdata2, test::defaultCollisionFunction);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
@@ -326,13 +332,13 @@ template <typename S>
 void octomap_collision_test_mesh_triangle_id(S env_scale, std::size_t env_size, std::size_t num_max_contacts, double resolution)
 {
   std::vector<CollisionObject<S>*> env;
-  generateEnvironmentsMesh(env, env_scale, env_size);
+  test::generateEnvironmentsMesh(env, env_scale, env_size);
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
   CollisionObject<S> tree_obj((std::shared_ptr<CollisionGeometry<S>>(tree)));
 
   std::vector<CollisionObject<S>*> boxes;
-  generateBoxesFromOctomap(boxes, *tree);
+  test::generateBoxesFromOctomap(boxes, *tree);
   for(typename std::vector<CollisionObject<S>*>::const_iterator cit = env.begin();
       cit != env.end(); ++cit)
   {

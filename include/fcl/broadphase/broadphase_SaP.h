@@ -33,15 +33,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_BROAD_PHASE_SAP_H
 #define FCL_BROAD_PHASE_SAP_H
 
-#include "fcl/broadphase/broadphase.h"
-
 #include <map>
 #include <list>
+
+#include "fcl/broadphase/broadphase_collision_manager.h"
 
 namespace fcl
 {
@@ -52,19 +52,9 @@ class SaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
 
-  SaPCollisionManager()
-  {
-    elist[0] = nullptr;
-    elist[1] = nullptr;
-    elist[2] = nullptr;
+  SaPCollisionManager();
 
-    optimal_axis = 0;
-  }
-
-  ~SaPCollisionManager()
-  {
-    clear();
-  }
+  ~SaPCollisionManager();
 
   /// @brief add objects to the manager
   void registerObjects(const std::vector<CollisionObject<S>*>& other_objs);
@@ -115,149 +105,30 @@ public:
   bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  inline size_t size() const { return AABB_arr.size(); }
+  size_t size() const;
 
 protected:
 
   struct EndPoint;
 
   /// @brief SAP interval for one object
-  struct SaPAABB
-  {
-    /// @brief object
-    CollisionObject<S>* obj;
-
-    /// @brief lower bound end point of the interval
-    EndPoint* lo;
-
-    /// @brief higher bound end point of the interval
-    EndPoint* hi;
-
-    /// @brief cached AABB<S> value
-    AABB<S> cached;
-  };
+  struct SaPAABB;
 
   /// @brief End point for an interval
-  struct EndPoint
-  {
-    /// @brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi
-    char minmax;
-
-    /// @brief back pointer to SAP interval
-    SaPAABB* aabb;
-
-    /// @brief the previous end point in the end point list
-    EndPoint* prev[3];
-    /// @brief the next end point in the end point list
-    EndPoint* next[3];
-
-    /// @brief get the value of the end point
-    inline const Vector3<S>& getVal() const
-    {
-      if(minmax) return aabb->cached.max_;
-      else return aabb->cached.min_;
-    }
-
-    /// @brief set the value of the end point
-    inline Vector3<S>& getVal()
-    {
-      if(minmax) return aabb->cached.max_;
-      else return aabb->cached.min_;
-    }
-
-    inline S getVal(size_t i) const
-    {
-      if(minmax)
-        return aabb->cached.max_[i];
-      else
-        return aabb->cached.min_[i];
-    }
-
-    inline S& getVal(size_t i)
-    {
-      if(minmax)
-        return aabb->cached.max_[i];
-      else
-        return aabb->cached.min_[i];
-    }
-
-  };
+  struct EndPoint;
 
   /// @brief A pair of objects that are not culling away and should further check collision
-  struct SaPPair
-  {
-    SaPPair(CollisionObject<S>* a, CollisionObject<S>* b)
-    {
-      if(a < b)
-      {
-        obj1 = a;
-        obj2 = b;
-      }
-      else
-      {
-        obj1 = b;
-        obj2 = a;
-      }
-    }
-
-    CollisionObject<S>* obj1;
-    CollisionObject<S>* obj2;
-
-    bool operator == (const SaPPair& other) const
-    {
-      return ((obj1 == other.obj1) && (obj2 == other.obj2));
-    }
-  };
+  struct SaPPair;
 
   /// @brief Functor to help unregister one object
-  class isUnregistered
-  {
-    CollisionObject<S>* obj;
-
-  public:
-    isUnregistered(CollisionObject<S>* obj_) : obj(obj_)
-    {}
-
-    bool operator() (const SaPPair& pair) const
-    {
-      return (pair.obj1 == obj) || (pair.obj2 == obj);
-    }
-  };
+  class isUnregistered;
 
   /// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
-  class isNotValidPair
-  {
-    CollisionObject<S>* obj1;
-    CollisionObject<S>* obj2;
-
-  public:
-    isNotValidPair(CollisionObject<S>* obj1_, CollisionObject<S>* obj2_) : obj1(obj1_),
-                                                                     obj2(obj2_)
-    {}
-
-    bool operator() (const SaPPair& pair)
-    {
-      return (pair.obj1 == obj1) && (pair.obj2 == obj2);
-    }
-  };
+  class isNotValidPair;
 
   void update_(SaPAABB* updated_aabb);
 
-  void updateVelist() 
-  {
-    for(int coord = 0; coord < 3; ++coord)
-    {
-      velist[coord].resize(size() * 2);
-      EndPoint* current = elist[coord];
-      size_t id = 0;
-      while(current)
-      {
-        velist[coord][id] = current;
-        current = current->next[coord];
-        id++;
-      }
-    }    
-  }
+  void updateVelist();
 
   /// @brief End point list for x, y, z coordinates
   EndPoint* elist[3];
@@ -279,41 +150,95 @@ protected:
 
   bool collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
-  void addToOverlapPairs(const SaPPair& p)
-  {
-    bool repeated = false;
-    for(auto it = overlap_pairs.begin(), end = overlap_pairs.end(); it != end; ++it)
-    {
-      if(*it == p)
-      {
-        repeated = true;
-        break;
-      }
-    }
+  void addToOverlapPairs(const SaPPair& p);
 
-    if(!repeated)
-      overlap_pairs.push_back(p);
-  }
-
-  void removeFromOverlapPairs(const SaPPair& p)
-  {
-    for(auto it = overlap_pairs.begin(), end = overlap_pairs.end();
-        it != end;
-        ++it)
-    {
-      if(*it == p)
-      {
-        overlap_pairs.erase(it);
-        break;
-      }
-    }
-
-    // or overlap_pairs.remove_if(isNotValidPair(p));
-  }
+  void removeFromOverlapPairs(const SaPPair& p);
 };
 
 using SaPCollisionManagerf = SaPCollisionManager<float>;
 using SaPCollisionManagerd = SaPCollisionManager<double>;
+
+/// @brief SAP interval for one object
+template <typename S>
+struct SaPCollisionManager<S>::SaPAABB
+{
+  /// @brief object
+  CollisionObject<S>* obj;
+
+  /// @brief lower bound end point of the interval
+  typename SaPCollisionManager<S>::EndPoint* lo;
+
+  /// @brief higher bound end point of the interval
+  typename SaPCollisionManager<S>::EndPoint* hi;
+
+  /// @brief cached AABB<S> value
+  AABB<S> cached;
+};
+
+/// @brief End point for an interval
+template <typename S>
+struct SaPCollisionManager<S>::EndPoint
+{
+  /// @brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi
+  char minmax;
+
+  /// @brief back pointer to SAP interval
+  typename SaPCollisionManager<S>::SaPAABB* aabb;
+
+  /// @brief the previous end point in the end point list
+  EndPoint* prev[3];
+
+  /// @brief the next end point in the end point list
+  EndPoint* next[3];
+
+  /// @brief get the value of the end point
+  const Vector3<S>& getVal() const;
+
+  /// @brief set the value of the end point
+  Vector3<S>& getVal();
+
+  S getVal(size_t i) const;
+
+  S& getVal(size_t i);
+
+};
+
+/// @brief A pair of objects that are not culling away and should further check collision
+template <typename S>
+struct SaPCollisionManager<S>::SaPPair
+{
+  SaPPair(CollisionObject<S>* a, CollisionObject<S>* b);
+
+  CollisionObject<S>* obj1;
+  CollisionObject<S>* obj2;
+
+  bool operator == (const SaPPair& other) const;
+};
+
+/// @brief Functor to help unregister one object
+template <typename S>
+class SaPCollisionManager<S>::isUnregistered
+{
+  CollisionObject<S>* obj;
+
+public:
+  isUnregistered(CollisionObject<S>* obj_);
+
+  bool operator() (const SaPPair& pair) const;
+};
+
+/// @brief Functor to help remove collision pairs no longer valid (i.e., should be culled away)
+template <typename S>
+class SaPCollisionManager<S>::isNotValidPair
+{
+  CollisionObject<S>* obj1;
+  CollisionObject<S>* obj2;
+
+public:
+  isNotValidPair(CollisionObject<S>* obj1_, CollisionObject<S>* obj2_);
+
+  bool operator() (const SaPPair& pair);
+};
 
 //============================================================================//
 //                                                                            //
@@ -368,6 +293,24 @@ void SaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
   overlap_pairs.remove_if(isUnregistered(obj));
 }
 \
+//==============================================================================
+template <typename S>
+SaPCollisionManager<S>::SaPCollisionManager()
+{
+  elist[0] = nullptr;
+  elist[1] = nullptr;
+  elist[2] = nullptr;
+
+  optimal_axis = 0;
+}
+
+//==============================================================================
+template <typename S>
+SaPCollisionManager<S>::~SaPCollisionManager()
+{
+  clear();
+}
+
 //==============================================================================
 template <typename S>
 void SaPCollisionManager<S>::registerObjects(const std::vector<CollisionObject<S>*>& other_objs)
@@ -719,6 +662,24 @@ void SaPCollisionManager<S>::update_(SaPAABB* updated_aabb)
 
 //==============================================================================
 template <typename S>
+void SaPCollisionManager<S>::updateVelist()
+{
+  for(int coord = 0; coord < 3; ++coord)
+  {
+    velist[coord].resize(size() * 2);
+    EndPoint* current = elist[coord];
+    size_t id = 0;
+    while(current)
+    {
+      velist[coord][id] = current;
+      current = current->next[coord];
+      id++;
+    }
+  }
+}
+
+//==============================================================================
+template <typename S>
 void SaPCollisionManager<S>::update(CollisionObject<S>* updated_obj)
 {
   update_(obj_aabb_map[updated_obj]);
@@ -835,6 +796,44 @@ bool SaPCollisionManager<S>::collide_(CollisionObject<S>* obj, void* cdata, Coll
   }
 
   return false;
+}
+
+//==============================================================================
+template <typename S>
+void SaPCollisionManager<S>::addToOverlapPairs(
+    const typename SaPCollisionManager<S>::SaPPair& p)
+{
+  bool repeated = false;
+  for(auto it = overlap_pairs.begin(), end = overlap_pairs.end(); it != end; ++it)
+  {
+    if(*it == p)
+    {
+      repeated = true;
+      break;
+    }
+  }
+
+  if(!repeated)
+    overlap_pairs.push_back(p);
+}
+
+//==============================================================================
+template <typename S>
+void SaPCollisionManager<S>::removeFromOverlapPairs(
+    const typename SaPCollisionManager<S>::SaPPair& p)
+{
+  for(auto it = overlap_pairs.begin(), end = overlap_pairs.end();
+      it != end;
+      ++it)
+  {
+    if(*it == p)
+    {
+      overlap_pairs.erase(it);
+      break;
+    }
+  }
+
+  // or overlap_pairs.remove_if(isNotValidPair(p));
 }
 
 //==============================================================================
@@ -1073,6 +1072,99 @@ template <typename S>
 bool SaPCollisionManager<S>::empty() const
 {
   return AABB_arr.size();
+}
+
+//==============================================================================
+template <typename S>
+size_t SaPCollisionManager<S>::size() const
+{
+  return AABB_arr.size();
+}
+
+//==============================================================================
+template <typename S>
+const Vector3<S>&SaPCollisionManager<S>::EndPoint::getVal() const
+{
+  if(minmax) return aabb->cached.max_;
+  else return aabb->cached.min_;
+}
+
+//==============================================================================
+template <typename S>
+Vector3<S>&SaPCollisionManager<S>::EndPoint::getVal()
+{
+  if(minmax) return aabb->cached.max_;
+  else return aabb->cached.min_;
+}
+
+//==============================================================================
+template <typename S>
+S SaPCollisionManager<S>::EndPoint::getVal(size_t i) const
+{
+  if(minmax)
+    return aabb->cached.max_[i];
+  else
+    return aabb->cached.min_[i];
+}
+
+//==============================================================================
+template <typename S>
+S& SaPCollisionManager<S>::EndPoint::getVal(size_t i)
+{
+  if(minmax)
+    return aabb->cached.max_[i];
+  else
+    return aabb->cached.min_[i];
+}
+
+//==============================================================================
+template <typename S>
+SaPCollisionManager<S>::SaPPair::SaPPair(CollisionObject<S>* a, CollisionObject<S>* b)
+{
+  if(a < b)
+  {
+    obj1 = a;
+    obj2 = b;
+  }
+  else
+  {
+    obj1 = b;
+    obj2 = a;
+  }
+}
+
+//==============================================================================
+template <typename S>
+bool SaPCollisionManager<S>::SaPPair::operator ==(const SaPCollisionManager<S>::SaPPair& other) const
+{
+  return ((obj1 == other.obj1) && (obj2 == other.obj2));
+}
+
+//==============================================================================
+template <typename S>
+SaPCollisionManager<S>::isUnregistered::isUnregistered(CollisionObject<S>* obj_) : obj(obj_)
+{}
+
+//==============================================================================
+template <typename S>
+bool SaPCollisionManager<S>::isUnregistered::operator()(const SaPPair& pair) const
+{
+  return (pair.obj1 == obj) || (pair.obj2 == obj);
+}
+
+//==============================================================================
+template <typename S>
+SaPCollisionManager<S>::isNotValidPair::isNotValidPair(CollisionObject<S>* obj1_, CollisionObject<S>* obj2_) : obj1(obj1_),
+  obj2(obj2_)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename S>
+bool SaPCollisionManager<S>::isNotValidPair::operator()(const SaPPair& pair)
+{
+  return (pair.obj1 == obj1) && (pair.obj2 == obj2);
 }
 
 } // namespace fcl

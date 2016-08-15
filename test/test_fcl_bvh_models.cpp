@@ -32,13 +32,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jeongseok Lee */
+/** @author Jeongseok Lee */
 
 #include <gtest/gtest.h>
 
 #include "fcl/config.h"
-#include "fcl/BVH/BVH_model.h"
-#include "fcl/shape/geometric_shapes.h"
+#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/object/geometry/shape/geometric_shapes.h"
 #include "test_fcl_utility.h"
 #include <iostream>
 
@@ -56,7 +56,7 @@ void testBVHModelPointCloud()
       && model->getNodeType() != BV_KDOP18
       && model->getNodeType() != BV_KDOP24)
   {
-    std::cout << "Abort test since '" << getNodeTypeName(model->getNodeType())
+    std::cout << "Abort test since '" << test::getNodeTypeName(model->getNodeType())
               << "' does not support point cloud model. "
               << "Please see issue #67." << std::endl;
     return;

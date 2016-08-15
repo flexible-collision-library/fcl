@@ -33,15 +33,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Karsten Knese <Karsten.Knese@googlemail.com> */
+/** @author Karsten Knese <Karsten.Knese@googlemail.com> */
 
 #include <gtest/gtest.h>
 
 #include "fcl/math/constants.h"
-#include "fcl/collision.h"
-#include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/gjk_solver_indep.h"
-#include "fcl/narrowphase/gjk_solver_libccd.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/narrowphase/detail/gjk_solver_indep.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 
 #include <cmath>
 using namespace fcl;

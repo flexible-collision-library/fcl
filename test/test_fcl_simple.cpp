@@ -37,17 +37,17 @@
 
 #include <sstream>
 
-#include "fcl/intersect.h"
-#include "fcl/collision.h"
-#include "fcl/BVH/BVH_model.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/project.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/object/geometry/bvh/BVH_model.h"
 #include "fcl_resources/config.h"
-#include "fcl/math/sampler_r.h"
-#include "fcl/math/sampler_se2.h"
-#include "fcl/math/sampler_se2_disk.h"
-#include "fcl/math/sampler_se3_euler.h"
-#include "fcl/math/sampler_se3_euler_ball.h"
-#include "fcl/math/sampler_se3_quat.h"
-#include "fcl/math/sampler_se3_quat_ball.h"
+#include "fcl/math/sampler/sampler_r.h"
+#include "fcl/math/sampler/sampler_se2.h"
+#include "fcl/math/sampler/sampler_se2_disk.h"
+#include "fcl/math/sampler/sampler_se3_euler.h"
+#include "fcl/math/sampler/sampler_se3_euler_ball.h"
+#include "fcl/math/sampler/sampler_se3_quat.h"
+#include "fcl/math/sampler/sampler_se3_quat_ball.h"
 #include "fcl/math/geometry.h"
 
 using namespace fcl;

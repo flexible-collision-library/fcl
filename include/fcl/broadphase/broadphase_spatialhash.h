@@ -33,17 +33,17 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
 #define FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
 
 #include <list>
 #include <map>
-#include "fcl/BV/AABB.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/simple_hash_table.h"
-#include "fcl/broadphase/spatial_hash.h"
+#include "fcl/math/bv/AABB.h"
+#include "fcl/broadphase/broadphase_collision_manager.h"
+#include "fcl/broadphase/detail/simple_hash_table.h"
+#include "fcl/broadphase/detail/spatial_hash.h"
 
 namespace fcl
 {

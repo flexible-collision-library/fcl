@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_MATH_DETAIL_SEED_H
 #define FCL_MATH_DETAIL_SEED_H

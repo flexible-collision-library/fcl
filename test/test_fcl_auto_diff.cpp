@@ -34,12 +34,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jeongseok Lee */
+/** @author Jeongseok Lee */
 
 #include <gtest/gtest.h>
 #include <Eigen/Core>
 #include <unsupported/Eigen/AutoDiff>
-#include "fcl/distance.h"
+#include "fcl/narrowphase/distance.h"
 
 using namespace fcl;
 

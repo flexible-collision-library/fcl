@@ -33,14 +33,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_BROAD_PHASE_BRUTE_FORCE_H
 #define FCL_BROAD_PHASE_BRUTE_FORCE_H
 
-#include "fcl/broadphase/broadphase.h"
 #include <list>
-
+#include "fcl/broadphase/broadphase_collision_manager.h"
 
 namespace fcl
 {
@@ -95,7 +94,7 @@ public:
   bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  inline size_t size() const { return objs.size(); }
+  size_t size() const { return objs.size(); }
 
 protected:
 

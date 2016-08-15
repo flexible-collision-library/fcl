@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef TEST_FCL_UTILITY_H
 #define TEST_FCL_UTILITY_H
@@ -43,11 +43,13 @@
 #include <iostream>
 #include "fcl/math/constants.h"
 #include "fcl/math/triangle.h"
-#include "fcl/collision.h"
-#include "fcl/distance.h"
-#include "fcl/collision_data.h"
-#include "fcl/collision_object.h"
-#include "fcl/continuous_collision_object.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/narrowphase/distance.h"
+#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_result.h"
+#include "fcl/object/continuous_collision_object.h"
+#include "fcl/narrowphase/continuous_collision_request.h"
+#include "fcl/narrowphase/continuous_collision_result.h"
 
 #ifdef _WIN32
 #define NOMINMAX  // required to avoid compilation errors with Visual Studio 2010
@@ -56,8 +58,10 @@
 #include <sys/time.h>
 #endif
 
-
 namespace fcl
+{
+
+namespace test
 {
 
 class Timer
@@ -737,6 +741,7 @@ inline octomap::OcTree* generateOcTree(double resolution)
 
 #endif // FCL_HAVE_OCTOMAP
 
+} // namespace test
 } // namespace fcl
 
 #endif

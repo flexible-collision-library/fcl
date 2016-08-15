@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/// \author Jeongseok Lee <jslee02@gmail.com>
+/// @author Jeongseok Lee <jslee02@gmail.com>
 
 #ifndef FCL_COMMON_WARNING_H
 #define FCL_COMMON_WARNING_H

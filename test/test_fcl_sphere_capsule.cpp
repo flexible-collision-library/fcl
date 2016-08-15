@@ -33,15 +33,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Martin Felis <martin.felis@iwr.uni-heidelberg.de> */
+/** @author Martin Felis <martin.felis@iwr.uni-heidelberg.de> */
 
 #include <gtest/gtest.h>
 
 #include "fcl/math/constants.h"
-#include "fcl/collision.h"
-#include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/gjk_solver_indep.h"
-#include "fcl/narrowphase/gjk_solver_libccd.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/narrowphase/detail/gjk_solver_indep.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 
 using namespace fcl;
 

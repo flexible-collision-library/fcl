@@ -33,12 +33,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
-#include "fcl/traversal/traversal_nodes.h"
-#include "fcl/collision_node.h"
+#include "fcl/narrowphase/detail/traversal/traversal_nodes.h"
+#include "fcl/narrowphase/detail/traversal/collision_node.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -54,7 +54,7 @@ void distance_Test(const Transform3<typename BV::S>& tf,
                    const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                    const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                    int qsize,
-                   DistanceRes<typename BV::S>& distance_result,
+                   test::DistanceRes<typename BV::S>& distance_result,
                    bool verbose = true);
 
 template <typename S>
@@ -67,7 +67,7 @@ void distance_Test_Oriented(const Transform3<typename BV::S>& tf,
                             const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                             const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                             int qsize,
-                            DistanceRes<typename BV::S>& distance_result,
+                            test::DistanceRes<typename BV::S>& distance_result,
                             bool verbose = true);
 
 template <typename S>
@@ -85,8 +85,8 @@ void test_mesh_distance()
   std::vector<Vector3<S>> p1, p2;
   std::vector<Triangle> t1, t2;
 
-  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
-  loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
   Eigen::aligned_vector<Transform3<S>> transforms; // t0
   S extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
@@ -96,21 +96,21 @@ void test_mesh_distance()
   std::size_t n = 1;
 #endif
 
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   double dis_time = 0;
   double col_time = 0;
 
-  DistanceRes<S> res, res_now;
+  test::DistanceRes<S> res, res_now;
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    Timer timer_col;
+    test::Timer timer_col;
     timer_col.start();
     collide_Test_OBB(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
     timer_col.stop();
     col_time += timer_col.getElapsedTimeInSec();
 
-    Timer timer_dist;
+    test::Timer timer_dist;
     timer_dist.start();
     distance_Test_Oriented<RSS<S>, MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res, verbose);
     timer_dist.stop();
@@ -311,7 +311,7 @@ void distance_Test_Oriented(const Transform3<typename BV::S>& tf,
                             const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                             const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                             int qsize,
-                            DistanceRes<typename BV::S>& distance_result,
+                            test::DistanceRes<typename BV::S>& distance_result,
                             bool verbose)
 {
   using S = typename BV::S;
@@ -363,7 +363,7 @@ void distance_Test(const Transform3<typename BV::S>& tf,
                    const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
                    const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
                    int qsize,
-                   DistanceRes<typename BV::S>& distance_result,
+                   test::DistanceRes<typename BV::S>& distance_result,
                    bool verbose)
 {
   using S = typename BV::S;

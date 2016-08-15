@@ -33,11 +33,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
-#include "fcl/collision_node.h"
+#include "fcl/narrowphase/detail/traversal/collision_node.h"
 #include "test_fcl_utility.h"
 
 #include "fcl_resources/config.h"
@@ -70,8 +70,8 @@ void test_front_list()
   std::vector<Vector3<S>> p1, p2;
   std::vector<Triangle> t1, t2;
 
-  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
-  loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
   Eigen::aligned_vector<Transform3<S>> transforms; // t0
   Eigen::aligned_vector<Transform3<S>> transforms2; // t1
@@ -84,7 +84,7 @@ void test_front_list()
 #endif
   bool verbose = false;
 
-  generateRandomTransforms<S>(extents, delta_trans, 0.005 * 2 * 3.1415, transforms, transforms2, n);
+  test::generateRandomTransforms<S>(extents, delta_trans, 0.005 * 2 * 3.1415, transforms, transforms2, n);
 
   bool res, res2;
 
