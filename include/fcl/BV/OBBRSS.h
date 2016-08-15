@@ -35,9 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_OBBRSS_H
-#define FCL_OBBRSS_H
-
+#ifndef FCL_BV_OBBRSS_H
+#define FCL_BV_OBBRSS_H
 
 #include "fcl/BV/OBB.h"
 #include "fcl/BV/RSS.h"
@@ -45,113 +44,263 @@
 namespace fcl
 {
 
-
-/// @brief Class merging the OBB and RSS, can handle collision and distance simultaneously
+/// @brief Class merging the OBBd and RSS, can handle collision and distance
+/// simultaneously
+template <typename S_>
 class OBBRSS
 {
 public:
 
-  /// @brief OBB member, for rotation
-  OBB obb;
+  using S = S_;
 
-  /// @brief RSS member, for distance
-  RSS rss;
+  /// @brief OBBd member, for rotation
+  OBB<S> obb;
+
+  /// @brief RSSd member, for distance
+  RSS<S> rss;
 
   /// @brief Check collision between two OBBRSS
-  bool overlap(const OBBRSS& other) const
-  {
-    return obb.overlap(other.obb);
-  }
+  bool overlap(const OBBRSS<S>& other) const;
 
   /// @brief Check collision between two OBBRSS and return the overlap part.
-  bool overlap(const OBBRSS& other, OBBRSS& overlap_part) const
-  {
-    return overlap(other);
-  }
+  bool overlap(const OBBRSS<S>& other, OBBRSS<S>& overlap_part) const;
 
   /// @brief Check whether the OBBRSS contains a point
-  inline bool contain(const Vector3d& p) const
-  {
-    return obb.contain(p);
-  }
+  bool contain(const Vector3<S>& p) const;
 
   /// @brief Merge the OBBRSS and a point
-  OBBRSS& operator += (const Vector3d& p) 
-  {
-    obb += p;
-    rss += p;
-    return *this;
-  }
+  OBBRSS<S>& operator += (const Vector3<S>& p);
 
   /// @brief Merge two OBBRSS
-  OBBRSS& operator += (const OBBRSS& other)
-  {
-    *this = *this + other;
-    return *this;
-  }
+  OBBRSS<S>& operator += (const OBBRSS<S>& other);
 
   /// @brief Merge two OBBRSS
-  OBBRSS operator + (const OBBRSS& other) const
-  {
-    OBBRSS result;
-    result.obb = obb + other.obb;
-    result.rss = rss + other.rss;
-    return result;
-  }
+  OBBRSS<S> operator + (const OBBRSS<S>& other) const;
 
   /// @brief Width of the OBRSS
-  inline FCL_REAL width() const
-  {
-    return obb.width();
-  }
+  S width() const;
 
   /// @brief Height of the OBBRSS
-  inline FCL_REAL height() const
-  {
-    return obb.height();
-  }
+  S height() const;
 
   /// @brief Depth of the OBBRSS
-  inline FCL_REAL depth() const
-  {
-    return obb.depth();
-  }
+  S depth() const;
 
   /// @brief Volume of the OBBRSS
-  inline FCL_REAL volume() const
-  {
-    return obb.volume();
-  }
+  S volume() const;
 
   /// @brief Size of the OBBRSS (used in BV_Splitter to order two OBBRSS)
-  inline FCL_REAL size() const
-  {
-    return obb.size();
-  }
+  S size() const;
 
   /// @brief Center of the OBBRSS
-  inline const Vector3d& center() const
-  {
-    return obb.center();
-  }
+  const Vector3<S> center() const;
 
-  /// @brief Distance between two OBBRSS; P and Q , is not NULL, returns the nearest points
-  FCL_REAL distance(const OBBRSS& other, Vector3d* P = NULL, Vector3d* Q = NULL) const
-  {
-    return rss.distance(other.rss, P, Q);
-  }
+  /// @brief Distance between two OBBRSS; P and Q , is not nullptr, returns the nearest points
+  S distance(const OBBRSS<S>& other,
+                  Vector3<S>* P = nullptr, Vector3<S>* Q = nullptr) const;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 };
 
+using OBBRSSf = OBBRSS<float>;
+using OBBRSSd = OBBRSS<double>;
+
 /// @brief Translate the OBBRSS bv
-OBBRSS translate(const OBBRSS& bv, const Vector3d& t);
+template <typename S>
+OBBRSS<S> translate(const OBBRSS<S>& bv, const Vector3<S>& t);
 
-/// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0) and b2 is in indentity
-bool overlap(const Matrix3d& R0, const Vector3d& T0, const OBBRSS& b1, const OBBRSS& b2);
+/// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
+/// and b2 is in indentity
+template <typename S, typename DerivedA, typename DerivedB>
+bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
+             const Eigen::MatrixBase<DerivedB>& T0,
+             const OBBRSS<S>& b1, const OBBRSS<S>& b2);
 
-/// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0) and b2 is in indentity; P and Q, is not NULL, returns the nearest points
-FCL_REAL distance(const Matrix3d& R0, const Vector3d& T0, const OBBRSS& b1, const OBBRSS& b2, Vector3d* P = NULL, Vector3d* Q = NULL);
+/// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
+/// and b2 is in indentity
+template <typename S>
+bool overlap(
+    const Transform3<S>& tf,
+    const OBBRSS<S>& b1,
+    const OBBRSS<S>& b2);
 
+/// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
+/// and b2 is in indentity; P and Q, is not nullptr, returns the nearest points
+template <typename S, typename DerivedA, typename DerivedB>
+S distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const OBBRSS<S>& b1, const OBBRSS<S>& b2,
+    Vector3<S>* P = nullptr, Vector3<S>* Q = nullptr);
+
+/// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
+/// and b2 is in indentity; P and Q, is not nullptr, returns the nearest points
+template <typename S>
+S distance(
+    const Transform3<S>& tf,
+    const OBBRSS<S>& b1,
+    const OBBRSS<S>& b2,
+    Vector3<S>* P = nullptr,
+    Vector3<S>* Q = nullptr);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename S>
+bool OBBRSS<S>::overlap(const OBBRSS<S>& other) const
+{
+  return obb.overlap(other.obb);
 }
 
+//==============================================================================
+template <typename S>
+bool OBBRSS<S>::overlap(const OBBRSS<S>& other,
+                             OBBRSS<S>& /*overlap_part*/) const
+{
+  return overlap(other);
+}
+
+//==============================================================================
+template <typename S>
+bool OBBRSS<S>::contain(const Vector3<S>& p) const
+{
+  return obb.contain(p);
+}
+
+//==============================================================================
+template <typename S>
+OBBRSS<S>& OBBRSS<S>::operator +=(const Vector3<S>& p)
+{
+  obb += p;
+  rss += p;
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+OBBRSS<S>& OBBRSS<S>::operator +=(const OBBRSS<S>& other)
+{
+  *this = *this + other;
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+OBBRSS<S> OBBRSS<S>::operator +(const OBBRSS<S>& other) const
+{
+  OBBRSS<S> result;
+  result.obb = obb + other.obb;
+  result.rss = rss + other.rss;
+  return result;
+}
+
+//==============================================================================
+template <typename S>
+S OBBRSS<S>::width() const
+{
+  return obb.width();
+}
+
+//==============================================================================
+template <typename S>
+S OBBRSS<S>::height() const
+{
+  return obb.height();
+}
+
+//==============================================================================
+template <typename S>
+S OBBRSS<S>::depth() const
+{
+  return obb.depth();
+}
+
+//==============================================================================
+template <typename S>
+S OBBRSS<S>::volume() const
+{
+  return obb.volume();
+}
+
+//==============================================================================
+template <typename S>
+S OBBRSS<S>::size() const
+{
+  return obb.size();
+}
+
+//==============================================================================
+template <typename S>
+const Vector3<S> OBBRSS<S>::center() const
+{
+  return obb.center();
+}
+
+//==============================================================================
+template <typename S>
+S OBBRSS<S>::distance(const OBBRSS<S>& other,
+                                Vector3<S>* P, Vector3<S>* Q) const
+{
+  return rss.distance(other.rss, P, Q);
+}
+
+//==============================================================================
+template <typename S, typename DerivedA, typename DerivedB>
+bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
+             const Eigen::MatrixBase<DerivedB>& T0,
+             const OBBRSS<S>& b1, const OBBRSS<S>& b2)
+{
+  return overlap(R0, T0, b1.obb, b2.obb);
+}
+
+//==============================================================================
+template <typename S>
+bool overlap(
+    const Transform3<S>& tf,
+    const OBBRSS<S>& b1,
+    const OBBRSS<S>& b2)
+{
+  return overlap(tf, b1.obb, b2.obb);
+}
+
+//==============================================================================
+template <typename S, typename DerivedA, typename DerivedB>
+S distance(
+    const Eigen::MatrixBase<DerivedA>& R0,
+    const Eigen::MatrixBase<DerivedB>& T0,
+    const OBBRSS<S>& b1, const OBBRSS<S>& b2,
+    Vector3<S>* P, Vector3<S>* Q)
+{
+  return distance(R0, T0, b1.rss, b2.rss, P, Q);
+}
+
+//==============================================================================
+template <typename S>
+S distance(
+    const Transform3<S>& tf,
+    const OBBRSS<S>& b1,
+    const OBBRSS<S>& b2,
+    Vector3<S>* P,
+    Vector3<S>* Q)
+{
+  return distance(tf, b1.rss, b2.rss, P, Q);
+}
+
+//==============================================================================
+template <typename S>
+OBBRSS<S> translate(const OBBRSS<S>& bv, const Vector3<S>& t)
+{
+  OBBRSS<S> res(bv);
+  res.obb.To += t;
+  res.rss.To += t;
+  return res;
+}
+
+} // namespace fcl
 
 #endif

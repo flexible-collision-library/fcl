@@ -38,7 +38,6 @@
 #ifndef FCL_BVH_FRONT_H
 #define FCL_BVH_FRONT_H
 
-
 #include <list>
 
 namespace fcl
@@ -46,33 +45,47 @@ namespace fcl
 
 /// @brief Front list acceleration for collision
 /// Front list is a set of internal and leaf nodes in the BVTT hierarchy, where
-/// the traversal terminates while performing a query during a given time instance. The front list reﬂects the subset of a
-/// BVTT that is traversed for that particular proximity query.
+/// the traversal terminates while performing a query during a given time
+/// instance. The front list reﬂects the subset of a BVTT that is traversed for
+/// that particular proximity query.
 struct BVHFrontNode
 {
-  /// @brief The nodes to start in the future, i.e. the wave front of the traversal tree.
+  /// @brief The nodes to start in the future, i.e. the wave front of the
+  /// traversal tree.
   int left, right;
 
-  /// @brief The front node is not valid when collision is detected on the front node.
+  /// @brief The front node is not valid when collision is detected on the front
+  /// node.
   bool valid;
 
-  BVHFrontNode(int left_, int right_) : left(left_),
-                                        right(right_),
-                                        valid(true)
-  {
-  }
+  BVHFrontNode(int left_, int right_);
 };
 
 /// @brief BVH front list is a list of front nodes.
-typedef std::list<BVHFrontNode> BVHFrontList;
+using BVHFrontList = std::list<BVHFrontNode>;
 
 /// @brief Add new front node into the front list
+void updateFrontList(BVHFrontList* front_list, int b1, int b2);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+inline BVHFrontNode::BVHFrontNode(int left_, int right_)
+  : left(left_), right(right_), valid(true)
+{
+  // Do nothing
+}
+
+//==============================================================================
 inline void updateFrontList(BVHFrontList* front_list, int b1, int b2)
 {
-  if(front_list) front_list->push_back(BVHFrontNode(b1, b2));
+  if(front_list) front_list->emplace_back(b1, b2);
 }
 
-
-}
+} // namespace fcl
 
 #endif

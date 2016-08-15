@@ -46,145 +46,536 @@
 namespace fcl
 {
 
+template <typename S>
 class MotionBase;
 
+template <typename S>
 class SplineMotion;
+
+template <typename S>
 class ScrewMotion;
+
+template <typename S>
 class InterpMotion;
+
+template <typename S>
 class TranslationMotion;
 
 /// @brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects
+template <typename S>
 class BVMotionBoundVisitor
 {
 public:
-  virtual FCL_REAL visit(const MotionBase& motion) const = 0;
-  virtual FCL_REAL visit(const SplineMotion& motion) const = 0;
-  virtual FCL_REAL visit(const ScrewMotion& motion) const = 0;
-  virtual FCL_REAL visit(const InterpMotion& motion) const = 0;
-  virtual FCL_REAL visit(const TranslationMotion& motion) const = 0;
+  virtual S visit(const MotionBase<S>& motion) const = 0;
+  virtual S visit(const SplineMotion<S>& motion) const = 0;
+  virtual S visit(const ScrewMotion<S>& motion) const = 0;
+  virtual S visit(const InterpMotion<S>& motion) const = 0;
+  virtual S visit(const TranslationMotion<S>& motion) const = 0;
 };
 
 template<typename BV>
-class TBVMotionBoundVisitor : public BVMotionBoundVisitor
+class TBVMotionBoundVisitor : public BVMotionBoundVisitor<typename BV::S>
 {
 public:
-  TBVMotionBoundVisitor(const BV& bv_, const Vector3d& n_) : bv(bv_), n(n_) {}
+  using S = typename BV::S;
 
-  virtual FCL_REAL visit(const MotionBase& motion) const { return 0; }
-  virtual FCL_REAL visit(const SplineMotion& motion) const { return 0; }
-  virtual FCL_REAL visit(const ScrewMotion& motion) const { return 0; }
-  virtual FCL_REAL visit(const InterpMotion& motion) const { return 0; }
-  virtual FCL_REAL visit(const TranslationMotion& motion) const { return 0; }
+  TBVMotionBoundVisitor(const BV& bv_, const Vector3<S>& n_) : bv(bv_), n(n_) {}
+
+  virtual S visit(const MotionBase<S>& motion) const;
+  virtual S visit(const SplineMotion<S>& motion) const;
+  virtual S visit(const ScrewMotion<S>& motion) const;
+  virtual S visit(const InterpMotion<S>& motion) const;
+  virtual S visit(const TranslationMotion<S>& motion) const;
 
 protected:
+  template <typename, typename, typename>
+  friend struct TBVMotionBoundVisitorVisitImpl;
+
   BV bv;
-  Vector3d n;
+  Vector3<S> n;
 };
 
-template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const SplineMotion& motion) const;
-
-template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const ScrewMotion& motion) const;
-
-template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const InterpMotion& motion) const;
-
-template<>
-FCL_REAL TBVMotionBoundVisitor<RSS>::visit(const TranslationMotion& motion) const;
-
-
+template <typename S>
 class TriangleMotionBoundVisitor
 {
 public:
-  TriangleMotionBoundVisitor(const Vector3d& a_, const Vector3d& b_, const Vector3d& c_, const Vector3d& n_) :
+  TriangleMotionBoundVisitor(const Vector3<S>& a_, const Vector3<S>& b_, const Vector3<S>& c_, const Vector3<S>& n_) :
     a(a_), b(b_), c(c_), n(n_) {}
 
-  virtual FCL_REAL visit(const MotionBase& motion) const { return 0; }
-  virtual FCL_REAL visit(const SplineMotion& motion) const;
-  virtual FCL_REAL visit(const ScrewMotion& motion) const;
-  virtual FCL_REAL visit(const InterpMotion& motion) const;
-  virtual FCL_REAL visit(const TranslationMotion& motion) const;
+  virtual S visit(const MotionBase<S>& motion) const { return 0; }
+  virtual S visit(const SplineMotion<S>& motion) const;
+  virtual S visit(const ScrewMotion<S>& motion) const;
+  virtual S visit(const InterpMotion<S>& motion) const;
+  virtual S visit(const TranslationMotion<S>& motion) const;
 
 protected:
-  Vector3d a, b, c, n;
+  template <typename, typename>
+  friend struct TriangleMotionBoundVisitorVisitImpl;
+
+  Vector3<S> a, b, c, n;
 };
 
-
-
+template <typename S>
 class MotionBase
 {
 public:
-  MotionBase() : time_interval_(std::shared_ptr<TimeInterval>(new TimeInterval(0, 1)))
+  MotionBase()
+    : time_interval_(std::shared_ptr<TimeInterval<S>>(new TimeInterval<S>(0, 1)))
   {
   }
   
   virtual ~MotionBase() {}
 
   /** \brief Integrate the motion from 0 to dt */
-  virtual bool integrate(double dt) const = 0;
+  virtual bool integrate(S dt) const = 0;
 
   /** \brief Compute the motion bound for a bounding volume, given the closest direction n between two query objects */
-  virtual FCL_REAL computeMotionBound(const BVMotionBoundVisitor& mb_visitor) const = 0;
+  virtual S computeMotionBound(const BVMotionBoundVisitor<S>& mb_visitor) const = 0;
 
   /** \brief Compute the motion bound for a triangle, given the closest direction n between two query objects */
-  virtual FCL_REAL computeMotionBound(const TriangleMotionBoundVisitor& mb_visitor) const = 0;
+  virtual S computeMotionBound(const TriangleMotionBoundVisitor<S>& mb_visitor) const = 0;
 
   /** \brief Get the rotation and translation in current step */
-  void getCurrentTransform(Matrix3d& R, Vector3d& T) const
+  void getCurrentTransform(Matrix3<S>& R, Vector3<S>& T) const
   {
-    Transform3d tf;
+    Transform3<S> tf;
     getCurrentTransform(tf);
     R = tf.linear();
     T = tf.translation();
   }
 
-  void getCurrentTransform(Quaternion3d& Q, Vector3d& T) const
+  void getCurrentTransform(Quaternion<S>& Q, Vector3<S>& T) const
   {
-    Transform3d tf;
+    Transform3<S> tf;
     getCurrentTransform(tf);
     Q = tf.linear();
     T = tf.translation();
   }
 
-  void getCurrentRotation(Matrix3d& R) const
+  void getCurrentRotation(Matrix3<S>& R) const
   {
-    Transform3d tf;
+    Transform3<S> tf;
     getCurrentTransform(tf);
     R = tf.linear();
   }
 
-  void getCurrentRotation(Quaternion3d& Q) const
+  void getCurrentRotation(Quaternion<S>& Q) const
   {
-    Transform3d tf;
+    Transform3<S> tf;
     getCurrentTransform(tf);
     Q = tf.linear();
   }
 
-  void getCurrentTranslation(Vector3d& T) const
+  void getCurrentTranslation(Vector3<S>& T) const
   {
-    Transform3d tf;
+    Transform3<S> tf;
     getCurrentTransform(tf);
     T = tf.translation();
   }
 
-  virtual void getCurrentTransform(Transform3d& tf) const = 0;
+  virtual void getCurrentTransform(Transform3<S>& tf) const = 0;
 
-  virtual void getTaylorModel(TMatrix3& tm, TVector3& tv) const = 0;
+  virtual void getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const = 0;
 
-  const std::shared_ptr<TimeInterval>& getTimeInterval() const
+  const std::shared_ptr<TimeInterval<S>>& getTimeInterval() const
   {
     return time_interval_;
   }
 protected:
 
-  std::shared_ptr<TimeInterval> time_interval_;
+  std::shared_ptr<TimeInterval<S>> time_interval_;
   
 };
 
-typedef std::shared_ptr<MotionBase> MotionBasePtr;
+using MotionBasef = MotionBase<float>;
+using MotionBased = MotionBase<double>;
 
+template <typename S>
+using MotionBasePtr = std::shared_ptr<MotionBase<S>>;
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename S, typename BV, typename MotionT>
+struct TBVMotionBoundVisitorVisitImpl
+{
+  static S run(
+      const TBVMotionBoundVisitor<BV>& /*visitor*/,
+      const MotionT& /*motion*/)
+  {
+    return 0;
+  }
+};
+
+//==============================================================================
+template<typename BV>
+typename BV::S TBVMotionBoundVisitor<BV>::visit(
+    const MotionBase<S>& motion) const
+{
+  return 0;
 }
+//==============================================================================
+template<typename BV>
+typename BV::S TBVMotionBoundVisitor<BV>::visit(
+    const SplineMotion<S>& motion) const
+{
+  using S = typename BV::S;
+
+  return TBVMotionBoundVisitorVisitImpl<
+      S, BV, SplineMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+template<typename BV>
+typename BV::S TBVMotionBoundVisitor<BV>::visit(
+    const ScrewMotion<S>& motion) const
+{
+  using S = typename BV::S;
+
+  return TBVMotionBoundVisitorVisitImpl<
+      S, BV, ScrewMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+template<typename BV>
+typename BV::S TBVMotionBoundVisitor<BV>::visit(
+    const InterpMotion<S>& motion) const
+{
+  using S = typename BV::S;
+
+  return TBVMotionBoundVisitorVisitImpl<
+      S, BV, InterpMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+template<typename BV>
+typename BV::S TBVMotionBoundVisitor<BV>::visit(
+    const TranslationMotion<S>& motion) const
+{
+  using S = typename BV::S;
+
+  return TBVMotionBoundVisitorVisitImpl<
+      S, BV, TranslationMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+template <typename S>
+struct TBVMotionBoundVisitorVisitImpl<S, RSS<S>, SplineMotion<S>>
+{
+  static S run(
+      const TBVMotionBoundVisitor<RSS<S>>& visitor,
+      const SplineMotion<S>& motion)
+  {
+    S T_bound = motion.computeTBound(visitor.n);
+    S tf_t = motion.getCurrentTime();
+
+    Vector3<S> c1 = visitor.bv.To;
+    Vector3<S> c2 = visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0];
+    Vector3<S> c3 = visitor.bv.To + visitor.bv.axis.col(1) * visitor.bv.l[1];
+    Vector3<S> c4 = visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] + visitor.bv.axis.col(1) * visitor.bv.l[1];
+
+    S tmp;
+    // max_i |c_i * n|
+    S cn_max = std::abs(c1.dot(visitor.n));
+    tmp = std::abs(c2.dot(visitor.n));
+    if(tmp > cn_max) cn_max = tmp;
+    tmp = std::abs(c3.dot(visitor.n));
+    if(tmp > cn_max) cn_max = tmp;
+    tmp = std::abs(c4.dot(visitor.n));
+    if(tmp > cn_max) cn_max = tmp;
+
+    // max_i ||c_i||
+    S cmax = c1.squaredNorm();
+    tmp = c2.squaredNorm();
+    if(tmp > cmax) cmax = tmp;
+    tmp = c3.squaredNorm();
+    if(tmp > cmax) cmax = tmp;
+    tmp = c4.squaredNorm();
+    if(tmp > cmax) cmax = tmp;
+    cmax = sqrt(cmax);
+
+    // max_i ||c_i x n||
+    S cxn_max = (c1.cross(visitor.n)).squaredNorm();
+    tmp = (c2.cross(visitor.n)).squaredNorm();
+    if(tmp > cxn_max) cxn_max = tmp;
+    tmp = (c3.cross(visitor.n)).squaredNorm();
+    if(tmp > cxn_max) cxn_max = tmp;
+    tmp = (c4.cross(visitor.n)).squaredNorm();
+    if(tmp > cxn_max) cxn_max = tmp;
+    cxn_max = sqrt(cxn_max);
+
+    S dWdW_max = motion.computeDWMax();
+    S ratio = std::min(1 - tf_t, dWdW_max);
+
+    S R_bound = 2 * (cn_max + cmax + cxn_max + 3 * visitor.bv.r) * ratio;
+
+
+    // std::cout << R_bound << " " << T_bound << std::endl;
+
+    return R_bound + T_bound;
+  }
+};
+
+//==============================================================================
+/// @brief Compute the motion bound for a bounding volume along a given direction n
+/// according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||R0(ci) x w||. w is the angular axis (normalized)
+/// and ci are the endpoints of the generator primitives of RSSd.
+/// Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
+template <typename S>
+struct TBVMotionBoundVisitorVisitImpl<S, RSS<S>, ScrewMotion<S>>
+{
+  static S run(
+      const TBVMotionBoundVisitor<RSS<S>>& visitor,
+      const ScrewMotion<S>& motion)
+  {
+    Transform3<S> tf;
+    motion.getCurrentTransform(tf);
+
+    const Vector3<S>& axis = motion.getAxis();
+    S linear_vel = motion.getLinearVelocity();
+    S angular_vel = motion.getAngularVelocity();
+    const Vector3<S>& p = motion.getAxisOrigin();
+
+    S c_proj_max = ((tf.linear() * visitor.bv.To).cross(axis)).squaredNorm();
+    S tmp;
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0])).cross(axis)).squaredNorm();
+    if(tmp > c_proj_max) c_proj_max = tmp;
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(1) * visitor.bv.l[1])).cross(axis)).squaredNorm();
+    if(tmp > c_proj_max) c_proj_max = tmp;
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] + visitor.bv.axis.col(1) * visitor.bv.l[1])).cross(axis)).squaredNorm();
+    if(tmp > c_proj_max) c_proj_max = tmp;
+
+    c_proj_max = sqrt(c_proj_max);
+
+    S v_dot_n = axis.dot(visitor.n) * linear_vel;
+    S w_cross_n = (axis.cross(visitor.n)).norm() * angular_vel;
+    S origin_proj = ((tf.translation() - p).cross(axis)).norm();
+
+    S mu = v_dot_n + w_cross_n * (c_proj_max + visitor.bv.r + origin_proj);
+
+    return mu;
+  }
+};
+
+//==============================================================================
+/// @brief Compute the motion bound for a bounding volume along a given direction n
+/// according to mu < |v * n| + ||w x n||(r + max(||ci*||)) where ||ci*|| = ||R0(ci) x w||. w is the angular axis (normalized)
+/// and ci are the endpoints of the generator primitives of RSSd.
+/// Notice that all bv parameters are in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
+template <typename S>
+struct TBVMotionBoundVisitorVisitImpl<S, RSS<S>, InterpMotion<S>>
+{
+  static S run(
+      const TBVMotionBoundVisitor<RSS<S>>& visitor,
+      const InterpMotion<S>& motion)
+  {
+    Transform3<S> tf;
+    motion.getCurrentTransform(tf);
+
+    const Vector3<S>& reference_p = motion.getReferencePoint();
+    const Vector3<S>& angular_axis = motion.getAngularAxis();
+    S angular_vel = motion.getAngularVelocity();
+    const Vector3<S>& linear_vel = motion.getLinearVelocity();
+
+    S c_proj_max = ((tf.linear() * (visitor.bv.To - reference_p)).cross(angular_axis)).squaredNorm();
+    S tmp;
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] - reference_p)).cross(angular_axis)).squaredNorm();
+    if(tmp > c_proj_max) c_proj_max = tmp;
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(1) * visitor.bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+    if(tmp > c_proj_max) c_proj_max = tmp;
+    tmp = ((tf.linear() * (visitor.bv.To + visitor.bv.axis.col(0) * visitor.bv.l[0] + visitor.bv.axis.col(1) * visitor.bv.l[1] - reference_p)).cross(angular_axis)).squaredNorm();
+    if(tmp > c_proj_max) c_proj_max = tmp;
+
+    c_proj_max = std::sqrt(c_proj_max);
+
+    S v_dot_n = linear_vel.dot(visitor.n);
+    S w_cross_n = (angular_axis.cross(visitor.n)).norm() * angular_vel;
+    S mu = v_dot_n + w_cross_n * (visitor.bv.r + c_proj_max);
+
+    return mu;
+  }
+};
+
+//==============================================================================
+/// @brief Compute the motion bound for a bounding volume along a given direction n
+template <typename S>
+struct TBVMotionBoundVisitorVisitImpl<S, RSS<S>, TranslationMotion<S>>
+{
+  static S run(
+      const TBVMotionBoundVisitor<RSS<S>>& visitor,
+      const TranslationMotion<S>& motion)
+  {
+    return motion.getVelocity().dot(visitor.n);
+  }
+};
+
+//==============================================================================
+template <typename S, typename MotionT>
+struct TriangleMotionBoundVisitorVisitImpl
+{
+  static S run(
+      const TriangleMotionBoundVisitor<S>& /*visitor*/,
+      const MotionT& /*motion*/)
+  {
+    return 0;
+  }
+};
+
+//==============================================================================
+template<typename S>
+S TriangleMotionBoundVisitor<S>::visit(
+    const SplineMotion<S>& motion) const
+{
+  return TriangleMotionBoundVisitorVisitImpl<
+      S, SplineMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+template<typename S>
+S TriangleMotionBoundVisitor<S>::visit(
+    const ScrewMotion<S>& motion) const
+{
+  return TriangleMotionBoundVisitorVisitImpl<
+      S, ScrewMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+template<typename S>
+S TriangleMotionBoundVisitor<S>::visit(
+    const InterpMotion<S>& motion) const
+{
+  return TriangleMotionBoundVisitorVisitImpl<
+      S, InterpMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+template<typename S>
+S TriangleMotionBoundVisitor<S>::visit(
+    const TranslationMotion<S>& motion) const
+{
+  return TriangleMotionBoundVisitorVisitImpl<
+      S, TranslationMotion<S>>::run(*this, motion);
+}
+
+//==============================================================================
+/// @brief Compute the motion bound for a triangle along a given direction n
+/// according to mu < |v * n| + ||w x n||(max||ci*||) where ||ci*|| = ||R0(ci) x w|| / \|w\|. w is the angular velocity
+/// and ci are the triangle vertex coordinates.
+/// Notice that the triangle is in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
+template <typename S>
+struct TriangleMotionBoundVisitorVisitImpl<S, ScrewMotion<S>>
+{
+  static S run(
+      const TriangleMotionBoundVisitor<S>& visitor,
+      const ScrewMotion<S>& motion)
+  {
+    Transform3<S> tf;
+    motion.getCurrentTransform(tf);
+
+    const Vector3<S>& axis = motion.getAxis();
+    S linear_vel = motion.getLinearVelocity();
+    S angular_vel = motion.getAngularVelocity();
+    const Vector3<S>& p = motion.getAxisOrigin();
+
+    S proj_max = ((tf.linear() * visitor.a + tf.translation() - p).cross(axis)).squaredNorm();
+    S tmp;
+    tmp = ((tf.linear() * visitor.b + tf.translation() - p).cross(axis)).squaredNorm();
+    if(tmp > proj_max) proj_max = tmp;
+    tmp = ((tf.linear() * visitor.c + tf.translation() - p).cross(axis)).squaredNorm();
+    if(tmp > proj_max) proj_max = tmp;
+
+    proj_max = std::sqrt(proj_max);
+
+    S v_dot_n = axis.dot(visitor.n) * linear_vel;
+    S w_cross_n = (axis.cross(visitor.n)).norm() * angular_vel;
+    S mu = v_dot_n + w_cross_n * proj_max;
+
+    return mu;
+  }
+};
+
+//==============================================================================
+/// @brief Compute the motion bound for a triangle along a given direction n
+/// according to mu < |v * n| + ||w x n||(max||ci*||) where ||ci*|| = ||R0(ci) x w|| / \|w\|. w is the angular velocity
+/// and ci are the triangle vertex coordinates.
+/// Notice that the triangle is in the local frame of the object, but n should be in the global frame (the reason is that the motion (t1, t2 and t) is in global frame)
+template <typename S>
+struct TriangleMotionBoundVisitorVisitImpl<S, InterpMotion<S>>
+{
+  static S run(
+      const TriangleMotionBoundVisitor<S>& visitor,
+      const InterpMotion<S>& motion)
+  {
+    Transform3<S> tf;
+    motion.getCurrentTransform(tf);
+
+    const Vector3<S>& reference_p = motion.getReferencePoint();
+    const Vector3<S>& angular_axis = motion.getAngularAxis();
+    S angular_vel = motion.getAngularVelocity();
+    const Vector3<S>& linear_vel = motion.getLinearVelocity();
+
+    S proj_max = ((tf.linear() * (visitor.a - reference_p)).cross(angular_axis)).squaredNorm();
+    S tmp;
+    tmp = ((tf.linear() * (visitor.b - reference_p)).cross(angular_axis)).squaredNorm();
+    if(tmp > proj_max) proj_max = tmp;
+    tmp = ((tf.linear() * (visitor.c - reference_p)).cross(angular_axis)).squaredNorm();
+    if(tmp > proj_max) proj_max = tmp;
+
+    proj_max = std::sqrt(proj_max);
+
+    S v_dot_n = linear_vel.dot(visitor.n);
+    S w_cross_n = (angular_axis.cross(visitor.n)).norm() * angular_vel;
+    S mu = v_dot_n + w_cross_n * proj_max;
+
+    return mu;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct TriangleMotionBoundVisitorVisitImpl<S, SplineMotion<S>>
+{
+  static S run(
+      const TriangleMotionBoundVisitor<S>& visitor,
+      const SplineMotion<S>& motion)
+  {
+    S T_bound = motion.computeTBound(visitor.n);
+    S tf_t = motion.getCurrentTime();
+
+    S R_bound = std::abs(visitor.a.dot(visitor.n)) + visitor.a.norm() + (visitor.a.cross(visitor.n)).norm();
+    S R_bound_tmp = std::abs(visitor.b.dot(visitor.n)) + visitor.b.norm() + (visitor.b.cross(visitor.n)).norm();
+    if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
+    R_bound_tmp = std::abs(visitor.c.dot(visitor.n)) + visitor.c.norm() + (visitor.c.cross(visitor.n)).norm();
+    if(R_bound_tmp > R_bound) R_bound = R_bound_tmp;
+
+    S dWdW_max = motion.computeDWMax();
+    S ratio = std::min(1 - tf_t, dWdW_max);
+
+    R_bound *= 2 * ratio;
+
+    // std::cout << R_bound << " " << T_bound << std::endl;
+
+    return R_bound + T_bound;
+  }
+};
+
+//==============================================================================
+/// @brief Compute the motion bound for a triangle along a given direction n
+template <typename S>
+struct TriangleMotionBoundVisitorVisitImpl<S, TranslationMotion<S>>
+{
+  static S run(
+      const TriangleMotionBoundVisitor<S>& visitor,
+      const TranslationMotion<S>& motion)
+  {
+    return motion.getVelocity().dot(visitor.n);
+  }
+};
+
+} // namespace fcl
 
 #endif

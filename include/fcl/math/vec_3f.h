@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_VEC_3F_H
-#define FCL_VEC_3F_H
+#ifndef FCL_MATH_VEC3F_H
+#define FCL_MATH_VEC3F_H
 
 #warning "This header has been deprecated in FCL 0.6. "\
   "Please include fcl/data_types.h and fcl/math/geometry.h instead."

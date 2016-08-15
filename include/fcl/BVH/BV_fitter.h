@@ -47,39 +47,19 @@
 namespace fcl
 {
 
-/// @brief Compute a bounding volume that fits a set of n points.
-template<typename BV>
-void fit(Vector3d* ps, int n, BV& bv)
-{
-  for(int i = 0; i < n; ++i)
-  {
-    bv += ps[i];
-  }
-}
-
-template<>
-void fit<OBB>(Vector3d* ps, int n, OBB& bv);
-
-template<>
-void fit<RSS>(Vector3d* ps, int n, RSS& bv);
-
-template<>
-void fit<kIOS>(Vector3d* ps, int n, kIOS& bv);
-
-template<>
-void fit<OBBRSS>(Vector3d* ps, int n, OBBRSS& bv);
-
-
 /// @brief Interface for fitting a bv given the triangles or points inside it.
-template<typename BV>
+template <typename BV>
 class BVFitterBase
 {
 public:
+
+  using S = typename BV::S;
+
   /// @brief Set the primitives to be processed by the fitter
-  virtual void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+  virtual void set(Vector3<S>* vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
   /// @brief Set the primitives to be processed by the fitter, for deformable mesh.
-  virtual void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
+  virtual void set(Vector3<S>* vertices_, Vector3<S>* prev_vertices_, Triangle* tri_indices_, BVHModelType type_) = 0;
 
   /// @brief Compute the fitting BV
   virtual BV fit(unsigned int* primitive_indices, int num_primitives) = 0;
@@ -89,266 +69,485 @@ public:
 };
 
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
-template<typename BV>
+template <typename BV>
 class BVFitter : public BVFitterBase<BV>
 {
 public:
+
+  using S = typename BVFitterBase<BV>::S;
+
   /// @brief default deconstructor
-  virtual ~BVFitter() {}
+  virtual ~BVFitter();
 
   /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
+  void set(
+      Vector3<S>* vertices_, Triangle* tri_indices_, BVHModelType type_);
 
   /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
+  void set(
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_);
 
   /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
   /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data
-  BV fit(unsigned int* primitive_indices, int num_primitives)
+  BV fit(unsigned int* primitive_indices, int num_primitives);
+
+  /// @brief Clear the geometry primitive data
+  void clear();
+
+private:
+
+  Vector3<S>* vertices;
+  Vector3<S>* prev_vertices;
+  Triangle* tri_indices;
+  BVHModelType type;
+
+  template <typename, typename>
+  friend struct SetImpl;
+
+  template <typename, typename>
+  friend struct FitImpl;
+};
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename BV>
+BVFitter<BV>::~BVFitter()
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename S, typename BV>
+struct SetImpl;
+
+//==============================================================================
+template <typename BV>
+void BVFitter<BV>::set(
+    Vector3<typename BVFitter<BV>::S>* vertices_,
+    Triangle* tri_indices_,
+    BVHModelType type_)
+{
+  SetImpl<typename BV::S, BV>::run(*this, vertices_, tri_indices_, type_);
+}
+
+//==============================================================================
+template <typename BV>
+void BVFitter<BV>::set(
+    Vector3<typename BVFitter<BV>::S>* vertices_,
+    Vector3<typename BVFitter<BV>::S>* prev_vertices_,
+    Triangle* tri_indices_,
+    BVHModelType type_)
+{
+  SetImpl<typename BV::S, BV>::run(
+        *this, vertices_, prev_vertices_, tri_indices_, type_);
+}
+
+//==============================================================================
+template <typename S, typename BV>
+struct FitImpl;
+
+//==============================================================================
+template <typename BV>
+BV BVFitter<BV>::fit(unsigned int* primitive_indices, int num_primitives)
+{
+  return FitImpl<typename BV::S, BV>::run(
+        *this, primitive_indices, num_primitives);
+}
+
+//==============================================================================
+template <typename BV>
+void BVFitter<BV>::clear()
+{
+  vertices = nullptr;
+  prev_vertices = nullptr;
+  tri_indices = nullptr;
+  type = BVH_MODEL_UNKNOWN;
+}
+
+//==============================================================================
+template <typename S, typename BV>
+struct SetImpl
+{
+  static void run(
+      BVFitter<BV>& fitter,
+      Vector3<S>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = nullptr;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<BV>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct SetImpl<S, OBB<S>>
+{
+  static void run(
+      BVFitter<OBB<S>>& fitter,
+      Vector3<S>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = nullptr;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<OBB<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct SetImpl<S, RSS<S>>
+{
+  static void run(
+      BVFitter<RSS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = nullptr;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<RSS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct SetImpl<S, kIOS<S>>
+{
+  static void run(
+      BVFitter<kIOS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = nullptr;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<kIOS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct SetImpl<S, OBBRSS<S>>
+{
+  static void run(
+      BVFitter<OBBRSS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = nullptr;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+
+  static void run(
+      BVFitter<OBBRSS<S>>& fitter,
+      Vector3<S>* vertices_,
+      Vector3<S>* prev_vertices_,
+      Triangle* tri_indices_,
+      BVHModelType type_)
+  {
+    fitter.vertices = vertices_;
+    fitter.prev_vertices = prev_vertices_;
+    fitter.tri_indices = tri_indices_;
+    fitter.type = type_;
+  }
+};
+
+//==============================================================================
+template <typename S, typename BV>
+struct FitImpl
+{
+  static BV run(
+      const BVFitter<BV>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
   {
     BV bv;
 
-    if(type == BVH_MODEL_TRIANGLES)             /// The primitive is triangle
+    if(fitter.type == BVH_MODEL_TRIANGLES)             /// The primitive is triangle
     {
       for(int i = 0; i < num_primitives; ++i)
       {
-        Triangle t = tri_indices[primitive_indices[i]];
-        bv += vertices[t[0]];
-        bv += vertices[t[1]];
-        bv += vertices[t[2]];
+        Triangle t = fitter.tri_indices[primitive_indices[i]];
+        bv += fitter.vertices[t[0]];
+        bv += fitter.vertices[t[1]];
+        bv += fitter.vertices[t[2]];
 
-        if(prev_vertices)                      /// can fitting both current and previous frame
+        if(fitter.prev_vertices)                      /// can fitting both current and previous frame
         {
-          bv += prev_vertices[t[0]];
-          bv += prev_vertices[t[1]];
-          bv += prev_vertices[t[2]];
+          bv += fitter.prev_vertices[t[0]];
+          bv += fitter.prev_vertices[t[1]];
+          bv += fitter.prev_vertices[t[2]];
         }
       }
     }
-    else if(type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
+    else if(fitter.type == BVH_MODEL_POINTCLOUD)       /// The primitive is point
     {
       for(int i = 0; i < num_primitives; ++i)
       {
-        bv += vertices[primitive_indices[i]];
+        bv += fitter.vertices[primitive_indices[i]];
 
-        if(prev_vertices)                       /// can fitting both current and previous frame
+        if(fitter.prev_vertices)                       /// can fitting both current and previous frame
         {
-          bv += prev_vertices[primitive_indices[i]];
+          bv += fitter.prev_vertices[primitive_indices[i]];
         }
       }
     }
 
     return bv;
   }
-
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vector3d* vertices;
-  Vector3d* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
 
-
-/// @brief Specification of BVFitter for OBB bounding volume
-template<>
-class BVFitter<OBB> : public BVFitterBase<OBB>
+//==============================================================================
+template <typename S>
+struct FitImpl<S, OBB<S>>
 {
-public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  static OBB<S> run(
+      const BVFitter<OBB<S>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
   {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
+    OBB<S> bv;
+
+    Matrix3<S> M; // row first matrix
+    Matrix3<S> E; // row first eigen-vectors
+    Vector3<S> s; // three eigen values
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.axis);
+
+    // set obb centers and extensions
+    getExtentAndCenter(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives,
+          bv.axis, bv.To, bv.extent);
+
+    return bv;
   }
-
-  /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  OBB fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vector3d* vertices;
-  Vector3d* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
 
-
-/// @brief Specification of BVFitter for RSS bounding volume
-template<>
-class BVFitter<RSS> : public BVFitterBase<RSS>
+//==============================================================================
+template <typename S>
+struct FitImpl<S, RSS<S>>
 {
-public:
-  /// brief Prepare the geometry primitive data for fitting
-  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  static RSS<S> run(
+      const BVFitter<RSS<S>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
   {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
+    RSS<S> bv;
+
+    Matrix3<S> M; // row first matrix
+    Matrix3<S> E; // row first eigen-vectors
+    Vector3<S> s; // three eigen values
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.axis);
+
+    // set rss origin, rectangle size and radius
+    getRadiusAndOriginAndRectangleSize(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, bv.axis, bv.To, bv.l, bv.r);
+
+    return bv;
   }
-
-  /// @brief Prepare the geometry primitive data for fitting, for deformable mesh
-  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  RSS fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vector3d* vertices;
-  Vector3d* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
 
-
-/// @brief Specification of BVFitter for kIOS bounding volume
-template<>
-class BVFitter<kIOS> : public BVFitterBase<kIOS>
+//==============================================================================
+template <typename S>
+struct FitImpl<S, kIOS<S>>
 {
-public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  static kIOS<S> run(
+      const BVFitter<kIOS<S>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
   {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
+    kIOS<S> bv;
+
+    Matrix3<S> M; // row first matrix
+    Matrix3<S> E; // row first eigen-vectors
+    Vector3<S> s;
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.obb.axis);
+
+    // get centers and extensions
+    getExtentAndCenter(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
+
+    const Vector3<S>& center = bv.obb.To;
+    const Vector3<S>& extent = bv.obb.extent;
+    S r0 = maximumDistance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, center);
+
+    // decide k in kIOS
+    if(extent[0] > kIOS<S>::ratio() * extent[2])
+    {
+      if(extent[0] > kIOS<S>::ratio() * extent[1]) bv.num_spheres = 5;
+      else bv.num_spheres = 3;
+    }
+    else bv.num_spheres = 1;
+
+    bv.spheres[0].o = center;
+    bv.spheres[0].r = r0;
+
+    if(bv.num_spheres >= 3)
+    {
+      S r10 = sqrt(r0 * r0 - extent[2] * extent[2]) * kIOS<S>::invSinA();
+      Vector3<S> delta = bv.obb.axis.col(2) * (r10 * kIOS<S>::cosA() - extent[2]);
+      bv.spheres[1].o = center - delta;
+      bv.spheres[2].o = center + delta;
+
+      S r11 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[1].o);
+      S r12 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[2].o);
+
+      bv.spheres[1].o.noalias() += bv.obb.axis.col(2) * (-r10 + r11);
+      bv.spheres[2].o.noalias() += bv.obb.axis.col(2) * (r10 - r12);
+
+      bv.spheres[1].r = r10;
+      bv.spheres[2].r = r10;
+    }
+
+    if(bv.num_spheres >= 5)
+    {
+      S r10 = bv.spheres[1].r;
+      Vector3<S> delta = bv.obb.axis.col(1) * (sqrt(r10 * r10 - extent[0] * extent[0] - extent[2] * extent[2]) - extent[1]);
+      bv.spheres[3].o = bv.spheres[0].o - delta;
+      bv.spheres[4].o = bv.spheres[0].o + delta;
+
+      S r21 = 0, r22 = 0;
+      r21 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[3].o);
+      r22 = maximumDistance(
+            fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+            primitive_indices, num_primitives, bv.spheres[4].o);
+
+      bv.spheres[3].o.noalias() += bv.obb.axis.col(1) * (-r10 + r21);
+      bv.spheres[4].o.noalias() += bv.obb.axis.col(1) * (r10 - r22);
+
+      bv.spheres[3].r = r10;
+      bv.spheres[4].r = r10;
+    }
+
+    return bv;
   }
-
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  kIOS fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-  Vector3d* vertices;
-  Vector3d* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
 
-
-/// @brief Specification of BVFitter for OBBRSS bounding volume
-template<>
-class BVFitter<OBBRSS> : public BVFitterBase<OBBRSS>
+//==============================================================================
+template <typename S>
+struct FitImpl<S, OBBRSS<S>>
 {
-public:
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3d* vertices_, Triangle* tri_indices_, BVHModelType type_)
+  static OBBRSS<S> run(
+      const BVFitter<OBBRSS<S>>& fitter,
+      unsigned int* primitive_indices,
+      int num_primitives)
   {
-    vertices = vertices_;
-    prev_vertices = NULL;
-    tri_indices = tri_indices_;
-    type = type_;
+    OBBRSS<S> bv;
+    Matrix3<S> M;
+    Matrix3<S> E;
+    Vector3<S> s;
+    getCovariance(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, M);
+    eigen_old(M, s, E);
+    axisFromEigen(E, s, bv.obb.axis);
+    bv.rss.axis = bv.obb.axis;
+
+    getExtentAndCenter(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives, bv.obb.axis, bv.obb.To, bv.obb.extent);
+
+    getRadiusAndOriginAndRectangleSize(
+          fitter.vertices, fitter.prev_vertices, fitter.tri_indices,
+          primitive_indices, num_primitives,
+          bv.rss.axis, bv.rss.To, bv.rss.l, bv.rss.r);
+
+    return bv;
   }
-
-  /// @brief Prepare the geometry primitive data for fitting
-  void set(Vector3d* vertices_, Vector3d* prev_vertices_, Triangle* tri_indices_, BVHModelType type_)
-  {
-    vertices = vertices_;
-    prev_vertices = prev_vertices_;
-    tri_indices = tri_indices_;
-    type = type_;
-  }
-
-  /// @brief Compute a bounding volume that fits a set of primitives (points or triangles).
-  /// The primitive data was set by set function and primitive_indices is the primitive index relative to the data.
-  OBBRSS fit(unsigned int* primitive_indices, int num_primitives);
-
-  /// @brief Clear the geometry primitive data
-  void clear()
-  {
-    vertices = NULL;
-    prev_vertices = NULL;
-    tri_indices = NULL;
-    type = BVH_MODEL_UNKNOWN;
-  }
-
-private:
-
-  Vector3d* vertices;
-  Vector3d* prev_vertices;
-  Triangle* tri_indices;
-  BVHModelType type;
 };
 
-}
+} // namespace fcl
 
 #endif

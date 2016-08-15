@@ -36,10 +36,10 @@
 /** \author Jia Pan */
 
 
-#ifndef FCL_BV_NODE_H
-#define FCL_BV_NODE_H
+#ifndef FCL_BV_BVNODE_H
+#define FCL_BV_BVNODE_H
 
-#include "fcl/BV/BV.h"
+#include "fcl/BV/convert_bv.h"
 #include <iostream>
 
 namespace fcl
@@ -62,63 +62,143 @@ struct BVNodeBase
   int num_primitives;
 
   /// @brief Whether current node is a leaf node (i.e. contains a primitive index
-  inline bool isLeaf() const { return first_child < 0; }
+  bool isLeaf() const;
 
   /// @brief Return the primitive index. The index is referred to the original data (i.e. vertices or tri_indices) in BVHModel
-  inline int primitiveId() const { return -(first_child + 1); }
+  int primitiveId() const;
 
   /// @brief Return the index of the first child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
-  inline int leftChild() const { return first_child; }
+  int leftChild() const;
 
   /// @brief Return the index of the second child. The index is referred to the bounding volume array (i.e. bvs) in BVHModel
-  inline int rightChild() const { return first_child + 1; }
+  int rightChild() const;
 };
 
 /// @brief A class describing a bounding volume node. It includes the tree structure providing in BVNodeBase and also the geometry data provided in BV template parameter.
-template<typename BV>
+template <typename BV>
 struct BVNode : public BVNodeBase
 {
+  using S = typename BV::S;
+
   /// @brief bounding volume storing the geometry
   BV bv;
 
   /// @brief Check whether two BVNode collide
-  bool overlap(const BVNode& other) const
-  {
-    return bv.overlap(other.bv);
-  }
+  bool overlap(const BVNode& other) const;
 
-  /// @brief Compute the distance between two BVNode. P1 and P2, if not NULL and the underlying BV supports distance, return the nearest points.
-  FCL_REAL distance(const BVNode& other, Vector3d* P1 = NULL, Vector3d* P2 = NULL) const
-  {
-    return bv.distance(other.bv, P1, P2);
-  }
+  /// @brief Compute the distance between two BVNode. P1 and P2, if not nullptr and
+  /// the underlying BV supports distance, return the nearest points.
+  S distance(
+      const BVNode& other,
+      Vector3<S>* P1 = nullptr,
+      Vector3<S>* P2 = nullptr) const;
 
   /// @brief Access the center of the BV
-  Vector3d getCenter() const { return bv.center(); }
+  Vector3<S> getCenter() const;
 
   /// @brief Access the orientation of the BV
-  Matrix3d getOrientation() const { return Matrix3d::Identity(); }
+  Matrix3<S> getOrientation() const;
 };
 
-template<>
-inline Matrix3d BVNode<OBB>::getOrientation() const 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+inline bool BVNodeBase::isLeaf() const
 {
-  return bv.axis;
+  return first_child < 0;
 }
 
-template<>
-inline Matrix3d BVNode<RSS>::getOrientation() const 
+//==============================================================================
+inline int BVNodeBase::primitiveId() const
 {
-  return bv.axis;
+  return -(first_child + 1);
 }
 
-template<>
-inline Matrix3d BVNode<OBBRSS>::getOrientation() const 
+//==============================================================================
+inline int BVNodeBase::leftChild() const
 {
-  return bv.obb.axis;
+  return first_child;
 }
 
-
+//==============================================================================
+inline int BVNodeBase::rightChild() const
+{
+  return first_child + 1;
 }
+
+//==============================================================================
+template <typename BV>
+bool BVNode<BV>::overlap(const BVNode& other) const
+{
+  return bv.overlap(other.bv);
+}
+
+//==============================================================================
+template <typename BV>
+typename BVNode<BV>::S BVNode<BV>::distance(
+    const BVNode& other, Vector3<S>* P1, Vector3<S>* P2) const
+{
+  return bv.distance(other.bv, P1, P2);
+}
+
+//==============================================================================
+template <typename BV>
+Vector3<typename BVNode<BV>::S> BVNode<BV>::getCenter() const
+{
+  return bv.center();
+}
+
+//==============================================================================
+template <typename S, typename BV>
+struct GetOrientationImpl
+{
+  static Matrix3<S> run(const BVNode<BV>& /*node*/)
+  {
+    return Matrix3<S>::Identity();
+  }
+};
+
+//==============================================================================
+template <typename BV>
+Matrix3<typename BV::S> BVNode<BV>::getOrientation() const
+{
+  return GetOrientationImpl<typename BV::S, BV>::run(bv);
+}
+
+//==============================================================================
+template <typename S>
+struct GetOrientationImpl<S, OBB<S>>
+{
+  static Matrix3<S> run(const OBB<S>& bv)
+  {
+    return bv.axis;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct GetOrientationImpl<S, RSS<S>>
+{
+  static Matrix3<S> run(const RSS<S>& bv)
+  {
+    return bv.axis;
+  }
+};
+
+//==============================================================================
+template <typename S>
+struct GetOrientationImpl<S, OBBRSS<S>>
+{
+  static Matrix3<S> run(const OBBRSS<S>& bv)
+  {
+    return bv.obb.axis;
+  }
+};
+
+} // namespace fcl
 
 #endif

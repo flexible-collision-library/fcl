@@ -47,6 +47,8 @@ using namespace fcl;
 template<typename BV>
 void testBVHModelPointCloud()
 {
+  using S = typename BV::S;
+
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
   if (model->getNodeType() != BV_AABB
@@ -60,11 +62,11 @@ void testBVHModelPointCloud()
     return;
   }
 
-  Box box;
-  double a = box.side[0];
-  double b = box.side[1];
-  double c = box.side[2];
-  std::vector<Vector3d> points(8);
+  Box<S> box;
+  auto a = box.side[0];
+  auto b = box.side[1];
+  auto c = box.side[2];
+  std::vector<Vector3<S>> points(8);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
   points[2] << -0.5 * a, 0.5 * b, 0.5 * c;
@@ -98,13 +100,15 @@ void testBVHModelPointCloud()
 template<typename BV>
 void testBVHModelTriangles()
 {
-  std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box;
+  using S = typename BV::S;
 
-  double a = box.side[0];
-  double b = box.side[1];
-  double c = box.side[2];
-  std::vector<Vector3d> points(8);
+  std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+  Box<S> box;
+
+  auto a = box.side[0];
+  auto b = box.side[1];
+  auto c = box.side[2];
+  std::vector<Vector3<S>> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
@@ -152,13 +156,15 @@ void testBVHModelTriangles()
 template<typename BV>
 void testBVHModelSubModel()
 {
-  std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box box;
+  using S = typename BV::S;
 
-  double a = box.side[0];
-  double b = box.side[1];
-  double c = box.side[2];
-  std::vector<Vector3d> points(8);
+  std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
+  Box<S> box;
+
+  auto a = box.side[0];
+  auto b = box.side[1];
+  auto c = box.side[2];
+  std::vector<Vector3<S>> points(8);
   std::vector<Triangle> tri_indices(12);
   points[0] << 0.5 * a, -0.5 * b, 0.5 * c;
   points[1] << 0.5 * a, 0.5 * b, 0.5 * c;
@@ -210,14 +216,23 @@ void testBVHModel()
 
 GTEST_TEST(FCL_BVH_MODELS, building_bvh_models)
 {
-  testBVHModel<AABB>();
-  testBVHModel<OBB>();
-  testBVHModel<RSS>();
-  testBVHModel<kIOS>();
-  testBVHModel<OBBRSS>();
-  testBVHModel<KDOP<16> >();
-  testBVHModel<KDOP<18> >();
-  testBVHModel<KDOP<24> >();
+//  testBVHModel<AABB<float>>();
+//  testBVHModel<OBB<float>>();
+//  testBVHModel<RSS<float>>();
+//  testBVHModel<kIOS<float>>();
+//  testBVHModel<OBBRSS<float>>();
+//  testBVHModel<KDOP<float, 16> >();
+//  testBVHModel<KDOP<float, 18> >();
+//  testBVHModel<KDOP<float, 24> >();
+
+  testBVHModel<AABB<double>>();
+  testBVHModel<OBB<double>>();
+  testBVHModel<RSS<double>>();
+  testBVHModel<kIOS<double>>();
+  testBVHModel<OBBRSS<double>>();
+  testBVHModel<KDOP<double, 16> >();
+  testBVHModel<KDOP<double, 18> >();
+  testBVHModel<KDOP<double, 24> >();
 }
 
 //==============================================================================

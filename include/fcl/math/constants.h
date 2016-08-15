@@ -41,14 +41,20 @@
 
 namespace fcl
 {
-    namespace constants
-    {
-        /// The mathematical constant pi
-        constexpr FCL_REAL pi  = FCL_REAL(3.141592653589793238462643383279502884197169399375105820974944592L);
 
-        /// The golden ratio
-        constexpr FCL_REAL phi = FCL_REAL(1.618033988749894848204586834365638117720309179805762862135448623L);
-    }
-}
+template <typename S>
+struct constants
+{
+/// The mathematical constant pi
+static constexpr S pi() { return S(3.141592653589793238462643383279502884197169399375105820974944592L); }
+
+/// The golden ratio
+static constexpr S phi() { return S(1.618033988749894848204586834365638117720309179805762862135448623L); }
+};
+
+using constantsf = constants<float>;
+using constantsd = constants<double>;
+
+} // namespace fcl
 
 #endif

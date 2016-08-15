@@ -9,24 +9,12 @@ endif()
 
 project(fcl CXX C)
 
+option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 
 # set the default build type
-if (NOT CMAKE_BUILD_TYPE)
-   set(CMAKE_BUILD_TYPE Release)
-endif()
-
-# Set build type variable
-set(FCL_BUILD_TYPE_RELEASE FALSE)
-set(FCL_BUILD_TYPE_DEBUG FALSE)
-
-string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
-if("${CMAKE_BUILD_TYPE_UPPERCASE}" STREQUAL "RELEASE")
-  set(FCL_BUILD_TYPE_RELEASE TRUE)
-elseif("${CMAKE_BUILD_TYPE_UPPERCASE}" STREQUAL "DEBUG")
-  set(FCL_BUILD_TYPE_DEBUG TRUE)
-else()
-  message(STATUS "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} unknown. Valid options are: Debug Release")
+if (NOT MSVC AND NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
 endif()
 
 # This shouldn't be necessary, but there has been trouble
@@ -48,14 +36,13 @@ else()
 endif()
 
 # Whether to enable SSE
-option(FCL_USE_SSE "Whether FCL should SSE instructions" OFF)
-set(FCL_HAVE_SSE 0)
+option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
 if(FCL_USE_SSE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(FCL_HAVE_SSE 0) #always disable, for now
     add_definitions(-march=native)
+  elseif(MSVC)
+    add_definitions(/arch:SSE2)
   endif()
-  # TODO: do something similar for other compilers
 endif()
 
 # Coveralls support

@@ -35,64 +35,10 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_VARIANCE_H
-#define FCL_VARIANCE_H
+#ifndef FCL_MATH_VARIANCE_H
+#define FCL_MATH_VARIANCE_H
 
-#include <cmath>
-
-#include "fcl/config.h"
-#include "fcl/data_types.h"
-#include "fcl/math/geometry.h"
-
-namespace fcl
-{
-
-/// @brief Class for variance matrix in 3d
-class Variance3f
-{
-public:
-  /// @brief Variation matrix
-  Matrix3d Sigma;
-
-  /// @brief Variations along the eign axes
-  Vector3d sigma;
-
-  /// @brief Matrix whose columns are eigenvectors of Sigma
-  Matrix3d axis;
-
-  Variance3f() {}
-
-  Variance3f(const Matrix3d& S) : Sigma(S)
-  {
-    init();
-  }
-
-  /// @brief init the Variance
-  void init()
-  {
-    eigen(Sigma, sigma, axis);
-  }
-
-  /// @brief Compute the sqrt of Sigma matrix based on the eigen decomposition result, this is useful when the uncertainty matrix is initialized as a square variation matrix
-  Variance3f& sqrt()
-  {
-    for(std::size_t i = 0; i < 3; ++i)
-    {
-      if(sigma[i] < 0) sigma[i] = 0;
-      sigma[i] = std::sqrt(sigma[i]);
-    }
-
-    Sigma.noalias()
-        =  sigma[0] * axis.col(0) * axis.col(0).transpose();
-    Sigma.noalias()
-        += sigma[1] * axis.col(1) * axis.col(1).transpose();
-    Sigma.noalias()
-        += sigma[2] * axis.col(2) * axis.col(2).transpose();
-
-    return *this;
-  }
-};
-
-} // namespace fcl
+#warning "This header has been deprecated in FCL 0.6. "\
+  "Please include fcl/data_types.h and fcl/math/variance3.h instead."
 
 #endif

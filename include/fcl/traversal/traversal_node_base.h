@@ -35,24 +35,24 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRAVERSAL_NODE_BASE_H
-#define FCL_TRAVERSAL_NODE_BASE_H
+#ifndef FCL_TRAVERSAL_TRAVERSALNODEBASE_H
+#define FCL_TRAVERSAL_TRAVERSALNODEBASE_H
 
 #include "fcl/data_types.h"
-#include "fcl/collision_data.h"
 
 namespace fcl
 {
 
 /// @brief Node structure encoding the information required for traversal.
+template <typename S>
 class TraversalNodeBase
 {
 public:
   virtual ~TraversalNodeBase();
 
-  virtual void preprocess() {}
+  virtual void preprocess();
   
-  virtual void postprocess() {}
+  virtual void postprocess();
 
   /// @brief Whether b is a leaf node in the first BVH tree 
   virtual bool isFirstNodeLeaf(int b) const;
@@ -79,86 +79,90 @@ public:
   virtual void enableStatistics(bool enable) = 0;
 
   /// @brief configuation of first object
-  Transform3d tf1;
+  Transform3<S> tf1;
 
   /// @brief configuration of second object
-  Transform3d tf2;
+  Transform3<S> tf2;
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-/// @brief Node structure encoding the information required for collision traversal.
-class CollisionTraversalNodeBase : public TraversalNodeBase
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename S>
+TraversalNodeBase<S>::~TraversalNodeBase()
 {
-public:
-  CollisionTraversalNodeBase() : result(NULL), enable_statistics(false) {}
-
-  virtual ~CollisionTraversalNodeBase();
-
-  /// @brief BV test between b1 and b2
-  virtual bool BVTesting(int b1, int b2) const;
-
-  /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafTesting(int b1, int b2) const;
-
-  /// @brief Check whether the traversal can stop
-  virtual bool canStop() const;
-
-  /// @brief Whether store some statistics information during traversal
-  void enableStatistics(bool enable) { enable_statistics = enable; }
-
-  /// @brief request setting for collision
-  CollisionRequest request;
-
-  /// @brief collision result kept during the traversal iteration
-  CollisionResult* result;
-
-  /// @brief Whether stores statistics 
-  bool enable_statistics;
-};
-
-/// @brief Node structure encoding the information required for distance traversal.
-class DistanceTraversalNodeBase : public TraversalNodeBase
-{
-public:
-  DistanceTraversalNodeBase() : result(NULL), enable_statistics(false) {}
-
-  virtual ~DistanceTraversalNodeBase();
-
-  /// @brief BV test between b1 and b2
-  virtual FCL_REAL BVTesting(int b1, int b2) const;
-
-  /// @brief Leaf test between node b1 and b2, if they are both leafs
-  virtual void leafTesting(int b1, int b2) const;
-
-  /// @brief Check whether the traversal can stop
-  virtual bool canStop(FCL_REAL c) const;
-
-  /// @brief Whether store some statistics information during traversal
-  void enableStatistics(bool enable) { enable_statistics = enable; }
-
-  /// @brief request setting for distance
-  DistanceRequest request;
-
-  /// @brief distance result kept during the traversal iteration
-  DistanceResult* result;
-
-  /// @brief Whether stores statistics 
-  bool enable_statistics;
-};
-
-
-struct ConservativeAdvancementStackData
-{
-  ConservativeAdvancementStackData(const Vector3d& P1_, const Vector3d& P2_, int c1_, int c2_, FCL_REAL d_)
-    : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_) {}
-
-  Vector3d P1;
-  Vector3d P2;
-  int c1;
-  int c2;
-  FCL_REAL d;
-};
-
-
+  // Do nothing
 }
+
+//==============================================================================
+template <typename S>
+void TraversalNodeBase<S>::preprocess()
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename S>
+void TraversalNodeBase<S>::postprocess()
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename S>
+bool TraversalNodeBase<S>::isFirstNodeLeaf(int b) const
+{
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+bool TraversalNodeBase<S>::isSecondNodeLeaf(int b) const
+{
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+bool TraversalNodeBase<S>::firstOverSecond(int b1, int b2) const
+{
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+int TraversalNodeBase<S>::getFirstLeftChild(int b) const
+{
+  return b;
+}
+
+//==============================================================================
+template <typename S>
+int TraversalNodeBase<S>::getFirstRightChild(int b) const
+{
+  return b;
+}
+
+//==============================================================================
+template <typename S>
+int TraversalNodeBase<S>::getSecondLeftChild(int b) const
+{
+  return b;
+}
+
+//==============================================================================
+template <typename S>
+int TraversalNodeBase<S>::getSecondRightChild(int b) const
+{
+  return b;
+}
+
+} // namespace fcl
 
 #endif

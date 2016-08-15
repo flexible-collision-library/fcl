@@ -45,8 +45,10 @@
 namespace fcl
 {
 
+template <typename S>
 class Joint;
 
+template <typename S>
 class JointConfig
 {
 public:
@@ -55,46 +57,133 @@ public:
   JointConfig(const JointConfig& joint_cfg);
 
   JointConfig(const std::shared_ptr<Joint>& joint,
-              FCL_REAL default_value = 0,
-              FCL_REAL default_value_min = 0,
-              FCL_REAL default_value_max = 0);
+              S default_value = 0,
+              S default_value_min = 0,
+              S default_value_max = 0);
 
   std::size_t getDim() const;
 
-  inline FCL_REAL operator [] (std::size_t i) const
+  inline S operator [] (std::size_t i) const
   {
     return values_[i];
   }
 
-  inline FCL_REAL& operator [] (std::size_t i)
+  inline S& operator [] (std::size_t i)
   {
     return values_[i];
   }
 
-  FCL_REAL getValue(std::size_t i) const;
+  S getValue(std::size_t i) const;
 
-  FCL_REAL& getValue(std::size_t i);
+  S& getValue(std::size_t i);
   
-  FCL_REAL getLimitMin(std::size_t i) const;
+  S getLimitMin(std::size_t i) const;
   
-  FCL_REAL& getLimitMin(std::size_t i);
+  S& getLimitMin(std::size_t i);
   
-  FCL_REAL getLimitMax(std::size_t i) const;
+  S getLimitMax(std::size_t i) const;
   
-  FCL_REAL& getLimitMax(std::size_t i);
+  S& getLimitMax(std::size_t i);
   
   std::shared_ptr<Joint> getJoint() const;
 
 private:
   std::weak_ptr<Joint> joint_;
   
-  std::vector<FCL_REAL> values_;
-  std::vector<FCL_REAL> limits_min_;
-  std::vector<FCL_REAL> limits_max_;
+  std::vector<S> values_;
+  std::vector<S> limits_min_;
+  std::vector<S> limits_max_;
 };
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename S>
+JointConfig<S>::JointConfig() {}
+
+//==============================================================================
+template <typename S>
+JointConfig<S>::JointConfig(const JointConfig& joint_cfg) :
+  joint_(joint_cfg.joint_),
+  values_(joint_cfg.values_),
+  limits_min_(joint_cfg.limits_min_),
+  limits_max_(joint_cfg.limits_max_)
+{
 }
 
+//==============================================================================
+template <typename S>
+JointConfig<S>::JointConfig(const std::shared_ptr<Joint>& joint,
+                         S default_value,
+                         S default_value_min,
+                         S default_value_max) :
+  joint_(joint)
+{
+  values_.resize(joint->getNumDofs(), default_value);
+  limits_min_.resize(joint->getNumDofs(), default_value_min);
+  limits_max_.resize(joint->getNumDofs(), default_value_max);
+}
 
+//==============================================================================
+template <typename S>
+std::size_t JointConfig<S>::getDim() const
+{
+  return values_.size();
+}
+
+//==============================================================================
+template <typename S>
+S JointConfig<S>::getValue(std::size_t i) const
+{
+  return values_[i];
+}
+
+//==============================================================================
+template <typename S>
+S& JointConfig<S>::getValue(std::size_t i)
+{
+  return values_[i];
+}
+
+//==============================================================================
+template <typename S>
+S JointConfig<S>::getLimitMin(std::size_t i) const
+{
+  return limits_min_[i];
+}
+
+//==============================================================================
+template <typename S>
+S& JointConfig<S>::getLimitMin(std::size_t i)
+{
+  return limits_min_[i];
+}
+
+//==============================================================================
+template <typename S>
+S JointConfig<S>::getLimitMax(std::size_t i) const
+{
+  return limits_max_[i];
+}
+
+//==============================================================================
+template <typename S>
+S& JointConfig<S>::getLimitMax(std::size_t i)
+{
+  return limits_max_[i];
+}
+
+//==============================================================================
+template <typename S>
+std::shared_ptr<Joint> JointConfig<S>::getJoint() const
+{
+  return joint_.lock();
+}
+
+} // namespace fcl
 
 #endif

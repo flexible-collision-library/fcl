@@ -33,10 +33,14 @@ execute_process(COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/test_results
 include_directories(${GTEST_INCLUDE_DIRS})
 
 add_library(test_fcl_utility test_fcl_utility.cpp)
+target_link_libraries(test_fcl_utility fcl)
 
 # test file list
 set(tests
-    test_fcl_broadphase.cpp
+    test_fcl_auto_diff.cpp
+    test_fcl_broadphase_collision_1.cpp
+    test_fcl_broadphase_collision_2.cpp
+    test_fcl_broadphase_distance.cpp
     test_fcl_bvh_models.cpp
     test_fcl_capsule_box_1.cpp
     test_fcl_capsule_box_2.cpp
@@ -46,13 +50,16 @@ set(tests
     test_fcl_frontlist.cpp
     test_fcl_geometric_shapes.cpp
     test_fcl_math.cpp
+    test_fcl_profiler.cpp
     test_fcl_shape_mesh_consistency.cpp
     test_fcl_simple.cpp
     test_fcl_sphere_capsule.cpp
 )
 
 if (FCL_HAVE_OCTOMAP)
-  list(APPEND tests test_fcl_octomap.cpp)
+  list(APPEND tests test_fcl_octomap_cost.cpp)
+  list(APPEND tests test_fcl_octomap_collision.cpp)
+  list(APPEND tests test_fcl_octomap_distance.cpp)
 endif()
 
 macro(add_fcl_test test_file_name)

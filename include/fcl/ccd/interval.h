@@ -36,117 +36,60 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** \author Jia Pan */
 
-
 #ifndef FCL_CCD_INTERVAL_H
 #define FCL_CCD_INTERVAL_H
 
+#include <iostream>
 #include "fcl/data_types.h"
 
 namespace fcl
 {
 
 /// @brief Interval class for [a, b]
+template <typename S>
 struct Interval
 {
-  FCL_REAL i_[2];
+  S i_[2];
 
-  Interval() { i_[0] = i_[1] = 0; }
+  Interval();
 
-  explicit Interval(FCL_REAL v)
-  {
-    i_[0] = i_[1] = v;
-  }
+  explicit Interval(S v);
 
   /// @brief construct interval [left, right]
-  Interval(FCL_REAL left, FCL_REAL right)
-  {
-    i_[0] = left; i_[1] = right;
-  }
+  Interval(S left, S right);
 
   /// @brief construct interval [left, right]
-  inline void setValue(FCL_REAL a, FCL_REAL b)
-  {
-    i_[0] = a; i_[1] = b;
-  }
+  void setValue(S a, S b);
 
   /// @brief construct zero interval [x, x]
-  inline void setValue(FCL_REAL x)
-  {
-    i_[0] = i_[1] = x;
-  }
+  void setValue(S x);
 
   /// @brief access the interval endpoints: 0 for left, 1 for right end
-  inline FCL_REAL operator [] (size_t i) const
-  {
-    return i_[i];
-  }
+  S operator [] (size_t i) const;
 
   /// @brief access the interval endpoints: 0 for left, 1 for right end
-  inline FCL_REAL& operator [] (size_t i)
-  {
-    return i_[i];
-  }
+  S& operator [] (size_t i);
 
   /// @brief whether two intervals are the same
-  inline bool operator == (const Interval& other) const
-  {
-    if(i_[0] != other.i_[0]) return false;
-    if(i_[1] != other.i_[1]) return false;
-    return true;
-  }
+  bool operator == (const Interval& other) const;
 
   /// @brief add two intervals
-  inline Interval operator + (const Interval& other) const
-  {
-    return Interval(i_[0] + other.i_[0], i_[1] + other.i_[1]);
-  }
+  Interval operator + (const Interval& other) const;
 
   /// @brief minus another interval
-  inline Interval operator - (const Interval& other) const
-  {
-    return Interval(i_[0] - other.i_[1], i_[1] - other.i_[0]);
-  }
+  Interval operator - (const Interval& other) const;
 
-  inline Interval& operator += (const Interval& other)
-  {
-    i_[0] += other.i_[0];
-    i_[1] += other.i_[1];
-    return *this;
-  }
+  Interval& operator += (const Interval& other);
 
-  inline Interval& operator -= (const Interval& other)
-  {
-    i_[0] -= other.i_[1];
-    i_[1] -= other.i_[0];
-    return *this;
-  }
+  Interval& operator -= (const Interval& other);
 
   Interval operator * (const Interval& other) const;
 
   Interval& operator *= (const Interval& other);
 
-  inline Interval operator * (FCL_REAL d) const
-  {
-    if(d >= 0) return Interval(i_[0] * d, i_[1] * d);
-    return Interval(i_[1] * d, i_[0] * d);
-  }
+  Interval operator * (S d) const;
 
-  inline Interval& operator *= (FCL_REAL d)
-  {
-    if(d >= 0)
-    {
-      i_[0] *= d;
-      i_[1] *= d;
-    }
-    else
-    {
-      FCL_REAL tmp = i_[0];
-      i_[0] = i_[1] * d;
-      i_[1] = tmp * d;
-    }
-
-    return *this;
-  }
+  Interval& operator *= (S d);
 
   /// @brief other must not contain 0
   Interval operator / (const Interval& other) const;
@@ -154,76 +97,421 @@ struct Interval
   Interval& operator /= (const Interval& other);
 
   /// @brief determine whether the intersection between intervals is empty
-  inline bool overlap(const Interval& other) const
-  {
-    if(i_[1] < other.i_[0]) return false;
-    if(i_[0] > other.i_[1]) return false;
-    return true;
-  }
+  bool overlap(const Interval& other) const;
 
-  inline bool intersect(const Interval& other)
-  {
-    if(i_[1] < other.i_[0]) return false;
-    if(i_[0] > other.i_[1]) return false;
-    if(i_[1] > other.i_[1]) i_[1] = other.i_[1];
-    if(i_[0] < other.i_[0]) i_[0] = other.i_[0];
-    return true;
-  }
+  bool intersect(const Interval& other);
 
-  inline Interval operator - () const
-  {
-    return Interval(-i_[1], -i_[0]);
-  }
+  Interval operator - () const;
 
   /// @brief Return the nearest distance for points within the interval to zero
-  inline FCL_REAL getAbsLower() const
-  {
-    if(i_[0] >= 0) return i_[0];
-    if(i_[1] >= 0) return 0;
-    return -i_[1];
-  }
+  S getAbsLower() const;
 
   /// @brief Return the farthest distance for points within the interval to zero
-  inline FCL_REAL getAbsUpper() const
-  {
-    if(i_[0] + i_[1] >= 0) return i_[1];
-    return i_[0];
-  }
+  S getAbsUpper() const;
 
-
-  inline bool contains(FCL_REAL v) const
-  {
-    if(v < i_[0]) return false;
-    if(v > i_[1]) return false;
-    return true;
-  }
+  bool contains(S v) const;
 
   /// @brief Compute the minimum interval contains v and original interval
-  inline Interval& bound(FCL_REAL v)
-  {
-    if(v < i_[0]) i_[0] = v;
-    if(v > i_[1]) i_[1] = v;
-    return *this;
-  }
-
+  Interval& bound(S v);
 
   /// @brief Compute the minimum interval contains other and original interval
-  inline Interval& bound(const Interval& other)
+  Interval& bound(const Interval& other);
+
+  void print() const;
+
+  S center() const;
+
+  S diameter() const;
+};
+
+template <typename S>
+Interval<S> bound(const Interval<S>& i, S v);
+
+template <typename S>
+Interval<S> bound(const Interval<S>& i, const Interval<S>& other);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename S>
+Interval<S>::Interval()
+{
+  i_[0] = i_[1] = 0;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>::Interval(S v)
+{
+  i_[0] = i_[1] = v;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>::Interval(S left, S right)
+{
+  i_[0] = left; i_[1] = right;
+}
+
+//==============================================================================
+template <typename S>
+void Interval<S>::setValue(S a, S b)
+{
+  i_[0] = a; i_[1] = b;
+}
+
+//==============================================================================
+template <typename S>
+void Interval<S>::setValue(S x)
+{
+  i_[0] = i_[1] = x;
+}
+
+//==============================================================================
+template <typename S>
+S Interval<S>::operator [] (size_t i) const
+{
+  return i_[i];
+}
+
+//==============================================================================
+template <typename S>
+S& Interval<S>::operator [] (size_t i)
+{
+  return i_[i];
+}
+
+//==============================================================================
+template <typename S>
+bool Interval<S>::operator == (const Interval& other) const
+{
+  if(i_[0] != other.i_[0]) return false;
+  if(i_[1] != other.i_[1]) return false;
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> Interval<S>::operator + (const Interval<S>& other) const
+{
+  return Interval(i_[0] + other.i_[0], i_[1] + other.i_[1]);
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> Interval<S>::operator - (const Interval<S>& other) const
+{
+  return Interval(i_[0] - other.i_[1], i_[1] - other.i_[0]);
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>& Interval<S>::operator += (const Interval<S>& other)
+{
+  i_[0] += other.i_[0];
+  i_[1] += other.i_[1];
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>& Interval<S>::operator -= (const Interval<S>& other)
+{
+  i_[0] -= other.i_[1];
+  i_[1] -= other.i_[0];
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> Interval<S>::operator * (const Interval<S>& other) const
+{
+  if(other.i_[0] >= 0)
   {
-    if(other.i_[0] < i_[0]) i_[0] = other.i_[0];
-    if(other.i_[1] > i_[1]) i_[1] = other.i_[1];
+    if(i_[0] >= 0) return Interval<S>(i_[0] * other.i_[0], i_[1] * other.i_[1]);
+    if(i_[1] <= 0) return Interval<S>(i_[0] * other.i_[1], i_[1] * other.i_[0]);
+    return Interval<S>(i_[0] * other.i_[1], i_[1] * other.i_[1]);
+  }
+  if(other.i_[1] <= 0)
+  {
+    if(i_[0] >= 0) return Interval<S>(i_[1] * other.i_[0], i_[0] * other.i_[1]);
+    if(i_[1] <= 0) return Interval<S>(i_[1] * other.i_[1], i_[0] * other.i_[0]);
+    return Interval<S>(i_[1] * other.i_[0], i_[0] * other.i_[0]);
+  }
+
+  if(i_[0] >= 0) return Interval<S>(i_[1] * other.i_[0], i_[1] * other.i_[1]);
+  if(i_[1] <= 0) return Interval<S>(i_[0] * other.i_[1], i_[0] * other.i_[0]);
+
+  S v00 = i_[0] * other.i_[0];
+  S v11 = i_[1] * other.i_[1];
+  if(v00 <= v11)
+  {
+    S v01 = i_[0] * other.i_[1];
+    S v10 = i_[1] * other.i_[0];
+    if(v01 < v10) return Interval<S>(v01, v11);
+    return Interval<S>(v10, v11);
+  }
+
+  S v01 = i_[0] * other.i_[1];
+  S v10 = i_[1] * other.i_[0];
+  if(v01 < v10) return Interval<S>(v01, v00);
+  return Interval<S>(v10, v00);
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>& Interval<S>::operator *= (const Interval<S>& other)
+{
+  if(other.i_[0] >= 0)
+  {
+    if(i_[0] >= 0)
+    {
+      i_[0] *= other.i_[0];
+      i_[1] *= other.i_[1];
+    }
+    else if(i_[1] <= 0)
+    {
+      i_[0] *= other.i_[1];
+      i_[1] *= other.i_[0];
+    }
+    else
+    {
+      i_[0] *= other.i_[1];
+      i_[1] *= other.i_[1];
+    }
     return *this;
   }
 
+  if(other.i_[1] <= 0)
+  {
+    if(i_[0] >= 0)
+    {
+      S tmp = i_[0];
+      i_[0] = i_[1] * other.i_[0];
+      i_[1] = tmp * other.i_[1];
+    }
+    else if(i_[1] <= 0)
+    {
+      S tmp = i_[0];
+      i_[0] = i_[1] * other.i_[1];
+      i_[1] = tmp * other.i_[0];
+    }
+    else
+    {
+      S tmp = i_[0];
+      i_[0] = i_[1] * other.i_[0];
+      i_[1] = tmp * other.i_[0];
+    }
+    return *this;
+  }
 
-  void print() const;
-  inline FCL_REAL center() const { return 0.5 * (i_[0] + i_[1]); }
-  inline FCL_REAL diameter() const { return i_[1] -i_[0]; }
-};
+  if(i_[0] >= 0)
+  {
+    i_[0] = i_[1] * other.i_[0];
+    i_[1] *= other.i_[1];
+    return *this;
+  }
 
-Interval bound(const Interval& i, FCL_REAL v);
+  if(i_[1] <= 0)
+  {
+    i_[1] = i_[0] * other.i_[0];
+    i_[0] *= other.i_[1];
+    return *this;
+  }
 
-Interval bound(const Interval& i, const Interval& other);
+  S v00 = i_[0] * other.i_[0];
+  S v11 = i_[1] * other.i_[1];
+  if(v00 <= v11)
+  {
+    S v01 = i_[0] * other.i_[1];
+    S v10 = i_[1] * other.i_[0];
+    if(v01 < v10)
+    {
+      i_[0] = v01;
+      i_[1] = v11;
+    }
+    else
+    {
+      i_[0] = v10;
+      i_[1] = v11;
+    }
+    return *this;
+  }
 
+  S v01 = i_[0] * other.i_[1];
+  S v10 = i_[1] * other.i_[0];
+  if(v01 < v10)
+  {
+    i_[0] = v01;
+    i_[1] = v00;
+  }
+  else
+  {
+    i_[0] = v10;
+    i_[1] = v00;
+  }
+
+  return *this;
 }
+
+//==============================================================================
+template <typename S>
+Interval<S> Interval<S>::operator * (S d) const
+{
+  if(d >= 0) return Interval(i_[0] * d, i_[1] * d);
+  return Interval(i_[1] * d, i_[0] * d);
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>& Interval<S>::operator *= (S d)
+{
+  if(d >= 0)
+  {
+    i_[0] *= d;
+    i_[1] *= d;
+  }
+  else
+  {
+    S tmp = i_[0];
+    i_[0] = i_[1] * d;
+    i_[1] = tmp * d;
+  }
+
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> Interval<S>::operator / (const Interval<S>& other) const
+{
+  return *this * Interval(1.0 / other.i_[1], 1.0 / other.i_[0]);
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>& Interval<S>::operator /= (const Interval<S>& other)
+{
+  *this *= Interval(1.0 / other.i_[1], 1.0 / other.i_[0]);
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+bool Interval<S>::overlap(const Interval<S>& other) const
+{
+  if(i_[1] < other.i_[0]) return false;
+  if(i_[0] > other.i_[1]) return false;
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+bool Interval<S>::intersect(const Interval<S>& other)
+{
+  if(i_[1] < other.i_[0]) return false;
+  if(i_[0] > other.i_[1]) return false;
+  if(i_[1] > other.i_[1]) i_[1] = other.i_[1];
+  if(i_[0] < other.i_[0]) i_[0] = other.i_[0];
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> Interval<S>::operator -() const
+{
+  return Interval<S>(-i_[1], -i_[0]);
+}
+
+//==============================================================================
+template <typename S>
+S Interval<S>::getAbsLower() const
+{
+  if(i_[0] >= 0) return i_[0];
+  if(i_[1] >= 0) return 0;
+  return -i_[1];
+}
+
+//==============================================================================
+template <typename S>
+S Interval<S>::getAbsUpper() const
+{
+  if(i_[0] + i_[1] >= 0) return i_[1];
+  return i_[0];
+}
+
+//==============================================================================
+template <typename S>
+bool Interval<S>::contains(S v) const
+{
+  if(v < i_[0]) return false;
+  if(v > i_[1]) return false;
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>& Interval<S>::bound(S v)
+{
+  if(v < i_[0]) i_[0] = v;
+  if(v > i_[1]) i_[1] = v;
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>& Interval<S>::bound(const Interval<S>& other)
+{
+  if(other.i_[0] < i_[0]) i_[0] = other.i_[0];
+  if(other.i_[1] > i_[1]) i_[1] = other.i_[1];
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+void Interval<S>::print() const
+{
+  std::cout << "[" << i_[0] << ", " << i_[1] << "]" << std::endl;
+}
+
+//==============================================================================
+template <typename S>
+S Interval<S>::center() const
+{
+  return 0.5 * (i_[0] + i_[1]);
+}
+
+//==============================================================================
+template <typename S>
+S Interval<S>::diameter() const
+{
+  return i_[1] -i_[0];
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> bound(const Interval<S>& i, S v)
+{
+  Interval<S> res = i;
+  if(v < res.i_[0]) res.i_[0] = v;
+  if(v > res.i_[1]) res.i_[1] = v;
+  return res;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> bound(const Interval<S>& i, const Interval<S>& other)
+{
+  Interval<S> res = i;
+  if(other.i_[0] < res.i_[0]) res.i_[0] = other.i_[0];
+  if(other.i_[1] > res.i_[1]) res.i_[1] = other.i_[1];
+  return res;
+}
+
+} // namespace fcl
+
 #endif

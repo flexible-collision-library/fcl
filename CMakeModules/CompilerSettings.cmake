@@ -1,6 +1,6 @@
 # GCC
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-std=c++11 -W -Wall -g -Wextra -Wno-missing-field-initializers -Wno-unused-parameter)
+    add_definitions(-std=c++11 -W -Wall -g -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-unused-parameter)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
     endif(FCL_TREAT_WARNINGS_AS_ERRORS)
@@ -16,7 +16,7 @@ endif()
 
 # Visual Studio
 if(MSVC OR MSVC90 OR MSVC10)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /W1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /W1 /bigobj")
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(/WX)
     endif(FCL_TREAT_WARNINGS_AS_ERRORS)

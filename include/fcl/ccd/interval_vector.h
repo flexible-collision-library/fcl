@@ -44,74 +44,35 @@
 namespace fcl
 {
 
+template <typename S>
 struct IVector3
 {
-  Interval i_[3];
+  Interval<S> i_[3];
 
   IVector3();
-  IVector3(FCL_REAL v);
-  IVector3(FCL_REAL x, FCL_REAL y, FCL_REAL z);
-  IVector3(FCL_REAL xl, FCL_REAL xu, FCL_REAL yl, FCL_REAL yu, FCL_REAL zl, FCL_REAL zu);
-  IVector3(Interval v[3]);
-  IVector3(FCL_REAL v[3][2]);
-  IVector3(const Interval& v1, const Interval& v2, const Interval& v3);
-  IVector3(const Vector3d& v);
+  IVector3(S v);
+  IVector3(S x, S y, S z);
+  IVector3(S xl, S xu, S yl, S yu, S zl, S zu);
+  IVector3(Interval<S> v[3]);
+  IVector3(S v[3][2]);
+  IVector3(const Interval<S>& v1, const Interval<S>& v2, const Interval<S>& v3);
+  IVector3(const Vector3<S>& v);
 
-  inline void setValue(FCL_REAL v)
-  {
-    i_[0].setValue(v);
-    i_[1].setValue(v);
-    i_[2].setValue(v);
-  }
+  void setValue(S v);
 
-  inline void setValue(FCL_REAL x, FCL_REAL y, FCL_REAL z)
-  {
-    i_[0].setValue(x);
-    i_[1].setValue(y);
-    i_[2].setValue(z);
-  }
+  void setValue(S x, S y, S z);
 
-  inline void setValue(FCL_REAL xl, FCL_REAL xu, FCL_REAL yl, FCL_REAL yu, FCL_REAL zl, FCL_REAL zu)
-  {
-    i_[0].setValue(xl, xu);
-    i_[1].setValue(yl, yu);
-    i_[2].setValue(zl, zu);
-  }
+  void setValue(S xl, S xu, S yl, S yu, S zl, S zu);
 
-  inline void setValue(FCL_REAL v[3][2])
-  {
-    i_[0].setValue(v[0][0], v[0][1]);
-    i_[1].setValue(v[1][0], v[1][1]);
-    i_[2].setValue(v[2][0], v[2][1]);
-  }
+  void setValue(S v[3][2]);
 
-  inline void setValue(Interval v[3])
-  {
-    i_[0] = v[0];
-    i_[1] = v[1];
-    i_[2] = v[2];
-  }
+  void setValue(Interval<S> v[3]);
 
-  inline void setValue(const Interval& v1, const Interval& v2, const Interval& v3)
-  {
-    i_[0] = v1;
-    i_[1] = v2;
-    i_[2] = v3;
-  }
+  void setValue(const Interval<S>& v1, const Interval<S>& v2, const Interval<S>& v3);
 
-  inline void setValue(const Vector3d& v)
-  {
-    i_[0].setValue(v[0]);
-    i_[1].setValue(v[1]);
-    i_[2].setValue(v[2]);
-  }
+  void setValue(const Vector3<S>& v);
 
-  inline void setValue(FCL_REAL v[3])
-  {
-    i_[0].setValue(v[0]);
-    i_[1].setValue(v[1]);
-    i_[2].setValue(v[2]);
-  }
+  void setValue(S v[3]);
   
   IVector3 operator + (const IVector3& other) const;
   IVector3& operator += (const IVector3& other);
@@ -119,48 +80,384 @@ struct IVector3
   IVector3 operator - (const IVector3& other) const;
   IVector3& operator -= (const IVector3& other);
 
-  Interval dot(const IVector3& other) const;
+  Interval<S> dot(const IVector3& other) const;
   IVector3 cross(const IVector3& other) const;
 
-  Interval dot(const Vector3d& other) const;
-  IVector3 cross(const Vector3d& other) const;
+  Interval<S> dot(const Vector3<S>& other) const;
+  IVector3 cross(const Vector3<S>& other) const;
 
-  inline const Interval& operator [] (size_t i) const
-  {
-    return i_[i];
-  }
+  const Interval<S>& operator [] (size_t i) const;
 
-  inline Interval& operator [] (size_t i)
-  {
-    return i_[i];
-  }
+  Interval<S>& operator [] (size_t i);
 
-  inline Vector3d getLow() const 
-  {
-    return Vector3d(i_[0][0], i_[1][0], i_[2][0]);
-  }
+  Vector3<S> getLow() const;
   
-  inline Vector3d getHigh() const
-  {
-    return Vector3d(i_[0][1], i_[1][1], i_[2][1]);
-  }
+  Vector3<S> getHigh() const;
 
   void print() const;
-  Vector3d center() const;
-  FCL_REAL volumn() const;
+  Vector3<S> center() const;
+  S volumn() const;
   void setZero();
 
-  void bound(const Vector3d& v);
+  void bound(const Vector3<S>& v);
   void bound(const IVector3& v);
 
   bool overlap(const IVector3& v) const;
   bool contain(const IVector3& v) const;
 };
 
-IVector3 bound(const IVector3& i, const Vector3d& v);
+template <typename S>
+IVector3<S> bound(const IVector3<S>& i, const Vector3<S>& v);
 
-IVector3 bound(const IVector3& i, const IVector3& v);
+template <typename S>
+IVector3<S> bound(const IVector3<S>& i, const IVector3<S>& v);
 
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3()
+{
+  // Do nothing
 }
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3(S v)
+{
+  setValue(v);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3(S x, S y, S z)
+{
+  setValue(x, y, z);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3(S xl, S xu, S yl, S yu, S zl, S zu)
+{
+  setValue(xl, xu, yl, yu, zl, zu);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3(S v[3][2])
+{
+  setValue(v);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3(Interval<S> v[3])
+{
+  setValue(v);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3(const Interval<S>& v1, const Interval<S>& v2, const Interval<S>& v3)
+{
+  setValue(v1, v2, v3);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>::IVector3(const Vector3<S>& v)
+{
+  setValue(v);
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(S v)
+{
+  i_[0].setValue(v);
+  i_[1].setValue(v);
+  i_[2].setValue(v);
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(S x, S y, S z)
+{
+  i_[0].setValue(x);
+  i_[1].setValue(y);
+  i_[2].setValue(z);
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(S xl, S xu, S yl, S yu, S zl, S zu)
+{
+  i_[0].setValue(xl, xu);
+  i_[1].setValue(yl, yu);
+  i_[2].setValue(zl, zu);
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(S v[3][2])
+{
+  i_[0].setValue(v[0][0], v[0][1]);
+  i_[1].setValue(v[1][0], v[1][1]);
+  i_[2].setValue(v[2][0], v[2][1]);
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(Interval<S> v[3])
+{
+  i_[0] = v[0];
+  i_[1] = v[1];
+  i_[2] = v[2];
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(const Interval<S>& v1, const Interval<S>& v2, const Interval<S>& v3)
+{
+  i_[0] = v1;
+  i_[1] = v2;
+  i_[2] = v3;
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(const Vector3<S>& v)
+{
+  i_[0].setValue(v[0]);
+  i_[1].setValue(v[1]);
+  i_[2].setValue(v[2]);
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setValue(S v[])
+{
+  i_[0].setValue(v[0]);
+  i_[1].setValue(v[1]);
+  i_[2].setValue(v[2]);
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::setZero()
+{
+  setValue((S)0.0);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S> IVector3<S>::operator + (const IVector3<S>& other) const
+{
+  return IVector3(i_[0] + other.i_[0], i_[1] + other.i_[1], i_[2] + other.i_[2]);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>& IVector3<S>::operator += (const IVector3<S>& other)
+{
+  i_[0] += other[0];
+  i_[1] += other[1];
+  i_[2] += other[2];
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S> IVector3<S>::operator - (const IVector3<S>& other) const
+{
+  return IVector3(i_[0] - other.i_[0], i_[1] - other.i_[1], i_[2] - other.i_[2]);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S>& IVector3<S>::operator -= (const IVector3<S>& other)
+{
+  i_[0] -= other[0];
+  i_[1] -= other[1];
+  i_[2] -= other[2];
+  return *this;
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> IVector3<S>::dot(const IVector3& other) const
+{
+  return i_[0] * other.i_[0] + i_[1] * other.i_[1] + i_[2] * other.i_[2];
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S> IVector3<S>::cross(const IVector3<S>& other) const
+{
+  return IVector3(i_[1] * other.i_[2] - i_[2] * other.i_[1],
+                  i_[2] * other.i_[0] - i_[0] * other.i_[2],
+                  i_[0] * other.i_[1] - i_[1] * other.i_[0]);
+}
+
+//==============================================================================
+template <typename S>
+Interval<S> IVector3<S>::dot(const Vector3<S>& other) const
+{
+  return i_[0] * other[0] + i_[1] * other[1] + i_[2] * other[2];
+}
+
+//==============================================================================
+template <typename S>
+const Interval<S>&IVector3<S>::operator [](size_t i) const
+{
+  return i_[i];
+}
+
+//==============================================================================
+template <typename S>
+Interval<S>&IVector3<S>::operator [](size_t i)
+{
+  return i_[i];
+}
+
+//==============================================================================
+template <typename S>
+Vector3<S> IVector3<S>::getLow() const
+{
+  return Vector3<S>(i_[0][0], i_[1][0], i_[2][0]);
+}
+
+//==============================================================================
+template <typename S>
+Vector3<S> IVector3<S>::getHigh() const
+{
+  return Vector3<S>(i_[0][1], i_[1][1], i_[2][1]);
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S> IVector3<S>::cross(const Vector3<S>& other) const
+{
+  return IVector3(i_[1] * other[2] - i_[2] * other[1],
+                  i_[2] * other[0] - i_[0] * other[2],
+                  i_[0] * other[1] - i_[1] * other[0]);
+}
+
+//==============================================================================
+template <typename S>
+S IVector3<S>::volumn() const
+{
+  return i_[0].diameter() * i_[1].diameter() * i_[2].diameter();
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::print() const
+{
+  std::cout << "[" << i_[0][0] << "," << i_[0][1] << "]" << std::endl;
+  std::cout << "[" << i_[1][0] << "," << i_[1][1] << "]" << std::endl;
+  std::cout << "[" << i_[2][0] << "," << i_[2][1] << "]" << std::endl;
+}
+
+//==============================================================================
+template <typename S>
+Vector3<S> IVector3<S>::center() const
+{
+  return Vector3<S>(i_[0].center(), i_[1].center(), i_[2].center());
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::bound(const IVector3& v)
+{
+  if(v[0][0] < i_[0][0]) i_[0][0] = v[0][0];
+  if(v[1][0] < i_[1][0]) i_[1][0] = v[1][0];
+  if(v[2][0] < i_[2][0]) i_[2][0] = v[2][0];
+
+  if(v[0][1] > i_[0][1]) i_[0][1] = v[0][1];
+  if(v[1][1] > i_[1][1]) i_[1][1] = v[1][1];
+  if(v[2][1] > i_[2][1]) i_[2][1] = v[2][1];
+}
+
+//==============================================================================
+template <typename S>
+void IVector3<S>::bound(const Vector3<S>& v)
+{
+  if(v[0] < i_[0][0]) i_[0][0] = v[0];
+  if(v[1] < i_[1][0]) i_[1][0] = v[1];
+  if(v[2] < i_[2][0]) i_[2][0] = v[2];
+
+  if(v[0] > i_[0][1]) i_[0][1] = v[0];
+  if(v[1] > i_[1][1]) i_[1][1] = v[1];
+  if(v[2] > i_[2][1]) i_[2][1] = v[2];
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S> bound(const IVector3<S>& i, const IVector3<S>& v)
+{
+  IVector3<S> res(i);
+  if(v[0][0] < res.i_[0][0]) res.i_[0][0] = v[0][0];
+  if(v[1][0] < res.i_[1][0]) res.i_[1][0] = v[1][0];
+  if(v[2][0] < res.i_[2][0]) res.i_[2][0] = v[2][0];
+
+  if(v[0][1] > res.i_[0][1]) res.i_[0][1] = v[0][1];
+  if(v[1][1] > res.i_[1][1]) res.i_[1][1] = v[1][1];
+  if(v[2][1] > res.i_[2][1]) res.i_[2][1] = v[2][1];
+
+  return res;
+}
+
+//==============================================================================
+template <typename S>
+IVector3<S> bound(const IVector3<S>& i, const Vector3<S>& v)
+{
+  IVector3<S> res(i);
+  if(v[0] < res.i_[0][0]) res.i_[0][0] = v[0];
+  if(v[1] < res.i_[1][0]) res.i_[1][0] = v[1];
+  if(v[2] < res.i_[2][0]) res.i_[2][0] = v[2];
+
+  if(v[0] > res.i_[0][1]) res.i_[0][1] = v[0];
+  if(v[1] > res.i_[1][1]) res.i_[1][1] = v[1];
+  if(v[2] > res.i_[2][1]) res.i_[2][1] = v[2];
+
+  return res;
+}
+
+//==============================================================================
+template <typename S>
+bool IVector3<S>::overlap(const IVector3& v) const
+{
+  if(v[0][1] < i_[0][0]) return false;
+  if(v[1][1] < i_[1][0]) return false;
+  if(v[2][1] < i_[2][0]) return false;
+
+  if(v[0][0] > i_[0][1]) return false;
+  if(v[1][0] > i_[1][1]) return false;
+  if(v[2][0] > i_[2][1]) return false;
+
+  return true;
+}
+
+//==============================================================================
+template <typename S>
+bool IVector3<S>::contain(const IVector3& v) const
+{
+  if(v[0][0] < i_[0][0]) return false;
+  if(v[1][0] < i_[1][0]) return false;
+  if(v[2][0] < i_[2][0]) return false;
+
+  if(v[0][1] > i_[0][1]) return false;
+  if(v[1][1] > i_[1][1]) return false;
+  if(v[2][1] > i_[2][1]) return false;
+
+  return true;
+}
+
+} // namespace fcl
 
 #endif

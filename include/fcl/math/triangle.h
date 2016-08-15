@@ -35,8 +35,8 @@
 
 /** \author Jia Pan */
 
-#ifndef FCL_TRIANGLE_H
-#define FCL_TRIANGLE_H
+#ifndef FCL_MATH_TRIANGLE_H
+#define FCL_MATH_TRIANGLE_H
 
 #include <cstddef>
 
@@ -51,25 +51,55 @@ class Triangle
 
 public:
   /// @brief Default constructor
-  Triangle() {}
+  Triangle();
 
   /// @brief Create a triangle with given vertex indices
-  Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
-  {
-    set(p1, p2, p3);
-  }
+  Triangle(std::size_t p1, std::size_t p2, std::size_t p3);
 
   /// @brief Set the vertex indices of the triangle
-  inline void set(std::size_t p1, std::size_t p2, std::size_t p3)
-  {
-    vids[0] = p1; vids[1] = p2; vids[2] = p3;
-  }
+  void set(std::size_t p1, std::size_t p2, std::size_t p3);
 
   /// @access the triangle index
-  inline std::size_t operator[](int i) const { return vids[i]; }
+  std::size_t operator[](int i) const;
 
-  inline std::size_t& operator[](int i) { return vids[i]; }
+  std::size_t& operator[](int i);
 };
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+inline Triangle::Triangle()
+{
+  // Do nothing
+}
+
+//==============================================================================
+inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
+{
+  set(p1, p2, p3);
+}
+
+//==============================================================================
+inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
+{
+  vids[0] = p1; vids[1] = p2; vids[2] = p3;
+}
+
+//==============================================================================
+inline std::size_t Triangle::operator[](int i) const
+{
+  return vids[i];
+}
+
+//==============================================================================
+inline std::size_t& Triangle::operator[](int i)
+{
+  return vids[i];
+}
 
 } // namespace fcl
 

@@ -39,15 +39,46 @@
 #ifndef FCL_BVH_UTILITY_H
 #define FCL_BVH_UTILITY_H
 
-#include "fcl/math/variance.h"
+#include "fcl/math/variance3.h"
 #include "fcl/BVH/BVH_model.h"
 
 namespace fcl
 {
-/// @brief Expand the BVH bounding boxes according to the variance matrix corresponding to the data stored within each BV node
-template<typename BV>
-void BVHExpand(BVHModel<BV>& model, const Variance3f* ucs, FCL_REAL r)
+/// @brief Expand the BVH bounding boxes according to the variance matrix
+/// corresponding to the data stored within each BV node
+template <typename BV>
+void BVHExpand(
+    BVHModel<BV>& model,
+    const Variance3<typename BV::S>* ucs,
+    typename BV::S r);
+
+/// @brief Expand the BVH bounding boxes according to the corresponding variance
+/// information, for OBB
+template <typename S>
+void BVHExpand(
+    BVHModel<OBB<S>>& model, const Variance3<S>* ucs, S r = 1.0);
+
+/// @brief Expand the BVH bounding boxes according to the corresponding variance
+/// information, for RSS
+template <typename S>
+void BVHExpand(
+    BVHModel<RSS<S>>& model, const Variance3<S>* ucs, S r = 1.0);
+
+//============================================================================//
+//                                                                            //
+//                              Implementations                               //
+//                                                                            //
+//============================================================================//
+
+//==============================================================================
+template <typename BV>
+void BVHExpand(
+    BVHModel<BV>& model,
+    const Variance3<typename BV::S>* ucs,
+    typename BV::S r)
 {
+  using S = typename BV::S;
+
   for(int i = 0; i < model.num_bvs; ++i)
   {
     BVNode<BV>& bvnode = model.getBV(i);
@@ -56,9 +87,9 @@ void BVHExpand(BVHModel<BV>& model, const Variance3f* ucs, FCL_REAL r)
     for(int j = 0; j < bvnode.num_primitives; ++j)
     {
       int v_id = bvnode.first_primitive + j;
-      const Variance3f& uc = ucs[v_id];
+      const Variance3<S>& uc = ucs[v_id];
 
-      Vector3d& v = model.vertices[bvnode.first_primitive + j];
+      Vector3<S>& v = model.vertices[bvnode.first_primitive + j];
 
       for(int k = 0; k < 3; ++k)
       {
@@ -71,28 +102,88 @@ void BVHExpand(BVHModel<BV>& model, const Variance3f* ucs, FCL_REAL r)
   }
 }
 
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for OBB
-void BVHExpand(BVHModel<OBB>& model, const Variance3f* ucs, FCL_REAL r);
+//==============================================================================
+template <typename S>
+void BVHExpand(
+    BVHModel<OBB<S>>& model,
+    const Variance3<S>* ucs,
+    S r)
+{
+  for(int i = 0; i < model.getNumBVs(); ++i)
+  {
+    BVNode<OBB<S>>& bvnode = model.getBV(i);
 
-/// @brief Expand the BVH bounding boxes according to the corresponding variance information, for RSS
-void BVHExpand(BVHModel<RSS>& model, const Variance3f* ucs, FCL_REAL r);
+    Vector3<S>* vs = new Vector3<S>[bvnode.num_primitives * 6];
+    // TODO(JS): We could use one std::vector outside of the outter for-loop,
+    // and reuse it rather than creating and destructing the array every
+    // iteration.
 
-/// @brief Compute the covariance matrix for a set or subset of points. if ts = null, then indices refer to points directly; otherwise refer to triangles
-void getCovariance(Vector3d* ps, Vector3d* ps2, Triangle* ts, unsigned int* indices, int n, Matrix3d& M);
+    for(int j = 0; j < bvnode.num_primitives; ++j)
+    {
+      int v_id = bvnode.first_primitive + j;
+      const Variance3<S>& uc = ucs[v_id];
 
-/// @brief Compute the RSS bounding volume parameters: radius, rectangle size and the origin, given the BV axises.
-void getRadiusAndOriginAndRectangleSize(Vector3d* ps, Vector3d* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3d& axis, Vector3d& origin, FCL_REAL l[2], FCL_REAL& r);
+      Vector3<S>&v = model.vertices[bvnode.first_primitive + j];
 
-/// @brief Compute the bounding volume extent and center for a set or subset of points, given the BV axises.
-void getExtentAndCenter(Vector3d* ps, Vector3d* ps2, Triangle* ts, unsigned int* indices, int n, const Matrix3d& axis, Vector3d& center, Vector3d& extent);
+      for(int k = 0; k < 3; ++k)
+      {
+        const auto index1 = 6 * j + 2 * k;
+        const auto index2 = index1 + 1;
+        vs[index1] = v;
+        vs[index1].noalias() += uc.axis.col(k) * (r * uc.sigma[k]);
+        vs[index2] = v;
+        vs[index2].noalias() -= uc.axis.col(k) * (r * uc.sigma[k]);
+      }
+    }
 
-/// @brief Compute the center and radius for a triangle's circumcircle
-void circumCircleComputation(const Vector3d& a, const Vector3d& b, const Vector3d& c, Vector3d& center, FCL_REAL& radius);
+    OBB<S> bv;
+    fit(vs, bvnode.num_primitives * 6, bv);
 
-/// @brief Compute the maximum distance from a given center point to a point cloud
-FCL_REAL maximumDistance(Vector3d* ps, Vector3d* ps2, Triangle* ts, unsigned int* indices, int n, const Vector3d& query);
+    delete [] vs;
 
-
+    bvnode.bv = bv;
+  }
 }
+
+//==============================================================================
+template <typename S>
+void BVHExpand(
+    BVHModel<RSS<S>>& model,
+    const Variance3<S>* ucs,
+    S r)
+{
+  for(int i = 0; i < model.getNumBVs(); ++i)
+  {
+    BVNode<RSS<S>>& bvnode = model.getBV(i);
+
+    Vector3<S>* vs = new Vector3<S>[bvnode.num_primitives * 6];
+    // TODO(JS): We could use one std::vector outside of the outter for-loop,
+    // and reuse it rather than creating and destructing the array every
+    // iteration.
+
+    for(int j = 0; j < bvnode.num_primitives; ++j)
+    {
+      int v_id = bvnode.first_primitive + j;
+      const Variance3<S>& uc = ucs[v_id];
+
+      Vector3<S>&v = model.vertices[bvnode.first_primitive + j];
+
+      for(int k = 0; k < 3; ++k)
+      {
+        vs[6 * j + 2 * k] = v + uc.axis.col(k) * (r * uc.sigma[k]);
+        vs[6 * j + 2 * k + 1] = v - uc.axis.col(k) * (r * uc.sigma[k]);
+      }
+    }
+
+    RSS<S> bv;
+    fit(vs, bvnode.num_primitives * 6, bv);
+
+    delete [] vs;
+
+    bvnode.bv = bv;
+  }
+}
+
+} // namespace fcl
 
 #endif
