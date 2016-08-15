@@ -39,6 +39,7 @@
 #define FCL_CCD_TRANSLATIONMOTION_H
 
 #include "fcl/math/motion/motion_base.h"
+#include "fcl/math/motion/bv_motion_bound_visitor.h"
 #include "fcl/math/motion/triangle_motion_bound_visitor.h"
 
 namespace fcl

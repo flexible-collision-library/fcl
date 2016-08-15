@@ -46,25 +46,7 @@ namespace fcl
 {
 
 template <typename S>
-class MotionBase;
-
-template <typename S>
-class SplineMotion;
-
-template <typename S>
-class ScrewMotion;
-
-template <typename S>
-class InterpMotion;
-
-template <typename S>
-class TranslationMotion;
-
-template <typename S>
 class BVMotionBoundVisitor;
-
-template<typename BV>
-class TBVMotionBoundVisitor;
 
 template <typename S>
 class TriangleMotionBoundVisitor;

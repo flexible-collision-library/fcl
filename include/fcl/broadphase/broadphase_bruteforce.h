@@ -49,7 +49,7 @@ template <typename S>
 class NaiveCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
-  NaiveCollisionManager() {}
+  NaiveCollisionManager();
 
   /// @brief add objects to the manager
   void registerObjects(const std::vector<CollisionObject<S>*>& other_objs);
@@ -94,7 +94,7 @@ public:
   bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  size_t size() const { return objs.size(); }
+  size_t size() const;
 
 protected:
 
@@ -110,6 +110,13 @@ using NaiveCollisionManagerd = NaiveCollisionManager<double>;
 //                              Implementations                               //
 //                                                                            //
 //============================================================================//
+
+//==============================================================================
+template <typename S>
+NaiveCollisionManager<S>::NaiveCollisionManager()
+{
+  // Do nothing
+}
 
 //==============================================================================
 template <typename S>
@@ -293,6 +300,13 @@ template <typename S>
 bool NaiveCollisionManager<S>::empty() const
 {
   return objs.empty();
+}
+
+//==============================================================================
+template <typename S>
+size_t NaiveCollisionManager<S>::size() const
+{
+  return objs.size();
 }
 
 } // namespace fcl

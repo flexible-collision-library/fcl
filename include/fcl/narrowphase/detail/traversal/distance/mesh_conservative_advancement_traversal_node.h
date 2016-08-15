@@ -38,6 +38,7 @@
 #ifndef FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 #define FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 
+#include "fcl/math/motion/tbv_motion_bound_visitor.h"
 #include "fcl/narrowphase/detail/traversal/distance/mesh_distance_traversal_node.h"
 #include "fcl/narrowphase/detail/traversal/distance/conservative_advancement_stack_data.h"
 

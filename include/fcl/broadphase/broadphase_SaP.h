@@ -109,8 +109,6 @@ public:
 
 protected:
 
-  struct EndPoint;
-
   /// @brief SAP interval for one object
   struct SaPAABB;
 

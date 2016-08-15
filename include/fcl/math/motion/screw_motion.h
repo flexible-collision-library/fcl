@@ -39,10 +39,12 @@
 #ifndef FCL_CCD_SCREWMOTION_H
 #define FCL_CCD_SCREWMOTION_H
 
-#include "fcl/math/geometry.h"
-#include "fcl/math/motion/motion_base.h"
 #include <iostream>
 #include <vector>
+#include "fcl/math/geometry.h"
+#include "fcl/math/motion/motion_base.h"
+#include "fcl/math/motion/bv_motion_bound_visitor.h"
+#include "fcl/math/motion/triangle_motion_bound_visitor.h"
 
 namespace fcl
 {
