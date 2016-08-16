@@ -88,68 +88,9 @@ bool initialize(
     const DistanceRequest<typename Shape::S>& request,
     DistanceResult<typename Shape::S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
-OcTreeShapeDistanceTraversalNode()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  otsolver = nullptr;
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-typename Shape::S
-OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
-BVTesting(int, int) const
-{
-  return -1;
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-void OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
-leafTesting(int, int) const
-{
-  otsolver->OcTreeShapeDistance(
-        model1, *model2, this->tf1, this->tf2, this->request, *this->result);
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-bool initialize(
-    OcTreeShapeDistanceTraversalNode<Shape, NarrowPhaseSolver>& node,
-    const OcTree<typename Shape::S>& model1,
-    const Transform3<typename Shape::S>& tf1,
-    const Shape& model2,
-    const Transform3<typename Shape::S>& tf2,
-    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename Shape::S>& request,
-    DistanceResult<typename Shape::S>& result)
-{
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.otsolver = otsolver;
-
-  node.tf1 = tf1;
-  node.tf2 = tf2;
-
-  return true;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/octree/distance/octree_shape_distance_traversal_node-inl.h"
 
 #endif

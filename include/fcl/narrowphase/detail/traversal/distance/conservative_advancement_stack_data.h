@@ -61,24 +61,9 @@ struct ConservativeAdvancementStackData
   S d;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-ConservativeAdvancementStackData<S>::ConservativeAdvancementStackData(
-    const Vector3<S>& P1_,
-    const Vector3<S>& P2_,
-    int c1_, int c2_, S d_)
-  : P1(P1_), P2(P2_), c1(c1_), c2(c2_), d(d_)
-{
-  // Do nothing
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/distance/conservative_advancement_stack_data-inl.h"
 
 #endif

@@ -35,7 +35,6 @@
 
 /** @author Jia Pan */
 
-
 #ifndef FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_H
 #define FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_H
 
@@ -83,62 +82,9 @@ public:
   mutable S query_time_seconds;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename Shape, typename BV>
-ShapeBVHCollisionTraversalNode<Shape, BV>::ShapeBVHCollisionTraversalNode()
-  : CollisionTraversalNodeBase<typename BV::S>()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  num_bv_tests = 0;
-  num_leaf_tests = 0;
-  query_time_seconds = 0.0;
-}
-
-//==============================================================================
-template <typename Shape, typename BV>
-bool ShapeBVHCollisionTraversalNode<Shape, BV>::firstOverSecond(int, int) const
-{
-  return false;
-}
-
-//==============================================================================
-template <typename Shape, typename BV>
-bool ShapeBVHCollisionTraversalNode<Shape, BV>::isSecondNodeLeaf(int b) const
-{
-  return model2->getBV(b).isLeaf();
-}
-
-//==============================================================================
-template <typename Shape, typename BV>
-int ShapeBVHCollisionTraversalNode<Shape, BV>::getSecondLeftChild(int b) const
-{
-  return model2->getBV(b).leftChild();
-}
-
-//==============================================================================
-template <typename Shape, typename BV>
-int ShapeBVHCollisionTraversalNode<Shape, BV>::getSecondRightChild(int b) const
-{
-  return model2->getBV(b).rightChild();
-}
-
-//==============================================================================
-template <typename Shape, typename BV>
-bool ShapeBVHCollisionTraversalNode<Shape, BV>::BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics) num_bv_tests++;
-  return !model2->getBV(b2).bv.overlap(model1_bv);
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/collision/shape_bvh_collision_traversal_node-inl.h"
 
 #endif

@@ -260,6 +260,6 @@ using Intersectd = Intersect<double>;
 } // namespace detail
 } // namespace fcl
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/intersect-inl.h"
+#include "fcl/narrowphase/detail/traversal/collision/intersect-inl.h"
 
 #endif

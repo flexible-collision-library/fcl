@@ -75,7 +75,8 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
 {
   using S = typename BV::S;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -149,7 +150,8 @@ bool conservativeAdvancementMeshOriented(const BVHModel<BV>& o1,
 {
   using S = typename BV::S;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -221,7 +223,8 @@ bool conservativeAdvancement(const Shape1& o1,
 {
   using S = typename Shape1::S;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -289,7 +292,8 @@ bool conservativeAdvancement(const BVHModel<BV>& o1,
 {
   using S = typename BV::S;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -358,7 +362,8 @@ bool conservativeAdvancementMeshShapeOriented(const BVHModel<BV>& o1,
 {
   using S = typename BV::S;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -455,7 +460,8 @@ bool conservativeAdvancement(const Shape& o1,
 {
   using S = typename BV::S;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 
@@ -523,7 +529,8 @@ bool conservativeAdvancementShapeMeshOriented(const Shape& o1,
                                               typename BV::S& toc)
 {
   using S = typename BV::S;
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
 

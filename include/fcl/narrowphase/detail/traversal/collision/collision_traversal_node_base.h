@@ -81,56 +81,9 @@ public:
 using CollisionTraversalNodeBasef = CollisionTraversalNodeBase<float>;
 using CollisionTraversalNodeBased = CollisionTraversalNodeBase<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-CollisionTraversalNodeBase<S>::CollisionTraversalNodeBase()
-  : result(nullptr), enable_statistics(false)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-CollisionTraversalNodeBase<S>::~CollisionTraversalNodeBase()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool CollisionTraversalNodeBase<S>::BVTesting(int b1, int b2) const
-{
-  return true;
-}
-
-//==============================================================================
-template <typename S>
-void CollisionTraversalNodeBase<S>::leafTesting(int b1, int b2) const
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool CollisionTraversalNodeBase<S>::canStop() const
-{
-  return false;
-}
-
-//==============================================================================
-template <typename S>
-void CollisionTraversalNodeBase<S>::enableStatistics(bool enable)
-{
-  enable_statistics = enable;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base-inl.h"
 
 #endif

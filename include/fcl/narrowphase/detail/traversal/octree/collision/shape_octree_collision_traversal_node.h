@@ -72,7 +72,8 @@ public:
   const Shape* model1;
   const OcTree<S>* model2;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 
@@ -92,67 +93,9 @@ bool initialize(
     const CollisionRequest<typename Shape::S>& request,
     CollisionResult<typename Shape::S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-ShapeOcTreeCollisionTraversalNode<Shape, NarrowPhaseSolver>::
-ShapeOcTreeCollisionTraversalNode()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  otsolver = nullptr;
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-bool ShapeOcTreeCollisionTraversalNode<Shape, NarrowPhaseSolver>::
-BVTesting(int, int) const
-{
-  return false;
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-void ShapeOcTreeCollisionTraversalNode<Shape, NarrowPhaseSolver>::
-leafTesting(int, int) const
-{
-  otsolver->OcTreeShapeIntersect(
-        model2, *model1, tf2, tf1, this->request, *this->result);
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-bool initialize(
-    ShapeOcTreeCollisionTraversalNode<Shape, NarrowPhaseSolver>& node,
-    const Shape& model1,
-    const Transform3<typename Shape::S>& tf1,
-    const OcTree<typename Shape::S>& model2,
-    const Transform3<typename Shape::S>& tf2,
-    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename Shape::S>& request,
-    CollisionResult<typename Shape::S>& result)
-{
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.otsolver = otsolver;
-
-  node.tf1 = tf1;
-  node.tf2 = tf2;
-
-  return true;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/octree/collision/shape_octree_collision_traversal_node-inl.h"
 
 #endif

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/intersect.h"
+#include "fcl/narrowphase/detail/traversal/collision/intersect.h"
 
 namespace fcl
 {

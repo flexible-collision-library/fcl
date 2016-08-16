@@ -82,84 +82,9 @@ bool initialize(
     const Transform3<typename Shape1::S>& tf2,
     const NarrowPhaseSolver* nsolver);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
-ShapeConservativeAdvancementTraversalNode()
-  : ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>()
-{
-  delta_t = 1;
-  toc = 0;
-  t_err = (S)0.0001;
-
-  motion1 = nullptr;
-  motion2 = nullptr;
-}
-
-//==============================================================================
-template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-void ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
-leafTesting(int, int) const
-{
-  S distance;
-  // NOTE(JS): The closest points are set to zeros in order to suppress the
-  // maybe-uninitialized warning. It seems the warnings occur since
-  // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
-  // If this wasn't intentional then please remove the initialization of the
-  // closest points, and change the function NarrowPhaseSolver::shapeDistance()
-  // to always set the closest points.
-  Vector3<S> closest_p1 = Vector3<S>::Zero();
-  Vector3<S> closest_p2 = Vector3<S>::Zero();
-  this->nsolver->shapeDistance(*(this->model1), this->tf1, *(this->model2), this->tf2, &distance, &closest_p1, &closest_p2);
-
-  Vector3<S> n = this->tf2 * closest_p2 - this->tf1 * closest_p1;
-  n.normalize();
-  TBVMotionBoundVisitor<RSS<S>> mb_visitor1(model1_bv, n);
-  TBVMotionBoundVisitor<RSS<S>> mb_visitor2(model2_bv, -n);
-  S bound1 = motion1->computeMotionBound(mb_visitor1);
-  S bound2 = motion2->computeMotionBound(mb_visitor2);
-
-  S bound = bound1 + bound2;
-
-  S cur_delta_t;
-  if(bound <= distance) cur_delta_t = 1;
-  else cur_delta_t = distance / bound;
-
-  if(cur_delta_t < delta_t)
-    delta_t  = cur_delta_t;
-}
-
-//==============================================================================
-template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-bool initialize(
-    ShapeConservativeAdvancementTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
-    const Shape1& shape1,
-    const Transform3<typename Shape1::S>& tf1,
-    const Shape2& shape2,
-    const Transform3<typename Shape1::S>& tf2,
-    const NarrowPhaseSolver* nsolver)
-{
-  using S = typename Shape1::S;
-
-  node.model1 = &shape1;
-  node.tf1 = tf1;
-  node.model2 = &shape2;
-  node.tf2 = tf2;
-  node.nsolver = nsolver;
-
-  computeBV(shape1, Transform3<S>::Identity(), node.model1_bv);
-  computeBV(shape2, Transform3<S>::Identity(), node.model2_bv);
-
-  return true;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/distance/shape_conservative_advancement_traversal_node-inl.h"
 
 #endif

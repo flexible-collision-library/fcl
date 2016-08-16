@@ -156,7 +156,8 @@ typename BV::S continuousCollideBVHPolynomial(
 
   motion1->integrate(0);
   motion2->integrate(0);
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
   motion1->getCurrentTransform(tf1);
   motion2->getCurrentTransform(tf2);
   if(!initialize<BV>(node, *o1, tf1, *o2, tf2, c_request))
@@ -279,7 +280,8 @@ typename NarrowPhaseSolver::S continuousCollideConservativeAdvancement(
     motion1->integrate(result.time_of_contact);
     motion2->integrate(result.time_of_contact);
 
-    Transform3<S> tf1, tf2;
+    Transform3<S> tf1;
+  Transform3<S> tf2;
     motion1->getCurrentTransform(tf1);
     motion2->getCurrentTransform(tf2);
     result.contact_tf1 = tf1;

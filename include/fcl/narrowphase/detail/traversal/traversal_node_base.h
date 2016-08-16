@@ -90,83 +90,9 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-TraversalNodeBase<S>::~TraversalNodeBase()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void TraversalNodeBase<S>::preprocess()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void TraversalNodeBase<S>::postprocess()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool TraversalNodeBase<S>::isFirstNodeLeaf(int b) const
-{
-  return true;
-}
-
-//==============================================================================
-template <typename S>
-bool TraversalNodeBase<S>::isSecondNodeLeaf(int b) const
-{
-  return true;
-}
-
-//==============================================================================
-template <typename S>
-bool TraversalNodeBase<S>::firstOverSecond(int b1, int b2) const
-{
-  return true;
-}
-
-//==============================================================================
-template <typename S>
-int TraversalNodeBase<S>::getFirstLeftChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename S>
-int TraversalNodeBase<S>::getFirstRightChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename S>
-int TraversalNodeBase<S>::getSecondLeftChild(int b) const
-{
-  return b;
-}
-
-//==============================================================================
-template <typename S>
-int TraversalNodeBase<S>::getSecondRightChild(int b) const
-{
-  return b;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/traversal_node_base-inl.h"
 
 #endif

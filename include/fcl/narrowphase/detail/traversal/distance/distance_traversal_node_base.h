@@ -79,56 +79,9 @@ public:
   bool enable_statistics;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-DistanceTraversalNodeBase<S>::DistanceTraversalNodeBase()
-  : result(nullptr), enable_statistics(false)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-DistanceTraversalNodeBase<S>::~DistanceTraversalNodeBase()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-S DistanceTraversalNodeBase<S>::BVTesting(int b1, int b2) const
-{
-  return std::numeric_limits<S>::max();
-}
-
-//==============================================================================
-template <typename S>
-void DistanceTraversalNodeBase<S>::leafTesting(int b1, int b2) const
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool DistanceTraversalNodeBase<S>::canStop(S c) const
-{
-  return false;
-}
-
-//==============================================================================
-template <typename S>
-void DistanceTraversalNodeBase<S>::enableStatistics(bool enable)
-{
-  enable_statistics = enable;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base-inl.h"
 
 #endif
