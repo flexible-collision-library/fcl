@@ -35,13 +35,7 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-#define FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-
-#include "fcl/math/bv/AABB.h"
-#include "fcl/math/bv/OBB.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/detail/bv_computer.h"
+#include "fcl/object/geometry/shape/detail/bv_computer_triangle_p.h"
 
 namespace fcl
 {
@@ -49,14 +43,13 @@ namespace detail
 {
 
 template <typename S>
-struct BVComputer<S, AABB<S>, Ellipsoid<S>>;
-
-template <typename S>
-struct BVComputer<S, OBB<S>, Ellipsoid<S>>;
+struct BVComputer<S, AABB<S>, TriangleP<S>>
+{
+  static void compute(const TriangleP<S>& s, const Transform3<S>& tf, AABB<S>& bv)
+  {
+    bv = AABB<S>(tf * s.a, tf * s.b, tf * s.c);
+  }
+};
 
 } // namespace detail
 } // namespace fcl
-
-#include "fcl/object/geometry/shape/detail/bv_computer_ellipsoid-inl.h"
-
-#endif

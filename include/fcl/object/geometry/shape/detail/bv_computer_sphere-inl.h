@@ -35,28 +35,36 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-#define FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-
-#include "fcl/math/bv/AABB.h"
-#include "fcl/math/bv/OBB.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/detail/bv_computer.h"
+#include "fcl/object/geometry/shape/detail/bv_computer_sphere.h"
 
 namespace fcl
 {
 namespace detail
 {
 
+//==============================================================================
 template <typename S>
-struct BVComputer<S, AABB<S>, Ellipsoid<S>>;
+struct BVComputer<S, AABB<S>, Sphere<S>>
+{
+  static void compute(const Sphere<S>& s, const Transform3<S>& tf, AABB<S>& bv)
+  {
+    const Vector3<S> v_delta = Vector3<S>::Constant(s.radius);
+    bv.max_ = tf.translation() + v_delta;
+    bv.min_ = tf.translation() - v_delta;
+  }
+};
 
+//==============================================================================
 template <typename S>
-struct BVComputer<S, OBB<S>, Ellipsoid<S>>;
+struct BVComputer<S, OBB<S>, Sphere<S>>
+{
+  static void compute(const Sphere<S>& s, const Transform3<S>& tf, OBB<S>& bv)
+  {
+    bv.To = tf.translation();
+    bv.axis.setIdentity();
+    bv.extent.setConstant(s.radius);
+  }
+};
 
 } // namespace detail
 } // namespace fcl
-
-#include "fcl/object/geometry/shape/detail/bv_computer_ellipsoid-inl.h"
-
-#endif

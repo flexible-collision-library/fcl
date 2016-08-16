@@ -53,44 +53,9 @@ struct BVComputer<S, AABB<S>, Box<S>>;
 template <typename S>
 struct BVComputer<S, OBB<S>, Box<S>>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-struct BVComputer<S, AABB<S>, Box<S>>
-{
-  static void compute(const Box<S>& s, const Transform3<S>& tf, AABB<S>& bv)
-  {
-    const Matrix3<S>& R = tf.linear();
-    const Vector3<S>& T = tf.translation();
-
-    S x_range = 0.5 * (fabs(R(0, 0) * s.side[0]) + fabs(R(0, 1) * s.side[1]) + fabs(R(0, 2) * s.side[2]));
-    S y_range = 0.5 * (fabs(R(1, 0) * s.side[0]) + fabs(R(1, 1) * s.side[1]) + fabs(R(1, 2) * s.side[2]));
-    S z_range = 0.5 * (fabs(R(2, 0) * s.side[0]) + fabs(R(2, 1) * s.side[1]) + fabs(R(2, 2) * s.side[2]));
-
-    Vector3<S> v_delta(x_range, y_range, z_range);
-    bv.max_ = T + v_delta;
-    bv.min_ = T - v_delta;
-  }
-};
-
-//==============================================================================
-template <typename S>
-struct BVComputer<S, OBB<S>, Box<S>>
-{
-  static void compute(const Box<S>& s, const Transform3<S>& tf, OBB<S>& bv)
-  {
-    bv.axis = tf.linear();
-    bv.To = tf.translation();
-    bv.extent = s.side * (S)0.5;
-  }
-};
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/object/geometry/shape/detail/bv_computer_box-inl.h"
 
 #endif

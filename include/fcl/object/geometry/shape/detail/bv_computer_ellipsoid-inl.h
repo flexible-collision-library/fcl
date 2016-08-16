@@ -35,28 +35,43 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-#define FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-
-#include "fcl/math/bv/AABB.h"
-#include "fcl/math/bv/OBB.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/detail/bv_computer.h"
+#include "fcl/object/geometry/shape/detail/bv_computer_ellipsoid.h"
 
 namespace fcl
 {
 namespace detail
 {
 
+//==============================================================================
 template <typename S>
-struct BVComputer<S, AABB<S>, Ellipsoid<S>>;
+struct BVComputer<S, AABB<S>, Ellipsoid<S>>
+{
+  static void compute(const Ellipsoid<S>& s, const Transform3<S>& tf, AABB<S>& bv)
+  {
+    const Matrix3<S>& R = tf.linear();
+    const Vector3<S>& T = tf.translation();
 
+    S x_range = (fabs(R(0, 0) * s.radii[0]) + fabs(R(0, 1) * s.radii[1]) + fabs(R(0, 2) * s.radii[2]));
+    S y_range = (fabs(R(1, 0) * s.radii[0]) + fabs(R(1, 1) * s.radii[1]) + fabs(R(1, 2) * s.radii[2]));
+    S z_range = (fabs(R(2, 0) * s.radii[0]) + fabs(R(2, 1) * s.radii[1]) + fabs(R(2, 2) * s.radii[2]));
+
+    Vector3<S> v_delta(x_range, y_range, z_range);
+    bv.max_ = T + v_delta;
+    bv.min_ = T - v_delta;
+  }
+};
+
+//==============================================================================
 template <typename S>
-struct BVComputer<S, OBB<S>, Ellipsoid<S>>;
+struct BVComputer<S, OBB<S>, Ellipsoid<S>>
+{
+  static void compute(const Ellipsoid<S>& s, const Transform3<S>& tf, OBB<S>& bv)
+  {
+    bv.axis = tf.linear();
+    bv.To = tf.translation();
+    bv.extent = s.radii;
+  }
+};
 
 } // namespace detail
 } // namespace fcl
-
-#include "fcl/object/geometry/shape/detail/bv_computer_ellipsoid-inl.h"
-
-#endif

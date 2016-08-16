@@ -40,6 +40,8 @@
 
 #include "fcl/math/bv/AABB.h"
 #include "fcl/math/bv/OBB.h"
+#include "fcl/object/geometry/shape/sphere.h"
+#include "fcl/object/geometry/shape/detail/bv_computer.h"
 
 namespace fcl
 {
@@ -52,37 +54,9 @@ struct BVComputer<S, AABB<S>, Sphere<S>>;
 template <typename S>
 struct BVComputer<S, OBB<S>, Sphere<S>>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-struct BVComputer<S, AABB<S>, Sphere<S>>
-{
-  static void compute(const Sphere<S>& s, const Transform3<S>& tf, AABB<S>& bv)
-  {
-    const Vector3<S> v_delta = Vector3<S>::Constant(s.radius);
-    bv.max_ = tf.translation() + v_delta;
-    bv.min_ = tf.translation() - v_delta;
-  }
-};
-
-//==============================================================================
-template <typename S>
-struct BVComputer<S, OBB<S>, Sphere<S>>
-{
-  static void compute(const Sphere<S>& s, const Transform3<S>& tf, OBB<S>& bv)
-  {
-    bv.To = tf.translation();
-    bv.axis.setIdentity();
-    bv.extent.setConstant(s.radius);
-  }
-};
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/object/geometry/shape/detail/bv_computer_sphere-inl.h"
 
 #endif

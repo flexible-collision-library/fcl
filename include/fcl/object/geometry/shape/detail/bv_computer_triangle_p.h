@@ -39,6 +39,8 @@
 #define FCL_SHAPE_DETAIL_BVCOMPUTERTRIANGLEP_H
 
 #include "fcl/math/bv/AABB.h"
+#include "fcl/object/geometry/shape/triangle_p.h"
+#include "fcl/object/geometry/shape/detail/bv_computer.h"
 
 namespace fcl
 {
@@ -48,23 +50,9 @@ namespace detail
 template <typename S>
 struct BVComputer<S, AABB<S>, TriangleP<S>>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-struct BVComputer<S, AABB<S>, TriangleP<S>>
-{
-  static void compute(const TriangleP<S>& s, const Transform3<S>& tf, AABB<S>& bv)
-  {
-    bv = AABB<S>(tf * s.a, tf * s.b, tf * s.c);
-  }
-};
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/object/geometry/shape/detail/bv_computer_triangle_p-inl.h"
 
 #endif

@@ -35,28 +35,43 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-#define FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-
-#include "fcl/math/bv/AABB.h"
-#include "fcl/math/bv/OBB.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/detail/bv_computer.h"
+#include "fcl/object/geometry/shape/detail/bv_computer_capsule.h"
 
 namespace fcl
 {
 namespace detail
 {
 
+//==============================================================================
 template <typename S>
-struct BVComputer<S, AABB<S>, Ellipsoid<S>>;
+struct BVComputer<S, AABB<S>, Capsule<S>>
+{
+  static void compute(const Capsule<S>& s, const Transform3<S>& tf, AABB<S>& bv)
+  {
+    const Matrix3<S>& R = tf.linear();
+    const Vector3<S>& T = tf.translation();
 
+    S x_range = 0.5 * fabs(R(0, 2) * s.lz) + s.radius;
+    S y_range = 0.5 * fabs(R(1, 2) * s.lz) + s.radius;
+    S z_range = 0.5 * fabs(R(2, 2) * s.lz) + s.radius;
+
+    Vector3<S> v_delta(x_range, y_range, z_range);
+    bv.max_ = T + v_delta;
+    bv.min_ = T - v_delta;
+  }
+};
+
+//==============================================================================
 template <typename S>
-struct BVComputer<S, OBB<S>, Ellipsoid<S>>;
+struct BVComputer<S, OBB<S>, Capsule<S>>
+{
+  static void compute(const Capsule<S>& s, const Transform3<S>& tf, OBB<S>& bv)
+  {
+    bv.axis = tf.linear();
+    bv.To = tf.translation();
+    bv.extent << s.radius, s.radius, s.lz / 2 + s.radius;
+  }
+};
 
 } // namespace detail
 } // namespace fcl
-
-#include "fcl/object/geometry/shape/detail/bv_computer_ellipsoid-inl.h"
-
-#endif

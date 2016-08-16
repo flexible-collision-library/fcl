@@ -40,6 +40,8 @@
 
 #include "fcl/math/bv/AABB.h"
 #include "fcl/math/bv/OBB.h"
+#include "fcl/object/geometry/shape/convex.h"
+#include "fcl/object/geometry/shape/detail/bv_computer.h"
 
 namespace fcl
 {
@@ -52,46 +54,9 @@ struct BVComputer<S, AABB<S>, Convex<S>>;
 template <typename S>
 struct BVComputer<S, OBB<S>, Convex<S>>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-struct BVComputer<S, AABB<S>, Convex<S>>
-{
-  static void compute(const Convex<S>& s, const Transform3<S>& tf, AABB<S>& bv)
-  {
-    const Matrix3<S>& R = tf.linear();
-    const Vector3<S>& T = tf.translation();
-
-    AABB<S> bv_;
-    for(int i = 0; i < s.num_points; ++i)
-    {
-      Vector3<S> new_p = R * s.points[i] + T;
-      bv_ += new_p;
-    }
-
-    bv = bv_;
-  }
-};
-
-//==============================================================================
-template <typename S>
-struct BVComputer<S, OBB<S>, Convex<S>>
-{
-  static void compute(const Convex<S>& s, const Transform3<S>& tf, OBB<S>& bv)
-  {
-    fit(s.points, s.num_points, bv);
-
-    bv.axis = tf.linear();
-    bv.To = tf * bv.To;
-  }
-};
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/object/geometry/shape/detail/bv_computer_convex-inl.h"
 
 #endif

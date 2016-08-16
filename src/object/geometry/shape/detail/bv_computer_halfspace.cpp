@@ -35,28 +35,44 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-#define FCL_SHAPE_DETAIL_BVCOMPUTERELLIPSOID_H
-
-#include "fcl/math/bv/AABB.h"
-#include "fcl/math/bv/OBB.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/detail/bv_computer.h"
+#include "fcl/object/geometry/shape/detail/bv_computer_halfspace.h"
 
 namespace fcl
 {
 namespace detail
 {
 
-template <typename S>
-struct BVComputer<S, AABB<S>, Ellipsoid<S>>;
+//==============================================================================
+template <>
+struct BVComputer<double, AABB<double>, Halfspace<double>>;
 
-template <typename S>
-struct BVComputer<S, OBB<S>, Ellipsoid<S>>;
+//==============================================================================
+template <>
+struct BVComputer<double, OBB<double>, Halfspace<double>>;
+
+//==============================================================================
+template <>
+struct BVComputer<double, RSS<double>, Halfspace<double>>;
+
+//==============================================================================
+template <>
+struct BVComputer<double, OBBRSS<double>, Halfspace<double>>;
+
+//==============================================================================
+template <>
+struct BVComputer<double, kIOS<double>, Halfspace<double>>;
+
+//==============================================================================
+template <>
+struct BVComputer<double, KDOP<double, 16>, Halfspace<double>>;
+
+//==============================================================================
+template <>
+struct BVComputer<double, KDOP<double, 18>, Halfspace<double>>;
+
+//==============================================================================
+template <>
+struct BVComputer<double, KDOP<double, 24>, Halfspace<double>>;
 
 } // namespace detail
 } // namespace fcl
-
-#include "fcl/object/geometry/shape/detail/bv_computer_ellipsoid-inl.h"
-
-#endif
