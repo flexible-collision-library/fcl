@@ -41,11 +41,8 @@ namespace fcl
 {
 
 //==============================================================================
-template <typename BV>
-void BVHExpand(
-    BVHModel<BV>& model,
-    const Variance3<typename BV::S>* ucs,
-    typename BV::S r)
+template <typename S, typename BV>
+void BVHExpand(BVHModel<BV>& model, const Variance3<S>* ucs, S r)
 {
   using S = typename BV::S;
 

@@ -92,7 +92,7 @@ protected:
 //==============================================================================
 template<typename BV>
 TBVMotionBoundVisitor<BV>::TBVMotionBoundVisitor(
-    const BV& bv_, const Vector3<TBVMotionBoundVisitor::S>& n_)
+    const BV& bv_, const Vector3<typename BV::S>& n_)
   : bv(bv_), n(n_)
 {
   // Do nothing

@@ -929,7 +929,7 @@ SaPCollisionManager<S>::SaPPair::SaPPair(CollisionObject<S>* a, CollisionObject<
 
 //==============================================================================
 template <typename S>
-bool SaPCollisionManager<S>::SaPPair::operator ==(const SaPCollisionManager<S>::SaPPair& other) const
+bool SaPCollisionManager<S>::SaPPair::operator ==(const typename SaPCollisionManager<S>::SaPPair& other) const
 {
   return ((obj1 == other.obj1) && (obj2 == other.obj2));
 }

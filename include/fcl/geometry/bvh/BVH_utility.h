@@ -46,11 +46,8 @@ namespace fcl
 
 /// @brief Expand the BVH bounding boxes according to the variance matrix
 /// corresponding to the data stored within each BV node
-template <typename BV>
-void BVHExpand(
-    BVHModel<BV>& model,
-    const Variance3<typename BV::S>* ucs,
-    typename BV::S r);
+template <typename S, typename BV>
+void BVHExpand(BVHModel<BV>& model, const Variance3<S>* ucs, S r);
 
 /// @brief Expand the BVH bounding boxes according to the corresponding variance
 /// information, for OBB
