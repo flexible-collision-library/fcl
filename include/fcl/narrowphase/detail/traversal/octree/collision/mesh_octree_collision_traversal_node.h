@@ -43,8 +43,8 @@
 #error "This header requires fcl to be compiled with octomap support"
 #endif
 
-#include "fcl/object/geometry/octree/octree.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/octree/octree.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/octree/octree_solver.h"
 

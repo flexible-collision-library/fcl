@@ -45,9 +45,9 @@
 #include "fcl/math/triangle.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/narrowphase/distance.h"
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/collision_result.h"
-#include "fcl/object/continuous_collision_object.h"
+#include "fcl/narrowphase/continuous_collision_object.h"
 #include "fcl/narrowphase/continuous_collision_request.h"
 #include "fcl/narrowphase/continuous_collision_result.h"
 

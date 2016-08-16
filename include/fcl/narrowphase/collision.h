@@ -38,7 +38,7 @@
 #ifndef FCL_COLLISION_H
 #define FCL_COLLISION_H
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/collision_request.h"
 #include "fcl/narrowphase/collision_result.h"
 

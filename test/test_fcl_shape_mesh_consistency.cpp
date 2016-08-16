@@ -41,7 +41,7 @@
 
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
-#include "fcl/object/geometry/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/geometry/shape/geometric_shape_to_BVH_model.h"
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/collision.h"
 #include "test_fcl_utility.h"

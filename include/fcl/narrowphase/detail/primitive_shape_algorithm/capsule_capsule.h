@@ -39,7 +39,7 @@
 #define FCL_NARROWPHASE_DETAIL_CAPSULECAPSULE_H
 
 #include "fcl/common/types.h"
-#include "fcl/object/geometry/shape/capsule.h"
+#include "fcl/geometry/shape/capsule.h"
 
 namespace fcl
 {

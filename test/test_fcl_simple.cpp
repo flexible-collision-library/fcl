@@ -39,7 +39,7 @@
 
 #include "fcl/math/detail/project.h"
 #include "fcl/narrowphase/collision.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 #include "fcl_resources/config.h"
 #include "fcl/math/sampler/sampler_r.h"
 #include "fcl/math/sampler/sampler_se2.h"

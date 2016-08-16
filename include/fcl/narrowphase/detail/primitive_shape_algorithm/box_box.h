@@ -40,7 +40,7 @@
 
 #include "fcl/common/types.h"
 #include "fcl/narrowphase/contact_point.h"
-#include "fcl/object/geometry/shape/box.h"
+#include "fcl/geometry/shape/box.h"
 
 namespace fcl
 {

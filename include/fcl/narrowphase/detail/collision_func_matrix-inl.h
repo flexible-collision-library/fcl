@@ -39,19 +39,19 @@
 
 #include "fcl/config.h"
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 
-#include "fcl/object/geometry/shape/box.h"
-#include "fcl/object/geometry/shape/capsule.h"
-#include "fcl/object/geometry/shape/cone.h"
-#include "fcl/object/geometry/shape/convex.h"
-#include "fcl/object/geometry/shape/cylinder.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/halfspace.h"
-#include "fcl/object/geometry/shape/plane.h"
-#include "fcl/object/geometry/shape/sphere.h"
-#include "fcl/object/geometry/shape/triangle_p.h"
-#include "fcl/object/geometry/shape/construct_box.h"
+#include "fcl/geometry/shape/box.h"
+#include "fcl/geometry/shape/capsule.h"
+#include "fcl/geometry/shape/cone.h"
+#include "fcl/geometry/shape/convex.h"
+#include "fcl/geometry/shape/cylinder.h"
+#include "fcl/geometry/shape/ellipsoid.h"
+#include "fcl/geometry/shape/halfspace.h"
+#include "fcl/geometry/shape/plane.h"
+#include "fcl/geometry/shape/sphere.h"
+#include "fcl/geometry/shape/triangle_p.h"
+#include "fcl/geometry/shape/construct_box.h"
 
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
 

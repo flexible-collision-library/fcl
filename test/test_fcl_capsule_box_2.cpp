@@ -39,7 +39,7 @@
 #include <cmath>
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/collision.h"
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 
 template <typename S>
 void test_distance_capsule_box()

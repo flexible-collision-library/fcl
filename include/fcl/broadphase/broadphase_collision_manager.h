@@ -41,7 +41,7 @@
 #include <set>
 #include <vector>
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 
 namespace fcl
 {

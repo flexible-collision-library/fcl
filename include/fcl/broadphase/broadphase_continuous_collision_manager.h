@@ -39,8 +39,8 @@
 #define FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_H
 
 #include "fcl/broadphase/broadphase_collision_manager.h"
-#include "fcl/object/collision_object.h"
-#include "fcl/object/continuous_collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
+#include "fcl/narrowphase/continuous_collision_object.h"
 
 namespace fcl
 {

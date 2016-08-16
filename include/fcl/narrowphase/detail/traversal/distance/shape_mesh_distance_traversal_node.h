@@ -39,7 +39,7 @@
 #define FCL_TRAVERSAL_SHAPEMESHDISTANCETRAVERSALNODE_H
 
 #include "fcl/narrowphase/detail/traversal/distance/shape_bvh_distance_traversal_node.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 
 namespace fcl
 {

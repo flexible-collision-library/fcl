@@ -41,7 +41,7 @@
 
 #include "fcl/common/types.h"
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"

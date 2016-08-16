@@ -41,7 +41,7 @@
 
 #include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 
 namespace fcl
 {

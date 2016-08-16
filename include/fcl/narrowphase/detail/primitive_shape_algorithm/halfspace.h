@@ -38,15 +38,15 @@
 #ifndef FCL_NARROWPHASE_DETAIL_HALFSPACE_H
 #define FCL_NARROWPHASE_DETAIL_HALFSPACE_H
 
-#include "fcl/object/geometry/shape/sphere.h"
-#include "fcl/object/geometry/shape/halfspace.h"
-#include "fcl/object/geometry/shape/ellipsoid.h"
-#include "fcl/object/geometry/shape/box.h"
-#include "fcl/object/geometry/shape/capsule.h"
-#include "fcl/object/geometry/shape/cylinder.h"
-#include "fcl/object/geometry/shape/cone.h"
-#include "fcl/object/geometry/shape/convex.h"
-#include "fcl/object/geometry/shape/plane.h"
+#include "fcl/geometry/shape/sphere.h"
+#include "fcl/geometry/shape/halfspace.h"
+#include "fcl/geometry/shape/ellipsoid.h"
+#include "fcl/geometry/shape/box.h"
+#include "fcl/geometry/shape/capsule.h"
+#include "fcl/geometry/shape/cylinder.h"
+#include "fcl/geometry/shape/cone.h"
+#include "fcl/geometry/shape/convex.h"
+#include "fcl/geometry/shape/plane.h"
 #include "fcl/narrowphase/contact_point.h"
 
 namespace fcl

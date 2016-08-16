@@ -38,7 +38,7 @@
 #ifndef FCL_COLLISION_FUNC_MATRIX_H
 #define FCL_COLLISION_FUNC_MATRIX_H
 
-#include "fcl/object/geometry/collision_geometry.h"
+#include "fcl/geometry/collision_geometry.h"
 #include "fcl/narrowphase/collision_request.h"
 #include "fcl/narrowphase/collision_result.h"
 

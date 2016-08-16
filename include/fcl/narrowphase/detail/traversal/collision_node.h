@@ -39,7 +39,7 @@
 #ifndef FCL_COLLISION_NODE_H
 #define FCL_COLLISION_NODE_H
 
-#include "fcl/object/geometry/bvh/detail/BVH_front.h"
+#include "fcl/geometry/bvh/detail/BVH_front.h"
 #include "fcl/narrowphase/detail/traversal/traversal_recurse.h"
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"

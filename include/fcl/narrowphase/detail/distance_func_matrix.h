@@ -38,7 +38,7 @@
 #ifndef FCL_DISTANCE_FUNC_MATRIX_H
 #define FCL_DISTANCE_FUNC_MATRIX_H
 
-#include "fcl/object/geometry/collision_geometry.h"
+#include "fcl/geometry/collision_geometry.h"
 #include "fcl/narrowphase/distance_request.h"
 #include "fcl/narrowphase/distance_result.h"
 

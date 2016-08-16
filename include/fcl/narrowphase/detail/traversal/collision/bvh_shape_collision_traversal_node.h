@@ -40,7 +40,7 @@
 #define FCL_TRAVERSAL_BVHSHAPECOLLISIONTRAVERSALNODE_H
 
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 
 namespace fcl
 {

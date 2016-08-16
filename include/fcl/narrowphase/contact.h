@@ -38,7 +38,7 @@
 #ifndef FCL_CONTACT_H
 #define FCL_CONTACT_H
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 
 namespace fcl
 {

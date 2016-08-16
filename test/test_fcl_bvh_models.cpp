@@ -37,7 +37,7 @@
 #include <gtest/gtest.h>
 
 #include "fcl/config.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 #include "test_fcl_utility.h"
 #include <iostream>
 

@@ -39,7 +39,7 @@
 #define FCL_NARROWPHASE_DETAIL_MINKOWSKIDIFF_H
 
 #include "fcl/math/detail/project.h"
-#include "fcl/object/geometry/shape/shape_base.h"
+#include "fcl/geometry/shape/shape_base.h"
 
 namespace fcl
 {

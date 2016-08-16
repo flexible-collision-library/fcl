@@ -38,7 +38,7 @@
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
 
 #if FCL_HAVE_OCTOMAP
-#include "fcl/object/geometry/octree/octree.h"
+#include "fcl/geometry/octree/octree.h"
 #endif
 
 namespace fcl

@@ -38,7 +38,7 @@
 #ifndef FCL_DISTANCE_H
 #define FCL_DISTANCE_H
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/detail/distance_func_matrix.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"

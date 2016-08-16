@@ -38,7 +38,7 @@
 #ifndef FCL_NARROWPHASE_DETAIL_SPHERETRIANGLE_H
 #define FCL_NARROWPHASE_DETAIL_SPHERETRIANGLE_H
 
-#include "fcl/object/geometry/shape/sphere.h"
+#include "fcl/geometry/shape/sphere.h"
 #include "fcl/narrowphase/contact_point.h"
 
 namespace fcl

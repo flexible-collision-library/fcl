@@ -40,7 +40,7 @@
 #define FCL_TRAVERSAL_RECURSE_H
 
 #include <queue>
-#include "fcl/object/geometry/bvh/detail/BVH_front.h"
+#include "fcl/geometry/bvh/detail/BVH_front.h"
 #include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"

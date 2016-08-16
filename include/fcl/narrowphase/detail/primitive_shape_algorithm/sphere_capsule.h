@@ -38,8 +38,8 @@
 #ifndef FCL_NARROWPHASE_DETAIL_SPHERECAPSULE_H
 #define FCL_NARROWPHASE_DETAIL_SPHERECAPSULE_H
 
-#include "fcl/object/geometry/shape/sphere.h"
-#include "fcl/object/geometry/shape/capsule.h"
+#include "fcl/geometry/shape/sphere.h"
+#include "fcl/geometry/shape/capsule.h"
 #include "fcl/narrowphase/contact_point.h"
 
 namespace fcl

@@ -38,7 +38,7 @@
 #ifndef FCL_CONSERVATIVE_ADVANCEMENT_H
 #define FCL_CONSERVATIVE_ADVANCEMENT_H
 
-#include "fcl/object/geometry/collision_geometry.h"
+#include "fcl/geometry/collision_geometry.h"
 #include "fcl/narrowphase/continuous_collision_request.h"
 #include "fcl/narrowphase/continuous_collision_result.h"
 

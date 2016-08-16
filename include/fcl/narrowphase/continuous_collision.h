@@ -39,8 +39,8 @@
 #define FCL_CONTINUOUS_COLLISION_H
 
 #include <iostream>
-#include "fcl/object/collision_object.h"
-#include "fcl/object/continuous_collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
+#include "fcl/narrowphase/continuous_collision_object.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 #include "fcl/narrowphase/detail/conservative_advancement_func_matrix.h"
