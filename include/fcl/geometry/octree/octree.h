@@ -39,9 +39,8 @@
 #define FCL_OCTREE_H
 
 #include "fcl/config.h"
-#if not(FCL_HAVE_OCTOMAP)
-#error "This header requires fcl to be compiled with octomap support"
-#endif
+
+#if FCL_HAVE_OCTOMAP
 
 #include <memory>
 #include <array>
@@ -145,4 +144,5 @@ using OcTreed = OcTree<double>;
 
 #include "fcl/geometry/octree/octree-inl.h"
 
+#endif // #if FCL_HAVE_OCTOMAP
 #endif
