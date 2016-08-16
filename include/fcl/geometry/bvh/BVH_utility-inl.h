@@ -44,8 +44,6 @@ namespace fcl
 template <typename S, typename BV>
 void BVHExpand(BVHModel<BV>& model, const Variance3<S>* ucs, S r)
 {
-  using S = typename BV::S;
-
   for(int i = 0; i < model.num_bvs; ++i)
   {
     BVNode<BV>& bvnode = model.getBV(i);
