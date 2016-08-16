@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree_array-inl.h"
 
 namespace fcl
 {

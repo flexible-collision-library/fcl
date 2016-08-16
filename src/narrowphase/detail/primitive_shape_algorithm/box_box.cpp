@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/box_box-inl.h"
 
 namespace fcl
 {

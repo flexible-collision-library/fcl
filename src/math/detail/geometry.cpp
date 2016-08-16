@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/geometry.h"
+#include "fcl/math/geometry-inl.h"
 
 namespace fcl
 {
@@ -45,23 +45,25 @@ namespace detail
 //==============================================================================
 template <>
 void getExtentAndCenter_pointcloud(
-    Vector3d* ps,
-    Vector3d* ps2,
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    Triangle* ts,
     unsigned int* indices,
     int n,
-    const Matrix3d& axis,
-    Vector3d& center,
-    Vector3d& extent);
+    const Matrix3<double>& axis,
+    Vector3<double>& center,
+    Vector3<double>& extent);
 
 //==============================================================================
 template <>
 void getExtentAndCenter_pointcloud(
-    Vector3d* ps,
-    Vector3d* ps2,
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    Triangle* ts,
     unsigned int* indices,
     int n,
-    Transform3d& tf,
-    Vector3d& extent);
+    Transform3<double>& tf,
+    Vector3<double>& extent);
 
 //==============================================================================
 template <>

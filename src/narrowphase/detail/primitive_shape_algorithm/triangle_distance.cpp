@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/triangle_distance.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/triangle_distance-inl.h"
 
 namespace fcl
 {

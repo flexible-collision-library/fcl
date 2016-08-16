@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/motion/interp_motion.h"
+#include "fcl/math/motion/interp_motion-inl.h"
 
 namespace fcl
 {

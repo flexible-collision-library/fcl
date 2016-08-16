@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/variance3.h"
+#include "fcl/math/variance3-inl.h"
 
 namespace fcl
 {

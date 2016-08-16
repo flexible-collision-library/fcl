@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/motion/triangle_motion_bound_visitor.h"
+#include "fcl/math/motion/triangle_motion_bound_visitor-inl.h"
 
 namespace fcl
 {

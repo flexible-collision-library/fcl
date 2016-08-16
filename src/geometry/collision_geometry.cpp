@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/collision_geometry.h"
+#include "fcl/geometry/collision_geometry-inl.h"
 
 namespace fcl
 {

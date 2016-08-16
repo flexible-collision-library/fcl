@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/traversal/traversal_recurse.h"
+#include "fcl/narrowphase/detail/traversal/traversal_recurse-inl.h"
 
 namespace fcl
 {

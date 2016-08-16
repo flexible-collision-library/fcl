@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/kIOS.h"
+#include "fcl/math/bv/kIOS-inl.h"
 
 namespace fcl
 {

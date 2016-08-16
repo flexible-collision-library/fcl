@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/sampler/sampler_se3_quat_ball.h"
+#include "fcl/math/sampler/sampler_se3_quat_ball-inl.h"
 
 namespace fcl
 {

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/octree/octree.h"
+#include "fcl/geometry/octree/octree-inl.h"
 
 namespace fcl
 {

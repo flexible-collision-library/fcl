@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/detail/fitter_kIOS.h"
+#include "fcl/math/bv/detail/fitter_kIOS-inl.h"
 
 namespace fcl {
 namespace detail {

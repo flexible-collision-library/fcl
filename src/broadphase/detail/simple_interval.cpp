@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/broadphase/detail/simple_interval.h"
+#include "fcl/broadphase/detail/simple_interval-inl.h"
 
 namespace fcl
 {

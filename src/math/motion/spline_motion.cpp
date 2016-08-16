@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/motion/spline_motion.h"
+#include "fcl/math/motion/spline_motion-inl.h"
 
 namespace fcl
 {

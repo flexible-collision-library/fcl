@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/convexity_based_algorithm/gjk.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/gjk-inl.h"
 
 namespace fcl
 {

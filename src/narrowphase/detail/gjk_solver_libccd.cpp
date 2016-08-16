@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd-inl.h"
 
 namespace fcl
 {

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/detail/project.h"
+#include "fcl/math/detail/project-inl.h"
 
 namespace fcl
 {

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/sampler/sampler_se2_disk.h"
+#include "fcl/math/sampler/sampler_se2_disk-inl.h"
 
 namespace fcl
 {

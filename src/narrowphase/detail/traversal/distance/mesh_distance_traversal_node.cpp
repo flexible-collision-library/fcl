@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/traversal/distance/mesh_distance_traversal_node.h"
+#include "fcl/narrowphase/detail/traversal/distance/mesh_distance_traversal_node-inl.h"
 
 namespace fcl
 {

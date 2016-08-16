@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/halfspace.h"
+#include "fcl/geometry/shape/halfspace-inl.h"
 
 namespace fcl
 {

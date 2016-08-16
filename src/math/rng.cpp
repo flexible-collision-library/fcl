@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/rng.h"
+#include "fcl/math/rng-inl.h"
 
 namespace fcl
 {

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/broadphase/broadphase_bruteforce.h"
+#include "fcl/broadphase/broadphase_bruteforce-inl.h"
 
 namespace fcl
 {

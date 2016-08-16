@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/detail/converter.h"
+#include "fcl/math/bv/detail/converter-inl.h"
 
 /** @brief Main namespace */
 namespace fcl

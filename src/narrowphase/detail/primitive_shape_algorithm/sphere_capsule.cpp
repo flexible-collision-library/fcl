@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_capsule.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_capsule-inl.h"
 
 namespace fcl
 {

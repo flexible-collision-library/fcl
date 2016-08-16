@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/cone.h"
+#include "fcl/geometry/shape/cone-inl.h"
 
 namespace fcl
 {

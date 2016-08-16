@@ -38,7 +38,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/motion/taylor_model/taylor_model.h"
+#include "fcl/math/motion/taylor_model/taylor_model-inl.h"
 
 namespace fcl
 {

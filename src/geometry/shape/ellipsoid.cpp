@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/ellipsoid.h"
+#include "fcl/geometry/shape/ellipsoid-inl.h"
 
 namespace fcl
 {

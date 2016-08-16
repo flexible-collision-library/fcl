@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/traversal/collision_node.h"
+#include "fcl/narrowphase/detail/traversal/collision_node-inl.h"
 
 namespace fcl
 {

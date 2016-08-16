@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/AABB.h"
+#include "fcl/math/bv/AABB-inl.h"
 
 namespace fcl
 {

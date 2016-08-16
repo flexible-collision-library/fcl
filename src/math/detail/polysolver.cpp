@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/detail/polysolver.h"
+#include "fcl/math/detail/polysolver-inl.h"
 
 namespace fcl
 {

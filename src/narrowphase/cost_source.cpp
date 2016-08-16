@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/cost_source.h"
+#include "fcl/narrowphase/cost_source-inl.h"
 
 namespace fcl
 {

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/sampler/sampler_se3_euler.h"
+#include "fcl/math/sampler/sampler_se3_euler-inl.h"
 
 namespace fcl
 {

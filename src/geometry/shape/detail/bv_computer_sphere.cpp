@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/detail/bv_computer_sphere.h"
+#include "fcl/geometry/shape/detail/bv_computer_sphere-inl.h"
 
 namespace fcl
 {

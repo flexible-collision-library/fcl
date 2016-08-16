@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/convexity_based_algorithm/epa.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/epa-inl.h"
 
 namespace fcl
 {

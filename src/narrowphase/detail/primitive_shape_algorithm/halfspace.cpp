@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace-inl.h"
 
 namespace fcl
 {

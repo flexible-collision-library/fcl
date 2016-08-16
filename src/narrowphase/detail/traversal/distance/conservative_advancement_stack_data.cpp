@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/traversal/distance/conservative_advancement_stack_data.h"
+#include "fcl/narrowphase/detail/traversal/distance/conservative_advancement_stack_data-inl.h"
 
 namespace fcl
 {

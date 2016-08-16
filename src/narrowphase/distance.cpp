@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/distance.h"
+#include "fcl/narrowphase/distance-inl.h"
 
 namespace fcl
 {

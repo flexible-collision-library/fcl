@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/box.h"
+#include "fcl/geometry/shape/box-inl.h"
 
 namespace fcl
 {

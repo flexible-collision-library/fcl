@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
+#include "fcl/narrowphase/detail/traversal/traversal_node_base-inl.h"
 
 namespace fcl
 {

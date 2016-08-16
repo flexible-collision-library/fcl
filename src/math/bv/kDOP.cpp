@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/kDOP.h"
+#include "fcl/math/bv/kDOP-inl.h"
 
 namespace fcl
 {

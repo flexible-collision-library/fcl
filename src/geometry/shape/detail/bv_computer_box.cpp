@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/detail/bv_computer_box.h"
+#include "fcl/geometry/shape/detail/bv_computer_box-inl.h"
 
 namespace fcl
 {

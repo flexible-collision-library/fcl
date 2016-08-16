@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_triangle.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_triangle-inl.h"
 
 namespace fcl
 {

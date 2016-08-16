@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/RSS.h"
+#include "fcl/math/bv/RSS-inl.h"
 
 namespace fcl
 {

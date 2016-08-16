@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/sampler/sampler_se3_quat.h"
+#include "fcl/math/sampler/sampler_se3_quat-inl.h"
 
 namespace fcl
 {

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/plane.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/plane-inl.h"
 
 namespace fcl
 {

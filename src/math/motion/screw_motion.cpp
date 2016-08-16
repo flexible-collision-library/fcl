@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/motion/screw_motion.h"
+#include "fcl/math/motion/screw_motion-inl.h"
 
 namespace fcl
 {

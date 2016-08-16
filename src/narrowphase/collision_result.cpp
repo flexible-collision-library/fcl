@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/collision_result.h"
+#include "fcl/narrowphase/collision_result-inl.h"
 
 namespace fcl
 {

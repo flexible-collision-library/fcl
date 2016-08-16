@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/broadphase/broadphase_SaP.h"
+#include "fcl/broadphase/broadphase_SaP-inl.h"
 
 namespace fcl
 {

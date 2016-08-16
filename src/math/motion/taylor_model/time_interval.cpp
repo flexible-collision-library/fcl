@@ -35,7 +35,7 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
-#include "fcl/math/motion/taylor_model/time_interval.h"
+#include "fcl/math/motion/taylor_model/time_interval-inl.h"
 
 namespace fcl
 {

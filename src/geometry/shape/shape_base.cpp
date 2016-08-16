@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/shape_base.h"
+#include "fcl/geometry/shape/shape_base-inl.h"
 
 namespace fcl
 {

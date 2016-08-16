@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/detail/convexity_based_algorithm/minkowski_diff.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/minkowski_diff-inl.h"
 
 namespace fcl
 {

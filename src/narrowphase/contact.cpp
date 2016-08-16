@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/contact.h"
+#include "fcl/narrowphase/contact-inl.h"
 
 namespace fcl
 {

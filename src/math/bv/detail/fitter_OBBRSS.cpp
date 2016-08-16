@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/detail/fitter_OBBRSS.h"
+#include "fcl/math/bv/detail/fitter_OBBRSS-inl.h"
 
 namespace fcl {
 namespace detail {

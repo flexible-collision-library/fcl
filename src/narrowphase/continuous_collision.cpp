@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/narrowphase/continuous_collision.h"
+#include "fcl/narrowphase/continuous_collision-inl.h"
 
 namespace fcl
 {

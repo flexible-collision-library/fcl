@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/broadphase/broadphase_interval_tree.h"
+#include "fcl/broadphase/broadphase_interval_tree-inl.h"
 
 namespace fcl
 {

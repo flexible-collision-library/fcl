@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/capsule.h"
+#include "fcl/geometry/shape/capsule-inl.h"
 
 namespace fcl
 {

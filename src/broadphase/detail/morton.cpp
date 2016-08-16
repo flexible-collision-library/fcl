@@ -36,7 +36,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/broadphase/detail/morton.h"
+#include "fcl/broadphase/detail/morton-inl.h"
 
 namespace fcl
 {

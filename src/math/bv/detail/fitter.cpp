@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/detail/fitter.h"
+#include "fcl/math/bv/detail/fitter-inl.h"
 
 namespace fcl {
 namespace detail {

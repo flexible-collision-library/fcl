@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/detail/bv_computer_ellipsoid.h"
+#include "fcl/geometry/shape/detail/bv_computer_ellipsoid-inl.h"
 
 namespace fcl
 {

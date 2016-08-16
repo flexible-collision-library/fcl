@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/bvh/BVH_utility.h"
+#include "fcl/geometry/bvh/BVH_utility-inl.h"
 
 namespace fcl
 {

@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/convex.h"
+#include "fcl/geometry/shape/convex-inl.h"
 
 namespace fcl
 {

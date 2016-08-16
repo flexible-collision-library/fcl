@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/bv/OBB.h"
+#include "fcl/math/bv/OBB-inl.h"
 
 namespace fcl
 {

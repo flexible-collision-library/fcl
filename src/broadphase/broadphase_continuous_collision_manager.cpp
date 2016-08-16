@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/broadphase/broadphase_continuous_collision_manager.h"
+#include "fcl/broadphase/broadphase_continuous_collision_manager-inl.h"
 
 namespace fcl
 {

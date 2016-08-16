@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/plane.h"
+#include "fcl/geometry/shape/plane-inl.h"
 
 namespace fcl
 {

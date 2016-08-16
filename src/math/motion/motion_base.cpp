@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/motion/motion_base.h"
+#include "fcl/math/motion/motion_base-inl.h"
 
 namespace fcl
 {
