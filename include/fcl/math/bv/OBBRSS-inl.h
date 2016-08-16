@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_OBBRSS_INL_H
+#define FCL_BV_OBBRSS_INL_H
+
 #include "fcl/math/bv/OBBRSS.h"
 
 namespace fcl
@@ -149,16 +152,6 @@ bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
 }
 
 //==============================================================================
-template <typename S>
-bool overlap(
-    const Transform3<S>& tf,
-    const OBBRSS<S>& b1,
-    const OBBRSS<S>& b2)
-{
-  return overlap(tf, b1.obb, b2.obb);
-}
-
-//==============================================================================
 template <typename S, typename DerivedA, typename DerivedB>
 S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
@@ -167,18 +160,6 @@ S distance(
     Vector3<S>* P, Vector3<S>* Q)
 {
   return distance(R0, T0, b1.rss, b2.rss, P, Q);
-}
-
-//==============================================================================
-template <typename S>
-S distance(
-    const Transform3<S>& tf,
-    const OBBRSS<S>& b1,
-    const OBBRSS<S>& b2,
-    Vector3<S>* P,
-    Vector3<S>* Q)
-{
-  return distance(tf, b1.rss, b2.rss, P, Q);
 }
 
 //==============================================================================
@@ -192,3 +173,5 @@ OBBRSS<S> translate(const OBBRSS<S>& bv, const Vector3<S>& t)
 }
 
 } // namespace fcl
+
+#endif

@@ -44,32 +44,32 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 double segmentSqrDistance(const Vector3<double>& from, const Vector3<double>& to,const Vector3<double>& p, Vector3<double>& nearest);
 
 //==============================================================================
-template <>
+template
 bool projectInTriangle(const Vector3<double>& p1, const Vector3<double>& p2, const Vector3<double>& p3, const Vector3<double>& normal, const Vector3<double>& p);
 
 //==============================================================================
-template <>
+template
 bool sphereTriangleIntersect(const Sphere<double>& s, const Transform3<double>& tf,
                              const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal_);
 
 //==============================================================================
-template <>
+template
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3,
                             double* dist);
 
 //==============================================================================
-template <>
+template
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3,
                             double* dist, Vector3<double>* p1, Vector3<double>* p2);
 
 //==============================================================================
-template <>
+template
 bool sphereTriangleDistance(const Sphere<double>& sp, const Transform3<double>& tf1,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
                             double* dist, Vector3<double>* p1, Vector3<double>* p2);

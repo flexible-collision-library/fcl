@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CONTACT_INL_H
+#define FCL_CONTACT_INL_H
+
 #include "fcl/narrowphase/contact.h"
 
 namespace fcl
@@ -97,3 +100,5 @@ bool Contact<S>::operator <(const Contact& other) const
 }
 
 } // namespace fcl
+
+#endif

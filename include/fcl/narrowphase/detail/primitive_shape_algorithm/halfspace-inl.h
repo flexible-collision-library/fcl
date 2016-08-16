@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_HALFSPACE_INL_H
+#define FCL_NARROWPHASE_DETAIL_HALFSPACE_INL_H
+
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace.h"
 
 namespace fcl
@@ -584,3 +587,5 @@ bool halfspaceIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
 
 } // namespace detail
 } // namespace fcl
+
+#endif

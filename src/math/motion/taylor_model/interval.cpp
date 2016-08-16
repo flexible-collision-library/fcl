@@ -42,15 +42,15 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class Interval<double>;
 
 //==============================================================================
-template <>
+template
 Interval<double> bound(const Interval<double>& i, double v);
 
 //==============================================================================
-template <>
+template
 Interval<double> bound(const Interval<double>& i, const Interval<double>& other);
 
 } // namespace fcl

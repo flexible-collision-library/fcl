@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_PLANE_INL_H
+#define FCL_SHAPE_PLANE_INL_H
+
 #include "fcl/geometry/shape/plane.h"
 
 namespace fcl
@@ -112,5 +115,7 @@ void Plane<S>::unitNormalTest()
 }
 
 } // namespace fcl
+
+#endif
 
 #include "fcl/geometry/shape/detail/bv_computer_plane.h"

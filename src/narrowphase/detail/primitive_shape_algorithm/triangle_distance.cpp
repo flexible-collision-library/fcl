@@ -44,7 +44,7 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 class TriangleDistance<double>;
 
 } // namespace detail

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROADPHASE_SIMPLEHASHTABLE_INL_H
+#define FCL_BROADPHASE_SIMPLEHASHTABLE_INL_H
+
 #include "fcl/broadphase/detail/simple_hash_table.h"
 
 namespace fcl
@@ -114,3 +117,5 @@ void SimpleHashTable<Key, Data, HashFnc>::clear()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

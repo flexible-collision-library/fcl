@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_MATH_SAMPLERSE3QUATBALL_INL_H
+#define FCL_MATH_SAMPLERSE3QUATBALL_INL_H
+
 #include "fcl/math/sampler/sampler_se3_quat_ball.h"
 
 namespace fcl
@@ -90,3 +93,5 @@ Vector7<S> SamplerSE3Quat_ball<S>::sample() const
 }
 
 } // namespace fcl
+
+#endif

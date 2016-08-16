@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class ShapeBase<double>;
 
 } // namespace fcl

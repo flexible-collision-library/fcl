@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class CollisionObject<double>;
 
 } // namespace fcl

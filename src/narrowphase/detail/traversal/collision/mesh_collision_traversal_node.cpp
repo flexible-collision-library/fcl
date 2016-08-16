@@ -44,11 +44,11 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 class MeshCollisionTraversalNodeOBB<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshCollisionTraversalNodeOBB<double>& node,
     const BVHModel<OBB<double>>& model1,
@@ -59,11 +59,11 @@ bool initialize(
     CollisionResult<double>& result);
 
 //==============================================================================
-template <>
+template
 class MeshCollisionTraversalNodeRSS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshCollisionTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -74,11 +74,11 @@ bool initialize(
     CollisionResult<double>& result);
 
 //==============================================================================
-template <>
+template
 class MeshCollisionTraversalNodekIOS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshCollisionTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -89,11 +89,11 @@ bool initialize(
     CollisionResult<double>& result);
 
 //==============================================================================
-template <>
+template
 class MeshCollisionTraversalNodeOBBRSS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshCollisionTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

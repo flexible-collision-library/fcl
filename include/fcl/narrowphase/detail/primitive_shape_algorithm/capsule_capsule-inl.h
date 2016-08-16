@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_CAPSULECAPSULE_INL_H
+#define FCL_NARROWPHASE_DETAIL_CAPSULECAPSULE_INL_H
+
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
 
 namespace fcl
@@ -164,3 +167,5 @@ bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& tf1,
 
 } // namespace detail
 } // namespace fcl
+
+#endif

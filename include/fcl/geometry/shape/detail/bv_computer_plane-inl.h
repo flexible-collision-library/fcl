@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERPLANE_INL_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERPLANE_INL_H
+
 #include "fcl/geometry/shape/detail/bv_computer_plane.h"
 
 namespace fcl
@@ -327,3 +330,5 @@ struct BVComputer<S, KDOP<S, 24>, Plane<S>>
 
 } // namespace detail
 } // namespace fcl
+
+#endif

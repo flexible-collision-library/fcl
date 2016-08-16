@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_MINKOWSKIDIFF_INL_H
+#define FCL_NARROWPHASE_DETAIL_MINKOWSKIDIFF_INL_H
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/minkowski_diff.h"
 
 #include "fcl/geometry/shape/box.h"
@@ -265,3 +268,5 @@ Vector3<S> MinkowskiDiff<S>::support(const Vector3<S>& d, const Vector3<S>& v, s
 
 } // namespace detail
 } // namespace fcl
+
+#endif

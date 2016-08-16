@@ -41,19 +41,19 @@ namespace fcl {
 namespace detail {
 
 //==============================================================================
-template <>
+template
 struct Fitter<double, OBB<double>>;
 
 //==============================================================================
-template <>
+template
 struct Fitter<double, RSS<double>>;
 
 //==============================================================================
-template <>
+template
 struct Fitter<double, kIOS<double>>;
 
 //==============================================================================
-template <>
+template
 struct Fitter<double, OBBRSS<double>>;
 
 } // namespace detail

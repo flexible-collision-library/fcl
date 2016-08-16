@@ -35,6 +35,9 @@
 
 /** \author Jia Pan */
 
+#ifndef FCL_MATH_BV_UTILITY_INL_H
+#define FCL_MATH_BV_UTILITY_INL_H
+
 #include "fcl/math/bv/utility.h"
 
 /** \brief Main namespace */
@@ -60,3 +63,5 @@ void convertBV(
 }
 
 } // namespace fcl
+
+#endif

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROADPHASE_BROADPAHSESPATIALHASH_INL_H
+#define FCL_BROADPHASE_BROADPAHSESPATIALHASH_INL_H
+
 #include "fcl/broadphase/broadphase_spatialhash.h"
 
 namespace fcl
@@ -659,3 +662,5 @@ bool SpatialHashingCollisionManager<S, HashTable>::distanceObjectToObjects(
 }
 
 } // namespace fcl
+
+#endif

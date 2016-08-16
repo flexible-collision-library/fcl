@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class SamplerSE2_disk<double>;
 
 } // namespace fcl

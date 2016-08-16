@@ -58,65 +58,65 @@ float planeIntersectTolerance()
 }
 
 //==============================================================================
-template <>
+template
 bool spherePlaneIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                           const Plane<double>& s2, const Transform3<double>& tf2,
                           std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
-template <>
+template
 bool ellipsoidPlaneIntersect(const Ellipsoid<double>& s1, const Transform3<double>& tf1,
                              const Plane<double>& s2, const Transform3<double>& tf2,
                              std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
-template <>
+template
 bool boxPlaneIntersect(const Box<double>& s1, const Transform3<double>& tf1,
                        const Plane<double>& s2, const Transform3<double>& tf2,
                        std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
-template <>
+template
 bool capsulePlaneIntersect(const Capsule<double>& s1, const Transform3<double>& tf1,
                            const Plane<double>& s2, const Transform3<double>& tf2);
 
 //==============================================================================
-template <>
+template
 bool capsulePlaneIntersect(const Capsule<double>& s1, const Transform3<double>& tf1,
                            const Plane<double>& s2, const Transform3<double>& tf2,
                            std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
-template <>
+template
 bool cylinderPlaneIntersect(const Cylinder<double>& s1, const Transform3<double>& tf1,
                             const Plane<double>& s2, const Transform3<double>& tf2);
 
 //==============================================================================
-template <>
+template
 bool cylinderPlaneIntersect(const Cylinder<double>& s1, const Transform3<double>& tf1,
                             const Plane<double>& s2, const Transform3<double>& tf2,
                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
-template <>
+template
 bool conePlaneIntersect(const Cone<double>& s1, const Transform3<double>& tf1,
                         const Plane<double>& s2, const Transform3<double>& tf2,
                         std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
-template <>
+template
 bool convexPlaneIntersect(const Convex<double>& s1, const Transform3<double>& tf1,
                           const Plane<double>& s2, const Transform3<double>& tf2,
                           Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
-template <>
+template
 bool planeTriangleIntersect(const Plane<double>& s1, const Transform3<double>& tf1,
                             const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
                             Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
 
 //==============================================================================
-template <>
+template
 bool halfspacePlaneIntersect(const Halfspace<double>& s1, const Transform3<double>& tf1,
                              const Plane<double>& s2, const Transform3<double>& tf2,
                              Plane<double>& pl, Vector3<double>& p, Vector3<double>& d,
@@ -124,7 +124,7 @@ bool halfspacePlaneIntersect(const Halfspace<double>& s1, const Transform3<doubl
                              int& ret);
 
 //==============================================================================
-template <>
+template
 bool planeIntersect(const Plane<double>& s1, const Transform3<double>& tf1,
                     const Plane<double>& s2, const Transform3<double>& tf2,
                     std::vector<ContactPoint<double>>* contacts);

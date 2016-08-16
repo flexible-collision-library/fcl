@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
+#define FCL_NARROWPHASE_DETAIL_GJKLIBCCD_INL_H
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
 namespace fcl
@@ -1109,3 +1112,5 @@ inline void triDeleteGJKObject(void* o_)
 
 } // namespace detail
 } // namespace fcl
+
+#endif

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CONSERVATIVE_ADVANCEMENT_INL_H
+#define FCL_CONSERVATIVE_ADVANCEMENT_INL_H
+
 #include "fcl/narrowphase/detail/conservative_advancement_func_matrix.h"
 
 #include "fcl/narrowphase/collision_object.h"
@@ -1002,3 +1005,5 @@ ConservativeAdvancementFunctionMatrix<NarrowPhaseSolver>::ConservativeAdvancemen
 
 } // namespace detail
 } // namespace fcl
+
+#endif

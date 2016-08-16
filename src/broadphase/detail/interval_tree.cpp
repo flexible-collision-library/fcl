@@ -43,10 +43,10 @@ namespace fcl
 namespace detail
 {
 
-template <>
+template
 struct it_recursion_node<double>;
 
-template <>
+template
 class IntervalTree<double>;
 
 } // namespace detail

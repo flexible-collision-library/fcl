@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_MESHCONTINUOUSCOLLISIONTRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_MESHCONTINUOUSCOLLISIONTRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/collision/mesh_continuous_collision_traversal_node.h"
 
 #include "fcl/narrowphase/detail/traversal/collision/intersect.h"
@@ -202,3 +205,5 @@ bool initialize(
 
 } // namespace detail
 } // namespace fcl
+
+#endif

@@ -188,33 +188,12 @@ S distance(
     Vector3<S>* P = nullptr,
     Vector3<S>* Q = nullptr);
 
-/// @brief distance between two RSS bounding volumes
-/// P and Q (optional return values) are the closest points in the rectangles,
-/// not the RSS. But the direction P - Q is the correct direction for cloest
-/// points. Notice that P and Q are both in the local frame of the first RSS
-/// (not global frame and not even the local frame of object 1)
-template <typename S>
-S distance(
-    const Transform3<S>& tf,
-    const RSS<S>& b1,
-    const RSS<S>& b2,
-    Vector3<S>* P = nullptr,
-    Vector3<S>* Q = nullptr);
-
 /// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
 /// b2 is in identity.
 template <typename S, typename DerivedA, typename DerivedB>
 bool overlap(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
-    const RSS<S>& b1,
-    const RSS<S>& b2);
-
-/// @brief Check collision between two RSSs, b1 is in configuration (R0, T0) and
-/// b2 is in identity.
-template <typename S>
-bool overlap(
-    const Transform3<S>& tf,
     const RSS<S>& b1,
     const RSS<S>& b2);
 

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_DISTANCE_INL_H
+#define FCL_DISTANCE_INL_H
+
 #include "fcl/narrowphase/distance.h"
 
 namespace fcl
@@ -172,3 +175,5 @@ S distance(
 }
 
 } // namespace fcl
+
+#endif

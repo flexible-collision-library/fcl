@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_SCREWMOTION_INL_H
+#define FCL_CCD_SCREWMOTION_INL_H
+
 #include "fcl/math/motion/screw_motion.h"
 
 namespace fcl
@@ -222,3 +225,5 @@ const Vector3<S>&ScrewMotion<S>::getAxisOrigin() const
 }
 
 } // namespace fcl
+
+#endif

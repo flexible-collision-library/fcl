@@ -35,6 +35,9 @@
 
 /** @author Jia Pan  */
 
+#ifndef FCL_HIERARCHY_TREE_ARRAY_INL_H
+#define FCL_HIERARCHY_TREE_ARRAY_INL_H
+
 #include "fcl/broadphase/detail/hierarchy_tree_array.h"
 
 namespace fcl
@@ -1125,3 +1128,5 @@ struct SelectImpl<S, AABB<S>>
 } // namespace implementation_array
 } // namespace detail
 } // namespace fcl
+
+#endif

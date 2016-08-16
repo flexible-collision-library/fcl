@@ -35,7 +35,7 @@
 
 /** @author Jia Pan */
 
-#include "fcl/math/geometry-inl.h"
+#include "fcl/math/detail/geometry-inl.h"
 
 namespace fcl
 {
@@ -43,8 +43,19 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 void getExtentAndCenter_pointcloud(
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    unsigned int* indices,
+    int n,
+    const Matrix3<double>& axis,
+    Vector3<double>& center,
+    Vector3<double>& extent);
+
+//==============================================================================
+template
+void getExtentAndCenter_mesh(
     Vector3<double>* ps,
     Vector3<double>* ps2,
     Triangle* ts,
@@ -53,40 +64,6 @@ void getExtentAndCenter_pointcloud(
     const Matrix3<double>& axis,
     Vector3<double>& center,
     Vector3<double>& extent);
-
-//==============================================================================
-template <>
-void getExtentAndCenter_pointcloud(
-    Vector3<double>* ps,
-    Vector3<double>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    Transform3<double>& tf,
-    Vector3<double>& extent);
-
-//==============================================================================
-template <>
-void getExtentAndCenter_mesh(
-    Vector3d* ps,
-    Vector3d* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    const Matrix3d& axis,
-    Vector3d& center,
-    Vector3d& extent);
-
-//==============================================================================
-template <>
-void getExtentAndCenter_mesh(
-    Vector3d* ps,
-    Vector3d* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    Transform3d& tf,
-    Vector3d& extent);
 
 } // namespace detail
 } // namespace fcl

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COLLISION_INL_H
+#define FCL_COLLISION_INL_H
+
 #include "fcl/narrowphase/collision.h"
 
 #include "fcl/narrowphase/detail/collision_func_matrix.h"
@@ -174,3 +177,5 @@ std::size_t collide(
 }
 
 } // namespace fcl
+
+#endif

@@ -51,32 +51,6 @@ template <typename S>
 void getExtentAndCenter_pointcloud(
     Vector3<S>* ps,
     Vector3<S>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    const Matrix3<S>& axis,
-    Vector3<S>& center,
-    Vector3<S>& extent);
-
-/// @brief Compute the bounding volume extent and center for a set or subset of
-/// points. The bounding volume axes are known.
-template <typename S>
-void getExtentAndCenter_pointcloud(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    Transform3<S>& tf,
-    Vector3<S>& extent);
-
-/// @brief Compute the bounding volume extent and center for a set or subset of
-/// points. The bounding volume axes are known.
-template <typename S>
-void getExtentAndCenter_mesh(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
-    Triangle* ts,
     unsigned int* indices,
     int n,
     const Matrix3<S>& axis,
@@ -92,7 +66,8 @@ void getExtentAndCenter_mesh(
     Triangle* ts,
     unsigned int* indices,
     int n,
-    Transform3<S>& tf,
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
     Vector3<S>& extent);
 
 } // namespace detail

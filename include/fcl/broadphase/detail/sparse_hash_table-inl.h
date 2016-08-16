@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROADPHASE_SPARSEHASHTABLE_INL_H
+#define FCL_BROADPHASE_SPARSEHASHTABLE_INL_H
+
 #include "fcl/broadphase/detail/sparse_hash_table.h"
 
 namespace fcl
@@ -114,3 +117,5 @@ void SparseHashTable<Key, Data, HashFnc, TableT>::clear()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

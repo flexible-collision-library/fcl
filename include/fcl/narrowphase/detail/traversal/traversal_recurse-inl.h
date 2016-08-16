@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_RECURSE_INL_H
+#define FCL_TRAVERSAL_RECURSE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/traversal_recurse.h"
 
 #include <queue>
@@ -475,3 +478,5 @@ void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<S>* node, 
 
 } // namespace detail
 } // namespace fcl
+
+#endif

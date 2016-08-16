@@ -35,6 +35,9 @@
 
 /** @author Jia Pan  */
 
+#ifndef FCL_BROADPHASE_DETAIL_NODEBASE_INL_H
+#define FCL_BROADPHASE_DETAIL_NODEBASE_INL_H
+
 #include "fcl/broadphase/detail/node_base.h"
 
 namespace fcl
@@ -74,3 +77,5 @@ NodeBase<BV>::NodeBase()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

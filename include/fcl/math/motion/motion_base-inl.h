@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_MOTION_BASE_INL_H
+#define FCL_CCD_MOTION_BASE_INL_H
+
 #include "fcl/math/motion/motion_base.h"
 
 namespace fcl
@@ -107,3 +110,5 @@ const std::shared_ptr<TimeInterval<S> >&MotionBase<S>::getTimeInterval() const
 }
 
 } // namespace fcl
+
+#endif

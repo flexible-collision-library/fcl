@@ -38,7 +38,7 @@
 #ifndef FCL_SHAPE_SHAPE_BASE_H
 #define FCL_SHAPE_SHAPE_BASE_H
 
-#include "fcl/narrowphase/collision_object.h"
+#include "fcl/geometry/collision_geometry.h"
 
 namespace fcl
 {

@@ -43,7 +43,7 @@ namespace fcl
 namespace detail
 {
 
-template <>
+template
 struct SpatialHash<double>;
 
 } // namespace detail

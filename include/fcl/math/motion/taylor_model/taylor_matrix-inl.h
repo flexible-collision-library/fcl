@@ -35,6 +35,9 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_TAYLOR_MATRIX_INL_H
+#define FCL_CCD_TAYLOR_MATRIX_INL_H
+
 #include "fcl/math/motion/taylor_model/taylor_matrix.h"
 
 namespace fcl
@@ -528,3 +531,5 @@ TMatrix3<S> operator - (const Matrix3<S>& m1, const TMatrix3<S>& m2)
 }
 
 } // namespace fcl
+
+#endif

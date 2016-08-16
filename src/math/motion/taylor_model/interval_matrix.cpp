@@ -41,11 +41,11 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 struct IMatrix3<double>;
 
 //==============================================================================
-template <>
+template
 IMatrix3<double> rotationConstrain(const IMatrix3<double>& m);
 
 } // namespace fcl

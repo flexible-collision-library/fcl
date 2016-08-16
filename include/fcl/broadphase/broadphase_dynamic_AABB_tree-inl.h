@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_INL_H
+#define FCL_BROAD_PHASE_DYNAMIC_AABB_TREE_INL_H
+
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 
 #include <limits>
@@ -973,3 +976,5 @@ DynamicAABBTreeCollisionManager<S>::getTree() const
 }
 
 } // namespace fcl
+
+#endif

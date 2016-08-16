@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_CONE_INL_H
+#define FCL_SHAPE_CONE_INL_H
+
 #include "fcl/geometry/shape/cone.h"
 
 namespace fcl
@@ -114,5 +117,7 @@ std::vector<Vector3<S>> Cone<S>::getBoundVertices(
 }
 
 } // namespace fcl
+
+#endif
 
 #include "fcl/geometry/shape/detail/bv_computer_cone.h"

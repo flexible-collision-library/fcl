@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BVH_MODEL_INL_H
+#define FCL_BVH_MODEL_INL_H
+
 #include "fcl/geometry/bvh/BVH_model.h"
 
 namespace fcl
@@ -1239,3 +1242,5 @@ struct GetNodeTypeImpl<KDOP<S, 24>>
 };
 
 } // namespace fcl
+
+#endif

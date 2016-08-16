@@ -42,19 +42,19 @@ namespace detail {
 namespace OBBRSS_fit_functions {
 
 //==============================================================================
-template <>
+template
 void fit1(Vector3<double>* ps, OBBRSS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit2(Vector3<double>* ps, OBBRSS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit3(Vector3<double>* ps, OBBRSS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fitn(Vector3<double>* ps, int n, OBBRSS<double>& bv);
 
 } // namespace OBBRSS_fit_functions

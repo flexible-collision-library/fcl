@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_FITTEROBB_INL_H
+#define FCL_BV_DETAIL_FITTEROBB_INL_H
+
 #include "fcl/math/bv/detail/fitter_OBB.h"
 
 namespace fcl {
@@ -125,3 +128,5 @@ void fitn(Vector3<S>* ps, int n, OBB<S>& bv)
 } // namespace OBB_fit_functions
 } // namespace detail
 } // namespace fcl
+
+#endif

@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class InterpMotion<double>;
 
 } // namespace fcl

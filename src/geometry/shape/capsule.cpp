@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class Capsule<double>;
 
 } // namespace fcl

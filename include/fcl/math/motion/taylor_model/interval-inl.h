@@ -36,6 +36,9 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_INTERVAL_INL_H
+#define FCL_CCD_INTERVAL_INL_H
+
 #include "fcl/math/motion/taylor_model/interval.h"
 
 namespace fcl
@@ -418,3 +421,5 @@ Interval<S> bound(const Interval<S>& i, const Interval<S>& other)
 }
 
 } // namespace fcl
+
+#endif

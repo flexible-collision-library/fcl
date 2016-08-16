@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_COMPUTEBV_INL_H
+#define FCL_SHAPE_COMPUTEBV_INL_H
+
 #include "fcl/geometry/shape/compute_bv.h"
 
 namespace fcl
@@ -50,3 +53,5 @@ void computeBV(const Shape& s, const Transform3<typename BV::S>& tf, BV& bv)
 }
 
 } // namespace fcl
+
+#endif

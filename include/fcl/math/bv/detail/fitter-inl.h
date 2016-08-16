@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_FITTER_INL_H
+#define FCL_BV_DETAIL_FITTER_INL_H
+
 #include "fcl/math/bv/detail/fitter.h"
 
 namespace fcl {
@@ -133,3 +136,5 @@ void Fitter<S, OBBRSS<S>>::fit(Vector3<S>* ps, int n, OBBRSS<S>& bv)
 
 } // namespace detail
 } // namespace fcl
+
+#endif

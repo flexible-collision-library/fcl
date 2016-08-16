@@ -43,7 +43,7 @@ namespace fcl
 namespace detail
 {
 
-template <>
+template
 class IntervalTreeNode<double>;
 
 } // namespace detail

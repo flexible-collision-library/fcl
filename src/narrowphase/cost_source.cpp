@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 struct CostSource<double>;
 
 } // namespace fcl

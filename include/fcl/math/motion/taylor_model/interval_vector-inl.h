@@ -35,6 +35,9 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_INTERVAL_VECTOR_INL_H
+#define FCL_CCD_INTERVAL_VECTOR_INL_H
+
 #include "fcl/math/motion/taylor_model/interval_vector.h"
 
 namespace fcl
@@ -381,3 +384,5 @@ bool IVector3<S>::contain(const IVector3& v) const
 }
 
 } // namespace fcl
+
+#endif

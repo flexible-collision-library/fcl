@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_MATH_SAMPLERSE2_INL_H
+#define FCL_MATH_SAMPLERSE2_INL_H
+
 #include "fcl/math/sampler/sampler_se2.h"
 
 namespace fcl
@@ -92,3 +95,5 @@ Vector3<S> SamplerSE2<S>::sample() const
 }
 
 } // namespace fcl
+
+#endif

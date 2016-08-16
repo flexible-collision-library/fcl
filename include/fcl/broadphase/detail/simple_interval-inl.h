@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_INL_H
+#define FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_INL_H
+
 #include "fcl/broadphase/detail/simple_interval.h"
 
 namespace fcl
@@ -59,3 +62,5 @@ void SimpleInterval<S>::print()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

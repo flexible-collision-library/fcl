@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROADPHASE_SPATIALHASH_INL_H
+#define FCL_BROADPHASE_SPATIALHASH_INL_H
+
 #include "fcl/broadphase/detail/spatial_hash.h"
 
 namespace fcl
@@ -87,3 +90,5 @@ std::vector<unsigned int> SpatialHash<S>::operator()(const AABB<S>& aabb) const
 
 } // namespace detail
 } // namespace fcl
+
+#endif

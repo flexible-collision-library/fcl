@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_SPLITTER_INL_H
+#define FCL_BV_SPLITTER_INL_H
+
 #include "fcl/geometry/bvh/detail/BV_splitter.h"
 
 namespace fcl
@@ -672,3 +675,5 @@ void computeSplitValue_median(
 
 } // namespace detail
 } // namespace fcl
+
+#endif

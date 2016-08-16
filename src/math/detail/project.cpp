@@ -43,7 +43,7 @@ namespace fcl
 namespace detail
 {
 
-template <>
+template
 class Project<double>;
 
 } // namespace detail

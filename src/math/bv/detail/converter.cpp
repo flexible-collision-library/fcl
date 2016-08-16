@@ -46,39 +46,39 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 class Converter<double, AABB<double>, AABB<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, AABB<double>, OBB<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, OBB<double>, OBB<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, OBBRSS<double>, OBB<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, RSS<double>, OBB<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, OBB<double>, RSS<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, RSS<double>, RSS<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, OBBRSS<double>, RSS<double>>;
 
 //==============================================================================
-template <>
+template
 class Converter<double, AABB<double>, RSS<double>>;
 
 } // namespace detail

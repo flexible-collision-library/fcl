@@ -44,11 +44,11 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 class MeshDistanceTraversalNodeRSS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshDistanceTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -59,11 +59,11 @@ bool initialize(
     DistanceResult<double>& result);
 
 //==============================================================================
-template <>
+template
 class MeshDistanceTraversalNodekIOS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshDistanceTraversalNodekIOS<double>& node,
     const BVHModel<kIOS<double>>& model1,
@@ -74,11 +74,11 @@ bool initialize(
     DistanceResult<double>& result);
 
 //==============================================================================
-template <>
+template
 class MeshDistanceTraversalNodeOBBRSS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshDistanceTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

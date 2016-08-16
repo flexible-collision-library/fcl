@@ -35,6 +35,9 @@
 
 /** @author Jia Pan  */
 
+#ifndef FCL_HIERARCHY_TREE_INL_H
+#define FCL_HIERARCHY_TREE_INL_H
+
 #include "fcl/broadphase/detail/hierarchy_tree.h"
 
 namespace fcl
@@ -1118,3 +1121,5 @@ struct SelectImpl<S, AABB<S>>
 
 } // namespace detail
 } // namespace fcl
+
+#endif

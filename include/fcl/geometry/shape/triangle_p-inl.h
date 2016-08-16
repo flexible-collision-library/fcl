@@ -35,7 +35,12 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_TRIANGLE_P_INL_H
+#define FCL_SHAPE_TRIANGLE_P_INL_H
+
 #include "fcl/geometry/shape/triangle_p.h"
+
+#include "fcl/geometry/shape/compute_bv.h"
 
 namespace fcl
 {
@@ -81,5 +86,7 @@ std::vector<Vector3<S>> TriangleP<S>::getBoundVertices(
 }
 
 } // namespace fcl
+
+#endif
 
 #include "fcl/geometry/shape/detail/bv_computer_triangle_p.h"

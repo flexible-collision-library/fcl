@@ -41,27 +41,20 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class OBB<double>;
 
 //==============================================================================
-template <>
+template
 void computeVertices(const OBB<double>& b, Vector3<double> vertices[8]);
 
 //==============================================================================
-template <>
+template
 OBB<double> merge_largedist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
-template <>
+template
 OBB<double> merge_smalldist(const OBB<double>& b1, const OBB<double>& b2);
-
-//==============================================================================
-template <>
-bool overlap(
-    const Transform3<double>& tf,
-    const OBB<double>& b1,
-    const OBB<double>& b2);
 
 //==============================================================================
 template <>
@@ -72,7 +65,7 @@ bool obbDisjoint(
     const Vector3<double>& b);
 
 //==============================================================================
-template <>
+template
 bool obbDisjoint(
     const Transform3<double>& tf,
     const Vector3<double>& a,

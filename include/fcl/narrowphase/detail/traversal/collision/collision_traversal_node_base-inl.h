@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_COLLISIONTRAVERSALNODEBASE_INL_H
+#define FCL_TRAVERSAL_COLLISIONTRAVERSALNODEBASE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 
 namespace fcl
@@ -88,3 +91,5 @@ void CollisionTraversalNodeBase<S>::enableStatistics(bool enable)
 
 } // namespace detail
 } // namespace fcl
+
+#endif

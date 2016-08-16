@@ -35,7 +35,12 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BVH_UTILITY_INL_H
+#define FCL_BVH_UTILITY_INL_H
+
 #include "fcl/geometry/bvh/BVH_utility.h"
+
+#include "fcl/math/bv/utility.h"
 
 namespace fcl
 {
@@ -150,3 +155,5 @@ void BVHExpand(
 }
 
 } // namespace fcl
+
+#endif

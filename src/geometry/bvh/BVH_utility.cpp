@@ -41,12 +41,12 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 void BVHExpand(
     BVHModel<OBB<double>>& model, const Variance3<double>* ucs, double r);
 
 //==============================================================================
-template <>
+template
 void BVHExpand(
     BVHModel<RSS<double>>& model, const Variance3<double>* ucs, double r);
 

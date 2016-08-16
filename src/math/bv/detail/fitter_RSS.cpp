@@ -42,23 +42,23 @@ namespace detail {
 namespace RSS_fit_functions {
 
 //==============================================================================
-template <>
+template
 void fit1(Vector3<double>* ps, RSS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit2(Vector3<double>* ps, RSS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit3(Vector3<double>* ps, RSS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit6(Vector3<double>* ps, RSS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fitn(Vector3<double>* ps, int n, RSS<double>& bv);
 
 } // namespace RSS_fit_functions

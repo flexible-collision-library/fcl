@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_CAPSULE_INL_H
+#define FCL_SHAPE_CAPSULE_INL_H
+
 #include "fcl/geometry/shape/capsule.h"
 
 namespace fcl
@@ -144,5 +147,7 @@ std::vector<Vector3<S>> Capsule<S>::getBoundVertices(
 }
 
 } // namespace fcl
+
+#endif
 
 #include "fcl/geometry/shape/detail/bv_computer_capsule.h"

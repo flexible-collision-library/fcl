@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
+#define FCL_BROADPHASE_BROADPHASECONTINUOUSCOLLISIONMANAGER_INL_H
+
 #include "fcl/broadphase/broadphase_continuous_collision_manager.h"
 
 namespace fcl
@@ -80,3 +83,5 @@ void BroadPhaseContinuousCollisionManager<S>::update(
 }
 
 } // namespace fcl
+
+#endif

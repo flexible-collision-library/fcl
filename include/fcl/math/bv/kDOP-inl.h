@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_KDOP_INL_H
+#define FCL_BV_KDOP_INL_H
+
 #include "fcl/math/bv/kDOP.h"
 
 namespace fcl
@@ -338,3 +341,5 @@ struct GetDistancesImpl<S, 9>
 };
 
 } // namespace fcl
+
+#endif

@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class SamplerSE3Quat<double>;
 
 } // namespace fcl

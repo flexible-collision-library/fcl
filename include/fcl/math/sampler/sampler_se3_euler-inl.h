@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_MATH_SAMPLERSE3EULER_INL_H
+#define FCL_MATH_SAMPLERSE3EULER_INL_H
+
 #include "fcl/math/sampler/sampler_se3_euler.h"
 
 namespace fcl
@@ -95,3 +98,5 @@ void SamplerSE3Euler<S>::setBound(const Vector3<S>& lower_bound_, const Vector3<
 }
 
 } // namespace fcl
+
+#endif

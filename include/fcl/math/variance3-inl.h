@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_MATH_VARIANCE3_INL_H
+#define FCL_MATH_VARIANCE3_INL_H
+
 #include "fcl/math/variance3.h"
 
 namespace fcl
@@ -84,3 +87,5 @@ Variance3<S>& Variance3<S>::sqrt()
 }
 
 } // namespace fcl
+
+#endif

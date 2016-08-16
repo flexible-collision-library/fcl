@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_INTERSECT_INL_H
+#define FCL_NARROWPHASE_DETAIL_INTERSECT_INL_H
+
 #include "fcl/narrowphase/detail/traversal/collision/intersect.h"
 
 namespace fcl
@@ -1135,3 +1138,5 @@ constexpr unsigned int Intersect<S>::getMaxTriangleClips()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

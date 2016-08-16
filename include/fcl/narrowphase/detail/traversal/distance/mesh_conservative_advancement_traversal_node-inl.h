@@ -35,7 +35,13 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_MESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/distance/mesh_conservative_advancement_traversal_node.h"
+
+#include "fcl/math/bv/RSS.h"
+#include "fcl/math/motion/triangle_motion_bound_visitor.h"
 
 namespace fcl
 {
@@ -326,15 +332,39 @@ bool initialize(
 
 //==============================================================================
 template <typename S>
-MeshConservativeAdvancementTraversalNodeRSS<S>::MeshConservativeAdvancementTraversalNodeRSS(S w_)
+MeshConservativeAdvancementTraversalNodeRSS<S>::
+MeshConservativeAdvancementTraversalNodeRSS(S w_)
   : MeshConservativeAdvancementTraversalNode<RSS<S>>(w_)
 {
-  tf.linear().setIdentity();
+  R.setIdentity();
 }
 
 //==============================================================================
 template <typename S>
-void MeshConservativeAdvancementTraversalNodeRSS<S>::leafTesting(int b1, int b2) const
+S MeshConservativeAdvancementTraversalNodeRSS<S>::
+BVTesting(int b1, int b2) const
+{
+  if (this->enable_statistics)
+    this->num_bv_tests++;
+
+  Vector3<S> P1, P2;
+  S d = distance(
+        R,
+        T,
+        this->model1->getBV(b1).bv,
+        this->model2->getBV(b2).bv,
+        &P1,
+        &P2);
+
+  this->stack.emplace_back(P1, P2, b1, b2, d);
+
+  return d;
+}
+
+//==============================================================================
+template <typename S>
+void MeshConservativeAdvancementTraversalNodeRSS<S>::
+leafTesting(int b1, int b2) const
 {
   detail::meshConservativeAdvancementOrientedNodeLeafTesting(
         b1,
@@ -345,8 +375,8 @@ void MeshConservativeAdvancementTraversalNodeRSS<S>::leafTesting(int b1, int b2)
         this->tri_indices2,
         this->vertices1,
         this->vertices2,
-        tf.linear(),
-        tf.translation(),
+        R,
+        T,
         this->motion1,
         this->motion2,
         this->enable_statistics,
@@ -383,7 +413,29 @@ MeshConservativeAdvancementTraversalNodeOBBRSS<S>::
 MeshConservativeAdvancementTraversalNodeOBBRSS(S w_)
   : MeshConservativeAdvancementTraversalNode<OBBRSS<S>>(w_)
 {
-  tf.linear().setIdentity();
+  R.setIdentity();
+}
+
+//==============================================================================
+template <typename S>
+S MeshConservativeAdvancementTraversalNodeOBBRSS<S>::
+BVTesting(int b1, int b2) const
+{
+  if (this->enable_statistics)
+    this->num_bv_tests++;
+
+  Vector3<S> P1, P2;
+  S d = distance(
+        R,
+        T,
+        this->model1->getBV(b1).bv,
+        this->model2->getBV(b2).bv,
+        &P1,
+        &P2);
+
+  this->stack.emplace_back(P1, P2, b1, b2, d);
+
+  return d;
 }
 
 //==============================================================================
@@ -400,8 +452,8 @@ leafTesting(int b1, int b2) const
         this->tri_indices2,
         this->vertices1,
         this->vertices2,
-        this->tf.linear(),
-        this->tf.translation(),
+        this->R,
+        this->T,
         this->motion1,
         this->motion2,
         this->enable_statistics,
@@ -731,7 +783,7 @@ bool setupMeshConservativeAdvancementOrientedDistanceNode(
 
   node.w = w;
 
-  node.tf = tf1.inverse(Eigen::Isometry) * tf2;
+  relativeTransform(tf1.linear(), tf1.translation(), tf2.linear(), tf2.translation(), node.R, node.T);
 
   return true;
 }
@@ -766,3 +818,5 @@ bool initialize(
 
 } // namespace detail
 } // namespace fcl
+
+#endif

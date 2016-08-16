@@ -35,6 +35,15 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_TRIANGLEMOTIONBOUNDVISITOR_INL_H
+#define FCL_CCD_TRIANGLEMOTIONBOUNDVISITOR_INL_H
+
+#include "fcl/math/motion/triangle_motion_bound_visitor.h"
+
+#include "fcl/math/motion/spline_motion.h"
+#include "fcl/math/motion/screw_motion.h"
+#include "fcl/math/motion/interp_motion.h"
+#include "fcl/math/motion/translation_motion.h"
 #include "fcl/math/motion/triangle_motion_bound_visitor.h"
 
 namespace fcl
@@ -214,3 +223,5 @@ struct TriangleMotionBoundVisitorVisitImpl<S, TranslationMotion<S>>
 };
 
 } // namespace fcl
+
+#endif

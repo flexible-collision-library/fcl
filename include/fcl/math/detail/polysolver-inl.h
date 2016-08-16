@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_POLYSOLVER_INL_H
+#define FCL_NARROWPHASE_DETAIL_POLYSOLVER_INL_H
+
 #include "fcl/math/detail/polysolver.h"
 
 #include <cmath>
@@ -190,3 +193,5 @@ constexpr S PolySolver<S>::getNearZeroThreshold()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

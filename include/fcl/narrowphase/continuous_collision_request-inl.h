@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CONTINUOUSCOLLISIONREQUEST_INL_H
+#define FCL_CONTINUOUSCOLLISIONREQUEST_INL_H
+
 #include "fcl/narrowphase/continuous_collision_request.h"
 
 namespace fcl
@@ -58,3 +61,5 @@ ContinuousCollisionRequest<S>::ContinuousCollisionRequest(
 }
 
 } // namespace fcl
+
+#endif

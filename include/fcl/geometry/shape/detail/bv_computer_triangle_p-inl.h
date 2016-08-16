@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERTRIANGLEP_INL_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERTRIANGLEP_INL_H
+
 #include "fcl/geometry/shape/detail/bv_computer_triangle_p.h"
 
 namespace fcl
@@ -53,3 +56,5 @@ struct BVComputer<S, AABB<S>, TriangleP<S>>
 
 } // namespace detail
 } // namespace fcl
+
+#endif

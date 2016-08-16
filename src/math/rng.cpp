@@ -41,7 +41,7 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class RNG<double>;
 
 } // namespace fcl

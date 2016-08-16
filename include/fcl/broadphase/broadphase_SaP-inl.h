@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROAD_PHASE_SAP_INL_H
+#define FCL_BROAD_PHASE_SAP_INL_H
+
 #include "fcl/broadphase/broadphase_SaP.h"
 
 namespace fcl
@@ -962,3 +965,5 @@ bool SaPCollisionManager<S>::isNotValidPair::operator()(const SaPPair& pair)
 }
 
 } // namespace fcl
+
+#endif

@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class SamplerSE3Euler<double>;
 
 } // namespace fcl

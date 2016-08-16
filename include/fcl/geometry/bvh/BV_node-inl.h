@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_BVNODE_INL_H
+#define FCL_BV_BVNODE_INL_H
+
 #include "fcl/geometry/bvh/BV_node.h"
 
 namespace fcl
@@ -110,3 +113,5 @@ struct GetOrientationImpl<S, OBBRSS<S>>
 };
 
 } // namespace fcl
+
+#endif

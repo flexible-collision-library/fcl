@@ -44,23 +44,23 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 void collide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
-template <>
+template
 void selfCollide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
-template <>
+template
 void distance(DistanceTraversalNodeBase<double>* node, BVHFrontList* front_list, int qsize);
 
 //==============================================================================
-template <>
+template
 void collide2(MeshCollisionTraversalNodeOBB<double>* node, BVHFrontList* front_list);
 
 //==============================================================================
-template <>
+template
 void collide2(MeshCollisionTraversalNodeRSS<double>* node, BVHFrontList* front_list);
 
 } // namespace detail

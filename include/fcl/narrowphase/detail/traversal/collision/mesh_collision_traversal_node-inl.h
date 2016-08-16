@@ -35,7 +35,12 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_MESHCOLLISIONTRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_MESHCOLLISIONTRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"
+
+#include "fcl/narrowphase/collision_result.h"
 
 namespace fcl
 {
@@ -669,7 +674,7 @@ bool setupMeshCollisionOrientedNode(
 
   node.cost_density = model1.cost_density * model2.cost_density;
 
-  relativeTransform(tf1, tf2, node.R, node.T);
+  relativeTransform(tf1.linear(), tf1.translation(), tf2.linear(), tf2.translation(), node.R, node.T);
 
   return true;
 }
@@ -736,3 +741,5 @@ bool initialize(
 
 } // namespace detail
 } // namespace fcl
+
+#endif

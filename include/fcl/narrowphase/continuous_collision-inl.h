@@ -35,7 +35,18 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CONTINUOUS_COLLISION_INL_H
+#define FCL_CONTINUOUS_COLLISION_INL_H
+
 #include "fcl/narrowphase/continuous_collision.h"
+
+#include "fcl/math/motion/translation_motion.h"
+#include "fcl/math/motion/interp_motion.h"
+#include "fcl/math/motion/screw_motion.h"
+#include "fcl/math/motion/spline_motion.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/narrowphase/collision_result.h"
+#include "fcl/narrowphase/detail/traversal/collision_node.h"
 
 namespace fcl
 {
@@ -415,3 +426,5 @@ S collide(
 }
 
 } // namespace fcl
+
+#endif

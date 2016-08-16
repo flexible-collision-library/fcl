@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_FITTERKIOS_INL_H
+#define FCL_BV_DETAIL_FITTERKIOS_INL_H
+
 #include "fcl/math/bv/detail/fitter_kIOS.h"
 
 namespace fcl {
@@ -203,3 +206,5 @@ void fitn(Vector3<S>* ps, int n, kIOS<S>& bv)
 } // namespace kIOS_fit_functions
 } // namespace detail
 } // namespace fcl
+
+#endif

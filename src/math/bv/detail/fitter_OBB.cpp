@@ -42,23 +42,23 @@ namespace detail {
 namespace OBB_fit_functions {
 
 //==============================================================================
-template <>
+template
 void fit1(Vector3<double>* ps, OBB<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit2(Vector3<double>* ps, OBB<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit3(Vector3<double>* ps, OBB<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit6(Vector3<double>* ps, OBB<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fitn(Vector3<double>* ps, int n, OBB<double>& bv);
 
 } // namespace OBB_fit_functions

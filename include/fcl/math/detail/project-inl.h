@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_PROJECT_INL_H
+#define FCL_NARROWPHASE_DETAIL_PROJECT_INL_H
+
 #include "fcl/math/detail/project.h"
 
 namespace fcl
@@ -309,3 +312,5 @@ Project<S>::ProjectResult::ProjectResult()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

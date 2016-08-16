@@ -35,6 +35,9 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_INTERVAL_MATRIX_INL_H
+#define FCL_CCD_INTERVAL_MATRIX_INL_H
+
 #include "fcl/math/motion/taylor_model/interval_matrix.h"
 
 namespace fcl
@@ -328,3 +331,5 @@ IMatrix3<S> rotationConstrain(const IMatrix3<S>& m)
 }
 
 } // namespace fcl
+
+#endif

@@ -44,11 +44,11 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 class MeshConservativeAdvancementTraversalNodeRSS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<double>& node,
     const BVHModel<RSS<double>>& model1,
@@ -58,11 +58,11 @@ bool initialize(
     double w);
 
 //==============================================================================
-template <>
+template
 class MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 //==============================================================================
-template <>
+template
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<double>& node,
     const BVHModel<OBBRSS<double>>& model1,

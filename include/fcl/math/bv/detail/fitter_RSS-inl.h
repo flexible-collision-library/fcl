@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_FITTERRSS_INL_H
+#define FCL_BV_DETAIL_FITTERRSS_INL_H
+
 #include "fcl/math/bv/detail/fitter_RSS.h"
 
 namespace fcl {
@@ -127,3 +130,5 @@ void fitn(Vector3<S>* ps, int n, RSS<S>& bv)
 } // namespace RSS_fit_functions
 } // namespace detail
 } // namespace fcl
+
+#endif

@@ -35,7 +35,12 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COLLISIONREQUEST_INL_H
+#define FCL_COLLISIONREQUEST_INL_H
+
 #include "fcl/narrowphase/collision_request.h"
+
+#include "fcl/narrowphase/collision_result.h"
 
 namespace fcl
 {
@@ -72,3 +77,5 @@ bool CollisionRequest<S>::isSatisfied(
 }
 
 } // namespace fcl
+
+#endif

@@ -41,27 +41,11 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class OBBRSS<double>;
 
 //==============================================================================
-template <>
+template
 OBBRSS<double> translate(const OBBRSS<double>& bv, const Vector3<double>& t);
-
-//==============================================================================
-template <>
-bool overlap(
-    const Transform3<double>& tf,
-    const OBBRSS<double>& b1,
-    const OBBRSS<double>& b2);
-
-//==============================================================================
-template <>
-double distance(
-    const Transform3<double>& tf,
-    const OBBRSS<double>& b1,
-    const OBBRSS<double>& b2,
-    Vector3<double>* P,
-    Vector3<double>* Q);
 
 } // namespace fcl

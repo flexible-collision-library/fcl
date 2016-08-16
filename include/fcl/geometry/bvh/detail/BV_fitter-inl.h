@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_FITTER_INL_H
+#define FCL_BV_FITTER_INL_H
+
 #include "fcl/geometry/bvh/detail/BV_fitter.h"
 
 namespace fcl
@@ -476,3 +479,5 @@ struct FitImpl<S, OBBRSS<S>>
 
 } // namespace detail
 } // namespace fcl
+
+#endif

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_GJK_INL_H
+#define FCL_NARROWPHASE_DETAIL_GJK_INL_H
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk.h"
 
 namespace fcl
@@ -307,3 +310,5 @@ GJK<S>::Simplex::Simplex()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

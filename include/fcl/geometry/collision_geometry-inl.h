@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COLLISION_GEOMETRY_INL_H
+#define FCL_COLLISION_GEOMETRY_INL_H
+
 #include "fcl/geometry/collision_geometry.h"
 
 namespace fcl
@@ -153,3 +156,5 @@ Matrix3<S> CollisionGeometry<S>::computeMomentofInertiaRelatedToCOM() const
 }
 
 } // namespace fcl
+
+#endif

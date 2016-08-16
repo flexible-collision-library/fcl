@@ -43,7 +43,7 @@ namespace fcl
 namespace detail
 {
 
-template <>
+template
 class TraversalNodeBase<double>;
 
 } // namespace detail

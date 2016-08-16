@@ -44,7 +44,7 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 void lineSegmentPointClosestToPoint(
     const Vector3<double> &p,
     const Vector3<double> &s1,
@@ -52,13 +52,13 @@ void lineSegmentPointClosestToPoint(
     Vector3<double> &sp);
 
 //==============================================================================
-template <>
+template
 bool sphereCapsuleIntersect(const Sphere<double>& s1, const Transform3<double>& tf1,
                             const Capsule<double>& s2, const Transform3<double>& tf2,
                             std::vector<ContactPoint<double>>* contacts);
 
 //==============================================================================
-template <>
+template
 bool sphereCapsuleDistance(const Sphere<double>& s1, const Transform3<double>& tf1,
                            const Capsule<double>& s2, const Transform3<double>& tf2,
                            double* dist, Vector3<double>* p1, Vector3<double>* p2);

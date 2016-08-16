@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERCONE_INL_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERCONE_INL_H
+
 #include "fcl/geometry/shape/detail/bv_computer_cone.h"
 
 namespace fcl
@@ -75,3 +78,5 @@ struct BVComputer<S, OBB<S>, Cone<S>>
 
 } // namespace detail
 } // namespace fcl
+
+#endif

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_GEOMETRICSHAPETOBVHMODEL_INL_H
+#define FCL_SHAPE_GEOMETRICSHAPETOBVHMODEL_INL_H
+
 #include "fcl/geometry/shape/geometric_shape_to_BVH_model.h"
 
 namespace fcl
@@ -432,3 +435,5 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 }
 
 } // namespace fcl
+
+#endif

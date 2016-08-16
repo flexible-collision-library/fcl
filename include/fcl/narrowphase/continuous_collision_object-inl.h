@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CONTINUOUS_COLLISION_OBJECT_INL_H
+#define FCL_CONTINUOUS_COLLISION_OBJECT_INL_H
+
 #include "fcl/narrowphase/continuous_collision_object.h"
 
 namespace fcl
@@ -166,3 +169,5 @@ ContinuousCollisionObject<S>::collisionGeometry() const
 }
 
 } // namespace fcl
+
+#endif

@@ -43,35 +43,35 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, AABB<double>, Plane<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, OBB<double>, Plane<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, RSS<double>, Plane<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, OBBRSS<double>, Plane<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, kIOS<double>, Plane<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, KDOP<double, 16>, Plane<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, KDOP<double, 18>, Plane<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, KDOP<double, 24>, Plane<double>>;
 
 } // namespace detail

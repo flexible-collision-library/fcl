@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_SPLINEMOTION_INL_H
+#define FCL_CCD_SPLINEMOTION_INL_H
+
 #include "fcl/math/motion/spline_motion.h"
 
 namespace fcl
@@ -381,3 +384,5 @@ S SplineMotion<S>::getWeight3(S t) const
 }
 
 } // namespace fcl
+
+#endif

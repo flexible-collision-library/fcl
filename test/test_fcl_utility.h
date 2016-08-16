@@ -43,6 +43,11 @@
 #include <iostream>
 #include "fcl/math/constants.h"
 #include "fcl/math/triangle.h"
+#include "fcl/geometry/shape/box.h"
+#include "fcl/geometry/shape/sphere.h"
+#include "fcl/geometry/shape/cylinder.h"
+#include "fcl/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/octree/octree.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/collision_object.h"

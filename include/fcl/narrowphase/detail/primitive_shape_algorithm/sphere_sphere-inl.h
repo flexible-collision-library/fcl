@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_SPHERESPHERE_INL_H
+#define FCL_NARROWPHASE_DETAIL_SPHERESPHERE_INL_H
+
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_sphere.h"
 
 namespace fcl
@@ -91,3 +94,5 @@ bool sphereSphereDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
 
 } // namespace detail
 } // namespace fcl
+
+#endif

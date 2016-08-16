@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_HALFSPACE_INL_H
+#define FCL_SHAPE_HALFSPACE_INL_H
+
 #include "fcl/geometry/shape/halfspace.h"
 
 namespace fcl
@@ -112,5 +115,7 @@ void Halfspace<S>::unitNormalTest()
 }
 
 } // namespace fcl
+
+#endif
 
 #include "fcl/geometry/shape/detail/bv_computer_halfspace.h"

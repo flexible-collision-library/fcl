@@ -35,6 +35,9 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_TAYLOR_VECTOR_INL_H
+#define FCL_CCD_TAYLOR_VECTOR_INL_H
+
 #include "fcl/math/motion/taylor_model/taylor_vector.h"
 
 namespace fcl
@@ -364,3 +367,5 @@ TVector3<S> operator - (const Vector3<S>& v1, const TVector3<S>& v2)
 }
 
 } // namespace fcl
+
+#endif

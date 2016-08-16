@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_DISTANCERAVERSALNODEBASE_INL_H
+#define FCL_TRAVERSAL_DISTANCERAVERSALNODEBASE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
 
 namespace fcl
@@ -88,3 +91,5 @@ void DistanceTraversalNodeBase<S>::enableStatistics(bool enable)
 
 } // namespace detail
 } // namespace fcl
+
+#endif

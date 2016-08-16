@@ -44,21 +44,21 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 void lineClosestApproach(const Vector3<double>& pa, const Vector3<double>& ua,
                          const Vector3<double>& pb, const Vector3<double>& ub,
                          double* alpha, double* beta);
 
 //==============================================================================
-template <>
+template
 int intersectRectQuad2(double h[2], double p[8], double ret[16]);
 
 //==============================================================================
-template <>
+template
 void cullPoints2(int n, double p[], int m, int i0, int iret[]);
 
 //==============================================================================
-template <>
+template
 int boxBox2(
     const Vector3<double>& side1,
     const Transform3<double>& tf1,
@@ -71,7 +71,7 @@ int boxBox2(
     std::vector<ContactPoint<double>>& contacts);
 
 //==============================================================================
-template <>
+template
 bool boxBoxIntersect(const Box<double>& s1, const Transform3<double>& tf1,
                      const Box<double>& s2, const Transform3<double>& tf2,
                      std::vector<ContactPoint<double>>* contacts_);

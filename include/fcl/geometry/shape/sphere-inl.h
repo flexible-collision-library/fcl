@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_SPHERE_INL_H
+#define FCL_SHAPE_SPHERE_INL_H
+
 #include "fcl/geometry/shape/sphere.h"
 
 namespace fcl
@@ -107,5 +110,7 @@ std::vector<Vector3<S>> Sphere<S>::getBoundVertices(
 }
 
 } // namespace fcl
+
+#endif
 
 #include "fcl/geometry/shape/detail/bv_computer_sphere.h"

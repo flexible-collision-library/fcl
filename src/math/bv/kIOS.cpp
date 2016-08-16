@@ -40,24 +40,7 @@
 namespace fcl
 {
  
-//==============================================================================
-template <>
+template
 class kIOS<double>;
-
-//==============================================================================
-template <>
-bool overlap(
-    const Transform3<double>& tf,
-    const kIOS<double>& b1,
-    const kIOS<double>& b2);
-
-//==============================================================================
-template <>
-double distance(
-    const Transform3<double>& tf,
-    const kIOS<double>& b1,
-    const kIOS<double>& b2,
-    Vector3<double>* P,
-    Vector3<double>* Q);
 
 } // namespace fcl

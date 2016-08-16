@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
+#define FCL_BROADPHASE_DETAIL_INTERVALTREENODE_INL_H
+
 #include "fcl/broadphase/detail/interval_tree_node.h"
 
 namespace fcl
@@ -70,3 +73,5 @@ IntervalTreeNode<S>::~IntervalTreeNode()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

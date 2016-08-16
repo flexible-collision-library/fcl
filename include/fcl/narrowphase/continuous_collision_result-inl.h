@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CONTINUOUSCOLLISIONRESULT_INL_H
+#define FCL_CONTINUOUSCOLLISIONRESULT_INL_H
+
 #include "fcl/narrowphase/continuous_collision_result.h"
 
 namespace fcl
@@ -49,3 +52,5 @@ ContinuousCollisionResult<S>::ContinuousCollisionResult()
 }
 
 } // namespace fcl
+
+#endif

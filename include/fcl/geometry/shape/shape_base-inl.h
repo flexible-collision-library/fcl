@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_SHAPE_BASE_INL_H
+#define FCL_SHAPE_SHAPE_BASE_INL_H
+
 #include "fcl/geometry/shape/shape_base.h"
 
 namespace fcl
@@ -56,3 +59,5 @@ OBJECT_TYPE ShapeBase<S>::getObjectType() const
 }
 
 } // namespace fcl
+
+#endif

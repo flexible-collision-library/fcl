@@ -35,6 +35,9 @@
 // This code is based on code developed by Stephane Redon at UNC and Inria for the CATCH library: http://graphics.ewha.ac.kr/CATCH/
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_TIMEINTERVAL_INL_H
+#define FCL_CCD_TIMEINTERVAL_INL_H
+
 #include "fcl/math/motion/taylor_model/time_interval.h"
 
 namespace fcl
@@ -67,3 +70,5 @@ void TimeInterval<S>::setValue(S l, S r)
 }
 
 } // namespace fcl
+
+#endif

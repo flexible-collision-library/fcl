@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COLLISION_OBJECT_INL_H
+#define FCL_COLLISION_OBJECT_INL_H
+
 #include "fcl/narrowphase/collision_object.h"
 
 namespace fcl
@@ -274,3 +277,5 @@ bool CollisionObject<S>::isUncertain() const
 }
 
 } // namespace fcl
+
+#endif

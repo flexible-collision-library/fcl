@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_AABB_INL_H
+#define FCL_BV_AABB_INL_H
+
 #include "fcl/math/bv/AABB.h"
 
 namespace fcl
@@ -345,3 +348,5 @@ AABB<S> translate(
 }
 
 } // namespace fcl
+
+#endif

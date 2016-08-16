@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_CONSTRUCT_BOX_INL_H
+#define FCL_SHAPE_CONSTRUCT_BOX_INL_H
+
 #include "fcl/geometry/shape/construct_box.h"
 
 namespace fcl
@@ -183,3 +186,5 @@ void constructBox(const KDOP<S, 24>& bv, const Transform3<S>& tf_bv, Box<S>& box
 }
 
 } // namespace fcl
+
+#endif

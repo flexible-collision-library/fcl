@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_INTERPMOTION_INL_H
+#define FCL_CCD_INTERPMOTION_INL_H
+
 #include "fcl/math/motion/interp_motion.h"
 
 namespace fcl
@@ -240,3 +243,5 @@ const Vector3<S>&InterpMotion<S>::getLinearVelocity() const
 }
 
 } // namespace fcl
+
+#endif

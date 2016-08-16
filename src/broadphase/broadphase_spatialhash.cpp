@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class SpatialHashingCollisionManager<
     double,
     detail::SimpleHashTable<

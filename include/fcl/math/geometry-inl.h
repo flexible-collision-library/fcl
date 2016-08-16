@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_UTILITY_INL_H
+#define FCL_BV_DETAIL_UTILITY_INL_H
+
 #include "fcl/math/detail/geometry.h"
 
 namespace fcl {
@@ -1124,23 +1127,6 @@ void getExtentAndCenter(
 
 //==============================================================================
 template <typename S>
-void getExtentAndCenter(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    Transform3<S>& tf,
-    Vector3<S>& extent)
-{
-  if(ts)
-    detail::getExtentAndCenter_mesh(ps, ps2, ts, indices, n, tf, extent);
-  else
-    detail::getExtentAndCenter_pointcloud(ps, ps2, indices, n, tf, extent);
-}
-
-//==============================================================================
-template <typename S>
 void getCovariance(Vector3<S>* ps,
     Vector3<S>* ps2,
     Triangle* ts,
@@ -1229,3 +1215,5 @@ void getCovariance(Vector3<S>* ps,
 }
 
 } // namespace fcl
+
+#endif

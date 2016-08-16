@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_KIOS_INL_H
+#define FCL_BV_KIOS_INL_H
+
 #include "fcl/math/bv/kIOS.h"
 
 namespace fcl
@@ -255,22 +258,6 @@ bool overlap(
 }
 
 //==============================================================================
-template <typename S>
-bool overlap(
-    const Transform3<S>& tf,
-    const kIOS<S>& b1,
-    const kIOS<S>& b2)
-{
-  kIOS<S> b2_temp = b2;
-  for(unsigned int i = 0; i < b2_temp.num_spheres; ++i)
-    b2_temp.spheres[i].o = tf * b2_temp.spheres[i].o;
-
-  b2_temp.obb.frame = tf * b2_temp.obb.frame;
-
-  return b1.overlap(b2_temp);
-}
-
-//==============================================================================
 template <typename S, typename DerivedA, typename DerivedB>
 S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
@@ -323,3 +310,5 @@ kIOS<S> translate(
 }
 
 } // namespace fcl
+
+#endif

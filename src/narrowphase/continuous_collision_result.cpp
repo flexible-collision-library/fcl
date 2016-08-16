@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 struct ContinuousCollisionResult<double>;
 
 } // namespace fcl

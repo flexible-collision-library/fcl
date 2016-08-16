@@ -35,10 +35,14 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_GJKSOLVERINDEP_INL_H
+#define FCL_NARROWPHASE_GJKSOLVERINDEP_INL_H
+
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 
 #include <algorithm>
 
+#include "fcl/geometry/shape/triangle_p.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/epa.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
@@ -944,3 +948,5 @@ Vector3<S> GJKSolver_indep<S>::getCachedGuess() const
 
 } // namespace detail
 } // namespace fcl
+
+#endif

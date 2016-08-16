@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COLLISION_FUNC_MATRIX_INL_H
+#define FCL_COLLISION_FUNC_MATRIX_INL_H
+
 #include "fcl/narrowphase/detail/collision_func_matrix.h"
 
 #include "fcl/config.h"
@@ -887,3 +890,5 @@ CollisionFunctionMatrix<NarrowPhaseSolver>::CollisionFunctionMatrix()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

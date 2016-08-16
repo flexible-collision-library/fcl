@@ -41,16 +41,16 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 struct ContactPoint<double>;
 
 //==============================================================================
-template <>
+template
 bool comparePenDepth(
     const ContactPoint<double>& _cp1, const ContactPoint<double>& _cp2);
 
 //==============================================================================
-template <>
+template
 void flipNormal(std::vector<ContactPoint<double>>& contacts);
 
 } // namespace fcl

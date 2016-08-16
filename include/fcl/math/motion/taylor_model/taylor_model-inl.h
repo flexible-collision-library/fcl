@@ -38,6 +38,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_TAYLOR_MODEL_INL_H
+#define FCL_CCD_TAYLOR_MODEL_INL_H
+
 #include "fcl/math/motion/taylor_model/taylor_model.h"
 
 namespace fcl
@@ -611,3 +614,5 @@ void generateTaylorModelForLinearFunc(TaylorModel<S>& tm, S p, S v)
 }
 
 } // namespace fcl
+
+#endif

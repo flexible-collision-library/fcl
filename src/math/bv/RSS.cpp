@@ -41,15 +41,15 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class RSS<double>;
 
 //==============================================================================
-template <>
+template
 void clipToRange(double& val, double a, double b);
 
 //==============================================================================
-template <>
+template
 void segCoords(
         double& t,
         double& u,
@@ -60,7 +60,7 @@ void segCoords(
         double B_dot_T);
 
 //==============================================================================
-template <>
+template
 bool inVoronoi(
         double a,
         double b,
@@ -71,7 +71,7 @@ bool inVoronoi(
         double B_dot_T);
 
 //==============================================================================
-template <>
+template
 double rectDistance(
     const Matrix3<double>& Rab,
     const Vector3<double>& Tab,
@@ -81,7 +81,7 @@ double rectDistance(
     Vector3<double>* Q);
 
 //==============================================================================
-template <>
+template
 double rectDistance(
     const Transform3<double>& tfab,
     const double a[2],
@@ -90,23 +90,7 @@ double rectDistance(
     Vector3<double>* Q);
 
 //==============================================================================
-template <>
-double distance(
-    const Transform3<double>& tf,
-    const RSS<double>& b1,
-    const RSS<double>& b2,
-    Vector3<double>* P,
-    Vector3<double>* Q);
-
-//==============================================================================
-template <>
-bool overlap(
-    const Transform3<double>& tf,
-    const RSS<double>& b1,
-    const RSS<double>& b2);
-
-//==============================================================================
-template <>
+template
 RSS<double> translate(const RSS<double>& bv, const Vector3<double>& t);
 
 } // namespace fcl

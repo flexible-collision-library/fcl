@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COLLISION_NODE_INL_H
+#define FCL_COLLISION_NODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
 
 /// @brief collision and distance function on traversal nodes. these functions provide a higher level abstraction for collision functions provided in collision_func_matrix
@@ -70,9 +73,9 @@ void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list)
   {
     Matrix3<S> Rtemp, R;
     Vector3<S> Ttemp, T;
-    Rtemp = node->tf.linear() * node->model2->getBV(0).getOrientation();
+    Rtemp = node->R * node->model2->getBV(0).getOrientation();
     R = node->model1->getBV(0).getOrientation().transpose() * Rtemp;
-    Ttemp = node->tf.linear() * node->model2->getBV(0).getCenter() + node->tf.translation();
+    Ttemp = node->R * node->model2->getBV(0).getCenter() + node->T;
     Ttemp -= node->model1->getBV(0).getCenter();
     T = node->model1->getBV(0).getOrientation().transpose() * Ttemp;
 
@@ -90,7 +93,7 @@ void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list)
   }
   else
   {
-    collisionRecurse(node, 0, 0, node->tf.linear(), node->tf.translation(), front_list);
+    collisionRecurse(node, 0, 0, node->R, node->T, front_list);
   }
 }
 
@@ -125,3 +128,5 @@ void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list, int 
 
 } // namespace detail
 } // namespace fcl
+
+#endif

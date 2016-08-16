@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_RSS_INL_H
+#define FCL_BV_RSS_INL_H
+
 #include "fcl/math/bv/RSS.h"
 
 namespace fcl
@@ -1887,17 +1890,6 @@ bool overlap(
 }
 
 //==============================================================================
-template <typename S>
-bool overlap(
-    const Transform3<S>& tf,
-    const RSS<S>& b1,
-    const RSS<S>& b2)
-{
-  S dist = rectDistance(b1.frame.inverse(Eigen::Isometry) * tf * b2.frame, b1.l, b2.l);
-  return (dist <= (b1.r + b2.r));
-}
-
-//==============================================================================
 template <typename S, typename DerivedA, typename DerivedB>
 S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
@@ -1920,22 +1912,6 @@ S distance(
 
 //==============================================================================
 template <typename S>
-S distance(
-    const Transform3<S>& tf,
-    const RSS<S>& b1,
-    const RSS<S>& b2,
-    Vector3<S>* P,
-    Vector3<S>* Q)
-{
-  const Transform3<S> tf1 = b1.frame.inverse(Eigen::Isometry) * tf * b2.frame;
-
-  S dist = rectDistance(tf1, b1.l, b2.l, P, Q);
-  dist -= (b1.r + b2.r);
-  return (dist < (S)0.0) ? (S)0.0 : dist;
-}
-
-//==============================================================================
-template <typename S>
 RSS<S> translate(const RSS<S>& bv, const Vector3<S>& t)
 {
   RSS<S> res(bv);
@@ -1944,3 +1920,5 @@ RSS<S> translate(const RSS<S>& bv, const Vector3<S>& t)
 }
 
 } // namespace fcl
+
+#endif

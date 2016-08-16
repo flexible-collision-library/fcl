@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CONTACTPOINT_INL_H
+#define FCL_CONTACTPOINT_INL_H
+
 #include "fcl/narrowphase/contact_point.h"
 
 namespace fcl
@@ -75,3 +78,5 @@ void flipNormal(std::vector<ContactPoint<S>>& contacts)
 }
 
 } // namespace fcl
+
+#endif

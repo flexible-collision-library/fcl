@@ -37,6 +37,8 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include "fcl/geometry/shape/box.h"
+#include "fcl/geometry/shape/capsule.h"
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/narrowphase/collision_object.h"

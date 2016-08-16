@@ -39,7 +39,6 @@
 #define FCL_SHAPE_TRIANGLE_P_H
 
 #include "fcl/geometry/shape/shape_base.h"
-#include "fcl/geometry/shape/compute_bv.h"
 
 namespace fcl
 {

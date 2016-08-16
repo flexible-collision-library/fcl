@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_SHAPEBVHCOLLISIONTRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/collision/shape_bvh_collision_traversal_node.h"
 
 namespace fcl
@@ -94,3 +97,5 @@ bool ShapeBVHCollisionTraversalNode<Shape, BV>::BVTesting(int b1, int b2) const
 
 } // namespace detail
 } // namespace fcl
+
+#endif

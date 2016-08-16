@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class DynamicAABBTreeCollisionManager_Array<double>;
 
 } // namespace fcl

@@ -39,7 +39,7 @@
 namespace fcl
 {
 
-template <>
+template
 struct constants<double>;
 
 } // namespace fcl

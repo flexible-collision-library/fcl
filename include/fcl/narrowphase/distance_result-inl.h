@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_DISTANCERESULT_INL_H
+#define FCL_DISTANCERESULT_INL_H
+
 #include "fcl/narrowphase/distance_result.h"
 
 namespace fcl
@@ -122,3 +125,5 @@ void DistanceResult<S>::clear()
 }
 
 } // namespace fcl
+
+#endif

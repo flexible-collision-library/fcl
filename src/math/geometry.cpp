@@ -40,42 +40,42 @@
 namespace fcl {
 
 //==============================================================================
-template <>
+template
 void normalize(Vector3d& v, bool* signal);
 
 //==============================================================================
-template <>
+template
 void hat(Matrix3d& mat, const Vector3d& vec);
 
 //==============================================================================
-template <>
+template
 void eigen(const Matrix3d& m, Vector3d& dout, Matrix3d& vout);
 
 //==============================================================================
-template <>
+template
 void eigen_old(const Matrix3d& m, Vector3d& dout, Matrix3d& vout);
 
 //==============================================================================
-template <>
+template
 void axisFromEigen(
     const Matrix3d& eigenV, const Vector3d& eigenS, Matrix3d& axis);
 
 //==============================================================================
-template <>
+template
 void axisFromEigen(const Matrix3d& eigenV,
                    const Vector3d& eigenS,
                    Transform3d& tf);
 
 //==============================================================================
-template <>
+template
 void generateCoordinateSystem(Matrix3d& axis);
 
 //==============================================================================
-template <>
+template
 void generateCoordinateSystem(Transform3d& tf);
 
 //==============================================================================
-template <>
+template
 void getRadiusAndOriginAndRectangleSize(
     Vector3d* ps,
     Vector3d* ps2,
@@ -88,7 +88,7 @@ void getRadiusAndOriginAndRectangleSize(
     double& r);
 
 //==============================================================================
-template <>
+template
 void getRadiusAndOriginAndRectangleSize(
     Vector3d* ps,
     Vector3d* ps2,
@@ -100,7 +100,7 @@ void getRadiusAndOriginAndRectangleSize(
     double& r);
 
 //==============================================================================
-template <>
+template
 void circumCircleComputation(
     const Vector3d& a,
     const Vector3d& b,
@@ -109,7 +109,7 @@ void circumCircleComputation(
     double& radius);
 
 //==============================================================================
-template <>
+template
 double maximumDistance_mesh(
     Vector3d* ps,
     Vector3d* ps2,
@@ -119,7 +119,7 @@ double maximumDistance_mesh(
     const Vector3d& query);
 
 //==============================================================================
-template <>
+template
 double maximumDistance_pointcloud(
     Vector3d* ps,
     Vector3d* ps2,
@@ -128,7 +128,7 @@ double maximumDistance_pointcloud(
     const Vector3d& query);
 
 //==============================================================================
-template <>
+template
 double maximumDistance(
     Vector3d* ps,
     Vector3d* ps2,
@@ -138,7 +138,7 @@ double maximumDistance(
     const Vector3d& query);
 
 //==============================================================================
-template <>
+template
 void getExtentAndCenter(
     Vector3d* ps,
     Vector3d* ps2,
@@ -150,18 +150,7 @@ void getExtentAndCenter(
     Vector3d& extent);
 
 //==============================================================================
-template <>
-void getExtentAndCenter(
-    Vector3d* ps,
-    Vector3d* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    Transform3d& tf,
-    Vector3d& extent);
-
-//==============================================================================
-template <>
+template
 void getCovariance(
     Vector3d* ps,
     Vector3d* ps2,

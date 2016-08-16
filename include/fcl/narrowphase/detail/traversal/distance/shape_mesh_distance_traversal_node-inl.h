@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_SHAPEMESHDISTANCETRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_SHAPEMESHDISTANCETRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/distance/shape_mesh_distance_traversal_node.h"
 
 namespace fcl
@@ -371,3 +374,5 @@ bool initialize(ShapeMeshDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& 
 
 } // namespace detail
 } // namespace fcl
+
+#endif

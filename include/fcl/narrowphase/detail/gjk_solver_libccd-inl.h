@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_GJKSOLVERLIBCCD_INL_H
+#define FCL_NARROWPHASE_GJKSOLVERLIBCCD_INL_H
+
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 
 #include <algorithm>
@@ -856,3 +859,5 @@ Vector3<S> GJKSolver_libccd<S>::getCachedGuess() const
 
 } // namespace detail
 } // namespace fcl
+
+#endif

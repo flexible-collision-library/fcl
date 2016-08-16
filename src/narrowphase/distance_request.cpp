@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 struct DistanceRequest<double>;
 
 } // namespace fcl

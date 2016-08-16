@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_DISTANCE_FUNC_MATRIX_INL_H
+#define FCL_DISTANCE_FUNC_MATRIX_INL_H
+
 #include "fcl/narrowphase/detail/distance_func_matrix.h"
 
 #include "fcl/config.h"
@@ -702,3 +705,5 @@ DistanceFunctionMatrix<NarrowPhaseSolver>::DistanceFunctionMatrix()
 
 } // namespace detail
 } // namespace fcl
+
+#endif

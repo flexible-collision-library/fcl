@@ -58,7 +58,7 @@ S epsilon()
   return 1e-6;
 }
 
-template <>
+template
 float epsilon()
 {
   return 1e-4;

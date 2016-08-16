@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROAD_PHASE_INTERVAL_TREE_INL_H
+#define FCL_BROAD_PHASE_INTERVAL_TREE_INL_H
+
 #include "fcl/broadphase/broadphase_interval_tree.h"
 
 namespace fcl
@@ -739,3 +742,5 @@ IntervalTreeCollisionManager<S>::SAPInterval::SAPInterval(
 }
 
 } // namespace fcl
+
+#endif

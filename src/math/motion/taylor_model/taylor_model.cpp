@@ -44,31 +44,31 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class TaylorModel<double>;
 
 //==============================================================================
-template <>
+template
 TaylorModel<double> operator * (double d, const TaylorModel<double>& a);
 
 //==============================================================================
-template <>
+template
 TaylorModel<double> operator + (double d, const TaylorModel<double>& a);
 
 //==============================================================================
-template <>
+template
 TaylorModel<double> operator - (double d, const TaylorModel<double>& a);
 
 //==============================================================================
-template <>
+template
 void generateTaylorModelForCosFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
-template <>
+template
 void generateTaylorModelForSinFunc(TaylorModel<double>& tm, double w, double q0);
 
 //==============================================================================
-template <>
+template
 void generateTaylorModelForLinearFunc(TaylorModel<double>& tm, double p, double v);
 
 } // namespace fcl

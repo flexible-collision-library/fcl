@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class SplineMotion<double>;
 
 } // namespace fcl

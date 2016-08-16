@@ -85,7 +85,6 @@ public:
                               const Transform3<S>& tf,
                               Vector3<S>& P, Vector3<S>& Q);
 
-  FCL_DEPRECATED
   static S triDistance(const Vector3<S>& S1, const Vector3<S>& S2, const Vector3<S>& S3,
                               const Vector3<S>& T1, const Vector3<S>& T2, const Vector3<S>& T3,
                               const Matrix3<S>& R, const Vector3<S>& Tl,

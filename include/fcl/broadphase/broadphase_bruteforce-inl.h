@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROAD_PHASE_BRUTE_FORCE_INL_H
+#define FCL_BROAD_PHASE_BRUTE_FORCE_INL_H
+
 #include "fcl/broadphase/broadphase_bruteforce.h"
 
 namespace fcl
@@ -239,3 +242,5 @@ size_t NaiveCollisionManager<S>::size() const
 }
 
 } // namespace fcl
+
+#endif

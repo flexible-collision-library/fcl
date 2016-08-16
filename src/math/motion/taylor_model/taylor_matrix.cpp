@@ -41,35 +41,35 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class TMatrix3<double>;
 
 //==============================================================================
-template <>
+template
 TMatrix3<double> rotationConstrain(const TMatrix3<double>& m);
 
 //==============================================================================
-template <>
+template
 TMatrix3<double> operator * (const Matrix3<double>& m, const TaylorModel<double>& a);
 
 //==============================================================================
-template <>
+template
 TMatrix3<double> operator * (const TaylorModel<double>& a, const Matrix3<double>& m);
 
 //==============================================================================
-template <>
+template
 TMatrix3<double> operator * (const TaylorModel<double>& a, const TMatrix3<double>& m);
 
 //==============================================================================
-template <>
+template
 TMatrix3<double> operator * (double d, const TMatrix3<double>& m);
 
 //==============================================================================
-template <>
+template
 TMatrix3<double> operator + (const Matrix3<double>& m1, const TMatrix3<double>& m2);
 
 //==============================================================================
-template <>
+template
 TMatrix3<double> operator - (const Matrix3<double>& m1, const TMatrix3<double>& m2);
 
 } // namespace fcl

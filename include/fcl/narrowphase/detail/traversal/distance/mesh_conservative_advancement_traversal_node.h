@@ -114,27 +114,14 @@ class MeshConservativeAdvancementTraversalNodeRSS
 public:
   MeshConservativeAdvancementTraversalNodeRSS(S w_ = 1);
 
-  S BVTesting(int b1, int b2) const
-  {
-    if (this->enable_statistics)
-      this->num_bv_tests++;
-
-    Vector3<S> P1, P2;
-    S d = distance(
-        tf,
-		this->model1->getBV(b1).bv,
-		this->model2->getBV(b2).bv, &P1, &P2);
-
-    this->stack.emplace_back(P1, P2, b1, b2, d);
-
-    return d;
-  }
+  S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
   bool canStop(S c) const;
 
-  Transform3<S> tf;
+  Matrix3<S> R;
+  Vector3<S> T;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -160,27 +147,14 @@ class MeshConservativeAdvancementTraversalNodeOBBRSS
 public:
   MeshConservativeAdvancementTraversalNodeOBBRSS(S w_ = 1);
 
-  S BVTesting(int b1, int b2) const
-  {
-    if (this->enable_statistics)
-      this->num_bv_tests++;
-
-    Vector3<S> P1, P2;
-    S d = distance(
-        tf,
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv, &P1, &P2);
-
-    this->stack.emplace_back(P1, P2, b1, b2, d);
-
-    return d;
-  }
+  S BVTesting(int b1, int b2) const;
 
   void leafTesting(int b1, int b2) const;
 
   bool canStop(S c) const;
 
-  Transform3<S> tf;
+  Matrix3<S> R;
+  Vector3<S> T;
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

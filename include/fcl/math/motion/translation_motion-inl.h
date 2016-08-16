@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_TRANSLATIONMOTION_INL_H
+#define FCL_CCD_TRANSLATIONMOTION_INL_H
+
 #include "fcl/math/motion/translation_motion.h"
 
 namespace fcl
@@ -118,3 +121,5 @@ Vector3<S> TranslationMotion<S>::getVelocity() const
 }
 
 } // namespace fcl
+
+#endif

@@ -40,7 +40,7 @@
 namespace fcl
 {
 
-template <>
+template
 class SaPCollisionManager<double>;
 
 } // namespace fcl

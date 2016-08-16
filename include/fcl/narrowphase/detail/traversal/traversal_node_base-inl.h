@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_TRAVERSALNODEBASE_INL_H
+#define FCL_TRAVERSAL_TRAVERSALNODEBASE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
 
 namespace fcl
@@ -115,3 +118,5 @@ int TraversalNodeBase<S>::getSecondRightChild(int b) const
 
 } // namespace detail
 } // namespace fcl
+
+#endif

@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COSTSOURCE_INL_H
+#define FCL_COSTSOURCE_INL_H
+
 #include "fcl/narrowphase/cost_source.h"
 
 namespace fcl
@@ -96,3 +99,5 @@ bool CostSource<S>::operator <(const CostSource& other) const
 }
 
 } // namespace fcl
+
+#endif

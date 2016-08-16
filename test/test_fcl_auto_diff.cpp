@@ -105,7 +105,7 @@ void test_basic()
 GTEST_TEST(FCL_AUTO_DIFF, basic)
 {
 //  test_basic<float>();
-//  test_basic<double>();
+  test_basic<double>();
 }
 
 //==============================================================================

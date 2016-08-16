@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_CCD_TBVMOTIONBOUNDVISITOR_INL_H
+#define FCL_CCD_TBVMOTIONBOUNDVISITOR_INL_H
+
 #include "fcl/math/motion/tbv_motion_bound_visitor.h"
 
 namespace fcl
@@ -265,3 +268,5 @@ struct TBVMotionBoundVisitorVisitImpl<S, RSS<S>, TranslationMotion<S>>
 };
 
 } // namespace fcl
+
+#endif

@@ -41,35 +41,35 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class KDOP<double, 16>;
 
 //==============================================================================
-template <>
+template
 class KDOP<double, 18>;
 
 //==============================================================================
-template <>
+template
 class KDOP<double, 24>;
 
 //==============================================================================
-template <>
+template
 void minmax(double a, double b, double& minv, double& maxv);
 
 //==============================================================================
-template <>
+template
 void minmax(double p, double& minv, double& maxv);
 
 //==============================================================================
-template <>
+template
 void getDistances<double, 5>(const Vector3<double>& p, double* d);
 
 //==============================================================================
-template <>
+template
 void getDistances<double, 6>(const Vector3<double>& p, double* d);
 
 //==============================================================================
-template <>
+template
 void getDistances<double, 9>(const Vector3<double>& p, double* d);
 
 } // namespace fcl

@@ -36,6 +36,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_MORTON_INL_H
+#define FCL_MORTON_INL_H
+
 #include "fcl/broadphase/detail/morton.h"
 
 namespace fcl
@@ -159,3 +162,5 @@ constexpr size_t morton_functor<S, std::bitset<N>>::bits()
 } // namespace detail
 /// @endcond
 } // namespace fcl
+
+#endif

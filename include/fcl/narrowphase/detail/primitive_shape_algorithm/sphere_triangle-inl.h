@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_SPHERETRIANGLE_INL_H
+#define FCL_NARROWPHASE_DETAIL_SPHERETRIANGLE_INL_H
+
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_triangle.h"
 
 #include "fcl/math/detail/project.h"
@@ -473,3 +476,5 @@ bool sphereTriangleDistance(const Sphere<S>& sp, const Transform3<S>& tf1,
 
 } // namespace detail
 } // namespace fcl
+
+#endif

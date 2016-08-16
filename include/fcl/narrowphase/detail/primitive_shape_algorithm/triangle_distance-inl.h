@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_NARROWPHASE_DETAIL_TRIANGLEDISTANCE_INL_H
+#define FCL_NARROWPHASE_DETAIL_TRIANGLEDISTANCE_INL_H
+
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/triangle_distance.h"
 
 namespace fcl
@@ -456,3 +459,5 @@ S TriangleDistance<S>::triDistance(const Vector3<S>& S1, const Vector3<S>& S2, c
 
 } // namespace detail
 } // namespace fcl
+
+#endif

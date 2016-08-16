@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_BVHDISTANCETRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_BVHDISTANCETRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/distance/bvh_distance_traversal_node.h"
 
 namespace fcl
@@ -123,3 +126,5 @@ typename BV::S BVHDistanceTraversalNode<BV>::BVTesting(int b1, int b2) const
 
 } // namespace detail
 } // namespace fcl
+
+#endif

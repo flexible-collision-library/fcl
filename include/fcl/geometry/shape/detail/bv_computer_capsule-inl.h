@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_DETAIL_BVCOMPUTERCAPSULE_INL_H
+#define FCL_SHAPE_DETAIL_BVCOMPUTERCAPSULE_INL_H
+
 #include "fcl/geometry/shape/detail/bv_computer_capsule.h"
 
 namespace fcl
@@ -75,3 +78,5 @@ struct BVComputer<S, OBB<S>, Capsule<S>>
 
 } // namespace detail
 } // namespace fcl
+
+#endif

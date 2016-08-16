@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_MATH_RNG_INL_H
+#define FCL_MATH_RNG_INL_H
+
 #include "fcl/math/rng.h"
 
 namespace fcl
@@ -210,3 +213,5 @@ uint_fast32_t RNG<S>::getSeed()
 }
 
 } // namespace fcl
+
+#endif

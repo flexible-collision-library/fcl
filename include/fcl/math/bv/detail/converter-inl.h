@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_CONVERTER_INL_H
+#define FCL_BV_DETAIL_CONVERTER_INL_H
+
 #include "fcl/math/bv/detail/converter.h"
 
 /** @brief Main namespace */
@@ -236,3 +239,5 @@ void Converter<S, AABB<S>, RSS<S>>::convert(const AABB<S>& bv1, const Transform3
 /// @endcond 
 
 } // namespace fcl
+
+#endif

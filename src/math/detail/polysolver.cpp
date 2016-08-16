@@ -42,7 +42,7 @@ namespace fcl
 
 namespace detail {
 
-template <>
+template
 class PolySolver<double>;
 
 } // namespace detail

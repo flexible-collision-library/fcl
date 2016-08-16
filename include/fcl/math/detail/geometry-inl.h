@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_DETAIL_UTILITY_INL_H
+#define FCL_BV_DETAIL_UTILITY_INL_H
+
 #include "fcl/math/detail/geometry.h"
 
 namespace fcl
@@ -102,67 +105,6 @@ void getExtentAndCenter_pointcloud(
   const Vector3<S> o = (max_coord + min_coord) / 2;
   center.noalias() = axis * o;
   extent.noalias() = (max_coord - min_coord) * 0.5;
-}
-
-//==============================================================================
-template <typename S>
-void getExtentAndCenter_pointcloud(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
-    unsigned int* indices,
-    int n,
-    Transform3<S>& tf,
-    Vector3<S>& extent)
-{
-  bool indirect_index = true;
-  if(!indices) indirect_index = false;
-
-  auto real_max = std::numeric_limits<S>::max();
-
-  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
-  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
-
-  for(int i = 0; i < n; ++i)
-  {
-    int index = indirect_index ? indices[i] : i;
-
-    const Vector3<S>& p = ps[index];
-    Vector3<S> proj(
-        tf.linear().col(0).dot(p),
-        tf.linear().col(1).dot(p),
-        tf.linear().col(2).dot(p));
-
-    for(int j = 0; j < 3; ++j)
-    {
-      if(proj[j] > max_coord[j])
-        max_coord[j] = proj[j];
-
-      if(proj[j] < min_coord[j])
-        min_coord[j] = proj[j];
-    }
-
-    if(ps2)
-    {
-      const Vector3<S>& v = ps2[index];
-      Vector3<S> proj(
-          tf.linear().col(0).dot(v),
-          tf.linear().col(1).dot(v),
-          tf.linear().col(2).dot(v));
-
-      for(int j = 0; j < 3; ++j)
-      {
-        if(proj[j] > max_coord[j])
-          max_coord[j] = proj[j];
-
-        if(proj[j] < min_coord[j])
-          min_coord[j] = proj[j];
-      }
-    }
-  }
-
-  const Vector3<S> o = (max_coord + min_coord) / 2;
-  tf.translation().noalias() = tf.linear() * o;
-  extent.noalias() = (max_coord - min_coord) / 2;
 }
 
 //==============================================================================
@@ -236,76 +178,7 @@ void getExtentAndCenter_mesh(Vector3<S>* ps,
   extent.noalias() = (max_coord - min_coord) / 2;
 }
 
-//==============================================================================
-template <typename S>
-void getExtentAndCenter_mesh(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    Transform3<S>& tf,
-    Vector3<S>& extent)
-{
-  bool indirect_index = true;
-  if(!indices) indirect_index = false;
-
-  auto real_max = std::numeric_limits<S>::max();
-
-  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
-  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
-
-  for(int i = 0; i < n; ++i)
-  {
-    const unsigned int index = indirect_index? indices[i] : i;
-    const Triangle& t = ts[index];
-
-    for(int j = 0; j < 3; ++j)
-    {
-      const int point_id = t[j];
-      const Vector3<S>& p = ps[point_id];
-      const Vector3<S> proj(
-          tf.linear().col(0).dot(p),
-          tf.linear().col(1).dot(p),
-          tf.linear().col(2).dot(p));
-
-      for(int k = 0; k < 3; ++k)
-      {
-        if(proj[k] > max_coord[k])
-          max_coord[k] = proj[k];
-
-        if(proj[k] < min_coord[k])
-          min_coord[k] = proj[k];
-      }
-    }
-
-    if(ps2)
-    {
-      for(int j = 0; j < 3; ++j)
-      {
-        const int point_id = t[j];
-        const Vector3<S>& p = ps2[point_id];
-        const Vector3<S> proj(
-            tf.linear().col(0).dot(p),
-            tf.linear().col(1).dot(p),
-            tf.linear().col(2).dot(p));
-
-        for(int k = 0; k < 3; ++k)
-        {
-          if(proj[k] > max_coord[k])
-            max_coord[k] = proj[k];
-
-          if(proj[k] < min_coord[k])
-            min_coord[k] = proj[k];
-        }
-      }
-    }
-  }
-
-  const Vector3<S> o = (max_coord + min_coord) * 0.5;
-  tf.translation().noalias() = tf.linear() * o;
-  extent.noalias() = (max_coord - min_coord) * 0.5;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#endif

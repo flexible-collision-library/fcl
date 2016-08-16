@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_OCTREE_INL_H
+#define FCL_OCTREE_INL_H
+
 #include "fcl/geometry/octree/octree.h"
 
 namespace fcl
@@ -282,3 +285,5 @@ void computeChildBV(const AABB<S>& root_bv, unsigned int i, AABB<S>& child_bv)
 }
 
 } // namespace fcl
+
+#endif

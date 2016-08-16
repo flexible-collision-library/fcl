@@ -44,40 +44,40 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 class GJKInitializer<double, Cylinder<double>>;
 
 //==============================================================================
-template <>
+template
 class GJKInitializer<double, Sphere<double>>;
 
 //==============================================================================
-template <>
+template
 class GJKInitializer<double, Ellipsoid<double>>;
 
 //==============================================================================
-template <>
+template
 class GJKInitializer<double, Box<double>>;
 
 //==============================================================================
-template <>
+template
 class GJKInitializer<double, Capsule<double>>;
 
 //==============================================================================
-template <>
+template
 class GJKInitializer<double, Cone<double>>;
 
 //==============================================================================
-template <>
+template
 class GJKInitializer<double, Convex<double>>;
 
 //==============================================================================
-template <>
+template
 void* triCreateGJKObject(
     const Vector3d& P1, const Vector3d& P2, const Vector3d& P3);
 
 //==============================================================================
-template <>
+template
 void* triCreateGJKObject(
     const Vector3d& P1,
     const Vector3d& P2,
@@ -85,7 +85,7 @@ void* triCreateGJKObject(
     const Transform3d& tf);
 
 //==============================================================================
-template <>
+template
 bool GJKCollide(
     void* obj1,
     ccd_support_fn supp1,
@@ -100,7 +100,7 @@ bool GJKCollide(
     Vector3d* normal);
 
 //==============================================================================
-template <>
+template
 bool GJKDistance(
     void* obj1,
     ccd_support_fn supp1,

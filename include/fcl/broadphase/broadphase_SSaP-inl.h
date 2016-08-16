@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BROAD_PHASE_SSAP_INL_H
+#define FCL_BROAD_PHASE_SSAP_INL_H
+
 #include "fcl/broadphase/broadphase_SSaP.h"
 
 namespace fcl
@@ -583,4 +586,6 @@ size_t SSaPCollisionManager<S>::size() const
   return objs_x.size();
 }
 
-} // namespace
+} // namespace fcl
+
+#endif

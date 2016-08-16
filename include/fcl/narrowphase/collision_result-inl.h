@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_COLLISIONRESULT_INL_H
+#define FCL_COLLISIONRESULT_INL_H
+
 #include "fcl/narrowphase/collision_result.h"
 
 namespace fcl
@@ -122,3 +125,5 @@ void CollisionResult<S>::clear()
 }
 
 } // namespace fcl
+
+#endif

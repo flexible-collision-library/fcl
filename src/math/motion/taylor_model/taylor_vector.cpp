@@ -41,23 +41,23 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 class TVector3<double>;
 
 //==============================================================================
-template <>
+template
 void generateTVector3ForLinearFunc(TVector3<double>& v, const Vector3<double>& position, const Vector3<double>& velocity);
 
 //==============================================================================
-template <>
+template
 TVector3<double> operator * (const Vector3<double>& v, const TaylorModel<double>& a);
 
 //==============================================================================
-template <>
+template
 TVector3<double> operator + (const Vector3<double>& v1, const TVector3<double>& v2);
 
 //==============================================================================
-template <>
+template
 TVector3<double> operator - (const Vector3<double>& v1, const TVector3<double>& v2);
 
 } // namespace fcl

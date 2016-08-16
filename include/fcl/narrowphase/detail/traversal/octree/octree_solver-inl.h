@@ -35,7 +35,12 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_OCTREE_OCTREESOLVER_INL_H
+#define FCL_TRAVERSAL_OCTREE_OCTREESOLVER_INL_H
+
 #include "fcl/narrowphase/detail/traversal/octree/octree_solver.h"
+
+#include "fcl/geometry/shape/construct_box.h"
 
 namespace fcl
 {
@@ -1099,3 +1104,5 @@ bool OcTreeSolver<NarrowPhaseSolver>::OcTreeIntersectRecurse(const OcTree<S>* tr
 
 } // namespace detail
 } // namespace fcl
+
+#endif

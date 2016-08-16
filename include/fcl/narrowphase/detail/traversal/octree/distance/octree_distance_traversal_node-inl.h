@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_OCTREE_OCTREEDISTANCETRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_OCTREE_OCTREEDISTANCETRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/octree/distance/octree_distance_traversal_node.h"
 
 namespace fcl
@@ -100,3 +103,5 @@ bool initialize(
 
 } // namespace detail
 } // namespace fcl
+
+#endif

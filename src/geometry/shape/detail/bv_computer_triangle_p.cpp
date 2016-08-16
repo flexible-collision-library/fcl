@@ -42,7 +42,7 @@ namespace fcl
 namespace detail
 {
 
-template <>
+template
 struct BVComputer<double, AABB<double>, TriangleP<double>>;
 
 } // namespace detail

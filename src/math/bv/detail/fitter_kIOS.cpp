@@ -42,19 +42,19 @@ namespace detail {
 namespace kIOS_fit_functions {
 
 //==============================================================================
-template <>
+template
 void fit1(Vector3<double>* ps, kIOS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit2(Vector3<double>* ps, kIOS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fit3(Vector3<double>* ps, kIOS<double>& bv);
 
 //==============================================================================
-template <>
+template
 void fitn(Vector3<double>* ps, int n, kIOS<double>& bv);
 
 } // namespace kIOS_fit_functions

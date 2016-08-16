@@ -35,7 +35,12 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_DISTANCEREQUEST_INL_H
+#define FCL_DISTANCEREQUEST_INL_H
+
 #include "fcl/narrowphase/distance_request.h"
+
+#include "fcl/narrowphase/distance_result.h"
 
 namespace fcl
 {
@@ -64,3 +69,5 @@ bool DistanceRequest<S>::isSatisfied(
 }
 
 } // namespace fcl
+
+#endif

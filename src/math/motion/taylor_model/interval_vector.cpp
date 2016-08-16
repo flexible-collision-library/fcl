@@ -41,15 +41,15 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 struct IVector3<double>;
 
 //==============================================================================
-template <>
+template
 IVector3<double> bound(const IVector3<double>& i, const Vector3<double>& v);
 
 //==============================================================================
-template <>
+template
 IVector3<double> bound(const IVector3<double>& i, const IVector3<double>& v);
 
 } // namespace fcl

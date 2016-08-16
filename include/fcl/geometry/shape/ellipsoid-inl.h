@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_SHAPE_ELLIPSOID_INL_H
+#define FCL_SHAPE_ELLIPSOID_INL_H
+
 #include "fcl/geometry/shape/ellipsoid.h"
 
 namespace fcl
@@ -135,5 +138,7 @@ std::vector<Vector3<S>> Ellipsoid<S>::getBoundVertices(
 }
 
 } // namespace fcl
+
+#endif
 
 #include "fcl/geometry/shape/detail/bv_computer_ellipsoid.h"

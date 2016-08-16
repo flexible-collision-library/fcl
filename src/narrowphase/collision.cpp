@@ -41,7 +41,7 @@ namespace fcl
 {
 
 //==============================================================================
-template <>
+template
 std::size_t collide(
     const CollisionObject<double>* o1,
     const CollisionObject<double>* o2,
@@ -49,7 +49,7 @@ std::size_t collide(
     CollisionResult<double>& result);
 
 //==============================================================================
-template <>
+template
 std::size_t collide(
     const CollisionGeometry<double>* o1,
     const Transform3<double>& tf1,

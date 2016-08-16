@@ -43,11 +43,11 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, AABB<double>, Box<double>>;
 
 //==============================================================================
-template <>
+template
 struct BVComputer<double, OBB<double>, Box<double>>;
 
 } // namespace detail

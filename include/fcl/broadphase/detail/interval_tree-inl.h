@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_INTERVAL_TREE_INL_H
+#define FCL_INTERVAL_TREE_INL_H
+
 #include "fcl/broadphase/detail/interval_tree.h"
 
 namespace fcl
@@ -568,3 +571,5 @@ std::deque<SimpleInterval<S>*> IntervalTree<S>::query(double low, double high)
 
 } // namespace detail
 } // namespace fcl
+
+#endif

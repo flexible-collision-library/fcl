@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_BV_OBB_INL_H
+#define FCL_BV_OBB_INL_H
+
 #include "fcl/math/bv/OBB.h"
 
 namespace fcl
@@ -354,17 +357,6 @@ bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
 
 //==============================================================================
 template <typename S>
-bool overlap(
-    const Transform3<S>& tf,
-    const OBB<S>& b1,
-    const OBB<S>& b2)
-{
-  return !obbDisjoint(
-        b1.frame.inverse(Eigen::Isometry) * tf * b2.frame, b1.extent, b2.extent);
-}
-
-//==============================================================================
-template <typename S>
 bool obbDisjoint(const Matrix3<S>& B, const Vector3<S>& T,
                  const Vector3<S>& a, const Vector3<S>& b)
 {
@@ -621,3 +613,5 @@ bool obbDisjoint(
 }
 
 } // namespace fcl
+
+#endif

@@ -46,7 +46,7 @@ namespace detail
 {
 
 //==============================================================================
-template <>
+template
 uint32 quantize(double x, uint32 n);
 
 //==============================================================================
@@ -85,11 +85,11 @@ uint64 morton_code60(uint32 x, uint32 y, uint32 z)
 }
 
 //==============================================================================
-template<>
+template
 struct morton_functor<double, uint32>;
 
 //==============================================================================
-template<>
+template
 struct morton_functor<double, uint64>;
 
 } // namespace detail

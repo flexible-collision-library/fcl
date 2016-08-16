@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_CONVERVATIVEADVANCEMENTSTACKDATA_INL_H
+#define FCL_TRAVERSAL_CONVERVATIVEADVANCEMENTSTACKDATA_INL_H
+
 #include "fcl/narrowphase/detail/traversal/distance/conservative_advancement_stack_data.h"
 
 namespace fcl
@@ -56,3 +59,5 @@ ConservativeAdvancementStackData<S>::ConservativeAdvancementStackData(
 
 } // namespace detail
 } // namespace fcl
+
+#endif

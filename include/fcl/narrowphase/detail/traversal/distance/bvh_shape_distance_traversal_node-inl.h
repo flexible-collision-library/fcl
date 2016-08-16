@@ -35,6 +35,9 @@
 
 /** @author Jia Pan */
 
+#ifndef FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_INL_H
+#define FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_INL_H
+
 #include "fcl/narrowphase/detail/traversal/distance/bvh_shape_distance_traversal_node.h"
 
 namespace fcl
@@ -87,3 +90,5 @@ typename BV::S BVHShapeDistanceTraversalNode<BV, Shape>::BVTesting(
 
 } // namespace detail
 } // namespace fcl
+
+#endif
