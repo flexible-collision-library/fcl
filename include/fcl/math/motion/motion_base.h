@@ -96,78 +96,8 @@ using MotionBased = MotionBase<double>;
 template <typename S>
 using MotionBasePtr = std::shared_ptr<MotionBase<S>>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-MotionBase<S>::MotionBase()
-  : time_interval_(std::shared_ptr<TimeInterval<S>>(new TimeInterval<S>(0, 1)))
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-MotionBase<S>::~MotionBase() {}
-
-//==============================================================================
-template <typename S>
-void MotionBase<S>::getCurrentTransform(Matrix3<S>& R, Vector3<S>& T) const
-{
-  Transform3<S> tf;
-  getCurrentTransform(tf);
-  R = tf.linear();
-  T = tf.translation();
-}
-
-//==============================================================================
-template <typename S>
-void MotionBase<S>::getCurrentTransform(Quaternion<S>& Q, Vector3<S>& T) const
-{
-  Transform3<S> tf;
-  getCurrentTransform(tf);
-  Q = tf.linear();
-  T = tf.translation();
-}
-
-//==============================================================================
-template <typename S>
-void MotionBase<S>::getCurrentRotation(Matrix3<S>& R) const
-{
-  Transform3<S> tf;
-  getCurrentTransform(tf);
-  R = tf.linear();
-}
-
-//==============================================================================
-template <typename S>
-void MotionBase<S>::getCurrentRotation(Quaternion<S>& Q) const
-{
-  Transform3<S> tf;
-  getCurrentTransform(tf);
-  Q = tf.linear();
-}
-
-//==============================================================================
-template <typename S>
-void MotionBase<S>::getCurrentTranslation(Vector3<S>& T) const
-{
-  Transform3<S> tf;
-  getCurrentTransform(tf);
-  T = tf.translation();
-}
-
-//==============================================================================
-template <typename S>
-const std::shared_ptr<TimeInterval<S> >&MotionBase<S>::getTimeInterval() const
-{
-  return time_interval_;
-}
-
 } // namespace fcl
+
+#include "fcl/math/motion/motion_base-inl.h"
 
 #endif

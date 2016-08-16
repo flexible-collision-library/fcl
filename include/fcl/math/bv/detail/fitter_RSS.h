@@ -59,97 +59,10 @@ void fit6(Vector3<S>* ps, RSS<S>& bv);
 template <typename S>
 void fitn(Vector3<S>* ps, int n, RSS<S>& bv);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-void fit1(Vector3<S>* ps, RSS<S>& bv)
-{
-  bv.To = ps[0];
-  bv.axis.setIdentity();
-  bv.l[0] = 0;
-  bv.l[1] = 0;
-  bv.r = 0;
-}
-
-//==============================================================================
-template <typename S>
-void fit2(Vector3<S>* ps, RSS<S>& bv)
-{
-  const Vector3<S>& p1 = ps[0];
-  const Vector3<S>& p2 = ps[1];
-  Vector3<S> p1p2 = p1 - p2;
-  S len_p1p2 = p1p2.norm();
-  p1p2.normalize();
-
-  bv.axis.col(0) = p1p2;
-  generateCoordinateSystem(bv.axis);
-  bv.l[0] = len_p1p2;
-  bv.l[1] = 0;
-
-  bv.To = p2;
-  bv.r = 0;
-}
-
-//==============================================================================
-template <typename S>
-void fit3(Vector3<S>* ps, RSS<S>& bv)
-{
-  const Vector3<S>& p1 = ps[0];
-  const Vector3<S>& p2 = ps[1];
-  const Vector3<S>& p3 = ps[2];
-  Vector3<S> e[3];
-  e[0] = p1 - p2;
-  e[1] = p2 - p3;
-  e[2] = p3 - p1;
-  S len[3];
-  len[0] = e[0].squaredNorm();
-  len[1] = e[1].squaredNorm();
-  len[2] = e[2].squaredNorm();
-
-  int imax = 0;
-  if(len[1] > len[0]) imax = 1;
-  if(len[2] > len[imax]) imax = 2;
-
-  bv.axis.col(2).noalias() = e[0].cross(e[1]).normalized();
-  bv.axis.col(0).noalias() = e[imax].normalized();
-  bv.axis.col(1).noalias() = bv.axis.col(2).cross(bv.axis.col(0));
-
-  getRadiusAndOriginAndRectangleSize<S>(ps, nullptr, nullptr, nullptr, 3, bv.axis, bv.To, bv.l, bv.r);
-}
-
-//==============================================================================
-template <typename S>
-void fit6(Vector3<S>* ps, RSS<S>& bv)
-{
-  RSS<S> bv1, bv2;
-  fit3(ps, bv1);
-  fit3(ps + 3, bv2);
-  bv = bv1 + bv2;
-}
-
-//==============================================================================
-template <typename S>
-void fitn(Vector3<S>* ps, int n, RSS<S>& bv)
-{
-  Matrix3<S> M; // row first matrix
-  Matrix3<S> E; // row first eigen-vectors
-  Vector3<S> s = Vector3<S>::Zero();
-
-  getCovariance<S>(ps, nullptr, nullptr, nullptr, n, M);
-  eigen_old(M, s, E);
-  axisFromEigen(E, s, bv.axis);
-
-  // set rss origin, rectangle size and radius
-  getRadiusAndOriginAndRectangleSize<S>(ps, nullptr, nullptr, nullptr, n, bv.axis, bv.To, bv.l, bv.r);
-}
-
 } // namespace RSS_fit_functions
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/math/bv/detail/fitter_RSS-inl.h"
 
 #endif

@@ -66,59 +66,8 @@ protected:
 using SamplerSE3Euler_ballf = SamplerSE3Euler_ball<float>;
 using SamplerSE3Euler_balld = SamplerSE3Euler_ball<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-SamplerSE3Euler_ball<S>::SamplerSE3Euler_ball() {}
-
-//==============================================================================
-template <typename S>
-SamplerSE3Euler_ball<S>::SamplerSE3Euler_ball(S r_) : r(r_)
-{
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Euler_ball<S>::setBound(const S& r_)
-{
-  r = r_;
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Euler_ball<S>::getBound(S& r_) const
-{
-  r_ = r;
-}
-
-//==============================================================================
-template <typename S>
-Vector6<S> SamplerSE3Euler_ball<S>::sample() const
-{
-  Vector6<S> q;
-  S x, y, z;
-  this->rng.ball(0, r, x, y, z);
-  q[0] = x;
-  q[1] = y;
-  q[2] = z;
-
-  S s[4];
-  this->rng.quaternion(s);
-
-  Quaternion<S> quat(s[0], s[1], s[2], s[3]);
-  Vector3<S> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
-  q[3] = angles[0];
-  q[4] = angles[1];
-  q[5] = angles[2];
-
-  return q;
-}
-
 } // namespace fcl
+
+#include "fcl/math/sampler/sampler_se3_euler_ball-inl.h"
 
 #endif

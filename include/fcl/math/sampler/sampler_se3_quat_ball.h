@@ -66,61 +66,8 @@ protected:
 using SamplerSE3Quat_ballf = SamplerSE3Quat_ball<float>;
 using SamplerSE3Quat_balld = SamplerSE3Quat_ball<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-SamplerSE3Quat_ball<S>::SamplerSE3Quat_ball()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-SamplerSE3Quat_ball<S>::SamplerSE3Quat_ball(S r_) : r(r_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Quat_ball<S>::setBound(const S& r_)
-{
-  r = r_;
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Quat_ball<S>::getBound(S& r_) const
-{
-  r_ = r;
-}
-
-//==============================================================================
-template <typename S>
-Vector7<S> SamplerSE3Quat_ball<S>::sample() const
-{
-  Vector7<S> q;
-  S x, y, z;
-  this->rng.ball(0, r, x, y, z);
-  q[0] = x;
-  q[1] = y;
-  q[2] = z;
-
-  S s[4];
-  this->rng.quaternion(s);
-
-  q[3] = s[0];
-  q[4] = s[1];
-  q[5] = s[2];
-  q[6] = s[3];
-  return q;
-}
-
 } // namespace fcl
+
+#include "fcl/math/sampler/sampler_se3_quat_ball-inl.h"
 
 #endif

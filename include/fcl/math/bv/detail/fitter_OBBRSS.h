@@ -58,46 +58,10 @@ void fit3(Vector3<S>* ps, OBBRSS<S>& bv);
 template <typename S>
 void fitn(Vector3<S>* ps, int n, OBBRSS<S>& bv);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-void fit1(Vector3<S>* ps, OBBRSS<S>& bv)
-{
-  OBB_fit_functions::fit1(ps, bv.obb);
-  RSS_fit_functions::fit1(ps, bv.rss);
-}
-
-//==============================================================================
-template <typename S>
-void fit2(Vector3<S>* ps, OBBRSS<S>& bv)
-{
-  OBB_fit_functions::fit2(ps, bv.obb);
-  RSS_fit_functions::fit2(ps, bv.rss);
-}
-
-//==============================================================================
-template <typename S>
-void fit3(Vector3<S>* ps, OBBRSS<S>& bv)
-{
-  OBB_fit_functions::fit3(ps, bv.obb);
-  RSS_fit_functions::fit3(ps, bv.rss);
-}
-
-//==============================================================================
-template <typename S>
-void fitn(Vector3<S>* ps, int n, OBBRSS<S>& bv)
-{
-  OBB_fit_functions::fitn(ps, n, bv.obb);
-  RSS_fit_functions::fitn(ps, n, bv.rss);
-}
-
 } // namespace OBBRSS_fit_functions
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/math/bv/detail/fitter_OBBRSS-inl.h"
 
 #endif
