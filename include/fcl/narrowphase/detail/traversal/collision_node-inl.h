@@ -48,6 +48,26 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+void collide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void selfCollide(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void distance(DistanceTraversalNodeBase<double>* node, BVHFrontList* front_list, int qsize);
+
+//==============================================================================
+extern template
+void collide2(MeshCollisionTraversalNodeOBB<double>* node, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void collide2(MeshCollisionTraversalNodeRSS<double>* node, BVHFrontList* front_list);
+
+//==============================================================================
 template <typename S>
 void collide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list)
 {

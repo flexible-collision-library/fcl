@@ -140,6 +140,26 @@ void fitn(Vector3<S>* ps, int n, OBB<S>& bv)
 }
 
 //==============================================================================
+extern template
+void fit1(Vector3<double>* ps, OBB<double>& bv);
+
+//==============================================================================
+extern template
+void fit2(Vector3<double>* ps, OBB<double>& bv);
+
+//==============================================================================
+extern template
+void fit3(Vector3<double>* ps, OBB<double>& bv);
+
+//==============================================================================
+extern template
+void fit6(Vector3<double>* ps, OBB<double>& bv);
+
+//==============================================================================
+extern template
+void fitn(Vector3<double>* ps, int n, OBB<double>& bv);
+
+//==============================================================================
 } // namespace OBB_fit_functions
 //==============================================================================
 
@@ -229,6 +249,26 @@ void fitn(Vector3<S>* ps, int n, RSS<S>& bv)
   // set rss origin, rectangle size and radius
   getRadiusAndOriginAndRectangleSize<S>(ps, nullptr, nullptr, nullptr, n, bv.axis, bv.To, bv.l, bv.r);
 }
+
+//==============================================================================
+extern template
+void fit1(Vector3<double>* ps, RSS<double>& bv);
+
+//==============================================================================
+extern template
+void fit2(Vector3<double>* ps, RSS<double>& bv);
+
+//==============================================================================
+extern template
+void fit3(Vector3<double>* ps, RSS<double>& bv);
+
+//==============================================================================
+extern template
+void fit6(Vector3<double>* ps, RSS<double>& bv);
+
+//==============================================================================
+extern template
+void fitn(Vector3<double>* ps, int n, RSS<double>& bv);
 
 //==============================================================================
 } // namespace RSS_fit_functions
@@ -401,6 +441,22 @@ void fitn(Vector3<S>* ps, int n, kIOS<S>& bv)
 }
 
 //==============================================================================
+extern template
+void fit1(Vector3<double>* ps, kIOS<double>& bv);
+
+//==============================================================================
+extern template
+void fit2(Vector3<double>* ps, kIOS<double>& bv);
+
+//==============================================================================
+extern template
+void fit3(Vector3<double>* ps, kIOS<double>& bv);
+
+//==============================================================================
+extern template
+void fitn(Vector3<double>* ps, int n, kIOS<double>& bv);
+
+//==============================================================================
 } // namespace kIOS_fit_functions
 //==============================================================================
 
@@ -439,6 +495,22 @@ void fitn(Vector3<S>* ps, int n, OBBRSS<S>& bv)
   OBB_fit_functions::fitn(ps, n, bv.obb);
   RSS_fit_functions::fitn(ps, n, bv.rss);
 }
+
+//==============================================================================
+extern template
+void fit1(Vector3<double>* ps, OBBRSS<double>& bv);
+
+//==============================================================================
+extern template
+void fit2(Vector3<double>* ps, OBBRSS<double>& bv);
+
+//==============================================================================
+extern template
+void fit3(Vector3<double>* ps, OBBRSS<double>& bv);
+
+//==============================================================================
+extern template
+void fitn(Vector3<double>* ps, int n, OBBRSS<double>& bv);
 
 //==============================================================================
 } // namespace OBBRSS_fit_functions
@@ -549,6 +621,22 @@ struct Fitter<S, OBBRSS<S>>
     }
   }
 };
+
+//==============================================================================
+extern template
+struct Fitter<double, OBB<double>>;
+
+//==============================================================================
+extern template
+struct Fitter<double, RSS<double>>;
+
+//==============================================================================
+extern template
+struct Fitter<double, kIOS<double>>;
+
+//==============================================================================
+extern template
+struct Fitter<double, OBBRSS<double>>;
 
 //==============================================================================
 } // namespace detail
@@ -800,6 +888,42 @@ public:
     bv2.axis.col(2) = R.col(id[2]);
   }
 };
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, AABB<double>, AABB<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, AABB<double>, OBB<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, OBB<double>, OBB<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, OBBRSS<double>, OBB<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, RSS<double>, OBB<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, OBB<double>, RSS<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, RSS<double>, RSS<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, OBBRSS<double>, RSS<double>>;
+
+//==============================================================================
+extern template
+class ConvertBVImpl<double, AABB<double>, RSS<double>>;
 
 //==============================================================================
 } // namespace detail

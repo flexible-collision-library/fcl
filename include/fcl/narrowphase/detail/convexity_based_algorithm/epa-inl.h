@@ -47,6 +47,69 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct EPA<double>;
+
+//==============================================================================
+template <typename S>
+EPA<S>::SimplexList::SimplexList()
+  : root(nullptr), count(0)
+{
+  // Do nothing
+}
+
+//==============================================================================
+template <typename S>
+void EPA<S>::SimplexList::append(typename EPA<S>::SimplexF* face)
+{
+  face->l[0] = nullptr;
+  face->l[1] = root;
+  if(root) root->l[0] = face;
+  root = face;
+  ++count;
+}
+
+//==============================================================================
+template <typename S>
+void EPA<S>::SimplexList::remove(typename EPA<S>::SimplexF* face)
+{
+  if(face->l[1]) face->l[1]->l[0] = face->l[0];
+  if(face->l[0]) face->l[0]->l[1] = face->l[1];
+  if(face == root) root = face->l[1];
+  --count;
+}
+
+//==============================================================================
+template <typename S>
+void EPA<S>::bind(SimplexF* fa, size_t ea, SimplexF* fb, size_t eb)
+{
+  fa->e[ea] = eb; fa->f[ea] = fb;
+  fb->e[eb] = ea; fb->f[eb] = fa;
+}
+
+//==============================================================================
+template <typename S>
+EPA<S>::EPA(
+    unsigned int max_face_num_,
+    unsigned int max_vertex_num_,
+    unsigned int max_iterations_, S tolerance_)
+  : max_face_num(max_face_num_),
+    max_vertex_num(max_vertex_num_),
+    max_iterations(max_iterations_),
+    tolerance(tolerance_)
+{
+  initialize();
+}
+
+//==============================================================================
+template <typename S>
+EPA<S>::~EPA()
+{
+  delete [] sv_store;
+  delete [] fc_store;
+}
+
+//==============================================================================
 template <typename S>
 void EPA<S>::initialize()
 {

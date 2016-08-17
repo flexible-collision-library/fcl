@@ -44,6 +44,38 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class TMatrix3<double>;
+
+//==============================================================================
+extern template
+TMatrix3<double> rotationConstrain(const TMatrix3<double>& m);
+
+//==============================================================================
+extern template
+TMatrix3<double> operator * (const Matrix3<double>& m, const TaylorModel<double>& a);
+
+//==============================================================================
+extern template
+TMatrix3<double> operator * (const TaylorModel<double>& a, const Matrix3<double>& m);
+
+//==============================================================================
+extern template
+TMatrix3<double> operator * (const TaylorModel<double>& a, const TMatrix3<double>& m);
+
+//==============================================================================
+extern template
+TMatrix3<double> operator * (double d, const TMatrix3<double>& m);
+
+//==============================================================================
+extern template
+TMatrix3<double> operator + (const Matrix3<double>& m1, const TMatrix3<double>& m2);
+
+//==============================================================================
+extern template
+TMatrix3<double> operator - (const Matrix3<double>& m1, const TMatrix3<double>& m2);
+
+//==============================================================================
 template <typename S>
 TMatrix3<S>::TMatrix3()
 {

@@ -89,6 +89,6 @@ Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/plane-inl.h"
+#include "fcl/geometry/shape/plane-inl.h"
 
 #endif

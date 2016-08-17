@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct TimeInterval<double>;
+
+//==============================================================================
 template <typename S>
 TimeInterval<S>::TimeInterval()
 {

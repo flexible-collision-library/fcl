@@ -38,9 +38,373 @@
 #ifndef FCL_BV_DETAIL_UTILITY_INL_H
 #define FCL_BV_DETAIL_UTILITY_INL_H
 
-#include "fcl/math/detail/geometry.h"
+#include "fcl/math/geometry.h"
 
 namespace fcl {
+
+//==============================================================================
+extern template
+void normalize(Vector3d& v, bool* signal);
+
+//==============================================================================
+extern template
+void hat(Matrix3d& mat, const Vector3d& vec);
+
+//==============================================================================
+extern template
+void eigen(const Matrix3d& m, Vector3d& dout, Matrix3d& vout);
+
+//==============================================================================
+extern template
+void eigen_old(const Matrix3d& m, Vector3d& dout, Matrix3d& vout);
+
+//==============================================================================
+extern template
+void axisFromEigen(
+    const Matrix3d& eigenV, const Vector3d& eigenS, Matrix3d& axis);
+
+//==============================================================================
+extern template
+void axisFromEigen(const Matrix3d& eigenV,
+                   const Vector3d& eigenS,
+                   Transform3d& tf);
+
+//==============================================================================
+extern template
+void generateCoordinateSystem(Matrix3d& axis);
+
+//==============================================================================
+extern template
+void generateCoordinateSystem(Transform3d& tf);
+
+//==============================================================================
+extern template
+void getRadiusAndOriginAndRectangleSize(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Matrix3d& axis,
+    Vector3d& origin,
+    double l[2],
+    double& r);
+
+//==============================================================================
+extern template
+void getRadiusAndOriginAndRectangleSize(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    Transform3d& tf,
+    double l[2],
+    double& r);
+
+//==============================================================================
+extern template
+void circumCircleComputation(
+    const Vector3d& a,
+    const Vector3d& b,
+    const Vector3d& c,
+    Vector3d& center,
+    double& radius);
+
+//==============================================================================
+extern template
+double maximumDistance(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Vector3d& query);
+
+//==============================================================================
+extern template
+void getExtentAndCenter(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Matrix3d& axis,
+    Vector3d& center,
+    Vector3d& extent);
+
+//==============================================================================
+extern template
+void getCovariance(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n, Matrix3d& M);
+
+//==============================================================================
+namespace detail {
+//==============================================================================
+
+//==============================================================================
+template <typename S>
+S maximumDistance_mesh(
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Vector3<S>& query)
+{
+  bool indirect_index = true;
+  if(!indices) indirect_index = false;
+
+  S maxD = 0;
+  for(int i = 0; i < n; ++i)
+  {
+    unsigned int index = indirect_index ? indices[i] : i;
+    const Triangle& t = ts[index];
+
+    for(int j = 0; j < 3; ++j)
+    {
+      int point_id = t[j];
+      const Vector3<S>& p = ps[point_id];
+
+      S d = (p - query).squaredNorm();
+      if(d > maxD) maxD = d;
+    }
+
+    if(ps2)
+    {
+      for(int j = 0; j < 3; ++j)
+      {
+        int point_id = t[j];
+        const Vector3<S>& p = ps2[point_id];
+
+        S d = (p - query).squaredNorm();
+        if(d > maxD) maxD = d;
+      }
+    }
+  }
+
+  return std::sqrt(maxD);
+}
+
+//==============================================================================
+template <typename S>
+S maximumDistance_pointcloud(
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
+    unsigned int* indices,
+    int n,
+    const Vector3<S>& query)
+{
+  bool indirect_index = true;
+  if(!indices) indirect_index = false;
+
+  S maxD = 0;
+  for(int i = 0; i < n; ++i)
+  {
+    int index = indirect_index ? indices[i] : i;
+
+    const Vector3<S>& p = ps[index];
+    S d = (p - query).squaredNorm();
+    if(d > maxD) maxD = d;
+
+    if(ps2)
+    {
+      const Vector3<S>& v = ps2[index];
+      S d = (v - query).squaredNorm();
+      if(d > maxD) maxD = d;
+    }
+  }
+
+  return std::sqrt(maxD);
+}
+
+//==============================================================================
+/// @brief Compute the bounding volume extent and center for a set or subset of
+/// points. The bounding volume axes are known.
+template <typename S>
+void getExtentAndCenter_pointcloud(
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
+    unsigned int* indices,
+    int n,
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent)
+{
+  bool indirect_index = true;
+  if(!indices) indirect_index = false;
+
+  auto real_max = std::numeric_limits<S>::max();
+
+  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
+  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
+
+  for(int i = 0; i < n; ++i)
+  {
+    int index = indirect_index ? indices[i] : i;
+
+    const Vector3<S>& p = ps[index];
+    Vector3<S> proj(
+        axis.col(0).dot(p),
+        axis.col(1).dot(p),
+        axis.col(2).dot(p));
+
+    for(int j = 0; j < 3; ++j)
+    {
+      if(proj[j] > max_coord[j])
+        max_coord[j] = proj[j];
+
+      if(proj[j] < min_coord[j])
+        min_coord[j] = proj[j];
+    }
+
+    if(ps2)
+    {
+      const Vector3<S>& v = ps2[index];
+      Vector3<S> proj(
+          axis.col(0).dot(v),
+          axis.col(1).dot(v),
+          axis.col(2).dot(v));
+
+      for(int j = 0; j < 3; ++j)
+      {
+        if(proj[j] > max_coord[j])
+          max_coord[j] = proj[j];
+
+        if(proj[j] < min_coord[j])
+          min_coord[j] = proj[j];
+      }
+    }
+  }
+
+  const Vector3<S> o = (max_coord + min_coord) / 2;
+  center.noalias() = axis * o;
+  extent.noalias() = (max_coord - min_coord) * 0.5;
+}
+
+//==============================================================================
+/// @brief Compute the bounding volume extent and center for a set or subset of
+/// points. The bounding volume axes are known.
+template <typename S>
+void getExtentAndCenter_mesh(
+    Vector3<S>* ps,
+    Vector3<S>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Matrix3<S>& axis,
+    Vector3<S>& center,
+    Vector3<S>& extent)
+{
+  bool indirect_index = true;
+  if(!indices) indirect_index = false;
+
+  auto real_max = std::numeric_limits<S>::max();
+
+  Vector3<S> min_coord = Vector3<S>::Constant(real_max);
+  Vector3<S> max_coord = Vector3<S>::Constant(-real_max);
+
+  for(int i = 0; i < n; ++i)
+  {
+    unsigned int index = indirect_index? indices[i] : i;
+    const Triangle& t = ts[index];
+
+    for(int j = 0; j < 3; ++j)
+    {
+      int point_id = t[j];
+      const Vector3<S>& p = ps[point_id];
+      Vector3<S> proj(
+          axis.col(0).dot(p),
+          axis.col(1).dot(p),
+          axis.col(2).dot(p));
+
+      for(int k = 0; k < 3; ++k)
+      {
+        if(proj[k] > max_coord[k])
+          max_coord[k] = proj[k];
+
+        if(proj[k] < min_coord[k])
+          min_coord[k] = proj[k];
+      }
+    }
+
+    if(ps2)
+    {
+      for(int j = 0; j < 3; ++j)
+      {
+        int point_id = t[j];
+        const Vector3<S>& p = ps2[point_id];
+        Vector3<S> proj(
+            axis.col(0).dot(p),
+            axis.col(1).dot(p),
+            axis.col(2).dot(p));
+
+        for(int k = 0; k < 3; ++k)
+        {
+          if(proj[k] > max_coord[k])
+            max_coord[k] = proj[k];
+
+          if(proj[k] < min_coord[k])
+            min_coord[k] = proj[k];
+        }
+      }
+    }
+  }
+
+  const Vector3<S> o = (max_coord + min_coord) / 2;
+  center.noalias() = axis * o;
+  extent.noalias() = (max_coord - min_coord) / 2;
+}
+
+//==============================================================================
+extern template
+double maximumDistance_mesh(
+    Vector3d* ps,
+    Vector3d* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Vector3d& query);
+
+//==============================================================================
+extern template
+double maximumDistance_pointcloud(
+    Vector3d* ps,
+    Vector3d* ps2,
+    unsigned int* indices,
+    int n,
+    const Vector3d& query);
+
+//==============================================================================
+extern template
+void getExtentAndCenter_pointcloud(
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    unsigned int* indices,
+    int n,
+    const Matrix3<double>& axis,
+    Vector3<double>& center,
+    Vector3<double>& extent);
+
+//==============================================================================
+extern template
+void getExtentAndCenter_mesh(
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Matrix3<double>& axis,
+    Vector3<double>& center,
+    Vector3<double>& extent);
+
+//==============================================================================
+} // namespace detail
+//==============================================================================
 
 //==============================================================================
 template <typename S>
@@ -1026,70 +1390,7 @@ void circumCircleComputation(
   center.noalias() += (e2 * e1_len2 - e1 * e2_len2).cross(e3) * (0.5 * 1 / e3_len2);
 }
 
-//==============================================================================
-template <typename S>
-S maximumDistance_mesh(Vector3<S>* ps, Vector3<S>* ps2, Triangle* ts, unsigned int* indices, int n, const Vector3<S>& query)
-{
-  bool indirect_index = true;
-  if(!indices) indirect_index = false;
 
-  S maxD = 0;
-  for(int i = 0; i < n; ++i)
-  {
-    unsigned int index = indirect_index ? indices[i] : i;
-    const Triangle& t = ts[index];
-
-    for(int j = 0; j < 3; ++j)
-    {
-      int point_id = t[j];
-      const Vector3<S>& p = ps[point_id];
-
-      S d = (p - query).squaredNorm();
-      if(d > maxD) maxD = d;
-    }
-
-    if(ps2)
-    {
-      for(int j = 0; j < 3; ++j)
-      {
-        int point_id = t[j];
-        const Vector3<S>& p = ps2[point_id];
-
-        S d = (p - query).squaredNorm();
-        if(d > maxD) maxD = d;
-      }
-    }
-  }
-
-  return std::sqrt(maxD);
-}
-
-//==============================================================================
-template <typename S>
-S maximumDistance_pointcloud(Vector3<S>* ps, Vector3<S>* ps2, unsigned int* indices, int n, const Vector3<S>& query)
-{
-  bool indirect_index = true;
-  if(!indices) indirect_index = false;
-
-  S maxD = 0;
-  for(int i = 0; i < n; ++i)
-  {
-    int index = indirect_index ? indices[i] : i;
-
-    const Vector3<S>& p = ps[index];
-    S d = (p - query).squaredNorm();
-    if(d > maxD) maxD = d;
-
-    if(ps2)
-    {
-      const Vector3<S>& v = ps2[index];
-      S d = (v - query).squaredNorm();
-      if(d > maxD) maxD = d;
-    }
-  }
-
-  return std::sqrt(maxD);
-}
 
 //==============================================================================
 template <typename S>
@@ -1102,9 +1403,9 @@ S maximumDistance(
     const Vector3<S>& query)
 {
   if(ts)
-    return maximumDistance_mesh(ps, ps2, ts, indices, n, query);
+    return detail::maximumDistance_mesh(ps, ps2, ts, indices, n, query);
   else
-    return maximumDistance_pointcloud(ps, ps2, indices, n, query);
+    return detail::maximumDistance_pointcloud(ps, ps2, indices, n, query);
 }
 
 //==============================================================================

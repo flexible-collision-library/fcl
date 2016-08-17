@@ -46,6 +46,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct CollisionRequest<double>;
+
+//==============================================================================
 template <typename S>
 CollisionRequest<S>::CollisionRequest(
     size_t num_max_contacts_,

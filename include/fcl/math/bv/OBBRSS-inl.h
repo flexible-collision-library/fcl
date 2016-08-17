@@ -44,6 +44,14 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class OBBRSS<double>;
+
+//==============================================================================
+extern template
+OBBRSS<double> translate(const OBBRSS<double>& bv, const Vector3<double>& t);
+
+//==============================================================================
 template <typename S>
 bool OBBRSS<S>::overlap(const OBBRSS<S>& other) const
 {

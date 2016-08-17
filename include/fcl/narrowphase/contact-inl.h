@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct Contact<double>;
+
+//==============================================================================
 template <typename S>
 Contact<S>::Contact()
   : o1(nullptr),

@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Capsule<double>;
+
+//==============================================================================
 template <typename S>
 Capsule<S>::Capsule(S radius, S lz)
   : ShapeBase<S>(), radius(radius), lz(lz)

@@ -81,6 +81,9 @@ struct morton_functor<S, uint32>
   static constexpr size_t bits();
 };
 
+using morton_functoru32f = morton_functor<float, uint32>;
+using morton_functoru32d = morton_functor<double, uint32>;
+
 /// @brief Functor to compute 60 bit morton code for a given AABB<S>
 template<typename S>
 struct morton_functor<S, uint64>
@@ -94,6 +97,9 @@ struct morton_functor<S, uint64>
 
   static constexpr size_t bits();
 };
+
+using morton_functoru64f = morton_functor<float, uint64>;
+using morton_functoru64d = morton_functor<double, uint64>;
 
 /// @brief Functor to compute N bit morton code for a given AABB<S>
 /// N must be a multiple of 3.

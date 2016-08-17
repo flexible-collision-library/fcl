@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class SamplerSE3Euler_ball<double>;
+
+//==============================================================================
 template <typename S>
 SamplerSE3Euler_ball<S>::SamplerSE3Euler_ball()
 {

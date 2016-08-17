@@ -40,11 +40,14 @@
 
 #include "fcl/broadphase/detail/interval_tree_node.h"
 
-namespace fcl
-{
+#include <iostream>
 
-namespace detail
-{
+namespace fcl {
+namespace detail {
+
+//==============================================================================
+extern template
+class IntervalTreeNode<double>;
 
 //==============================================================================
 template <typename S>
@@ -69,6 +72,22 @@ template <typename S>
 IntervalTreeNode<S>::~IntervalTreeNode()
 {
   // Do nothing
+}
+
+//==============================================================================
+template <typename S>
+void IntervalTreeNode<S>::print(
+    IntervalTreeNode<S>* nil, IntervalTreeNode<S>* root) const
+{
+  stored_interval->print();
+  std::cout << ", k = " << key << ", h = " << high << ", mH = " << max_high;
+  std::cout << "  l->key = ";
+  if(left == nil) std::cout << "nullptr"; else std::cout << left->key;
+  std::cout << "  r->key = ";
+  if(right == nil) std::cout << "nullptr"; else std::cout << right->key;
+  std::cout << "  p->key = ";
+  if(parent == root) std::cout << "nullptr"; else std::cout << parent->key;
+  std::cout << "  red = " << (int)red << std::endl;
 }
 
 } // namespace detail

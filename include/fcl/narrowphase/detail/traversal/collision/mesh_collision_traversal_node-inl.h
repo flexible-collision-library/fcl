@@ -49,6 +49,66 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+class MeshCollisionTraversalNodeOBB<double>;
+
+//==============================================================================
+extern template
+bool initialize(
+    MeshCollisionTraversalNodeOBB<double>& node,
+    const BVHModel<OBB<double>>& model1,
+    const Transform3<double>& tf1,
+    const BVHModel<OBB<double>>& model2,
+    const Transform3<double>& tf2,
+    const CollisionRequest<double>& request,
+    CollisionResult<double>& result);
+
+//==============================================================================
+extern template
+class MeshCollisionTraversalNodeRSS<double>;
+
+//==============================================================================
+extern template
+bool initialize(
+    MeshCollisionTraversalNodeRSS<double>& node,
+    const BVHModel<RSS<double>>& model1,
+    const Transform3<double>& tf1,
+    const BVHModel<RSS<double>>& model2,
+    const Transform3<double>& tf2,
+    const CollisionRequest<double>& request,
+    CollisionResult<double>& result);
+
+//==============================================================================
+extern template
+class MeshCollisionTraversalNodekIOS<double>;
+
+//==============================================================================
+extern template
+bool initialize(
+    MeshCollisionTraversalNodekIOS<double>& node,
+    const BVHModel<kIOS<double>>& model1,
+    const Transform3<double>& tf1,
+    const BVHModel<kIOS<double>>& model2,
+    const Transform3<double>& tf2,
+    const CollisionRequest<double>& request,
+    CollisionResult<double>& result);
+
+//==============================================================================
+extern template
+class MeshCollisionTraversalNodeOBBRSS<double>;
+
+//==============================================================================
+extern template
+bool initialize(
+    MeshCollisionTraversalNodeOBBRSS<double>& node,
+    const BVHModel<OBBRSS<double>>& model1,
+    const Transform3<double>& tf1,
+    const BVHModel<OBBRSS<double>>& model2,
+    const Transform3<double>& tf2,
+    const CollisionRequest<double>& request,
+    CollisionResult<double>& result);
+
+//==============================================================================
 template <typename BV>
 MeshCollisionTraversalNode<BV>::MeshCollisionTraversalNode()
   : BVHCollisionTraversalNode<BV>()

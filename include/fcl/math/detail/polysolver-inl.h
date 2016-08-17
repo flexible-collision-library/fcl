@@ -49,6 +49,10 @@ namespace fcl
 namespace detail {
 
 //==============================================================================
+extern template
+class PolySolver<double>;
+
+//==============================================================================
 template <typename S>
 int PolySolver<S>::solveLinear(S c[2], S s[1])
 {

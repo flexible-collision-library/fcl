@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class ShapeBase<double>;
+
+//==============================================================================
 template <typename S>
 ShapeBase<S>::ShapeBase()
   : CollisionGeometry<S>()

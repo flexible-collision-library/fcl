@@ -57,7 +57,7 @@ template
 OBB<double> merge_smalldist(const OBB<double>& b1, const OBB<double>& b2);
 
 //==============================================================================
-template <>
+template
 bool obbDisjoint(
     const Matrix3<double>& B,
     const Vector3<double>& T,

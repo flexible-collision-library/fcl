@@ -61,6 +61,9 @@ class InterpMotion;
 template <typename S>
 class TranslationMotion;
 
+template <typename, typename>
+struct TriangleMotionBoundVisitorVisitImpl;
+
 template <typename S>
 class TriangleMotionBoundVisitor
 {
@@ -78,6 +81,11 @@ public:
 protected:
   template <typename, typename>
   friend struct TriangleMotionBoundVisitorVisitImpl;
+
+  friend struct TriangleMotionBoundVisitorVisitImpl<double, SplineMotion<double>>;
+  friend struct TriangleMotionBoundVisitorVisitImpl<double, ScrewMotion<double>>;
+  friend struct TriangleMotionBoundVisitorVisitImpl<double, InterpMotion<double>>;
+  friend struct TriangleMotionBoundVisitorVisitImpl<double, TranslationMotion<double>>;
 
   Vector3<S> a, b, c, n;
 };

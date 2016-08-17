@@ -44,6 +44,14 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct IMatrix3<double>;
+
+//==============================================================================
+extern template
+IMatrix3<double> rotationConstrain(const IMatrix3<double>& m);
+
+//==============================================================================
 template <typename S>
 IMatrix3<S>::IMatrix3() {}
 

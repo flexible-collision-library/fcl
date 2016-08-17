@@ -42,7 +42,11 @@
 
 namespace fcl
 {
- 
+
+//==============================================================================
+extern template
+class kIOS<double>;
+
 //==============================================================================
 template <typename S>
 typename kIOS<S>::kIOS_Sphere kIOS<S>::encloseSphere(

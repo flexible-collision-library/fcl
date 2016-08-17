@@ -44,6 +44,18 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct IVector3<double>;
+
+//==============================================================================
+extern template
+IVector3<double> bound(const IVector3<double>& i, const Vector3<double>& v);
+
+//==============================================================================
+extern template
+IVector3<double> bound(const IVector3<double>& i, const IVector3<double>& v);
+
+//==============================================================================
 template <typename S>
 IVector3<S>::IVector3()
 {

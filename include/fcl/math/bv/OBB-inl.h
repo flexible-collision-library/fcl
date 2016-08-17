@@ -44,6 +44,37 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class OBB<double>;
+
+//==============================================================================
+extern template
+void computeVertices(const OBB<double>& b, Vector3<double> vertices[8]);
+
+//==============================================================================
+extern template
+OBB<double> merge_largedist(const OBB<double>& b1, const OBB<double>& b2);
+
+//==============================================================================
+extern template
+OBB<double> merge_smalldist(const OBB<double>& b1, const OBB<double>& b2);
+
+//==============================================================================
+extern template
+bool obbDisjoint(
+    const Matrix3<double>& B,
+    const Vector3<double>& T,
+    const Vector3<double>& a,
+    const Vector3<double>& b);
+
+//==============================================================================
+extern template
+bool obbDisjoint(
+    const Transform3<double>& tf,
+    const Vector3<double>& a,
+    const Vector3<double>& b);
+
+//==============================================================================
 template <typename S>
 OBB<S>::OBB()
 {

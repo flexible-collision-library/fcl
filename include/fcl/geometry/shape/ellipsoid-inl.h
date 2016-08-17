@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Ellipsoid<double>;
+
+//==============================================================================
 template <typename S>
 Ellipsoid<S>::Ellipsoid(S a, S b, S c)
   : ShapeBase<S>(), radii(a, b, c)

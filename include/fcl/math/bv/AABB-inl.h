@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class AABB<double>;
+
+//==============================================================================
 template <typename S>
 AABB<S>::AABB()
   : min_(Vector3<S>::Constant(std::numeric_limits<S>::max())),

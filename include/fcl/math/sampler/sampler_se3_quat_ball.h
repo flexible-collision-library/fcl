@@ -41,7 +41,6 @@
 #include "fcl/common/types.h"
 #include "fcl/math/sampler/sampler_base.h"
 
-
 namespace fcl
 {
 

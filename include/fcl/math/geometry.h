@@ -143,23 +143,6 @@ void circumCircleComputation(
     Vector3<S>& center,
     S& radius);
 
-template <typename S>
-S maximumDistance_mesh(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    const Vector3<S>& query);
-
-template <typename S>
-S maximumDistance_pointcloud(
-    Vector3<S>* ps,
-    Vector3<S>* ps2,
-    unsigned int* indices,
-    int n,
-    const Vector3<S>& query);
-
 /// @brief Compute the maximum distance from a given center point to a point cloud
 template <typename S>
 S maximumDistance(

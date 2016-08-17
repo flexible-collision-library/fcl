@@ -44,6 +44,14 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Plane<double>;
+
+//==============================================================================
+extern template
+Plane<double> transform(const Plane<double>& a, const Transform3<double>& tf);
+
+//==============================================================================
 template <typename S>
 Plane<S>::Plane(const Vector3<S>& n, S d)
   : ShapeBase<S>(), n(n), d(d)

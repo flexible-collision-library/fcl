@@ -44,11 +44,8 @@
 #include <iostream>
 #include "fcl/broadphase/detail/interval_tree_node.h"
 
-namespace fcl
-{
-
-namespace detail
-{
+namespace fcl {
+namespace detail {
 
 /// @brief Class describes the information needed when we take the
 /// right branch in searching for intervals but possibly come back
@@ -63,6 +60,12 @@ public:
 
   bool try_right_branch;
 };
+
+using it_recursion_nodef = it_recursion_node<float>;
+using it_recursion_noded = it_recursion_node<double>;
+
+extern template
+struct it_recursion_node<double>;
 
 /// @brief Interval tree
 template <typename S>
@@ -93,7 +96,7 @@ public:
   IntervalTreeNode<S>* getSuccessor(IntervalTreeNode<S>* node) const;
 
   /// @brief Return result for a given query
-  std::deque<SimpleInterval<S>*> query(double low, double high);
+  std::deque<SimpleInterval<S>*> query(S low, S high);
 
 protected:
 
@@ -127,6 +130,9 @@ private:
   unsigned int current_parent;
   unsigned int recursion_node_stack_top;
 };
+
+using IntervalTreef = IntervalTree<float>;
+using IntervalTreed = IntervalTree<double>;
 
 } // namespace detail
 } // namespace fcl

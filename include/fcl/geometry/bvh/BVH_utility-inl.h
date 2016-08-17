@@ -46,6 +46,16 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+void BVHExpand(
+    BVHModel<OBB<double>>& model, const Variance3<double>* ucs, double r);
+
+//==============================================================================
+extern template
+void BVHExpand(
+    BVHModel<RSS<double>>& model, const Variance3<double>* ucs, double r);
+
+//==============================================================================
 template <typename S, typename BV>
 void BVHExpand(BVHModel<BV>& model, const Variance3<S>* ucs, S r)
 {

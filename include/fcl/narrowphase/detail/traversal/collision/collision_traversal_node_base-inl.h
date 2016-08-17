@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+class CollisionTraversalNodeBase<double>;
+
+//==============================================================================
 template <typename S>
 CollisionTraversalNodeBase<S>::CollisionTraversalNodeBase()
   : result(nullptr), enable_statistics(false)

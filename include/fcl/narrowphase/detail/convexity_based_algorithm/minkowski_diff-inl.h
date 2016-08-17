@@ -58,6 +58,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct MinkowskiDiff<double>;
+
+//==============================================================================
 template <typename S, typename Derived>
 Vector3<S> getSupport(
     const ShapeBase<S>* shape,

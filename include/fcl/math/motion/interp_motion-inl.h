@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class InterpMotion<double>;
+
+//==============================================================================
 template <typename S>
 InterpMotion<S>::InterpMotion()
   : MotionBase<S>(), angular_axis(Vector3<S>::UnitX())

@@ -49,6 +49,39 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+void lineClosestApproach(const Vector3<double>& pa, const Vector3<double>& ua,
+                         const Vector3<double>& pb, const Vector3<double>& ub,
+                         double* alpha, double* beta);
+
+//==============================================================================
+extern template
+int intersectRectQuad2(double h[2], double p[8], double ret[16]);
+
+//==============================================================================
+extern template
+void cullPoints2(int n, double p[], int m, int i0, int iret[]);
+
+//==============================================================================
+extern template
+int boxBox2(
+    const Vector3<double>& side1,
+    const Transform3<double>& tf1,
+    const Vector3<double>& side2,
+    const Transform3<double>& tf2,
+    Vector3<double>& normal,
+    double* depth,
+    int* return_code,
+    int maxc,
+    std::vector<ContactPoint<double>>& contacts);
+
+//==============================================================================
+extern template
+bool boxBoxIntersect(const Box<double>& s1, const Transform3<double>& tf1,
+                     const Box<double>& s2, const Transform3<double>& tf2,
+                     std::vector<ContactPoint<double>>* contacts_);
+
+//==============================================================================
 template <typename S>
 void lineClosestApproach(const Vector3<S>& pa, const Vector3<S>& ua,
                          const Vector3<S>& pb, const Vector3<S>& ub,

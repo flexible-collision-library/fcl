@@ -47,6 +47,34 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class TaylorModel<double>;
+
+//==============================================================================
+extern template
+TaylorModel<double> operator * (double d, const TaylorModel<double>& a);
+
+//==============================================================================
+extern template
+TaylorModel<double> operator + (double d, const TaylorModel<double>& a);
+
+//==============================================================================
+extern template
+TaylorModel<double> operator - (double d, const TaylorModel<double>& a);
+
+//==============================================================================
+extern template
+void generateTaylorModelForCosFunc(TaylorModel<double>& tm, double w, double q0);
+
+//==============================================================================
+extern template
+void generateTaylorModelForSinFunc(TaylorModel<double>& tm, double w, double q0);
+
+//==============================================================================
+extern template
+void generateTaylorModelForLinearFunc(TaylorModel<double>& tm, double p, double v);
+
+//==============================================================================
 template <typename S>
 void TaylorModel<S>::setTimeInterval(S l, S r)
 {

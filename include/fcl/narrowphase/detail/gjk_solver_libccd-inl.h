@@ -58,6 +58,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct GJKSolver_libccd<double>;
+
+//==============================================================================
 template<typename S>
 template<typename Shape1, typename Shape2>
 bool GJKSolver_libccd<S>::shapeIntersect(

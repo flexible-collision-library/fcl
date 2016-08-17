@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class SplineMotion<double>;
+
+//==============================================================================
 template <typename S>
 SplineMotion<S>::SplineMotion(
     const Vector3<S>& Td0, const Vector3<S>& Td1, const Vector3<S>& Td2, const Vector3<S>& Td3,

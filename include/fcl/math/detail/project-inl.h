@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+class Project<double>;
+
+//==============================================================================
 template <typename S>
 typename Project<S>::ProjectResult Project<S>::projectLine(const Vector3<S>& a, const Vector3<S>& b, const Vector3<S>& p)
 {

@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class ScrewMotion<double>;
+
+//==============================================================================
 template <typename S>
 ScrewMotion<S>::ScrewMotion()
   : MotionBase<S>(), axis(Vector3<S>::UnitX())

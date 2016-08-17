@@ -47,6 +47,10 @@
 namespace fcl
 {
 
+//==============================================================================
+extern template
+class DynamicAABBTreeCollisionManager_Array<double>;
+
 namespace detail
 {
 

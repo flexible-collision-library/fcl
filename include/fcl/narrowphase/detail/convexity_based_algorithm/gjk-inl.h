@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct GJK<double>;
+
+//==============================================================================
 template <typename S>
 GJK<S>::GJK(unsigned int max_iterations_, S tolerance_)
   : max_iterations(max_iterations_), tolerance(tolerance_)

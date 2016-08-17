@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct ContinuousCollisionResult<double>;
+
+//==============================================================================
 template <typename S>
 ContinuousCollisionResult<S>::ContinuousCollisionResult()
   : is_collide(false), time_of_contact(1.0)

@@ -52,6 +52,46 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+double continuousCollide(
+    const CollisionGeometry<double>* o1,
+    const MotionBase<double>* motion1,
+    const CollisionGeometry<double>* o2,
+    const MotionBase<double>* motion2,
+    const ContinuousCollisionRequest<double>& request,
+    ContinuousCollisionResult<double>& result);
+
+//==============================================================================
+extern template
+double continuousCollide(
+    const CollisionGeometry<double>* o1,
+    const Transform3<double>& tf1_beg,
+    const Transform3<double>& tf1_end,
+    const CollisionGeometry<double>* o2,
+    const Transform3<double>& tf2_beg,
+    const Transform3<double>& tf2_end,
+    const ContinuousCollisionRequest<double>& request,
+    ContinuousCollisionResult<double>& result);
+
+//==============================================================================
+extern template
+double continuousCollide(
+    const CollisionObject<double>* o1,
+    const Transform3<double>& tf1_end,
+    const CollisionObject<double>* o2,
+    const Transform3<double>& tf2_end,
+    const ContinuousCollisionRequest<double>& request,
+    ContinuousCollisionResult<double>& result);
+
+//==============================================================================
+extern template
+double collide(
+    const ContinuousCollisionObject<double>* o1,
+    const ContinuousCollisionObject<double>* o2,
+    const ContinuousCollisionRequest<double>& request,
+    ContinuousCollisionResult<double>& result);
+
+//==============================================================================
 template<typename GJKSolver>
 detail::ConservativeAdvancementFunctionMatrix<GJKSolver>&
 getConservativeAdvancementFunctionLookTable()

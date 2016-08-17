@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class TriangleP<double>;
+
+//==============================================================================
 template <typename S>
 TriangleP<S>::TriangleP(
     const Vector3<S>& a,

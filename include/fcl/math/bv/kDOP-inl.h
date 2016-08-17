@@ -44,6 +44,38 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class KDOP<double, 16>;
+
+//==============================================================================
+extern template
+class KDOP<double, 18>;
+
+//==============================================================================
+extern template
+class KDOP<double, 24>;
+
+//==============================================================================
+extern template
+void minmax(double a, double b, double& minv, double& maxv);
+
+//==============================================================================
+extern template
+void minmax(double p, double& minv, double& maxv);
+
+//==============================================================================
+extern template
+void getDistances<double, 5>(const Vector3<double>& p, double* d);
+
+//==============================================================================
+extern template
+void getDistances<double, 6>(const Vector3<double>& p, double* d);
+
+//==============================================================================
+extern template
+void getDistances<double, 9>(const Vector3<double>& p, double* d);
+
+//==============================================================================
 template <typename S, std::size_t N>
 KDOP<S, N>::KDOP()
 {

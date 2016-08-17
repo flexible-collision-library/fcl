@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class MotionBase<double>;
+
+//==============================================================================
 template <typename S>
 MotionBase<S>::MotionBase()
   : time_interval_(std::shared_ptr<TimeInterval<S>>(new TimeInterval<S>(0, 1)))

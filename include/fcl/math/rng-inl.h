@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class RNG<double>;
+
+//==============================================================================
 template <typename S>
 RNG<S>::RNG()
   : generator_(detail::Seed::getNextSeed()), uniDist_(0, 1), normalDist_(0, 1)

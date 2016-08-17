@@ -44,6 +44,13 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class SpatialHashingCollisionManager<
+    double,
+    detail::SimpleHashTable<
+        AABB<double>, CollisionObject<double>*, detail::SpatialHash<double>>>;
+
+//==============================================================================
 template<typename S, typename HashTable>
 SpatialHashingCollisionManager<S, HashTable>::SpatialHashingCollisionManager(
     S cell_size,

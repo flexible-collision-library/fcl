@@ -49,6 +49,34 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+void collisionRecurse(CollisionTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void collisionRecurse(MeshCollisionTraversalNodeOBB<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void collisionRecurse(MeshCollisionTraversalNodeRSS<double>* node, int b1, int b2, const Matrix3<double>& R, const Vector3<double>& T, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void selfCollisionRecurse(CollisionTraversalNodeBase<double>* node, int b, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void distanceRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list);
+
+//==============================================================================
+extern template
+void distanceQueueRecurse(DistanceTraversalNodeBase<double>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
+
+//==============================================================================
+extern template
+void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<double>* node, BVHFrontList* front_list);
+
+//==============================================================================
 template <typename S>
 void collisionRecurse(CollisionTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list)
 {

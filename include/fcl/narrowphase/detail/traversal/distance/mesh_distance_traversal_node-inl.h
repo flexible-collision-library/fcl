@@ -47,6 +47,51 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+class MeshDistanceTraversalNodeRSS<double>;
+
+//==============================================================================
+extern template
+bool initialize(
+    MeshDistanceTraversalNodeRSS<double>& node,
+    const BVHModel<RSS<double>>& model1,
+    const Transform3<double>& tf1,
+    const BVHModel<RSS<double>>& model2,
+    const Transform3<double>& tf2,
+    const DistanceRequest<double>& request,
+    DistanceResult<double>& result);
+
+//==============================================================================
+extern template
+class MeshDistanceTraversalNodekIOS<double>;
+
+//==============================================================================
+extern template
+bool initialize(
+    MeshDistanceTraversalNodekIOS<double>& node,
+    const BVHModel<kIOS<double>>& model1,
+    const Transform3<double>& tf1,
+    const BVHModel<kIOS<double>>& model2,
+    const Transform3<double>& tf2,
+    const DistanceRequest<double>& request,
+    DistanceResult<double>& result);
+
+//==============================================================================
+extern template
+class MeshDistanceTraversalNodeOBBRSS<double>;
+
+//==============================================================================
+extern template
+bool initialize(
+    MeshDistanceTraversalNodeOBBRSS<double>& node,
+    const BVHModel<OBBRSS<double>>& model1,
+    const Transform3<double>& tf1,
+    const BVHModel<OBBRSS<double>>& model2,
+    const Transform3<double>& tf2,
+    const DistanceRequest<double>& request,
+    DistanceResult<double>& result);
+
+//==============================================================================
 template <typename BV>
 MeshDistanceTraversalNode<BV>::MeshDistanceTraversalNode() : BVHDistanceTraversalNode<BV>()
 {

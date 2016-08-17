@@ -122,6 +122,9 @@ public:
   virtual size_t size() const = 0;
 };
 
+using BroadPhaseContinuousCollisionManagerf = BroadPhaseContinuousCollisionManager<float>;
+using BroadPhaseContinuousCollisionManagerd = BroadPhaseContinuousCollisionManager<double>;
+
 } // namespace fcl
 
 #include "fcl/broadphase/broadphase_continuous_collision_manager-inl.h"

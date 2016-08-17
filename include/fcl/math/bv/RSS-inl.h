@@ -44,6 +44,59 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class RSS<double>;
+
+//==============================================================================
+extern template
+void clipToRange(double& val, double a, double b);
+
+//==============================================================================
+extern template
+void segCoords(
+        double& t,
+        double& u,
+        double a,
+        double b,
+        double A_dot_B,
+        double A_dot_T,
+        double B_dot_T);
+
+//==============================================================================
+extern template
+bool inVoronoi(
+        double a,
+        double b,
+        double Anorm_dot_B,
+        double Anorm_dot_T,
+        double A_dot_B,
+        double A_dot_T,
+        double B_dot_T);
+
+//==============================================================================
+extern template
+double rectDistance(
+    const Matrix3<double>& Rab,
+    const Vector3<double>& Tab,
+    const double a[2],
+    const double b[2],
+    Vector3<double>* P,
+    Vector3<double>* Q);
+
+//==============================================================================
+extern template
+double rectDistance(
+    const Transform3<double>& tfab,
+    const double a[2],
+    const double b[2],
+    Vector3<double>* P,
+    Vector3<double>* Q);
+
+//==============================================================================
+extern template
+RSS<double> translate(const RSS<double>& bv, const Vector3<double>& t);
+
+//==============================================================================
 template <typename S>
 RSS<S>::RSS()
   : axis(Matrix3<S>::Identity()), To(Vector3<S>::Zero())

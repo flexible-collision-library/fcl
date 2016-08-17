@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class IntervalTreeCollisionManager<double>;
+
+//==============================================================================
 template <typename S>
 void IntervalTreeCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
 {

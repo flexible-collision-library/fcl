@@ -40,8 +40,11 @@
 
 #include "fcl/broadphase/broadphase_collision_manager.h"
 
-namespace fcl
-{
+namespace fcl {
+
+//==============================================================================
+extern template
+class BroadPhaseCollisionManager<double>;
 
 //==============================================================================
 template <typename S>

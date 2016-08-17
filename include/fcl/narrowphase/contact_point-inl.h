@@ -44,6 +44,19 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct ContactPoint<double>;
+
+//==============================================================================
+extern template
+bool comparePenDepth(
+    const ContactPoint<double>& _cp1, const ContactPoint<double>& _cp2);
+
+//==============================================================================
+extern template
+void flipNormal(std::vector<ContactPoint<double>>& contacts);
+
+//==============================================================================
 template <typename S>
 ContactPoint<S>::ContactPoint()
   : normal(Vector3<S>::Zero()),

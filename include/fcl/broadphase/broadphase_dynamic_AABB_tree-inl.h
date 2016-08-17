@@ -46,14 +46,15 @@
 #include "fcl/geometry/octree/octree.h"
 #endif
 
-namespace fcl
-{
+namespace fcl {
 
-namespace detail
-{
+//==============================================================================
+extern template
+class DynamicAABBTreeCollisionManager<double>;
 
-namespace dynamic_AABB_tree
-{
+namespace detail {
+
+namespace dynamic_AABB_tree {
 
 #if FCL_HAVE_OCTOMAP
 //==============================================================================

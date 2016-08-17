@@ -40,8 +40,11 @@
 
 #include "fcl/broadphase/broadphase_bruteforce.h"
 
-namespace fcl
-{
+namespace fcl {
+
+//==============================================================================
+extern template
+class NaiveCollisionManager<double>;
 
 //==============================================================================
 template <typename S>

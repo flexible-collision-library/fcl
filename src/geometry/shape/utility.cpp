@@ -40,6 +40,70 @@
 namespace fcl {
 
 //==============================================================================
+template
+void constructBox(const AABB<double>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const OBB<double>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const OBBRSS<double>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const kIOS<double>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const RSS<double>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const KDOP<double, 16>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const KDOP<double, 18>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const KDOP<double, 24>& bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const AABB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const OBB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const OBBRSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const kIOS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const RSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const KDOP<double, 16>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const KDOP<double, 18>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
+template
+void constructBox(const KDOP<double, 24>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
+
+//==============================================================================
 namespace detail {
 //==============================================================================
 
@@ -162,69 +226,5 @@ struct ComputeBVImpl<double, AABB<double>, TriangleP<double>>;
 //==============================================================================
 } // namespace detail
 //==============================================================================
-
-//==============================================================================
-template
-void constructBox(const AABB<double>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const OBB<double>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const OBBRSS<double>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const kIOS<double>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const RSS<double>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const KDOP<double, 16>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const KDOP<double, 18>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const KDOP<double, 24>& bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const AABB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const OBB<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const OBBRSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const kIOS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const RSS<double>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const KDOP<double, 16>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const KDOP<double, 18>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
-
-//==============================================================================
-template
-void constructBox(const KDOP<double, 24>& bv, const Transform3<double>& tf_bv, Box<double>& box, Transform3<double>& tf);
 
 } // namespace fcl

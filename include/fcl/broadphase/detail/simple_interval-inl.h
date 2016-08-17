@@ -40,11 +40,12 @@
 
 #include "fcl/broadphase/detail/simple_interval.h"
 
-namespace fcl
-{
+namespace fcl {
+namespace detail {
 
-namespace detail
-{
+//==============================================================================
+extern template
+struct SimpleInterval<double>;
 
 //==============================================================================
 template <typename S>

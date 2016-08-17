@@ -96,6 +96,6 @@ Halfspace<S> transform(const Halfspace<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace-inl.h"
+#include "fcl/geometry/shape/halfspace-inl.h"
 
 #endif

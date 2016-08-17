@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct ContinuousCollisionRequest<double>;
+
+//==============================================================================
 template <typename S>
 ContinuousCollisionRequest<S>::ContinuousCollisionRequest(
     std::size_t num_max_iterations_,

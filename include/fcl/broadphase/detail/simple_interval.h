@@ -58,6 +58,9 @@ public:
   S low, high;
 };
 
+using SimpleIntervalf = SimpleInterval<float>;
+using SimpleIntervald = SimpleInterval<double>;
+
 } // namespace detail
 } // namespace fcl
 

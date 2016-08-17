@@ -43,5 +43,4 @@ namespace fcl
 template
 class NaiveCollisionManager<double>;
 
-
 } // namespace fcl

@@ -74,30 +74,15 @@ private:
   {
     SimplexF* root;
     size_t count;
-    SimplexList() : root(nullptr), count(0) {}
-    void append(SimplexF* face)
-    {
-      face->l[0] = nullptr;
-      face->l[1] = root;
-      if(root) root->l[0] = face;
-      root = face;
-      ++count;
-    }
 
-    void remove(SimplexF* face)
-    {
-      if(face->l[1]) face->l[1]->l[0] = face->l[0];
-      if(face->l[0]) face->l[0]->l[1] = face->l[1];
-      if(face == root) root = face->l[1];
-      --count;
-    }
+    SimplexList();
+
+    void append(SimplexF* face);
+
+    void remove(SimplexF* face);
   };
 
-  static void bind(SimplexF* fa, size_t ea, SimplexF* fb, size_t eb)
-  {
-    fa->e[ea] = eb; fa->f[ea] = fb;
-    fb->e[eb] = ea; fb->f[eb] = fa;
-  }
+  static void bind(SimplexF* fa, size_t ea, SimplexF* fb, size_t eb);
 
   struct SimplexHorizon
   {
@@ -126,19 +111,13 @@ public:
   size_t nextsv;
   SimplexList hull, stock;
 
-  EPA(unsigned int max_face_num_, unsigned int max_vertex_num_, unsigned int max_iterations_, S tolerance_) : max_face_num(max_face_num_),
-                                                                                                                     max_vertex_num(max_vertex_num_),
-                                                                                                                     max_iterations(max_iterations_),
-                                                                                                                     tolerance(tolerance_)
-  {
-    initialize();
-  }
+  EPA(
+      unsigned int max_face_num_,
+      unsigned int max_vertex_num_,
+      unsigned int max_iterations_,
+      S tolerance_);
 
-  ~EPA()
-  {
-    delete [] sv_store;
-    delete [] fc_store;
-  }
+  ~EPA();
 
   void initialize();
 

@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Cone<double>;
+
+//==============================================================================
 template <typename S>
 Cone<S>::Cone(S radius, S lz)
   : ShapeBase<S>(), radius(radius), lz(lz)

@@ -46,6 +46,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct DistanceRequest<double>;
+
+//==============================================================================
 template <typename S>
 DistanceRequest<S>::DistanceRequest(
     bool enable_nearest_points_,

@@ -46,15 +46,19 @@ namespace fcl
 namespace detail
 {
 
+template <typename S>
+class IntervalTree;
+
 /// @brief The node for interval tree
 template <typename S>
 class IntervalTreeNode
 {
+public:
+
   template <typename>
   friend class IntervalTree;
-public:
-  /// @brief Print the interval node information: set left = nil and right = root
-  void print(IntervalTreeNode* left, IntervalTreeNode* right) const;
+
+  friend class IntervalTree<double>;
   
   /// @brief Create an empty node
   IntervalTreeNode();
@@ -63,6 +67,9 @@ public:
   IntervalTreeNode(SimpleInterval<S>* new_interval);
 
   ~IntervalTreeNode();
+
+  /// @brief Print the interval node information: set left = nil and right = root
+  void print(IntervalTreeNode* left, IntervalTreeNode* right) const;
 
 protected:
   /// @brief interval stored in the node
@@ -83,6 +90,9 @@ protected:
 
   IntervalTreeNode* parent;
 };
+
+using IntervalTreeNodef = IntervalTreeNode<float>;
+using IntervalTreeNoded = IntervalTreeNode<double>;
 
 } // namespace detail
 } // namespace fcl

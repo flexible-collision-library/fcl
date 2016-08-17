@@ -133,12 +133,12 @@ public:
   NODE_TYPE getNodeType() const;
 };
 
+using OcTreef = OcTree<float>;
+using OcTreed = OcTree<double>;
+
 /// @brief compute the bounding volume of an octree node's i-th child
 template <typename S>
 void computeChildBV(const AABB<S>& root_bv, unsigned int i, AABB<S>& child_bv);
-
-using OcTreef = OcTree<float>;
-using OcTreed = OcTree<double>;
 
 } // namespace fcl
 

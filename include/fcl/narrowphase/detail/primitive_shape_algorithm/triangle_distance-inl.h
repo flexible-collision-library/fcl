@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+class TriangleDistance<double>;
+
+//==============================================================================
 template <typename S>
 void TriangleDistance<S>::segPoints(const Vector3<S>& P, const Vector3<S>& A, const Vector3<S>& Q, const Vector3<S>& B,
                                  Vector3<S>& VEC, Vector3<S>& X, Vector3<S>& Y)

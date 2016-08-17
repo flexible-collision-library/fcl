@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct ConservativeAdvancementStackData<double>;
+
+//==============================================================================
 template <typename S>
 ConservativeAdvancementStackData<S>::ConservativeAdvancementStackData(
     const Vector3<S>& P1_,

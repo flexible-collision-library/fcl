@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct DistanceTraversalNodeBase<double>;
+
+//==============================================================================
 template <typename S>
 DistanceTraversalNodeBase<S>::DistanceTraversalNodeBase()
   : result(nullptr), enable_statistics(false)

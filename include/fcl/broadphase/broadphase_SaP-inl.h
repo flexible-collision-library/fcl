@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class SaPCollisionManager<double>;
+
+//==============================================================================
 template <typename S>
 void SaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
 {

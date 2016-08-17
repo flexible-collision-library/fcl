@@ -49,6 +49,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct BVHContinuousCollisionPair<double>;
+
+//==============================================================================
 template <typename S>
 BVHContinuousCollisionPair<S>::BVHContinuousCollisionPair()
 {

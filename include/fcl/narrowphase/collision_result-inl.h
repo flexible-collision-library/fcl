@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct CollisionResult<double>;
+
+//==============================================================================
 template <typename S>
 CollisionResult<S>::CollisionResult()
 {

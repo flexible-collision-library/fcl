@@ -44,6 +44,14 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Halfspace<double>;
+
+//==============================================================================
+extern template
+Halfspace<double> transform(const Halfspace<double>& a, const Transform3<double>& tf);
+
+//==============================================================================
 template <typename S>
 Halfspace<S>::Halfspace(const Vector3<S>& n, S d)
   : ShapeBase<S>(), n(n), d(d)

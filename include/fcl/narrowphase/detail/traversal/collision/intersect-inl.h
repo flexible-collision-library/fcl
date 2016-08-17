@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+class Intersect<double>;
+
+//==============================================================================
 template <typename S>
 bool Intersect<S>::isZero(S v)
 {

@@ -208,9 +208,6 @@ void broad_phase_duplicate_check_test(S env_scale, std::size_t env_size, bool ve
   std::vector<CollisionObject<S>*> env;
   test::generateEnvironments(env, env_scale, env_size);
 
-//  for (auto i = 0u; i < env_size; ++i)
-//    env.emplace_back(new CollisionObject<S>(std::make_shared<Sphere<S>>(10)));
-
   std::vector<BroadPhaseCollisionManager<S>*> managers;
   managers.push_back(new NaiveCollisionManager<S>());
   managers.push_back(new SSaPCollisionManager<S>());

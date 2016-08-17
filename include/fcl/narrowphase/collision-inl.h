@@ -48,6 +48,24 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+std::size_t collide(
+    const CollisionObject<double>* o1,
+    const CollisionObject<double>* o2,
+    const CollisionRequest<double>& request,
+    CollisionResult<double>& result);
+
+//==============================================================================
+extern template
+std::size_t collide(
+    const CollisionGeometry<double>* o1,
+    const Transform3<double>& tf1,
+    const CollisionGeometry<double>* o2,
+    const Transform3<double>& tf2,
+    const CollisionRequest<double>& request,
+    CollisionResult<double>& result);
+
+//==============================================================================
 template<typename GJKSolver>
 detail::CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
 {

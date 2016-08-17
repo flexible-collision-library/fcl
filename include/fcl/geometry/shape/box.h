@@ -85,6 +85,6 @@ using Boxd = Box<double>;
 
 } // namespace fcl
 
-//#include "fcl/geometry/shape/box-inl.h"
+#include "fcl/geometry/shape/box-inl.h"
 
 #endif

@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct CostSource<double>;
+
+//==============================================================================
 template <typename S>
 CostSource<S>::CostSource(
     const Vector3<S>& aabb_min_,

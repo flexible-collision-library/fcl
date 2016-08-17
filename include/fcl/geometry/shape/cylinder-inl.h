@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Cylinder<double>;
+
+//==============================================================================
 template <typename S>
 Cylinder<S>::Cylinder(S radius, S lz)
   : ShapeBase<S>(), radius(radius), lz(lz)

@@ -44,6 +44,14 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class OcTree<double>;
+
+//==============================================================================
+extern template
+void computeChildBV(const AABB<double>& root_bv, unsigned int i, AABB<double>& child_bv);
+
+//==============================================================================
 template <typename S>
 OcTree<S>::OcTree(S resolution)
   : tree(std::shared_ptr<const octomap::OcTree>(new octomap::OcTree(resolution)))

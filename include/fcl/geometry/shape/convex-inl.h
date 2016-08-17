@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Convex<double>;
+
+//==============================================================================
 template <typename S>
 Convex<S>::Convex(
     Vector3<S>* plane_normals, S* plane_dis, int num_planes_,

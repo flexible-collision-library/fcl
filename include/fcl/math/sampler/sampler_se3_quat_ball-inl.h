@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class SamplerSE3Quat_ball<double>;
+
+//==============================================================================
 template <typename S>
 SamplerSE3Quat_ball<S>::SamplerSE3Quat_ball()
 {

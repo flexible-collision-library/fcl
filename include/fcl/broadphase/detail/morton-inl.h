@@ -41,12 +41,21 @@
 
 #include "fcl/broadphase/detail/morton.h"
 
-namespace fcl
-{
-
+namespace fcl {
 /// @cond IGNORE
-namespace detail
-{
+namespace detail {
+
+//==============================================================================
+extern template
+uint32 quantize(double x, uint32 n);
+
+//==============================================================================
+extern template
+struct morton_functor<double, uint32>;
+
+//==============================================================================
+extern template
+struct morton_functor<double, uint64>;
 
 //==============================================================================
 template <typename S>

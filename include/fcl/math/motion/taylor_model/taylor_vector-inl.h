@@ -44,6 +44,26 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class TVector3<double>;
+
+//==============================================================================
+extern template
+void generateTVector3ForLinearFunc(TVector3<double>& v, const Vector3<double>& position, const Vector3<double>& velocity);
+
+//==============================================================================
+extern template
+TVector3<double> operator * (const Vector3<double>& v, const TaylorModel<double>& a);
+
+//==============================================================================
+extern template
+TVector3<double> operator + (const Vector3<double>& v1, const TVector3<double>& v2);
+
+//==============================================================================
+extern template
+TVector3<double> operator - (const Vector3<double>& v1, const TVector3<double>& v2);
+
+//==============================================================================
 template <typename S>
 TVector3<S>::TVector3()
 {

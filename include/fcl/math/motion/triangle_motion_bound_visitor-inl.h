@@ -50,6 +50,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class TriangleMotionBoundVisitor<double>;
+
+//==============================================================================
 template<typename S>
 TriangleMotionBoundVisitor<S>::TriangleMotionBoundVisitor(
     const Vector3<S>& a_, const Vector3<S>& b_,

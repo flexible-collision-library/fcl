@@ -60,6 +60,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+struct GJKSolver_indep<double>;
+
+//==============================================================================
 template <typename S>
 template<typename Shape1, typename Shape2>
 bool GJKSolver_indep<S>::shapeIntersect(const Shape1& s1, const Transform3<S>& tf1,

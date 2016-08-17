@@ -43,6 +43,10 @@
 namespace fcl
 {
 
+//==============================================================================
+extern template
+class SSaPCollisionManager<double>;
+
 /** @brief Functor sorting objects according to the AABB<S> lower x bound */
 template <typename S>
 struct SortByXLow

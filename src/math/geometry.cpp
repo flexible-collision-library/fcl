@@ -110,25 +110,6 @@ void circumCircleComputation(
 
 //==============================================================================
 template
-double maximumDistance_mesh(
-    Vector3d* ps,
-    Vector3d* ps2,
-    Triangle* ts,
-    unsigned int* indices,
-    int n,
-    const Vector3d& query);
-
-//==============================================================================
-template
-double maximumDistance_pointcloud(
-    Vector3d* ps,
-    Vector3d* ps2,
-    unsigned int* indices,
-    int n,
-    const Vector3d& query);
-
-//==============================================================================
-template
 double maximumDistance(
     Vector3d* ps,
     Vector3d* ps2,
@@ -157,5 +138,55 @@ void getCovariance(
     Triangle* ts,
     unsigned int* indices,
     int n, Matrix3d& M);
+
+//==============================================================================
+namespace detail {
+//==============================================================================
+
+//==============================================================================
+template
+double maximumDistance_mesh(
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Vector3<double>& query);
+
+//==============================================================================
+template
+double maximumDistance_pointcloud(
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    unsigned int* indices,
+    int n,
+    const Vector3<double>& query);
+
+//==============================================================================
+template
+void getExtentAndCenter_pointcloud(
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    unsigned int* indices,
+    int n,
+    const Matrix3<double>& axis,
+    Vector3<double>& center,
+    Vector3<double>& extent);
+
+//==============================================================================
+template
+void getExtentAndCenter_mesh(
+    Vector3<double>* ps,
+    Vector3<double>* ps2,
+    Triangle* ts,
+    unsigned int* indices,
+    int n,
+    const Matrix3<double>& axis,
+    Vector3<double>& center,
+    Vector3<double>& extent);
+
+//==============================================================================
+} // namespace detail
+//==============================================================================
 
 } // namespace fcl

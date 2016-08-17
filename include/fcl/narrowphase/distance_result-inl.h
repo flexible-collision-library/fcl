@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+struct DistanceResult<double>;
+
+//==============================================================================
 template <typename S>
 DistanceResult<S>::DistanceResult(S min_distance_)
   : min_distance(min_distance_),

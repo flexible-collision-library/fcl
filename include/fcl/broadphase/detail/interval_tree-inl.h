@@ -40,11 +40,12 @@
 
 #include "fcl/broadphase/detail/interval_tree.h"
 
-namespace fcl
-{
+namespace fcl {
+namespace detail {
 
-namespace detail
-{
+//==============================================================================
+extern template
+class IntervalTree<double>;
 
 //==============================================================================
 template <typename S>
@@ -310,21 +311,6 @@ IntervalTreeNode<S>* IntervalTree<S>::getPredecessor(IntervalTreeNode<S>* x) con
 
 //==============================================================================
 template <typename S>
-void IntervalTreeNode<S>::print(IntervalTreeNode<S>* nil, IntervalTreeNode<S>* root) const
-{
-  stored_interval->print();
-  std::cout << ", k = " << key << ", h = " << high << ", mH = " << max_high;
-  std::cout << "  l->key = ";
-  if(left == nil) std::cout << "nullptr"; else std::cout << left->key;
-  std::cout << "  r->key = ";
-  if(right == nil) std::cout << "nullptr"; else std::cout << right->key;
-  std::cout << "  p->key = ";
-  if(parent == root) std::cout << "nullptr"; else std::cout << parent->key;
-  std::cout << "  red = " << (int)red << std::endl;
-}
-
-//==============================================================================
-template <typename S>
 void IntervalTree<S>::recursivePrint(IntervalTreeNode<S>* x) const
 {
   if(x != nil)
@@ -521,7 +507,7 @@ bool overlap(S a1, S a2, S b1, S b2)
 
 //==============================================================================
 template <typename S>
-std::deque<SimpleInterval<S>*> IntervalTree<S>::query(double low, double high)
+std::deque<SimpleInterval<S>*> IntervalTree<S>::query(S low, S high)
 {
   std::deque<SimpleInterval<S>*> result_stack;
   IntervalTreeNode<S>* x = root->left;

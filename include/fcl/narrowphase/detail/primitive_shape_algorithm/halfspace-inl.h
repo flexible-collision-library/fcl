@@ -47,6 +47,97 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+bool sphereHalfspaceIntersect(
+    const Sphere<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool ellipsoidHalfspaceIntersect(
+    const Ellipsoid<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool boxHalfspaceIntersect(
+    const Box<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2);
+
+//==============================================================================
+extern template
+bool boxHalfspaceIntersect(
+    const Box<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool capsuleHalfspaceIntersect(
+    const Capsule<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool cylinderHalfspaceIntersect(
+    const Cylinder<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool coneHalfspaceIntersect(
+    const Cone<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    std::vector<ContactPoint<double>>* contacts);
+
+//==============================================================================
+extern template
+bool convexHalfspaceIntersect(
+    const Convex<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
+
+//==============================================================================
+extern template
+bool halfspaceTriangleIntersect(
+    const Halfspace<double>& s1, const Transform3<double>& tf1,
+    const Vector3<double>& P1, const Vector3<double>& P2, const Vector3<double>& P3, const Transform3<double>& tf2,
+    Vector3<double>* contact_points, double* penetration_depth, Vector3<double>* normal);
+
+//==============================================================================
+extern template
+bool planeHalfspaceIntersect(
+    const Plane<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    Plane<double>& pl,
+    Vector3<double>& p, Vector3<double>& d,
+    double& penetration_depth,
+    int& ret);
+
+//==============================================================================
+extern template
+bool halfspacePlaneIntersect(
+    const Halfspace<double>& s1, const Transform3<double>& tf1,
+    const Plane<double>& s2, const Transform3<double>& tf2,
+    Plane<double>& pl, Vector3<double>& p, Vector3<double>& d,
+    double& penetration_depth,
+    int& ret);
+
+//==============================================================================
+extern template
+bool halfspaceIntersect(
+    const Halfspace<double>& s1, const Transform3<double>& tf1,
+    const Halfspace<double>& s2, const Transform3<double>& tf2,
+    Vector3<double>& p, Vector3<double>& d,
+    Halfspace<double>& s,
+    double& penetration_depth,
+    int& ret);
+
+//==============================================================================
 template <typename S>
 S halfspaceIntersectTolerance()
 {

@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class TranslationMotion<double>;
+
+//==============================================================================
 template <typename S>
 TranslationMotion<S>::TranslationMotion(
     const Transform3<S>& tf1, const Transform3<S>& tf2)

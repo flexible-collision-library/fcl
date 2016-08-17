@@ -47,6 +47,23 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+double clamp(double n, double min, double max);
+
+//==============================================================================
+extern template
+double closestPtSegmentSegment(
+    Vector3d p1, Vector3d q1, Vector3d p2, Vector3d q2,
+    double &s, double& t, Vector3d &c1, Vector3d &c2);
+
+//==============================================================================
+extern template
+bool capsuleCapsuleDistance(
+    const Capsule<double>& s1, const Transform3<double>& tf1,
+    const Capsule<double>& s2, const Transform3<double>& tf2,
+    double* dist, Vector3d* p1_res, Vector3d* p2_res);
+
+//==============================================================================
 template <typename S>
 S clamp(S n, S min, S max)
 {

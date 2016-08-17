@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Sphere<double>;
+
+//==============================================================================
 template <typename S>
 Sphere<S>::Sphere(S radius) : ShapeBase<S>(), radius(radius)
 {

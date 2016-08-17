@@ -46,6 +46,75 @@ namespace fcl
 namespace detail
 {
 
+//==============================================================================
+extern template
+class GJKInitializer<double, Cylinder<double>>;
+
+//==============================================================================
+extern template
+class GJKInitializer<double, Sphere<double>>;
+
+//==============================================================================
+extern template
+class GJKInitializer<double, Ellipsoid<double>>;
+
+//==============================================================================
+extern template
+class GJKInitializer<double, Box<double>>;
+
+//==============================================================================
+extern template
+class GJKInitializer<double, Capsule<double>>;
+
+//==============================================================================
+extern template
+class GJKInitializer<double, Cone<double>>;
+
+//==============================================================================
+extern template
+class GJKInitializer<double, Convex<double>>;
+
+//==============================================================================
+extern template
+void* triCreateGJKObject(
+    const Vector3d& P1, const Vector3d& P2, const Vector3d& P3);
+
+//==============================================================================
+extern template
+void* triCreateGJKObject(
+    const Vector3d& P1,
+    const Vector3d& P2,
+    const Vector3d& P3,
+    const Transform3d& tf);
+
+//==============================================================================
+extern template
+bool GJKCollide(
+    void* obj1,
+    ccd_support_fn supp1,
+    ccd_center_fn cen1,
+    void* obj2,
+    ccd_support_fn supp2,
+    ccd_center_fn cen2,
+    unsigned int max_iterations,
+    double tolerance,
+    Vector3d* contact_points,
+    double* penetration_depth,
+    Vector3d* normal);
+
+//==============================================================================
+extern template
+bool GJKDistance(
+    void* obj1,
+    ccd_support_fn supp1,
+    void* obj2,
+    ccd_support_fn supp2,
+    unsigned int max_iterations,
+    double tolerance,
+    double* dist,
+    Vector3d* p1,
+    Vector3d* p2);
+
 struct ccd_obj_t
 {
   ccd_vec3_t pos;

@@ -44,8 +44,15 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class SamplerSE2_disk<double>;
+
+//==============================================================================
 template <typename S>
-SamplerSE2_disk<S>::SamplerSE2_disk() {}
+SamplerSE2_disk<S>::SamplerSE2_disk()
+{
+  // Do nothing
+}
 
 //==============================================================================
 template <typename S>

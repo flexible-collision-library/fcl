@@ -47,6 +47,10 @@ namespace detail
 {
 
 //==============================================================================
+extern template
+class TraversalNodeBase<double>;
+
+//==============================================================================
 template <typename S>
 TraversalNodeBase<S>::~TraversalNodeBase()
 {

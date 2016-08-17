@@ -45,6 +45,18 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class Interval<double>;
+
+//==============================================================================
+extern template
+Interval<double> bound(const Interval<double>& i, double v);
+
+//==============================================================================
+extern template
+Interval<double> bound(const Interval<double>& i, const Interval<double>& other);
+
+//==============================================================================
 template <typename S>
 Interval<S>::Interval()
 {

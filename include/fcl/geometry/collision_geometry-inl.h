@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class CollisionGeometry<double>;
+
+//==============================================================================
 template <typename S>
 CollisionGeometry<S>::CollisionGeometry()
   : aabb_center(Vector3<S>::Zero()),

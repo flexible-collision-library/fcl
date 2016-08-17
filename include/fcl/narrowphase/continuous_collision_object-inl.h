@@ -44,6 +44,10 @@ namespace fcl
 {
 
 //==============================================================================
+extern template
+class ContinuousCollisionObject<double>;
+
+//==============================================================================
 template <typename S>
 ContinuousCollisionObject<S>::ContinuousCollisionObject(
     const std::shared_ptr<CollisionGeometry<S>>& cgeom_)
