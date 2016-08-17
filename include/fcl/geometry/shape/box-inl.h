@@ -40,8 +40,6 @@
 
 #include "fcl/geometry/shape/box.h"
 
-#include "fcl/geometry/shape/compute_bv.h"
-
 namespace fcl
 {
 
@@ -73,7 +71,10 @@ Box<S>::Box()
 template <typename S>
 void Box<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  const Vector3<S> v_delta = 0.5 * side;
+  this->aabb_local.max_ = v_delta;
+  this->aabb_local.min_ = -v_delta;
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -131,5 +132,3 @@ std::vector<Vector3<S>> Box<S>::getBoundVertices(
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_box.h"

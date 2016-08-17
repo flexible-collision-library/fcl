@@ -39,7 +39,6 @@
 #define FCL_NARROWPHASE_DETAIL_PLANE_H
 
 #include "fcl/geometry/shape/sphere.h"
-#include "fcl/geometry/shape/halfspace.h"
 #include "fcl/geometry/shape/ellipsoid.h"
 #include "fcl/geometry/shape/box.h"
 #include "fcl/geometry/shape/capsule.h"
@@ -123,13 +122,6 @@ template <typename S>
 bool planeTriangleIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
                             const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf2,
                             Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
-
-template <typename S>
-bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
-                             const Plane<S>& s2, const Transform3<S>& tf2,
-                             Plane<S>& pl, Vector3<S>& p, Vector3<S>& d,
-                             S& penetration_depth,
-                             int& ret);
 
 template <typename S>
 bool planeIntersect(const Plane<S>& s1, const Transform3<S>& tf1,

@@ -44,5 +44,3 @@ template
 class Sphere<double>;
 
 } // namespace fcl
-
-#include "fcl/geometry/shape/detail/bv_computer_sphere-inl.h"

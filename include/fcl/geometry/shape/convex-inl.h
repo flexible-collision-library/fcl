@@ -94,7 +94,11 @@ Convex<S>::~Convex()
 template <typename S>
 void Convex<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  this->aabb_local.min_.setConstant(-std::numeric_limits<S>::max());
+  this->aabb_local.max_.setConstant(std::numeric_limits<S>::max());
+  for(int i = 0; i < num_points; ++i)
+    this->aabb_local += points[i];
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -305,5 +309,3 @@ std::vector<Vector3<S>> Convex<S>::getBoundVertices(
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_convex.h"

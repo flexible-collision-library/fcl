@@ -40,7 +40,7 @@
 
 #include "fcl/narrowphase/detail/traversal/octree/octree_solver.h"
 
-#include "fcl/geometry/shape/construct_box.h"
+#include "fcl/geometry/shape/utility.h"
 
 namespace fcl
 {

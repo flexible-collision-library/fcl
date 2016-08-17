@@ -38,7 +38,7 @@
 #ifndef FCL_TRAVERSAL_SHAPEMESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 #define FCL_TRAVERSAL_SHAPEMESHCONSERVATIVEADVANCEMENTTRAVERSALNODE_H
 
-#include "fcl/geometry/shape/compute_bv.h"
+#include "fcl/geometry/shape/utility.h"
 #include "fcl/narrowphase/detail/traversal/distance/shape_mesh_distance_traversal_node.h"
 #include "fcl/narrowphase/detail/traversal/distance/conservative_advancement_stack_data.h"
 

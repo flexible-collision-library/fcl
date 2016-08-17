@@ -38,8 +38,7 @@
 #ifndef FCL_MATH_BV_UTILITY_H
 #define FCL_MATH_BV_UTILITY_H
 
-#include "fcl/math/bv/detail/converter.h"
-#include "fcl/math/bv/detail/fitter.h"
+#include "fcl/common/types.h"
 
 /** \brief Main namespace */
 namespace fcl

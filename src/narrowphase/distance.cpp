@@ -40,19 +40,19 @@
 namespace fcl
 {
 
-//==============================================================================
-template
-double distance(
-    const CollisionObject<double>* o1,
-    const CollisionObject<double>* o2,
-    const DistanceRequest<double>& request,
-    DistanceResult<double>& result);
+////==============================================================================
+//template
+//double distance(
+//    const CollisionObject<double>* o1,
+//    const CollisionObject<double>* o2,
+//    const DistanceRequest<double>& request,
+//    DistanceResult<double>& result);
 
-//==============================================================================
-template
-double distance(
-    const CollisionGeometry<double>* o1, const Transform3<double>& tf1,
-    const CollisionGeometry<double>* o2, const Transform3<double>& tf2,
-    const DistanceRequest<double>& request, DistanceResult<double>& result);
+////==============================================================================
+//template
+//double distance(
+//    const CollisionGeometry<double>* o1, const Transform3<double>& tf1,
+//    const CollisionGeometry<double>* o2, const Transform3<double>& tf2,
+//    const DistanceRequest<double>& request, DistanceResult<double>& result);
 
 } // namespace fcl

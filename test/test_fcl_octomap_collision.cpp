@@ -47,7 +47,7 @@
 #include "fcl/broadphase/broadphase_interval_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
-#include "fcl/geometry/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 

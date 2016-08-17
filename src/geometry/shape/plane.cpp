@@ -40,7 +40,12 @@
 namespace fcl
 {
 
+//==============================================================================
 template
 class Plane<double>;
+
+//==============================================================================
+template
+Plane<double> transform(const Plane<double>& a, const Transform3<double>& tf);
 
 } // namespace fcl

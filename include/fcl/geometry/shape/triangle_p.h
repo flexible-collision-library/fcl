@@ -67,8 +67,7 @@ public:
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<S>> getBoundVertices(
-      const Transform3<S>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 };
 
 using TrianglePf = TriangleP<float>;

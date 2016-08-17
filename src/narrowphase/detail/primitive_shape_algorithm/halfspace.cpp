@@ -131,6 +131,15 @@ bool planeHalfspaceIntersect(
 
 //==============================================================================
 template
+bool halfspacePlaneIntersect(
+    const Halfspace<double>& s1, const Transform3<double>& tf1,
+    const Plane<double>& s2, const Transform3<double>& tf2,
+    Plane<double>& pl, Vector3<double>& p, Vector3<double>& d,
+    double& penetration_depth,
+    int& ret);
+
+//==============================================================================
+template
 bool halfspaceIntersect(
     const Halfspace<double>& s1, const Transform3<double>& tf1,
     const Halfspace<double>& s2, const Transform3<double>& tf2,

@@ -43,4 +43,7 @@ namespace fcl
 template
 class Halfspace<double>;
 
+template
+Halfspace<double> transform(const Halfspace<double>& a, const Transform3<double>& tf);
+
 } // namespace fcl

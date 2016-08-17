@@ -40,8 +40,6 @@
 
 #include "fcl/geometry/shape/triangle_p.h"
 
-#include "fcl/geometry/shape/compute_bv.h"
-
 namespace fcl
 {
 
@@ -60,7 +58,8 @@ TriangleP<S>::TriangleP(
 template <typename S>
 void TriangleP<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  this->aabb_local = AABB<S>(a, b, c);
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -88,5 +87,3 @@ std::vector<Vector3<S>> TriangleP<S>::getBoundVertices(
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_triangle_p.h"

@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2011-2014, Willow Garage, Inc.
+ *  Copyright (c) 2013-2014, Willow Garage, Inc.
  *  Copyright (c) 2014-2016, Open Source Robotics Foundation
  *  All rights reserved.
  *
@@ -35,34 +35,12 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_BV_DETAIL_FITTEROBB_H
-#define FCL_BV_DETAIL_FITTEROBB_H
+#include "fcl/math/sampler/sampler_base.h"
 
-#include "fcl/math/bv/OBB.h"
+namespace fcl
+{
 
-namespace fcl {
-namespace detail {
-namespace OBB_fit_functions {
+template
+class SamplerBase<double>;
 
-template <typename S>
-void fit1(Vector3<S>* ps, OBB<S>& bv);
-
-template <typename S>
-void fit2(Vector3<S>* ps, OBB<S>& bv);
-
-template <typename S>
-void fit3(Vector3<S>* ps, OBB<S>& bv);
-
-template <typename S>
-void fit6(Vector3<S>* ps, OBB<S>& bv);
-
-template <typename S>
-void fitn(Vector3<S>* ps, int n, OBB<S>& bv);
-
-} // namespace OBB_fit_functions
-} // namespace detail
 } // namespace fcl
-
-#include "fcl/math/bv/detail/fitter_OBB-inl.h"
-
-#endif

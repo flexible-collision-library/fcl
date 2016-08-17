@@ -55,7 +55,10 @@ Cone<S>::Cone(S radius, S lz)
 template <typename S>
 void Cone<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  const Vector3<S> v_delta(radius, radius, 0.5 * lz);
+  this->aabb_local.max_ = v_delta;
+  this->aabb_local.min_ = -v_delta;
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -119,5 +122,3 @@ std::vector<Vector3<S>> Cone<S>::getBoundVertices(
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_cone.h"

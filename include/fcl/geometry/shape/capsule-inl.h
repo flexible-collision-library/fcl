@@ -55,7 +55,10 @@ Capsule<S>::Capsule(S radius, S lz)
 template <typename S>
 void Capsule<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  const Vector3<S> v_delta(radius, radius, 0.5 * lz + radius);
+  this->aabb_local.max_ = v_delta;
+  this->aabb_local.min_ = -v_delta;
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -149,5 +152,3 @@ std::vector<Vector3<S>> Capsule<S>::getBoundVertices(
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_capsule.h"

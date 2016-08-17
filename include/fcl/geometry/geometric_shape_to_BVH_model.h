@@ -100,6 +100,6 @@ void generateBVHModel(BVHModel<BV>& model, const Cone<typename BV::S>& shape, co
 
 } // namespace fcl
 
-#include "fcl/geometry/shape/geometric_shape_to_BVH_model-inl.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model-inl.h"
 
 #endif

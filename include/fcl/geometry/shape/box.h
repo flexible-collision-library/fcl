@@ -39,7 +39,6 @@
 #define FCL_SHAPE_BOX_H
 
 #include "fcl/geometry/shape/shape_base.h"
-#include "fcl/geometry/shape/detail/bv_computer.h"
 
 namespace fcl
 {
@@ -78,8 +77,7 @@ public:
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<S>> getBoundVertices(
-      const Transform3<S>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 };
 
 using Boxf = Box<float>;
@@ -87,6 +85,6 @@ using Boxd = Box<double>;
 
 } // namespace fcl
 
-#include "fcl/geometry/shape/box-inl.h"
+//#include "fcl/geometry/shape/box-inl.h"
 
 #endif

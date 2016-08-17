@@ -84,7 +84,33 @@ S Plane<S>::distance(const Vector3<S>& p) const
 template <typename S>
 void Plane<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  this->aabb_local.min_.setConstant(-std::numeric_limits<S>::max());
+  this->aabb_local.max_.setConstant(std::numeric_limits<S>::max());
+  if(n[1] == (S)0.0 && n[2] == (S)0.0)
+  {
+    // normal aligned with x axis
+    if(n[0] < 0)
+      this->aabb_local.min_[0] = this->aabb_local.max_[0] = -d;
+    else if(n[0] > 0)
+      this->aabb_local.min_[0] = this->aabb_local.max_[0] = d;
+  }
+  else if(n[0] == (S)0.0 && n[2] == (S)0.0)
+  {
+    // normal aligned with y axis
+    if(n[1] < 0)
+      this->aabb_local.min_[1] = this->aabb_local.max_[1] = -d;
+    else if(n[1] > 0)
+      this->aabb_local.min_[1] = this->aabb_local.max_[1] = d;
+  }
+  else if(n[0] == (S)0.0 && n[1] == (S)0.0)
+  {
+    // normal aligned with z axis
+    if(n[2] < 0)
+      this->aabb_local.min_[2] = this->aabb_local.max_[2] = -d;
+    else if(n[2] > 0)
+      this->aabb_local.min_[2] = this->aabb_local.max_[2] = d;
+  }
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -114,8 +140,22 @@ void Plane<S>::unitNormalTest()
   }
 }
 
+//==============================================================================
+template <typename S>
+Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf)
+{
+  /// suppose the initial halfspace is n * x <= d
+  /// after transform (R, T), x --> x' = R x + T
+  /// and the new half space becomes n' * x' <= d'
+  /// where n' = R * n
+  ///   and d' = d + n' * T
+
+  Vector3<S> n = tf.linear() * a.n;
+  S d = a.d + n.dot(tf.translation());
+
+  return Plane<S>(n, d);
+}
+
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_plane.h"

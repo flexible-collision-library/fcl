@@ -79,7 +79,6 @@ enum BVHModelType
     BVH_MODEL_POINTCLOUD            /// @brief point cloud model
   };
 
-
 }
 
 #endif

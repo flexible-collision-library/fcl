@@ -43,7 +43,7 @@
 
 #include "fcl/math/bv/utility.h"
 #include "fcl/geometry/shape/box.h"
-#include "fcl/geometry/shape/construct_box.h"
+#include "fcl/geometry/shape/utility.h"
 #include "fcl/broadphase/broadphase_collision_manager.h"
 #include "fcl/broadphase/detail/hierarchy_tree.h"
 

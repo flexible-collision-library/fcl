@@ -54,7 +54,7 @@
 #include "fcl/geometry/shape/plane.h"
 #include "fcl/geometry/shape/sphere.h"
 #include "fcl/geometry/shape/triangle_p.h"
-#include "fcl/geometry/shape/construct_box.h"
+#include "fcl/geometry/shape/utility.h"
 
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
 

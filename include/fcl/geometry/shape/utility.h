@@ -35,21 +35,29 @@
 
 /** @author Jia Pan */
 
-#ifndef FCL_SHAPE_CONSTRUCT_BOX_H
-#define FCL_SHAPE_CONSTRUCT_BOX_H
+#ifndef FCL_GEOMETRY_SHAPE_UTILITY_H
+#define FCL_GEOMETRY_SHAPE_UTILITY_H
 
-#include <vector>
+// This header shouldn't be included by any bounding volumen classes (e.g.,
+// AABB and OBB) nor geometric shapes (e.g., Box and Sphere).
 
-#include "fcl/math/bv/kDOP.h"
+#include "fcl/common/types.h"
+
 #include "fcl/math/bv/AABB.h"
-#include "fcl/math/bv/OBB.h"
-#include "fcl/math/bv/RSS.h"
-#include "fcl/math/bv/OBBRSS.h"
+#include "fcl/math/bv/kDOP.h"
 #include "fcl/math/bv/kIOS.h"
+#include "fcl/math/bv/OBB.h"
+#include "fcl/math/bv/OBBRSS.h"
+#include "fcl/math/bv/RSS.h"
+
 #include "fcl/geometry/shape/box.h"
 
 namespace fcl
 {
+
+/// @brief calculate a bounding volume for a shape in a specific configuration
+template <typename BV, typename Shape>
+void computeBV(const Shape& s, const Transform3<typename BV::S>& tf, BV& bv);
 
 /// @brief construct a box shape (with a configuration) from a given bounding volume
 template <typename S>
@@ -102,6 +110,6 @@ void constructBox(const KDOP<S, 24>& bv, const Transform3<S>& tf_bv, Box<S>& box
 
 } // namespace fcl
 
-#include "fcl/geometry/shape/construct_box-inl.h"
+#include "fcl/geometry/shape/utility-inl.h"
 
 #endif

@@ -39,7 +39,7 @@
 
 #include "fcl/config.h"
 #include "fcl/geometry/octree/octree.h"
-#include "fcl/geometry/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model.h"
 #include "fcl/narrowphase/collision.h"
 #include "fcl/broadphase/broadphase_bruteforce.h"
 #include "fcl/broadphase/broadphase_spatialhash.h"

@@ -53,7 +53,9 @@ Sphere<S>::Sphere(S radius) : ShapeBase<S>(), radius(radius)
 template <typename S>
 void Sphere<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  this->aabb_local.max_.setConstant(radius);
+  this->aabb_local.min_.setConstant(-radius);
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = radius;
 }
@@ -112,5 +114,3 @@ std::vector<Vector3<S>> Sphere<S>::getBoundVertices(
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_sphere.h"

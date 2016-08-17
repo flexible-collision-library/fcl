@@ -128,6 +128,13 @@ bool planeHalfspaceIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
                              S& penetration_depth,
                              int& ret);
 
+template <typename S>
+bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
+                             const Plane<S>& s2, const Transform3<S>& tf2,
+                             Plane<S>& pl, Vector3<S>& p, Vector3<S>& d,
+                             S& penetration_depth,
+                             int& ret);
+
 /// @brief return whether two halfspace intersect
 /// if the separation planes of the two halfspaces are parallel
 ///    return code 1, if two halfspaces' normal are same and s1 is in s2, also return s1 in s;

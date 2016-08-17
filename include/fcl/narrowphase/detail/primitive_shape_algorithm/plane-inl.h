@@ -40,8 +40,6 @@
 
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/plane.h"
 
-#include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace.h"
-
 namespace fcl
 {
 
@@ -693,17 +691,6 @@ bool planeTriangleIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
     }
     return true;
   }
-}
-
-//==============================================================================
-template <typename S>
-bool halfspacePlaneIntersect(const Halfspace<S>& s1, const Transform3<S>& tf1,
-                             const Plane<S>& s2, const Transform3<S>& tf2,
-                             Plane<S>& pl, Vector3<S>& p, Vector3<S>& d,
-                             S& penetration_depth,
-                             int& ret)
-{
-  return planeHalfspaceIntersect(s2, tf2, s1, tf1, pl, p, d, penetration_depth, ret);
 }
 
 //==============================================================================

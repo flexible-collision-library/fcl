@@ -39,7 +39,6 @@
 #define FCL_SHAPE_HALFSPACE_H
 
 #include "fcl/geometry/shape/shape_base.h"
-#include "fcl/geometry/shape/compute_bv.h"
 #include "fcl/math/bv/OBB.h"
 #include "fcl/math/bv/RSS.h"
 #include "fcl/math/bv/OBBRSS.h"
@@ -93,23 +92,10 @@ using Halfspacef = Halfspace<float>;
 using Halfspaced = Halfspace<double>;
 
 template <typename S>
-Halfspace<S> transform(
-    const Halfspace<S>& a, const Transform3<S>& tf)
-{
-  /// suppose the initial halfspace is n * x <= d
-  /// after transform (R, T), x --> x' = R x + T
-  /// and the new half space becomes n' * x' <= d'
-  /// where n' = R * n
-  ///   and d' = d + n' * T
-
-  Vector3<S> n = tf.linear() * a.n;
-  S d = a.d + n.dot(tf.translation());
-
-  return Halfspace<S>(n, d);
-}
+Halfspace<S> transform(const Halfspace<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl
 
-#include "fcl/geometry/shape/halfspace-inl.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/halfspace-inl.h"
 
 #endif

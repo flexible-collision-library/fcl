@@ -39,12 +39,6 @@
 #define FCL_SHAPE_PLANE_H
 
 #include "fcl/geometry/shape/shape_base.h"
-#include "fcl/geometry/shape/compute_bv.h"
-#include "fcl/math/bv/OBB.h"
-#include "fcl/math/bv/RSS.h"
-#include "fcl/math/bv/OBBRSS.h"
-#include "fcl/math/bv/kDOP.h"
-#include "fcl/math/bv/kIOS.h"
 
 namespace fcl
 {
@@ -91,22 +85,10 @@ using Planef = Plane<float>;
 using Planed = Plane<double>;
 
 template <typename S>
-Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf)
-{
-  /// suppose the initial halfspace is n * x <= d
-  /// after transform (R, T), x --> x' = R x + T
-  /// and the new half space becomes n' * x' <= d'
-  /// where n' = R * n
-  ///   and d' = d + n' * T
-
-  Vector3<S> n = tf.linear() * a.n;
-  S d = a.d + n.dot(tf.translation());
-
-  return Plane<S>(n, d);
-}
+Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl
 
-#include "fcl/geometry/shape/plane-inl.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/plane-inl.h"
 
 #endif

@@ -145,4 +145,5 @@ using OcTreed = OcTree<double>;
 #include "fcl/geometry/octree/octree-inl.h"
 
 #endif // #if FCL_HAVE_OCTOMAP
+
 #endif

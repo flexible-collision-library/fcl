@@ -39,8 +39,6 @@
 #define FCL_SHAPE_CONE_H
 
 #include "fcl/geometry/shape/shape_base.h"
-#include "fcl/geometry/shape/compute_bv.h"
-#include "fcl/math/bv/OBB.h"
 
 namespace fcl
 {
@@ -61,7 +59,7 @@ public:
   /// @brief Length along z axis 
   S lz;
 
-  /// @brief Compute AABB<S>
+  /// @brief Compute AABB
   void computeLocalAABB() override;
 
   /// @brief Get node type: a cone 
@@ -78,8 +76,7 @@ public:
 
   /// @brief get the vertices of some convex shape which can bound this shape in
   /// a specific configuration
-  std::vector<Vector3<S>> getBoundVertices(
-      const Transform3<S>& tf) const;
+  std::vector<Vector3<S>> getBoundVertices(const Transform3<S>& tf) const;
 };
 
 using Conef = Cone<float>;

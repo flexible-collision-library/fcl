@@ -9,11 +9,13 @@ install(FILES "${FCL_CONFIG_OUT_DIR}/config.h" DESTINATION ${CMAKE_INSTALL_INCLU
 
 fcl_get_filename_components(
   fcl_header_rel_paths
+  fcl_inl_header_rel_paths
   "fcl headers"
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${HEADERS})
 fcl_get_filename_components(
   fcl_config_header_rel_paths
+  fcl_config_inl_header_rel_paths
   "fcl configured headers"
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
@@ -27,6 +29,17 @@ fcl_generate_include_header_list(
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/fcl.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/fcl.h)
+
+fcl_generate_include_header_list(
+  fcl_inl_headers
+  "fcl"
+  "fcl inl header relative paths"
+  ${fcl_inl_header_rel_paths})
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/fcl-inl.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/fcl-inl.h)
+
+
 
 install(
   FILES ${hdrs} ${CMAKE_CURRENT_BINARY_DIR}/fcl.h

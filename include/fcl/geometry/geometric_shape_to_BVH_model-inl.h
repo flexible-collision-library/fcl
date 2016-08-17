@@ -38,7 +38,7 @@
 #ifndef FCL_SHAPE_GEOMETRICSHAPETOBVHMODEL_INL_H
 #define FCL_SHAPE_GEOMETRICSHAPETOBVHMODEL_INL_H
 
-#include "fcl/geometry/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model.h"
 
 namespace fcl
 {

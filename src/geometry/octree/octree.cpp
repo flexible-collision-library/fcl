@@ -40,7 +40,12 @@
 namespace fcl
 {
 
+//==============================================================================
 template
 class OcTree<double>;
+
+//==============================================================================
+template
+void computeChildBV(const AABB<double>& root_bv, unsigned int i, AABB<double>& child_bv);
 
 } // namespace fcl

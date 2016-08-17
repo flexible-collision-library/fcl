@@ -35,10 +35,133 @@
 
 /** @author Jia Pan */
 
-#include "fcl/geometry/shape/construct_box-inl.h"
+#include "fcl/geometry/shape/utility-inl.h"
 
-namespace fcl
-{
+namespace fcl {
+
+//==============================================================================
+namespace detail {
+//==============================================================================
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Box<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Box<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Capsule<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Capsule<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Cone<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Cone<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Cylinder<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Cylinder<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Ellipsoid<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Ellipsoid<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, RSS<double>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBBRSS<double>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, kIOS<double>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, KDOP<double, 16>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, KDOP<double, 18>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, KDOP<double, 24>, Halfspace<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, RSS<double>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBBRSS<double>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, kIOS<double>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, KDOP<double, 16>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, KDOP<double, 18>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, KDOP<double, 24>, Plane<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, Sphere<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, OBB<double>, Sphere<double>>;
+
+//==============================================================================
+template
+struct ComputeBVImpl<double, AABB<double>, TriangleP<double>>;
+
+//==============================================================================
+} // namespace detail
+//==============================================================================
 
 //==============================================================================
 template

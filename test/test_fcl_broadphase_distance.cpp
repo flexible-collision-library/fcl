@@ -47,7 +47,7 @@
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
 #include "fcl/broadphase/detail/sparse_hash_table.h"
 #include "fcl/broadphase/detail/spatial_hash.h"
-#include "fcl/geometry/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 
 #if USE_GOOGLEHASH

@@ -63,7 +63,9 @@ Ellipsoid<S>::Ellipsoid(const Vector3<S>& radii)
 template <typename S>
 void Ellipsoid<S>::computeLocalAABB()
 {
-  computeBV(*this, Transform3<S>::Identity(), this->aabb_local);
+  this->aabb_local.max_ = radii;
+  this->aabb_local.min_ = -radii;
+
   this->aabb_center = this->aabb_local.center();
   this->aabb_radius = (this->aabb_local.min_ - this->aabb_center).norm();
 }
@@ -140,5 +142,3 @@ std::vector<Vector3<S>> Ellipsoid<S>::getBoundVertices(
 } // namespace fcl
 
 #endif
-
-#include "fcl/geometry/shape/detail/bv_computer_ellipsoid.h"

@@ -60,7 +60,7 @@ uint32 morton_code(uint32 x, uint32 y, uint32 z);
 /// @brief compute 60 bit morton code
 uint64 morton_code60(uint32 x, uint32 y, uint32 z);
 
-/// @brief Functor to compute the morton code for a given AABB<S>
+/// @brief Functor to compute the morton code for a given AABB
 /// This is specialized for 32- and 64-bit unsigned integers giving
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
 /// N is the length of the code and must be a multiple of 3.

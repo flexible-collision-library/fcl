@@ -45,7 +45,7 @@
 
 #include "fcl/math/bv/utility.h"
 #include "fcl/geometry/octree/octree.h"
-#include "fcl/geometry/shape/compute_bv.h"
+#include "fcl/geometry/shape/utility.h"
 #include "fcl/geometry/shape/box.h"
 
 namespace fcl
