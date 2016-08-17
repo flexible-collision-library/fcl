@@ -42,6 +42,10 @@
 #include "fcl/math/motion/taylor_model/taylor_vector.h"
 #include "fcl/math/bv/RSS.h"
 #include "fcl/math/motion/bv_motion_bound_visitor.h"
+#include "fcl/math/motion/spline_motion.h"
+#include "fcl/math/motion/screw_motion.h"
+#include "fcl/math/motion/interp_motion.h"
+#include "fcl/math/motion/translation_motion.h"
 
 namespace fcl
 {
