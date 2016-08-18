@@ -20,7 +20,7 @@ endif()
 # This shouldn't be necessary, but there has been trouble
 # with MSVC being set off, but MSVCXX ON.
 if(MSVC OR MSVC90 OR MSVC10)
-    set(MSVC ON)
+  set(MSVC ON)
 endif (MSVC OR MSVC90 OR MSVC10)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
@@ -170,4 +170,38 @@ option(FCL_BUILD_TESTS "Build FCL tests" ON)
 if(FCL_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
+endif()
+
+#===============================================================================
+# Code Formatting
+#===============================================================================
+message(STATUS "")
+message(STATUS "[ Code Formatting ]")
+
+find_program(
+    CLANG_FORMAT_EXECUTABLE
+    NAMES clang-format clang-format-4.0 clang-format-3.9 clang-format-3.8)
+
+if (CLANG_FORMAT_EXECUTABLE)
+
+  message(STATUS "Looking for clang-format - found")
+
+  add_custom_target(
+      format-code
+      COMMAND ${CMAKE_COMMAND} -E echo "Formatting code... "
+      COMMAND ${CLANG_FORMAT_EXECUTABLE} -style=file -i ${FCL_HEADERS}
+      COMMAND ${CMAKE_COMMAND} -E echo "Done."
+      DEPENDS ${CLANG_FORMAT_EXECUTABLE})
+
+  add_custom_target(
+      check-code
+      COMMAND ${CMAKE_COMMAND} -E echo "Checking code format... "
+      COMMAND ${CMAKE_SOURCE_DIR}/tools/check_format.sh ${CLANG_FORMAT_EXECUTABLE} ${FCL_HEADERS}
+      COMMAND ${CMAKE_COMMAND} -E echo "Done."
+      DEPENDS ${CLANG_FORMAT_EXECUTABLE})
+
+else()
+
+  message(STATUS "Looking for clang-format - NOT found, please install clang-format to enable automatic code formatting")
+
 endif()
