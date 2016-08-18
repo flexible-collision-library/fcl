@@ -44,7 +44,7 @@ namespace detail
 {
 
 template
-struct DistanceTraversalNodeBase<double>;
+class DistanceTraversalNodeBase<double>;
 
 } // namespace detail
 } // namespace fcl

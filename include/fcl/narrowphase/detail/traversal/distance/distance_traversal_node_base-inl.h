@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-struct DistanceTraversalNodeBase<double>;
+class DistanceTraversalNodeBase<double>;
 
 //==============================================================================
 template <typename S>

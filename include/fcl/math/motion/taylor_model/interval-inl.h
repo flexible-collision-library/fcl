@@ -46,7 +46,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class Interval<double>;
+struct Interval<double>;
 
 //==============================================================================
 extern template
