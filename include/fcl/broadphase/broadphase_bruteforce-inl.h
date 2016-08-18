@@ -40,6 +40,8 @@
 
 #include "fcl/broadphase/broadphase_bruteforce.h"
 
+#include <iterator>
+
 namespace fcl {
 
 //==============================================================================

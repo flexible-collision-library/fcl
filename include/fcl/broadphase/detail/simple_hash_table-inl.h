@@ -40,6 +40,8 @@
 
 #include "fcl/broadphase/detail/simple_hash_table.h"
 
+#include <iterator>
+
 namespace fcl
 {
 

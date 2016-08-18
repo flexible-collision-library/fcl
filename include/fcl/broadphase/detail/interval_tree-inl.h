@@ -40,6 +40,8 @@
 
 #include "fcl/broadphase/detail/interval_tree.h"
 
+#include <algorithm>
+
 namespace fcl {
 namespace detail {
 

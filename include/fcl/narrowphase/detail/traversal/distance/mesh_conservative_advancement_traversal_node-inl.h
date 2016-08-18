@@ -369,28 +369,6 @@ MeshConservativeAdvancementTraversalNodeRSS(S w_)
 
 //==============================================================================
 template <typename S>
-S MeshConservativeAdvancementTraversalNodeRSS<S>::
-BVTesting(int b1, int b2) const
-{
-  if (this->enable_statistics)
-    this->num_bv_tests++;
-
-  Vector3<S> P1, P2;
-  S d = distance(
-        R,
-        T,
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv,
-        &P1,
-        &P2);
-
-  this->stack.emplace_back(P1, P2, b1, b2, d);
-
-  return d;
-}
-
-//==============================================================================
-template <typename S>
 void MeshConservativeAdvancementTraversalNodeRSS<S>::
 leafTesting(int b1, int b2) const
 {
@@ -442,28 +420,6 @@ MeshConservativeAdvancementTraversalNodeOBBRSS(S w_)
   : MeshConservativeAdvancementTraversalNode<OBBRSS<S>>(w_)
 {
   R.setIdentity();
-}
-
-//==============================================================================
-template <typename S>
-S MeshConservativeAdvancementTraversalNodeOBBRSS<S>::
-BVTesting(int b1, int b2) const
-{
-  if (this->enable_statistics)
-    this->num_bv_tests++;
-
-  Vector3<S> P1, P2;
-  S d = distance(
-        R,
-        T,
-        this->model1->getBV(b1).bv,
-        this->model2->getBV(b2).bv,
-        &P1,
-        &P2);
-
-  this->stack.emplace_back(P1, P2, b1, b2, d);
-
-  return d;
 }
 
 //==============================================================================

@@ -37,6 +37,10 @@
 
 #include "fcl/geometry/octree/octree-inl.h"
 
+#include "fcl/config.h"
+
+#if FCL_HAVE_OCTOMAP
+
 namespace fcl
 {
 
@@ -49,3 +53,5 @@ template
 void computeChildBV(const AABB<double>& root_bv, unsigned int i, AABB<double>& child_bv);
 
 } // namespace fcl
+
+#endif
