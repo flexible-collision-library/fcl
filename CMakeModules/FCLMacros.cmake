@@ -19,18 +19,15 @@ macro(fcl_get_filename_components _var _cacheDesc _suffix_to_remove)
   string(LENGTH ${_suffix_to_remove} suffix_length)
   foreach(header ${ARGN})
     string(LENGTH ${header} full_length)
-    string(
-      SUBSTRING
-      ${header}
-      ${suffix_length}
-      ${full_length}-${suffix_length}
-      header)
-      if(${header} MATCHES "/detail/")
-        continue()
-      endif()
-      if(${header} MATCHES "-impl.h")
-        continue()
-      endif()
+    math(EXPR relative_path "${full_length} - ${suffix_length}")
+    string(LENGTH ${relative_path} relative_path_length)
+    string(SUBSTRING ${header} ${suffix_length} ${relative_path_length} header)
+    if(${header} MATCHES "/detail/")
+      continue()
+    endif()
+    if(${header} MATCHES "-impl.h")
+      continue()
+    endif()
     fcl_append_to_cached_string(
       ${_var}
       ${_cacheDesc}"_HEADER_NAMES"
