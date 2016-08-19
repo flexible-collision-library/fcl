@@ -5,24 +5,28 @@ cache:
 
 language: cpp
 
-os:
-  - linux
-  - osx
-
-osx_image: beta-xcode6.3
-
-compiler:
-  - gcc
-  - clang
-
-env:
-  - BUILD_TYPE=Debug   COVERALLS=ON
-  - BUILD_TYPE=Release COVERALLS=OFF
-
 matrix:
-  exclude:
-    - os: osx
+  include:
+    - os: linux
       compiler: gcc
+      env: BUILD_TYPE=Debug COVERALLS=ON
+    - os: linux
+      compiler: gcc
+      env: BUILD_TYPE=Release COVERALLS=OFF
+    - os: linux
+      compiler: clang
+      env: BUILD_TYPE=Debug COVERALLS=OFF
+    - os: linux
+      compiler: clang
+      env: BUILD_TYPE=Release COVERALLS=OFF
+    - os: osx
+      osx_image: beta-xcode6.3
+      compiler: clang
+      env: BUILD_TYPE=Debug COVERALLS=OFF
+    - os: osx
+      osx_image: beta-xcode6.3
+      compiler: clang
+      env: BUILD_TYPE=Release COVERALLS=OFF
 
 install:
   # Install dependencies for FCL
