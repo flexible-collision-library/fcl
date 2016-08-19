@@ -38,7 +38,7 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS ..
 
   # Build
-  - make -j2
+  - make -j4
   - if [ $COVERALLS = ON ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then make coveralls; fi
 
   # Run unit tests
