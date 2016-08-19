@@ -1,4 +1,15 @@
-cmake_minimum_required(VERSION 2.8.12)
+if(APPLE)
+  cmake_minimum_required(VERSION 3.0.00)
+else()
+  cmake_minimum_required(VERSION 2.8.12)
+endif()
+
+# Set the CMAKE_CXX_COMPILER_ID variable to AppleClang instead of Clang.
+# AppleClang and Clang have different version number. This was introduced in
+# CMake 3.0.
+if(POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW)
+endif()
 
 # Use MACOSX_RPATH by default on OS X. This was added in CMake 2.8.12 and
 # became default in CMake 3.0. Explicitly setting this policy is necessary to
