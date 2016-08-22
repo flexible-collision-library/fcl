@@ -33,13 +33,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
-
+/** @author Jia Pan */
 
 #ifndef FCL_BROAD_PHASE_SSAP_H
 #define FCL_BROAD_PHASE_SSAP_H
 
-#include "fcl/broadphase/broadphase.h"
+#include <vector>
+#include "fcl/broadphase/broadphase_collision_manager.h"
 
 namespace fcl
 {
@@ -49,8 +49,7 @@ template <typename S>
 class SSaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
-  SSaPCollisionManager() : setup_(false)
-  {}
+  SSaPCollisionManager();
 
   /// @brief remove one object from the manager
   void registerObject(CollisionObject<S>* obj);
@@ -92,7 +91,7 @@ public:
   bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  inline size_t size() const { return objs_x.size(); }
+  size_t size() const;
 
 protected:
   /// @brief check collision between one object and a list of objects, return value is whether stop is possible
@@ -107,38 +106,12 @@ protected:
   
   bool distance_(CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
 
-  static inline size_t selectOptimalAxis(const std::vector<CollisionObject<S>*>& objs_x, const std::vector<CollisionObject<S>*>& objs_y, const std::vector<CollisionObject<S>*>& objs_z, typename std::vector<CollisionObject<S>*>::const_iterator& it_beg, typename std::vector<CollisionObject<S>*>::const_iterator& it_end)
-  {
-    /// simple sweep and prune method
-    S delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
-    S delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
-    S delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
-
-    int axis = 0;
-    if(delta_y > delta_x && delta_y > delta_z)
-      axis = 1;
-    else if(delta_z > delta_y && delta_z > delta_x)
-      axis = 2;
-
-    switch(axis)
-    {
-    case 0:
-      it_beg = objs_x.begin();
-      it_end = objs_x.end();
-      break;
-    case 1:
-      it_beg = objs_y.begin();
-      it_end = objs_y.end();
-      break;
-    case 2:
-      it_beg = objs_z.begin();
-      it_end = objs_z.end();
-      break;
-    }
-
-    return axis;
-  }
-
+  static size_t selectOptimalAxis(
+      const std::vector<CollisionObject<S>*>& objs_x,
+      const std::vector<CollisionObject<S>*>& objs_y,
+      const std::vector<CollisionObject<S>*>& objs_z,
+      typename std::vector<CollisionObject<S>*>::const_iterator& it_beg,
+      typename std::vector<CollisionObject<S>*>::const_iterator& it_end);
 
   /// @brief Objects sorted according to lower x value
   std::vector<CollisionObject<S>*> objs_x;
@@ -162,7 +135,7 @@ using SSaPCollisionManagerd = SSaPCollisionManager<double>;
 //                                                                            //
 //============================================================================//
 
-/** \brief Functor sorting objects according to the AABB<S> lower x bound */
+/** @brief Functor sorting objects according to the AABB<S> lower x bound */
 template <typename S>
 struct SortByXLow
 {
@@ -174,7 +147,7 @@ struct SortByXLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB<S> lower y bound */
+/** @brief Functor sorting objects according to the AABB<S> lower y bound */
 template <typename S>
 struct SortByYLow
 {
@@ -186,7 +159,7 @@ struct SortByYLow
   }
 };
 
-/** \brief Functor sorting objects according to the AABB<S> lower z bound */
+/** @brief Functor sorting objects according to the AABB<S> lower z bound */
 template <typename S>
 struct SortByZLow
 {
@@ -198,7 +171,7 @@ struct SortByZLow
   }
 };
 
-/** \brief Dummy collision object with a point AABB<S> */
+/** @brief Dummy collision object with a point AABB<S> */
 template <typename S>
 class DummyCollisionObject : public CollisionObject<S>
 {
@@ -257,6 +230,13 @@ void SSaPCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
     }
     ++pos_start3;
   }
+}
+
+//==============================================================================
+template <typename S>
+SSaPCollisionManager<S>::SSaPCollisionManager() : setup_(false)
+{
+  // Do nothing
 }
 
 //==============================================================================
@@ -517,6 +497,45 @@ bool SSaPCollisionManager<S>::distance_(CollisionObject<S>* obj, void* cdata, Di
 
 //==============================================================================
 template <typename S>
+size_t SSaPCollisionManager<S>::selectOptimalAxis(
+    const std::vector<CollisionObject<S>*>& objs_x,
+    const std::vector<CollisionObject<S>*>& objs_y,
+    const std::vector<CollisionObject<S>*>& objs_z,
+    typename std::vector<CollisionObject<S>*>::const_iterator& it_beg,
+    typename std::vector<CollisionObject<S>*>::const_iterator& it_end)
+{
+  /// simple sweep and prune method
+  S delta_x = (objs_x[objs_x.size() - 1])->getAABB().min_[0] - (objs_x[0])->getAABB().min_[0];
+  S delta_y = (objs_x[objs_y.size() - 1])->getAABB().min_[1] - (objs_y[0])->getAABB().min_[1];
+  S delta_z = (objs_z[objs_z.size() - 1])->getAABB().min_[2] - (objs_z[0])->getAABB().min_[2];
+
+  int axis = 0;
+  if(delta_y > delta_x && delta_y > delta_z)
+    axis = 1;
+  else if(delta_z > delta_y && delta_z > delta_x)
+    axis = 2;
+
+  switch(axis)
+  {
+  case 0:
+    it_beg = objs_x.begin();
+    it_end = objs_x.end();
+    break;
+  case 1:
+    it_beg = objs_y.begin();
+    it_end = objs_y.end();
+    break;
+  case 2:
+    it_beg = objs_z.begin();
+    it_end = objs_z.end();
+    break;
+  }
+
+  return axis;
+}
+
+//==============================================================================
+template <typename S>
 void SSaPCollisionManager<S>::collide(void* cdata, CollisionCallBack<S> callback) const
 {
   if(size() == 0) return;
@@ -650,6 +669,13 @@ template <typename S>
 bool SSaPCollisionManager<S>::empty() const
 {
   return objs_x.empty();
+}
+
+//==============================================================================
+template <typename S>
+size_t SSaPCollisionManager<S>::size() const
+{
+  return objs_x.size();
 }
 
 } // namespace

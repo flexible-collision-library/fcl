@@ -33,15 +33,21 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
 #include "fcl/config.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/sparse_hash_table.h"
-#include "fcl/broadphase/spatial_hash.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/broadphase/broadphase_bruteforce.h"
+#include "fcl/broadphase/broadphase_spatialhash.h"
+#include "fcl/broadphase/broadphase_SaP.h"
+#include "fcl/broadphase/broadphase_SSaP.h"
+#include "fcl/broadphase/broadphase_interval_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/broadphase/detail/sparse_hash_table.h"
+#include "fcl/broadphase/detail/spatial_hash.h"
+#include "fcl/object/geometry/shape/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 
 #if USE_GOOGLEHASH
@@ -313,8 +319,8 @@ void generateSelfDistanceEnvironmentsMesh(std::vector<CollisionObject<S>*>& env,
 template <typename S>
 void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_mesh)
 {
-  std::vector<TStruct> ts;
-  std::vector<Timer> timers;
+  std::vector<test::TStruct> ts;
+  std::vector<test::Timer> timers;
 
   std::vector<CollisionObject<S>*> env;
   if(use_mesh)
@@ -333,10 +339,10 @@ void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_
   SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
   S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 5, (upper_limit[1] - lower_limit[1]) / 5), (upper_limit[2] - lower_limit[2]) / 5);
   // managers.push_back(new SpatialHashingCollisionManager<S>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager<S>());
   managers.push_back(new DynamicAABBTreeCollisionManager_Array<S>());
@@ -373,12 +379,12 @@ void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_
   }
 
 
-  std::vector<DistanceData<S>> self_data(managers.size());
+  std::vector<test::DistanceData<S>> self_data(managers.size());
 
   for(size_t i = 0; i < self_data.size(); ++i)
   {
     timers[i].start();
-    managers[i]->distance(&self_data[i], defaultDistanceFunction);
+    managers[i]->distance(&self_data[i], test::defaultDistanceFunction);
     timers[i].stop();
     ts[i].push_back(timers[i].getElapsedTime());
     // std::cout << self_data[i].result.min_distance << " ";
@@ -425,14 +431,14 @@ void broad_phase_self_distance_test(S env_scale, std::size_t env_size, bool use_
 template <typename S>
 void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t query_size, bool use_mesh)
 {
-  std::vector<TStruct> ts;
-  std::vector<Timer> timers;
+  std::vector<test::TStruct> ts;
+  std::vector<test::Timer> timers;
 
   std::vector<CollisionObject<S>*> env;
   if(use_mesh)
-    generateEnvironmentsMesh(env, env_scale, env_size);
+    test::generateEnvironmentsMesh(env, env_scale, env_size);
   else
-    generateEnvironments(env, env_scale, env_size);
+    test::generateEnvironments(env, env_scale, env_size);
 
   std::vector<CollisionObject<S>*> query;
 
@@ -445,14 +451,14 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
   {
     std::vector<CollisionObject<S>*> candidates;
     if(use_mesh)
-      generateEnvironmentsMesh(candidates, env_scale, query_size);
+      test::generateEnvironmentsMesh(candidates, env_scale, query_size);
     else
-      generateEnvironments(candidates, env_scale, query_size);
+      test::generateEnvironments(candidates, env_scale, query_size);
 
     for(std::size_t i = 0; i < candidates.size(); ++i)
     {
-      CollisionData<S> query_data;
-      manager->collide(candidates[i], &query_data, defaultCollisionFunction);
+      test::CollisionData<S> query_data;
+      manager->collide(candidates[i], &query_data, test::defaultCollisionFunction);
       if(query_data.result.numContacts() == 0)
         query.push_back(candidates[i]);
       else
@@ -476,10 +482,10 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
   SpatialHashingCollisionManager<S>::computeBound(env, lower_limit, upper_limit);
   S cell_size = std::min(std::min((upper_limit[0] - lower_limit[0]) / 20, (upper_limit[1] - lower_limit[1]) / 20), (upper_limit[2] - lower_limit[2])/20);
   // managers.push_back(new SpatialHashingCollisionManager<S>(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>> >(cell_size, lower_limit, upper_limit));
 #if USE_GOOGLEHASH
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
-  managers.push_back(new SpatialHashingCollisionManager<S, SparseHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>, GoogleSparseHashTable> >(cell_size, lower_limit, upper_limit));
+  managers.push_back(new SpatialHashingCollisionManager<S, detail::SparseHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>, GoogleDenseHashTable> >(cell_size, lower_limit, upper_limit));
 #endif
   managers.push_back(new DynamicAABBTreeCollisionManager<S>());
   managers.push_back(new DynamicAABBTreeCollisionManager_Array<S>());
@@ -518,11 +524,11 @@ void broad_phase_distance_test(S env_scale, std::size_t env_size, std::size_t qu
 
   for(size_t i = 0; i < query.size(); ++i)
   {
-    std::vector<DistanceData<S>> query_data(managers.size());
+    std::vector<test::DistanceData<S>> query_data(managers.size());
     for(size_t j = 0; j < managers.size(); ++j)
     {
       timers[j].start();
-      managers[j]->distance(query[i], &query_data[j], defaultDistanceFunction);
+      managers[j]->distance(query[i], &query_data[j], test::defaultDistanceFunction);
       timers[j].stop();
       ts[j].push_back(timers[j].getElapsedTime());
       // std::cout << query_data[j].result.min_distance << " ";

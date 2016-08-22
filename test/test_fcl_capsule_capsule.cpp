@@ -33,15 +33,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Karsten Knese <Karsten.Knese@googlemail.com> */
+/** @author Karsten Knese <Karsten.Knese@googlemail.com> */
 
 #include <gtest/gtest.h>
 
 #include "fcl/math/constants.h"
-#include "fcl/collision.h"
-#include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/gjk_solver_indep.h"
-#include "fcl/narrowphase/gjk_solver_libccd.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/narrowphase/detail/gjk_solver_indep.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 
 #include <cmath>
 using namespace fcl;
@@ -50,7 +50,7 @@ using namespace fcl;
 template <typename S>
 void test_distance_capsulecapsule_origin()
 {
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 
@@ -75,7 +75,7 @@ void test_distance_capsulecapsule_origin()
 template <typename S>
 void test_distance_capsulecapsule_transformXY()
 {
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 
@@ -101,7 +101,7 @@ void test_distance_capsulecapsule_transformXY()
 template <typename S>
 void test_distance_capsulecapsule_transformZ()
 {
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 
@@ -128,7 +128,7 @@ void test_distance_capsulecapsule_transformZ2()
 {
   const S Pi = constants<S>::pi();
 
-  GJKSolver_indep<S> solver;
+  detail::GJKSolver_indep<S> solver;
   Capsule<S> s1(5, 10);
   Capsule<S> s2(5, 10);
 

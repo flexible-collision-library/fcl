@@ -34,7 +34,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Author Jeongseok Lee <jslee02@gmail.com> */
+/** @author Jeongseok Lee <jslee02@gmail.com> */
 
 #include <gtest/gtest.h>
 #include "fcl/common/profiler.h"

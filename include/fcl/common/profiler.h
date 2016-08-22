@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Author Jeongseok Lee <jslee02@gmail.com> */
+/** @author Jeongseok Lee <jslee02@gmail.com> */
 
 #ifndef FCL_COMMON_PROFILER_H
 #define FCL_COMMON_PROFILER_H

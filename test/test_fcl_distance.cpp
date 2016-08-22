@@ -33,12 +33,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
-#include "fcl/traversal/traversal_nodes.h"
-#include "fcl/collision_node.h"
+#include "fcl/narrowphase/detail/traversal/collision_node.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -52,22 +51,22 @@ S DELTA() { return 0.001; }
 template<typename BV>
 void distance_Test(const Transform3<typename BV::S>& tf,
                    const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
-                   const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+                   const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method,
                    int qsize,
-                   DistanceRes<typename BV::S>& distance_result,
+                   test::DistanceRes<typename BV::S>& distance_result,
                    bool verbose = true);
 
 template <typename S>
 bool collide_Test_OBB(const Transform3<S>& tf,
                       const std::vector<Vector3<S>>& vertices1, const std::vector<Triangle>& triangles1,
-                      const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose);
+                      const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method, bool verbose);
 
 template<typename BV, typename TraversalNode>
 void distance_Test_Oriented(const Transform3<typename BV::S>& tf,
                             const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
-                            const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+                            const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method,
                             int qsize,
-                            DistanceRes<typename BV::S>& distance_result,
+                            test::DistanceRes<typename BV::S>& distance_result,
                             bool verbose = true);
 
 template <typename S>
@@ -85,8 +84,8 @@ void test_mesh_distance()
   std::vector<Vector3<S>> p1, p2;
   std::vector<Triangle> t1, t2;
 
-  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
-  loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
   Eigen::aligned_vector<Transform3<S>> transforms; // t0
   S extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
@@ -96,200 +95,200 @@ void test_mesh_distance()
   std::size_t n = 1;
 #endif
 
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   double dis_time = 0;
   double col_time = 0;
 
-  DistanceRes<S> res, res_now;
+  test::DistanceRes<S> res, res_now;
   for(std::size_t i = 0; i < transforms.size(); ++i)
   {
-    Timer timer_col;
+    test::Timer timer_col;
     timer_col.start();
-    collide_Test_OBB(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, verbose);
+    collide_Test_OBB(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, verbose);
     timer_col.stop();
     col_time += timer_col.getElapsedTimeInSec();
 
-    Timer timer_dist;
+    test::Timer timer_dist;
     timer_dist.start();
-    distance_Test_Oriented<RSS<S>, MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res, verbose);
+    distance_Test_Oriented<RSS<S>, detail::MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 2, res, verbose);
     timer_dist.stop();
     dis_time += timer_dist.getElapsedTimeInSec();
 
-    distance_Test_Oriented<RSS<S>, MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
+    distance_Test_Oriented<RSS<S>, detail::MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<RSS<S>, MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
+    distance_Test_Oriented<RSS<S>, detail::MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<RSS<S>, MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
+    distance_Test_Oriented<RSS<S>, detail::MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<RSS<S>, MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
+    distance_Test_Oriented<RSS<S>, detail::MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<RSS<S>, MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+    distance_Test_Oriented<RSS<S>, detail::MeshDistanceTraversalNodeRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<kIOS<S>, MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
+    distance_Test_Oriented<kIOS<S>, detail::MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<kIOS<S>, MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
+    distance_Test_Oriented<kIOS<S>, detail::MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<kIOS<S>, MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
+    distance_Test_Oriented<kIOS<S>, detail::MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<kIOS<S>, MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
+    distance_Test_Oriented<kIOS<S>, detail::MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<kIOS<S>, MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+    distance_Test_Oriented<kIOS<S>, detail::MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<kIOS<S>, MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
+    distance_Test_Oriented<kIOS<S>, detail::MeshDistanceTraversalNodekIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<OBBRSS<S>, MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
+    distance_Test_Oriented<OBBRSS<S>, detail::MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<OBBRSS<S>, MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
+    distance_Test_Oriented<OBBRSS<S>, detail::MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<OBBRSS<S>, MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
+    distance_Test_Oriented<OBBRSS<S>, detail::MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<OBBRSS<S>, MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
+    distance_Test_Oriented<OBBRSS<S>, detail::MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<OBBRSS<S>, MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+    distance_Test_Oriented<OBBRSS<S>, detail::MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test_Oriented<OBBRSS<S>, MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-
-
-    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
-
-    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
-    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
-
-    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
+    distance_Test_Oriented<OBBRSS<S>, detail::MeshDistanceTraversalNodeOBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
 
-    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 2, res_now, verbose);
+
+    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
+    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
+    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEAN, 20, res_now, verbose);
+    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
 
-    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
+    distance_Test<RSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 2, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 20, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<kIOS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+
+    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 2, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 2, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 2, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEAN, 20, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_MEDIAN, 20, res_now, verbose);
+
+    EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
+    EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
+
+    distance_Test<OBBRSS<S>>(transforms[i], p1, t1, p2, t2, detail::SPLIT_METHOD_BV_CENTER, 20, res_now, verbose);
 
     EXPECT_TRUE(fabs(res.distance - res_now.distance) < DELTA<S>());
     EXPECT_TRUE(fabs(res.distance) < DELTA<S>() || (res.distance > 0 && nearlyEqual(res.p1, res_now.p1) && nearlyEqual(res.p2, res_now.p2)));
@@ -309,17 +308,17 @@ GTEST_TEST(FCL_DISTANCE, mesh_distance)
 template<typename BV, typename TraversalNode>
 void distance_Test_Oriented(const Transform3<typename BV::S>& tf,
                             const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
-                            const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+                            const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method,
                             int qsize,
-                            DistanceRes<typename BV::S>& distance_result,
+                            test::DistanceRes<typename BV::S>& distance_result,
                             bool verbose)
 {
   using S = typename BV::S;
 
   BVHModel<BV> m1;
   BVHModel<BV> m2;
-  m1.bv_splitter.reset(new BVSplitter<BV>(split_method));
-  m2.bv_splitter.reset(new BVSplitter<BV>(split_method));
+  m1.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
+  m2.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
 
 
   m1.beginModel();
@@ -361,17 +360,17 @@ void distance_Test_Oriented(const Transform3<typename BV::S>& tf,
 template<typename BV>
 void distance_Test(const Transform3<typename BV::S>& tf,
                    const std::vector<Vector3<typename BV::S>>& vertices1, const std::vector<Triangle>& triangles1,
-                   const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method,
+                   const std::vector<Vector3<typename BV::S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method,
                    int qsize,
-                   DistanceRes<typename BV::S>& distance_result,
+                   test::DistanceRes<typename BV::S>& distance_result,
                    bool verbose)
 {
   using S = typename BV::S;
 
   BVHModel<BV> m1;
   BVHModel<BV> m2;
-  m1.bv_splitter.reset(new BVSplitter<BV>(split_method));
-  m2.bv_splitter.reset(new BVSplitter<BV>(split_method));
+  m1.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
+  m2.bv_splitter.reset(new detail::BVSplitter<BV>(split_method));
 
 
   m1.beginModel();
@@ -386,9 +385,9 @@ void distance_Test(const Transform3<typename BV::S>& tf,
   Transform3<S> pose2 = Transform3<S>::Identity();
 
   DistanceResult<S> local_result;
-  MeshDistanceTraversalNode<BV> node;
+  detail::MeshDistanceTraversalNode<BV> node;
 
-  if(!initialize<BV>(node, m1, pose1, m2, pose2, DistanceRequest<S>(true), local_result))
+  if(!detail::initialize<BV>(node, m1, pose1, m2, pose2, DistanceRequest<S>(true), local_result))
     std::cout << "initialize error" << std::endl;
 
   node.enable_statistics = verbose;
@@ -412,12 +411,12 @@ void distance_Test(const Transform3<typename BV::S>& tf,
 template <typename S>
 bool collide_Test_OBB(const Transform3<S>& tf,
                       const std::vector<Vector3<S>>& vertices1, const std::vector<Triangle>& triangles1,
-                      const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2, SplitMethodType split_method, bool verbose)
+                      const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2, detail::SplitMethodType split_method, bool verbose)
 {
   BVHModel<OBB<S>> m1;
   BVHModel<OBB<S>> m2;
-  m1.bv_splitter.reset(new BVSplitter<OBB<S>>(split_method));
-  m2.bv_splitter.reset(new BVSplitter<OBB<S>>(split_method));
+  m1.bv_splitter.reset(new detail::BVSplitter<OBB<S>>(split_method));
+  m2.bv_splitter.reset(new detail::BVSplitter<OBB<S>>(split_method));
 
   m1.beginModel();
   m1.addSubModel(vertices1, triangles1);
@@ -428,8 +427,8 @@ bool collide_Test_OBB(const Transform3<S>& tf,
   m2.endModel();
 
   CollisionResult<S> local_result;
-  MeshCollisionTraversalNodeOBB<S> node;
-  if(!initialize(node, (const BVHModel<OBB<S>>&)m1, tf, (const BVHModel<OBB<S>>&)m2, Transform3<S>::Identity(),
+  detail::MeshCollisionTraversalNodeOBB<S> node;
+  if(!detail::initialize(node, (const BVHModel<OBB<S>>&)m1, tf, (const BVHModel<OBB<S>>&)m2, Transform3<S>::Identity(),
                  CollisionRequest<S>(), local_result))
     std::cout << "initialize error" << std::endl;
 

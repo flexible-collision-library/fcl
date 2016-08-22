@@ -33,15 +33,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_MATH_VARIANCE3_H
 #define FCL_MATH_VARIANCE3_H
 
 #include <cmath>
 
-#include "fcl/config.h"
-#include "fcl/data_types.h"
+#include "fcl/common/types.h"
 #include "fcl/math/geometry.h"
 
 namespace fcl

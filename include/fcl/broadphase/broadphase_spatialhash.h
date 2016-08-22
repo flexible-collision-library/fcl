@@ -33,17 +33,18 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
 #define FCL_BROADPHASE_BROADPAHSESPATIALHASH_H
 
 #include <list>
 #include <map>
-#include "fcl/BV/AABB.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/simple_hash_table.h"
-#include "fcl/broadphase/spatial_hash.h"
+#include "fcl/math/bv/AABB.h"
+#include "fcl/broadphase/broadphase_collision_manager.h"
+#include "fcl/broadphase/detail/simple_hash_table.h"
+#include "fcl/broadphase/detail/sparse_hash_table.h"
+#include "fcl/broadphase/detail/spatial_hash.h"
 
 namespace fcl
 {
@@ -51,7 +52,7 @@ namespace fcl
 /// @brief spatial hashing collision mananger
 template<typename S,
          typename HashTable
-             = SimpleHashTable<AABB<S>, CollisionObject<S>*, SpatialHash<S>> >
+             = detail::SimpleHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>> >
 class SpatialHashingCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
@@ -160,10 +161,10 @@ private:
 
 };
 
-template<typename HashTable = SimpleHashTable<AABB<float>, CollisionObject<float>*, SpatialHash<float>>>
+template<typename HashTable = detail::SimpleHashTable<AABB<float>, CollisionObject<float>*, detail::SpatialHash<float>>>
 using SpatialHashingCollisionManagerf = SpatialHashingCollisionManager<float, HashTable>;
 
-template<typename HashTable = SimpleHashTable<AABB<double>, CollisionObject<double>*, SpatialHash<double>>>
+template<typename HashTable = detail::SimpleHashTable<AABB<double>, CollisionObject<double>*, detail::SpatialHash<double>>>
 using SpatialHashingCollisionManagerd = SpatialHashingCollisionManager<double, HashTable>;
 
 //============================================================================//
@@ -180,7 +181,7 @@ SpatialHashingCollisionManager<S, HashTable>::SpatialHashingCollisionManager(
     const Vector3<S>& scene_max,
     unsigned int default_table_size)
   : scene_limit(AABB<S>(scene_min, scene_max)),
-    hash_table(new HashTable(SpatialHash<S>(scene_limit, cell_size)))
+    hash_table(new HashTable(detail::SpatialHash<S>(scene_limit, cell_size)))
 {
   hash_table->init(default_table_size);
 }

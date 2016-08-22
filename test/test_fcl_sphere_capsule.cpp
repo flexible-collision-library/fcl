@@ -33,22 +33,22 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Martin Felis <martin.felis@iwr.uni-heidelberg.de> */
+/** @author Martin Felis <martin.felis@iwr.uni-heidelberg.de> */
 
 #include <gtest/gtest.h>
 
 #include "fcl/math/constants.h"
-#include "fcl/collision.h"
-#include "fcl/shape/geometric_shapes.h"
-#include "fcl/narrowphase/gjk_solver_indep.h"
-#include "fcl/narrowphase/gjk_solver_libccd.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/narrowphase/detail/gjk_solver_indep.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 
 using namespace fcl;
 
 template <typename S>
 void test_Sphere_Capsule_Intersect_test_separated_z()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform;
@@ -69,7 +69,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z)
 template <typename S>
 void test_Sphere_Capsule_Intersect_test_separated_z_negative()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform;
@@ -90,7 +90,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_z_negativ
 template <typename S>
 void test_Sphere_Capsule_Intersect_test_separated_x()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform;
@@ -111,7 +111,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_x)
 template <typename S>
 void test_Sphere_Capsule_Intersect_test_separated_capsule_rotated()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform;
@@ -139,7 +139,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_separated_capsule_r
 template <typename S>
 void test_Sphere_Capsule_Intersect_test_penetration_z()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform(Translation3<S>(Vector3<S>(0., 0., -50)));
@@ -170,7 +170,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z)
 template <typename S>
 void test_Sphere_Capsule_Intersect_test_penetration_z_rotated()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform = Transform3<S>::Identity();
@@ -207,7 +207,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Intersect_test_penetration_z_rotat
 template <typename S>
 void test_Sphere_Capsule_Distance_test_collision()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform(Translation3<S>(Vector3<S>(0., 0., -50)));
@@ -230,7 +230,7 @@ GTEST_TEST(FCL_SPHERE_CAPSULE, Sphere_Capsule_Distance_test_collision)
 template <typename S>
 void test_Sphere_Capsule_Distance_test_separated()
 {
-  GJKSolver_libccd<S> solver;
+  detail::GJKSolver_libccd<S> solver;
 
   Sphere<S> sphere1 (50);
   Transform3<S> sphere1_transform(Translation3<S>(Vector3<S>(0., 0., -50)));

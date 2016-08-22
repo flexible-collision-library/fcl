@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_MATH_RNG_H
 #define FCL_MATH_RNG_H

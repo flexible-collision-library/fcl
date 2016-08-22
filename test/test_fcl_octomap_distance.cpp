@@ -33,16 +33,21 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
 #include "fcl/config.h"
-#include "fcl/octree.h"
-#include "fcl/traversal/traversal_nodes.h"
-#include "fcl/collision.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/object/geometry/octree/octree.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/broadphase/broadphase_bruteforce.h"
+#include "fcl/broadphase/broadphase_spatialhash.h"
+#include "fcl/broadphase/broadphase_SaP.h"
+#include "fcl/broadphase/broadphase_SSaP.h"
+#include "fcl/broadphase/broadphase_interval_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/object/geometry/shape/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -165,7 +170,7 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
   std::vector<Vector3<S>> p1;
   std::vector<Triangle> t1;
 
-  loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
+  test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
 
   BVHModel<BV>* m1 = new BVHModel<BV>();
   std::shared_ptr<CollisionGeometry<S>> m1_ptr(m1);
@@ -174,13 +179,13 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
   m1->addSubModel(p1, t1);
   m1->endModel();
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<octomap::OcTree>(generateOcTree(resolution)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<octomap::OcTree>(test::generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry<S>> tree_ptr(tree);
 
   Eigen::aligned_vector<Transform3<S>> transforms;
   S extents[] = {-10, -10, 10, 10, 10, 10};
 
-  generateRandomTransforms(extents, transforms, n);
+  test::generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < n; ++i)
   {
@@ -188,13 +193,13 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
 
     CollisionObject<S> obj1(m1_ptr, tf);
     CollisionObject<S> obj2(tree_ptr, tf);
-    DistanceData<S> cdata;
+    test::DistanceData<S> cdata;
     S dist1 = std::numeric_limits<S>::max();
-    defaultDistanceFunction(&obj1, &obj2, &cdata, dist1);
+    test::defaultDistanceFunction(&obj1, &obj2, &cdata, dist1);
 
 
     std::vector<CollisionObject<S>*> boxes;
-    generateBoxesFromOctomap(boxes, *tree);
+    test::generateBoxesFromOctomap(boxes, *tree);
     for(std::size_t j = 0; j < boxes.size(); ++j)
       boxes[j]->setTransform(tf * boxes[j]->getTransform());
 
@@ -202,8 +207,8 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
     manager->registerObjects(boxes);
     manager->setup();
 
-    DistanceData<S> cdata2;
-    manager->distance(&obj1, &cdata2, defaultDistanceFunction);
+    test::DistanceData<S> cdata2;
+    manager->distance(&obj1, &cdata2, test::defaultDistanceFunction);
     S dist2 = cdata2.result.min_distance;
 
     for(std::size_t j = 0; j < boxes.size(); ++j)
@@ -221,47 +226,47 @@ void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, boo
   // srand(1);
   std::vector<CollisionObject<S>*> env;
   if(use_mesh)
-    generateEnvironmentsMesh(env, env_scale, env_size);
+    test::generateEnvironmentsMesh(env, env_scale, env_size);
   else
-    generateEnvironments(env, env_scale, env_size);
+    test::generateEnvironments(env, env_scale, env_size);
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
   CollisionObject<S> tree_obj((std::shared_ptr<CollisionGeometry<S>>(tree)));
 
   DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
   manager->registerObjects(env);
   manager->setup();
 
-  DistanceData<S> cdata;
-  TStruct t1;
-  Timer timer1;
+  test::DistanceData<S> cdata;
+  test::TStruct t1;
+  test::Timer timer1;
   timer1.start();
   manager->octree_as_geometry_collide = false;
   manager->octree_as_geometry_distance = false;
-  manager->distance(&tree_obj, &cdata, defaultDistanceFunction);
+  manager->distance(&tree_obj, &cdata, test::defaultDistanceFunction);
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
 
-  DistanceData<S> cdata3;
-  TStruct t3;
-  Timer timer3;
+  test::DistanceData<S> cdata3;
+  test::TStruct t3;
+  test::Timer timer3;
   timer3.start();
   manager->octree_as_geometry_collide = true;
   manager->octree_as_geometry_distance = true;
-  manager->distance(&tree_obj, &cdata3, defaultDistanceFunction);
+  manager->distance(&tree_obj, &cdata3, test::defaultDistanceFunction);
   timer3.stop();
   t3.push_back(timer3.getElapsedTime());
 
 
-  TStruct t2;
-  Timer timer2;
+  test::TStruct t2;
+  test::Timer timer2;
   timer2.start();
   std::vector<CollisionObject<S>*> boxes;
   if(use_mesh_octomap)
-    generateBoxesFromOctomapMesh(boxes, *tree);
+    test::generateBoxesFromOctomapMesh(boxes, *tree);
   else
-    generateBoxesFromOctomap(boxes, *tree);
+    test::generateBoxesFromOctomap(boxes, *tree);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
@@ -273,10 +278,10 @@ void octomap_distance_test(S env_scale, std::size_t env_size, bool use_mesh, boo
   t2.push_back(timer2.getElapsedTime());
 
 
-  DistanceData<S> cdata2;
+  test::DistanceData<S> cdata2;
 
   timer2.start();
-  manager->distance(manager2, &cdata2, defaultDistanceFunction);
+  manager->distance(manager2, &cdata2, test::defaultDistanceFunction);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 

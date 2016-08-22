@@ -33,15 +33,15 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_BROAD_PHASE_INTERVAL_TREE_H
 #define FCL_BROAD_PHASE_INTERVAL_TREE_H
 
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/broadphase/interval_tree.h"
 #include <deque>
 #include <map>
+#include "fcl/broadphase/broadphase_collision_manager.h"
+#include "fcl/broadphase/detail/interval_tree.h"
 
 namespace fcl
 {
@@ -51,16 +51,9 @@ template <typename S>
 class IntervalTreeCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
-  IntervalTreeCollisionManager() : setup_(false)
-  {
-    for(int i = 0; i < 3; ++i)
-      interval_trees[i] = nullptr;
-  }
+  IntervalTreeCollisionManager();
 
-  ~IntervalTreeCollisionManager()
-  {
-    clear();
-  }
+  ~IntervalTreeCollisionManager();
 
   /// @brief remove one object from the manager
   void registerObject(CollisionObject<S>* obj);
@@ -108,44 +101,30 @@ public:
   bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  inline size_t size() const { return endpoints[0].size() / 2; }
+  size_t size() const;
 
 protected:
 
   /// @brief SAP end point
-  struct EndPoint
-  {
-    /// @brief object related with the end point
-    CollisionObject<S>* obj;
-
-    /// @brief end point value
-    S value;
-
-    /// @brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi
-    char minmax;
-
-    bool operator<(const EndPoint &p) const
-    {
-        return value < p.value;
-    }
-  };
+  struct EndPoint;
 
   /// @brief Extention interval tree's interval to SAP interval, adding more information
-  struct SAPInterval : public SimpleInterval
-  {
-    CollisionObject<S>* obj;
-    SAPInterval(S low_, S high_, CollisionObject<S>* obj_) : SimpleInterval()
-    {
-      low = low_;
-      high = high_;
-      obj = obj_;
-    }
-  };
+  struct SAPInterval;
 
+  bool checkColl(
+      typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_start,
+      typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_end,
+      CollisionObject<S>* obj,
+      void* cdata,
+      CollisionCallBack<S> callback) const;
 
-  bool checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
-
-  bool checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const;
+  bool checkDist(
+      typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_start,
+      typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_end,
+      CollisionObject<S>* obj,
+      void* cdata,
+      DistanceCallBack<S> callback,
+      S& min_dist) const;
 
   bool collide_(CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const;
 
@@ -155,7 +134,7 @@ protected:
   std::vector<EndPoint> endpoints[3];
 
   /// @brief  interval tree manages the intervals
-  IntervalTree* interval_trees[3];
+  detail::IntervalTree<S>* interval_trees[3];
 
   std::map<CollisionObject<S>*, SAPInterval*> obj_interval_maps[3];
 
@@ -165,6 +144,31 @@ protected:
 
 using IntervalTreeCollisionManagerf = IntervalTreeCollisionManager<float>;
 using IntervalTreeCollisionManagerd = IntervalTreeCollisionManager<double>;
+
+/// @brief SAP end point
+template <typename S>
+struct IntervalTreeCollisionManager<S>::EndPoint
+{
+  /// @brief object related with the end point
+  CollisionObject<S>* obj;
+
+  /// @brief end point value
+  S value;
+
+  /// @brief tag for whether it is a lower bound or higher bound of an interval, 0 for lo, and 1 for hi
+  char minmax;
+
+  bool operator<(const EndPoint &p) const;
+};
+
+/// @brief Extention interval tree's interval to SAP interval, adding more information
+template <typename S>
+struct IntervalTreeCollisionManager<S>::SAPInterval : public detail::SimpleInterval<S>
+{
+  CollisionObject<S>* obj;
+
+  SAPInterval(S low_, S high_, CollisionObject<S>* obj_);
+};
 
 //============================================================================//
 //                                                                            //
@@ -282,6 +286,21 @@ void IntervalTreeCollisionManager<S>::unregisterObject(CollisionObject<S>* obj)
 
 //==============================================================================
 template <typename S>
+IntervalTreeCollisionManager<S>::IntervalTreeCollisionManager() : setup_(false)
+{
+  for(int i = 0; i < 3; ++i)
+    interval_trees[i] = nullptr;
+}
+
+//==============================================================================
+template <typename S>
+IntervalTreeCollisionManager<S>::~IntervalTreeCollisionManager()
+{
+  clear();
+}
+
+//==============================================================================
+template <typename S>
 void IntervalTreeCollisionManager<S>::registerObject(CollisionObject<S>* obj)
 {
   EndPoint p, q;
@@ -321,7 +340,7 @@ void IntervalTreeCollisionManager<S>::setup()
       delete interval_trees[i];
 
     for(int i = 0; i < 3; ++i)
-      interval_trees[i] = new IntervalTree;
+      interval_trees[i] = new detail::IntervalTree<S>;
 
     for(unsigned int i = 0, size = endpoints[0].size(); i < size; ++i)
     {
@@ -492,7 +511,7 @@ bool IntervalTreeCollisionManager<S>::collide_(CollisionObject<S>* obj, void* cd
 {
   static const unsigned int CUTOFF = 100;
 
-  std::deque<SimpleInterval*> results0, results1, results2;
+  std::deque<detail::SimpleInterval<S>*> results0, results1, results2;
 
   results0 = interval_trees[0]->query(obj->getAABB().min_[0], obj->getAABB().max_[0]);
   if(results0.size() > CUTOFF)
@@ -556,7 +575,7 @@ bool IntervalTreeCollisionManager<S>::distance_(CollisionObject<S>* obj, void* c
 
     old_min_distance = min_dist;
 
-    std::deque<SimpleInterval*> results0, results1, results2;
+    std::deque<detail::SimpleInterval<S>*> results0, results1, results2;
 
     results0 = interval_trees[0]->query(aabb.min_[0], aabb.max_[0]);
     if(results0.size() > CUTOFF)
@@ -760,7 +779,19 @@ bool IntervalTreeCollisionManager<S>::empty() const
 
 //==============================================================================
 template <typename S>
-bool IntervalTreeCollisionManager<S>::checkColl(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<S>* obj, void* cdata, CollisionCallBack<S> callback) const
+size_t IntervalTreeCollisionManager<S>::size() const
+{
+  return endpoints[0].size() / 2;
+}
+
+//==============================================================================
+template <typename S>
+bool IntervalTreeCollisionManager<S>::checkColl(
+    typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_start,
+    typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_end,
+    CollisionObject<S>* obj,
+    void* cdata,
+    CollisionCallBack<S> callback) const
 {
   while(pos_start < pos_end)
   {
@@ -782,7 +813,13 @@ bool IntervalTreeCollisionManager<S>::checkColl(std::deque<SimpleInterval*>::con
 
 //==============================================================================
 template <typename S>
-bool IntervalTreeCollisionManager<S>::checkDist(std::deque<SimpleInterval*>::const_iterator pos_start, std::deque<SimpleInterval*>::const_iterator pos_end, CollisionObject<S>* obj, void* cdata, DistanceCallBack<S> callback, S& min_dist) const
+bool IntervalTreeCollisionManager<S>::checkDist(
+    typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_start,
+    typename std::deque<detail::SimpleInterval<S>*>::const_iterator pos_end,
+    CollisionObject<S>* obj,
+    void* cdata,
+    DistanceCallBack<S> callback,
+    S& min_dist) const
 {
   while(pos_start < pos_end)
   {
@@ -816,6 +853,25 @@ bool IntervalTreeCollisionManager<S>::checkDist(std::deque<SimpleInterval*>::con
   }
 
   return false;
+}
+
+//==============================================================================
+template <typename S>
+bool IntervalTreeCollisionManager<S>::EndPoint::operator<(
+    const typename IntervalTreeCollisionManager<S>::EndPoint& p) const
+{
+  return value < p.value;
+}
+
+//==============================================================================
+template <typename S>
+IntervalTreeCollisionManager<S>::SAPInterval::SAPInterval(
+    S low_, S high_, CollisionObject<S>* obj_)
+  : detail::SimpleInterval<S>()
+{
+  this->low = low_;
+  this->high = high_;
+  obj = obj_;
 }
 
 } // namespace fcl

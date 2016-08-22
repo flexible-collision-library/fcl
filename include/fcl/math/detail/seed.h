@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_MATH_DETAIL_SEED_H
 #define FCL_MATH_DETAIL_SEED_H
@@ -88,25 +88,25 @@ protected:
 //============================================================================//
 
 //==============================================================================
-bool Seed::isFirstSeedGenerated()
+inline bool Seed::isFirstSeedGenerated()
 {
   return getInstance().firstSeedGenerated;
 }
 
 //==============================================================================
-uint_fast32_t Seed::getUserSetSeed()
+inline uint_fast32_t Seed::getUserSetSeed()
 {
   return getInstance().userSetSeed;
 }
 
 //==============================================================================
-void Seed::setUserSetSeed(uint_fast32_t seed)
+inline void Seed::setUserSetSeed(uint_fast32_t seed)
 {
   getInstance().userSetSeed = seed;
 }
 
 //==============================================================================
-uint_fast32_t Seed::getFirstSeed()
+inline uint_fast32_t Seed::getFirstSeed()
 {
   // Compute the first seed to be used; this function should be called only once
   static std::mutex fsLock;
@@ -134,7 +134,7 @@ uint_fast32_t Seed::getFirstSeed()
 }
 
 //==============================================================================
-uint_fast32_t Seed::getNextSeed()
+inline uint_fast32_t Seed::getNextSeed()
 {
   static std::mutex rngMutex;
   std::unique_lock<std::mutex> slock(rngMutex);
@@ -145,13 +145,13 @@ uint_fast32_t Seed::getNextSeed()
 }
 
 //==============================================================================
-Seed::Seed() : userSetSeed(0), firstSeedGenerated(false), firstSeedValue(0)
+inline Seed::Seed() : userSetSeed(0), firstSeedGenerated(false), firstSeedValue(0)
 {
   // Do nothing
 }
 
 //==============================================================================
-Seed& Seed::getInstance()
+inline Seed& Seed::getInstance()
 {
   static Seed seed;
 

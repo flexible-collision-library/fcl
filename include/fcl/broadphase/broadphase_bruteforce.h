@@ -33,14 +33,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_BROAD_PHASE_BRUTE_FORCE_H
 #define FCL_BROAD_PHASE_BRUTE_FORCE_H
 
-#include "fcl/broadphase/broadphase.h"
 #include <list>
-
+#include "fcl/broadphase/broadphase_collision_manager.h"
 
 namespace fcl
 {
@@ -50,7 +49,7 @@ template <typename S>
 class NaiveCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
-  NaiveCollisionManager() {}
+  NaiveCollisionManager();
 
   /// @brief add objects to the manager
   void registerObjects(const std::vector<CollisionObject<S>*>& other_objs);
@@ -95,7 +94,7 @@ public:
   bool empty() const;
   
   /// @brief the number of objects managed by the manager
-  inline size_t size() const { return objs.size(); }
+  size_t size() const;
 
 protected:
 
@@ -111,6 +110,13 @@ using NaiveCollisionManagerd = NaiveCollisionManager<double>;
 //                              Implementations                               //
 //                                                                            //
 //============================================================================//
+
+//==============================================================================
+template <typename S>
+NaiveCollisionManager<S>::NaiveCollisionManager()
+{
+  // Do nothing
+}
 
 //==============================================================================
 template <typename S>
@@ -296,6 +302,13 @@ bool NaiveCollisionManager<S>::empty() const
   return objs.empty();
 }
 
-} // namespace
+//==============================================================================
+template <typename S>
+size_t NaiveCollisionManager<S>::size() const
+{
+  return objs.size();
+}
+
+} // namespace fcl
 
 #endif

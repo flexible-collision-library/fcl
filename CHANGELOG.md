@@ -2,6 +2,8 @@
 
 ### FCL 0.6.0 (2016-XX-XX)
 
+* Reorganized source tree: [#163](https://github.com/flexible-collision-library/fcl/pull/163), [#161](https://github.com/flexible-collision-library/fcl/issues/161)
+* Templatized FCL for scalar type: [#154](https://github.com/flexible-collision-library/fcl/pull/154)
 * Added missing copyright headers:  [#149](https://github.com/flexible-collision-library/fcl/pull/149)
 * Enabled build with SSE option by default: [#159](https://github.com/flexible-collision-library/fcl/pull/159)
 * Switched to Eigen for math operations: [#150](https://github.com/flexible-collision-library/fcl/pull/150), [#96](https://github.com/flexible-collision-library/fcl/issues/96)

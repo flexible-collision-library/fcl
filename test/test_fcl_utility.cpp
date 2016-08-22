@@ -33,18 +33,20 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include "test_fcl_utility.h"
-#include "fcl/collision.h"
-#include "fcl/continuous_collision.h"
-#include "fcl/distance.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/narrowphase/continuous_collision.h"
+#include "fcl/narrowphase/distance.h"
 #include <cstdio>
 #include <cstddef>
 
 namespace fcl
 {
 
+namespace test
+{
 
 Timer::Timer()
 {
@@ -62,11 +64,9 @@ Timer::Timer()
   endTimeInMicroSec = 0;
 }
 
-
 Timer::~Timer()
 {
 }
-
 
 void Timer::start()
 {
@@ -78,7 +78,6 @@ void Timer::start()
 #endif
 }
 
-
 void Timer::stop()
 {
   stopped = 1; // set timer stopped flag
@@ -89,7 +88,6 @@ void Timer::stop()
   gettimeofday(&endCount, nullptr);
 #endif
 }
-
 
 double Timer::getElapsedTimeInMicroSec()
 {
@@ -110,18 +108,15 @@ double Timer::getElapsedTimeInMicroSec()
   return endTimeInMicroSec - startTimeInMicroSec;
 }
 
-
 double Timer::getElapsedTimeInMilliSec()
 {
   return this->getElapsedTimeInMicroSec() * 0.001;
 }
 
-
 double Timer::getElapsedTimeInSec()
 {
   return this->getElapsedTimeInMicroSec() * 0.000001;
 }
-
 
 double Timer::getElapsedTime()
 {
@@ -184,4 +179,5 @@ std::string getGJKSolverName(GJKSolverType solver_type)
     return std::string("invalid");
 }
 
-}
+} // namespace test
+} // namespace fcl
