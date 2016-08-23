@@ -2,7 +2,7 @@
 # Google Test settings
 #===============================================================================
 
-include_directories (
+include_directories (BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/gtest/include
   ${CMAKE_CURRENT_SOURCE_DIR}/gtest
   ${CMAKE_CURRENT_SOURCE_DIR}
