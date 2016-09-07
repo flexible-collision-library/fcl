@@ -52,6 +52,7 @@ set(tests
     test_fcl_math.cpp
     test_fcl_profiler.cpp
     test_fcl_shape_mesh_consistency.cpp
+    test_fcl_signed_distance.cpp
     test_fcl_simple.cpp
     test_fcl_sphere_capsule.cpp
 )

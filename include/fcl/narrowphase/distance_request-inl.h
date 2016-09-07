@@ -52,11 +52,13 @@ struct DistanceRequest<double>;
 //==============================================================================
 template <typename S>
 DistanceRequest<S>::DistanceRequest(
+    bool enable_signed_distance_,
     bool enable_nearest_points_,
     S rel_err_,
     S abs_err_,
     GJKSolverType gjk_solver_type_)
-  : enable_nearest_points(enable_nearest_points_),
+  : enable_signed_distance(enable_signed_distance_),
+    enable_nearest_points(enable_nearest_points_),
     rel_err(rel_err_),
     abs_err(abs_err_),
     gjk_solver_type(gjk_solver_type_)

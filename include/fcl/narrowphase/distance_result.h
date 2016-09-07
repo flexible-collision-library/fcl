@@ -52,10 +52,20 @@ struct DistanceResult
 {
 public:
 
-  /// @brief minimum distance between two objects. if two objects are in collision, min_distance <= 0.
+  /// @brief Minimum distance between two objects.
+  ///
+  /// The distance is correct as a positive value when the two objects are not
+  /// in collision. If they are in collision, min_distance would be a
+  /// implementation defined negative value, which might not the correct
+  /// negative distance. In order to get correct negative distance set
+  /// DistanceRequest::enable_signed_distance to true.
+  ///
+  /// @sa DistanceRequest::enable_signed_distance
   S min_distance;
 
-  /// @brief nearest points
+  /// @brief Nearest points in the local coordinates
+  ///
+  /// @sa DeistanceRequest::enable_nearest_points
   Vector3<S> nearest_points[2];
 
   /// @brief collision object 1
