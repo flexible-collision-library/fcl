@@ -5,22 +5,28 @@ cache:
 
 language: cpp
 
-os:
-  - linux
-  - osx
-
-compiler:
-  - gcc
-  - clang
-
-env:
-  - BUILD_TYPE=Debug   COVERALLS=ON
-  - BUILD_TYPE=Release COVERALLS=OFF
-
 matrix:
-  exclude:
-    - os: osx
+  include:
+    - os: linux
       compiler: gcc
+      env: BUILD_TYPE=Debug COVERALLS=ON
+    - os: linux
+      compiler: gcc
+      env: BUILD_TYPE=Release COVERALLS=OFF
+    - os: linux
+      compiler: clang
+      env: BUILD_TYPE=Debug COVERALLS=OFF
+    - os: linux
+      compiler: clang
+      env: BUILD_TYPE=Release COVERALLS=OFF
+    - os: osx
+      osx_image: beta-xcode6.3
+      compiler: clang
+      env: BUILD_TYPE=Debug COVERALLS=OFF
+    - os: osx
+      osx_image: beta-xcode6.3
+      compiler: clang
+      env: BUILD_TYPE=Release COVERALLS=OFF
 
 install:
   # Install dependencies for FCL
@@ -36,7 +42,7 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS ..
 
   # Build
-  - make -j2
+  - make -j4
   - if [ $COVERALLS = ON ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then make coveralls; fi
 
   # Run unit tests

@@ -39,7 +39,7 @@
 #define FCL_DISTANCEREQUEST_H
 
 #include "fcl/common/types.h"
-#include "fcl/narrowphase/gjk_solver.h"
+#include "fcl/narrowphase/gjk_solver_type.h"
 
 namespace fcl
 {
@@ -72,35 +72,8 @@ struct DistanceRequest
 using DistanceRequestf = DistanceRequest<float>;
 using DistanceRequestd = DistanceRequest<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-DistanceRequest<S>::DistanceRequest(
-    bool enable_nearest_points_,
-    S rel_err_,
-    S abs_err_,
-    GJKSolverType gjk_solver_type_)
-  : enable_nearest_points(enable_nearest_points_),
-    rel_err(rel_err_),
-    abs_err(abs_err_),
-    gjk_solver_type(gjk_solver_type_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool DistanceRequest<S>::isSatisfied(
-    const DistanceResult<S>& result) const
-{
-  return (result.min_distance <= 0);
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/distance_request-inl.h"
 
 #endif

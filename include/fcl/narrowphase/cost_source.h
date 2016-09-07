@@ -39,6 +39,7 @@
 #define FCL_COSTSOURCE_H
 
 #include "fcl/common/types.h"
+#include "fcl/math/bv/AABB.h"
 
 namespace fcl
 {
@@ -70,67 +71,8 @@ struct CostSource
 using CostSourcef = CostSource<float>;
 using CostSourced = CostSource<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-CostSource<S>::CostSource(
-    const Vector3<S>& aabb_min_,
-    const Vector3<S>& aabb_max_,
-    S cost_density_)
-  : aabb_min(aabb_min_),
-    aabb_max(aabb_max_),
-    cost_density(cost_density_)
-{
-  total_cost = cost_density
-      * (aabb_max[0] - aabb_min[0])
-      * (aabb_max[1] - aabb_min[1])
-      * (aabb_max[2] - aabb_min[2]);
-}
-
-//==============================================================================
-template <typename S>
-CostSource<S>::CostSource(const AABB<S>& aabb, S cost_density_)
-  : aabb_min(aabb.min_), aabb_max(aabb.max_), cost_density(cost_density_)
-{
-  total_cost = cost_density
-      * (aabb_max[0] - aabb_min[0])
-      * (aabb_max[1] - aabb_min[1])
-      * (aabb_max[2] - aabb_min[2]);
-}
-
-//==============================================================================
-template <typename S>
-CostSource<S>::CostSource()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool CostSource<S>::operator <(const CostSource& other) const
-{
-  if(total_cost < other.total_cost)
-    return false;
-  if(total_cost > other.total_cost)
-    return true;
-
-  if(cost_density < other.cost_density)
-    return false;
-  if(cost_density > other.cost_density)
-    return true;
-
-  for(size_t i = 0; i < 3; ++i)
-    if(aabb_min[i] != other.aabb_min[i])
-      return aabb_min[i] < other.aabb_min[i];
-
-  return false;
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/cost_source-inl.h"
 
 #endif

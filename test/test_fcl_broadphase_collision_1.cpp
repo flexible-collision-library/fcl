@@ -47,7 +47,7 @@
 #include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
 #include "fcl/broadphase/detail/sparse_hash_table.h"
 #include "fcl/broadphase/detail/spatial_hash.h"
-#include "fcl/object/geometry/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 
 #if USE_GOOGLEHASH
@@ -207,9 +207,6 @@ void broad_phase_duplicate_check_test(S env_scale, std::size_t env_size, bool ve
 
   std::vector<CollisionObject<S>*> env;
   test::generateEnvironments(env, env_scale, env_size);
-
-//  for (auto i = 0u; i < env_size; ++i)
-//    env.emplace_back(new CollisionObject<S>(std::make_shared<Sphere<S>>(10)));
 
   std::vector<BroadPhaseCollisionManager<S>*> managers;
   managers.push_back(new NaiveCollisionManager<S>());

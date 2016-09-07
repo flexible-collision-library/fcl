@@ -74,46 +74,8 @@ bool comparePenDepth(
 template <typename S>
 void flipNormal(std::vector<ContactPoint<S>>& contacts);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-ContactPoint<S>::ContactPoint()
-  : normal(Vector3<S>::Zero()),
-    pos(Vector3<S>::Zero()),
-    penetration_depth(0.0)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-ContactPoint<S>::ContactPoint(
-    const Vector3<S>& n_, const Vector3<S>& p_, S d_)
-  : normal(n_), pos(p_), penetration_depth(d_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool comparePenDepth(const ContactPoint<S>& _cp1, const ContactPoint<S>& _cp2)
-{
-  return _cp1.penetration_depth < _cp2.penetration_depth;
-}
-
-//==============================================================================
-template <typename S>
-void flipNormal(std::vector<ContactPoint<S>>& contacts)
-{
-  for (auto& contact : contacts)
-    contact.normal *= -1.0;
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/contact_point-inl.h"
 
 #endif

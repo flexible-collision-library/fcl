@@ -35,13 +35,12 @@
 
 /** @author Jia Pan */
 
-
 #ifndef FCL_TRAVERSAL_BVHDISTANCETRAVERSALNODE_H
 #define FCL_TRAVERSAL_BVHDISTANCETRAVERSALNODE_H
 
 #include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 
 namespace fcl
 {
@@ -95,91 +94,9 @@ public:
   mutable S query_time_seconds;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename BV>
-BVHDistanceTraversalNode<BV>::BVHDistanceTraversalNode()
-  : DistanceTraversalNodeBase<typename BV::S>()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  num_bv_tests = 0;
-  num_leaf_tests = 0;
-  query_time_seconds = 0.0;
-}
-
-//==============================================================================
-template <typename BV>
-bool BVHDistanceTraversalNode<BV>::isFirstNodeLeaf(int b) const
-{
-  return model1->getBV(b).isLeaf();
-}
-
-//==============================================================================
-template <typename BV>
-bool BVHDistanceTraversalNode<BV>::isSecondNodeLeaf(int b) const
-{
-  return model2->getBV(b).isLeaf();
-}
-
-//==============================================================================
-template <typename BV>
-bool BVHDistanceTraversalNode<BV>::firstOverSecond(int b1, int b2) const
-{
-  S sz1 = model1->getBV(b1).bv.size();
-  S sz2 = model2->getBV(b2).bv.size();
-
-  bool l1 = model1->getBV(b1).isLeaf();
-  bool l2 = model2->getBV(b2).isLeaf();
-
-  if(l2 || (!l1 && (sz1 > sz2)))
-    return true;
-  return false;
-}
-
-//==============================================================================
-template <typename BV>
-int BVHDistanceTraversalNode<BV>::getFirstLeftChild(int b) const
-{
-  return model1->getBV(b).leftChild();
-}
-
-//==============================================================================
-template <typename BV>
-int BVHDistanceTraversalNode<BV>::getFirstRightChild(int b) const
-{
-  return model1->getBV(b).rightChild();
-}
-
-//==============================================================================
-template <typename BV>
-int BVHDistanceTraversalNode<BV>::getSecondLeftChild(int b) const
-{
-  return model2->getBV(b).leftChild();
-}
-
-//==============================================================================
-template <typename BV>
-int BVHDistanceTraversalNode<BV>::getSecondRightChild(int b) const
-{
-  return model2->getBV(b).rightChild();
-}
-
-//==============================================================================
-template <typename BV>
-typename BV::S BVHDistanceTraversalNode<BV>::BVTesting(int b1, int b2) const
-{
-  if(this->enable_statistics) this->num_bv_tests++;
-  return model1->getBV(b1).distance(model2->getBV(b2));
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/distance/bvh_distance_traversal_node-inl.h"
 
 #endif

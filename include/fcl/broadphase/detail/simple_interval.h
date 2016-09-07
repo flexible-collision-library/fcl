@@ -58,27 +58,12 @@ public:
   S low, high;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-SimpleInterval<S>::~SimpleInterval()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void SimpleInterval<S>::print()
-{
-  // Do nothing
-}
+using SimpleIntervalf = SimpleInterval<float>;
+using SimpleIntervald = SimpleInterval<double>;
 
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/broadphase/detail/simple_interval-inl.h"
 
 #endif

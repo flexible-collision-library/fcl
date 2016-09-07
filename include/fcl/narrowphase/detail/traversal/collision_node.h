@@ -35,11 +35,10 @@
 
 /** @author Jia Pan */
 
-
 #ifndef FCL_COLLISION_NODE_H
 #define FCL_COLLISION_NODE_H
 
-#include "fcl/object/geometry/bvh/detail/BVH_front.h"
+#include "fcl/geometry/bvh/detail/BVH_front.h"
 #include "fcl/narrowphase/detail/traversal/traversal_recurse.h"
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"
@@ -72,92 +71,9 @@ void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list =
 template <typename S>
 void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list = nullptr);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-void collide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list)
-{
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
-  }
-  else
-  {
-    collisionRecurse(node, 0, 0, front_list);
-  }
-}
-
-//==============================================================================
-template <typename S>
-void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list)
-{
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
-  }
-  else
-  {
-    Matrix3<S> Rtemp, R;
-    Vector3<S> Ttemp, T;
-    Rtemp = node->tf.linear() * node->model2->getBV(0).getOrientation();
-    R = node->model1->getBV(0).getOrientation().transpose() * Rtemp;
-    Ttemp = node->tf.linear() * node->model2->getBV(0).getCenter() + node->tf.translation();
-    Ttemp -= node->model1->getBV(0).getCenter();
-    T = node->model1->getBV(0).getOrientation().transpose() * Ttemp;
-
-    collisionRecurse(node, 0, 0, R, T, front_list);
-  }
-}
-
-//==============================================================================
-template <typename S>
-void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list)
-{
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
-  }
-  else
-  {
-    collisionRecurse(node, 0, 0, node->tf.linear(), node->tf.translation(), front_list);
-  }
-}
-
-//==============================================================================
-template <typename S>
-void selfCollide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list)
-{
-
-  if(front_list && front_list->size() > 0)
-  {
-    propagateBVHFrontListCollisionRecurse(node, front_list);
-  }
-  else
-  {
-    selfCollisionRecurse(node, 0, front_list);
-  }
-}
-
-//==============================================================================
-template <typename S>
-void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list, int qsize)
-{
-  node->preprocess();
-
-  if(qsize <= 2)
-    distanceRecurse(node, 0, 0, front_list);
-  else
-    distanceQueueRecurse(node, 0, 0, front_list, qsize);
-
-  node->postprocess();
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/collision_node-inl.h"
 
 #endif

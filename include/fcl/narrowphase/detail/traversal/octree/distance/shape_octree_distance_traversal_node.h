@@ -43,8 +43,8 @@
 #error "This header requires fcl to be compiled with octomap support"
 #endif
 
-#include "fcl/object/geometry/octree/octree.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/octree/octree.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/octree/octree_solver.h"
 
@@ -88,68 +88,9 @@ bool initialize(
     const DistanceRequest<typename Shape::S>& request,
     DistanceResult<typename Shape::S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
-ShapeOcTreeDistanceTraversalNode()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  otsolver = nullptr;
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-typename Shape::S
-ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
-BVTesting(int, int) const
-{
-  return -1;
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-void ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>::
-leafTesting(int, int) const
-{
-  otsolver->OcTreeShapeDistance(
-        model2, *model1, this->tf2, this->tf1, this->request, *this->result);
-}
-
-//==============================================================================
-template <typename Shape, typename NarrowPhaseSolver>
-bool initialize(
-    ShapeOcTreeDistanceTraversalNode<Shape, NarrowPhaseSolver>& node,
-    const Shape& model1,
-    const Transform3<typename Shape::S>& tf1,
-    const OcTree<typename Shape::S>& model2,
-    const Transform3<typename Shape::S>& tf2,
-    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename Shape::S>& request,
-    DistanceResult<typename Shape::S>& result)
-{
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.otsolver = otsolver;
-
-  node.tf1 = tf1;
-  node.tf2 = tf2;
-
-  return true;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/octree/distance/shape_octree_distance_traversal_node-inl.h"
 
 #endif

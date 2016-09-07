@@ -77,63 +77,8 @@ public:
 using SamplerSE2f = SamplerSE2<float>;
 using SamplerSE2d = SamplerSE2<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-SamplerSE2<S>::SamplerSE2()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-SamplerSE2<S>::SamplerSE2(const Vector2<S>& lower_bound_, const Vector2<S>& upper_bound_) : lower_bound(lower_bound_),
-  upper_bound(upper_bound_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-SamplerSE2<S>::SamplerSE2(S x_min, S x_max, S y_min, S y_max) : lower_bound(Vector2<S>(x_min, y_min)),
-  upper_bound(Vector2<S>(x_max, y_max))
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE2<S>::getBound(Vector2<S>& lower_bound_, Vector2<S>& upper_bound_) const
-{
-  lower_bound_ = lower_bound;
-  upper_bound_ = upper_bound;
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE2<S>::setBound(const Vector2<S>& lower_bound_, const Vector2<S>& upper_bound_)
-{
-  lower_bound = lower_bound_;
-  upper_bound = upper_bound_;
-}
-
-//==============================================================================
-template <typename S>
-Vector3<S> SamplerSE2<S>::sample() const
-{
-  Vector3<S> q;
-  q[0] = this->rng.uniformReal(lower_bound[0], lower_bound[1]);
-  q[1] = this->rng.uniformReal(lower_bound[1], lower_bound[2]);
-  q[2] = this->rng.uniformReal(-constants<S>::pi(), constants<S>::pi());
-
-  return q;
-}
-
 } // namespace fcl
+
+#include "fcl/math/sampler/sampler_se2-inl.h"
 
 #endif

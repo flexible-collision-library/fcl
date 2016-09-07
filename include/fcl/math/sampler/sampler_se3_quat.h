@@ -70,63 +70,8 @@ protected:
 using SamplerSE3Quatf = SamplerSE3Quat<float>;
 using SamplerSE3Quatd = SamplerSE3Quat<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-SamplerSE3Quat<S>::SamplerSE3Quat()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-SamplerSE3Quat<S>::SamplerSE3Quat(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_) : lower_bound(lower_bound_),
-  upper_bound(upper_bound_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Quat<S>::getBound(Vector3<S>& lower_bound_, Vector3<S>& upper_bound_) const
-{
-  lower_bound_ = lower_bound;
-  upper_bound_ = upper_bound;
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Quat<S>::setBound(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_)
-
-{
-  lower_bound = lower_bound_;
-  upper_bound = upper_bound_;
-}
-
-//==============================================================================
-template <typename S>
-Vector6<S> SamplerSE3Quat<S>::sample() const
-{
-  Vector6<S> q;
-  q[0] = this->rng.uniformReal(lower_bound[0], upper_bound[0]);
-  q[1] = this->rng.uniformReal(lower_bound[1], upper_bound[1]);
-  q[2] = this->rng.uniformReal(lower_bound[2], upper_bound[2]);
-
-  S s[4];
-  this->rng.quaternion(s);
-
-  q[3] = s[0];
-  q[4] = s[1];
-  q[5] = s[2];
-  q[6] = s[3];
-  return q;
-}
-
 } // namespace fcl
+
+#include "fcl/math/sampler/sampler_se3_quat-inl.h"
 
 #endif

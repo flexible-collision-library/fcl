@@ -36,16 +36,21 @@
 /** @author Jia Pan */
 
 #include <array>
+#include <iostream>
+#include <limits>
 
 #include <gtest/gtest.h>
 
+#include "fcl/math/motion/translation_motion.h"
+#include "fcl/geometry/shape/cone.h"
+#include "fcl/geometry/shape/capsule.h"
+#include "fcl/geometry/shape/ellipsoid.h"
+#include "fcl/geometry/shape/halfspace.h"
+#include "fcl/geometry/shape/plane.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 #include "fcl/narrowphase/collision.h"
 #include "test_fcl_utility.h"
-#include "fcl/math/motion/translation_motion.h"
-#include <iostream>
-#include <limits>
 
 using namespace fcl;
 

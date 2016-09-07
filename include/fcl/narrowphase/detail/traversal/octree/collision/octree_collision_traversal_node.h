@@ -43,7 +43,7 @@
 #error "This header requires fcl to be compiled with octomap support"
 #endif
 
-#include "fcl/object/geometry/octree/octree.h"
+#include "fcl/geometry/octree/octree.h"
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/octree/octree_solver.h"
 
@@ -71,7 +71,8 @@ public:
   const OcTree<S>* model1;
   const OcTree<S>* model2;
 
-  Transform3<S> tf1, tf2;
+  Transform3<S> tf1;
+  Transform3<S> tf2;
 
   const OcTreeSolver<NarrowPhaseSolver>* otsolver;
 
@@ -91,66 +92,9 @@ bool initialize(
     const CollisionRequest<typename NarrowPhaseSolver::S>& request,
     CollisionResult<typename NarrowPhaseSolver::S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename NarrowPhaseSolver>
-OcTreeCollisionTraversalNode<NarrowPhaseSolver>::OcTreeCollisionTraversalNode()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  otsolver = nullptr;
-}
-
-//==============================================================================
-template <typename NarrowPhaseSolver>
-bool OcTreeCollisionTraversalNode<NarrowPhaseSolver>::BVTesting(
-    int, int) const
-{
-  return false;
-}
-
-//==============================================================================
-template <typename NarrowPhaseSolver>
-void OcTreeCollisionTraversalNode<NarrowPhaseSolver>::leafTesting(
-    int, int) const
-{
-  otsolver->OcTreeIntersect(
-        model1, model2, tf1, tf2, this->request, *this->result);
-}
-
-//==============================================================================
-template <typename NarrowPhaseSolver>
-bool initialize(
-    OcTreeCollisionTraversalNode<NarrowPhaseSolver>& node,
-    const OcTree<typename NarrowPhaseSolver::S>& model1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const OcTree<typename NarrowPhaseSolver::S>& model2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
-    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const CollisionRequest<typename NarrowPhaseSolver::S>& request,
-    CollisionResult<typename NarrowPhaseSolver::S>& result)
-{
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.otsolver = otsolver;
-
-  node.tf1 = tf1;
-  node.tf2 = tf2;
-
-  return true;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/octree/collision/octree_collision_traversal_node-inl.h"
 
 #endif

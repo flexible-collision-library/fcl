@@ -76,56 +76,8 @@ using SamplerRf = SamplerR<float, N>;
 template <std::size_t N>
 using SamplerRd = SamplerR<double, N>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S, std::size_t N>
-SamplerR<S, N>::SamplerR()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S, std::size_t N>
-SamplerR<S, N>::SamplerR(const VectorN<S, N>& lower_bound_, const VectorN<S, N>& upper_bound_)
-  : lower_bound(lower_bound_), upper_bound(upper_bound_)
-{
-}
-
-//==============================================================================
-template <typename S, std::size_t N>
-void SamplerR<S, N>::setBound(const VectorN<S, N>& lower_bound_, const VectorN<S, N>& upper_bound_)
-{
-  lower_bound = lower_bound_;
-  upper_bound = upper_bound_;
-}
-
-//==============================================================================
-template <typename S, std::size_t N>
-void SamplerR<S, N>::getBound(VectorN<S, N>& lower_bound_, VectorN<S, N>& upper_bound_) const
-{
-  lower_bound_ = lower_bound;
-  upper_bound_ = upper_bound;
-}
-
-//==============================================================================
-template <typename S, std::size_t N>
-VectorN<S, N> SamplerR<S, N>::sample() const
-{
-  VectorN<S, N> q;
-
-  for(std::size_t i = 0; i < N; ++i)
-  {
-    q[i] = this->rng.uniformReal(lower_bound[i], upper_bound[i]);
-  }
-
-  return q;
-}
-
 } // namespace fcl
+
+#include "fcl/math/sampler/sampler_r-inl.h"
 
 #endif

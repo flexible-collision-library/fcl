@@ -39,7 +39,7 @@
 #define FCL_TRAVERSAL_BVHSHAPEDISTANCETRAVERSALNODE_H
 
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 
 namespace fcl
 {
@@ -79,55 +79,9 @@ public:
   mutable S query_time_seconds;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template<typename BV, typename Shape>
-BVHShapeDistanceTraversalNode<BV, Shape>::BVHShapeDistanceTraversalNode()
-  : DistanceTraversalNodeBase<typename BV::S>()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  num_bv_tests = 0;
-  num_leaf_tests = 0;
-  query_time_seconds = 0.0;
-}
-
-//==============================================================================
-template<typename BV, typename Shape>
-bool BVHShapeDistanceTraversalNode<BV, Shape>::isFirstNodeLeaf(int b) const
-{
-  return model1->getBV(b).isLeaf();
-}
-
-//==============================================================================
-template<typename BV, typename Shape>
-int BVHShapeDistanceTraversalNode<BV, Shape>::getFirstLeftChild(int b) const
-{
-  return model1->getBV(b).leftChild();
-}
-
-//==============================================================================
-template<typename BV, typename Shape>
-int BVHShapeDistanceTraversalNode<BV, Shape>::getFirstRightChild(int b) const
-{
-  return model1->getBV(b).rightChild();
-}
-
-//==============================================================================
-template<typename BV, typename Shape>
-typename BV::S BVHShapeDistanceTraversalNode<BV, Shape>::BVTesting(
-    int b1, int b2) const
-{
-  return model1->getBV(b1).bv.distance(model2_bv);
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/distance/bvh_shape_distance_traversal_node-inl.h"
 
 #endif

@@ -37,10 +37,11 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include "fcl/geometry/shape/box.h"
+#include "fcl/geometry/shape/capsule.h"
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/collision.h"
-#include "fcl/object/collision_object.h"
-#include "fcl/object/geometry/shape/geometric_shapes.h"
+#include "fcl/narrowphase/collision_object.h"
 
 template <typename S>
 void test_distance_capsule_box()

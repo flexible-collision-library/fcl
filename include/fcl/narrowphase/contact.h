@@ -38,7 +38,7 @@
 #ifndef FCL_CONTACT_H
 #define FCL_CONTACT_H
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 
 namespace fcl
 {
@@ -91,68 +91,8 @@ struct Contact
 using Contactf = Contact<float>;
 using Contactd = Contact<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-Contact<S>::Contact()
-  : o1(nullptr),
-    o2(nullptr),
-    b1(NONE),
-    b2(NONE)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-Contact<S>::Contact(
-    const CollisionGeometry<S>* o1_,
-    const CollisionGeometry<S>* o2_,
-    int b1_,
-    int b2_)
-  : o1(o1_),
-    o2(o2_),
-    b1(b1_),
-    b2(b2_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-Contact<S>::Contact(
-    const CollisionGeometry<S>* o1_,
-    const CollisionGeometry<S>* o2_,
-    int b1_,
-    int b2_,
-    const Vector3<S>& pos_,
-    const Vector3<S>& normal_,
-    S depth_)
-  : o1(o1_),
-    o2(o2_),
-    b1(b1_),
-    b2(b2_),
-    normal(normal_),
-    pos(pos_),
-    penetration_depth(depth_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-bool Contact<S>::operator <(const Contact& other) const
-{
-  if(b1 == other.b1)
-    return b2 < other.b2;
-  return b1 < other.b1;
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/contact-inl.h"
 
 #endif

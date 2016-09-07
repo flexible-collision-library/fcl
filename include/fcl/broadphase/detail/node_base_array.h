@@ -72,28 +72,10 @@ struct NodeBase
   bool isInternal() const;
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template<typename BV>
-bool NodeBase<BV>::isLeaf() const
-{
-  return (children[1] == (size_t)(-1));
-}
-
-//==============================================================================
-template<typename BV>
-bool NodeBase<BV>::isInternal() const
-{
-  return !isLeaf();
-}
-
 } // namespace implementation_array
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/broadphase/detail/node_base_array-inl.h"
 
 #endif

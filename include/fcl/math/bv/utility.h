@@ -38,8 +38,7 @@
 #ifndef FCL_MATH_BV_UTILITY_H
 #define FCL_MATH_BV_UTILITY_H
 
-#include "fcl/math/bv/detail/converter.h"
-#include "fcl/math/bv/detail/fitter.h"
+#include "fcl/common/types.h"
 
 /** \brief Main namespace */
 namespace fcl
@@ -55,30 +54,8 @@ template <typename BV1, typename BV2>
 void convertBV(
     const BV1& bv1, const Transform3<typename BV1::S>& tf1, BV2& bv2);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename BV>
-void fit(Vector3<typename BV::S>* ps, int n, BV& bv)
-{
-  detail::Fitter<typename BV::S, BV>::fit(ps, n, bv);
-}
-
-//==============================================================================
-template <typename BV1, typename BV2>
-void convertBV(
-    const BV1& bv1, const Transform3<typename BV1::S>& tf1, BV2& bv2)
-{
-  static_assert(std::is_same<typename BV1::S, typename BV2::S>::value,
-                "The scalar type of BV1 and BV2 should be the same");
-
-  detail::Converter<typename BV1::S, BV1, BV2>::convert(bv1, tf1, bv2);
-}
-
 } // namespace fcl
+
+#include "fcl/math/bv/utility-inl.h"
 
 #endif

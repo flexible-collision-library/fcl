@@ -41,7 +41,7 @@
 #include <set>
 #include <vector>
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 
 namespace fcl
 {
@@ -136,69 +136,8 @@ protected:
 using BroadPhaseCollisionManagerf = BroadPhaseCollisionManager<float>;
 using BroadPhaseCollisionManagerd = BroadPhaseCollisionManager<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-BroadPhaseCollisionManager<S>::BroadPhaseCollisionManager()
-  : enable_tested_set_(false)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-BroadPhaseCollisionManager<S>::~BroadPhaseCollisionManager()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-void BroadPhaseCollisionManager<S>::registerObjects(
-    const std::vector<CollisionObject<S>*>& other_objs)
-{
-  for(size_t i = 0; i < other_objs.size(); ++i)
-    registerObject(other_objs[i]);
-}
-
-//==============================================================================
-template <typename S>
-void BroadPhaseCollisionManager<S>::update(CollisionObject<S>* updated_obj)
-{
-  update();
-}
-
-//==============================================================================
-template <typename S>
-void BroadPhaseCollisionManager<S>::update(
-    const std::vector<CollisionObject<S>*>& updated_objs)
-{
-  update();
-}
-
-//==============================================================================
-template <typename S>
-bool BroadPhaseCollisionManager<S>::inTestedSet(
-    CollisionObject<S>* a, CollisionObject<S>* b) const
-{
-  if(a < b) return tested_set.find(std::make_pair(a, b)) != tested_set.end();
-  else return tested_set.find(std::make_pair(b, a)) != tested_set.end();
-}
-
-//==============================================================================
-template <typename S>
-void BroadPhaseCollisionManager<S>::insertTestedSet(
-    CollisionObject<S>* a, CollisionObject<S>* b) const
-{
-  if(a < b) tested_set.insert(std::make_pair(a, b));
-  else tested_set.insert(std::make_pair(b, a));
-}
-
 } // namespace fcl
+
+#include "fcl/broadphase/broadphase_collision_manager-inl.h"
 
 #endif

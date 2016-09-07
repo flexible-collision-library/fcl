@@ -64,38 +64,8 @@ struct TimeInterval
   void setValue(S l, S r);
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-TimeInterval<S>::TimeInterval()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-TimeInterval<S>::TimeInterval(S l, S r)
-{
-  setValue(l, r);
-}
-
-//==============================================================================
-template <typename S>
-void TimeInterval<S>::setValue(S l, S r)
-{
-  t_.setValue(l, r);
-  t2_.setValue(l * t_[0], r * t_[1]);
-  t3_.setValue(l * t2_[0], r * t2_[1]);
-  t4_.setValue(l * t3_[0], r * t3_[1]);
-  t5_.setValue(l * t4_[0], r * t4_[1]);
-  t6_.setValue(l * t5_[0], r * t5_[1]);
-}
-
 } // namespace fcl
+
+#include "fcl/math/motion/taylor_model/time_interval-inl.h"
 
 #endif

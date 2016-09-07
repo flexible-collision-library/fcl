@@ -14,6 +14,18 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     endif(FCL_TREAT_WARNINGS_AS_ERRORS)
 endif()
 
+# AppleClang
+if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    # Require at least Apple LLVM version 6.1
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.1)
+        message(FATAL_ERROR "AppleClang version must be at least 6.1!")
+    endif()
+    add_definitions(-std=c++11 -W -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-delete-non-virtual-dtor -Wno-overloaded-virtual -Wno-unknown-pragmas -Wno-deprecated-register)
+    if(FCL_TREAT_WARNINGS_AS_ERRORS)
+        add_definitions(-Werror)
+    endif(FCL_TREAT_WARNINGS_AS_ERRORS)
+endif()
+
 # Visual Studio
 if(MSVC OR MSVC90 OR MSVC10)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /W1 /bigobj")

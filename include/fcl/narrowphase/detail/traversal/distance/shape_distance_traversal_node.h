@@ -81,86 +81,9 @@ bool initialize(
     const DistanceRequest<typename Shape1::S>& request,
     DistanceResult<typename Shape1::S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::
-ShapeDistanceTraversalNode() : DistanceTraversalNodeBase<typename Shape1::S>()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  nsolver = nullptr;
-}
-
-//==============================================================================
-template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-typename Shape1::S
-ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::BVTesting(int, int) const
-{
-  return -1; // should not be used
-}
-
-//==============================================================================
-template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-void ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::leafTesting(
-    int, int) const
-{
-  using S = typename Shape1::S;
-
-  S distance;
-  // NOTE(JS): The closest points are set to zeros in order to suppress the
-  // maybe-uninitialized warning. It seems the warnings occur since
-  // NarrowPhaseSolver::shapeDistance() conditionally set the closest points.
-  // If this wasn't intentional then please remove the initialization of the
-  // closest points, and change the function NarrowPhaseSolver::shapeDistance()
-  // to always set the closest points.
-  Vector3<S> closest_p1 = Vector3<S>::Zero();
-  Vector3<S> closest_p2 = Vector3<S>::Zero();
-
-  nsolver->shapeDistance(
-        *model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
-
-  this->result->update(
-        distance,
-        model1,
-        model2,
-        DistanceResult<S>::NONE,
-        DistanceResult<S>::NONE,
-        closest_p1,
-        closest_p2);
-}
-
-//==============================================================================
-template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-bool initialize(
-    ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>& node,
-    const Shape1& shape1,
-    const Transform3<typename Shape1::S>& tf1,
-    const Shape2& shape2,
-    const Transform3<typename Shape1::S>& tf2,
-    const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename Shape1::S>& request,
-    DistanceResult<typename Shape1::S>& result)
-{
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &shape1;
-  node.tf1 = tf1;
-  node.model2 = &shape2;
-  node.tf2 = tf2;
-  node.nsolver = nsolver;
-
-  return true;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/distance/shape_distance_traversal_node-inl.h"
 
 #endif

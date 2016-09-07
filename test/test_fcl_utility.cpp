@@ -48,6 +48,7 @@ namespace fcl
 namespace test
 {
 
+//==============================================================================
 Timer::Timer()
 {
 #ifdef _WIN32
@@ -64,10 +65,13 @@ Timer::Timer()
   endTimeInMicroSec = 0;
 }
 
+//==============================================================================
 Timer::~Timer()
 {
+  // Do nothing
 }
 
+//==============================================================================
 void Timer::start()
 {
   stopped = 0; // reset stop flag
@@ -78,6 +82,7 @@ void Timer::start()
 #endif
 }
 
+//==============================================================================
 void Timer::stop()
 {
   stopped = 1; // set timer stopped flag
@@ -108,21 +113,25 @@ double Timer::getElapsedTimeInMicroSec()
   return endTimeInMicroSec - startTimeInMicroSec;
 }
 
+//==============================================================================
 double Timer::getElapsedTimeInMilliSec()
 {
   return this->getElapsedTimeInMicroSec() * 0.001;
 }
 
+//==============================================================================
 double Timer::getElapsedTimeInSec()
 {
   return this->getElapsedTimeInMicroSec() * 0.000001;
 }
 
+//==============================================================================
 double Timer::getElapsedTime()
 {
   return this->getElapsedTimeInMilliSec();
 }
 
+//==============================================================================
 std::string getNodeTypeName(NODE_TYPE node_type)
 {
   if (node_type == BV_UNKNOWN)
@@ -169,6 +178,7 @@ std::string getNodeTypeName(NODE_TYPE node_type)
     return std::string("invalid");
 }
 
+//==============================================================================
 std::string getGJKSolverName(GJKSolverType solver_type)
 {
   if (solver_type == GST_LIBCCD)

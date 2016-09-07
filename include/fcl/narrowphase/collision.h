@@ -35,14 +35,12 @@
 
 /** @author Jia Pan */
 
-
 #ifndef FCL_COLLISION_H
 #define FCL_COLLISION_H
 
-#include "fcl/object/collision_object.h"
-#include "fcl/narrowphase/detail/collision_func_matrix.h"
-#include "fcl/narrowphase/detail/gjk_solver_indep.h"
-#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
+#include "fcl/narrowphase/collision_object.h"
+#include "fcl/narrowphase/collision_request.h"
+#include "fcl/narrowphase/collision_result.h"
 
 namespace fcl
 {
@@ -65,139 +63,8 @@ std::size_t collide(const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
                     const CollisionRequest<S>& request,
                     CollisionResult<S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template<typename GJKSolver>
-detail::CollisionFunctionMatrix<GJKSolver>& getCollisionFunctionLookTable()
-{
-  static detail::CollisionFunctionMatrix<GJKSolver> table;
-  return table;
-}
-
-template <typename S, typename NarrowPhaseSolver>
-std::size_t collide(
-    const CollisionObject<S>* o1,
-    const CollisionObject<S>* o2,
-    const NarrowPhaseSolver* nsolver,
-    const CollisionRequest<S>& request,
-    CollisionResult<S>& result)
-{
-  return collide(o1->collisionGeometry().get(), o1->getTransform(), o2->collisionGeometry().get(), o2->getTransform(),
-                 nsolver, request, result);
-}
-
-template <typename S, typename NarrowPhaseSolver>
-std::size_t collide(
-    const CollisionGeometry<S>* o1,
-    const Transform3<S>& tf1,
-    const CollisionGeometry<S>* o2,
-    const Transform3<S>& tf2,
-    const NarrowPhaseSolver* nsolver_,
-    const CollisionRequest<S>& request,
-    CollisionResult<S>& result)
-{
-  const NarrowPhaseSolver* nsolver = nsolver_;
-  if(!nsolver_)
-    nsolver = new NarrowPhaseSolver();
-
-  const auto& looktable = getCollisionFunctionLookTable<NarrowPhaseSolver>();
-
-  std::size_t res;
-  if(request.num_max_contacts == 0)
-  {
-    std::cerr << "Warning: should stop early as num_max_contact is " << request.num_max_contacts << " !" << std::endl;
-    res = 0;
-  }
-  else
-  {
-    OBJECT_TYPE object_type1 = o1->getObjectType();
-    OBJECT_TYPE object_type2 = o2->getObjectType();
-    NODE_TYPE node_type1 = o1->getNodeType();
-    NODE_TYPE node_type2 = o2->getNodeType();
-
-    if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
-    {
-      if(!looktable.collision_matrix[node_type2][node_type1])
-      {
-        std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-        res = 0;
-      }
-      else
-        res = looktable.collision_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
-    }
-    else
-    {
-      if(!looktable.collision_matrix[node_type1][node_type2])
-      {
-        std::cerr << "Warning: collision function between node type " << node_type1 << " and node type " << node_type2 << " is not supported"<< std::endl;
-        res = 0;
-      }
-      else
-        res = looktable.collision_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, request, result);
-    }
-  }
-
-  if(!nsolver_)
-    delete nsolver;
-
-  return res;
-}
-
-//==============================================================================
-template <typename S>
-std::size_t collide(const CollisionObject<S>* o1, const CollisionObject<S>* o2,
-                    const CollisionRequest<S>& request, CollisionResult<S>& result)
-{
-  switch(request.gjk_solver_type)
-  {
-  case GST_LIBCCD:
-    {
-      detail::GJKSolver_libccd<S> solver;
-      return collide(o1, o2, &solver, request, result);
-    }
-  case GST_INDEP:
-    {
-      detail::GJKSolver_indep<S> solver;
-      return collide(o1, o2, &solver, request, result);
-    }
-  default:
-    return -1; // error
-  }
-}
-
-//==============================================================================
-template <typename S>
-std::size_t collide(
-    const CollisionGeometry<S>* o1,
-    const Transform3<S>& tf1,
-    const CollisionGeometry<S>* o2,
-    const Transform3<S>& tf2,
-    const CollisionRequest<S>& request,
-    CollisionResult<S>& result)
-{
-  switch(request.gjk_solver_type)
-  {
-  case GST_LIBCCD:
-    {
-      detail::GJKSolver_libccd<S> solver;
-      return collide(o1, tf1, o2, tf2, &solver, request, result);
-    }
-  case GST_INDEP:
-    {
-      detail::GJKSolver_indep<S> solver;
-      return collide(o1, tf1, o2, tf2, &solver, request, result);
-    }
-  default:
-    std::cerr << "Warning! Invalid GJK solver" << std::endl;
-    return -1; // error
-  }
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/collision-inl.h"
 
 #endif

@@ -75,36 +75,9 @@ struct NodeBase
   NodeBase();
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename BV>
-bool NodeBase<BV>::isLeaf() const
-{
-  return (children[1] == nullptr);
-}
-
-//==============================================================================
-template <typename BV>
-bool NodeBase<BV>::isInternal() const
-{
-  return !isLeaf();
-}
-
-//==============================================================================
-template <typename BV>
-NodeBase<BV>::NodeBase()
-{
-  parent = nullptr;
-  children[0] = nullptr;
-  children[1] = nullptr;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/broadphase/detail/node_base-inl.h"
 
 #endif

@@ -38,6 +38,7 @@
 
 #include "fcl/broadphase/detail/morton.h"
 #include "fcl/config.h"
+#include "fcl/math/bv/AABB.h"
 
 using namespace fcl;
 

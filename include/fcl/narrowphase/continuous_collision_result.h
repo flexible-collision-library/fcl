@@ -65,21 +65,8 @@ struct ContinuousCollisionResult
 using ContinuousCollisionResultf = ContinuousCollisionResult<float>;
 using ContinuousCollisionResultd = ContinuousCollisionResult<double>;
 
-
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-ContinuousCollisionResult<S>::ContinuousCollisionResult()
-  : is_collide(false), time_of_contact(1.0)
-{
-  // Do nothing
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/continuous_collision_result-inl.h"
 
 #endif

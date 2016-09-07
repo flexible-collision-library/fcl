@@ -70,66 +70,8 @@ protected:
 using SamplerSE3Eulerf = SamplerSE3Euler<float>;
 using SamplerSE3Eulerd = SamplerSE3Euler<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-SamplerSE3Euler<S>::SamplerSE3Euler()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-SamplerSE3Euler<S>::SamplerSE3Euler(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_) : lower_bound(lower_bound_),
-  upper_bound(upper_bound_)
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-Vector6<S> SamplerSE3Euler<S>::sample() const
-{
-  Vector6<S> q;
-  q[0] = this->rng.uniformReal(lower_bound[0], upper_bound[0]);
-  q[1] = this->rng.uniformReal(lower_bound[1], upper_bound[1]);
-  q[2] = this->rng.uniformReal(lower_bound[2], upper_bound[2]);
-
-  S s[4];
-  this->rng.quaternion(s);
-
-  Quaternion<S> quat(s[0], s[1], s[2], s[3]);
-  Vector3<S> angles = quat.toRotationMatrix().eulerAngles(0, 1, 2);
-
-  q[3] = angles[0];
-  q[4] = angles[1];
-  q[5] = angles[2];
-
-  return q;
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Euler<S>::getBound(Vector3<S>& lower_bound_, Vector3<S>& upper_bound_) const
-{
-  lower_bound_ = lower_bound;
-  upper_bound_ = upper_bound;
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE3Euler<S>::setBound(const Vector3<S>& lower_bound_, const Vector3<S>& upper_bound_)
-
-{
-  lower_bound = lower_bound_;
-  upper_bound = upper_bound_;
-}
-
 } // namespace fcl
+
+#include "fcl/math/sampler/sampler_se3_euler-inl.h"
 
 #endif

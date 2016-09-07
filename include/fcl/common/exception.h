@@ -59,31 +59,6 @@ public:
 
 };
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-inline Exception::Exception(const std::string& what) : std::runtime_error(what)
-{
-  // Do nothing
-}
-
-//==============================================================================
-inline Exception::Exception(const std::string& prefix, const std::string& what)
-  : std::runtime_error(prefix + ": " + what)
-{
-  // Do nothing
-}
-
-//==============================================================================
-inline Exception::~Exception()
-{
-  // Do nothing
-}
-
 } // namespace fcl
 
 #endif

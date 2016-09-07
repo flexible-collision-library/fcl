@@ -50,6 +50,9 @@ public:
   mutable RNG<S> rng;
 };
 
+extern template
+class SamplerBase<double>;
+
 } // namespace fcl
 
 #endif

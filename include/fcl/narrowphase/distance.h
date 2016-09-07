@@ -38,7 +38,7 @@
 #ifndef FCL_DISTANCE_H
 #define FCL_DISTANCE_H
 
-#include "fcl/object/collision_object.h"
+#include "fcl/narrowphase/collision_object.h"
 #include "fcl/narrowphase/detail/distance_func_matrix.h"
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
@@ -59,141 +59,8 @@ S distance(
     const CollisionGeometry<S>* o2, const Transform3<S>& tf2,
     const DistanceRequest<S>& request, DistanceResult<S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename GJKSolver>
-detail::DistanceFunctionMatrix<GJKSolver>& getDistanceFunctionLookTable()
-{
-  static detail::DistanceFunctionMatrix<GJKSolver> table;
-  return table;
-}
-
-template <typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::S distance(
-    const CollisionObject<typename NarrowPhaseSolver::S>* o1,
-    const CollisionObject<typename NarrowPhaseSolver::S>* o2,
-    const NarrowPhaseSolver* nsolver,
-    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
-    DistanceResult<typename NarrowPhaseSolver::S>& result)
-{
-  return distance<NarrowPhaseSolver>(
-        o1->collisionGeometry().get(),
-        o1->getTransform(),
-        o2->collisionGeometry().get(),
-        o2->getTransform(),
-        nsolver,
-        request,
-        result);
-}
-
-template <typename NarrowPhaseSolver>
-typename NarrowPhaseSolver::S distance(
-    const CollisionGeometry<typename NarrowPhaseSolver::S>* o1,
-    const Transform3<typename NarrowPhaseSolver::S>& tf1,
-    const CollisionGeometry<typename NarrowPhaseSolver::S>* o2,
-    const Transform3<typename NarrowPhaseSolver::S>& tf2,
-    const NarrowPhaseSolver* nsolver_,
-    const DistanceRequest<typename NarrowPhaseSolver::S>& request,
-    DistanceResult<typename NarrowPhaseSolver::S>& result)
-{
-  using S = typename NarrowPhaseSolver::S;
-
-  const NarrowPhaseSolver* nsolver = nsolver_;
-  if(!nsolver_)
-    nsolver = new NarrowPhaseSolver();
-
-  const auto& looktable = getDistanceFunctionLookTable<NarrowPhaseSolver>();
-
-  OBJECT_TYPE object_type1 = o1->getObjectType();
-  NODE_TYPE node_type1 = o1->getNodeType();
-  OBJECT_TYPE object_type2 = o2->getObjectType();
-  NODE_TYPE node_type2 = o2->getNodeType();
-
-  S res = std::numeric_limits<S>::max();
-
-  if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
-  {
-    if(!looktable.distance_matrix[node_type2][node_type1])
-    {
-      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-    }
-    else
-    {
-      res = looktable.distance_matrix[node_type2][node_type1](o2, tf2, o1, tf1, nsolver, request, result);
-    }
-  }
-  else
-  {
-    if(!looktable.distance_matrix[node_type1][node_type2])
-    {
-      std::cerr << "Warning: distance function between node type " << node_type1 << " and node type " << node_type2 << " is not supported" << std::endl;
-    }
-    else
-    {
-      res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, request, result);
-    }
-  }
-
-  if(!nsolver_)
-    delete nsolver;
-
-  return res;
-}
-
-//==============================================================================
-template <typename S>
-S distance(
-    const CollisionObject<S>* o1,
-    const CollisionObject<S>* o2,
-    const DistanceRequest<S>& request,
-    DistanceResult<S>& result)
-{
-  switch(request.gjk_solver_type)
-  {
-  case GST_LIBCCD:
-    {
-      detail::GJKSolver_libccd<S> solver;
-      return distance(o1, o2, &solver, request, result);
-    }
-  case GST_INDEP:
-    {
-      detail::GJKSolver_indep<S> solver;
-      return distance(o1, o2, &solver, request, result);
-    }
-  default:
-    return -1; // error
-  }
-}
-
-//==============================================================================
-template <typename S>
-S distance(
-    const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
-    const CollisionGeometry<S>* o2, const Transform3<S>& tf2,
-    const DistanceRequest<S>& request, DistanceResult<S>& result)
-{
-  switch(request.gjk_solver_type)
-  {
-  case GST_LIBCCD:
-    {
-      detail::GJKSolver_libccd<S> solver;
-      return distance(o1, tf1, o2, tf2, &solver, request, result);
-    }
-  case GST_INDEP:
-    {
-      detail::GJKSolver_indep<S> solver;
-      return distance(o1, tf1, o2, tf2, &solver, request, result);
-    }
-  default:
-    return -1;
-  }
-}
-
 } // namespace fcl
+
+#include "fcl/narrowphase/distance-inl.h"
 
 #endif

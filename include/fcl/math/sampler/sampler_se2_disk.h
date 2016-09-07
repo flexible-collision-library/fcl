@@ -69,47 +69,8 @@ protected:
 using SamplerSE2_diskf = SamplerSE2_disk<float>;
 using SamplerSE2_diskd = SamplerSE2_disk<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-SamplerSE2_disk<S>::SamplerSE2_disk() {}
-
-//==============================================================================
-template <typename S>
-SamplerSE2_disk<S>::SamplerSE2_disk(S cx, S cy, S r1, S r2, S crefx, S crefy)
-{
-  setBound(cx, cy, r1, r2, crefx, crefy);
-}
-
-//==============================================================================
-template <typename S>
-void SamplerSE2_disk<S>::setBound(S cx, S cy, S r1, S r2, S crefx, S crefy)
-{
-  c[0] = cx; c[1] = cy;
-  cref[0] = crefx; cref[1] = crefy;
-  r_min = r1;
-  r_max = r2;
-}
-
-//==============================================================================
-template <typename S>
-Vector3<S> SamplerSE2_disk<S>::sample() const
-{
-  Vector3<S> q;
-  S x, y;
-  this->rng.disk(r_min, r_max, x, y);
-  q[0] = x + c[0] - cref[0];
-  q[1] = y + c[1] - cref[1];
-  q[2] = this->rng.uniformReal(-constants<S>::pi(), constants<S>::pi());
-
-  return q;
-}
-
 } // namespace fcl
+
+#include "fcl/math/sampler/sampler_se2_disk-inl.h"
 
 #endif

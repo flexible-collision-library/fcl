@@ -14,14 +14,14 @@ endmacro()
 # Usage:
 #   fcl_get_filename_components(_var _cacheDesc [items...])
 #===============================================================================
-macro(fcl_get_filename_components _var _cacheDesc _suffix_to_remove)
+macro(fcl_get_filename_components _var _cacheDesc _prefix_to_remove)
   set(${_var} "" CACHE INTERNAL ${_cacheDesc} FORCE)
-  string(LENGTH ${_suffix_to_remove} suffix_length)
+  string(LENGTH ${_prefix_to_remove} prefix_length)
   foreach(header ${ARGN})
     string(LENGTH ${header} full_length)
-    math(EXPR relative_path_length "${full_length} - ${suffix_length}")
-    string(SUBSTRING ${header} ${suffix_length} ${relative_path_length} header)
-    if(NOT ${header} MATCHES "/detail/" AND NOT ${header} MATCHES "-impl.h")
+    math(EXPR relative_path_length "${full_length} - ${prefix_length}")
+    string(SUBSTRING ${header} ${prefix_length} ${relative_path_length} header)
+    if(NOT ${header} MATCHES "/detail/" AND NOT ${header} MATCHES "-inl.h")
       fcl_append_to_cached_string(
         ${_var}
         ${_cacheDesc}"_HEADER_NAMES"

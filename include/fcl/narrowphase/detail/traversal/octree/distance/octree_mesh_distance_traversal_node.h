@@ -43,8 +43,8 @@
 #error "This header requires fcl to be compiled with octomap support"
 #endif
 
-#include "fcl/object/geometry/octree/octree.h"
-#include "fcl/object/geometry/bvh/BVH_model.h"
+#include "fcl/geometry/octree/octree.h"
+#include "fcl/geometry/bvh/BVH_model.h"
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
 #include "fcl/narrowphase/detail/traversal/octree/octree_solver.h"
 
@@ -89,67 +89,9 @@ bool initialize(
     const DistanceRequest<typename BV::S>& request,
     DistanceResult<typename BV::S>& result);
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename BV, typename NarrowPhaseSolver>
-OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>::
-OcTreeMeshDistanceTraversalNode()
-{
-  model1 = nullptr;
-  model2 = nullptr;
-
-  otsolver = nullptr;
-}
-
-//==============================================================================
-template <typename BV, typename NarrowPhaseSolver>
-typename BV::S OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>::
-BVTesting(int, int) const
-{
-  return -1;
-}
-
-//==============================================================================
-template <typename BV, typename NarrowPhaseSolver>
-void OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>::
-leafTesting(int, int) const
-{
-  otsolver->OcTreeMeshDistance(
-        model1, model2, this->tf1, this->tf2, this->request, *this->result);
-}
-
-//==============================================================================
-template <typename BV, typename NarrowPhaseSolver>
-bool initialize(
-    OcTreeMeshDistanceTraversalNode<BV, NarrowPhaseSolver>& node,
-    const OcTree<typename BV::S>& model1,
-    const Transform3<typename BV::S>& tf1,
-    const BVHModel<BV>& model2,
-    const Transform3<typename BV::S>& tf2,
-    const OcTreeSolver<NarrowPhaseSolver>* otsolver,
-    const DistanceRequest<typename BV::S>& request,
-    DistanceResult<typename BV::S>& result)
-{
-  node.request = request;
-  node.result = &result;
-
-  node.model1 = &model1;
-  node.model2 = &model2;
-
-  node.otsolver = otsolver;
-
-  node.tf1 = tf1;
-  node.tf2 = tf2;
-
-  return true;
-}
-
 } // namespace detail
 } // namespace fcl
+
+#include "fcl/narrowphase/detail/traversal/octree/distance/octree_mesh_distance_traversal_node-inl.h"
 
 #endif
