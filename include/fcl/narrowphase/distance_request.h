@@ -51,6 +51,9 @@ struct DistanceResult;
 template <typename S>
 struct DistanceRequest
 {
+  /// @brief whether to return the nearest points
+  bool enable_nearest_points;
+
   /// @brief Whether to compute exact negative distance.
   ///
   /// Basically, the distance computation routine computes only the exact
@@ -72,9 +75,6 @@ struct DistanceRequest
   /// @sa DistanceResult::min_distance
   bool enable_signed_distance;
 
-  /// @brief whether to return the nearest points
-  bool enable_nearest_points;
-
   /// @brief error threshold for approximate distance
   S rel_err; // relative error, between 0 and 1
   S abs_err; // absoluate error
@@ -83,8 +83,8 @@ struct DistanceRequest
   GJKSolverType gjk_solver_type;
 
   explicit DistanceRequest(
-      bool enable_signed_distance = false,
       bool enable_nearest_points_ = false,
+      bool enable_signed_distance = false,
       S rel_err_ = 0.0,
       S abs_err_ = 0.0,
       GJKSolverType gjk_solver_type_ = GST_LIBCCD);
