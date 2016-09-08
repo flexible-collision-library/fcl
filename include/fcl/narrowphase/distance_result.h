@@ -99,4 +99,6 @@ using DistanceResultd = DistanceResult<double>;
 
 } // namespace fcl
 
+#include "fcl/narrowphase/distance_result-inl.h"
+
 #endif
