@@ -165,13 +165,10 @@ typename NarrowPhaseSolver::S distance(
     if (request.enable_nearest_points)
     {
       const Vector3<S>& pos = collision_result.getContact(index).pos;
-
-      // Note that the nearest points are expressed in the local coordinates
-      result.nearest_points[0] = tf1.inverse(Eigen::Isometry) * pos;
-      result.nearest_points[1] = tf2.inverse(Eigen::Isometry) * pos;
-
+      result.nearest_points[0] = pos;
+      result.nearest_points[1] = pos;
       // TODO(JS): The nearest points are not guaranteed to be on the surface of
-      // the object anymore, which is expected so when the two objects are not
+      // the objects anymore, which is expected so when the two objects are not
       // in collision.
     }
   }
