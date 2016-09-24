@@ -54,6 +54,27 @@ struct DistanceRequest
   /// @brief whether to return the nearest points
   bool enable_nearest_points;
 
+  /// @brief Whether to compute exact negative distance.
+  ///
+  /// Basically, the distance computation routine computes only the exact
+  /// positive distance when the two objects are not in collision. If the
+  /// objects are in collision, the result distance is implementation defined
+  /// (mostly -1).
+  ///
+  /// If this flag is set to true, FCL will perform additional collision
+  /// checking when the two objects are in collision in order to get the exact
+  /// negative distance, which is the negated penetration depth. If there are
+  /// multiple contact for the two objects, then the maximum penetration depth
+  /// is used.
+  ///
+  /// If this flag is set to false, the result minimum distance is
+  /// implementation defined (mostly -1).
+  ///
+  /// The default is false.
+  ///
+  /// @sa DistanceResult::min_distance
+  bool enable_signed_distance;
+
   /// @brief error threshold for approximate distance
   S rel_err; // relative error, between 0 and 1
   S abs_err; // absoluate error
@@ -61,10 +82,12 @@ struct DistanceRequest
   /// @brief narrow phase solver type
   GJKSolverType gjk_solver_type;
 
-  DistanceRequest(bool enable_nearest_points_ = false,
-                  S rel_err_ = 0.0,
-                  S abs_err_ = 0.0,
-                  GJKSolverType gjk_solver_type_ = GST_LIBCCD);
+  explicit DistanceRequest(
+      bool enable_nearest_points_ = false,
+      bool enable_signed_distance = false,
+      S rel_err_ = 0.0,
+      S abs_err_ = 0.0,
+      GJKSolverType gjk_solver_type_ = GST_LIBCCD);
 
   bool isSatisfied(const DistanceResult<S>& result) const;
 };

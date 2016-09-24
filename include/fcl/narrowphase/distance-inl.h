@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/distance.h"
 
+#include "fcl/narrowphase/collision.h"
+
 namespace fcl
 {
 
@@ -131,6 +133,43 @@ typename NarrowPhaseSolver::S distance(
     else
     {
       res = looktable.distance_matrix[node_type1][node_type2](o1, tf1, o2, tf2, nsolver, request, result);
+    }
+  }
+
+  if(res
+     && result.min_distance < static_cast<S>(0)
+     && request.enable_signed_distance)
+  {
+    CollisionRequest<S> collision_request;
+    collision_request.enable_contact = true;
+
+    CollisionResult<S> collision_result;
+
+    collide(o1, tf1, o2, tf2, nsolver, collision_request, collision_result);
+    assert(collision_result.isCollision());
+
+    std::size_t index = -1;
+    S max_pen_depth = std::numeric_limits<S>::min();
+    for (auto i = 0u; i < collision_result.numContacts(); ++i)
+    {
+      const auto& contact = collision_result.getContact(i);
+      if (max_pen_depth < contact.penetration_depth)
+      {
+        max_pen_depth = contact.penetration_depth;
+        index = i;
+      }
+    }
+    result.min_distance = -max_pen_depth;
+    assert(index != -1);
+
+    if (request.enable_nearest_points)
+    {
+      const Vector3<S>& pos = collision_result.getContact(index).pos;
+      result.nearest_points[0] = pos;
+      result.nearest_points[1] = pos;
+      // TODO(JS): The nearest points are not guaranteed to be on the surface of
+      // the objects anymore, which is expected so when the two objects are not
+      // in collision.
     }
   }
 
