@@ -63,7 +63,7 @@ public:
   /// @sa DistanceRequest::enable_signed_distance
   S min_distance;
 
-  /// @brief Nearest points in the local coordinates
+  /// @brief Nearest points in the world coordinates
   ///
   /// @sa DeistanceRequest::enable_nearest_points
   Vector3<S> nearest_points[2];
