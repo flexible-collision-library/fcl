@@ -16,6 +16,10 @@
 
   * Fixed redundant pair checking of SpatialHashingCollisionManager: [#156](https://github.com/flexible-collision-library/fcl/pull/156)
 
+* Distance
+
+  * Added distance request option for computing exact negative distance: [#172](https://github.com/flexible-collision-library/fcl/pull/172) 
+
 * Build/Test/Misc
 
   * Added CMake targets for generating API documentation: [#174](https://github.com/flexible-collision-library/fcl/pull/174)
