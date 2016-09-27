@@ -79,7 +79,9 @@ else()
 endif()
 
 # Find libccd
-if(PKG_CONFIG_FOUND)
+find_package(ccd QUIET)
+
+if(NOT CCD_FOUND AND PKG_CONFIG_FOUND)
   pkg_check_modules(CCD ccd)
   # check to see if the pkg is installed under the libccd name
   if(NOT CCD_FOUND)
