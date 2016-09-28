@@ -108,10 +108,16 @@ link_directories(${CCD_LIBRARY_DIRS})
 option(FCL_WITH_OCTOMAP "octomap library support" ON)
 set(FCL_HAVE_OCTOMAP 0)
 if(FCL_WITH_OCTOMAP)
-  if(PKG_CONFIG_FOUND)
+  find_package(octomap QUIET)
+  # octomap-config.cmake may not define OCTOMAP_VERSION so fall back to
+  # pkgconfig
+  if(NOT OCTOMAP_VERSION AND PKG_CONFIG_FOUND)
       pkg_check_modules(OCTOMAP QUIET octomap)
   endif()
-  if(NOT OCTOMAP_FOUND)
+  # whether octomap_FOUND and/or OCTOMAP_FOUND are set is inconsistent, but
+  # OCTOMAP_INCLUDE_DIRS and OCTOMAP_LIBRARY_DIRS should always be set when
+  # octomap is found
+  if(NOT OCTOMAP_INCLUDE_DIRS AND NOT OCTOMAP_LIBRARY_DIRS)
       # if pkgconfig is not installed, then fall back on more fragile detection
       # of octomap
       find_path(OCTOMAP_INCLUDE_DIRS octomap.h
@@ -122,11 +128,13 @@ if(FCL_WITH_OCTOMAP)
           set(OCTOMAP_LIBRARIES "octomap;octomath")
       endif()
   endif()
-  if (OCTOMAP_FOUND OR (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS))
-    string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
-    list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
-    list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
-    list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
+  if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS AND OCTOMAP_VERSION)
+    if(NOT OCTOMAP_MAJOR_VERSION AND NOT OCTOMAP_MINOR_VERSION AND NOT OCTOMAP_PATCH_VERSION)
+      string(REPLACE "." ";" VERSION_LIST "${OCTOMAP_VERSION}")
+      list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
+      list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
+      list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
+    endif()
     include_directories(${OCTOMAP_INCLUDE_DIRS})
     link_directories(${OCTOMAP_LIBRARY_DIRS})
     set(FCL_HAVE_OCTOMAP 1)
