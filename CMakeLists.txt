@@ -109,9 +109,14 @@ option(FCL_WITH_OCTOMAP "octomap library support" ON)
 set(FCL_HAVE_OCTOMAP 0)
 if(FCL_WITH_OCTOMAP)
   find_package(octomap QUIET)
-  if(NOT OCTOMAP_INCLUDE_DIRS AND NOT OCTOMAP_LIBRARY_DIRS AND PKG_CONFIG_FOUND)
+  # octomap-config.cmake may not define OCTOMAP_VERSION so fall back to
+  # pkgconfig
+  if(NOT OCTOMAP_VERSION AND PKG_CONFIG_FOUND)
       pkg_check_modules(OCTOMAP QUIET octomap)
   endif()
+  # whether octomap_FOUND and/or OCTOMAP_FOUND are set is inconsistent, but
+  # OCTOMAP_INCLUDE_DIRS and OCTOMAP_LIBRARY_DIRS should always be set when
+  # octomap is found
   if(NOT OCTOMAP_INCLUDE_DIRS AND NOT OCTOMAP_LIBRARY_DIRS)
       # if pkgconfig is not installed, then fall back on more fragile detection
       # of octomap
