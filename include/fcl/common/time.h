@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Author Ioan Sucan */
+/** @author Ioan Sucan */
 
 #ifndef FCL_COMMON_TIME_H
 #define FCL_COMMON_TIME_H
@@ -61,37 +61,6 @@ duration seconds(double sec);
 
 /// @brief Return the number of seconds that a time duration represents
 double seconds(const duration &d);
-
-} // namespace time
-
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-namespace time
-{
-
-//==============================================================================
-inline point now(void)
-{
-  return std::chrono::system_clock::now();
-}
-
-//==============================================================================
-inline duration seconds(double sec)
-{
-  long s  = (long)sec;
-  long us = (long)((sec - s) * 1000000);
-  return std::chrono::seconds(s) + std::chrono::microseconds(us);
-}
-
-//==============================================================================
-inline double seconds(const duration &d)
-{
-  return std::chrono::duration<double>(d).count();
-}
 
 } // namespace time
 } // namespace fcl

@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_MATH_TRIANGLE_H
 #define FCL_MATH_TRIANGLE_H
@@ -64,42 +64,6 @@ public:
 
   std::size_t& operator[](int i);
 };
-
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-inline Triangle::Triangle()
-{
-  // Do nothing
-}
-
-//==============================================================================
-inline Triangle::Triangle(std::size_t p1, std::size_t p2, std::size_t p3)
-{
-  set(p1, p2, p3);
-}
-
-//==============================================================================
-inline void Triangle::set(std::size_t p1, std::size_t p2, std::size_t p3)
-{
-  vids[0] = p1; vids[1] = p2; vids[2] = p3;
-}
-
-//==============================================================================
-inline std::size_t Triangle::operator[](int i) const
-{
-  return vids[i];
-}
-
-//==============================================================================
-inline std::size_t& Triangle::operator[](int i)
-{
-  return vids[i];
-}
 
 } // namespace fcl
 

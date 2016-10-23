@@ -36,9 +36,7 @@
 
 #include <gtest/gtest.h>
 
-#include "fcl/collision.h"
-#include "fcl/intersect.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/fcl.h"
 #include "test_fcl_utility.h"
 
 using namespace fcl;
@@ -53,14 +51,14 @@ void test_collision_triangle_triangle()
 
   Vector3<Scalar> Q1(0, 0, 0);
   Vector3<Scalar> Q2(1, 0, 0);
-  Vector3<Scalar> Q3(0, -1, 0);
+  Vector3<Scalar> Q3(0, 0, 1);
 
   Vector3<Scalar> contact_points[2];
   unsigned int num_contact_points;
   Scalar penetration_depth;
   Vector3<Scalar> normal;
 
-  auto res = Intersect<Scalar>::intersect_Triangle(
+  auto res = detail::Intersect<Scalar>::intersect_Triangle(
         P1, P2, P3, Q1, Q2, Q3,
         contact_points, &num_contact_points, &penetration_depth, &normal);
 

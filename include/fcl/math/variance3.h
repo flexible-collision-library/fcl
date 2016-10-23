@@ -33,15 +33,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #ifndef FCL_MATH_VARIANCE3_H
 #define FCL_MATH_VARIANCE3_H
 
 #include <cmath>
 
-#include "fcl/config.h"
-#include "fcl/data_types.h"
+#include "fcl/common/types.h"
 #include "fcl/math/geometry.h"
 
 namespace fcl
@@ -77,55 +76,8 @@ public:
 using Variance3f = Variance3<float>;
 using Variance3d = Variance3<double>;
 
-//============================================================================//
-//                                                                            //
-//                              Implementations                               //
-//                                                                            //
-//============================================================================//
-
-//==============================================================================
-template <typename S>
-Variance3<S>::Variance3()
-{
-  // Do nothing
-}
-
-//==============================================================================
-template <typename S>
-Variance3<S>::Variance3(const Matrix3<S>& sigma) : Sigma(sigma)
-{
-  init();
-}
-
-//==============================================================================
-template <typename S>
-void Variance3<S>::init()
-{
-  eigen_old(Sigma, sigma, axis);
-}
-
-//==============================================================================
-template <typename S>
-Variance3<S>& Variance3<S>::sqrt()
-{
-  for(std::size_t i = 0; i < 3; ++i)
-  {
-    if(sigma[i] < 0)
-      sigma[i] = 0;
-
-    sigma[i] = std::sqrt(sigma[i]);
-  }
-
-  Sigma.noalias()
-      =  sigma[0] * axis.col(0) * axis.col(0).transpose();
-  Sigma.noalias()
-      += sigma[1] * axis.col(1) * axis.col(1).transpose();
-  Sigma.noalias()
-      += sigma[2] * axis.col(2) * axis.col(2).transpose();
-
-  return *this;
-}
-
 } // namespace fcl
+
+#include "fcl/math/variance3-inl.h"
 
 #endif

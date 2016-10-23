@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Author: Mark Moll */
+/* @author: Mark Moll */
 
 #ifndef FCL_TEST_RESOURCES_CONFIG_
 #define FCL_TEST_RESOURCES_CONFIG_

@@ -33,17 +33,17 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <array>
 
 #include <gtest/gtest.h>
 
-#include "fcl/narrowphase/gjk_solver_indep.h"
-#include "fcl/narrowphase/gjk_solver_libccd.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
-#include "fcl/distance.h"
-#include "fcl/collision.h"
+#include "fcl/narrowphase/detail/gjk_solver_indep.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model.h"
+#include "fcl/narrowphase/distance.h"
+#include "fcl/narrowphase/collision.h"
 #include "test_fcl_utility.h"
 
 using namespace fcl;
@@ -89,7 +89,7 @@ void test_consistency_distance_spheresphere_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -127,7 +127,7 @@ void test_consistency_distance_spheresphere_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -187,7 +187,7 @@ void test_consistency_distance_ellipsoidellipsoid_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -224,7 +224,7 @@ void test_consistency_distance_ellipsoidellipsoid_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -285,7 +285,7 @@ void test_consistency_distance_boxbox_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -322,7 +322,7 @@ void test_consistency_distance_boxbox_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -383,7 +383,7 @@ void test_consistency_distance_cylindercylinder_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -420,7 +420,7 @@ void test_consistency_distance_cylindercylinder_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -480,7 +480,7 @@ void test_consistency_distance_conecone_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -517,7 +517,7 @@ void test_consistency_distance_conecone_libccd()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -579,7 +579,7 @@ void test_consistency_distance_spheresphere_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -617,7 +617,7 @@ void test_consistency_distance_spheresphere_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -679,7 +679,7 @@ void test_consistency_distance_ellipsoidellipsoid_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -717,7 +717,7 @@ void test_consistency_distance_ellipsoidellipsoid_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -779,7 +779,7 @@ void test_consistency_distance_boxbox_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -816,7 +816,7 @@ void test_consistency_distance_boxbox_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -878,7 +878,7 @@ void test_consistency_distance_cylindercylinder_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -924,7 +924,7 @@ void test_consistency_distance_cylindercylinder_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -986,7 +986,7 @@ void test_consistency_distance_conecone_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;
@@ -1023,7 +1023,7 @@ void test_consistency_distance_conecone_GJK()
   for(std::size_t i = 0; i < 10; ++i)
   {
     Transform3<S> t;
-    generateRandomTransform(extents<S>(), t);
+    test::generateRandomTransform(extents<S>(), t);
 
     Transform3<S> pose1(t);
     Transform3<S> pose2 = t * pose;

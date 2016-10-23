@@ -1,4 +1,15 @@
-cmake_minimum_required(VERSION 2.8.12)
+if(APPLE)
+  cmake_minimum_required(VERSION 3.0.00)
+else()
+  cmake_minimum_required(VERSION 2.8.12)
+endif()
+
+# Set the CMAKE_CXX_COMPILER_ID variable to AppleClang instead of Clang.
+# AppleClang and Clang have different version number. This was introduced in
+# CMake 3.0.
+if(POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW)
+endif()
 
 # Use MACOSX_RPATH by default on OS X. This was added in CMake 2.8.12 and
 # became default in CMake 3.0. Explicitly setting this policy is necessary to
@@ -25,6 +36,7 @@ endif (MSVC OR MSVC90 OR MSVC10)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+include(FCLMacros)
 include(CompilerSettings)
 include(FCLVersion)
 include(GNUInstallDirs)
@@ -36,14 +48,14 @@ else()
 endif()
 
 # Whether to enable SSE
-option(FCL_USE_SSE "Whether FCL should SSE instructions" OFF)
-set(FCL_HAVE_SSE 0)
+option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
 if(FCL_USE_SSE)
+  set(FCL_HAVE_SSE TRUE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(FCL_HAVE_SSE 0) #always disable, for now
     add_definitions(-march=native)
+  elseif(MSVC)
+    add_definitions(/arch:SSE2)
   endif()
-  # TODO: do something similar for other compilers
 endif()
 
 # Coveralls support
@@ -67,7 +79,9 @@ else()
 endif()
 
 # Find libccd
-if(PKG_CONFIG_FOUND)
+find_package(ccd QUIET)
+
+if(NOT CCD_FOUND AND PKG_CONFIG_FOUND)
   pkg_check_modules(CCD ccd)
   # check to see if the pkg is installed under the libccd name
   if(NOT CCD_FOUND)
@@ -94,10 +108,16 @@ link_directories(${CCD_LIBRARY_DIRS})
 option(FCL_WITH_OCTOMAP "octomap library support" ON)
 set(FCL_HAVE_OCTOMAP 0)
 if(FCL_WITH_OCTOMAP)
-  if(PKG_CONFIG_FOUND)
+  find_package(octomap QUIET)
+  # octomap-config.cmake may not define OCTOMAP_VERSION so fall back to
+  # pkgconfig
+  if(NOT OCTOMAP_VERSION AND PKG_CONFIG_FOUND)
       pkg_check_modules(OCTOMAP QUIET octomap)
   endif()
-  if(NOT OCTOMAP_FOUND)
+  # whether octomap_FOUND and/or OCTOMAP_FOUND are set is inconsistent, but
+  # OCTOMAP_INCLUDE_DIRS and OCTOMAP_LIBRARY_DIRS should always be set when
+  # octomap is found
+  if(NOT OCTOMAP_INCLUDE_DIRS AND NOT OCTOMAP_LIBRARY_DIRS)
       # if pkgconfig is not installed, then fall back on more fragile detection
       # of octomap
       find_path(OCTOMAP_INCLUDE_DIRS octomap.h
@@ -108,11 +128,13 @@ if(FCL_WITH_OCTOMAP)
           set(OCTOMAP_LIBRARIES "octomap;octomath")
       endif()
   endif()
-  if (OCTOMAP_FOUND OR (OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS))
-    string(REPLACE "." ";" VERSION_LIST ${OCTOMAP_VERSION})
-    list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
-    list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
-    list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
+  if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS AND OCTOMAP_VERSION)
+    if(NOT OCTOMAP_MAJOR_VERSION AND NOT OCTOMAP_MINOR_VERSION AND NOT OCTOMAP_PATCH_VERSION)
+      string(REPLACE "." ";" VERSION_LIST "${OCTOMAP_VERSION}")
+      list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
+      list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
+      list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
+    endif()
     include_directories(${OCTOMAP_INCLUDE_DIRS})
     link_directories(${OCTOMAP_LIBRARY_DIRS})
     set(FCL_HAVE_OCTOMAP 1)
@@ -169,4 +191,43 @@ option(FCL_BUILD_TESTS "Build FCL tests" ON)
 if(FCL_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
+endif()
+
+#===============================================================================
+# API documentation using Doxygen
+# References:
+#   http://mementocodex.wordpress.com/2013/01/19/how-to-generate-code-documentation-with-doxygen-and-cmake-a-slightly-improved-approach/
+#   http://www.cmake.org/pipermail/cmake/2007-February/012796.html
+#===============================================================================
+# Doxygen
+find_package(Doxygen QUIET)
+
+if(DOXYGEN_FOUND)
+
+  set(DOXYGEN_DOXYFILE_IN      ${PROJECT_SOURCE_DIR}/doc/Doxyfile.in     )
+  set(DOXYGEN_DOXYFILE         ${PROJECT_BINARY_DIR}/doc/Doxyfile        )
+  set(DOXYGEN_HTML_INDEX       ${PROJECT_SOURCE_DIR}/doc/doxygen/index.html )
+  set(DOXYGEN_OUTPUT_ROOT      ${PROJECT_SOURCE_DIR}/doc/doxygen            )
+  set(DOXYGEN_GENERATE_TAGFILE ${DOXYGEN_OUTPUT_ROOT}/${PROJECT_NAME}.tag)
+  set(DOXYGEN_INCLUDE_PATH     ${PROJECT_SOURCE_DIR}                     )
+  set(DOXYGEN_INPUT_ROOT       "${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/src")
+
+  configure_file(${DOXYGEN_DOXYFILE_IN} ${DOXYGEN_DOXYFILE} @ONLY)
+  add_custom_command(OUTPUT ${DOXYGEN_HTML_INDEX}
+                     COMMAND ${CMAKE_COMMAND} -E echo_append "Building API Documentation..."
+                     COMMAND ${DOXYGEN_EXECUTABLE} -u ${DOXYGEN_DOXYFILE}
+                     COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_DOXYFILE}
+                     COMMAND ${CMAKE_COMMAND} -E echo "Done."
+                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/doc
+                     DEPENDS ${DOXYGEN_DOXYFILE}
+  )
+  add_custom_target(docs DEPENDS ${DOXYGEN_HTML_INDEX})
+  add_custom_target(docs_forced
+                    COMMAND ${CMAKE_COMMAND} -E echo_append "Building API Documentation..."
+                    COMMAND ${DOXYGEN_EXECUTABLE} -u ${DOXYGEN_DOXYFILE}
+                    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_DOXYFILE}
+                    COMMAND ${CMAKE_COMMAND} -E echo "Done."
+                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/doc
+  )
+
 endif()

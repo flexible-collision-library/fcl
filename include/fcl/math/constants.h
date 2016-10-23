@@ -32,12 +32,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Mark Moll */
+/** @author Mark Moll */
 
 #ifndef FCL_MATH_CONSTANTS_
 #define FCL_MATH_CONSTANTS_
 
-#include "fcl/data_types.h"
+#include "fcl/common/types.h"
 
 namespace fcl
 {

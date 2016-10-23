@@ -2,7 +2,7 @@
 # Google Test settings
 #===============================================================================
 
-include_directories (
+include_directories (BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/gtest/include
   ${CMAKE_CURRENT_SOURCE_DIR}/gtest
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -53,6 +53,7 @@ set(tests
     test_fcl_math.cpp
     test_fcl_profiler.cpp
     test_fcl_shape_mesh_consistency.cpp
+    test_fcl_signed_distance.cpp
     test_fcl_simple.cpp
     test_fcl_sphere_capsule.cpp
 )

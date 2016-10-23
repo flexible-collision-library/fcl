@@ -33,16 +33,21 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <gtest/gtest.h>
 
 #include "fcl/config.h"
-#include "fcl/octree.h"
-#include "fcl/traversal/traversal_nodes.h"
-#include "fcl/collision.h"
-#include "fcl/broadphase/broadphase.h"
-#include "fcl/shape/geometric_shape_to_BVH_model.h"
+#include "fcl/geometry/octree/octree.h"
+#include "fcl/narrowphase/collision.h"
+#include "fcl/broadphase/broadphase_bruteforce.h"
+#include "fcl/broadphase/broadphase_spatialhash.h"
+#include "fcl/broadphase/broadphase_SaP.h"
+#include "fcl/broadphase/broadphase_SSaP.h"
+#include "fcl/broadphase/broadphase_interval_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree.h"
+#include "fcl/broadphase/broadphase_dynamic_AABB_tree_array.h"
+#include "fcl/geometry/geometric_shape_to_BVH_model.h"
 #include "test_fcl_utility.h"
 #include "fcl_resources/config.h"
 
@@ -93,51 +98,51 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
 {
   std::vector<CollisionObject<S>*> env;
   if(use_mesh)
-    generateEnvironmentsMesh(env, env_scale, env_size);
+    test::generateEnvironmentsMesh(env, env_scale, env_size);
   else
-    generateEnvironments(env, env_scale, env_size);
+    test::generateEnvironments(env, env_scale, env_size);
 
-  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(generateOcTree(resolution)));
+  OcTree<S>* tree = new OcTree<S>(std::shared_ptr<const octomap::OcTree>(test::generateOcTree(resolution)));
   CollisionObject<S> tree_obj((std::shared_ptr<CollisionGeometry<S>>(tree)));
 
   DynamicAABBTreeCollisionManager<S>* manager = new DynamicAABBTreeCollisionManager<S>();
   manager->registerObjects(env);
   manager->setup();
 
-  CollisionData<S> cdata;
+  test::CollisionData<S> cdata;
   cdata.request.enable_cost = true;
   cdata.request.num_max_cost_sources = num_max_cost_sources;
 
-  TStruct t1;
-  Timer timer1;
+  test::TStruct t1;
+  test::Timer timer1;
   timer1.start();
   manager->octree_as_geometry_collide = false;
   manager->octree_as_geometry_distance = false;
-  manager->collide(&tree_obj, &cdata, defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata, test::defaultCollisionFunction);
   timer1.stop();
   t1.push_back(timer1.getElapsedTime());
 
-  CollisionData<S> cdata3;
+  test::CollisionData<S> cdata3;
   cdata3.request.enable_cost = true;
   cdata3.request.num_max_cost_sources = num_max_cost_sources;
 
-  TStruct t3;
-  Timer timer3;
+  test::TStruct t3;
+  test::Timer timer3;
   timer3.start();
   manager->octree_as_geometry_collide = true;
   manager->octree_as_geometry_distance = true;
-  manager->collide(&tree_obj, &cdata3, defaultCollisionFunction);
+  manager->collide(&tree_obj, &cdata3, test::defaultCollisionFunction);
   timer3.stop();
   t3.push_back(timer3.getElapsedTime());
 
-  TStruct t2;
-  Timer timer2;
+  test::TStruct t2;
+  test::Timer timer2;
   timer2.start();
   std::vector<CollisionObject<S>*> boxes;
   if(use_mesh_octomap)
-    generateBoxesFromOctomapMesh(boxes, *tree);
+    test::generateBoxesFromOctomapMesh(boxes, *tree);
   else
-    generateBoxesFromOctomap(boxes, *tree);
+    test::generateBoxesFromOctomap(boxes, *tree);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
@@ -148,13 +153,12 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
-
-  CollisionData<S> cdata2;
+  test::CollisionData<S> cdata2;
   cdata2.request.enable_cost = true;
   cdata3.request.num_max_cost_sources = num_max_cost_sources;
 
   timer2.start();
-  manager->collide(manager2, &cdata2, defaultCollisionFunction);
+  manager->collide(manager2, &cdata2, test::defaultCollisionFunction);
   timer2.stop();
   t2.push_back(timer2.getElapsedTime());
 
@@ -205,57 +209,6 @@ void octomap_cost_test(S env_scale, std::size_t env_size, std::size_t num_max_co
   std::cout << "  b) structure init: " << t2.records[1] << std::endl;
   std::cout << "  c) collision: " << t2.records[2] << std::endl;
   std::cout << "Note: octomap may need more collides when using mesh, because octomap collision uses box primitive inside" << std::endl;
-}
-
-template <typename S>
-void generateBoxesFromOctomap(std::vector<CollisionObject<S>*>& boxes, OcTree<S>& tree)
-{
-  std::vector<std::array<S, 6> > boxes_ = tree.toBoxes();
-
-  for(std::size_t i = 0; i < boxes_.size(); ++i)
-  {
-    S x = boxes_[i][0];
-    S y = boxes_[i][1];
-    S z = boxes_[i][2];
-    S size = boxes_[i][3];
-    S cost = boxes_[i][4];
-    S threshold = boxes_[i][5];
-
-    Box<S>* box = new Box<S>(size, size, size);
-    box->cost_density = cost;
-    box->threshold_occupied = threshold;
-    CollisionObject<S>* obj = new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(box), Transform3<S>(Translation3<S>(Vector3<S>(x, y, z))));
-    boxes.push_back(obj);
-  }
-
-  std::cout << "boxes size: " << boxes.size() << std::endl;
-
-}
-
-template <typename S>
-void generateBoxesFromOctomapMesh(std::vector<CollisionObject<S>*>& boxes, OcTree<S>& tree)
-{
-  std::vector<std::array<S, 6> > boxes_ = tree.toBoxes();
-
-  for(std::size_t i = 0; i < boxes_.size(); ++i)
-  {
-    S x = boxes_[i][0];
-    S y = boxes_[i][1];
-    S z = boxes_[i][2];
-    S size = boxes_[i][3];
-    S cost = boxes_[i][4];
-    S threshold = boxes_[i][5];
-
-    Box<S> box(size, size, size);
-    BVHModel<OBBRSS<S>>* model = new BVHModel<OBBRSS<S>>();
-    generateBVHModel(*model, box, Transform3<S>::Identity());
-    model->cost_density = cost;
-    model->threshold_occupied = threshold;
-    CollisionObject<S>* obj = new CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>(model), Transform3<S>(Translation3<S>(Vector3<S>(x, y, z))));
-    boxes.push_back(obj);
-  }
-
-  std::cout << "boxes size: " << boxes.size() << std::endl;
 }
 
 //==============================================================================

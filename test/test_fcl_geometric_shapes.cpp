@@ -33,19 +33,24 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-/** \author Jia Pan */
+/** @author Jia Pan */
 
 #include <array>
+#include <iostream>
+#include <limits>
 
 #include <gtest/gtest.h>
 
-#include "fcl/narrowphase/gjk_solver_indep.h"
-#include "fcl/narrowphase/gjk_solver_libccd.h"
-#include "fcl/collision.h"
+#include "fcl/math/motion/translation_motion.h"
+#include "fcl/geometry/shape/cone.h"
+#include "fcl/geometry/shape/capsule.h"
+#include "fcl/geometry/shape/ellipsoid.h"
+#include "fcl/geometry/shape/halfspace.h"
+#include "fcl/geometry/shape/plane.h"
+#include "fcl/narrowphase/detail/gjk_solver_indep.h"
+#include "fcl/narrowphase/detail/gjk_solver_libccd.h"
+#include "fcl/narrowphase/collision.h"
 #include "test_fcl_utility.h"
-#include "fcl/ccd/motion.h"
-#include <iostream>
-#include <limits>
 
 using namespace fcl;
 
@@ -57,16 +62,16 @@ std::array<S, 6>& extents()
 }
 
 template <typename S>
-GJKSolver_libccd<S>& solver1()
+detail::GJKSolver_libccd<S>& solver1()
 {
-  static GJKSolver_libccd<S> static_solver1;
+  static detail::GJKSolver_libccd<S> static_solver1;
   return static_solver1;
 }
 
 template <typename S>
-GJKSolver_indep<S>& solver2()
+detail::GJKSolver_indep<S>& solver2()
 {
-  static GJKSolver_indep<S> static_solver2;
+  static detail::GJKSolver_indep<S> static_solver2;
   return static_solver2;
 }
 
@@ -113,7 +118,7 @@ void test_gjkcache()
   S dt = 1.0 / (N - 1);
 
   /// test exploiting spatial coherence
-  Timer timer1;
+  test::Timer timer1;
   timer1.start();
   std::vector<bool> result1(N);
   for(int i = 0; i < N; ++i)
@@ -132,7 +137,7 @@ void test_gjkcache()
   timer1.stop();
 
   /// test without exploiting spatial coherence
-  Timer timer2;
+  test::Timer timer2;
   timer2.start();
   std::vector<bool> result2(N);
   request.enable_cached_gjk_guess = false;
@@ -176,9 +181,9 @@ void printComparisonError(const std::string& comparison_type,
 {
   std::cout << "Disagreement between " << comparison_type
             << " and expected_" << comparison_type << " for "
-            << getNodeTypeName(s1.getNodeType()) << " and "
-            << getNodeTypeName(s2.getNodeType()) << " with '"
-            << getGJKSolverName(solver_type) << "' solver." << std::endl
+            << test::getNodeTypeName(s1.getNodeType()) << " and "
+            << test::getNodeTypeName(s2.getNodeType()) << " with '"
+            << test::getGJKSolverName(solver_type) << "' solver." << std::endl
             << "tf1.linear: \n" << tf1.linear() << std::endl
             << "tf1.translation: " << tf1.translation().transpose() << std::endl
             << "tf2.linear: \n" << tf2.linear() << std::endl
@@ -205,9 +210,9 @@ void printComparisonError(const std::string& comparison_type,
 {
   std::cout << "Disagreement between " << comparison_type
             << " and expected_" << comparison_type << " for "
-            << getNodeTypeName(s1.getNodeType()) << " and "
-            << getNodeTypeName(s2.getNodeType()) << " with '"
-            << getGJKSolverName(solver_type) << "' solver." << std::endl
+            << test::getNodeTypeName(s1.getNodeType()) << " and "
+            << test::getNodeTypeName(s2.getNodeType()) << " with '"
+            << test::getGJKSolverName(solver_type) << "' solver." << std::endl
             << "tf1.linear: \n" << tf1.linear() << std::endl
             << "tf1.translation: " << tf1.translation().transpose() << std::endl
             << "tf2.linear: \n" << tf2.linear() << std::endl
@@ -279,15 +284,15 @@ bool inspectContactPointds(const Shape1& s1, const Transform3<typename Shape1::S
     std::cout << "\n"
               << "===== [ geometric shape collision test failure report ] ======\n"
               << "\n"
-              << "Solver type: " << getGJKSolverName(solver_type) << "\n"
+              << "Solver type: " << test::getGJKSolverName(solver_type) << "\n"
               << "\n"
               << "[ Shape 1 ]\n"
-              << "Shape type     : " << getNodeTypeName(s1.getNodeType()) << "\n"
+              << "Shape type     : " << test::getNodeTypeName(s1.getNodeType()) << "\n"
               << "tf1.linear     : \n" << tf1.linear() << "\n"
               << "tf1.translation: " << tf1.translation().transpose() << "\n"
               << "\n"
               << "[ Shape 2 ]\n"
-              << "Shape type     : " << getNodeTypeName(s2.getNodeType()) << "\n"
+              << "Shape type     : " << test::getNodeTypeName(s2.getNodeType()) << "\n"
               << "tf2.linear     : \n" << tf2.linear() << "\n"
               << "tf2.translation: " << tf2.translation().transpose() << "\n"
               << "\n"
@@ -344,15 +349,15 @@ bool inspectContactPointds(const Shape1& s1, const Transform3<typename Shape1::S
     std::cout << "\n"
               << "===== [ geometric shape collision test failure report ] ======\n"
               << "\n"
-              << "Solver type: " << getGJKSolverName(solver_type) << "\n"
+              << "Solver type: " << test::getGJKSolverName(solver_type) << "\n"
               << "\n"
               << "[ Shape 1 ]\n"
-              << "Shape type     : " << getNodeTypeName(s1.getNodeType()) << "\n"
+              << "Shape type     : " << test::getNodeTypeName(s1.getNodeType()) << "\n"
               << "tf1.linear     : \n" << tf1.linear() << "\n"
               << "tf1.translation: " << tf1.translation().transpose() << "\n"
               << "\n"
               << "[ Shape 2 ]\n"
-              << "Shape type     : " << getNodeTypeName(s2.getNodeType()) << "\n"
+              << "Shape type     : " << test::getNodeTypeName(s2.getNodeType()) << "\n"
               << "tf2.linear     : \n" << tf2.linear() << "\n"
               << "tf2.translation: " << tf2.translation().transpose() << "\n"
               << "\n"
@@ -534,7 +539,7 @@ void test_shapeIntersection_spheresphere()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -710,7 +715,7 @@ void test_shapeIntersection_boxbox()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -767,11 +772,11 @@ void test_shapeIntersection_boxbox()
   contacts[3].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
-  FCL_UINT32 numTests = 1e+2;
-  for (FCL_UINT32 i = 0; i < numTests; ++i)
+  uint32 numTests = 1e+2;
+  for (uint32 i = 0; i < numTests; ++i)
   {
     Transform3<S> tf;
-    generateRandomTransform(extents<S>(), tf);
+    test::generateRandomTransform(extents<S>(), tf);
     testBoxBoxContactPointds(tf.linear());
   }
 }
@@ -792,7 +797,7 @@ void test_shapeIntersection_spherebox()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -846,7 +851,7 @@ void test_shapeIntersection_spherecapsule()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -912,7 +917,7 @@ void test_shapeIntersection_cylindercylinder()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -965,7 +970,7 @@ void test_shapeIntersection_conecone()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -1030,7 +1035,7 @@ void test_shapeIntersection_cylindercone()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -1103,7 +1108,7 @@ void test_shapeIntersection_ellipsoidellipsoid()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
   Transform3<S> identity;
 
   std::vector<ContactPoint<S>> contacts;
@@ -1179,7 +1184,7 @@ void test_shapeIntersection_spheretriangle()
   t[2] << 0, 20, 0;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   Vector3<S> normal;
   bool res;
@@ -1225,7 +1230,7 @@ void test_shapeIntersection_halfspacetriangle()
   t[2] << 0, 20, 0;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   // Vector3<S> point;
   // S depth;
@@ -1273,7 +1278,7 @@ void test_shapeIntersection_planetriangle()
   t[2] << 0, 20, 0;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   // Vector3<S> point;
   // S depth;
@@ -1321,7 +1326,7 @@ void test_shapeIntersection_halfspacesphere()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -1414,7 +1419,7 @@ void test_shapeIntersection_planesphere()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -1499,7 +1504,7 @@ void test_shapeIntersection_halfspacebox()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -1597,7 +1602,7 @@ void test_shapeIntersection_planebox()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -1687,7 +1692,7 @@ void test_shapeIntersection_halfspaceellipsoid()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -1934,7 +1939,7 @@ void test_shapeIntersection_planeellipsoid()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -2157,7 +2162,7 @@ void test_shapeIntersection_halfspacecapsule()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -2404,7 +2409,7 @@ void test_shapeIntersection_planecapsule()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -2627,7 +2632,7 @@ void test_shapeIntersection_halfspacecylinder()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -2874,7 +2879,7 @@ void test_shapeIntersection_planecylinder()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -3097,7 +3102,7 @@ void test_shapeIntersection_halfspacecone()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -3344,7 +3349,7 @@ void test_shapeIntersection_planecone()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -3588,7 +3593,7 @@ void test_shapeDistance_spheresphere()
   Sphere<S> s2(10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  //generateRandomTransform(extents<S>(), transform);
+  //test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist = -1;
@@ -3658,7 +3663,7 @@ void test_shapeDistance_boxbox()
   Vector3<S> closest_p1, closest_p2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  //generateRandomTransform(extents<S>(), transform);
+  //test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -3730,7 +3735,7 @@ void test_shapeDistance_boxsphere()
   Box<S> s2(5, 5, 5);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -3773,7 +3778,7 @@ void test_shapeDistance_cylindercylinder()
   Cylinder<S> s2(5, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -3816,7 +3821,7 @@ void test_shapeDistance_conecone()
   Cone<S> s2(5, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -3859,7 +3864,7 @@ void test_shapeDistance_conecylinder()
   Cone<S> s2(5, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -3902,7 +3907,7 @@ void test_shapeDistance_ellipsoidellipsoid()
   Ellipsoid<S> s2(10, 10, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist = -1;
@@ -3998,7 +4003,7 @@ void test_shapeIntersectionGJK_spheresphere()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -4107,7 +4112,7 @@ void test_shapeIntersectionGJK_boxbox()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -4181,7 +4186,7 @@ void test_shapeIntersectionGJK_spherebox()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -4237,7 +4242,7 @@ void test_shapeIntersectionGJK_spherecapsule()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -4292,7 +4297,7 @@ void test_shapeIntersectionGJK_cylindercylinder()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -4348,7 +4353,7 @@ void test_shapeIntersectionGJK_conecone()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
 
@@ -4415,7 +4420,7 @@ void test_shapeIntersectionGJK_cylindercone()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   std::vector<ContactPoint<S>> contacts;
   tf1 = Transform3<S>::Identity();
@@ -4490,7 +4495,7 @@ void test_shapeIntersectionGJK_ellipsoidellipsoid()
   Transform3<S> tf2;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
   Transform3<S> identity;
 
   std::vector<ContactPoint<S>> contacts;
@@ -4568,7 +4573,7 @@ void test_shapeIntersectionGJK_spheretriangle()
   t[2] << 0, 20, 0;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   // Vector3<S> point;
   // S depth;
@@ -4615,7 +4620,7 @@ void test_shapeIntersectionGJK_halfspacetriangle()
   t[2] << 0, 20, 0;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   // Vector3<S> point;
   // S depth;
@@ -4663,7 +4668,7 @@ void test_shapeIntersectionGJK_planetriangle()
   t[2] << 0, 20, 0;
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   // Vector3<S> point;
   // S depth;
@@ -4732,7 +4737,7 @@ void test_shapeDistanceGJK_spheresphere()
   Sphere<S> s2(10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist = -1;
@@ -4800,7 +4805,7 @@ void test_shapeDistanceGJK_boxbox()
   Box<S> s2(10, 10, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -4843,7 +4848,7 @@ void test_shapeDistanceGJK_boxsphere()
   Box<S> s2(5, 5, 5);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -4886,7 +4891,7 @@ void test_shapeDistanceGJK_cylindercylinder()
   Cylinder<S> s2(5, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -4929,7 +4934,7 @@ void test_shapeDistanceGJK_conecone()
   Cone<S> s2(5, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist;
@@ -4972,7 +4977,7 @@ void test_shapeDistanceGJK_ellipsoidellipsoid()
   Ellipsoid<S> s2(10, 10, 10);
 
   Transform3<S> transform = Transform3<S>::Identity();
-  generateRandomTransform(extents<S>(), transform);
+  test::generateRandomTransform(extents<S>(), transform);
 
   bool res;
   S dist = -1;

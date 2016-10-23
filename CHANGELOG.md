@@ -2,10 +2,29 @@
 
 ### FCL 0.6.0 (2016-XX-XX)
 
-* Switched to Eigen for math operations: [#150](https://github.com/flexible-collision-library/fcl/pull/150), [#96](https://github.com/flexible-collision-library/fcl/issues/96)
-* Added missing copyright headers:  [#149](https://github.com/flexible-collision-library/fcl/pull/149)
-* Fixed redundant pair checking of SpatialHashingCollisionManager: [#156](https://github.com/flexible-collision-library/fcl/pull/156)
-* Removed dependency on boost: [#148](https://github.com/flexible-collision-library/fcl/pull/148), [#147](https://github.com/flexible-collision-library/fcl/pull/147), [#146](https://github.com/flexible-collision-library/fcl/pull/146), [#140](https://github.com/flexible-collision-library/fcl/pull/140)
+* Core/Common
+
+  * Reorganized source tree: [#161](https://github.com/flexible-collision-library/fcl/issues/161), [#163](https://github.com/flexible-collision-library/fcl/pull/163)
+  * Templatized FCL for scalar type: [#154](https://github.com/flexible-collision-library/fcl/pull/154), [#165](https://github.com/flexible-collision-library/fcl/pull/165)
+  * Removed dependency on boost: [#140](https://github.com/flexible-collision-library/fcl/pull/140), [#146](https://github.com/flexible-collision-library/fcl/pull/146), [#147](https://github.com/flexible-collision-library/fcl/pull/147), [#148](https://github.com/flexible-collision-library/fcl/pull/148)
+
+* Math
+
+  * Switched to Eigen for math operations: [#96](https://github.com/flexible-collision-library/fcl/issues/96), [#150](https://github.com/flexible-collision-library/fcl/pull/150)
+
+* Broadphase
+
+  * Fixed redundant pair checking of SpatialHashingCollisionManager: [#156](https://github.com/flexible-collision-library/fcl/pull/156)
+
+* Distance
+
+  * Added distance request option for computing exact negative distance: [#172](https://github.com/flexible-collision-library/fcl/pull/172) 
+
+* Build/Test/Misc
+
+  * Added CMake targets for generating API documentation: [#174](https://github.com/flexible-collision-library/fcl/pull/174)
+  * Enabled build with SSE option by default: [#159](https://github.com/flexible-collision-library/fcl/pull/159)
+  * Added missing copyright headers:  [#149](https://github.com/flexible-collision-library/fcl/pull/149)
 
 ### FCL 0.5.0 (2016-07-19)
 
