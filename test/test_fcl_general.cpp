@@ -35,56 +35,73 @@
 
 /** \author Jia Pan */
 
-#include <fcl/shape/geometric_shapes.h>
-#include <fcl/shape/geometric_shapes_utility.h>
-#include <fcl/narrowphase/narrowphase.h>
 #include <iostream>
-#include <fcl/collision.h>
+
+#include "fcl/fcl.h"
+
+#include "gtest/gtest.h"
 
 using namespace std;
 using namespace fcl;
 
-int main(int argc, char** argv) 
+//==============================================================================
+template <typename S>
+void test_general()
 {
-  std::shared_ptr<Box> box0(new Box(1,1,1));
-  std::shared_ptr<Box> box1(new Box(1,1,1));
-//  GJKSolver_indep solver;
-  GJKSolver_libccd solver;
-  Vec3f contact_points;
-  FCL_REAL penetration_depth;
-  Vec3f normal;
+  std::shared_ptr<Box<S>> box0(new Box<S>(1,1,1));
+  std::shared_ptr<Box<S>> box1(new Box<S>(1,1,1));
 
-  Transform3f tf0, tf1;
+//  GJKSolver_indep solver;
+  detail::GJKSolver_libccd<S> solver;
+  std::vector<ContactPoint<S>> contact_points;
+
+  Transform3<S> tf0, tf1;
   tf0.setIdentity();
-  tf0.setTranslation(Vec3f(.9,0,0));
-  tf0.setQuatRotation(Quaternion3f(.6, .8, 0, 0));
+  tf0.translation() = Vector3<S>(.9,0,0);
+  tf0.linear() = Quaternion<S>(.6, .8, 0, 0).toRotationMatrix();
   tf1.setIdentity();
 
+  bool res = solver.shapeIntersect(*box0, tf0, *box1, tf1, &contact_points);
 
+  EXPECT_TRUE(true);
 
-  bool res = solver.shapeIntersect(*box0, tf0, *box1, tf1, &contact_points, &penetration_depth, &normal);
-
-  cout << "contact points: " << contact_points << endl;
-  cout << "pen depth: " << penetration_depth << endl;
-  cout << "normal: " << normal << endl;
+  for (const auto& contact_point : contact_points)
+  {
+    cout << "contact points: " << contact_point.pos.transpose() << endl;
+    cout << "pen depth: " << contact_point.penetration_depth << endl;
+    cout << "normal: " << contact_point.normal << endl;
+  }
   cout << "result: " << res << endl;
-  
+
   static const int num_max_contacts = std::numeric_limits<int>::max();
   static const bool enable_contact = true;
-  fcl::CollisionResult result;
-  fcl::CollisionRequest request(num_max_contacts,
+  fcl::CollisionResult<S> result;
+  fcl::CollisionRequest<S> request(num_max_contacts,
                                 enable_contact);
 
-
-  CollisionObject co0(box0, tf0);
-  CollisionObject co1(box1, tf1);
+  CollisionObject<S> co0(box0, tf0);
+  CollisionObject<S> co1(box1, tf1);
 
   fcl::collide(&co0, &co1, request, result);
-  vector<Contact> contacts;
+  vector<Contact<S>> contacts;
   result.getContacts(contacts);
 
   cout << contacts.size() << " contacts found" << endl;
-  for(const Contact &contact : contacts) {
+  for(const Contact<S> &contact : contacts) {
     cout << "position: " << contact.pos << endl;
   }
+}
+
+//==============================================================================
+GTEST_TEST(FCL_GENERAL, general)
+{
+  test_general<float>();
+  test_general<double>();
+}
+
+//==============================================================================
+int main(int argc, char* argv[])
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
