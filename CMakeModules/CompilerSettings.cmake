@@ -3,15 +3,15 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-std=c++11 -W -Wall -g -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-unused-parameter)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
-    endif(FCL_TREAT_WARNINGS_AS_ERRORS)
-endif(CMAKE_COMPILER_IS_GNUCXX)
+    endif()
+endif()
 
 # Clang
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_definitions(-std=c++11 -W -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-delete-non-virtual-dtor -Wno-overloaded-virtual -Wno-unknown-pragmas -Wno-deprecated-register)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
-    endif(FCL_TREAT_WARNINGS_AS_ERRORS)
+    endif()
 endif()
 
 # AppleClang
@@ -23,7 +23,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     add_definitions(-std=c++11 -W -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-delete-non-virtual-dtor -Wno-overloaded-virtual -Wno-unknown-pragmas -Wno-deprecated-register)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
-    endif(FCL_TREAT_WARNINGS_AS_ERRORS)
+    endif()
 endif()
 
 # Visual Studio
@@ -34,7 +34,7 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /W1 /bigobj")
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(/WX)
-    endif(FCL_TREAT_WARNINGS_AS_ERRORS)
+    endif()
 endif()
 
 # Intel
@@ -54,8 +54,8 @@ if(IS_ICPC)
     set(CMAKE_LINKER "xild" CACHE STRING "Intel linker" FORCE)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
-    endif(FCL_TREAT_WARNINGS_AS_ERRORS)
-endif(IS_ICPC)
+    endif()
+endif()
 
 # XL
 if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
@@ -67,15 +67,15 @@ if(IS_XLC)
     add_definitions(-std=c++11 -qpic -q64 -qmaxmem=-1)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -q64")
     set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -q64")
-endif(IS_XLC)
+endif()
 
 # MinGW
 if((CMAKE_COMPILER_IS_GNUCXX OR IS_ICPC) AND NOT MINGW)
     add_definitions(-fPIC)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
-    endif(FCL_TREAT_WARNINGS_AS_ERRORS)
-endif((CMAKE_COMPILER_IS_GNUCXX OR IS_ICPC) AND NOT MINGW)
+    endif()
+endif()
 
 # Set rpath http://www.paraview.org/Wiki/CMake_RPATH_handling
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
