@@ -95,7 +95,7 @@ void test_general()
 //==============================================================================
 GTEST_TEST(FCL_GENERAL, general)
 {
-  test_general<float>();
+  // test_general<float>();
   test_general<double>();
 }
 
