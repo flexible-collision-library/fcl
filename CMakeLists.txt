@@ -50,10 +50,32 @@ else()
 endif()
 
 # Whether to enable SSE
-option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
+option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ON)
+if (FCL_USE_X64_SSE)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse -msse2 -msse3 -mssse3")
+  elseif(MSVC)
+    add_definitions(/arch:SSE2)
+  endif()
+endif()
+
+option(FCL_USE_HOST_CUSTOM_CFLAGS "Whether FCL should use cflags from the host used to compile" OFF)
+if (FCL_USE_HOST_CUSTOM_CFLAGS)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+  else()
+    message(WARNING "FCL_USE_HOST_CUSTOM_CFLAGS is only supported in Linux. No effect.")
+  endif()
+endif()
+
+# DEPRECATED: old cmake option. Not strictly correct from the semantic point of view
+# it was activating march=native, not only SSE
+option(FCL_USE_SSE "(deprecated) Whether FCL should SSE instructions" OFF)
 if(FCL_USE_SSE)
   set(FCL_HAVE_SSE TRUE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(DEPRECATION "FCL_USE_SSE is deprecated please use: FCL_USE_X64_SSE or FCL_USE_HOST_CUSTOM_CFLAGS. "
+                        "If you want to replicate the previous behaviour use FCL_USE_HOST_CUSTOM_CFLAGS")
     add_definitions(-march=native)
   elseif(MSVC)
     add_definitions(/arch:SSE2)
