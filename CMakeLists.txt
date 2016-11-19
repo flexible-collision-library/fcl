@@ -50,7 +50,7 @@ else()
 endif()
 
 # Whether to enable SSE
-set (SSE_FLAGS "" LIST)
+set (SSE_FLAGS "")
 option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ON)
 if (FCL_USE_X64_SSE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
