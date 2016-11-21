@@ -5,6 +5,9 @@ else()
   add_library(${PROJECT_NAME} SHARED ${FCL_HEADERS} ${FCL_SOURCE_CODE})
 endif()
 
+# Be sure to pass to the consumer the set of SIMD used in the compilation
+target_compile_options(${PROJECT_NAME} PUBLIC ${SSE_FLAGS})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${FCL_VERSION}
   SOVERSION ${FCL_ABI_VERSION})

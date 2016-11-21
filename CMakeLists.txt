@@ -50,13 +50,43 @@ else()
 endif()
 
 # Whether to enable SSE
-option(FCL_USE_SSE "Whether FCL should SSE instructions" ON)
+set (SSE_FLAGS "")
+option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ON)
+if (FCL_USE_X64_SSE)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(SSE_FLAGS -mfpmath=sse -msse -msse2 -msse3 -mssse3)
+  elseif(MSVC)
+    # Win64 will add the flag automatically
+    if("$CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
+      set(SSE_FLAGS /arch:SSE2)
+    endif()
+  endif()
+  add_compile_options(${SSE_FLAGS})
+endif()
+
+option(FCL_USE_HOST_NATIVE_ARCH "Whether FCL should use cflags from the host used to compile" OFF)
+if (FCL_USE_HOST_NATIVE_ARCH)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+  else()
+    message(WARNING "FCL_USE_HOST_NATIVE_ARCH is only supported in Linux. No effect.")
+  endif()
+endif()
+
+# DEPRECATED: old cmake option. Not strictly correct from the semantic point of view
+# it was activating march=native, not only SSE
+option(FCL_USE_SSE "(deprecated) Whether FCL should SSE instructions" OFF)
 if(FCL_USE_SSE)
   set(FCL_HAVE_SSE TRUE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(WARNING "FCL_USE_SSE is deprecated please use: FCL_USE_X64_SSE or FCL_USE_HOST_NATIVE_ARCH. "
+                    "If you want to replicate the previous behaviour use FCL_USE_HOST_NATIVE_ARCH")
     add_definitions(-march=native)
   elseif(MSVC)
-    add_definitions(/arch:SSE2)
+    # Win64 will add the flag automatically
+    if("$CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
+      add_definitions(/arch:SSE2)
+    endif()
   endif()
 endif()
 
