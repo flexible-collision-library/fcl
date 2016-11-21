@@ -64,12 +64,12 @@ if (FCL_USE_X64_SSE)
   add_compile_options(${SSE_FLAGS})
 endif()
 
-option(FCL_USE_HOST_CUSTOM_CFLAGS "Whether FCL should use cflags from the host used to compile" OFF)
-if (FCL_USE_HOST_CUSTOM_CFLAGS)
+option(FCL_USE_HOST_NATIVE_ARCH "Whether FCL should use cflags from the host used to compile" OFF)
+if (FCL_USE_HOST_NATIVE_ARCH)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
   else()
-    message(WARNING "FCL_USE_HOST_CUSTOM_CFLAGS is only supported in Linux. No effect.")
+    message(WARNING "FCL_USE_HOST_NATIVE_ARCH is only supported in Linux. No effect.")
   endif()
 endif()
 
@@ -79,8 +79,8 @@ option(FCL_USE_SSE "(deprecated) Whether FCL should SSE instructions" OFF)
 if(FCL_USE_SSE)
   set(FCL_HAVE_SSE TRUE)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    message(WARNING "FCL_USE_SSE is deprecated please use: FCL_USE_X64_SSE or FCL_USE_HOST_CUSTOM_CFLAGS. "
-                    "If you want to replicate the previous behaviour use FCL_USE_HOST_CUSTOM_CFLAGS")
+    message(WARNING "FCL_USE_SSE is deprecated please use: FCL_USE_X64_SSE or FCL_USE_HOST_NATIVE_ARCH. "
+                    "If you want to replicate the previous behaviour use FCL_USE_HOST_NATIVE_ARCH")
     add_definitions(-march=native)
   elseif(MSVC)
     # Win64 will add the flag automatically
