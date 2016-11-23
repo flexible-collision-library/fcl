@@ -179,17 +179,6 @@ else()
 endif()
 
 
-# find_package(tinyxml QUIET)
-# if (TINYXML_FOUND)
-#   set(FCL_HAVE_TINYXML 1)
-#   include_directories(${TINYXML_INCLUDE_DIRS})
-#   link_directories(${TINYXML_LIBRARY_DIRS})
-#   message(STATUS "FCL uses tinyxml")
-# else()
-#   message(STATUS "FCL does not use tinyxml")
-# endif()
-
-
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
 include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
