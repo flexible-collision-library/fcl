@@ -115,6 +115,18 @@ bool GJKDistance(
     Vector3d* p1,
     Vector3d* p2);
 
+extern template
+bool GJKSignedDistance(
+    void* obj1,
+    ccd_support_fn supp1,
+    void* obj2,
+    ccd_support_fn supp2,
+    unsigned int max_iterations,
+    double tolerance,
+    double* dist,
+    Vector3d* p1,
+    Vector3d* p2);
+
 struct ccd_obj_t
 {
   ccd_vec3_t pos;
@@ -434,6 +446,458 @@ static int doSimplex(ccd_simplex_t *simplex, ccd_vec3_t *dir)
   }
 }
 
+/** Transforms simplex to polytope, two vertices required */
+static int simplexToPolytope2(const void *obj1, const void *obj2,
+                              const ccd_t *ccd,
+                              const ccd_simplex_t *simplex,
+                              ccd_pt_t *pt, ccd_pt_el_t **nearest)
+{
+    const ccd_support_t *a, *b;
+    ccd_vec3_t ab, ac, dir;
+    ccd_support_t supp[4];
+    ccd_pt_vertex_t *v[6];
+    ccd_pt_edge_t *e[12];
+    size_t i;
+    int found;
+
+    a = ccdSimplexPoint(simplex, 0);
+    b = ccdSimplexPoint(simplex, 1);
+
+    // This situation is a bit tricky. If only one segment comes from
+    // previous run of GJK - it means that either this segment is on
+    // minkowski edge (and thus we have touch contact) or it it isn't and
+    // therefore segment is somewhere *inside* minkowski sum and it *must*
+    // be possible to fully enclose this segment with polyhedron formed by
+    // at least 8 triangle faces.
+
+    // get first support point (any)
+    found = 0;
+    for (i = 0; i < ccd_points_on_sphere_len; i++){
+        __ccdSupport(obj1, obj2, &ccd_points_on_sphere[i], ccd, &supp[0]);
+        if (!ccdVec3Eq(&a->v, &supp[0].v) && !ccdVec3Eq(&b->v, &supp[0].v)){
+            found = 1;
+            break;
+        }
+    }
+    if (!found)
+        goto simplexToPolytope2_touching_contact;
+
+    // get second support point in opposite direction than supp[0]
+    ccdVec3Copy(&dir, &supp[0].v);
+    ccdVec3Scale(&dir, -CCD_ONE);
+    __ccdSupport(obj1, obj2, &dir, ccd, &supp[1]);
+    if (ccdVec3Eq(&a->v, &supp[1].v) || ccdVec3Eq(&b->v, &supp[1].v))
+        goto simplexToPolytope2_touching_contact;
+
+    // next will be in direction of normal of triangle a,supp[0],supp[1]
+    ccdVec3Sub2(&ab, &supp[0].v, &a->v);
+    ccdVec3Sub2(&ac, &supp[1].v, &a->v);
+    ccdVec3Cross(&dir, &ab, &ac);
+    __ccdSupport(obj1, obj2, &dir, ccd, &supp[2]);
+    if (ccdVec3Eq(&a->v, &supp[2].v) || ccdVec3Eq(&b->v, &supp[2].v))
+        goto simplexToPolytope2_touching_contact;
+
+    // and last one will be in opposite direction
+    ccdVec3Scale(&dir, -CCD_ONE);
+    __ccdSupport(obj1, obj2, &dir, ccd, &supp[3]);
+    if (ccdVec3Eq(&a->v, &supp[3].v) || ccdVec3Eq(&b->v, &supp[3].v))
+        goto simplexToPolytope2_touching_contact;
+
+    goto simplexToPolytope2_not_touching_contact;
+simplexToPolytope2_touching_contact:
+    v[0] = ccdPtAddVertex(pt, a);
+    v[1] = ccdPtAddVertex(pt, b);
+    *nearest = (ccd_pt_el_t *)ccdPtAddEdge(pt, v[0], v[1]);
+    if (*nearest == NULL)
+        return -2;
+
+    return -1;
+
+simplexToPolytope2_not_touching_contact:
+    // form polyhedron
+    v[0] = ccdPtAddVertex(pt, a);
+    v[1] = ccdPtAddVertex(pt, &supp[0]);
+    v[2] = ccdPtAddVertex(pt, b);
+    v[3] = ccdPtAddVertex(pt, &supp[1]);
+    v[4] = ccdPtAddVertex(pt, &supp[2]);
+    v[5] = ccdPtAddVertex(pt, &supp[3]);
+
+    e[0] = ccdPtAddEdge(pt, v[0], v[1]);
+    e[1] = ccdPtAddEdge(pt, v[1], v[2]);
+    e[2] = ccdPtAddEdge(pt, v[2], v[3]);
+    e[3] = ccdPtAddEdge(pt, v[3], v[0]);
+
+    e[4] = ccdPtAddEdge(pt, v[4], v[0]);
+    e[5] = ccdPtAddEdge(pt, v[4], v[1]);
+    e[6] = ccdPtAddEdge(pt, v[4], v[2]);
+    e[7] = ccdPtAddEdge(pt, v[4], v[3]);
+
+    e[8]  = ccdPtAddEdge(pt, v[5], v[0]);
+    e[9]  = ccdPtAddEdge(pt, v[5], v[1]);
+    e[10] = ccdPtAddEdge(pt, v[5], v[2]);
+    e[11] = ccdPtAddEdge(pt, v[5], v[3]);
+
+    if (ccdPtAddFace(pt, e[4], e[5], e[0]) == NULL
+            || ccdPtAddFace(pt, e[5], e[6], e[1]) == NULL
+            || ccdPtAddFace(pt, e[6], e[7], e[2]) == NULL
+            || ccdPtAddFace(pt, e[7], e[4], e[3]) == NULL
+
+            || ccdPtAddFace(pt, e[8],  e[9],  e[0]) == NULL
+            || ccdPtAddFace(pt, e[9],  e[10], e[1]) == NULL
+            || ccdPtAddFace(pt, e[10], e[11], e[2]) == NULL
+            || ccdPtAddFace(pt, e[11], e[8],  e[3]) == NULL){
+        return -2;
+    }
+
+    return 0;
+}
+
+
+/** Transforms simplex to polytope, three vertices required */
+static int simplexToPolytope3(const void *obj1, const void *obj2,
+                              const ccd_t *ccd,
+                              const ccd_simplex_t *simplex,
+                              ccd_pt_t *pt, ccd_pt_el_t **nearest)
+{
+    const ccd_support_t *a, *b, *c;
+    ccd_support_t d, d2;
+    ccd_vec3_t ab, ac, dir;
+    ccd_pt_vertex_t *v[5];
+    ccd_pt_edge_t *e[9];
+    ccd_real_t dist, dist2;
+
+    *nearest = NULL;
+
+    a = ccdSimplexPoint(simplex, 0);
+    b = ccdSimplexPoint(simplex, 1);
+    c = ccdSimplexPoint(simplex, 2);
+
+    // If only one triangle left from previous GJK run origin lies on this
+    // triangle. So it is necessary to expand triangle into two
+    // tetrahedrons connected with base (which is exactly abc triangle).
+
+    // get next support point in direction of normal of triangle
+    ccdVec3Sub2(&ab, &b->v, &a->v);
+    ccdVec3Sub2(&ac, &c->v, &a->v);
+    ccdVec3Cross(&dir, &ab, &ac);
+    __ccdSupport(obj1, obj2, &dir, ccd, &d);
+    dist = ccdVec3PointTriDist2(&d.v, &a->v, &b->v, &c->v, NULL);
+
+    // and second one take in opposite direction
+    ccdVec3Scale(&dir, -CCD_ONE);
+    __ccdSupport(obj1, obj2, &dir, ccd, &d2);
+    dist2 = ccdVec3PointTriDist2(&d2.v, &a->v, &b->v, &c->v, NULL);
+
+    // check if face isn't already on edge of minkowski sum and thus we
+    // have touching contact
+    if (ccdIsZero(dist) || ccdIsZero(dist2)){
+        v[0] = ccdPtAddVertex(pt, a);
+        v[1] = ccdPtAddVertex(pt, b);
+        v[2] = ccdPtAddVertex(pt, c);
+        e[0] = ccdPtAddEdge(pt, v[0], v[1]);
+        e[1] = ccdPtAddEdge(pt, v[1], v[2]);
+        e[2] = ccdPtAddEdge(pt, v[2], v[0]);
+        *nearest = (ccd_pt_el_t *)ccdPtAddFace(pt, e[0], e[1], e[2]);
+        if (*nearest == NULL)
+            return -2;
+
+        return -1;
+    }
+
+    // form polyhedron
+    v[0] = ccdPtAddVertex(pt, a);
+    v[1] = ccdPtAddVertex(pt, b);
+    v[2] = ccdPtAddVertex(pt, c);
+    v[3] = ccdPtAddVertex(pt, &d);
+    v[4] = ccdPtAddVertex(pt, &d2);
+
+    e[0] = ccdPtAddEdge(pt, v[0], v[1]);
+    e[1] = ccdPtAddEdge(pt, v[1], v[2]);
+    e[2] = ccdPtAddEdge(pt, v[2], v[0]);
+
+    e[3] = ccdPtAddEdge(pt, v[3], v[0]);
+    e[4] = ccdPtAddEdge(pt, v[3], v[1]);
+    e[5] = ccdPtAddEdge(pt, v[3], v[2]);
+
+    e[6] = ccdPtAddEdge(pt, v[4], v[0]);
+    e[7] = ccdPtAddEdge(pt, v[4], v[1]);
+    e[8] = ccdPtAddEdge(pt, v[4], v[2]);
+
+    if (ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL
+            || ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL
+            || ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL
+
+            || ccdPtAddFace(pt, e[6], e[7], e[0]) == NULL
+            || ccdPtAddFace(pt, e[7], e[8], e[1]) == NULL
+            || ccdPtAddFace(pt, e[8], e[6], e[2]) == NULL){
+        return -2;
+    }
+
+    return 0;
+}
+
+
+/** Transforms simplex to polytope. It is assumed that simplex has 4
+ *  vertices! */
+static int simplexToPolytope4(const void *obj1, const void *obj2,
+                              const ccd_t *ccd,
+                              ccd_simplex_t *simplex,
+                              ccd_pt_t *pt, ccd_pt_el_t **nearest)
+{
+    const ccd_support_t *a, *b, *c, *d;
+    int use_polytope3;
+    ccd_real_t dist;
+    ccd_pt_vertex_t *v[4];
+    ccd_pt_edge_t *e[6];
+    size_t i;
+
+    a = ccdSimplexPoint(simplex, 0);
+    b = ccdSimplexPoint(simplex, 1);
+    c = ccdSimplexPoint(simplex, 2);
+    d = ccdSimplexPoint(simplex, 3);
+
+    // check if origin lies on some of tetrahedron's face - if so use
+    // simplexToPolytope3()
+    use_polytope3 = 0;
+    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &c->v, NULL);
+    if (ccdIsZero(dist)){
+        use_polytope3 = 1;
+    }
+    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &c->v, &d->v, NULL);
+    if (ccdIsZero(dist)){
+        use_polytope3 = 1;
+        ccdSimplexSet(simplex, 1, c);
+        ccdSimplexSet(simplex, 2, d);
+    }
+    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &a->v, &b->v, &d->v, NULL);
+    if (ccdIsZero(dist)){
+        use_polytope3 = 1;
+        ccdSimplexSet(simplex, 2, d);
+    }
+    dist = ccdVec3PointTriDist2(ccd_vec3_origin, &b->v, &c->v, &d->v, NULL);
+    if (ccdIsZero(dist)){
+        use_polytope3 = 1;
+        ccdSimplexSet(simplex, 0, b);
+        ccdSimplexSet(simplex, 1, c);
+        ccdSimplexSet(simplex, 2, d);
+    }
+
+    if (use_polytope3){
+        ccdSimplexSetSize(simplex, 3);
+        return simplexToPolytope3(obj1, obj2, ccd, simplex, pt, nearest);
+    }
+
+    // no touching contact - simply create tetrahedron
+    for (i = 0; i < 4; i++){
+        v[i] = ccdPtAddVertex(pt, ccdSimplexPoint(simplex, i));
+    }
+
+    e[0] = ccdPtAddEdge(pt, v[0], v[1]);
+    e[1] = ccdPtAddEdge(pt, v[1], v[2]);
+    e[2] = ccdPtAddEdge(pt, v[2], v[0]);
+    e[3] = ccdPtAddEdge(pt, v[3], v[0]);
+    e[4] = ccdPtAddEdge(pt, v[3], v[1]);
+    e[5] = ccdPtAddEdge(pt, v[3], v[2]);
+
+    // ccdPtAdd*() functions return NULL either if the memory allocation
+    // failed of if any of the input pointers are NULL, so the bad
+    // allocation can be checked by the last calls of ccdPtAddFace()
+    // because the rest of the bad allocations eventually "bubble up" here
+    if (ccdPtAddFace(pt, e[0], e[1], e[2]) == NULL
+            || ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL
+            || ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL
+            || ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL){
+        return -2;
+    }
+
+    return 0;
+}
+
+
+
+
+/** Expands polytope's tri by new vertex v. Triangle tri is replaced by
+ *  three triangles each with one vertex in v. */
+static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
+                          const ccd_support_t *newv)
+{
+    ccd_pt_vertex_t *v[5];
+    ccd_pt_edge_t *e[8];
+    ccd_pt_face_t *f[2];
+
+
+    // element can be either segment or triangle
+    if (el->type == CCD_PT_EDGE){
+        // In this case, segment should be replaced by new point.
+        // Simpliest case is when segment stands alone and in this case
+        // this segment is replaced by two other segments both connected to
+        // newv.
+        // Segment can be also connected to max two faces and in that case
+        // each face must be replaced by two other faces. To do this
+        // correctly it is necessary to have correctly ordered edges and
+        // vertices which is exactly what is done in following code.
+        //
+
+        ccdPtEdgeVertices((const ccd_pt_edge_t *)el, &v[0], &v[2]);
+
+        ccdPtEdgeFaces((ccd_pt_edge_t *)el, &f[0], &f[1]);
+
+        if (f[0]){
+            ccdPtFaceEdges(f[0], &e[0], &e[1], &e[2]);
+            if (e[0] == (ccd_pt_edge_t *)el){
+                e[0] = e[2];
+            }else if (e[1] == (ccd_pt_edge_t *)el){
+                e[1] = e[2];
+            }
+            ccdPtEdgeVertices(e[0], &v[1], &v[3]);
+            if (v[1] != v[0] && v[3] != v[0]){
+                e[2] = e[0];
+                e[0] = e[1];
+                e[1] = e[2];
+                if (v[1] == v[2])
+                    v[1] = v[3];
+            }else{
+                if (v[1] == v[0])
+                    v[1] = v[3];
+            }
+
+            if (f[1]){
+                ccdPtFaceEdges(f[1], &e[2], &e[3], &e[4]);
+                if (e[2] == (ccd_pt_edge_t *)el){
+                    e[2] = e[4];
+                }else if (e[3] == (ccd_pt_edge_t *)el){
+                    e[3] = e[4];
+                }
+                ccdPtEdgeVertices(e[2], &v[3], &v[4]);
+                if (v[3] != v[2] && v[4] != v[2]){
+                    e[4] = e[2];
+                    e[2] = e[3];
+                    e[3] = e[4];
+                    if (v[3] == v[0])
+                        v[3] = v[4];
+                }else{
+                    if (v[3] == v[2])
+                        v[3] = v[4];
+                }
+            }
+
+
+            v[4] = ccdPtAddVertex(pt, newv);
+
+            ccdPtDelFace(pt, f[0]);
+            if (f[1]){
+                ccdPtDelFace(pt, f[1]);
+                ccdPtDelEdge(pt, (ccd_pt_edge_t *)el);
+            }
+
+            e[4] = ccdPtAddEdge(pt, v[4], v[2]);
+            e[5] = ccdPtAddEdge(pt, v[4], v[0]);
+            e[6] = ccdPtAddEdge(pt, v[4], v[1]);
+            if (f[1])
+                e[7] = ccdPtAddEdge(pt, v[4], v[3]);
+
+
+            if (ccdPtAddFace(pt, e[1], e[4], e[6]) == NULL
+                    || ccdPtAddFace(pt, e[0], e[6], e[5]) == NULL){
+                return -2;
+            }
+
+            if (f[1]){
+                if (ccdPtAddFace(pt, e[3], e[5], e[7]) == NULL
+                        || ccdPtAddFace(pt, e[4], e[7], e[2]) == NULL){
+                    return -2;
+                }
+            }else{
+                if (ccdPtAddFace(pt, e[4], e[5], (ccd_pt_edge_t *)el) == NULL)
+                    return -2;
+            }
+        }
+    }else{ // el->type == CCD_PT_FACE
+        // replace triangle by tetrahedron without base (base would be the
+        // triangle that will be removed)
+
+        // get triplet of surrounding edges and vertices of triangle face
+        ccdPtFaceEdges((const ccd_pt_face_t *)el, &e[0], &e[1], &e[2]);
+        ccdPtEdgeVertices(e[0], &v[0], &v[1]);
+        ccdPtEdgeVertices(e[1], &v[2], &v[3]);
+
+        // following code sorts edges to have e[0] between vertices 0-1,
+        // e[1] between 1-2 and e[2] between 2-0
+        if (v[2] != v[1] && v[3] != v[1]){
+            // swap e[1] and e[2]
+            e[3] = e[1];
+            e[1] = e[2];
+            e[2] = e[3];
+        }
+        if (v[3] != v[0] && v[3] != v[1])
+            v[2] = v[3];
+
+        // remove triangle face
+        ccdPtDelFace(pt, (ccd_pt_face_t *)el);
+
+        // expand triangle to tetrahedron
+        v[3] = ccdPtAddVertex(pt, newv);
+        e[3] = ccdPtAddEdge(pt, v[3], v[0]);
+        e[4] = ccdPtAddEdge(pt, v[3], v[1]);
+        e[5] = ccdPtAddEdge(pt, v[3], v[2]);
+
+        if (ccdPtAddFace(pt, e[3], e[4], e[0]) == NULL
+                || ccdPtAddFace(pt, e[4], e[5], e[1]) == NULL
+                || ccdPtAddFace(pt, e[5], e[3], e[2]) == NULL){
+            return -2;
+        }
+    }
+
+    return 0;
+}
+
+/** Finds next support point (and stores it in out argument).
+ *  Returns 0 on success, -1 otherwise */
+static int nextSupport(const void *obj1, const void *obj2, const ccd_t *ccd,
+                       const ccd_pt_el_t *el,
+                       ccd_support_t *out)
+{
+    ccd_vec3_t *a, *b, *c;
+    ccd_real_t dist;
+
+    if (el->type == CCD_PT_VERTEX)
+        return -1;
+
+    // touch contact
+    if (ccdIsZero(el->dist))
+        return -1;
+
+    __ccdSupport(obj1, obj2, &el->witness, ccd, out);
+
+    // Compute dist of support point along element witness point direction
+    // so we can determine whether we expanded a polytope surrounding the
+    // origin a bit.
+    dist = ccdVec3Dot(&out->v, &el->witness);
+
+    if (dist - el->dist < ccd->epa_tolerance)
+        return -1;
+
+    if (el->type == CCD_PT_EDGE){
+        // fetch end points of edge
+        ccdPtEdgeVec3((ccd_pt_edge_t *)el, &a, &b);
+
+        // get distance from segment
+        dist = ccdVec3PointSegmentDist2(&out->v, a, b, NULL);
+    }else{ // el->type == CCD_PT_FACE
+        // fetch vertices of triangle face
+        ccdPtFaceVec3((ccd_pt_face_t *)el, &a, &b, &c);
+
+        // check if new point can significantly expand polytope
+        dist = ccdVec3PointTriDist2(&out->v, a, b, c, NULL);
+    }
+
+    if (dist < ccd->epa_tolerance)
+        return -1;
+
+    return 0;
+}
+
+
 static int __ccdGJK(const void *obj1, const void *obj2,
                     const ccd_t *ccd, ccd_simplex_t *simplex)
 {
@@ -489,6 +953,229 @@ static int __ccdGJK(const void *obj1, const void *obj2,
   return -1;
 }
 
+
+static int __ccdEPA(const void *obj1, const void *obj2,
+                    const ccd_t *ccd,
+                    ccd_simplex_t* simplex,
+                    ccd_pt_t *polytope, ccd_pt_el_t **nearest)
+{
+    ccd_support_t supp; // support point
+    int ret, size;
+
+
+    ret = 0;
+    *nearest = NULL;
+
+    // transform simplex to polytope - simplex won't be used anymore
+    size = ccdSimplexSize(simplex);
+    if (size == 4){
+        ret = simplexToPolytope4(obj1, obj2, ccd, simplex, polytope, nearest);
+    }else if (size == 3){
+        ret = simplexToPolytope3(obj1, obj2, ccd, simplex, polytope, nearest);
+    }else{ // size == 2
+        ret = simplexToPolytope2(obj1, obj2, ccd, simplex, polytope, nearest);
+    }
+
+    if (ret == -1){
+        // touching contact
+        return 0;
+    }else if (ret == -2){
+        // failed memory allocation
+        return -2;
+    }
+
+    while (1){
+        // get triangle nearest to origin
+        *nearest = ccdPtNearest(polytope);
+
+        // get next support point
+        if (nextSupport(obj1, obj2, ccd, *nearest, &supp) != 0)
+            break;
+
+        // expand nearest triangle using new point - supp
+        if (expandPolytope(polytope, *nearest, &supp) != 0)
+            return -2;
+    }
+
+    return 0;
+}
+
+
+static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
+                                  const ccd_t *ccd,
+                                  ccd_simplex_t* simplex,
+                                  ccd_vec3_t* p1, ccd_vec3_t* p2)
+{
+  unsigned long iterations;
+  ccd_support_t last; // last support point
+  ccd_vec3_t dir; // direction vector
+  ccd_real_t dist, last_dist = CCD_REAL_MAX;
+
+  for (iterations = 0UL; iterations < ccd->max_iterations; ++iterations)
+  {
+    // get a next direction vector
+    // we are trying to find out a point on the minkowski difference
+    // that is nearest to the origin, so we obtain a point on the
+    // simplex that is nearest and try to exapand the simplex towards
+    // the origin
+    if (ccdSimplexSize(simplex) == 1)
+    {
+      ccdVec3Copy(&dir, &ccdSimplexPoint(simplex, 0)->v);
+      dist = ccdVec3Len2(&ccdSimplexPoint(simplex, 0)->v);
+      dist = CCD_SQRT(dist);
+    }
+    else if (ccdSimplexSize(simplex) == 2)
+    {
+      dist = ccdVec3PointSegmentDist2(ccd_vec3_origin,
+                                      &ccdSimplexPoint(simplex, 0)->v,
+                                      &ccdSimplexPoint(simplex, 1)->v,
+                                      &dir);
+      dist = CCD_SQRT(dist);
+    }
+    else if(ccdSimplexSize(simplex) == 3)
+    {
+      dist = ccdVec3PointTriDist2(ccd_vec3_origin,
+                                  &ccdSimplexPoint(simplex, 0)->v,
+                                  &ccdSimplexPoint(simplex, 1)->v,
+                                  &ccdSimplexPoint(simplex, 2)->v,
+                                  &dir);
+      dist = CCD_SQRT(dist);
+    }
+    else
+    { // ccdSimplexSize(&simplex) == 4
+      dist = simplexReduceToTriangle(simplex, last_dist, &dir);
+    }
+
+    // check whether we improved for at least a minimum tolerance
+    if ((last_dist - dist) < ccd->dist_tolerance)
+    {
+      if(p1) *p1 = last.v1;
+      if(p2) *p2 = last.v2;
+      return dist;
+    }
+
+    // point direction towards the origin
+    ccdVec3Scale(&dir, -CCD_ONE);
+    ccdVec3Normalize(&dir);
+
+    // find out support point
+    __ccdSupport(obj1, obj2, &dir, ccd, &last);
+
+    // record last distance
+    last_dist = dist;
+
+    // check whether we improved for at least a minimum tolerance
+    // this is here probably only for a degenerate cases when we got a
+    // point that is already in the simplex
+    dist = ccdVec3Len2(&last.v);
+    dist = CCD_SQRT(dist);
+    if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
+    {
+      if(p1) *p1 = last.v1;
+      if(p2) *p2 = last.v2;
+      return last_dist;
+    }
+
+    // add a point to simplex
+    ccdSimplexAdd(simplex, &last);
+  }
+
+  return -CCD_REAL(1.);
+}
+
+static int penEPAPosCmp(const void *a, const void *b)
+{
+    ccd_pt_vertex_t *v1, *v2;
+    v1 = *(ccd_pt_vertex_t **)a;
+    v2 = *(ccd_pt_vertex_t **)b;
+
+    if (ccdEq(v1->dist, v2->dist)){
+        return 0;
+    }else if (v1->dist < v2->dist){
+        return -1;
+    }else{
+        return 1;
+    }
+}
+
+static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
+                            ccd_vec3_t *p1, ccd_vec3_t* p2)
+{
+    ccd_pt_vertex_t *v;
+    ccd_pt_vertex_t **vs;
+    size_t i, len;
+    // compute median
+    len = 0;
+    ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list){
+        len++;
+    }
+
+    vs = CCD_ALLOC_ARR(ccd_pt_vertex_t*, len);
+    if (vs == NULL)
+        return -1;
+
+    i = 0;
+    ccdListForEachEntry(&pt->vertices, v, ccd_pt_vertex_t, list){
+        vs[i++] = v;
+    }
+
+    qsort(vs, len, sizeof(ccd_pt_vertex_t*), penEPAPosCmp);
+
+    ccdVec3Copy(p1, &vs[0]->v.v1);
+    ccdVec3Copy(p2, &vs[0]->v.v2);
+
+    free(vs);
+
+    return 0;
+}
+
+static inline ccd_real_t ccdGJKSignedDist(const void* obj1, const void* obj2, const ccd_t* ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
+{
+  ccd_simplex_t simplex;
+
+  if (__ccdGJK(obj1, obj2, ccd, &simplex) == 0) // in collision, then using the EPA
+  {
+    ccd_pt_t polytope;
+    ccd_pt_el_t *nearest;
+    ccd_real_t depth;
+
+    ccdPtInit(&polytope);
+    int ret = __ccdEPA(obj1, obj2, ccd, &simplex, &polytope, &nearest);
+    if (ret == 0 && nearest)
+    {
+      depth = -CCD_SQRT(nearest->dist);
+
+      ccd_vec3_t pos1, pos2;
+      penEPAPosClosest(&polytope, nearest, &pos1, &pos2);
+
+      if (p1) *p1 = pos1;
+      if (p2) *p2 = pos2;
+
+      //ccd_vec3_t dir; // direction vector
+      //ccdVec3Copy(&dir, &nearest->witness);
+      //std::cout << dir.v[0] << " " << dir.v[1] << " " << dir.v[2] << std::endl;
+      //ccd_support_t last;
+      //__ccdSupport(obj1, obj2, &dir, ccd, &last);
+
+      //if (p1) *p1 = last.v1;
+      //if (p2) *p2 = last.v2;
+    }
+    else
+    {
+      depth = -CCD_ONE;
+    }
+
+    ccdPtDestroy(&polytope);
+
+    return depth;
+  }
+  else // not in collision
+  {
+    return _ccdDist(obj1, obj2, ccd, &simplex, p1, p2);
+  }
+}
+
+
 /// change the libccd distance to add two closest points
 static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const ccd_t *ccd, ccd_vec3_t* p1, ccd_vec3_t* p2)
 {
@@ -530,11 +1217,6 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     }else{ // ccdSimplexSize(&simplex) == 4
       dist = simplexReduceToTriangle(&simplex, last_dist, &dir);
     }
-
-    // touching contact -- do we really need this?
-    // maybe __ccdGJK() solve this alredy.
-    if (ccdIsZero(dist))
-      return -CCD_ONE;
 
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
@@ -931,6 +1613,39 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
   ccdVec3Set(&p1_, 0.0, 0.0, 0.0);
   ccdVec3Set(&p2_, 0.0, 0.0, 0.0);
   dist = libccd_extension::ccdGJKDist2(obj1, obj2, &ccd, &p1_, &p2_);
+  if(p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
+  if(p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
+  if(res) *res = dist;
+  if(dist < 0) return false;
+  else return true;
+}
+
+
+/// p1 and p2 are in global coordinate, so needs transform in the narrowphase.h functions
+template <typename S>
+bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
+                       void* obj2, ccd_support_fn supp2,
+                       unsigned int max_iterations, S tolerance,
+                       S* res, Vector3<S>* p1, Vector3<S>* p2)
+{
+  ccd_t ccd;
+  ccd_real_t dist;
+  CCD_INIT(&ccd);
+  ccd.support1 = supp1;
+  ccd.support2 = supp2;
+
+  ccd.max_iterations = max_iterations;
+  ccd.dist_tolerance = tolerance;
+
+  ccd_vec3_t p1_, p2_;
+  // NOTE(JS): p1_ and p2_ are set to zeros in order to suppress uninitialized
+  // warning. It seems the warnings occur since libccd_extension::ccdGJKDist2
+  // conditionally set p1_ and p2_. If this wasn't intentional then please
+  // remove the initialization of p1_ and p2_, and change the function
+  // libccd_extension::ccdGJKDist2(...) to always set p1_ and p2_.
+  ccdVec3Set(&p1_, 0.0, 0.0, 0.0);
+  ccdVec3Set(&p2_, 0.0, 0.0, 0.0);
+  dist = libccd_extension::ccdGJKSignedDist(obj1, obj2, &ccd, &p1_, &p2_);
   if(p1) *p1 << ccdVec3X(&p1_), ccdVec3Y(&p1_), ccdVec3Z(&p1_);
   if(p2) *p2 << ccdVec3X(&p2_), ccdVec3Y(&p2_), ccdVec3Z(&p2_);
   if(res) *res = dist;

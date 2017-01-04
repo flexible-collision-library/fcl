@@ -113,6 +113,7 @@ typename NarrowPhaseSolver::S distance(
 
   S res = std::numeric_limits<S>::max();
 
+
   if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
     if(!looktable.distance_matrix[node_type2][node_type1])
@@ -140,6 +141,9 @@ typename NarrowPhaseSolver::S distance(
      && result.min_distance < static_cast<S>(0)
      && request.enable_signed_distance)
   {
+    if (object_type1 == OT_GEOM && object_type2 == OT_GEOM)
+      return res;
+
     CollisionRequest<S> collision_request;
     collision_request.enable_contact = true;
 
