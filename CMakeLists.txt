@@ -163,6 +163,8 @@ if(NOT ccd_FOUND)
   message(FATAL_ERROR "CCD (>= 3.0.5) is required by FCL")
 endif()
 
+set(PKG_EXTERNAL_DEPS "ccd eigen3")
+
 #===============================================================================
 # Find optional dependency OctoMap
 #
@@ -219,6 +221,7 @@ if(FCL_WITH_OCTOMAP)
 
     set(FCL_HAVE_OCTOMAP 1)
     message(STATUS "FCL uses OctoMap")
+    set(PKG_EXTERNAL_DEPS "${PKG_EXTERNAL_DEPS} octomap")
   else()
     message(STATUS "FCL does not use OctoMap")
   endif()
@@ -236,6 +239,7 @@ add_subdirectory(src)
 
 set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
 set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
+set(PKG_DESC "Flexible Collision Library")
 if(NOT MSVC)
     set(PKG_CFLAGS "-std=c++11")
 endif()
