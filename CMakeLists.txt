@@ -99,83 +99,131 @@ if(FCL_COVERALLS)
 endif()
 
 find_package(PkgConfig QUIET)
+set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
 
-# Find Eigen3
-find_package(Eigen3 3.0.5 QUIET)
-if(EIGEN3_FOUND)
+#===============================================================================
+# Find required dependency Eigen3 (>= 3.0.5)
+#
+# If Eigen3 is not found, manually set the cache variable EIGEN3_INCLUDE_DIR
+#===============================================================================
+find_package(Eigen3 3.0.5 QUIET CONFIG)
+
+# If Eigen3Config.cmake is not found, use the FindEigen3.cmake module
+if(NOT Eigen3_FOUND)
+  find_package(Eigen3 3.0.5 QUIET MODULE)
+  set(Eigen3_FOUND ON)
+endif()
+
+if(Eigen3_FOUND)
   set(FCL_HAVE_EIGEN TRUE)
-  include_directories(${EIGEN3_INCLUDE_DIR})
 else()
   message(SEND_ERROR "EIGEN3 (>= 3.0.5) is required by FCL")
   set(FCL_HAVE_EIGEN FALSE)
 endif()
 
-# Find libccd
+#===============================================================================
+# Find required dependency libccd
+#
+# If libccd is not found, manually set the cache variables CCD_INCLUDE_DIR and
+# CCD_LIBRARY
+#===============================================================================
 find_package(ccd QUIET)
 
-if(NOT CCD_FOUND AND PKG_CONFIG_FOUND)
-  pkg_check_modules(CCD ccd)
-  # check to see if the pkg is installed under the libccd name
-  if(NOT CCD_FOUND)
-    pkg_check_modules(CCD libccd)
+# If ccd-config.cmake is not found, use pkg-config and/or find_path() and
+# find_library()
+if(NOT ccd_FOUND)
+  if(PKG_CONFIG_FOUND)
+    pkg_check_modules(PC_CCD ccd)
+    pkg_check_modules(PC_LIBCCD libccd)
+  endif()
+
+  find_path(CCD_INCLUDE_DIR ccd/ccd.h
+    HINTS "${PC_CCD_INCLUDE_DIRS}" "${PC_LIBCCD_INCLUDE_DIRS}")
+
+  # Using find_library() even if pkg-config is available ensures that the full
+  # path to the ccd library is available in CCD_LIBRARIES
+  find_library(CCD_LIBRARY ccd
+    HINTS "${PC_CCD_LIBRARY_DIRS}" "${PC_LIBCCD_LIBRARY_DIRS}")
+
+  # libccd links to LibM on UNIX.
+  if(CYGWIN OR NOT WIN32)
+    find_library(M_LIBRARY m)
+  endif()
+
+  if(CCD_INCLUDE_DIR AND CCD_LIBRARY)
+    set(CCD_INCLUDE_DIRS "${CCD_INCLUDE_DIR}")
+    set(CCD_LIBRARIES "${CCD_LIBRARY}" "${M_LIBRARY}")
+    set(ccd_FOUND ON)
+
+    mark_as_advanced(CCD_INCLUDE_DIR CCD_LIBRARY)
   endif()
 endif()
 
-if(NOT CCD_FOUND)
-    # if pkgconfig is not installed, then fall back on more fragile detection
-    # of ccd
-    find_path(CCD_INCLUDE_DIRS ccd/ccd.h)
-    find_library(CCD_LIBRARY
-        ${CMAKE_SHARED_LIBRARY_PREFIX}ccd${CMAKE_SHARED_LIBRARY_SUFFIX})
-    if(CCD_INCLUDE_DIRS AND CCD_LIBRARY)
-        set(CCD_LIBRARIES "${CCD_LIBRARY}")
-    else()
-        message(FATAL_ERROR "Libccd is required by FCL")
-    endif()
+if(NOT ccd_FOUND)
+  message(FATAL_ERROR "CCD (>= 3.0.5) is required by FCL")
 endif()
-include_directories(${CCD_INCLUDE_DIRS})
-link_directories(${CCD_LIBRARY_DIRS})
 
-# Find Octomap (optional)
-option(FCL_WITH_OCTOMAP "octomap library support" ON)
+#===============================================================================
+# Find optional dependency OctoMap
+#
+# If OctoMap is not found, manually set the cache variables OCTOMAP_INCLUDE_DIR
+# and OCTOMAP_LIBRARY, OCTOMATH_LIBRARY, and OCTOMAP_VERSION
+#===============================================================================
+option(FCL_WITH_OCTOMAP "OctoMap library support" ON)
 set(FCL_HAVE_OCTOMAP 0)
+
 if(FCL_WITH_OCTOMAP)
   find_package(octomap QUIET)
-  # octomap-config.cmake may not define OCTOMAP_VERSION so fall back to
-  # pkgconfig
-  if(NOT OCTOMAP_VERSION AND PKG_CONFIG_FOUND)
-      pkg_check_modules(OCTOMAP QUIET octomap)
+
+  # Older versions of octomap-config.cmake may not define OCTOMAP_VERSION so
+  # fall back to pkg-config
+  if(NOT octomap_FOUND OR NOT OCTOMAP_VERSION)
+    if(PKG_CONFIG_FOUND)
+      pkg_check_modules(PC_OCTOMAP octomap)
+    endif()
+
+    find_path(OCTOMAP_INCLUDE_DIR octomap/octomap.h
+      HINTS "${PC_OCTOMAP_INCLUDE_DIRS}")
+
+    # Using find_library() even if pkg-config is available ensures that the full
+    # paths to the octomap and octomath libraries are set in OCTOMAP_LIBRARIES
+    find_library(OCTOMAP_LIBRARY octomap
+      HINTS "${PC_OCTOMAP_LIBRARY_DIRS}")
+
+    find_library(OCTOMATH_LIBRARY octomath
+      HINTS "${PC_OCTOMAP_LIBRARY_DIRS}")
+
+    # Use a cache variable so that the version can be manually set if pkg-config
+    # is not available
+    set(OCTOMAP_VERSION "${PC_OCTOMAP_VERSION}"
+      CACHE STRING "octomap version (major.minor.patch)")
+
+    if(OCTOMAP_INCLUDE_DIR AND OCTOMAP_LIBRARY AND OCTOMATH_LIBRARY AND OCTOMAP_VERSION)
+      set(OCTOMAP_INCLUDE_DIRS "${OCTOMAP_INCLUDE_DIR}")
+      set(OCTOMAP_LIBRARIES "${OCTOMAP_LIBRARY}" "${OCTOMATH_LIBRARY}")
+      set(octomap_FOUND ON)
+
+      mark_as_advanced(OCTOMAP_INCLUDE_DIR OCTOMAP_LIBRARY OCTOMATH_LIBRARY OCTOMAP_VERSION)
+    else()
+      set(octomap_FOUND OFF)
+    endif()
   endif()
-  # whether octomap_FOUND and/or OCTOMAP_FOUND are set is inconsistent, but
-  # OCTOMAP_INCLUDE_DIRS and OCTOMAP_LIBRARY_DIRS should always be set when
-  # octomap is found
-  if(NOT OCTOMAP_INCLUDE_DIRS AND NOT OCTOMAP_LIBRARY_DIRS)
-      # if pkgconfig is not installed, then fall back on more fragile detection
-      # of octomap
-      find_path(OCTOMAP_INCLUDE_DIRS octomap.h
-          PATH_SUFFIXES octomap)
-      find_library(OCTOMAP_LIBRARY_DIRS
-          ${CMAKE_SHARED_LIBRARY_PREFIX}octomap${CMAKE_SHARED_LIBRARY_SUFFIX})
-      if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS)
-          set(OCTOMAP_LIBRARIES "octomap;octomath")
-      endif()
-  endif()
-  if(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARY_DIRS AND OCTOMAP_VERSION)
+
+  if(octomap_FOUND)
     if(NOT OCTOMAP_MAJOR_VERSION AND NOT OCTOMAP_MINOR_VERSION AND NOT OCTOMAP_PATCH_VERSION)
       string(REPLACE "." ";" VERSION_LIST "${OCTOMAP_VERSION}")
       list(GET VERSION_LIST 0 OCTOMAP_MAJOR_VERSION)
       list(GET VERSION_LIST 1 OCTOMAP_MINOR_VERSION)
       list(GET VERSION_LIST 2 OCTOMAP_PATCH_VERSION)
     endif()
-    include_directories(${OCTOMAP_INCLUDE_DIRS})
-    link_directories(${OCTOMAP_LIBRARY_DIRS})
+
     set(FCL_HAVE_OCTOMAP 1)
-    message(STATUS "FCL uses Octomap")
+    message(STATUS "FCL uses OctoMap")
   else()
-    message(STATUS "FCL does not use Octomap")
+    message(STATUS "FCL does not use OctoMap")
   endif()
 else()
-  message(STATUS "FCL does not use Octomap (as requested)")
+  message(STATUS "FCL does not use OctoMap (as requested)")
 endif()
 
 

@@ -48,7 +48,7 @@ before_build:
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIRS="C:\%PROGRAM_FILES_PATH%\libccd\include" -DCCD_LIBRARY="C:\%PROGRAM_FILES_PATH%\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\%PROGRAM_FILES_PATH%\Eigen\include\eigen3" ..
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIR="C:\%PROGRAM_FILES_PATH%\libccd\include" -DCCD_LIBRARY="C:\%PROGRAM_FILES_PATH%\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\%PROGRAM_FILES_PATH%\Eigen\include\eigen3" ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
