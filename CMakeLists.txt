@@ -50,14 +50,14 @@ else()
 endif()
 
 # Whether to enable SSE
-set (SSE_FLAGS "")
+set(SSE_FLAGS "")
 option(FCL_USE_X64_SSE "Whether FCL should x64 SSE instructions" ON)
-if (FCL_USE_X64_SSE)
-  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if(FCL_USE_X64_SSE)
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(SSE_FLAGS -mfpmath=sse -msse -msse2 -msse3 -mssse3)
   elseif(MSVC)
     # Win64 will add the flag automatically
-    if("$CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
+    if(CMAKE_VS_PLATFORM_NAME STREQUAL "Win32")
       set(SSE_FLAGS /arch:SSE2)
     endif()
   endif()
