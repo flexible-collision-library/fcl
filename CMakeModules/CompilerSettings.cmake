@@ -1,6 +1,6 @@
 # GCC
 if(CMAKE_COMPILER_IS_GNUCXX)
-    add_definitions(-std=c++11 -W -Wall -g -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-unused-parameter)
+    add_definitions(-std=c++11 -W -Wall -Wextra -Wpedantic -Wno-missing-field-initializers -Wno-unused-parameter)
     if(FCL_TREAT_WARNINGS_AS_ERRORS)
         add_definitions(-Werror)
     endif()
