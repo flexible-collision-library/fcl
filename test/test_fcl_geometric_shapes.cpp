@@ -1081,7 +1081,7 @@ void test_shapeIntersection_cylindercone()
   tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 9.9)));
   contacts.resize(1);
   contacts[0].normal = transform.linear() * Vector3<S>(0, 0, 1);
-  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-5);
+  testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true, false, 1e-4);
 
   tf1 = Transform3<S>::Identity();
   tf2 = Transform3<S>(Translation3<S>(Vector3<S>(0, 0, 10.01)));
