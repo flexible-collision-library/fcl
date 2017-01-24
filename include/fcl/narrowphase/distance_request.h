@@ -61,6 +61,22 @@ struct DistanceRequest
   /// objects are in collision, the result distance is implementation defined
   /// (mostly -1).
   ///
+  ///       [ Current Implementation Status ]
+  /// -----------------+--------------+--------------
+  ///   GJKSolverType  |  GST_LIBCCD  |  GST_INDEP
+  /// -----------------+--------------+--------------
+  /// primitive shapes | SD_1, NP     | SD_2, NP_X
+  /// mesh and octree  | SD_2, NP_X   | SD_2, NP_X
+  /// -----------------+--------------+--------------
+  /// SD_1: Signed distance is computed using convexity based methods (GJK, MPA)
+  /// SD_2: Positive distance is computed using convexity based mothods (GJK,
+  ///       MPA), but negative distance is computed by a workaround using
+  ///       penetration computation.
+  /// NP  : The pair of nearest points are guaranteed to be on the surface of
+  ///       objects.
+  /// NP_X: The pair of nearest points are NOT guaranteed to be on the surface
+  ///       of objects.
+  ///
   /// If this flag is set to true, FCL will perform additional collision
   /// checking when the two objects are in collision in order to get the exact
   /// negative distance, which is the negated penetration depth. If there are

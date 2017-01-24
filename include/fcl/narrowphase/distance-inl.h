@@ -137,12 +137,22 @@ typename NarrowPhaseSolver::S distance(
     }
   }
 
+  // TODO(JS): FCL supports negative distance calculation only for OT_GEOM shape
+  // types (i.e., primitive shapes like sphere, cylinder, box, and so on). As a
+  // workaround for the rest shape types like mesh and octree, following
+  // computes negative distance using additional penetration depth computation
+  // of collision checking routine. The downside of this workaround is that the
+  // pair of nearest points is not guaranteed to be on the surface of the
+  // objects.
   if(res
      && result.min_distance < static_cast<S>(0)
      && request.enable_signed_distance)
   {
-    if (object_type1 == OT_GEOM && object_type2 == OT_GEOM)
+    if (std::is_same<NarrowPhaseSolver, detail::GJKSolver_libccd<S>>::value
+        && object_type1 == OT_GEOM && object_type2 == OT_GEOM)
+    {
       return res;
+    }
 
     CollisionRequest<S> collision_request;
     collision_request.enable_contact = true;
@@ -171,9 +181,8 @@ typename NarrowPhaseSolver::S distance(
       const Vector3<S>& pos = collision_result.getContact(index).pos;
       result.nearest_points[0] = pos;
       result.nearest_points[1] = pos;
-      // TODO(JS): The nearest points are not guaranteed to be on the surface of
-      // the objects anymore, which is expected so when the two objects are not
-      // in collision.
+      // Note: The pair of nearest points is not guaranteed to be on the
+      // surface of the objects.
     }
   }
 
