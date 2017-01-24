@@ -39,7 +39,7 @@ script:
   - cd build 
 
   # Configure
-  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS ..
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_TREAT_WARNINGS_AS_ERRORS=ON -DFCL_COVERALLS=$COVERALLS ..
 
   # Build
   - make -j4
