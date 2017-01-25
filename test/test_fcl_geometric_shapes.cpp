@@ -772,6 +772,7 @@ void test_shapeIntersection_boxbox()
   contacts[3].normal = transform.linear() * Vector3<S>(1, 0, 0);
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
+  // Disabled for particular configurations: macOS + release + double (see #202)
 #if !defined(FCL_OS_MACOS) || !defined(NDEBUG)
   uint32 numTests = 1e+2;
   for (uint32 i = 0; i < numTests; ++i)
@@ -941,6 +942,7 @@ void test_shapeIntersection_cylindercylinder()
   contacts[0].normal << 1, 0, 0;
   testShapeIntersection(s1, tf1, s2, tf2, GST_LIBCCD, true, contacts, false, false, true);
 
+  // Disabled for particular configurations: macOS + release + double (see #202)
 #if !defined(FCL_OS_MACOS) || !defined(NDEBUG)
   tf1 = transform;
   tf2 = transform * Transform3<S>(Translation3<S>(Vector3<S>(9.9, 0, 0)));
@@ -1254,6 +1256,7 @@ void test_shapeIntersection_halfspacetriangle()
   res = solver1<S>().shapeTriangleIntersect(hs, Transform3<S>::Identity(), t[0], t[1], t[2], Transform3<S>::Identity(), nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
 
+  // Disabled for particular configurations: macOS + release + double (see #202)
 #if !defined(FCL_OS_MACOS) || !defined(NDEBUG)
   res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, nullptr);
   EXPECT_TRUE(res);
@@ -1263,6 +1266,7 @@ void test_shapeIntersection_halfspacetriangle()
   EXPECT_TRUE(res);
   EXPECT_TRUE(normal.isApprox(Vector3<S>(1, 0, 0), 1e-9));
 
+  // Disabled for particular configurations: macOS + release + double (see #202)
 #if !defined(FCL_OS_MACOS) || !defined(NDEBUG)
   res =  solver1<S>().shapeTriangleIntersect(hs, transform, t[0], t[1], t[2], transform, nullptr, nullptr, &normal);
   EXPECT_TRUE(res);

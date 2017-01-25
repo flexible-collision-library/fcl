@@ -830,6 +830,7 @@ void test_mesh_mesh()
 GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 {
 //  test_OBB_Box_test<float>();
+  // Disabled for particular configurations: macOS + release + double (see #202)
 #if !defined(FCL_OS_MACOS) || !defined(NDEBUG)
   test_OBB_Box_test<double>();
 #endif
