@@ -52,3 +52,7 @@ script:
   - sudo make -j4 install
   - sudo make -j4 uninstall
 
+after_failure: 
+  - cat Testing/Temporary/LastTest.log
+  - cat Testing/Temporary/LastTestsFailed.log
+
