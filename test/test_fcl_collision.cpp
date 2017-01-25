@@ -830,7 +830,9 @@ void test_mesh_mesh()
 GTEST_TEST(FCL_COLLISION, OBB_Box_test)
 {
 //  test_OBB_Box_test<float>();
+#if !defined(FCL_OS_MACOS) || !defined(NDEBUG)
   test_OBB_Box_test<double>();
+#endif
 }
 
 GTEST_TEST(FCL_COLLISION, OBB_shape_test)
