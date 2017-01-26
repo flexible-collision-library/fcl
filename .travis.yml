@@ -20,11 +20,11 @@ matrix:
       compiler: clang
       env: BUILD_TYPE=Release COVERALLS=OFF
     - os: osx
-      osx_image: beta-xcode6.3
+      osx_image: xcode7.3
       compiler: clang
       env: BUILD_TYPE=Debug COVERALLS=OFF
     - os: osx
-      osx_image: beta-xcode6.3
+      osx_image: xcode7.3
       compiler: clang
       env: BUILD_TYPE=Release COVERALLS=OFF
 
@@ -36,7 +36,7 @@ install:
 script:
   # Create build directory
   - mkdir build
-  - cd build 
+  - cd build
 
   # Configure
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS ..
@@ -51,4 +51,8 @@ script:
   # Make sure we can install and uninstall with no issues
   - sudo make -j4 install
   - sudo make -j4 uninstall
+
+after_failure: 
+  - cat Testing/Temporary/LastTest.log
+  - cat Testing/Temporary/LastTestsFailed.log
 

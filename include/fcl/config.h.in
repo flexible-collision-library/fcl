@@ -46,6 +46,15 @@
 
 #cmakedefine01 FCL_ENABLE_PROFILING
 
+// Detect the operating systems
+#if defined(__APPLE__)
+  #define FCL_OS_MACOS
+#elif defined(__gnu_linux__)
+  #define FCL_OS_LINUX
+#elif defined(_WIN32)
+  #define FCL_OS_WINDOWS
+#endif
+
 // Detect the compiler
 #if defined(__clang__)
   #define FCL_COMPILER_CLANG
