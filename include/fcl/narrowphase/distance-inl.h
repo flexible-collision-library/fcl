@@ -174,7 +174,7 @@ typename NarrowPhaseSolver::S distance(
       }
     }
     result.min_distance = -max_pen_depth;
-    assert(index != -1);
+    assert(index != static_cast<std::size_t>(-1));
 
     if (request.enable_nearest_points)
     {

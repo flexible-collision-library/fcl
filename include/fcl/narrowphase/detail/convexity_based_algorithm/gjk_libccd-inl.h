@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
+#include "fcl/common/warning.h"
+
 namespace fcl
 {
 
@@ -803,10 +805,12 @@ static int expandPolytope(ccd_pt_t *pt, ccd_pt_el_t *el,
             }
 
             if (f[1]){
+                FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
                 if (ccdPtAddFace(pt, e[3], e[5], e[7]) == NULL
                         || ccdPtAddFace(pt, e[4], e[7], e[2]) == NULL){
                     return -2;
                 }
+                FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
             }else{
                 if (ccdPtAddFace(pt, e[4], e[5], (ccd_pt_edge_t *)el) == NULL)
                     return -2;
