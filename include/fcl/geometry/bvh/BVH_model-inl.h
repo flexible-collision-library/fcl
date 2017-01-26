@@ -513,7 +513,11 @@ int BVHModel<BV>::beginReplaceModel()
     return BVH_ERR_BUILD_EMPTY_PREVIOUS_FRAME;
   }
 
-  if(prev_vertices) delete [] prev_vertices; prev_vertices = nullptr;
+  if(prev_vertices)
+  {
+    delete [] prev_vertices;
+    prev_vertices = nullptr;
+  }
 
   num_vertex_updated = 0;
 
