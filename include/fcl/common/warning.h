@@ -91,12 +91,9 @@
   #define FCL_SUPPRESS_UNINITIALIZED_END \
     _Pragma("clang diagnostic pop")
 
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN                            \
-    _Pragma("clang diagnostic push")                                  \
-    _Pragma("clang diagnostic ignored \"-Wmaybe-uninitialized\"")
+  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_BEGIN
 
-  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_END \
-    _Pragma("clang diagnostic pop")
+  #define FCL_SUPPRESS_MAYBE_UNINITIALIZED_END
 
 #elif defined (FCL_COMPILER_MSVC)
 
