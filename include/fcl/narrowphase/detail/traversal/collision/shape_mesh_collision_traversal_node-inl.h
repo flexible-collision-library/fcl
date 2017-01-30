@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/collision/shape_mesh_collision_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -61,6 +63,8 @@ ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::ShapeMeshCollisio
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
 void ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+
   using S = typename BV::S;
 
   if(this->enable_statistics) this->num_leaf_tests++;
@@ -195,6 +199,8 @@ ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::ShapeMeshCollision
 template <typename Shape, typename NarrowPhaseSolver>
 bool ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }
@@ -219,6 +225,8 @@ ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::ShapeMeshCollision
 template <typename Shape, typename NarrowPhaseSolver>
 bool ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }
@@ -243,6 +251,8 @@ ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::ShapeMeshCollisio
 template <typename Shape, typename NarrowPhaseSolver>
 bool ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }
@@ -267,6 +277,8 @@ ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::ShapeMeshCollis
 template <typename Shape, typename NarrowPhaseSolver>
 bool ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf2.linear(), this->tf2.translation(), this->model1_bv, this->model2->getBV(b2).bv);
 }

@@ -40,6 +40,7 @@
 
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
+#include "fcl/common/unused.h"
 #include "fcl/common/warning.h"
 
 namespace fcl
@@ -1105,6 +1106,8 @@ static int penEPAPosCmp(const void *a, const void *b)
 static int penEPAPosClosest(const ccd_pt_t *pt, const ccd_pt_el_t *nearest,
                             ccd_vec3_t *p1, ccd_vec3_t* p2)
 {
+    FCL_UNUSED(nearest);
+
     ccd_pt_vertex_t *v;
     ccd_pt_vertex_t **vs;
     size_t i, len;
@@ -1265,6 +1268,8 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
 template <typename S>
 static void shapeToGJK(const ShapeBase<S>& s, const Transform3<S>& tf, ccd_obj_t* o)
 {
+  FCL_UNUSED(s);
+
   const Quaternion<S> q(tf.linear());
   const Vector3<S>& T = tf.translation();
   ccdVec3Set(&o->pos, T[0], T[1], T[2]);

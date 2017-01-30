@@ -40,6 +40,8 @@
 
 #include "fcl/math/bv/utility.h"
 
+#include "fcl/common/unused.h"
+
 #include "fcl/math/bv/AABB.h"
 #include "fcl/math/bv/kDOP.h"
 #include "fcl/math/bv/kIOS.h"
@@ -661,6 +663,10 @@ class ConvertBVImpl
 private:
   static void run(const BV1& bv1, const Transform3<S>& tf1, BV2& bv2)
   {
+    FCL_UNUSED(bv1);
+    FCL_UNUSED(tf1);
+    FCL_UNUSED(bv2);
+
     // should only use the specialized version, so it is private.
   }
 };

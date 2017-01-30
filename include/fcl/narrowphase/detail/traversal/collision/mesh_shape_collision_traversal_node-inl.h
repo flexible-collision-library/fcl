@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/collision/mesh_shape_collision_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -61,6 +63,8 @@ MeshShapeCollisionTraversalNode<BV, Shape, NarrowPhaseSolver>::MeshShapeCollisio
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void MeshShapeCollisionTraversalNode<BV, Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_leaf_tests++;
   const BVNode<BV>& node = this->model1->getBV(b1);
 
@@ -198,6 +202,8 @@ void meshShapeCollisionOrientedNodeLeafTesting(
     const CollisionRequest<typename BV::S>& request,
     CollisionResult<typename BV::S>& result)
 {
+  FCL_UNUSED(b2);
+
   using S = typename BV::S;
 
   if(enable_statistics) num_leaf_tests++;
@@ -272,6 +278,8 @@ MeshShapeCollisionTraversalNodeOBB()
 template <typename Shape, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_bv_tests++;
 
   return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -296,6 +304,8 @@ MeshShapeCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::MeshShapeCollision
 template <typename Shape, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_bv_tests++;
 
   return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -321,6 +331,8 @@ MeshShapeCollisionTraversalNodekIOS()
 template <typename Shape, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_bv_tests++;
 
   return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -346,6 +358,8 @@ MeshShapeCollisionTraversalNodeOBBRSS()
 template <typename Shape, typename NarrowPhaseSolver>
 bool MeshShapeCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_bv_tests++;
   return !overlap(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
 }

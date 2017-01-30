@@ -41,13 +41,18 @@
 #include <array>
 #include <fstream>
 #include <iostream>
+
+#include "fcl/common/unused.h"
+
 #include "fcl/math/constants.h"
 #include "fcl/math/triangle.h"
+
 #include "fcl/geometry/shape/box.h"
 #include "fcl/geometry/shape/sphere.h"
 #include "fcl/geometry/shape/cylinder.h"
 #include "fcl/geometry/bvh/BVH_model.h"
 #include "fcl/geometry/octree/octree.h"
+
 #include "fcl/narrowphase/collision.h"
 #include "fcl/narrowphase/distance.h"
 #include "fcl/narrowphase/collision_object.h"
@@ -123,7 +128,7 @@ S rand_interval(S rmin, S rmax);
 template <typename S>
 void eulerToMatrix(S a, S b, S c, Matrix3<S>& R);
 
-/// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints. 
+/// @brief Generate one random transform whose translation is constrained by extents and rotation without constraints.
 /// The translation is (x, y, z), and extents[0] <= x <= extents[3], extents[1] <= y <= extents[4], extents[2] <= z <= extents[5]
 template <typename S>
 void generateRandomTransform(S extents[6], Transform3<S>& transform);
@@ -159,7 +164,7 @@ struct DistanceRes
   Vector3<S> p2;
 };
 
-/// @brief Collision data stores the collision request and the result given by collision algorithm. 
+/// @brief Collision data stores the collision request and the result given by collision algorithm.
 template <typename S>
 struct CollisionData
 {
@@ -179,7 +184,7 @@ struct CollisionData
 };
 
 
-/// @brief Distance data stores the distance request and the result given by distance algorithm. 
+/// @brief Distance data stores the distance request and the result given by distance algorithm.
 template <typename S>
 struct DistanceData
 {
@@ -490,6 +495,11 @@ void generateRandomTransforms_ccd(S extents[6], Eigen::aligned_vector<Transform3
                                  const std::vector<Vector3<S>>& vertices1, const std::vector<Triangle>& triangles1,
                                  const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2)
 {
+  FCL_UNUSED(vertices1);
+  FCL_UNUSED(triangles1);
+  FCL_UNUSED(vertices2);
+  FCL_UNUSED(triangles2);
+
   transforms.resize(n);
   transforms2.resize(n);
 
@@ -654,6 +664,11 @@ bool defaultContinuousCollisionFunction(ContinuousCollisionObject<S>* o1, Contin
 template <typename S>
 bool defaultContinuousDistanceFunction(ContinuousCollisionObject<S>* o1, ContinuousCollisionObject<S>* o2, void* cdata_, S& dist)
 {
+  FCL_UNUSED(o1);
+  FCL_UNUSED(o2);
+  FCL_UNUSED(cdata_);
+  FCL_UNUSED(dist);
+
   return true;
 }
 

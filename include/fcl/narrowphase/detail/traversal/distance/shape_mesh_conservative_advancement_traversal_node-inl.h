@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/distance/shape_mesh_conservative_advancement_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -81,6 +83,8 @@ BVTesting(int b1, int b2) const
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
 void ShapeMeshConservativeAdvancementTraversalNode<Shape, BV, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+
   if(this->enable_statistics) this->num_leaf_tests++;
 
   const BVNode<BV>& node = this->model2->getBV(b2);

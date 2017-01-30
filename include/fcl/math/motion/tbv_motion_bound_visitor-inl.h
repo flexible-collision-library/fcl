@@ -40,6 +40,8 @@
 
 #include "fcl/math/motion/tbv_motion_bound_visitor.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -69,6 +71,8 @@ template<typename BV>
 typename BV::S TBVMotionBoundVisitor<BV>::visit(
     const MotionBase<S>& motion) const
 {
+  FCL_UNUSED(motion);
+
   return 0;
 }
 

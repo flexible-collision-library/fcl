@@ -38,6 +38,8 @@
 #ifndef FCL_CCD_TRIANGLEMOTIONBOUNDVISITOR_H
 #define FCL_CCD_TRIANGLEMOTIONBOUNDVISITOR_H
 
+#include "fcl/common/unused.h"
+
 #include "fcl/math/motion/taylor_model/taylor_matrix.h"
 #include "fcl/math/motion/taylor_model/taylor_vector.h"
 #include "fcl/math/bv/RSS.h"
@@ -76,7 +78,7 @@ public:
       const Vector3<S>& a_, const Vector3<S>& b_,
       const Vector3<S>& c_, const Vector3<S>& n_);
 
-  virtual S visit(const MotionBase<S>& motion) const { return 0; }
+  virtual S visit(const MotionBase<S>& motion) const { FCL_UNUSED(motion); return 0; }
   virtual S visit(const SplineMotion<S>& motion) const;
   virtual S visit(const ScrewMotion<S>& motion) const;
   virtual S visit(const InterpMotion<S>& motion) const;

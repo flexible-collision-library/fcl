@@ -40,6 +40,8 @@
 
 #include "fcl/math/motion/translation_motion.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -113,6 +115,9 @@ void TranslationMotion<S>::getCurrentTransform(Transform3<S>& tf_) const
 template <typename S>
 void TranslationMotion<S>::getTaylorModel(TMatrix3<S>& tm, TVector3<S>& tv) const
 {
+  FCL_UNUSED(tm);
+  FCL_UNUSED(tv);
+
   // Do nothing
   // TODO(JS): Not implemented?
 }

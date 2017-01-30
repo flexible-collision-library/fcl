@@ -41,15 +41,20 @@
 
 #include <gtest/gtest.h>
 
+#include "fcl/common/unused.h"
+
 #include "fcl/math/motion/translation_motion.h"
+
 #include "fcl/geometry/shape/cone.h"
 #include "fcl/geometry/shape/capsule.h"
 #include "fcl/geometry/shape/ellipsoid.h"
 #include "fcl/geometry/shape/halfspace.h"
 #include "fcl/geometry/shape/plane.h"
+
 #include "fcl/narrowphase/detail/gjk_solver_indep.h"
 #include "fcl/narrowphase/detail/gjk_solver_libccd.h"
 #include "fcl/narrowphase/collision.h"
+
 #include "test_fcl_utility.h"
 
 using namespace fcl;
@@ -234,6 +239,12 @@ bool checkContactPointds(const Shape1& s1, const Transform3<typename Shape1::S>&
                         bool check_opposite_normal = false,
                         typename Shape1::S tol = 1e-9)
 {
+  FCL_UNUSED(s1);
+  FCL_UNUSED(tf1);
+  FCL_UNUSED(s2);
+  FCL_UNUSED(tf2);
+  FCL_UNUSED(solver_type);
+
   if (check_position)
   {
     bool contact_equal = actual.pos.isApprox(expected.pos, tol);
