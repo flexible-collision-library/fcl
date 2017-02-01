@@ -391,7 +391,7 @@ template <typename S>
 bool obbDisjoint(const Matrix3<S>& B, const Vector3<S>& T,
                  const Vector3<S>& a, const Vector3<S>& b)
 {
-  register S t, s;
+  S t, s;
   const S reps = 1e-6;
 
   Matrix3<S> Bf = B.cwiseAbs();
@@ -521,7 +521,7 @@ bool obbDisjoint(
     const Vector3<S>& a,
     const Vector3<S>& b)
 {
-  register S t, s;
+  S t, s;
   const S reps = 1e-6;
 
   Matrix3<S> Bf = tf.linear().cwiseAbs();

@@ -162,7 +162,7 @@ typename NarrowPhaseSolver::S distance(
     collide(o1, tf1, o2, tf2, nsolver, collision_request, collision_result);
     assert(collision_result.isCollision());
 
-    std::size_t index = -1;
+    std::size_t index = static_cast<std::size_t>(-1);
     S max_pen_depth = std::numeric_limits<S>::min();
     for (auto i = 0u; i < collision_result.numContacts(); ++i)
     {
