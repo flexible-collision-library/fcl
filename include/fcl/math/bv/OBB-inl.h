@@ -40,6 +40,8 @@
 
 #include "fcl/math/bv/OBB.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -110,6 +112,8 @@ bool OBB<S>::overlap(const OBB<S>& other) const
 template <typename S>
 bool OBB<S>::overlap(const OBB& other, OBB& overlap_part) const
 {
+  FCL_UNUSED(overlap_part);
+
   return overlap(other);
 }
 
@@ -216,6 +220,10 @@ template <typename S>
 S OBB<S>::distance(const OBB& other, Vector3<S>* P,
                              Vector3<S>* Q) const
 {
+  FCL_UNUSED(other);
+  FCL_UNUSED(P);
+  FCL_UNUSED(Q);
+
   std::cerr << "OBB distance not implemented!" << std::endl;
   return 0.0;
 }

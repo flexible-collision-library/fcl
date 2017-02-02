@@ -40,10 +40,13 @@
 
 #include "fcl/narrowphase/continuous_collision.h"
 
+#include "fcl/common/unused.h"
+
 #include "fcl/math/motion/translation_motion.h"
 #include "fcl/math/motion/interp_motion.h"
 #include "fcl/math/motion/screw_motion.h"
 #include "fcl/math/motion/spline_motion.h"
+
 #include "fcl/narrowphase/collision.h"
 #include "fcl/narrowphase/collision_result.h"
 #include "fcl/narrowphase/detail/traversal/collision_node.h"
@@ -178,6 +181,8 @@ typename BV::S continuousCollideBVHPolynomial(
     const ContinuousCollisionRequest<typename BV::S>& request,
     ContinuousCollisionResult<typename BV::S>& result)
 {
+  FCL_UNUSED(request);
+
   using S = typename BV::S;
 
   const BVHModel<BV>* o1__ = static_cast<const BVHModel<BV>*>(o1_);

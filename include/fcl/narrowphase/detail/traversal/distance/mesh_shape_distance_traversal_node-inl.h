@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/distance/mesh_shape_distance_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -66,6 +68,8 @@ template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void MeshShapeDistanceTraversalNode<BV, Shape, NarrowPhaseSolver>::
 leafTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_leaf_tests++;
 
   const BVNode<BV>& node = this->model1->getBV(b1);
@@ -269,6 +273,8 @@ typename Shape::S
 MeshShapeDistanceTraversalNodeRSS<Shape, NarrowPhaseSolver>::BVTesting(
     int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_bv_tests++;
 
   return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -319,6 +325,8 @@ void MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::postprocess()
 template <typename Shape, typename NarrowPhaseSolver>
 typename Shape::S MeshShapeDistanceTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_bv_tests++;
 
   return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);
@@ -359,6 +367,8 @@ typename Shape::S
 MeshShapeDistanceTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::
 BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_bv_tests++;
 
   return distance(this->tf1.linear(), this->tf1.translation(), this->model2_bv, this->model1->getBV(b1).bv);

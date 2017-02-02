@@ -42,6 +42,8 @@
 
 #include <algorithm>
 
+#include "fcl/common/unused.h"
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_capsule.h"
@@ -265,6 +267,8 @@ struct ShapeIntersectLibccdImpl<S, Halfspace<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Halfspace<S> s;
     Vector3<S> p, d;
     S depth;
@@ -299,6 +303,8 @@ struct ShapeIntersectLibccdImpl<S, Plane<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;
@@ -318,6 +324,8 @@ struct ShapeIntersectLibccdImpl<S, Halfspace<S>, Plane<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;
@@ -902,6 +910,8 @@ GJKSolver_libccd<S>::GJKSolver_libccd()
 template<typename S>
 void GJKSolver_libccd<S>::enableCachedGuess(bool if_enable) const
 {
+  FCL_UNUSED(if_enable);
+
   // TODO: need change libccd to exploit spatial coherence
 }
 
@@ -910,6 +920,8 @@ template<typename S>
 void GJKSolver_libccd<S>::setCachedGuess(
     const Vector3<S>& guess) const
 {
+  FCL_UNUSED(guess);
+
   // TODO: need change libccd to exploit spatial coherence
 }
 

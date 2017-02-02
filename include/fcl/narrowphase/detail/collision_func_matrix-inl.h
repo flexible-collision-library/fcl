@@ -42,6 +42,8 @@
 
 #include "fcl/config.h"
 
+#include "fcl/common/unused.h"
+
 #include "fcl/narrowphase/collision_object.h"
 
 #include "fcl/geometry/shape/box.h"
@@ -652,6 +654,8 @@ std::size_t BVHCollide(
     const CollisionRequest<typename BV::S>& request,
     CollisionResult<typename BV::S>& result)
 {
+  FCL_UNUSED(nsolver);
+
   return BVHCollide<BV>(o1, tf1, o2, tf2, request, result);
 }
 

@@ -40,6 +40,8 @@
 
 #include "fcl/broadphase/detail/hierarchy_tree_array.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -342,6 +344,10 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv)
 template<typename BV>
 bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<S>& vel, S margin)
 {
+  FCL_UNUSED(bv);
+  FCL_UNUSED(vel);
+  FCL_UNUSED(margin);
+
   if(nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
   return true;
@@ -351,6 +357,8 @@ bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<S>& vel,
 template<typename BV>
 bool HierarchyTree<BV>::update(size_t leaf, const BV& bv, const Vector3<S>& vel)
 {
+  FCL_UNUSED(vel);
+
   if(nodes[leaf].bv.contain(bv)) return false;
   update_(leaf, bv);
   return true;
@@ -1071,11 +1079,21 @@ struct SelectImpl
 {
   static bool run(size_t query, size_t node1, size_t node2, NodeBase<BV>* nodes)
   {
+    FCL_UNUSED(query);
+    FCL_UNUSED(node1);
+    FCL_UNUSED(node2);
+    FCL_UNUSED(nodes);
+
     return 0;
   }
 
   static bool run(const BV& query, size_t node1, size_t node2, NodeBase<BV>* nodes)
   {
+    FCL_UNUSED(query);
+    FCL_UNUSED(node1);
+    FCL_UNUSED(node2);
+    FCL_UNUSED(nodes);
+
     return 0;
   }
 };

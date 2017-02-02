@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/collision/bvh_shape_collision_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -84,6 +86,8 @@ int BVHShapeCollisionTraversalNode<Shape, BV>::getFirstRightChild(int b) const
 template <typename Shape, typename BV>
 bool BVHShapeCollisionTraversalNode<Shape, BV>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) num_bv_tests++;
   return !model1->getBV(b1).bv.overlap(model2_bv);
 }

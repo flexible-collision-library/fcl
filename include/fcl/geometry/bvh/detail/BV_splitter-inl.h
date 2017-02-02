@@ -40,6 +40,8 @@
 
 #include "fcl/geometry/bvh/detail/BV_splitter.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -591,6 +593,8 @@ void computeSplitValue_mean(
     const Vector3<S>& split_vector,
     S& split_value)
 {
+  FCL_UNUSED(bv);
+
   S sum = 0.0;
   if(type == BVH_MODEL_TRIANGLES)
   {
@@ -634,6 +638,8 @@ void computeSplitValue_median(
     const Vector3<S>& split_vector,
     S& split_value)
 {
+  FCL_UNUSED(bv);
+
   std::vector<S> proj(num_primitives);
 
   if(type == BVH_MODEL_TRIANGLES)

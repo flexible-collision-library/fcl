@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/distance/mesh_shape_conservative_advancement_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -82,6 +84,8 @@ template <typename BV, typename Shape, typename NarrowPhaseSolver>
 void MeshShapeConservativeAdvancementTraversalNode<BV, Shape, NarrowPhaseSolver>::
 leafTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   if(this->enable_statistics) this->num_leaf_tests++;
 
   const BVNode<BV>& node = this->model1->getBV(b1);
@@ -292,6 +296,8 @@ bool meshShapeConservativeAdvancementOrientedNodeCanStop(
     std::vector<ConservativeAdvancementStackData<typename BV::S>>& stack,
     typename BV::S& delta_t)
 {
+  FCL_UNUSED(model2);
+
   using S = typename BV::S;
 
   if((c >= w * (min_distance - abs_err)) && (c * (1 + rel_err) >= w * min_distance))

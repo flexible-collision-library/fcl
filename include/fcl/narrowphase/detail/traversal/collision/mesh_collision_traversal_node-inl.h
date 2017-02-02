@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/collision/mesh_collision_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 #include "fcl/narrowphase/collision_result.h"
 
 namespace fcl
@@ -348,6 +350,9 @@ template <typename S>
 void MeshCollisionTraversalNodeOBB<S>::leafTesting(
     int b1, int b2, const Matrix3<S>& Rc, const Vector3<S>& Tc) const
 {
+  FCL_UNUSED(Rc);
+  FCL_UNUSED(Tc);
+
   detail::meshCollisionOrientedNodeLeafTesting(
         b1,
         b2,

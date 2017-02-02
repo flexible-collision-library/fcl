@@ -41,6 +41,9 @@
 #include <ccd/ccd.h>
 #include <ccd/quat.h>
 #include <ccd/vec3.h>
+
+#include "fcl/common/unused.h"
+
 #include "fcl/geometry/shape/box.h"
 #include "fcl/geometry/shape/capsule.h"
 #include "fcl/geometry/shape/cone.h"
@@ -51,6 +54,7 @@
 #include "fcl/geometry/shape/plane.h"
 #include "fcl/geometry/shape/sphere.h"
 #include "fcl/geometry/shape/triangle_p.h"
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/simplex.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/polytope.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/alloc.h"
@@ -85,7 +89,7 @@ public:
   static void* createGJKObject(const T& /* s */, const Transform3<S>& /*tf*/) { return nullptr; }
 
   /// @brief Delete GJK object
-  static void deleteGJKObject(void* o) {}
+  static void deleteGJKObject(void* o) { FCL_UNUSED(o); }
 };
 
 /// @brief initialize GJK Cylinder<S>

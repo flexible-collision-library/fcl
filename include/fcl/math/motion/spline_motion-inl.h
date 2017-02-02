@@ -40,6 +40,8 @@
 
 #include "fcl/math/motion/spline_motion.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -93,6 +95,11 @@ SplineMotion<S>::SplineMotion(
     const Matrix3<S>& R2, const Vector3<S>& T2)
   : MotionBase<S>()
 {
+  FCL_UNUSED(R1);
+  FCL_UNUSED(T1);
+  FCL_UNUSED(R2);
+  FCL_UNUSED(T2);
+
   // TODO
 }
 
@@ -102,6 +109,9 @@ SplineMotion<S>::SplineMotion(
     const Transform3<S>& tf1, const Transform3<S>& tf2)
   : MotionBase<S>()
 {
+  FCL_UNUSED(tf1);
+  FCL_UNUSED(tf2);
+
   // TODO
 }
 

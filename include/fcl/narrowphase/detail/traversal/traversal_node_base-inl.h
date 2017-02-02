@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/traversal_node_base.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -75,6 +77,8 @@ void TraversalNodeBase<S>::postprocess()
 template <typename S>
 bool TraversalNodeBase<S>::isFirstNodeLeaf(int b) const
 {
+  FCL_UNUSED(b);
+
   return true;
 }
 
@@ -82,6 +86,8 @@ bool TraversalNodeBase<S>::isFirstNodeLeaf(int b) const
 template <typename S>
 bool TraversalNodeBase<S>::isSecondNodeLeaf(int b) const
 {
+  FCL_UNUSED(b);
+
   return true;
 }
 
@@ -89,6 +95,9 @@ bool TraversalNodeBase<S>::isSecondNodeLeaf(int b) const
 template <typename S>
 bool TraversalNodeBase<S>::firstOverSecond(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+  FCL_UNUSED(b2);
+
   return true;
 }
 

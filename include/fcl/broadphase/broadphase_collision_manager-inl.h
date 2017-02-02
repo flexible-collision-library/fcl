@@ -31,7 +31,7 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 /** @author Jia Pan */
 
@@ -39,6 +39,8 @@
 #define FCL_BROADPHASE_BROADPHASECOLLISIONMANAGER_INL_H
 
 #include "fcl/broadphase/broadphase_collision_manager.h"
+
+#include "fcl/common/unused.h"
 
 namespace fcl {
 
@@ -74,6 +76,8 @@ void BroadPhaseCollisionManager<S>::registerObjects(
 template <typename S>
 void BroadPhaseCollisionManager<S>::update(CollisionObject<S>* updated_obj)
 {
+  FCL_UNUSED(updated_obj);
+
   update();
 }
 
@@ -82,6 +86,8 @@ template <typename S>
 void BroadPhaseCollisionManager<S>::update(
     const std::vector<CollisionObject<S>*>& updated_objs)
 {
+  FCL_UNUSED(updated_objs);
+
   update();
 }
 

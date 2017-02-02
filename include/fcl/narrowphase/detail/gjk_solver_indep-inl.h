@@ -42,7 +42,10 @@
 
 #include <algorithm>
 
+#include "fcl/common/unused.h"
+
 #include "fcl/geometry/shape/triangle_p.h"
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/epa.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
@@ -268,6 +271,8 @@ struct ShapeIntersectIndepImpl<S, Halfspace<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Halfspace<S> s;
     Vector3<S> p, d;
     S depth;
@@ -302,6 +307,8 @@ struct ShapeIntersectIndepImpl<S, Plane<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;
@@ -321,6 +328,8 @@ struct ShapeIntersectIndepImpl<S, Halfspace<S>, Plane<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;

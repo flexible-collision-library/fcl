@@ -40,6 +40,8 @@
 
 #include "fcl/geometry/shape/utility.h"
 
+#include "fcl/common/unused.h"
+
 #include "fcl/math/bv/utility.h"
 
 #include "fcl/geometry/shape/capsule.h"
@@ -359,6 +361,9 @@ struct ComputeBVImpl<S, OBB<S>, Halfspace<S>>
 {
   static void run(const Halfspace<S>& s, const Transform3<S>& tf, OBB<S>& bv)
   {
+    FCL_UNUSED(s);
+    FCL_UNUSED(tf);
+
     /// Half space can only have very rough OBB
     bv.axis.setIdentity();
     bv.To.setZero();
@@ -372,6 +377,9 @@ struct ComputeBVImpl<S, RSS<S>, Halfspace<S>>
 {
   static void run(const Halfspace<S>& s, const Transform3<S>& tf, RSS<S>& bv)
   {
+    FCL_UNUSED(s);
+    FCL_UNUSED(tf);
+
     /// Half space can only have very rough RSS
     bv.axis.setIdentity();
     bv.To.setZero();
@@ -1137,6 +1145,8 @@ void constructBox(const AABB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Tr
 template <typename S>
 void constructBox(const OBB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
+  FCL_UNUSED(tf_bv);
+
   box = Box<S>(bv.extent * 2);
   tf.linear() = bv.axis;
   tf.translation() = bv.To;
@@ -1156,6 +1166,8 @@ void constructBox(const OBBRSS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, 
 template <typename S>
 void constructBox(const kIOS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf)
 {
+  FCL_UNUSED(tf_bv);
+
   box = Box<S>(bv.obb.extent * 2);
   tf.linear() = bv.obb.axis;
   tf.translation() = bv.obb.To;

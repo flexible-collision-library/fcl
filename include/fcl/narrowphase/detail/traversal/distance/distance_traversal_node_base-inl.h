@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/distance/distance_traversal_node_base.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -69,6 +71,9 @@ DistanceTraversalNodeBase<S>::~DistanceTraversalNodeBase()
 template <typename S>
 S DistanceTraversalNodeBase<S>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+  FCL_UNUSED(b2);
+
   return std::numeric_limits<S>::max();
 }
 
@@ -76,6 +81,9 @@ S DistanceTraversalNodeBase<S>::BVTesting(int b1, int b2) const
 template <typename S>
 void DistanceTraversalNodeBase<S>::leafTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+  FCL_UNUSED(b2);
+
   // Do nothing
 }
 
@@ -83,6 +91,8 @@ void DistanceTraversalNodeBase<S>::leafTesting(int b1, int b2) const
 template <typename S>
 bool DistanceTraversalNodeBase<S>::canStop(S c) const
 {
+  FCL_UNUSED(c);
+
   return false;
 }
 
