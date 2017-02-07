@@ -77,11 +77,20 @@ if((CMAKE_COMPILER_IS_GNUCXX OR IS_ICPC) AND NOT MINGW)
     endif()
 endif()
 
+# By default CMake sets RPATH for binaries in the build tree, but clears
+# it when installing. Switch this option off if the default behaviour is
+# desired.
+option(FCL_NO_DEFAULT_RPATH "Set RPATH for installed binaries" ON)
+mark_as_advanced(FCL_NO_DEFAULT_RPATH)
+
 # Set rpath http://www.paraview.org/Wiki/CMake_RPATH_handling
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR_FULL}")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+if(FCL_NO_DEFAULT_RPATH)
+    message(STATUS "Set RPATH explicitly to '${CMAKE_INSTALL_LIBDIR_FULL}'")
+    set(CMAKE_SKIP_BUILD_RPATH FALSE)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR_FULL}")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
 
 # no prefix needed for python modules
 set(CMAKE_SHARED_MODULE_PREFIX "")
