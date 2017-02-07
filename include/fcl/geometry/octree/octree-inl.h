@@ -107,7 +107,7 @@ typename OcTree<S>::OcTreeNode* OcTree<S>::getRoot() const
 
 //==============================================================================
 template <typename S>
-bool OcTree<S>::isNodeOccupied(const OcTree<S>::OcTreeNode* node) const
+bool OcTree<S>::isNodeOccupied(const typename OcTree<S>::OcTreeNode* node) const
 {
   // return tree->isNodeOccupied(node);
   return node->getOccupancy() >= occupancy_threshold;
@@ -115,7 +115,7 @@ bool OcTree<S>::isNodeOccupied(const OcTree<S>::OcTreeNode* node) const
 
 //==============================================================================
 template <typename S>
-bool OcTree<S>::isNodeFree(const OcTree<S>::OcTreeNode* node) const
+bool OcTree<S>::isNodeFree(const typename OcTree<S>::OcTreeNode* node) const
 {
   // return false; // default no definitely free node
   return node->getOccupancy() <= free_threshold;
@@ -123,7 +123,7 @@ bool OcTree<S>::isNodeFree(const OcTree<S>::OcTreeNode* node) const
 
 //==============================================================================
 template <typename S>
-bool OcTree<S>::isNodeUncertain(const OcTree<S>::OcTreeNode* node) const
+bool OcTree<S>::isNodeUncertain(const typename OcTree<S>::OcTreeNode* node) const
 {
   return (!isNodeOccupied(node)) && (!isNodeFree(node));
 }
@@ -197,7 +197,7 @@ const typename OcTree<S>::OcTreeNode* OcTree<S>::getNodeChild(
 //==============================================================================
 template <typename S>
 bool OcTree<S>::nodeChildExists(
-    const OcTree<S>::OcTreeNode* node, unsigned int childIdx) const
+    const typename OcTree<S>::OcTreeNode* node, unsigned int childIdx) const
 {
 #if OCTOMAP_VERSION_AT_LEAST(1,8,0)
   return tree->nodeChildExists(node, childIdx);
@@ -208,7 +208,7 @@ bool OcTree<S>::nodeChildExists(
 
 //==============================================================================
 template <typename S>
-bool OcTree<S>::nodeHasChildren(const OcTree<S>::OcTreeNode* node) const
+bool OcTree<S>::nodeHasChildren(const typename OcTree<S>::OcTreeNode* node) const
 {
 #if OCTOMAP_VERSION_AT_LEAST(1,8,0)
   return tree->nodeHasChildren(node);
