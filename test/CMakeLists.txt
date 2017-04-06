@@ -30,7 +30,7 @@ add_definitions(-DGTEST_DONT_DEFINE_ASSERT_GT=1)
 
 execute_process(COMMAND cmake -E remove_directory ${CMAKE_BINARY_DIR}/test_results)
 execute_process(COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/test_results)
-include_directories(${GTEST_INCLUDE_DIRS})
+include_directories(SYSTEM ${GTEST_INCLUDE_DIRS})
 
 add_library(test_fcl_utility test_fcl_utility.cpp)
 target_link_libraries(test_fcl_utility fcl)
