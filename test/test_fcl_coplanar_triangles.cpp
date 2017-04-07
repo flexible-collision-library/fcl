@@ -104,13 +104,13 @@ void test_collision_triangle_pairs()
                             { 0.25,0.5, 0.25}};
 
   // Vertex lists for triangles
-  int t_a[2][3] = {{0,1,2},  // Surrounding triangles
-                   {3,2,1}};
+  int t_a[2][3]  = {{0,1,2},  // Surrounding triangles
+                    {3,2,1}};
   int t_bp[2][3] = {{0,1,2}, // Parallel crossing
                     {3,2,1}};
   int t_bx[2][3] = {{0,1,3}, // Transverse crossing
                     {3,2,0}};
-  Vector3<Scalar> contact_points[3];
+  Vector3<Scalar> contact_points[6];
   unsigned int num_contact_points;
   Scalar penetration_depth;
   Vector3<Scalar> normal;

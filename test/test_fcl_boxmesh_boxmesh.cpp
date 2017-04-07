@@ -53,13 +53,25 @@ void test_collision_triangle_triangle()
   Vector3<Scalar> Q2(1, 0, 0);
   Vector3<Scalar> Q3(0, 0, 1);
 
-  Vector3<Scalar> contact_points[2];
+  Vector3<Scalar> contact_points[6];
   unsigned int num_contact_points;
   Scalar penetration_depth;
   Vector3<Scalar> normal;
 
   auto res = detail::Intersect<Scalar>::intersect_Triangle(
-        P1, P2, P3, Q1, Q2, Q3,
+        P1, P2, P3,
+        Q1, Q2, Q3,
+        contact_points, &num_contact_points, &penetration_depth, &normal);
+
+  EXPECT_TRUE(res);
+  EXPECT_EQ(num_contact_points, 2u);
+  EXPECT_TRUE(contact_points[0].isApprox(Vector3<Scalar>::Zero()));
+  EXPECT_TRUE(contact_points[1].isApprox(Vector3<Scalar>(1, 0, 0)));
+  EXPECT_EQ(penetration_depth, (Scalar)0);
+
+  res = detail::Intersect<Scalar>::intersect_Triangle(
+        Q1, Q2, Q3,
+        P1, P2, P3,
         contact_points, &num_contact_points, &penetration_depth, &normal);
 
   EXPECT_TRUE(res);
@@ -111,9 +123,9 @@ void test_collision_boxmeshboxmesh_contactpoint()
   generateBVHModel(s1_obbrss, s1, identity);
   generateBVHModel(s2_obbrss, s2, identity);
 
-  CollisionRequest<Scalar> request(1e+3, true);
+  CollisionRequest<Scalar> req(1e+3, true);
 
-  CollisionResult<Scalar> result;
+  CollisionResult<Scalar> res;
 
   //----------------------------------------------------------------------------
   // Case1: s2 is completely inside of s1.
@@ -122,25 +134,25 @@ void test_collision_boxmeshboxmesh_contactpoint()
   // whereas mesh collision returns no contact.
   //----------------------------------------------------------------------------
 
-  result.clear();
-  collide(&s1, identity, &s2, identity, request, result);
-  EXPECT_EQ(result.numContacts(), 4);  // maximum contact number of box-box
+  res.clear();
+  collide(&s1, identity, &s2, identity, req, res);
+  EXPECT_EQ(res.numContacts(), 4);  // maximum contact number of box-box
 
-  result.clear();
-  collide(&s1_aabb, identity, &s2_aabb, identity, request, result);
-  EXPECT_EQ(result.numContacts(), 0);
+  res.clear();
+  collide(&s1_aabb, identity, &s2_aabb, identity, req, res);
+  EXPECT_EQ(res.numContacts(), 0);
 
-  result.clear();
-  collide(&s1_obb, identity, &s2_obb, identity, request, result);
-  EXPECT_EQ(result.numContacts(), 0);
+  res.clear();
+  collide(&s1_obb, identity, &s2_obb, identity, req, res);
+  EXPECT_EQ(res.numContacts(), 0);
 
-  result.clear();
-  collide(&s1_rss, identity, &s2_rss, identity, request, result);
-  EXPECT_EQ(result.numContacts(), 0);
+  res.clear();
+  collide(&s1_rss, identity, &s2_rss, identity, req, res);
+  EXPECT_EQ(res.numContacts(), 0);
 
-  result.clear();
-  collide(&s1_obbrss, identity, &s2_obbrss, identity, request, result);
-  EXPECT_EQ(result.numContacts(), 0);
+  res.clear();
+  collide(&s1_obbrss, identity, &s2_obbrss, identity, req, res);
+  EXPECT_EQ(res.numContacts(), 0);
 
   //----------------------------------------------------------------------------
   // Case2: The left side (-y axis) of s2 touching the right side (+y axis) of
@@ -157,93 +169,93 @@ void test_collision_boxmeshboxmesh_contactpoint()
   min.array() -= margin;
   max.array() += margin;
 
-  result.clear();
-  collide(&s1, identity, &s2, pose, request, result);
-  EXPECT_EQ(result.numContacts(), 4);
-  for (auto i = 0u; i < result.numContacts(); ++i)
+  res.clear();
+  collide(&s1, identity, &s2, pose, req, res);
+  EXPECT_EQ(res.numContacts(), 4);
+  for (auto i = 0u; i < res.numContacts(); ++i)
   {
-    const auto& contact = result.getContact(i);
+    const auto& contact = res.getContact(i);
     const bool result = checkBoundingBox(min, max, contact.pos);
 
     EXPECT_TRUE(result);
     if (!result)
     {
-      std::cout << "contact point: " << contact.pos.transpose() << "\n";
+      std::cout << "contact point: " << contact.pos.transpose() << std::endl;
       std::cout << "which is expected to be within ("
                 << min.transpose() << ") and ("
-                << max.transpose() << ").\n";
+                << max.transpose() << ")." << std::endl;
     }
   }
 
-  result.clear();
-  collide(&s1_aabb, identity, &s2_aabb, pose, request, result);
-  EXPECT_TRUE(result.numContacts() > 4);
-  for (auto i = 0u; i < result.numContacts(); ++i)
+  res.clear();
+  collide(&s1_aabb, identity, &s2_aabb, pose, req, res);
+  EXPECT_TRUE(res.numContacts() > 4);
+  for (auto i = 0u; i < res.numContacts(); ++i)
   {
-    const auto& contact = result.getContact(i);
+    const auto& contact = res.getContact(i);
     const bool result = checkBoundingBox(min, max, contact.pos);
 
     EXPECT_TRUE(result);
     if (!result)
     {
-      std::cout << "aabb contact point: " << contact.pos.transpose() << "\n";
+      std::cout << "aabb contact point: " << contact.pos.transpose() << std::endl;
       std::cout << "which is expected to be within ("
                 << min.transpose() << ") and ("
-                << max.transpose() << ").\n";
+                << max.transpose() << ")." << std::endl;
     }
   }
 
-  result.clear();
-  collide(&s1_obb, identity, &s2_obb, pose, request, result);
-  EXPECT_TRUE(result.numContacts() > 4);
-  for (auto i = 0u; i < result.numContacts(); ++i)
+  res.clear();
+  collide(&s1_obb, identity, &s2_obb, pose, req, res);
+  EXPECT_TRUE(res.numContacts() > 4);
+  for (auto i = 0u; i < res.numContacts(); ++i)
   {
-    const auto& contact = result.getContact(i);
+    const auto& contact = res.getContact(i);
     const bool result = checkBoundingBox(min, max, contact.pos);
 
     EXPECT_TRUE(result);
     if (!result)
     {
-      std::cout << "obb contact point: " << contact.pos.transpose() << "\n";
+      std::cout << "obb contact point: " << contact.pos.transpose() << std::endl;
       std::cout << "which is expected to be within ("
                 << min.transpose() << ") and ("
-                << max.transpose() << ").\n";
+                << max.transpose() << ")." << std::endl;
     }
   }
 
-  result.clear();
-  collide(&s1_rss, identity, &s2_rss, pose, request, result);
-  EXPECT_TRUE(result.numContacts() > 4);
-  for (auto i = 0u; i < result.numContacts(); ++i)
+  res.clear();
+  collide(&s1_rss, identity, &s2_rss, pose, req, res);
+  EXPECT_TRUE(res.numContacts() > 4);
+  for (auto i = 0u; i < res.numContacts(); ++i)
   {
-    const auto& contact = result.getContact(i);
+    const auto& contact = res.getContact(i);
     const bool result = checkBoundingBox(min, max, contact.pos);
 
     EXPECT_TRUE(result);
     if (!result)
     {
-      std::cout << "rss contact point: " << contact.pos.transpose() << "\n";
+      std::cout << "rss contact point: " << contact.pos.transpose() << std::endl;
       std::cout << "which is expected to be within ("
                 << min.transpose() << ") and ("
-                << max.transpose() << ").\n";
+                << max.transpose() << ")." << std::endl;
     }
   }
 
-  result.clear();
-  collide(&s1_obbrss, identity, &s2_obbrss, pose, request, result);
-  EXPECT_TRUE(result.numContacts() > 4);
-  for (auto i = 0u; i < result.numContacts(); ++i)
+  res.clear();
+  collide(&s1_obbrss, identity, &s2_obbrss, pose, req, res);
+  EXPECT_TRUE(res.numContacts() > 4);
+  for (auto i = 0u; i < res.numContacts(); ++i)
   {
-    const auto& contact = result.getContact(i);
+    const auto& contact = res.getContact(i);
     const bool result = checkBoundingBox(min, max, contact.pos);
 
     EXPECT_TRUE(result);
     if (!result)
     {
-      std::cout << "obbrss contact point: " << contact.pos.transpose() << "\n";
+      std::cout << "obbrss contact point: " << contact.pos.transpose() << std::endl;
       std::cout << "which is expected to be within ("
                 << min.transpose() << ") and ("
-                << max.transpose() << ").\n";
+                << max.transpose() << ")." << std::endl;
     }
   }
 }
