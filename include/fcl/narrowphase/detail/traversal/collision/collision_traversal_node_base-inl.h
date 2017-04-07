@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/collision/collision_traversal_node_base.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -69,6 +71,9 @@ CollisionTraversalNodeBase<S>::~CollisionTraversalNodeBase()
 template <typename S>
 bool CollisionTraversalNodeBase<S>::BVTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+  FCL_UNUSED(b2);
+
   return true;
 }
 
@@ -76,6 +81,9 @@ bool CollisionTraversalNodeBase<S>::BVTesting(int b1, int b2) const
 template <typename S>
 void CollisionTraversalNodeBase<S>::leafTesting(int b1, int b2) const
 {
+  FCL_UNUSED(b1);
+  FCL_UNUSED(b2);
+
   // Do nothing
 }
 

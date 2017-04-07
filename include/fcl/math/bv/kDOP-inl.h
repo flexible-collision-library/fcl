@@ -40,6 +40,8 @@
 
 #include "fcl/math/bv/kDOP.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -243,6 +245,10 @@ Vector3<S> KDOP<S, N>::center() const
 template <typename S, std::size_t N>
 S KDOP<S, N>::distance(const KDOP<S, N>& other, Vector3<S>* P, Vector3<S>* Q) const
 {
+  FCL_UNUSED(other);
+  FCL_UNUSED(P);
+  FCL_UNUSED(Q);
+
   std::cerr << "KDOP distance not implemented!" << std::endl;
   return 0.0;
 }

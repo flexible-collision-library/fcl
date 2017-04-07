@@ -41,6 +41,9 @@
 #include <ccd/ccd.h>
 #include <ccd/quat.h>
 #include <ccd/vec3.h>
+
+#include "fcl/common/unused.h"
+
 #include "fcl/geometry/shape/box.h"
 #include "fcl/geometry/shape/capsule.h"
 #include "fcl/geometry/shape/cone.h"
@@ -51,7 +54,11 @@
 #include "fcl/geometry/shape/plane.h"
 #include "fcl/geometry/shape/sphere.h"
 #include "fcl/geometry/shape/triangle_p.h"
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/simplex.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/polytope.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/alloc.h"
+#include "fcl/narrowphase/detail/convexity_based_algorithm/list.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 
 namespace fcl
@@ -82,7 +89,7 @@ public:
   static void* createGJKObject(const T& /* s */, const Transform3<S>& /*tf*/) { return nullptr; }
 
   /// @brief Delete GJK object
-  static void deleteGJKObject(void* o) {}
+  static void deleteGJKObject(void* o) { FCL_UNUSED(o); }
 };
 
 /// @brief initialize GJK Cylinder<S>
@@ -195,6 +202,15 @@ bool GJKDistance(void* obj1, ccd_support_fn supp1,
                  void* obj2, ccd_support_fn supp2,
                  unsigned int max_iterations, S tolerance,
                  S* dist, Vector3<S>* p1, Vector3<S>* p2);
+
+
+template <typename S>
+bool GJKSignedDistance(void* obj1, ccd_support_fn supp1,
+                       void* obj2, ccd_support_fn supp2,
+                       unsigned int max_iterations, S tolerance,
+                       S* dist, Vector3<S>* p1, Vector3<S>* p2);
+
+
 
 } // namespace detail
 } // namespace fcl

@@ -22,6 +22,7 @@
 
 * Build/Test/Misc
 
+  * Added version check for Visual Studio in CMake (VS2015 or greater required): [#189](https://github.com/flexible-collision-library/fcl/pull/189)
   * Added CMake targets for generating API documentation: [#174](https://github.com/flexible-collision-library/fcl/pull/174)
   * Enabled build with SSE option by default: [#159](https://github.com/flexible-collision-library/fcl/pull/159)
   * Added missing copyright headers:  [#149](https://github.com/flexible-collision-library/fcl/pull/149)

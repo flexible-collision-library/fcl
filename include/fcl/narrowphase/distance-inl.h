@@ -113,6 +113,7 @@ typename NarrowPhaseSolver::S distance(
 
   S res = std::numeric_limits<S>::max();
 
+
   if(object_type1 == OT_GEOM && object_type2 == OT_BVH)
   {
     if(!looktable.distance_matrix[node_type2][node_type1])
@@ -136,10 +137,23 @@ typename NarrowPhaseSolver::S distance(
     }
   }
 
+  // TODO(JS): FCL supports negative distance calculation only for OT_GEOM shape
+  // types (i.e., primitive shapes like sphere, cylinder, box, and so on). As a
+  // workaround for the rest shape types like mesh and octree, following
+  // computes negative distance using additional penetration depth computation
+  // of collision checking routine. The downside of this workaround is that the
+  // pair of nearest points is not guaranteed to be on the surface of the
+  // objects.
   if(res
      && result.min_distance < static_cast<S>(0)
      && request.enable_signed_distance)
   {
+    if (std::is_same<NarrowPhaseSolver, detail::GJKSolver_libccd<S>>::value
+        && object_type1 == OT_GEOM && object_type2 == OT_GEOM)
+    {
+      return res;
+    }
+
     CollisionRequest<S> collision_request;
     collision_request.enable_contact = true;
 
@@ -148,7 +162,7 @@ typename NarrowPhaseSolver::S distance(
     collide(o1, tf1, o2, tf2, nsolver, collision_request, collision_result);
     assert(collision_result.isCollision());
 
-    std::size_t index = -1;
+    std::size_t index = static_cast<std::size_t>(-1);
     S max_pen_depth = std::numeric_limits<S>::min();
     for (auto i = 0u; i < collision_result.numContacts(); ++i)
     {
@@ -160,16 +174,15 @@ typename NarrowPhaseSolver::S distance(
       }
     }
     result.min_distance = -max_pen_depth;
-    assert(index != -1);
+    assert(index != static_cast<std::size_t>(-1));
 
     if (request.enable_nearest_points)
     {
       const Vector3<S>& pos = collision_result.getContact(index).pos;
       result.nearest_points[0] = pos;
       result.nearest_points[1] = pos;
-      // TODO(JS): The nearest points are not guaranteed to be on the surface of
-      // the objects anymore, which is expected so when the two objects are not
-      // in collision.
+      // Note: The pair of nearest points is not guaranteed to be on the
+      // surface of the objects.
     }
   }
 

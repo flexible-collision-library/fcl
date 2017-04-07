@@ -40,8 +40,12 @@
 
 #include "fcl/narrowphase/detail/conservative_advancement_func_matrix.h"
 
+#include "fcl/common/unused.h"
+
 #include "fcl/narrowphase/collision_object.h"
+
 #include "fcl/math/motion/motion_base.h"
+
 #include "fcl/geometry/bvh/BVH_model.h"
 #include "fcl/geometry/shape/box.h"
 #include "fcl/geometry/shape/capsule.h"
@@ -688,6 +692,9 @@ struct ConservativeAdvancementImpl<S, BVHModel<OBBRSS<S>>, NarrowPhaseSolver>
 template<typename BV, typename NarrowPhaseSolver>
 typename BV::S BVHConservativeAdvancement(const CollisionGeometry<typename BV::S>* o1, const MotionBase<typename BV::S>* motion1, const CollisionGeometry<typename BV::S>* o2, const MotionBase<typename BV::S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<typename BV::S>& request, ContinuousCollisionResult<typename BV::S>& result)
 {
+  FCL_UNUSED(nsolver);
+  FCL_UNUSED(request);
+
   using S = typename BV::S;
 
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);
@@ -707,6 +714,8 @@ typename BV::S BVHConservativeAdvancement(const CollisionGeometry<typename BV::S
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
 typename Shape1::S ShapeConservativeAdvancement(const CollisionGeometry<typename Shape1::S>* o1, const MotionBase<typename Shape1::S>* motion1, const CollisionGeometry<typename Shape1::S>* o2, const MotionBase<typename Shape1::S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<typename Shape1::S>& request, ContinuousCollisionResult<typename Shape1::S>& result)
 {
+  FCL_UNUSED(request);
+
   using S = typename Shape1::S;
 
   const Shape1* obj1 = static_cast<const Shape1*>(o1);
@@ -726,6 +735,8 @@ typename Shape1::S ShapeConservativeAdvancement(const CollisionGeometry<typename
 template<typename Shape, typename BV, typename NarrowPhaseSolver>
 typename BV::S ShapeBVHConservativeAdvancement(const CollisionGeometry<typename BV::S>* o1, const MotionBase<typename BV::S>* motion1, const CollisionGeometry<typename BV::S>* o2, const MotionBase<typename BV::S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<typename BV::S>& request, ContinuousCollisionResult<typename BV::S>& result)
 {
+  FCL_UNUSED(request);
+
   using S = typename BV::S;
 
   const Shape* obj1 = static_cast<const Shape*>(o1);
@@ -746,6 +757,8 @@ typename BV::S ShapeBVHConservativeAdvancement(const CollisionGeometry<typename 
 template<typename BV, typename Shape, typename NarrowPhaseSolver>
 typename BV::S BVHShapeConservativeAdvancement(const CollisionGeometry<typename BV::S>* o1, const MotionBase<typename BV::S>* motion1, const CollisionGeometry<typename BV::S>* o2, const MotionBase<typename BV::S>* motion2, const NarrowPhaseSolver* nsolver, const ContinuousCollisionRequest<typename BV::S>& request, ContinuousCollisionResult<typename BV::S>& result)
 {
+  FCL_UNUSED(request);
+
   using S = typename BV::S;
 
   const BVHModel<BV>* obj1 = static_cast<const BVHModel<BV>*>(o1);

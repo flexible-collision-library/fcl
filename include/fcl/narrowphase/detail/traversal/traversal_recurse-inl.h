@@ -42,6 +42,8 @@
 
 #include <queue>
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -214,6 +216,13 @@ void collisionRecurse(MeshCollisionTraversalNodeOBB<S>* node, int b1, int b2, co
 template <typename S>
 void collisionRecurse(MeshCollisionTraversalNodeRSS<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list)
 {
+  FCL_UNUSED(node);
+  FCL_UNUSED(b1);
+  FCL_UNUSED(b2);
+  FCL_UNUSED(R);
+  FCL_UNUSED(T);
+  FCL_UNUSED(front_list);
+
   // Do nothing
 }
 

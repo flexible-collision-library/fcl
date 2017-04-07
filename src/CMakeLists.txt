@@ -5,20 +5,51 @@ else()
   add_library(${PROJECT_NAME} SHARED ${FCL_HEADERS} ${FCL_SOURCE_CODE})
 endif()
 
+# Be sure to pass to the consumer the set of SIMD used in the compilation
+target_compile_options(${PROJECT_NAME} PUBLIC ${SSE_FLAGS})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${FCL_VERSION}
   SOVERSION ${FCL_ABI_VERSION})
 
-target_link_libraries(${PROJECT_NAME}
-  PUBLIC ${OCTOMAP_LIBRARIES}
-  PUBLIC ${CCD_LIBRARIES})
+# Use the IMPORTED target from newer versions of ccd-config.cmake if available,
+# otherwise fall back to CCD_INCLUDE_DIRS and CCD_LIBRARIES
+if(TARGET ccd)
+  target_link_libraries(${PROJECT_NAME} PUBLIC ccd)
+else()
+  target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "${CCD_INCLUDE_DIRS}")
+  target_link_libraries(${PROJECT_NAME} PUBLIC "${CCD_LIBRARIES}")
+endif()
+
+# Use the IMPORTED target from newer versions of Eigen3Config.cmake if
+# available, otherwise fall back to EIGEN3_INCLUDE_DIRS from older versions of
+# Eigen3Config.cmake or EIGEN3_INCLUDE_DIR from FindEigen3.cmake
+if(TARGET Eigen3::Eigen)
+  # Note that Eigen3::Eigen is an INTERFACE library, so the INCLUDE_DIRECTORIES
+  # and INTERFACE_INCLUDE_DIRECTORIES are populated, but nothing is actually
+  # linked
+  target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
+elseif(EIGEN3_INCLUDE_DIRS)
+  target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIRS}")
+else()
+  target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
+endif()
+
+if(FCL_HAVE_OCTOMAP)
+  # Use the IMPORTED target from newer versions of octomap-config.cmake if
+  # available, otherwise fall back to OCTOMAP_INCLUDE_DIRS and OCTOMAP_LIBRARIES
+  if(TARGET octomap)
+    target_link_libraries(${PROJECT_NAME} PUBLIC octomap)
+  elseif(OCTOMAP_INCLUDE_DIRS AND OCTOMAP_LIBRARIES)
+    target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "${OCTOMAP_INCLUDE_DIRS}")
+    target_link_libraries(${PROJECT_NAME} PUBLIC "${OCTOMAP_LIBRARIES}")
+  endif()
+endif()
 
 target_include_directories(${PROJECT_NAME} INTERFACE
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-
-target_include_directories(${PROJECT_NAME} PUBLIC
-  ${EIGEN3_INCLUDE_DIR})
 
 export(TARGETS ${PROJECT_NAME}
   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")

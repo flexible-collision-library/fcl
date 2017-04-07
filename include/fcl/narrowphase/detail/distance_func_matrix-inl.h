@@ -43,6 +43,7 @@
 #include "fcl/config.h"
 
 #include "fcl/common/types.h"
+#include "fcl/common/unused.h"
 
 #include "fcl/narrowphase/collision_object.h"
 
@@ -467,6 +468,8 @@ typename BV::S BVHDistance(
     const DistanceRequest<typename BV::S>& request,
     DistanceResult<typename BV::S>& result)
 {
+  FCL_UNUSED(nsolver);
+
   return BVHDistance<BV>(o1, tf1, o2, tf2, request, result);
 }
 

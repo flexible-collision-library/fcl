@@ -275,8 +275,8 @@ template <typename S>
 TaylorModel<S>& TaylorModel<S>::operator *= (const TaylorModel<S>& other)
 {
   assert(other.time_interval_ == time_interval_);
-  register S c0, c1, c2, c3;
-  register S c0b = other.coeffs_[0], c1b = other.coeffs_[1], c2b = other.coeffs_[2], c3b = other.coeffs_[3];
+  S c0, c1, c2, c3;
+  S c0b = other.coeffs_[0], c1b = other.coeffs_[1], c2b = other.coeffs_[2], c3b = other.coeffs_[3];
 
   const Interval<S>& rb = other.r_;
 
@@ -286,7 +286,7 @@ TaylorModel<S>& TaylorModel<S>::operator *= (const TaylorModel<S>& other)
   c3 = coeffs_[0] * c3b + coeffs_[1] * c2b + coeffs_[2] * c1b + coeffs_[3] * c0b;
 
   Interval<S> remainder(r_ * rb);
-  register S tempVal = coeffs_[1] * c3b + coeffs_[2] * c2b + coeffs_[3] * c1b;
+  S tempVal = coeffs_[1] * c3b + coeffs_[2] * c2b + coeffs_[3] * c1b;
   remainder += time_interval_->t4_ * tempVal;
 
   tempVal = coeffs_[2] * c3b + coeffs_[3] * c2b;
@@ -368,12 +368,12 @@ Interval<S> TaylorModel<S>::getTightBound(S t0, S t1) const
 
   if(coeffs_[3] == 0)
   {
-    register S a = -coeffs_[1] / (2 * coeffs_[2]);
+    S a = -coeffs_[1] / (2 * coeffs_[2]);
     Interval<S> polybounds;
     if(a <= t1 && a >= t0)
     {
       S AQ = coeffs_[0] + a * (coeffs_[1] + a * coeffs_[2]);
-      register S t = t0;
+      S t = t0;
       S LQ = coeffs_[0] + t * (coeffs_[1] + t * coeffs_[2]);
       t = t1;
       S RQ = coeffs_[0] + t * (coeffs_[1] + t * coeffs_[2]);
@@ -392,7 +392,7 @@ Interval<S> TaylorModel<S>::getTightBound(S t0, S t1) const
     }
     else
     {
-      register S t = t0;
+      S t = t0;
       S LQ = coeffs_[0] + t * (coeffs_[1] + t * coeffs_[2]);
       t = t1;
       S RQ = coeffs_[0] + t * (coeffs_[1] + t * coeffs_[2]);
@@ -405,7 +405,7 @@ Interval<S> TaylorModel<S>::getTightBound(S t0, S t1) const
   }
   else
   {
-    register S t = t0;
+    S t = t0;
     S LQ = coeffs_[0] + t * (coeffs_[1] + t * (coeffs_[2] + t * coeffs_[3]));
     t = t1;
     S RQ = coeffs_[0] + t * (coeffs_[1] + t * (coeffs_[2] + t * coeffs_[3]));

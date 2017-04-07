@@ -40,6 +40,8 @@
 
 #include "fcl/narrowphase/detail/traversal/distance/bvh_shape_distance_traversal_node.h"
 
+#include "fcl/common/unused.h"
+
 namespace fcl
 {
 
@@ -85,6 +87,8 @@ template<typename BV, typename Shape>
 typename BV::S BVHShapeDistanceTraversalNode<BV, Shape>::BVTesting(
     int b1, int b2) const
 {
+  FCL_UNUSED(b2);
+
   return model1->getBV(b1).bv.distance(model2_bv);
 }
 

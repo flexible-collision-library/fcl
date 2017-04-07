@@ -82,8 +82,14 @@ void ShapeDistanceTraversalNode<Shape1, Shape2, NarrowPhaseSolver>::leafTesting(
   Vector3<S> closest_p1 = Vector3<S>::Zero();
   Vector3<S> closest_p2 = Vector3<S>::Zero();
 
-  nsolver->shapeDistance(
-        *model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
+  if (this->request.enable_signed_distance == true)
+  {
+    nsolver->shapeSignedDistance(*model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
+  }
+  else
+  {
+    nsolver->shapeDistance(*model1, this->tf1, *model2, this->tf2, &distance, &closest_p1, &closest_p2);
+  }
 
   this->result->update(
         distance,

@@ -51,7 +51,7 @@ namespace detail
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
 template <typename S_>
 struct GJKSolver_indep
-{  
+{
   using S = S_;
 
   /// @brief intersection checking between two shapes
@@ -112,6 +112,17 @@ struct GJKSolver_indep
       Vector3<S>* p1 = nullptr,
       Vector3<S>* p2 = nullptr) const;
 
+  /// @brief distance computation between two shapes
+  template<typename Shape1, typename Shape2>
+  bool shapeSignedDistance(
+      const Shape1& s1,
+      const Transform3<S>& tf1,
+      const Shape2& s2,
+      const Transform3<S>& tf2,
+      S* distance = nullptr,
+      Vector3<S>* p1 = nullptr,
+      Vector3<S>* p2 = nullptr) const;
+
   /// @brief distance computation between one shape and a triangle
   template<typename Shape>
   bool shapeTriangleDistance(
@@ -123,7 +134,7 @@ struct GJKSolver_indep
       S* distance = nullptr,
       Vector3<S>* p1 = nullptr,
       Vector3<S>* p2 = nullptr) const;
-  
+
   /// @brief distance computation between one shape and a triangle with transformation
   template<typename Shape>
   bool shapeTriangleDistance(
@@ -136,7 +147,7 @@ struct GJKSolver_indep
       S* distance = nullptr,
       Vector3<S>* p1 = nullptr,
       Vector3<S>* p2 = nullptr) const;
-  
+
   /// @brief default setting for GJK algorithm
   GJKSolver_indep();
 

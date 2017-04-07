@@ -42,7 +42,10 @@
 
 #include <algorithm>
 
+#include "fcl/common/unused.h"
+
 #include "fcl/geometry/shape/triangle_p.h"
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk.h"
 #include "fcl/narrowphase/detail/convexity_based_algorithm/epa.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
@@ -268,6 +271,8 @@ struct ShapeIntersectIndepImpl<S, Halfspace<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Halfspace<S> s;
     Vector3<S> p, d;
     S depth;
@@ -302,6 +307,8 @@ struct ShapeIntersectIndepImpl<S, Plane<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;
@@ -321,6 +328,8 @@ struct ShapeIntersectIndepImpl<S, Halfspace<S>, Plane<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;
@@ -569,6 +578,7 @@ struct ShapeTransformedTriangleIntersectIndepImpl<S, Plane<S>>
   }
 };
 
+
 //==============================================================================
 template<typename S, typename Shape1, typename Shape2>
 struct ShapeDistanceIndepImpl
@@ -633,6 +643,24 @@ bool GJKSolver_indep<S>::shapeDistance(
     Vector3<S>* p1,
     Vector3<S>* p2) const
 {
+  return ShapeDistanceIndepImpl<S, Shape1, Shape2>::run(
+        *this, s1, tf1, s2, tf2, dist, p1, p2);
+}
+
+
+//==============================================================================
+template<typename S>
+template<typename Shape1, typename Shape2>
+bool GJKSolver_indep<S>::shapeSignedDistance(
+    const Shape1& s1,
+    const Transform3<S>& tf1,
+    const Shape2& s2,
+    const Transform3<S>& tf2,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
+{
+  // TODO: should implement the signed distance version
   return ShapeDistanceIndepImpl<S, Shape1, Shape2>::run(
         *this, s1, tf1, s2, tf2, dist, p1, p2);
 }

@@ -42,6 +42,8 @@
 
 #include <algorithm>
 
+#include "fcl/common/unused.h"
+
 #include "fcl/narrowphase/detail/convexity_based_algorithm/gjk_libccd.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/capsule_capsule.h"
 #include "fcl/narrowphase/detail/primitive_shape_algorithm/sphere_capsule.h"
@@ -265,6 +267,8 @@ struct ShapeIntersectLibccdImpl<S, Halfspace<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Halfspace<S> s;
     Vector3<S> p, d;
     S depth;
@@ -299,6 +303,8 @@ struct ShapeIntersectLibccdImpl<S, Plane<S>, Halfspace<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;
@@ -318,6 +324,8 @@ struct ShapeIntersectLibccdImpl<S, Halfspace<S>, Plane<S>>
       const Transform3<S>& tf2,
       std::vector<ContactPoint<S>>* contacts)
   {
+    FCL_UNUSED(contacts);
+
     Plane<S> pl;
     Vector3<S> p, d;
     S depth;
@@ -522,6 +530,65 @@ struct ShapeTransformedTriangleIntersectLibccdImpl<S, Plane<S>>
           contact_points, penetration_depth, normal);
   }
 };
+
+
+//==============================================================================
+//==============================================================================
+template<typename S, typename Shape1, typename Shape2>
+struct ShapeSignedDistanceLibccdImpl
+{
+  static bool run(
+      const GJKSolver_libccd<S>& gjkSolver,
+      const Shape1& s1,
+      const Transform3<S>& tf1,
+      const Shape2& s2,
+      const Transform3<S>& tf2,
+      S* dist,
+      Vector3<S>* p1,
+      Vector3<S>* p2)
+  {
+    void* o1 = detail::GJKInitializer<S, Shape1>::createGJKObject(s1, tf1);
+    void* o2 = detail::GJKInitializer<S, Shape2>::createGJKObject(s2, tf2);
+
+    bool res =  detail::GJKSignedDistance(
+          o1,
+          detail::GJKInitializer<S, Shape1>::getSupportFunction(),
+          o2,
+          detail::GJKInitializer<S, Shape2>::getSupportFunction(),
+          gjkSolver.max_distance_iterations,
+          gjkSolver.distance_tolerance,
+          dist,
+          p1,
+          p2);
+
+    if (p1)
+      (*p1).noalias() = tf1.inverse(Eigen::Isometry) * *p1;
+
+    if (p2)
+      (*p2).noalias() = tf2.inverse(Eigen::Isometry) * *p2;
+
+    detail::GJKInitializer<S, Shape1>::deleteGJKObject(o1);
+    detail::GJKInitializer<S, Shape2>::deleteGJKObject(o2);
+
+    return res;
+  }
+};
+
+template<typename S>
+template<typename Shape1, typename Shape2>
+bool GJKSolver_libccd<S>::shapeSignedDistance(
+    const Shape1& s1,
+    const Transform3<S>& tf1,
+    const Shape2& s2,
+    const Transform3<S>& tf2,
+    S* dist,
+    Vector3<S>* p1,
+    Vector3<S>* p2) const
+{
+  return ShapeSignedDistanceLibccdImpl<S, Shape1, Shape2>::run(
+        *this, s1, tf1, s2, tf2, dist, p1, p2);
+}
+
 
 //==============================================================================
 template<typename S, typename Shape1, typename Shape2>
@@ -843,6 +910,8 @@ GJKSolver_libccd<S>::GJKSolver_libccd()
 template<typename S>
 void GJKSolver_libccd<S>::enableCachedGuess(bool if_enable) const
 {
+  FCL_UNUSED(if_enable);
+
   // TODO: need change libccd to exploit spatial coherence
 }
 
@@ -851,6 +920,8 @@ template<typename S>
 void GJKSolver_libccd<S>::setCachedGuess(
     const Vector3<S>& guess) const
 {
+  FCL_UNUSED(guess);
+
   // TODO: need change libccd to exploit spatial coherence
 }
 
