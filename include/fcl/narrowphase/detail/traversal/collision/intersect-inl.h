@@ -990,7 +990,8 @@ bool Intersect<S>::intersect_Triangle(
     buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
 
     // Check for coplanar triangles
-    if ((n1 == n2) && (t1 == t2))
+    if (((n1 == n2) && (t1 == t2))
+        || ((n1 == -n2) && (t1 == -t2)))
     {
       // Compute an orthonormal basis in the plane
 
@@ -1020,13 +1021,13 @@ bool Intersect<S>::intersect_Triangle(
         {
           Vector2<S> r1, r2; // Resultant intersections
           int num = lineSegmentIntersect(p2D[i], p2D[(i+1)%3], q2D[j], q2D[(j+1)%3], r1, r2);
-          if (num >= 1)
+          if (num > 0)
           {
             vertices.insert(r1);
-          }
-          if (num == 2)
-          {
-            vertices.insert(r2);
+            if (num == 2)
+            {
+              vertices.insert(r2);
+            }
           }
         }
       }
