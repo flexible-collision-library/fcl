@@ -123,8 +123,8 @@ void test_collision_triangle_pairs()
         contact_points, &num_contact_points, &penetration_depth, &normal);
 
   EXPECT_TRUE(res);
-  EXPECT_EQ(num_contact_points, 3u);
-  EXPECT_EQ(penetration_depth, (Scalar)0);
+  EXPECT_EQ(3u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
   std::vector<Vector3<Scalar>> expected = {v_b[t_bp[0][0]], v_b[t_bp[0][1]], v_b[t_bp[0][2]]};
   verifyContacts(expected.data(), contact_points, num_contact_points);
 
@@ -135,9 +135,34 @@ void test_collision_triangle_pairs()
         contact_points, &num_contact_points, &penetration_depth, &normal);
 
   EXPECT_TRUE(res);
-  EXPECT_EQ(num_contact_points, 3u);
-  EXPECT_EQ(penetration_depth, (Scalar)0);
+  EXPECT_EQ(3u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
   verifyContacts(expected.data(), contact_points, num_contact_points);
+
+
+  // Test transverse crossing
+  expected = {v_b[0], v_b[1], Vector3<Scalar>(0.0, 0.5, 0.0)};
+  res = detail::Intersect<Scalar>::intersect_Triangle(
+        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
+        v_b[t_bx[0][0]], v_b[t_bx[0][1]], v_b[t_bx[0][2]],
+        contact_points, &num_contact_points, &penetration_depth, &normal);
+
+  EXPECT_TRUE(res);
+  EXPECT_EQ(3u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
+  verifyContacts(expected.data(), contact_points, num_contact_points);
+
+  // Flip the triangle order
+  res = detail::Intersect<Scalar>::intersect_Triangle(
+        v_b[t_bx[0][0]], v_b[t_bx[0][1]], v_b[t_bx[0][2]],
+        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
+        contact_points, &num_contact_points, &penetration_depth, &normal);
+
+  EXPECT_TRUE(res);
+  EXPECT_EQ(3u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
+  verifyContacts(expected.data(), contact_points, num_contact_points);
+
 }
 
 template <typename Scalar>
