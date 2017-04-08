@@ -1012,7 +1012,7 @@ bool Intersect<S>::intersect_Triangle(
       q2D[2] = Vector2<S>(T1.dot(Q3), T2.dot(Q3));
 
       // Create a set to remove duplicate vertices (e.g. if both triangles are identical)
-      std::set<Vector2<S>, vector_less_than<2, Vector2<S>>> vertices;
+      std::set<Vector2<S>, vector_less_than<2, Vector2<S>>, Eigen::aligned_allocator<Vector2<S>>> vertices;
 
       // Test line segment pairs for intersection
       for (int i = 0; i < 3; ++i)
