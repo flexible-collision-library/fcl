@@ -46,7 +46,7 @@ namespace test
 {
 
 template <typename Scalar>
-Hungarian<Scalar>::Hungarian(const Hungarian<Scalar>::CostMatrix& cost)
+Hungarian<Scalar>::Hungarian(const typename Hungarian<Scalar>::CostMatrix& cost)
   : C(-cost), // Negate cost, as this algorithm finds the maximum assignment
     N(C.cols()),
     maxMatch(0),

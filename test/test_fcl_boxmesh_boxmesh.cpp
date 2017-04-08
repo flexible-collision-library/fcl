@@ -136,23 +136,23 @@ void test_collision_boxmeshboxmesh_contactpoint()
 
   res.clear();
   collide(&s1, identity, &s2, identity, req, res);
-  EXPECT_EQ(res.numContacts(), 4);  // maximum contact number of box-box
+  EXPECT_EQ(4u, res.numContacts());  // maximum contact number of box-box
 
   res.clear();
   collide(&s1_aabb, identity, &s2_aabb, identity, req, res);
-  EXPECT_EQ(res.numContacts(), 0);
+  EXPECT_EQ(0u, res.numContacts());
 
   res.clear();
   collide(&s1_obb, identity, &s2_obb, identity, req, res);
-  EXPECT_EQ(res.numContacts(), 0);
+  EXPECT_EQ(0u, res.numContacts());
 
   res.clear();
   collide(&s1_rss, identity, &s2_rss, identity, req, res);
-  EXPECT_EQ(res.numContacts(), 0);
+  EXPECT_EQ(0u, res.numContacts());
 
   res.clear();
   collide(&s1_obbrss, identity, &s2_obbrss, identity, req, res);
-  EXPECT_EQ(res.numContacts(), 0);
+  EXPECT_EQ(0u, res.numContacts());
 
   //----------------------------------------------------------------------------
   // Case2: The left side (-y axis) of s2 touching the right side (+y axis) of
@@ -171,7 +171,7 @@ void test_collision_boxmeshboxmesh_contactpoint()
 
   res.clear();
   collide(&s1, identity, &s2, pose, req, res);
-  EXPECT_EQ(res.numContacts(), 4);
+  EXPECT_EQ(4u, res.numContacts());
   for (auto i = 0u; i < res.numContacts(); ++i)
   {
     const auto& contact = res.getContact(i);
@@ -189,7 +189,7 @@ void test_collision_boxmeshboxmesh_contactpoint()
 
   res.clear();
   collide(&s1_aabb, identity, &s2_aabb, pose, req, res);
-  EXPECT_TRUE(res.numContacts() > 4);
+  EXPECT_TRUE(res.numContacts() > 4u);
   for (auto i = 0u; i < res.numContacts(); ++i)
   {
     const auto& contact = res.getContact(i);
@@ -207,7 +207,7 @@ void test_collision_boxmeshboxmesh_contactpoint()
 
   res.clear();
   collide(&s1_obb, identity, &s2_obb, pose, req, res);
-  EXPECT_TRUE(res.numContacts() > 4);
+  EXPECT_TRUE(res.numContacts() > 4u);
   for (auto i = 0u; i < res.numContacts(); ++i)
   {
     const auto& contact = res.getContact(i);
@@ -225,7 +225,7 @@ void test_collision_boxmeshboxmesh_contactpoint()
 
   res.clear();
   collide(&s1_rss, identity, &s2_rss, pose, req, res);
-  EXPECT_TRUE(res.numContacts() > 4);
+  EXPECT_TRUE(res.numContacts() > 4u);
   for (auto i = 0u; i < res.numContacts(); ++i)
   {
     const auto& contact = res.getContact(i);
@@ -243,7 +243,7 @@ void test_collision_boxmeshboxmesh_contactpoint()
 
   res.clear();
   collide(&s1_obbrss, identity, &s2_obbrss, pose, req, res);
-  EXPECT_TRUE(res.numContacts() > 4);
+  EXPECT_TRUE(res.numContacts() > 4u);
   for (auto i = 0u; i < res.numContacts(); ++i)
   {
     const auto& contact = res.getContact(i);

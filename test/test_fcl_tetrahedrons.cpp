@@ -153,8 +153,8 @@ void test_individual_triangles(bool reverseOrder = false,
               << std::endl;
   }
     EXPECT_TRUE(res);
-    EXPECT_EQ(1, num_contact_points);
-    for (int i = 0; i < num_contact_points; ++i)
+    EXPECT_EQ(1u, num_contact_points);
+    for (unsigned i = 0; i < num_contact_points; ++i)
     {
       Vector3<Scalar> expected;
       if (nonpenetrating) { expected = Vector3<Scalar>::Zero(); }
@@ -171,7 +171,7 @@ void test_convex_meshes(GJKSolverType Solver = GST_INDEP,
 {
   if (GST_LIBCCD == Solver && nonpenetrating)
   {
-	// TODO: The libccd solver returns 0 for nonpenetrating contact.
+    // TODO: The libccd solver returns 0 for nonpenetrating contact.
     return;
   }
   std::shared_ptr<ConvexData<Scalar>> A = constructConvex<Scalar>(va);
@@ -215,8 +215,8 @@ void test_convex_meshes(GJKSolverType Solver = GST_INDEP,
               << std::endl;
   }
   EXPECT_EQ(1, num_collisions);
-  EXPECT_EQ(res.numContacts(), num_collisions);
-  for (int i = 0; i < res.numContacts(); ++i)
+  EXPECT_EQ(static_cast<int>(res.numContacts()), num_collisions);
+  for (unsigned i = 0; i < res.numContacts(); ++i)
   {
     EXPECT_LT(res.getContact(i).pos.norm(), 1e-3);
   }
