@@ -139,8 +139,8 @@ void test_collision_triangle_pairs()
   EXPECT_EQ((Scalar)0, penetration_depth);
   verifyContacts(expected.data(), contact_points, num_contact_points);
 
-
   // Test transverse crossing
+
   expected = {v_b[0], v_b[1], Vector3<Scalar>(0.0, 0.5, 0.0)};
   res = detail::Intersect<Scalar>::intersect_Triangle(
         v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
@@ -163,6 +163,46 @@ void test_collision_triangle_pairs()
   EXPECT_EQ((Scalar)0, penetration_depth);
   verifyContacts(expected.data(), contact_points, num_contact_points);
 
+  // Test identical triangles
+
+  expected = {v_a[0], v_a[1], v_a[2]};
+  res = detail::Intersect<Scalar>::intersect_Triangle(
+        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
+        v_a[t_a[0][1]], v_a[t_a[0][2]], v_a[t_a[0][0]],
+        contact_points, &num_contact_points, &penetration_depth, &normal);
+
+  EXPECT_TRUE(res);
+  EXPECT_EQ(3u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
+  verifyContacts(expected.data(), contact_points, num_contact_points);
+
+  // Test hexagram (i.e. star of David)
+
+  std::vector<Vector3<Scalar>> hex;
+  const Scalar PI = 3.14159265358979323846;
+  for (int i = 0; i < 6; ++i)
+  {
+    Scalar angle = static_cast<Scalar>((360/6)*i) * PI/180.0;
+    hex.push_back({static_cast<Scalar>(cos(angle)),
+                   static_cast<Scalar>(sin(angle)),
+                   0.0});
+  }
+
+  res = detail::Intersect<Scalar>::intersect_Triangle(
+        hex[1], hex[3], hex[5],
+        hex[0], hex[2], hex[4],
+        contact_points, &num_contact_points, &penetration_depth, &normal);
+
+  expected = { 2.0/3.0 * hex[0] + 1.0/3.0 * hex[2],
+               1.0/3.0 * hex[0] + 2.0/3.0 * hex[2],
+               2.0/3.0 * hex[2] + 1.0/3.0 * hex[4],
+               1.0/3.0 * hex[2] + 2.0/3.0 * hex[4],
+               2.0/3.0 * hex[4] + 1.0/3.0 * hex[0],
+               1.0/3.0 * hex[4] + 2.0/3.0 * hex[0]};
+  EXPECT_TRUE(res);
+  EXPECT_EQ(6u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
+  verifyContacts(expected.data(), contact_points, num_contact_points);
 }
 
 template <typename Scalar>

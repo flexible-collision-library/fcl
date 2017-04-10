@@ -145,13 +145,13 @@ void test_individual_triangles(bool reverseOrder = false,
                 B[0], B[1], B[2],
                 contact_points, &num_contact_points, &penetration_depth, &normal);
 
-  if (!res)
-  {
-    std::cerr << "Configuration: "
-              << (reverseOrder ? "B-A" : "A-B" ) << ", "
-              << (nonpenetrating ? "non" : "") << "penetrating."
-              << std::endl;
-  }
+    if (!res)
+    {
+      std::cerr << "Configuration: "
+                << (reverseOrder ? "B-A" : "A-B" ) << ", "
+                << (nonpenetrating ? "non" : "") << "penetrating."
+                << std::endl;
+    }
     EXPECT_TRUE(res);
     EXPECT_EQ(1u, num_contact_points);
     for (unsigned i = 0; i < num_contact_points; ++i)
