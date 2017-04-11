@@ -37,6 +37,7 @@
 #include <gtest/gtest.h>
 
 #include "fcl/fcl.h"
+#include "fcl/math/constants.h"
 #include "test_fcl_utility.h"
 #include "test_fcl_hungarian.h"
 #include "test_fcl_hungarian-inl.h"
@@ -179,7 +180,7 @@ void test_collision_triangle_pairs()
   // Test hexagram (i.e. star of David)
 
   std::vector<Vector3<Scalar>> hex;
-  const Scalar PI = 3.14159265358979323846;
+  const Scalar PI = fcl::constants<Scalar>::pi();
   for (int i = 0; i < 6; ++i)
   {
     Scalar angle = static_cast<Scalar>((360/6)*i) * PI/180.0;
