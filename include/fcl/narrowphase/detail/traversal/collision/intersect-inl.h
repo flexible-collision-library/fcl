@@ -734,9 +734,10 @@ bool Intersect<S>::intersect_Triangle(
     S* penetration_depth,
     Vector3<S>* normal)
 {
-  return intersectTriangles(P1, P2, P3, Q1, Q2, Q3,
-                            contact_points, num_contact_points,
-                            penetration_depth, normal);
+  return intersectTriangles<S, true>(
+              P1, P2, P3, Q1, Q2, Q3,
+              contact_points, num_contact_points,
+              penetration_depth, normal);
 }
 
 //==============================================================================
