@@ -98,5 +98,6 @@ protected:
 
 } // namespace fcl
 
+#include "test_fcl_hungarian-inl.h"
 
 #endif // TEST_FCL_HUNGARIAN_H

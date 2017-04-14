@@ -34,6 +34,9 @@
 
 /** \author Andrew Price <arprice@gatech.edu> */
 
+#ifndef TEST_FCL_HUNGARIAN_INL_H
+#define TEST_FCL_HUNGARIAN_INL_H
+
 #include "test_fcl_hungarian.h"
 
 // Implementation of the Hungarian Algorithm derived from
@@ -205,3 +208,5 @@ void Hungarian<Scalar>::augment()
 } // namespace test
 
 } // namespace fcl
+
+#endif // TEST_FCL_HUNGARIAN_INL_H

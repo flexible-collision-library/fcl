@@ -39,7 +39,6 @@
 #include "fcl/fcl.h"
 #include "test_fcl_utility.h"
 #include "test_fcl_hungarian.h"
-#include "test_fcl_hungarian-inl.h"
 
 using namespace fcl;
 

@@ -153,13 +153,11 @@ void test_individual_triangles(bool reverseOrder = false,
                 << std::endl;
     }
     EXPECT_TRUE(res);
-    EXPECT_EQ(1u, num_contact_points);
+    EXPECT_EQ((nonpenetrating ? 1u : 2u), num_contact_points);
     for (unsigned i = 0; i < num_contact_points; ++i)
     {
-      Vector3<Scalar> expected;
-      if (nonpenetrating) { expected = Vector3<Scalar>::Zero(); }
-      else { expected = vb[3].cast<Scalar>(); }
-      EXPECT_LT((expected-contact_points[i]).norm(), 1e-6);
+      Vector3<Scalar> expected= Vector3<Scalar>::Zero();
+      EXPECT_LT((expected-contact_points[i]).norm(), nonpenetrating ? 1e-6 : 2e-4);
     }
   }
 }
