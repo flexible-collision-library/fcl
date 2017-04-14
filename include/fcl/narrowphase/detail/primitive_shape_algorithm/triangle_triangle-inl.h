@@ -573,7 +573,7 @@ bool intersectTriangles(
       // Q penetrates into P farther than vice versa, so return Q's normal
       // (depth here means the smallest motion along the normal required to remove contact)
       *penetration_depth = pd1;
-      *normal = nq;
+      *normal = -nq;
     }
     else
     {
