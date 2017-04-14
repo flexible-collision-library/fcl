@@ -59,6 +59,7 @@ set(tests
     test_fcl_simple.cpp
     test_fcl_sphere_capsule.cpp
     test_fcl_tetrahedrons.cpp
+    test_fcl_tri_tri_intersection.cpp
 )
 
 if (FCL_HAVE_OCTOMAP)

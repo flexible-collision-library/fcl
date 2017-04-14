@@ -38,8 +38,35 @@
 
 #include "fcl/fcl.h"
 #include "test_fcl_utility.h"
+#include "test_fcl_hungarian.h"
+#include "test_fcl_hungarian-inl.h"
 
 using namespace fcl;
+
+template <typename Scalar>
+void verifyContacts(const Vector3<Scalar>* expected, const Vector3<Scalar>* actual, const int numContacts)
+{
+  typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> CostMatrix;
+
+  CostMatrix C(numContacts, numContacts);
+  for (int i = 0; i < numContacts; ++i)
+  {
+    for (int j = 0; j < numContacts; ++j)
+    {
+      C(i,j) = (expected[i]-actual[j]).squaredNorm();
+    }
+  }
+
+  fcl::test::Hungarian<Scalar> H(C);
+
+  std::vector<int> permutation = H.getAssignment();
+
+  EXPECT_LT(H.getSolutionCost(), 1e-6);
+  for (int i = 0; i < numContacts; ++i)
+  {
+    EXPECT_LT((expected[i]-actual[permutation[i]]).norm(), 1e-6);
+  }
+}
 
 //==============================================================================
 template <typename Scalar>
@@ -64,10 +91,10 @@ void test_collision_triangle_triangle()
         contact_points, &num_contact_points, &penetration_depth, &normal);
 
   EXPECT_TRUE(res);
-  EXPECT_EQ(num_contact_points, 2u);
-  EXPECT_TRUE(contact_points[0].isApprox(Vector3<Scalar>::Zero()));
-  EXPECT_TRUE(contact_points[1].isApprox(Vector3<Scalar>(1, 0, 0)));
-  EXPECT_EQ(penetration_depth, (Scalar)0);
+  EXPECT_EQ(2u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
+  std::vector<Vector3<Scalar>> expected = {{0,0,0},{1,0,0}};
+  verifyContacts(expected.data(), contact_points, num_contact_points);
 
   res = detail::Intersect<Scalar>::intersect_Triangle(
         Q1, Q2, Q3,
@@ -75,10 +102,9 @@ void test_collision_triangle_triangle()
         contact_points, &num_contact_points, &penetration_depth, &normal);
 
   EXPECT_TRUE(res);
-  EXPECT_EQ(num_contact_points, 2u);
-  EXPECT_TRUE(contact_points[0].isApprox(Vector3<Scalar>::Zero()));
-  EXPECT_TRUE(contact_points[1].isApprox(Vector3<Scalar>(1, 0, 0)));
-  EXPECT_EQ(penetration_depth, (Scalar)0);
+  EXPECT_EQ(2u, num_contact_points);
+  EXPECT_EQ((Scalar)0, penetration_depth);
+  verifyContacts(expected.data(), contact_points, num_contact_points);
 }
 
 //==============================================================================
