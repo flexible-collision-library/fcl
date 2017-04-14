@@ -84,7 +84,7 @@ void test_general_tris()
 	                                  contacts.data(), &num_contacts,
 	                                  &penetration_depth, &normal);
 	EXPECT_TRUE(res);
-	EXPECT_EQ(1, num_contacts);
+	EXPECT_EQ(1u, num_contacts);
 	EXPECT_TRUE(fabs(penetration_depth) < 1e-6);
 	EXPECT_TRUE(contacts[0].norm() < 1e-6);
 
@@ -94,7 +94,7 @@ void test_general_tris()
 	                                  contacts.data(), &num_contacts,
 	                                  &penetration_depth, &normal);
 	EXPECT_TRUE(res);
-	EXPECT_EQ(1, num_contacts);
+	EXPECT_EQ(1u, num_contacts);
 	EXPECT_TRUE(fabs(penetration_depth) < 1e-6);
 	EXPECT_TRUE(contacts[0].norm() < 1e-6);
 
@@ -126,7 +126,7 @@ void test_general_tris()
 	                                  &penetration_depth, &normal);
 	expected = {{0.5,0,0},{0,1,0},{0,-1,0}};
 	EXPECT_TRUE(res);
-	EXPECT_EQ(3, num_contacts);
+	EXPECT_EQ(3u, num_contacts);
 	EXPECT_TRUE(fabs(penetration_depth) < 1e-6);
 	verifyContacts(expected.data(), contacts.data(), num_contacts);
 
@@ -137,7 +137,7 @@ void test_general_tris()
 	                                  &penetration_depth, &normal);
 	expected = {{0.5,0,0},{0,0.5,0},{0,0.25,0}};
 	EXPECT_TRUE(res);
-	EXPECT_EQ(3, num_contacts);
+	EXPECT_EQ(3u, num_contacts);
 	EXPECT_TRUE(fabs(penetration_depth) < 1e-6);
 	verifyContacts(expected.data(), contacts.data(), num_contacts);
 
@@ -148,7 +148,7 @@ void test_general_tris()
 	                                  &penetration_depth, &normal);
 	expected = {{0.5,0,0},{0,0.5,0},{0,0.25,0}};
 	EXPECT_TRUE(res);
-	EXPECT_EQ(3, num_contacts);
+	EXPECT_EQ(3u, num_contacts);
 	EXPECT_TRUE(fabs(penetration_depth) < 1e-6);
 	verifyContacts(expected.data(), contacts.data(), num_contacts);
 
@@ -159,7 +159,7 @@ void test_general_tris()
 	                                  &penetration_depth, &normal);
 	expected = {{0,0.1,0},{0,-0.1,0}};
 	EXPECT_TRUE(res);
-	EXPECT_EQ(2, num_contacts);
+	EXPECT_EQ(2u, num_contacts);
 	EXPECT_TRUE(fabs(penetration_depth-0.1) < 1e-6);
 	EXPECT_TRUE(normal.cross(Vector3<S>::UnitZ()).norm() < 1e-6);
 	verifyContacts(expected.data(), contacts.data(), num_contacts);
@@ -171,147 +171,10 @@ void test_general_tris()
 	                                  &penetration_depth, &normal);
 	expected = {{0,0.1,0},{0,-0.1,0}};
 	EXPECT_TRUE(res);
-	EXPECT_EQ(2, num_contacts);
+	EXPECT_EQ(2u, num_contacts);
 	EXPECT_TRUE(fabs(penetration_depth-0.1) < 1e-6);
 	EXPECT_TRUE(normal.cross(Vector3<S>::UnitZ()).norm() < 1e-6);
 	verifyContacts(expected.data(), contacts.data(), num_contacts);
-}
-
-//==============================================================================
-// Parallel edge test
-//    _______
-//   |\      |
-//   | \___  |
-//   | |\  | |
-//   | | \ | |
-//   | |__\| |
-//   |     \ |
-//   |______\|
-//
-// Transverse edge test
-//    _______
-//   |\      |
-//   | \___  |
-//   | |\ /| |
-//   | | X | |
-//   | |/_\| |
-//   |     \ |
-//   |______\|
-// v_a[0]    v_a[1]
-
-template <typename Scalar>
-void test_coplanar_triangle_pairs()
-{
-  // Outline of a rectangle
-  Vector3<Scalar> v_a[4] = {{-0.5,0.5,-0.5},
-                            {-0.5,0.5, 0.5},
-                            { 0.5,0.5,-0.5},
-                            { 0.5,0.5, 0.5}};
-  Vector3<Scalar> v_b[4] = {{-0.25,0.5,-0.25},
-                            {-0.25,0.5, 0.25},
-                            { 0.25,0.5,-0.25},
-                            { 0.25,0.5, 0.25}};
-
-  // Vertex lists for triangles
-  int t_a[2][3]  = {{0,1,2},  // Surrounding triangles
-                    {3,2,1}};
-  int t_bp[2][3] = {{0,1,2}, // Parallel crossing
-                    {3,2,1}};
-  int t_bx[2][3] = {{0,1,3}, // Transverse crossing
-                    {3,2,0}};
-  Vector3<Scalar> contact_points[6];
-  unsigned int num_contact_points;
-  Scalar penetration_depth;
-  Vector3<Scalar> normal;
-
-  // Test smaller triangle inside larger triangle
-
-  bool res = intersectTriangles<Scalar, true>(
-        v_b[t_bp[0][0]], v_b[t_bp[0][1]], v_b[t_bp[0][2]],
-        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
-        contact_points, &num_contact_points, &penetration_depth, &normal);
-
-  EXPECT_TRUE(res);
-  EXPECT_EQ(3u, num_contact_points);
-  EXPECT_EQ((Scalar)0, penetration_depth);
-  std::vector<Vector3<Scalar>> expected = {v_b[t_bp[0][0]], v_b[t_bp[0][1]], v_b[t_bp[0][2]]};
-  verifyContacts(expected.data(), contact_points, num_contact_points);
-
-  // Flip the triangle order
-  res = intersectTriangles<Scalar, true>(
-        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
-        v_b[t_bp[0][0]], v_b[t_bp[0][1]], v_b[t_bp[0][2]],
-        contact_points, &num_contact_points, &penetration_depth, &normal);
-
-  EXPECT_TRUE(res);
-  EXPECT_EQ(3u, num_contact_points);
-  EXPECT_EQ((Scalar)0, penetration_depth);
-  verifyContacts(expected.data(), contact_points, num_contact_points);
-
-  // Test transverse crossing
-
-  expected = {v_b[0], v_b[1], Vector3<Scalar>(0.0, 0.5, 0.0)};
-  res = intersectTriangles<Scalar, true>(
-        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
-        v_b[t_bx[0][0]], v_b[t_bx[0][1]], v_b[t_bx[0][2]],
-        contact_points, &num_contact_points, &penetration_depth, &normal);
-
-  EXPECT_TRUE(res);
-  EXPECT_EQ(3u, num_contact_points);
-  EXPECT_EQ((Scalar)0, penetration_depth);
-  verifyContacts(expected.data(), contact_points, num_contact_points);
-
-  // Flip the triangle order
-  res = intersectTriangles<Scalar, true>(
-        v_b[t_bx[0][0]], v_b[t_bx[0][1]], v_b[t_bx[0][2]],
-        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
-        contact_points, &num_contact_points, &penetration_depth, &normal);
-
-  EXPECT_TRUE(res);
-  EXPECT_EQ(3u, num_contact_points);
-  EXPECT_EQ((Scalar)0, penetration_depth);
-  verifyContacts(expected.data(), contact_points, num_contact_points);
-
-  // Test identical triangles
-
-  expected = {v_a[0], v_a[1], v_a[2]};
-  res = intersectTriangles<Scalar, true>(
-        v_a[t_a[0][0]], v_a[t_a[0][1]], v_a[t_a[0][2]],
-        v_a[t_a[0][1]], v_a[t_a[0][2]], v_a[t_a[0][0]],
-        contact_points, &num_contact_points, &penetration_depth, &normal);
-
-  EXPECT_TRUE(res);
-  EXPECT_EQ(3u, num_contact_points);
-  EXPECT_EQ((Scalar)0, penetration_depth);
-  verifyContacts(expected.data(), contact_points, num_contact_points);
-
-  // Test hexagram (i.e. star of David)
-
-  std::vector<Vector3<Scalar>> hex;
-  const Scalar PI = fcl::constants<Scalar>::pi();
-  for (int i = 0; i < 6; ++i)
-  {
-    Scalar angle = static_cast<Scalar>((360/6)*i) * PI/180.0;
-    hex.push_back({static_cast<Scalar>(cos(angle)),
-                   static_cast<Scalar>(sin(angle)),
-                   0.0});
-  }
-
-  res = intersectTriangles<Scalar, true>(
-        hex[1], hex[3], hex[5],
-        hex[0], hex[2], hex[4],
-        contact_points, &num_contact_points, &penetration_depth, &normal);
-
-  expected = { 2.0/3.0 * hex[0] + 1.0/3.0 * hex[2],
-               1.0/3.0 * hex[0] + 2.0/3.0 * hex[2],
-               2.0/3.0 * hex[2] + 1.0/3.0 * hex[4],
-               1.0/3.0 * hex[2] + 2.0/3.0 * hex[4],
-               2.0/3.0 * hex[4] + 1.0/3.0 * hex[0],
-               1.0/3.0 * hex[4] + 2.0/3.0 * hex[0]};
-  EXPECT_TRUE(res);
-  EXPECT_EQ(6u, num_contact_points);
-  EXPECT_EQ((Scalar)0, penetration_depth);
-  verifyContacts(expected.data(), contact_points, num_contact_points);
 }
 
 //==============================================================================
@@ -319,13 +182,6 @@ GTEST_TEST(FCL_TRI_TRI_INTERSECTION, general_tris)
 {
   test_general_tris<float>();
   test_general_tris<double>();
-}
-
-//==============================================================================
-GTEST_TEST(FCL_TRI_TRI_INTERSECTION, coplanar_tris)
-{
-  test_coplanar_triangle_pairs<float>();
-  test_coplanar_triangle_pairs<double>();
 }
 
 //==============================================================================

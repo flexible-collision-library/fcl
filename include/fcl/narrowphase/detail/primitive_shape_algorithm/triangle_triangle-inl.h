@@ -374,18 +374,18 @@ bool overlapCoplanarTriangles(
 }
 
 //==============================================================================
-template <typename S, bool ROBUST=true>
+template <typename S, bool ROBUST>
 void intersectTriangleLine(const std::array<std::reference_wrapper<const Vector3<S>>, 3>& tri,
                            const std::array<S, 3>& sdf,
                            const Vector3<S>& lineVec, const Vector3<S>& lineOrig,
                            S& t0, S& t1)
 {
   // Holds the products of the two SDFs that do not correspond to the index
-  std::array<S, 3> sgnOpp = {
+  std::array<S, 3> sgnOpp = {{
       sdf[1] * sdf[2],
       sdf[0] * sdf[2],
       sdf[0] * sdf[1]
-  };
+  }};
 
   // Project vertices to line
   std::array<S, 3> proj;
@@ -451,7 +451,7 @@ void intersectTriangleLine(const std::array<std::reference_wrapper<const Vector3
 }
 
 //==============================================================================
-template <typename S, bool ROBUST=true>
+template <typename S, bool ROBUST>
 bool intersectTriangles(
     const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3,
     const Vector3<S>& q1, const Vector3<S>& q2, const Vector3<S>& q3,
@@ -460,8 +460,8 @@ bool intersectTriangles(
     S* penetration_depth,
     Vector3<S>* normal)
 {
-  const std::array<std::reference_wrapper<const Vector3<S>>, 3> P = { p1, p2, p3 };
-  const std::array<std::reference_wrapper<const Vector3<S>>, 3> Q = { q1, q2, q3 };
+  const std::array<std::reference_wrapper<const Vector3<S>>, 3> P = {{ p1, p2, p3 }};
+  const std::array<std::reference_wrapper<const Vector3<S>>, 3> Q = {{ q1, q2, q3 }};
 
   // Compute the plane of P
   const Vector3<S> np = computeNormal(p1, p2, p3);
@@ -540,8 +540,8 @@ bool intersectTriangles(
   S aMax = -std::numeric_limits<S>::max();
   S bMin =  std::numeric_limits<S>::max();
   S bMax = -std::numeric_limits<S>::max();
-  intersectTriangleLine(P, sdfPtoQ, lineVec, linePt, aMin, aMax);
-  intersectTriangleLine(Q, sdfQtoP, lineVec, linePt, bMin, bMax);
+  intersectTriangleLine<S, ROBUST>(P, sdfPtoQ, lineVec, linePt, aMin, aMax);
+  intersectTriangleLine<S, ROBUST>(Q, sdfQtoP, lineVec, linePt, bMin, bMax);
 
   S intMin = std::max(aMin, bMin);
   S intMax = std::min(aMax, bMax);
