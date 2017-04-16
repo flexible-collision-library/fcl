@@ -151,6 +151,11 @@ bool overlapCoplanarTriangles(const Vector3<S>& p1, const Vector3<S>& p2, const 
                               Vector3<S>* normal);
 
 template <typename S, bool ROBUST=true>
+bool overlapCoplanarTriangles(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3,
+                              const Vector3<S>& q1, const Vector3<S>& q2, const Vector3<S>& q3,
+                              const Vector3<S>& n1);
+
+template <typename S, bool ROBUST=true>
 bool intersectTriangles(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3,
                         const Vector3<S>& q1, const Vector3<S>& q2, const Vector3<S>& q3,
                         Vector3<S>* contact_points,

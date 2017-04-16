@@ -302,12 +302,71 @@ template <typename S, bool ROBUST>
 bool overlapCoplanarTriangles(
     const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3,
     const Vector3<S>& q1, const Vector3<S>& q2, const Vector3<S>& q3,
+    const Vector3<S>& n1)
+{
+  // Compute an orthonormal basis in the plane
+
+  // Find a vector not equal to the normal
+  Vector3<S> v = (n1.x() < 0.8 ? Vector3<S>::UnitX() : Vector3<S>::UnitY());
+  Vector3<S> T1 = n1.cross(v).normalized();  // Tangent vector
+  Vector3<S> T2 = n1.cross(T1).normalized(); // Cotangent vector
+
+  // Project into 2D plane
+  Vector2<S> p2D[3];
+  Vector2<S> q2D[3];
+
+  p2D[0] = Vector2<S>(T1.dot(p1), T2.dot(p1));
+  p2D[1] = Vector2<S>(T1.dot(p2), T2.dot(p2));
+  p2D[2] = Vector2<S>(T1.dot(p3), T2.dot(p3));
+  q2D[0] = Vector2<S>(T1.dot(q1), T2.dot(q1));
+  q2D[1] = Vector2<S>(T1.dot(q2), T2.dot(q2));
+  q2D[2] = Vector2<S>(T1.dot(q3), T2.dot(q3));
+
+  // Create a set to remove duplicate vertices (e.g. if both triangles are identical)
+  std::set<Vector2<S>, vector_less_than<2, Vector2<S>>, Eigen::aligned_allocator<Vector2<S>>> vertices;
+
+  // Test line segment pairs for intersection
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      Vector2<S> r1, r2; // Resultant intersections
+      int num = lineSegmentIntersect<S, ROBUST>(p2D[i], p2D[(i+1)%3], q2D[j], q2D[(j+1)%3], r1, r2);
+      if (num > 0)
+      {
+        return true;
+      }
+    }
+  }
+
+  // Test all vertices in either triangle
+  for (int i = 0; i < 3; ++i)
+  {
+    if (pointInTriangle(p2D[0], p2D[1], p2D[2], q2D[i]))
+    {
+      return true;
+    }
+    if (pointInTriangle(q2D[0], q2D[1], q2D[2], p2D[i]))
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+//==============================================================================
+template <typename S, bool ROBUST>
+bool overlapCoplanarTriangles(
+    const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3,
+    const Vector3<S>& q1, const Vector3<S>& q2, const Vector3<S>& q3,
     const Vector3<S>& n1, const S t1,
     Vector3<S>* contact_points,
     unsigned int* num_contact_points,
     S* penetration_depth,
     Vector3<S>* normal)
 {
+  assert(contact_points && num_contact_points && penetration_depth && normal);
   // Compute an orthonormal basis in the plane
 
   // Find a vector not equal to the normal
@@ -370,7 +429,7 @@ bool overlapCoplanarTriangles(
   *penetration_depth = 0;
   *num_contact_points = count;
 
-  return true;
+  return count > 0;
 }
 
 //==============================================================================
@@ -514,9 +573,16 @@ bool intersectTriangles(
   // Check for coplanar triangles
   if (areCoplanar<S, ROBUST>(np, tp, nq, tq))
   {
-    return overlapCoplanarTriangles<S, ROBUST>(p1, p2, p3, q1, q2, q3, nq, tq,
+    if (contact_points && num_contact_points && penetration_depth && normal)
+    {
+      return overlapCoplanarTriangles<S, ROBUST>(p1, p2, p3, q1, q2, q3, nq, tq,
                       contact_points, num_contact_points,
                       penetration_depth, normal);
+    }
+    else
+    {
+      return overlapCoplanarTriangles<S, ROBUST>(p1, p2, p3, q1, q2, q3, nq);
+    }
   }
 
   // Compute the intersection line of planes P and Q
