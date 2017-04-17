@@ -571,7 +571,8 @@ bool intersectTriangles(
   }
 
   // Check for coplanar triangles
-  if (areCoplanar<S, ROBUST>(np, tp, nq, tq))
+  if ((isZero<S, ROBUST>(sdfPtoQ[0]) && isZero<S, ROBUST>(sdfPtoQ[1]) && isZero<S, ROBUST>(sdfPtoQ[2]))
+      || (isZero<S, ROBUST>(sdfQtoP[0]) && isZero<S, ROBUST>(sdfQtoP[1]) && isZero<S, ROBUST>(sdfQtoP[2])))
   {
     if (contact_points && num_contact_points && penetration_depth && normal)
     {
