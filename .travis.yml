@@ -5,6 +5,12 @@ cache:
 
 language: cpp
 
+addons:
+  sonarqube:
+    organization: "j-rivero-github"
+    token:
+      secure: "fb38bd53856750774b192e661a3be684d5802ccf"
+
 matrix:
   include:
     - os: linux
@@ -42,7 +48,8 @@ script:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DFCL_COVERALLS=$COVERALLS ..
 
   # Build
-  - make -j4
+  - build-wrapper-linux-x86-64 --out-dir bw-output make clean all
+  - sonar-scanner
   - if [ $COVERALLS = ON ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then make coveralls; fi
 
   # Run unit tests
@@ -52,3 +59,6 @@ script:
   - sudo make -j4 install
   - sudo make -j4 uninstall
 
+cache:
+  directories:
+    - '$HOME/.sonar/cache'
