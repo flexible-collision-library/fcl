@@ -56,6 +56,8 @@ void test_distance_capsule_box()
   // Enable computation of nearest points
   fcl::DistanceRequest<S> distanceRequest (true);
   fcl::DistanceResult<S> distanceResult;
+  fcl::detail::GJKSolver_libccd<S> gjk_solver;
+  gjk_solver.distance_tolerance = 1e-7;
 
   // Rotate capsule around y axis by pi/2 and move it behind box
   fcl::Transform3<S> tf1 = fcl::Translation3<S>(fcl::Vector3<S>(-10., 0.8, 1.5))
@@ -66,19 +68,17 @@ void test_distance_capsule_box()
 
   // test distance
   distanceResult.clear ();
-  fcl::distance (&capsule, &box, distanceRequest, distanceResult);
+  fcl::distance (&capsule, &box, &gjk_solver, distanceRequest, distanceResult);
   fcl::Vector3<S> o1 = distanceResult.nearest_points [0];
   fcl::Vector3<S> o2 = distanceResult.nearest_points [1];
 
   EXPECT_NEAR (distanceResult.min_distance, 5.5, 1e-4);
-  // Disabled broken test lines. Please see #25.
-  // EXPECT_NEAR (o1 [0],  0.0, 1e-4);
-  // EXPECT_NEAR (o1 [1],  0.0, 1e-4);
+  EXPECT_NEAR (o1 [0],  0.0, 1e-4);
+  EXPECT_NEAR (o1 [1],  0.0, 1e-4);
   EXPECT_NEAR (o1 [2],  4.0, 1e-4);
   EXPECT_NEAR (o2 [0], -0.5, 1e-4);
-  // Disabled broken test lines. Please see #25.
-  // EXPECT_NEAR (o2 [1], 0.8, 1e-4);
-  // EXPECT_NEAR (o2 [2], 1.5, 1e-4);
+  EXPECT_NEAR (o2 [1],  0.8, 1e-4);
+  EXPECT_NEAR (o2 [2],  1.5, 1e-4);
 }
 
 GTEST_TEST(FCL_GEOMETRIC_SHAPES, distance_capsule_box)
