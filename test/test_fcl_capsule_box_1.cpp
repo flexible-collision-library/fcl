@@ -54,6 +54,8 @@ void test_distance_capsule_box()
   // Enable computation of nearest points
   fcl::DistanceRequest<S> distanceRequest (true);
   fcl::DistanceResult<S> distanceResult;
+  fcl::detail::GJKSolver_libccd<S> gjk_solver;
+  gjk_solver.distance_tolerance = 1e-7;
 
   fcl::Transform3<S> tf1(fcl::Translation3<S>(fcl::Vector3<S> (3., 0, 0)));
   fcl::Transform3<S> tf2 = fcl::Transform3<S>::Identity();
@@ -61,7 +63,7 @@ void test_distance_capsule_box()
   fcl::CollisionObject<S> box (boxGeometry, tf2);
 
   // test distance
-  fcl::distance (&capsule, &box, distanceRequest, distanceResult);
+  fcl::distance (&capsule, &box, &gjk_solver, distanceRequest, distanceResult);
   // Nearest point on capsule
   fcl::Vector3<S> o1 (distanceResult.nearest_points [0]);
   // Nearest point on box
@@ -70,7 +72,7 @@ void test_distance_capsule_box()
   EXPECT_NEAR (o1 [0], -2.0, 1e-4);
   EXPECT_NEAR (o1 [1],  0.0, 1e-4);
   EXPECT_NEAR (o2 [0],  0.5, 1e-4);
-  EXPECT_NEAR (o1 [1],  0.0, 1e-4); // TODO(JS): maybe o2 rather than o1?
+  EXPECT_NEAR (o2 [1],  0.0, 1e-4);
 
   // Move capsule above box
   tf1 = fcl::Translation3<S>(fcl::Vector3<S> (0., 0., 8.));
@@ -78,7 +80,7 @@ void test_distance_capsule_box()
 
   // test distance
   distanceResult.clear ();
-  fcl::distance (&capsule, &box, distanceRequest, distanceResult);
+  fcl::distance (&capsule, &box, &gjk_solver, distanceRequest, distanceResult);
   o1 = distanceResult.nearest_points [0];
   o2 = distanceResult.nearest_points [1];
 
@@ -88,7 +90,7 @@ void test_distance_capsule_box()
   EXPECT_NEAR (o1 [2], -4.0, 1e-4);
 
   // Disabled broken test lines. Please see #25.
-  // CHECK_CLOSE_TO_0 (o2 [0], 1e-4);
+  EXPECT_NEAR (o2 [0],  0.0, 1e-4);
   EXPECT_NEAR (o2 [1],  0.0, 1e-4);
   EXPECT_NEAR (o2 [2],  2.0, 1e-4);
 
@@ -99,7 +101,7 @@ void test_distance_capsule_box()
 
   // test distance
   distanceResult.clear ();
-  fcl::distance (&capsule, &box, distanceRequest, distanceResult);
+  fcl::distance (&capsule, &box, &gjk_solver, distanceRequest, distanceResult);
   o1 = distanceResult.nearest_points [0];
   o2 = distanceResult.nearest_points [1];
 
