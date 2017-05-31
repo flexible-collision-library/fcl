@@ -1005,44 +1005,56 @@ static int __ccdEPA(const void *obj1, const void *obj2,
     return 0;
 }
 
+/** Returns the points p1 and p2 on the original shapes that correspond to point
+ * p in the given simplex.*/
 static void extractClosestPoints(ccd_simplex_t* simplex,
-                                 ccd_vec3_t* p1, ccd_vec3_t* p2, ccd_vec3_t* v)
+                                 ccd_vec3_t* p1, ccd_vec3_t* p2, ccd_vec3_t* p)
 {
   int simplex_size = ccdSimplexSize(simplex);
   assert(simplex_size <= 3);
   if (simplex_size == 1)
   {
-      // closest points are the ones stored in the simplex
+      // Closest points are the ones stored in the simplex
       if(p1) *p1 = simplex->ps[simplex->last].v1;
       if(p2) *p2 = simplex->ps[simplex->last].v2;
   }
   else if (simplex_size ==2)
   {
-      // closest points lie between the two points in the simplex
-      // v = (1-s)*vA + s*vB, 0 <= s <= 1
-      // v - vA = s*(vB - vA)
-      // s = (v_x - vA_x)/(vB_x - vA_x)
-      double vA_x{ccdVec3X(&(simplex->ps[0].v))};
-      double vB_x{ccdVec3X(&(simplex->ps[1].v))};
-      double  v_x{ccdVec3X(v)};
-      double    s{(v_x - vA_x) / (vB_x - vA_x)};
+      // Closest points lie on the segment defined by the points in the simplex
+      // Let the segment be defined by points A and B. We can write p as
+      //
+      // p = A + s*AB, 0 <= s <= 1
+      // p - A = s*AB
+      //
+      // This defines three equations, but we only need one. Take the x
+      // component
+      //
+      // p_x - A_x = s*AB_x
+      //
+      // Thus, s is given by
+      //
+      // s = (p_x - A_x)/(B_x - vA_x)
+      double A_x{ccdVec3X(&(simplex->ps[0].v))};
+      double B_x{ccdVec3X(&(simplex->ps[1].v))};
+      double p_x{ccdVec3X(p)};
+      double    s{(p_x - A_x) / (B_x - A_x)};
       if (p1)
       {
-        ccd_vec3_t tmp;
+        // p1 = A1 + s*A1B1
+        ccd_vec3_t sAB;
+        ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
+        ccdVec3Scale(&sAB, s);
         ccdVec3Copy(p1, &(simplex->ps[0].v1));
-        ccdVec3Copy(&tmp, &(simplex->ps[1].v1));
-        ccdVec3Scale(p1, 1 - s);
-        ccdVec3Scale(&tmp, s);
-        ccdVec3Add(p1, &tmp);
+        ccdVec3Add(p1, &sAB);
       }
       if (p2)
       {
-        ccd_vec3_t tmp;
+        // p2 = A2 + s*A2B2
+        ccd_vec3_t sAB;
+        ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
+        ccdVec3Scale(&sAB, s);
         ccdVec3Copy(p2, &(simplex->ps[0].v2));
-        ccdVec3Copy(&tmp, &(simplex->ps[1].v2));
-        ccdVec3Scale(p2, 1 - s);
-        ccdVec3Scale(&tmp, s);
-        ccdVec3Add(p2, &tmp);
+        ccdVec3Add(p2, &sAB);
       }
   }
   else // simplex_size == 3
@@ -1058,20 +1070,20 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
     ccdVec3Cross(&n, &AB, &AC);
     ccdVec3Normalize(&n);
 
-    // Since v lies in ABC, it can be expressed as
+    // Since p lies in ABC, it can be expressed as
     //
-    // v = A + v'
-    // v' = s*AB + t*AC
+    // p = A + p'
+    // p' = s*AB + t*AC
     //
     // where 0 <= s, t, s+t <= 1.
-    ccdVec3Sub2(&v_prime, v, &(simplex->ps[0].v));
+    ccdVec3Sub2(&v_prime, p, &(simplex->ps[0].v));
 
     // To find the corresponding v1 and v2, we need
     // values for s and t. Taking cross products with AB and AC gives the
     // following system:
     //
-    // AB x v' =  t*(AB x AC)
-    // AC x v' = -s*(AB x AC)
+    // AB x p' =  t*(AB x AC)
+    // AC x p' = -s*(AB x AC)
     ccdVec3Cross(&AB_cross_v_prime, &AB, &v_prime);
     ccdVec3Cross(&AC_cross_v_prime, &AC, &v_prime);
     ccdVec3Cross(&AB_cross_AC, &AB, &AC);
@@ -1079,19 +1091,20 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
     // To convert this to a system of scalar equations, we take the dot product
     // with n:
     //
-    // n . (AB x v') =  t * n . (AB x AC)
-    // n . (AC x v') = -s * n . (AB x AC)
+    // n . (AB x p') =  t * n . (AB x AC)
+    // n . (AC x p') = -s * n . (AB x AC)
     double n_dot_AB_cross_AC{ccdVec3Dot(&n, &AB_cross_AC)};
 
     // Therefore, s and t are given by
     //
-    // s = -n . (AC x v') / n . (AB x AC)
-    // t =  n . (AB x v') / n . (AB x AC)
+    // s = -n . (AC x p') / n . (AB x AC)
+    // t =  n . (AB x p') / n . (AB x AC)
     double s{-ccdVec3Dot(&n, &AC_cross_v_prime) / n_dot_AB_cross_AC};
     double t{ccdVec3Dot(&n, &AB_cross_v_prime) / n_dot_AB_cross_AC};
 
     if (p1)
     {
+      // p1 = A1 + s*A1B1 + t*A1C1
       ccd_vec3_t sAB, tAC;
       ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
       ccdVec3Scale(&sAB, s);
@@ -1103,6 +1116,7 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
     }
     if (p2)
     {
+      // p2 = A2 + s*A2B2 + t*A2C2
       ccd_vec3_t sAB, tAC;
       ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
       ccdVec3Scale(&sAB, s);
