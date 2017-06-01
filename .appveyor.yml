@@ -31,7 +31,9 @@ before_build:
             curl -L -o libccd-2.0.tar.gz https://github.com/danfis/libccd/archive/v2.0.tar.gz &&
             cmake -E tar zxf libccd-2.0.tar.gz &&
             cd libccd-2.0 &&
-            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% . &&
+            mkdir build &&
+            cd build &&
+            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_DOUBLE=True .. &&
             cmake --build . --target install --config %Configuration% &&
             cd ..
          ) else (echo Using cached libccd)
