@@ -1025,19 +1025,42 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
       //
       // p = A + s*AB, 0 <= s <= 1
       // p - A = s*AB
+      ccd_vec3_t AB;
+      ccdVec3Sub2(&AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
+
+      // This defines three equations, but we only need one. Taking the i-th
+      // component gives
       //
-      // This defines three equations, but we only need one. Take the x
-      // component
-      //
-      // p_x - A_x = s*AB_x
+      // p_i - A_i = s*AB_i.
       //
       // Thus, s is given by
       //
-      // s = (p_x - A_x)/(B_x - vA_x)
-      double A_x{ccdVec3X(&(simplex->ps[0].v))};
-      double B_x{ccdVec3X(&(simplex->ps[1].v))};
-      double p_x{ccdVec3X(p)};
-      double    s{(p_x - A_x) / (B_x - A_x)};
+      // s = (p_i - A_i)/AB_i.
+      //
+      // To avoid dividing by an AB_i ≪ 1, we choose i such that |AB_i| is
+      // maximized
+      ccd_real_t abs_AB_x{std::abs(ccdVec3X(&AB))};
+      ccd_real_t abs_AB_y{std::abs(ccdVec3Y(&AB))};
+      ccd_real_t abs_AB_z{std::abs(ccdVec3Z(&AB))};
+      ccd_real_t s{0};
+
+      if (abs_AB_x >= abs_AB_y && abs_AB_x >= abs_AB_z) {
+        ccd_real_t A_x{ccdVec3X(&(simplex->ps[0].v))};
+        ccd_real_t AB_x{ccdVec3X(&AB)};
+        ccd_real_t p_x{ccdVec3X(p)};
+        s = (p_x - A_x) / AB_x;
+      } else if (abs_AB_y >= abs_AB_z) {
+        ccd_real_t A_y{ccdVec3Y(&(simplex->ps[0].v))};
+        ccd_real_t AB_y{ccdVec3Y(&AB)};
+        ccd_real_t p_y{ccdVec3Y(p)};
+        s = (p_y - A_y) / AB_y;
+      } else {
+        ccd_real_t A_z{ccdVec3Z(&(simplex->ps[0].v))};
+        ccd_real_t AB_z{ccdVec3Z(&AB)};
+        ccd_real_t p_z{ccdVec3Z(p)};
+        s = (p_z - A_z) / AB_z;
+      }
+
       if (p1)
       {
         // p1 = A1 + s*A1B1
@@ -1060,15 +1083,15 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
   else // simplex_size == 3
   {
     // Closest points lie in the triangle defined by the points in the simplex
-    ccd_vec3_t AB, AC, n, v_prime, AB_cross_v_prime, AC_cross_v_prime, AB_cross_AC;
+    ccd_vec3_t AB, AC, n, v_prime, AB_cross_v_prime, AC_cross_v_prime;
     // Let the triangle be defined by points A, B, and C. The triangle lies in
-    // the plane that passes through A, whose normal is given by
+    // the plane that passes through A, whose normal is given by n̂, where
     //
-    // n = (AB x AC) / || AB x AC ||
+    // n = AB × AC
+    // n̂ = n / ‖n‖
     ccdVec3Sub2(&AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
     ccdVec3Sub2(&AC, &(simplex->ps[2].v), &(simplex->ps[0].v));
     ccdVec3Cross(&n, &AB, &AC);
-    ccdVec3Normalize(&n);
 
     // Since p lies in ABC, it can be expressed as
     //
@@ -1082,25 +1105,24 @@ static void extractClosestPoints(ccd_simplex_t* simplex,
     // values for s and t. Taking cross products with AB and AC gives the
     // following system:
     //
-    // AB x p' =  t*(AB x AC)
-    // AC x p' = -s*(AB x AC)
+    // AB × p' =  t*(AB × AC) =  t*n
+    // AC × p' = -s*(AB × AC) = -s*n
     ccdVec3Cross(&AB_cross_v_prime, &AB, &v_prime);
     ccdVec3Cross(&AC_cross_v_prime, &AC, &v_prime);
-    ccdVec3Cross(&AB_cross_AC, &AB, &AC);
 
     // To convert this to a system of scalar equations, we take the dot product
     // with n:
     //
-    // n . (AB x p') =  t * n . (AB x AC)
-    // n . (AC x p') = -s * n . (AB x AC)
-    double n_dot_AB_cross_AC{ccdVec3Dot(&n, &AB_cross_AC)};
+    // n ⋅ (AB × p') =  t * ‖n‖²
+    // n ⋅ (AC × p') = -s * ‖n‖²
+    ccd_real_t norm_squared_n{ccdVec3Len2(&n)};
 
     // Therefore, s and t are given by
     //
-    // s = -n . (AC x p') / n . (AB x AC)
-    // t =  n . (AB x p') / n . (AB x AC)
-    double s{-ccdVec3Dot(&n, &AC_cross_v_prime) / n_dot_AB_cross_AC};
-    double t{ccdVec3Dot(&n, &AB_cross_v_prime) / n_dot_AB_cross_AC};
+    // s = -n ⋅ (AC × p') / ‖n‖²
+    // t =  n ⋅ (AB × p') / ‖n‖²
+    ccd_real_t s{-ccdVec3Dot(&n, &AC_cross_v_prime) / norm_squared_n};
+    ccd_real_t t{ccdVec3Dot(&n, &AB_cross_v_prime) / norm_squared_n};
 
     if (p1)
     {
