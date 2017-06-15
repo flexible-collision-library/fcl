@@ -205,11 +205,13 @@ S distance(
   case GST_LIBCCD:
     {
       detail::GJKSolver_libccd<S> solver;
+      solver.distance_tolerance = request.distance_tolerance;
       return distance(o1, o2, &solver, request, result);
     }
   case GST_INDEP:
     {
       detail::GJKSolver_indep<S> solver;
+      solver.gjk_tolerance = request.distance_tolerance;
       return distance(o1, o2, &solver, request, result);
     }
   default:
@@ -229,11 +231,13 @@ S distance(
   case GST_LIBCCD:
     {
       detail::GJKSolver_libccd<S> solver;
+      solver.distance_tolerance = request.distance_tolerance;
       return distance(o1, tf1, o2, tf2, &solver, request, result);
     }
   case GST_INDEP:
     {
       detail::GJKSolver_indep<S> solver;
+      solver.gjk_tolerance = request.distance_tolerance;
       return distance(o1, tf1, o2, tf2, &solver, request, result);
     }
   default:
