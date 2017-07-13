@@ -277,6 +277,7 @@ public:
     plane_dis = plane_dis_;
     num_planes = num_planes_;
     points = points_;
+    num_points = num_points_;
     polygons = polygons_;
     edges = NULL;
 
