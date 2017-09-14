@@ -145,7 +145,7 @@ typename NarrowPhaseSolver::S distance(
   // pair of nearest points is not guaranteed to be on the surface of the
   // objects.
   if(res
-     && result.min_distance < static_cast<S>(0)
+     && result.min_distance <= static_cast<S>(0)
      && request.enable_signed_distance)
   {
     if (std::is_same<NarrowPhaseSolver, detail::GJKSolver_libccd<S>>::value
