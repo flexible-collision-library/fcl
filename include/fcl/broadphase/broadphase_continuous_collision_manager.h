@@ -59,11 +59,11 @@ using ContinuousDistanceCallBack = bool (*)(
     ContinuousCollisionObject<S>* o1,
     ContinuousCollisionObject<S>* o2, void* cdata, S& dist);
 
-/// @brief Base class for broad phase continuous collision. It helps to
+/// @brief Base class FCL_VISIBLE for broad phase continuous collision. It helps to
 /// accelerate the continuous collision/distance between N objects. Also support
 /// self collision, self distance and collision/distance with another M objects.
 template <typename S>
-class BroadPhaseContinuousCollisionManager
+class FCL_VISIBLE BroadPhaseContinuousCollisionManager
 {
 public:
   BroadPhaseContinuousCollisionManager();

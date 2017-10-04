@@ -43,9 +43,9 @@
 namespace fcl
 {
  
-/// @brief A class describing the kIOS collision structure, which is a set of spheres.
+/// @brief A class FCL_VISIBLE describing the kIOS collision structure, which is a set of spheres.
 template <typename S_>
-class kIOS
+class FCL_VISIBLE kIOS
 {
   /// @brief One sphere in kIOS
   struct kIOS_Sphere

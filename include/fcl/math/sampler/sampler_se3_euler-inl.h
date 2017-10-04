@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class SamplerSE3Euler<double>;
+class FCL_VISIBLE SamplerSE3Euler<double>;
 
 //==============================================================================
 template <typename S>

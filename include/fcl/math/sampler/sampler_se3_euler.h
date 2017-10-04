@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-class SamplerSE3Euler : public SamplerBase<S>
+class FCL_VISIBLE SamplerSE3Euler : public SamplerBase<S>
 {
 public:
   SamplerSE3Euler();

@@ -52,7 +52,7 @@ namespace fcl
 /// Points in the negative side of the separation plane (i.e. {x | n * x < d}) are inside the half space and points
 /// in the positive side of the separation plane (i.e. {x | n * x > d}) are outside the half space
 template <typename S_>
-class Halfspace : public ShapeBase<S_>
+class FCL_VISIBLE Halfspace : public ShapeBase<S_>
 {
 public:
 

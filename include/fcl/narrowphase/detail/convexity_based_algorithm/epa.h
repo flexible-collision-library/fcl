@@ -52,9 +52,9 @@ namespace detail
 //static const size_t EPA_MAX_ITERATIONS = 255;
 // TODO(JS): remove?
 
-/// @brief class for EPA algorithm
+/// @brief class FCL_VISIBLE for EPA algorithm
 template <typename S>
-struct EPA
+struct FCL_VISIBLE EPA
 {
 private:
   using SimplexV = typename GJK<S>::SimplexV;

@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-class TMatrix3
+class FCL_VISIBLE TMatrix3
 {
   TVector3<S> v_[3];
   

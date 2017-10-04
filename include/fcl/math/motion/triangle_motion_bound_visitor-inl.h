@@ -51,7 +51,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class TriangleMotionBoundVisitor<double>;
+class FCL_VISIBLE TriangleMotionBoundVisitor<double>;
 
 //==============================================================================
 template<typename S>

@@ -47,9 +47,9 @@ namespace fcl
 namespace detail
 {
 
-/// @brief class for GJK algorithm
+/// @brief class FCL_VISIBLE for GJK algorithm
 template <typename S>
-struct GJK
+struct FCL_VISIBLE GJK
 {
   struct SimplexV
   {

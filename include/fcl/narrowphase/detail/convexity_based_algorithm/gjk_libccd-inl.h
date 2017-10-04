@@ -51,31 +51,31 @@ namespace detail
 
 //==============================================================================
 extern template
-class GJKInitializer<double, Cylinder<double>>;
+class FCL_VISIBLE GJKInitializer<double, Cylinder<double>>;
 
 //==============================================================================
 extern template
-class GJKInitializer<double, Sphere<double>>;
+class FCL_VISIBLE GJKInitializer<double, Sphere<double>>;
 
 //==============================================================================
 extern template
-class GJKInitializer<double, Ellipsoid<double>>;
+class FCL_VISIBLE GJKInitializer<double, Ellipsoid<double>>;
 
 //==============================================================================
 extern template
-class GJKInitializer<double, Box<double>>;
+class FCL_VISIBLE GJKInitializer<double, Box<double>>;
 
 //==============================================================================
 extern template
-class GJKInitializer<double, Capsule<double>>;
+class FCL_VISIBLE GJKInitializer<double, Capsule<double>>;
 
 //==============================================================================
 extern template
-class GJKInitializer<double, Cone<double>>;
+class FCL_VISIBLE GJKInitializer<double, Cone<double>>;
 
 //==============================================================================
 extern template
-class GJKInitializer<double, Convex<double>>;
+class FCL_VISIBLE GJKInitializer<double, Convex<double>>;
 
 //==============================================================================
 extern template

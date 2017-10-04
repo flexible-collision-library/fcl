@@ -59,11 +59,11 @@ using DistanceCallBack = bool (*)(
     CollisionObject<S>* o1,
     CollisionObject<S>* o2, void* cdata, S& dist);
 
-/// @brief Base class for broad phase collision. It helps to accelerate the
+/// @brief Base class FCL_VISIBLE for broad phase collision. It helps to accelerate the
 /// collision/distance between N objects. Also support self collision, self
 /// distance and collision/distance with another M objects.
 template <typename S>
-class BroadPhaseCollisionManager
+class FCL_VISIBLE BroadPhaseCollisionManager
 {
 public:
   BroadPhaseCollisionManager();

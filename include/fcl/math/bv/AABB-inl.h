@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class AABB<double>;
+class FCL_VISIBLE AABB<double>;
 
 //==============================================================================
 template <typename S>

@@ -45,7 +45,7 @@
 namespace fcl
 {
 
-/// @brief Interval class for [a, b]
+/// @brief Interval class FCL_VISIBLE for [a, b]
 template <typename S>
 struct Interval
 {

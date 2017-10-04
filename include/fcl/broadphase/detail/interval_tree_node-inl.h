@@ -47,7 +47,7 @@ namespace detail {
 
 //==============================================================================
 extern template
-class IntervalTreeNode<double>;
+class FCL_VISIBLE IntervalTreeNode<double>;
 
 //==============================================================================
 template <typename S>

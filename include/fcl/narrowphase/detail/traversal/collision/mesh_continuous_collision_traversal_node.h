@@ -66,7 +66,7 @@ struct BVHContinuousCollisionPair
 
 /// @brief Traversal node for continuous collision between meshes
 template <typename BV>
-class MeshContinuousCollisionTraversalNode
+class FCL_VISIBLE MeshContinuousCollisionTraversalNode
     : public BVHCollisionTraversalNode<BV>
 {
 public:

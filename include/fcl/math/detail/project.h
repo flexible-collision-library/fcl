@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Project functions
 template <typename S>
-class Project
+class FCL_VISIBLE Project
 {
 public:
   struct ProjectResult

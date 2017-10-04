@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class Project<double>;
+class FCL_VISIBLE Project<double>;
 
 //==============================================================================
 template <typename S>

@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Collision manager based on interval tree
 template <typename S>
-class IntervalTreeCollisionManager : public BroadPhaseCollisionManager<S>
+class FCL_VISIBLE IntervalTreeCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   IntervalTreeCollisionManager();

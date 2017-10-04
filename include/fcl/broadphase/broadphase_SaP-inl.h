@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class SaPCollisionManager<double>;
+class FCL_VISIBLE SaPCollisionManager<double>;
 
 //==============================================================================
 template <typename S>

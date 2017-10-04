@@ -46,9 +46,9 @@
 namespace fcl
 {
 
-/// @brief Oriented bounding box class
+/// @brief Oriented bounding box class FCL_VISIBLE
 template <typename S_>
-class OBB
+class FCL_VISIBLE OBB
 {
 public:
 

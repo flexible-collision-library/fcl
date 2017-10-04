@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class Sphere<double>;
+class FCL_VISIBLE Sphere<double>;
 
 //==============================================================================
 template <typename S>

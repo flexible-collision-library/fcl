@@ -44,7 +44,7 @@
 //  FCL_DEPRECATED void foo ();
 //
 // Tagging a type as deprecated:
-//  FCL_DEPRECATED class Foo {};
+//  FCL_DEPRECATED class FCL_VISIBLE Foo {};
 //
 // Tagging a variable as deprecated:
 //  FCL_DEPRECATED int a = 0;

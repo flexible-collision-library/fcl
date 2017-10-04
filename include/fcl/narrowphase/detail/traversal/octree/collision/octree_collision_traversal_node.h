@@ -55,7 +55,7 @@ namespace detail
 
 /// @brief Traversal node for octree collision
 template <typename NarrowPhaseSolver>
-class OcTreeCollisionTraversalNode
+class FCL_VISIBLE OcTreeCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename NarrowPhaseSolver::S>
 {
 public:

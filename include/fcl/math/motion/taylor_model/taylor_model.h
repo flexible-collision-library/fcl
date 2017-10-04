@@ -55,7 +55,7 @@ namespace fcl
 /// remainder. All the operations on two Taylor models assume their time
 /// intervals are the same.
 template <typename S>
-class TaylorModel
+class FCL_VISIBLE TaylorModel
 {
   /// @brief time interval
   std::shared_ptr<TimeInterval<S>> time_interval_;

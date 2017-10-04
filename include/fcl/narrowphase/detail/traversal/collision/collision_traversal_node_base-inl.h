@@ -50,7 +50,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class CollisionTraversalNodeBase<double>;
+class FCL_VISIBLE CollisionTraversalNodeBase<double>;
 
 //==============================================================================
 template <typename S>

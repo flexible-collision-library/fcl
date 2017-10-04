@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class Box<double>;
+class FCL_VISIBLE Box<double>;
 
 //==============================================================================
 template <typename S>

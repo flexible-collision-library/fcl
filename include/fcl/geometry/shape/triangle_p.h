@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Triangle stores the points instead of only indices of points
 template <typename S_>
-class TriangleP : public ShapeBase<S_>
+class FCL_VISIBLE TriangleP : public ShapeBase<S_>
 {
 public:
 

@@ -39,12 +39,13 @@
 #define FCL_MATH_TRIANGLE_H
 
 #include <cstddef>
+#include "fcl/common/visibility.h"
 
 namespace fcl
 {
 
 /// @brief Triangle with 3 indices for points
-class Triangle
+class FCL_VISIBLE Triangle
 {
   /// @brief indices for each vertex of triangle
   std::size_t vids[3];

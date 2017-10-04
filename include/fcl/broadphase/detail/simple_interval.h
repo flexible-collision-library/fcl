@@ -38,6 +38,8 @@
 #ifndef FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 #define FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 
+#include "fcl/common/visibility.h"
+
 namespace fcl
 {
 
