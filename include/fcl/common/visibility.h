@@ -39,12 +39,12 @@
   #endif
   #define FCL_HIDDEN
 #else
-  #if __GNUC__ >= 4
-    #define FCL_VISIBLE __attribute__ ((visibility ("default")))
+  #ifdef FCL_HIDE_ALL_SYMBOLS
+    #define FCL_VISIBLE __attribute__ ((visibility ("hidden")))
     #define FCL_HIDDEN  __attribute__ ((visibility ("hidden")))
   #else
-    #define FCL_VISIBLE
-    #define FCL_HIDDEN
+    #define FCL_VISIBLE __attribute__ ((visibility ("default")))
+    #define FCL_HIDDEN  __attribute__ ((visibility ("hidden")))
   #endif
 #endif
 

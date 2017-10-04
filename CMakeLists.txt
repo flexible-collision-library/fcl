@@ -24,6 +24,9 @@ project(fcl CXX C)
 
 option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+# Option for some bundle-like build system in order not to expose
+# any FCL binary symbols in their public ABI
+option(FCL_HIDE_ALL_SYMBOLS "Hide all binary symbols" OFF)
 
 # set the default build type
 if (NOT MSVC AND NOT CMAKE_BUILD_TYPE)
@@ -261,7 +264,7 @@ add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/cmake_uninstall.cmake")
 
 option(FCL_BUILD_TESTS "Build FCL tests" ON)
-if(FCL_BUILD_TESTS)
+if(FCL_BUILD_TESTS AND NOT FCL_HIDE_ALL_SYMBOLS)
     enable_testing()
     add_subdirectory(test)
 endif()

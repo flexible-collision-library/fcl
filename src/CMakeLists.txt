@@ -29,6 +29,10 @@ if (UNIX)
   endif()
 endif()
 
+if (FCL_HIDE_ALL_SYMBOLS)
+ add_definitions("-DFCL_HIDE_ALL_SYMBOLS")
+endif()
+
 # Use the IMPORTED target from newer versions of ccd-config.cmake if available,
 # otherwise fall back to CCD_INCLUDE_DIRS and CCD_LIBRARIES
 if(TARGET ccd)
