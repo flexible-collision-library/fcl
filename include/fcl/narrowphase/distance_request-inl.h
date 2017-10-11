@@ -56,13 +56,11 @@ DistanceRequest<S>::DistanceRequest(
     bool enable_signed_distance_,
     S rel_err_,
     S abs_err_,
-    S distance_tolerance_,
     GJKSolverType gjk_solver_type_)
   : enable_nearest_points(enable_nearest_points_),
     enable_signed_distance(enable_signed_distance_),
     rel_err(rel_err_),
     abs_err(abs_err_),
-    distance_tolerance(distance_tolerance_),
     gjk_solver_type(gjk_solver_type_)
 {
   // Do nothing

@@ -1005,152 +1005,6 @@ static int __ccdEPA(const void *obj1, const void *obj2,
     return 0;
 }
 
-/** Returns the points p1 and p2 on the original shapes that correspond to point
- * p in the given simplex.*/
-static void extractClosestPoints(ccd_simplex_t* simplex,
-                                 ccd_vec3_t* p1, ccd_vec3_t* p2, ccd_vec3_t* p)
-{
-  int simplex_size = ccdSimplexSize(simplex);
-  assert(simplex_size <= 3);
-  if (simplex_size == 1)
-  {
-      // Closest points are the ones stored in the simplex
-      if(p1) *p1 = simplex->ps[simplex->last].v1;
-      if(p2) *p2 = simplex->ps[simplex->last].v2;
-  }
-  else if (simplex_size ==2)
-  {
-      // Closest points lie on the segment defined by the points in the simplex
-      // Let the segment be defined by points A and B. We can write p as
-      //
-      // p = A + s*AB, 0 <= s <= 1
-      // p - A = s*AB
-      ccd_vec3_t AB;
-      ccdVec3Sub2(&AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
-
-      // This defines three equations, but we only need one. Taking the i-th
-      // component gives
-      //
-      // p_i - A_i = s*AB_i.
-      //
-      // Thus, s is given by
-      //
-      // s = (p_i - A_i)/AB_i.
-      //
-      // To avoid dividing by an AB_i ≪ 1, we choose i such that |AB_i| is
-      // maximized
-      ccd_real_t abs_AB_x{std::abs(ccdVec3X(&AB))};
-      ccd_real_t abs_AB_y{std::abs(ccdVec3Y(&AB))};
-      ccd_real_t abs_AB_z{std::abs(ccdVec3Z(&AB))};
-      ccd_real_t s{0};
-
-      if (abs_AB_x >= abs_AB_y && abs_AB_x >= abs_AB_z) {
-        ccd_real_t A_x{ccdVec3X(&(simplex->ps[0].v))};
-        ccd_real_t AB_x{ccdVec3X(&AB)};
-        ccd_real_t p_x{ccdVec3X(p)};
-        s = (p_x - A_x) / AB_x;
-      } else if (abs_AB_y >= abs_AB_z) {
-        ccd_real_t A_y{ccdVec3Y(&(simplex->ps[0].v))};
-        ccd_real_t AB_y{ccdVec3Y(&AB)};
-        ccd_real_t p_y{ccdVec3Y(p)};
-        s = (p_y - A_y) / AB_y;
-      } else {
-        ccd_real_t A_z{ccdVec3Z(&(simplex->ps[0].v))};
-        ccd_real_t AB_z{ccdVec3Z(&AB)};
-        ccd_real_t p_z{ccdVec3Z(p)};
-        s = (p_z - A_z) / AB_z;
-      }
-
-      if (p1)
-      {
-        // p1 = A1 + s*A1B1
-        ccd_vec3_t sAB;
-        ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
-        ccdVec3Scale(&sAB, s);
-        ccdVec3Copy(p1, &(simplex->ps[0].v1));
-        ccdVec3Add(p1, &sAB);
-      }
-      if (p2)
-      {
-        // p2 = A2 + s*A2B2
-        ccd_vec3_t sAB;
-        ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
-        ccdVec3Scale(&sAB, s);
-        ccdVec3Copy(p2, &(simplex->ps[0].v2));
-        ccdVec3Add(p2, &sAB);
-      }
-  }
-  else // simplex_size == 3
-  {
-    // Closest points lie in the triangle defined by the points in the simplex
-    ccd_vec3_t AB, AC, n, v_prime, AB_cross_v_prime, AC_cross_v_prime;
-    // Let the triangle be defined by points A, B, and C. The triangle lies in
-    // the plane that passes through A, whose normal is given by n̂, where
-    //
-    // n = AB × AC
-    // n̂ = n / ‖n‖
-    ccdVec3Sub2(&AB, &(simplex->ps[1].v), &(simplex->ps[0].v));
-    ccdVec3Sub2(&AC, &(simplex->ps[2].v), &(simplex->ps[0].v));
-    ccdVec3Cross(&n, &AB, &AC);
-
-    // Since p lies in ABC, it can be expressed as
-    //
-    // p = A + p'
-    // p' = s*AB + t*AC
-    //
-    // where 0 <= s, t, s+t <= 1.
-    ccdVec3Sub2(&v_prime, p, &(simplex->ps[0].v));
-
-    // To find the corresponding v1 and v2, we need
-    // values for s and t. Taking cross products with AB and AC gives the
-    // following system:
-    //
-    // AB × p' =  t*(AB × AC) =  t*n
-    // AC × p' = -s*(AB × AC) = -s*n
-    ccdVec3Cross(&AB_cross_v_prime, &AB, &v_prime);
-    ccdVec3Cross(&AC_cross_v_prime, &AC, &v_prime);
-
-    // To convert this to a system of scalar equations, we take the dot product
-    // with n:
-    //
-    // n ⋅ (AB × p') =  t * ‖n‖²
-    // n ⋅ (AC × p') = -s * ‖n‖²
-    ccd_real_t norm_squared_n{ccdVec3Len2(&n)};
-
-    // Therefore, s and t are given by
-    //
-    // s = -n ⋅ (AC × p') / ‖n‖²
-    // t =  n ⋅ (AB × p') / ‖n‖²
-    ccd_real_t s{-ccdVec3Dot(&n, &AC_cross_v_prime) / norm_squared_n};
-    ccd_real_t t{ccdVec3Dot(&n, &AB_cross_v_prime) / norm_squared_n};
-
-    if (p1)
-    {
-      // p1 = A1 + s*A1B1 + t*A1C1
-      ccd_vec3_t sAB, tAC;
-      ccdVec3Sub2(&sAB, &(simplex->ps[1].v1), &(simplex->ps[0].v1));
-      ccdVec3Scale(&sAB, s);
-      ccdVec3Sub2(&tAC, &(simplex->ps[2].v1), &(simplex->ps[0].v1));
-      ccdVec3Scale(&tAC, t);
-      ccdVec3Copy(p1, &(simplex->ps[0].v1));
-      ccdVec3Add(p1, &sAB);
-      ccdVec3Add(p1, &tAC);
-    }
-    if (p2)
-    {
-      // p2 = A2 + s*A2B2 + t*A2C2
-      ccd_vec3_t sAB, tAC;
-      ccdVec3Sub2(&sAB, &(simplex->ps[1].v2), &(simplex->ps[0].v2));
-      ccdVec3Scale(&sAB, s);
-      ccdVec3Sub2(&tAC, &(simplex->ps[2].v2), &(simplex->ps[0].v2));
-      ccdVec3Scale(&tAC, t);
-      ccdVec3Copy(p2, &(simplex->ps[0].v2));
-      ccdVec3Add(p2, &sAB);
-      ccdVec3Add(p2, &tAC);
-    }
-  }
-}
-
 
 static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
                                   const ccd_t *ccd,
@@ -1200,7 +1054,8 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
     {
-      extractClosestPoints(simplex, p1, p2, &dir);
+      if(p1) *p1 = last.v1;
+      if(p2) *p2 = last.v2;
       return dist;
     }
 
@@ -1221,7 +1076,8 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     dist = CCD_SQRT(dist);
     if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
     {
-      extractClosestPoints(simplex, p1, p2, &dir);
+      if(p1) *p1 = last.v1;
+      if(p2) *p2 = last.v2;
       return last_dist;
     }
 
@@ -1372,7 +1228,8 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     // check whether we improved for at least a minimum tolerance
     if ((last_dist - dist) < ccd->dist_tolerance)
     {
-      extractClosestPoints(&simplex, p1, p2, &dir);
+      if(p1) *p1 = last.v1;
+      if(p2) *p2 = last.v2;
       return dist;
     }
 
@@ -1393,7 +1250,8 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
     dist = CCD_SQRT(dist);
     if (CCD_FABS(last_dist - dist) < ccd->dist_tolerance)
     {
-      extractClosestPoints(&simplex, p1, p2, &dir);
+      if(p1) *p1 = last.v1;
+      if(p2) *p2 = last.v2;
       return last_dist;
     }
 
