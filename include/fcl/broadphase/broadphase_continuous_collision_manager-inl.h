@@ -46,7 +46,7 @@ namespace fcl {
 
 //==============================================================================
 extern template
-class BroadPhaseContinuousCollisionManager<double>;
+class FCL_VISIBLE BroadPhaseContinuousCollisionManager<double>;
 
 //==============================================================================
 template <typename S>

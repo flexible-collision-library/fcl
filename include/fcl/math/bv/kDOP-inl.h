@@ -47,15 +47,15 @@ namespace fcl
 
 //==============================================================================
 extern template
-class KDOP<double, 16>;
+class FCL_VISIBLE KDOP<double, 16>;
 
 //==============================================================================
 extern template
-class KDOP<double, 18>;
+class FCL_VISIBLE KDOP<double, 18>;
 
 //==============================================================================
 extern template
-class KDOP<double, 24>;
+class FCL_VISIBLE KDOP<double, 24>;
 
 //==============================================================================
 extern template

@@ -44,14 +44,14 @@ namespace fcl
 {
 
 template <typename S>
-class SamplerBase
+class FCL_VISIBLE SamplerBase
 {
 public:
   mutable RNG<S> rng;
 };
 
 extern template
-class SamplerBase<double>;
+class FCL_VISIBLE SamplerBase<double>;
 
 } // namespace fcl
 

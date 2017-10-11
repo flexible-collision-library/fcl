@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class SpatialHashingCollisionManager<
+class FCL_VISIBLE SpatialHashingCollisionManager<
     double,
     detail::SimpleHashTable<
         AABB<double>, CollisionObject<double>*, detail::SpatialHash<double>>>;

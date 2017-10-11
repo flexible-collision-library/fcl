@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class SamplerSE3Quat_ball<double>;
+class FCL_VISIBLE SamplerSE3Quat_ball<double>;
 
 //==============================================================================
 template <typename S>

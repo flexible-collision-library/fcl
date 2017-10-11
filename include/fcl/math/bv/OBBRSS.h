@@ -47,7 +47,7 @@ namespace fcl
 /// @brief Class merging the OBB and RSS, can handle collision and distance
 /// simultaneously
 template <typename S_>
-class OBBRSS
+class FCL_VISIBLE OBBRSS
 {
 public:
 

@@ -38,14 +38,16 @@
 #ifndef FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
 #define FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
 
+#include "fcl/common/visibility.h"
+
 namespace fcl
 {
 
 namespace detail {
 
-/// @brief A class solves polynomial degree (1,2,3) equations 
+/// @brief A class FCL_VISIBLE solves polynomial degree (1,2,3) equations 
 template <typename S>
-class PolySolver
+class FCL_VISIBLE PolySolver
 {
 public:
   /// @brief Solve a linear equation with coefficients c, return roots s and number of roots 

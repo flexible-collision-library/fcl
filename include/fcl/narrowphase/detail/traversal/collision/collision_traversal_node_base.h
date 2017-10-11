@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Node structure encoding the information required for collision traversal.
 template <typename S>
-class CollisionTraversalNodeBase : public TraversalNodeBase<S>
+class FCL_VISIBLE CollisionTraversalNodeBase : public TraversalNodeBase<S>
 {
 public:
   CollisionTraversalNodeBase();

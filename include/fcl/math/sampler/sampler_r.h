@@ -46,7 +46,7 @@ namespace fcl
 {
 
 template <typename S, std::size_t N>
-class SamplerR : public SamplerBase<S>
+class FCL_VISIBLE SamplerR : public SamplerBase<S>
 {
 public:
   SamplerR();

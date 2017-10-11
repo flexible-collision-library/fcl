@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Convex polytope
 template <typename S_>
-class Convex : public ShapeBase<S_>
+class FCL_VISIBLE Convex : public ShapeBase<S_>
 {
 public:
 

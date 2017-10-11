@@ -50,7 +50,7 @@ namespace detail
 
 /// @brief continuous collision node using conservative advancement. when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
 template <typename BV>
-class MeshConservativeAdvancementTraversalNode
+class FCL_VISIBLE MeshConservativeAdvancementTraversalNode
     : public MeshDistanceTraversalNode<BV>
 {
 public:
@@ -108,7 +108,7 @@ bool initialize(
     bool refit_bottomup = false);
 
 template <typename S>
-class MeshConservativeAdvancementTraversalNodeRSS
+class FCL_VISIBLE MeshConservativeAdvancementTraversalNodeRSS
     : public MeshConservativeAdvancementTraversalNode<RSS<S>>
 {
 public:
@@ -158,7 +158,7 @@ bool initialize(
     S w = 1);
 
 template <typename S>
-class MeshConservativeAdvancementTraversalNodeOBBRSS
+class FCL_VISIBLE MeshConservativeAdvancementTraversalNodeOBBRSS
     : public MeshConservativeAdvancementTraversalNode<OBBRSS<S>>
 {
 public:

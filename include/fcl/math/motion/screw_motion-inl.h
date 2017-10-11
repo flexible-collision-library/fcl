@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class ScrewMotion<double>;
+class FCL_VISIBLE ScrewMotion<double>;
 
 //==============================================================================
 template <typename S>

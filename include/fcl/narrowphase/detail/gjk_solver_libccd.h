@@ -50,14 +50,13 @@ namespace detail
 
 /// @brief collision and distance solver based on libccd library.
 template <typename S_>
-struct GJKSolver_libccd
+struct FCL_VISIBLE GJKSolver_libccd
 {
   using S = S_;
 
   /// @brief intersection checking between two shapes
   /// @deprecated use shapeIntersect(const Shape1&, const Transform3<S>&, const Shape2&, const Transform3<S>&, std::vector<ContactPoint<S>>*) const
   template<typename Shape1, typename Shape2>
-  FCL_DEPRECATED
   bool shapeIntersect(
       const Shape1& s1,
       const Transform3<S>& tf1,

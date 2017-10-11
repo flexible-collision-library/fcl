@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Center at zero cylinder 
 template <typename S_>
-class Cylinder : public ShapeBase<S_>
+class FCL_VISIBLE Cylinder : public ShapeBase<S_>
 {
 public:
 

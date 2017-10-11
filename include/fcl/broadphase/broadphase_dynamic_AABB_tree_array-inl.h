@@ -49,7 +49,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class DynamicAABBTreeCollisionManager_Array<double>;
+class FCL_VISIBLE DynamicAABBTreeCollisionManager_Array<double>;
 
 namespace detail
 {

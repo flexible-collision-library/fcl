@@ -69,7 +69,7 @@ struct it_recursion_node<double>;
 
 /// @brief Interval tree
 template <typename S>
-class IntervalTree
+class FCL_VISIBLE IntervalTree
 {
 public:
 

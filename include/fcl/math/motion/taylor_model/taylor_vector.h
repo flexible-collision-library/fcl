@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-class TVector3
+class FCL_VISIBLE TVector3
 {
   TaylorModel<S> i_[3];
 

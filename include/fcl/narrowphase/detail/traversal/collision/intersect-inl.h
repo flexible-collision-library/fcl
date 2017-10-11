@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class Intersect<double>;
+class FCL_VISIBLE Intersect<double>;
 
 //==============================================================================
 template <typename S>

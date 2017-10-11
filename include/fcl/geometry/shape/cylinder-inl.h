@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class Cylinder<double>;
+class FCL_VISIBLE Cylinder<double>;
 
 //==============================================================================
 template <typename S>

@@ -48,14 +48,14 @@
 namespace fcl
 {
 
-/// @brief Random number generation. An instance of this class
+/// @brief Random number generation. An instance of this class FCL_VISIBLE
 /// cannot be used by multiple threads at once (member functions
 /// are not const). However, the constructor is thread safe and
 /// different instances can be used safely in any number of
 /// threads. It is also guaranteed that all created instances will
 /// have a different random seed.
 template <typename S>
-class RNG
+class FCL_VISIBLE RNG
 {
 public:
   /// @brief Constructor. Always sets a different random seed

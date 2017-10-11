@@ -39,13 +39,14 @@
 #define FCL_MATH_DETAIL_SEED_H
 
 #include <cstdint>
+#include "fcl/common/visibility.h"
 
 namespace fcl
 {
 namespace detail
 {
 
-class Seed
+class FCL_VISIBLE Seed
 {
 public:
 

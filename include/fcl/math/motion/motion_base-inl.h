@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class MotionBase<double>;
+class FCL_VISIBLE MotionBase<double>;
 
 //==============================================================================
 template <typename S>

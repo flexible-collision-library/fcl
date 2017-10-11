@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Infinite plane 
 template <typename S_>
-class Plane : public ShapeBase<S_>
+class FCL_VISIBLE Plane : public ShapeBase<S_>
 {
 public:
 
