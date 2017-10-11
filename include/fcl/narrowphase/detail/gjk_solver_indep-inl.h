@@ -620,7 +620,7 @@ struct ShapeDistanceIndepImpl
       if(distance) *distance = (w0 - w1).norm();
 
       if(p1) *p1 = w0;
-      if(p2) (*p2).noalias() = shape.toshape0 * w1;
+      if(p2) (*p2).noalias() = shape.toshape0.inverse() * w1;
 
       return true;
     }

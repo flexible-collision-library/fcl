@@ -16,7 +16,7 @@ environment:
   CTEST_OUTPUT_ON_FAILURE: 1
 
 cache:
-  - C:\Program Files\libccd
+  - C:\Program Files\libccd -> .appveyor.yml
 
 configuration:
   - Debug
