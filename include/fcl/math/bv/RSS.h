@@ -44,7 +44,7 @@
 namespace fcl
 {
 
-/// @brief A class FCL_VISIBLE for rectangle sphere-swept bounding volume
+/// @brief A class for rectangle sphere-swept bounding volume
 template <typename S_>
 class FCL_VISIBLE RSS
 {

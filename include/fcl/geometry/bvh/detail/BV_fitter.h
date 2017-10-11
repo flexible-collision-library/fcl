@@ -51,7 +51,7 @@ namespace fcl
 namespace detail
 {
 
-/// @brief The class FCL_VISIBLE for the default algorithm fitting a bounding volume to a set of points
+/// @brief The class for the default algorithm fitting a bounding volume to a set of points
 template <typename BV>
 class FCL_VISIBLE BVFitter : public BVFitterBase<BV>
 {

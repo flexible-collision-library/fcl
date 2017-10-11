@@ -43,7 +43,7 @@
 namespace fcl
 {
 
-/// @brief Base class FCL_VISIBLE for all basic geometric shapes
+/// @brief Base class for all basic geometric shapes
 template <typename S_>
 class FCL_VISIBLE ShapeBase : public CollisionGeometry<S_>
 {
