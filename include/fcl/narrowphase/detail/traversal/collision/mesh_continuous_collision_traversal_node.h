@@ -48,7 +48,7 @@ namespace detail
 
 /// @brief Traversal node for continuous collision between BVH models
 template <typename S>
-struct BVHContinuousCollisionPair
+struct FCL_VISIBLE BVHContinuousCollisionPair
 {
   BVHContinuousCollisionPair();
 
@@ -101,6 +101,7 @@ public:
 /// @brief Initialize traversal node for continuous collision detection between
 /// two meshes
 template <typename BV>
+FCL_VISIBLE
 bool initialize(
     MeshContinuousCollisionTraversalNode<BV>& node,
     const BVHModel<BV>& model1,

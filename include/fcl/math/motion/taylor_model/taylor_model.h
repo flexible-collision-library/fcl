@@ -118,24 +118,30 @@ public:
 };
 
 template <typename S>
+FCL_VISIBLE
 TaylorModel<S> operator * (S d, const TaylorModel<S>& a);
 
 template <typename S>
+FCL_VISIBLE
 TaylorModel<S> operator + (S d, const TaylorModel<S>& a);
 
 template <typename S>
+FCL_VISIBLE
 TaylorModel<S> operator - (S d, const TaylorModel<S>& a);
 
 /// @brief Generate Taylor model for cos(w t + q0)
 template <typename S>
+FCL_VISIBLE
 void generateTaylorModelForCosFunc(TaylorModel<S>& tm, S w, S q0);
 
 /// @brief Generate Taylor model for sin(w t + q0)
 template <typename S>
+FCL_VISIBLE
 void generateTaylorModelForSinFunc(TaylorModel<S>& tm, S w, S q0);
 
 /// @brief Generate Taylor model for p + v t
 template <typename S>
+FCL_VISIBLE
 void generateTaylorModelForLinearFunc(TaylorModel<S>& tm, S p, S v);
 
 } // namespace fcl

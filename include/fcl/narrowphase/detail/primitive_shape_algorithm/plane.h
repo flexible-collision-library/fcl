@@ -55,12 +55,15 @@ namespace detail
 {
 
 template <typename S>
+FCL_VISIBLE
 S planeIntersectTolerance();
 
 template <>
+FCL_VISIBLE
 double planeIntersectTolerance();
 
 template <>
+FCL_VISIBLE
 float planeIntersectTolerance();
 
 template <typename S>

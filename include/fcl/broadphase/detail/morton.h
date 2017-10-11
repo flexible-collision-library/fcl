@@ -65,7 +65,7 @@ uint64 morton_code60(uint32 x, uint32 y, uint32 z);
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
 /// N is the length of the code and must be a multiple of 3.
 template<typename S, typename T>
-struct morton_functor {};
+struct FCL_VISIBLE morton_functor {};
 
 /// @brief Functor to compute 30 bit morton code for a given AABB<S>
 template<typename S>

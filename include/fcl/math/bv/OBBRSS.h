@@ -108,11 +108,13 @@ using OBBRSSd = OBBRSS<double>;
 
 /// @brief Translate the OBBRSS bv
 template <typename S>
+FCL_VISIBLE
 OBBRSS<S> translate(const OBBRSS<S>& bv, const Vector3<S>& t);
 
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
 /// and b2 is in indentity
 template <typename S, typename DerivedA, typename DerivedB>
+FCL_VISIBLE
 bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
              const Eigen::MatrixBase<DerivedB>& T0,
              const OBBRSS<S>& b1, const OBBRSS<S>& b2);
@@ -120,6 +122,7 @@ bool overlap(const Eigen::MatrixBase<DerivedA>& R0,
 /// @brief Check collision between two OBBRSS, b1 is in configuration (R0, T0)
 /// and b2 is in indentity
 template <typename S>
+FCL_VISIBLE
 bool overlap(
     const Transform3<S>& tf,
     const OBBRSS<S>& b1,
@@ -128,6 +131,7 @@ bool overlap(
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
 /// and b2 is in indentity; P and Q, is not nullptr, returns the nearest points
 template <typename S, typename DerivedA, typename DerivedB>
+FCL_VISIBLE
 S distance(
     const Eigen::MatrixBase<DerivedA>& R0,
     const Eigen::MatrixBase<DerivedB>& T0,
@@ -137,6 +141,7 @@ S distance(
 /// @brief Computate distance between two OBBRSS, b1 is in configuation (R0, T0)
 /// and b2 is in indentity; P and Q, is not nullptr, returns the nearest points
 template <typename S>
+FCL_VISIBLE
 S distance(
     const Transform3<S>& tf,
     const OBBRSS<S>& b1,

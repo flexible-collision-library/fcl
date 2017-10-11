@@ -147,7 +147,7 @@ using IntervalTreeCollisionManagerd = IntervalTreeCollisionManager<double>;
 
 /// @brief SAP end point
 template <typename S>
-struct IntervalTreeCollisionManager<S>::EndPoint
+struct FCL_VISIBLE IntervalTreeCollisionManager<S>::EndPoint
 {
   /// @brief object related with the end point
   CollisionObject<S>* obj;
@@ -163,7 +163,7 @@ struct IntervalTreeCollisionManager<S>::EndPoint
 
 /// @brief Extention interval tree's interval to SAP interval, adding more information
 template <typename S>
-struct IntervalTreeCollisionManager<S>::SAPInterval : public detail::SimpleInterval<S>
+struct FCL_VISIBLE IntervalTreeCollisionManager<S>::SAPInterval : public detail::SimpleInterval<S>
 {
   CollisionObject<S>* obj;
 
