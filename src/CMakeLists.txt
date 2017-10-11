@@ -16,14 +16,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 #################################################
 # Macro to check for visibility capability in compiler
 # Original idea from: https://gitorious.org/ferric-cmake-stuff/
-macro (check_compiler_visibility)
+macro (check_gcc_visibility)
   include (CheckCXXCompilerFlag)
-  check_cxx_compiler_flag(-fvisibility=hidden COMPILER_SUPPORTS_VISIBILITY)
+  check_cxx_compiler_flag(-fvisibility=hidden GCC_SUPPORTS_VISIBILITY)
 endmacro()
 
 if (UNIX)
-  check_compiler_visibility()
-  if (COMPILER_SUPPORTS_VISIBILITY)
+  check_gcc_visibility()
+  if (GCC_SUPPORTS_VISIBILITY)
     set_target_properties(${PROJECT_NAME}
       PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
   endif()
