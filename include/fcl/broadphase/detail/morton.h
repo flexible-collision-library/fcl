@@ -52,6 +52,7 @@ namespace detail
 {
 
 template <typename S>
+FCL_VISIBLE
 uint32 quantize(S x, uint32 n);
 
 /// @brief compute 30 bit morton code

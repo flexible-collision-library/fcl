@@ -105,6 +105,7 @@ getConservativeAdvancementFunctionLookTable()
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 MotionBasePtr<S> getMotionBase(
     const Transform3<S>& tf_beg,
     const Transform3<S>& tf_end,
