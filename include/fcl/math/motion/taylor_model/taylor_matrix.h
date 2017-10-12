@@ -106,24 +106,31 @@ public:
 };
 
 template <typename S>
+FCL_VISIBLE
 TMatrix3<S> rotationConstrain(const TMatrix3<S>& m);
 
 template <typename S>
+FCL_VISIBLE
 TMatrix3<S> operator * (const Matrix3<S>& m, const TaylorModel<S>& a);
 
 template <typename S>
+FCL_VISIBLE
 TMatrix3<S> operator * (const TaylorModel<S>& a, const Matrix3<S>& m);
 
 template <typename S>
+FCL_VISIBLE
 TMatrix3<S> operator * (const TaylorModel<S>& a, const TMatrix3<S>& m);
 
 template <typename S>
+FCL_VISIBLE
 TMatrix3<S> operator * (S d, const TMatrix3<S>& m);
 
 template <typename S>
+FCL_VISIBLE
 TMatrix3<S> operator + (const Matrix3<S>& m1, const TMatrix3<S>& m2);
 
 template <typename S>
+FCL_VISIBLE
 TMatrix3<S> operator - (const Matrix3<S>& m1, const TMatrix3<S>& m2);
 
 } // namespace fcl

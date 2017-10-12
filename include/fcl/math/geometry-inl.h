@@ -148,6 +148,7 @@ namespace detail {
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 S maximumDistance_mesh(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -192,6 +193,7 @@ S maximumDistance_mesh(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 S maximumDistance_pointcloud(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -226,6 +228,7 @@ S maximumDistance_pointcloud(
 /// @brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
 template <typename S>
+FCL_VISIBLE
 void getExtentAndCenter_pointcloud(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -290,6 +293,7 @@ void getExtentAndCenter_pointcloud(
 /// @brief Compute the bounding volume extent and center for a set or subset of
 /// points. The bounding volume axes are known.
 template <typename S>
+FCL_VISIBLE
 void getExtentAndCenter_mesh(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -408,6 +412,7 @@ void getExtentAndCenter_mesh(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void normalize(Vector3<S>& v, bool* signal)
 {
   S sqr_length = v.squaredNorm();
@@ -425,6 +430,7 @@ void normalize(Vector3<S>& v, bool* signal)
 
 //==============================================================================
 template <typename Derived>
+FCL_VISIBLE
 typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
                                     const Eigen::MatrixBase<Derived>& y,
                                     const Eigen::MatrixBase<Derived>& z)
@@ -434,6 +440,7 @@ typename Derived::RealScalar triple(const Eigen::MatrixBase<Derived>& x,
 
 //==============================================================================
 template <typename Derived>
+FCL_VISIBLE
 void generateCoordinateSystem(
     const Eigen::MatrixBase<Derived>& w,
     Eigen::MatrixBase<Derived>& u,
@@ -465,6 +472,7 @@ void generateCoordinateSystem(
 
 //==============================================================================
 template <typename S, int M, int N>
+FCL_VISIBLE
 VectorN<S, M+N> combine(
     const VectorN<S, M>& v1, const VectorN<S, N>& v2)
 {
@@ -476,6 +484,7 @@ VectorN<S, M+N> combine(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void hat(Matrix3<S>& mat, const Vector3<S>& vec)
 {
   mat << 0, -vec[2], vec[1], vec[2], 0, -vec[0], -vec[1], vec[0], 0;
@@ -483,6 +492,7 @@ void hat(Matrix3<S>& mat, const Vector3<S>& vec)
 
 //==============================================================================
 template<typename S>
+FCL_VISIBLE
 void eigen(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
 {
   // We assume that m is symmetric matrix.
@@ -498,6 +508,7 @@ void eigen(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
 
 //==============================================================================
 template<typename S>
+FCL_VISIBLE
 void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
 {
   Matrix3<S> R(m);
@@ -587,6 +598,7 @@ void eigen_old(const Matrix3<S>& m, Vector3<S>& dout, Matrix3<S>& vout)
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void axisFromEigen(const Matrix3<S>& eigenV,
                    const Vector3<S>& eigenS,
                    Matrix3<S>& axis)
@@ -626,6 +638,7 @@ void axisFromEigen(const Matrix3<S>& eigenV,
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void axisFromEigen(const Matrix3<S>& eigenV,
                    const Vector3<S>& eigenS,
                    Transform3<S>& tf)
@@ -665,6 +678,7 @@ void axisFromEigen(const Matrix3<S>& eigenV,
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void generateCoordinateSystem(Matrix3<S>& axis)
 {
   // Assum axis.col(0) is closest to z-axis
@@ -710,6 +724,7 @@ void generateCoordinateSystem(Matrix3<S>& axis)
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void generateCoordinateSystem(Transform3<S>& tf)
 {
   // Assum axis.col(0) is closest to z-axis
@@ -755,6 +770,7 @@ void generateCoordinateSystem(Transform3<S>& tf)
 
 //==============================================================================
 template <typename DerivedA, typename DerivedB, typename DerivedC, typename DerivedD>
+FCL_VISIBLE
 void relativeTransform(
     const Eigen::MatrixBase<DerivedA>& R1, const Eigen::MatrixBase<DerivedB>& t1,
     const Eigen::MatrixBase<DerivedA>& R2, const Eigen::MatrixBase<DerivedB>& t2,
@@ -786,6 +802,7 @@ void relativeTransform(
 
 //==============================================================================
 template <typename S, typename DerivedA, typename DerivedB>
+FCL_VISIBLE
 void relativeTransform(
     const Transform3<S>& T1,
     const Transform3<S>& T2,
@@ -807,6 +824,7 @@ void relativeTransform(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void getRadiusAndOriginAndRectangleSize(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -1089,6 +1107,7 @@ void getRadiusAndOriginAndRectangleSize(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void getRadiusAndOriginAndRectangleSize(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -1370,6 +1389,7 @@ void getRadiusAndOriginAndRectangleSize(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void circumCircleComputation(
     const Vector3<S>& a,
     const Vector3<S>& b,
@@ -1394,6 +1414,7 @@ void circumCircleComputation(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 S maximumDistance(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -1410,6 +1431,7 @@ S maximumDistance(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void getExtentAndCenter(
     Vector3<S>* ps,
     Vector3<S>* ps2,
@@ -1428,6 +1450,7 @@ void getExtentAndCenter(
 
 //==============================================================================
 template <typename S>
+FCL_VISIBLE
 void getCovariance(Vector3<S>* ps,
     Vector3<S>* ps2,
     Triangle* ts,

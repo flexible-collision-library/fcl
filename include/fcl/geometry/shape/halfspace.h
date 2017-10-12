@@ -92,6 +92,7 @@ using Halfspacef = Halfspace<float>;
 using Halfspaced = Halfspace<double>;
 
 template <typename S>
+FCL_VISIBLE
 Halfspace<S> transform(const Halfspace<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl

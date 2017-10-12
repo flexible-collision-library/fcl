@@ -152,19 +152,23 @@ using KDOPd = KDOP<double, N>;
 
 /// @brief Find the smaller and larger one of two values
 template <typename S>
+FCL_VISIBLE
 void minmax(S a, S b, S& minv, S& maxv);
 
 /// @brief Merge the interval [minv, maxv] and value p/
 template <typename S>
+FCL_VISIBLE
 void minmax(S p, S& minv, S& maxv);
 
 /// @brief Compute the distances to planes with normals from KDOP vectors except
 /// those of AABB face planes
 template <typename S, std::size_t N>
+FCL_VISIBLE
 void getDistances(const Vector3<S>& p, S* d);
 
 /// @brief translate the KDOP BV
 template <typename S, std::size_t N, typename Derived>
+FCL_VISIBLE
 KDOP<S, N> translate(
     const KDOP<S, N>& bv, const Eigen::MatrixBase<Derived>& t);
 

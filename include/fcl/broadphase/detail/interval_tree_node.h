@@ -48,7 +48,7 @@ namespace detail
 {
 
 template <typename S>
-class IntervalTree;
+class FCL_VISIBLE IntervalTree;
 
 /// @brief The node for interval tree
 template <typename S>

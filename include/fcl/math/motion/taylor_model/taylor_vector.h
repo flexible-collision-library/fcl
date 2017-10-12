@@ -104,15 +104,19 @@ public:
 };
 
 template <typename S>
+FCL_VISIBLE
 void generateTVector3ForLinearFunc(TVector3<S>& v, const Vector3<S>& position, const Vector3<S>& velocity);
 
 template <typename S>
+FCL_VISIBLE
 TVector3<S> operator * (const Vector3<S>& v, const TaylorModel<S>& a);
 
 template <typename S>
+FCL_VISIBLE
 TVector3<S> operator + (const Vector3<S>& v1, const TVector3<S>& v2);
 
 template <typename S>
+FCL_VISIBLE
 TVector3<S> operator - (const Vector3<S>& v1, const TVector3<S>& v2);
 
 } // namespace fcl

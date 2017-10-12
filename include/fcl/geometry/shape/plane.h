@@ -85,6 +85,7 @@ using Planef = Plane<float>;
 using Planed = Plane<double>;
 
 template <typename S>
+FCL_VISIBLE
 Plane<S> transform(const Plane<S>& a, const Transform3<S>& tf);
 
 } // namespace fcl

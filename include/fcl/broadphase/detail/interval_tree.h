@@ -51,7 +51,7 @@ namespace detail {
 /// right branch in searching for intervals but possibly come back
 /// and check the left branch as well.
 template <typename S>
-struct it_recursion_node
+struct FCL_VISIBLE it_recursion_node
 {
 public:
   IntervalTreeNode<S>* start_node;
