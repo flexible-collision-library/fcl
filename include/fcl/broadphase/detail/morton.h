@@ -55,9 +55,11 @@ template <typename S>
 uint32 quantize(S x, uint32 n);
 
 /// @brief compute 30 bit morton code
+FCL_VISIBLE
 uint32 morton_code(uint32 x, uint32 y, uint32 z);
 
 /// @brief compute 60 bit morton code
+FCL_VISIBLE
 uint64 morton_code60(uint32 x, uint32 y, uint32 z);
 
 /// @brief Functor to compute the morton code for a given AABB

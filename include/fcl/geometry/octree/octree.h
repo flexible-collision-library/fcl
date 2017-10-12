@@ -138,6 +138,7 @@ using OcTreed = OcTree<double>;
 
 /// @brief compute the bounding volume of an octree node's i-th child
 template <typename S>
+FCL_VISIBLE
 void computeChildBV(const AABB<S>& root_bv, unsigned int i, AABB<S>& child_bv);
 
 } // namespace fcl
