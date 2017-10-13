@@ -50,7 +50,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_VISIBLE TraversalNodeBase<double>;
+class FCL_EXPORT TraversalNodeBase<double>;
 
 //==============================================================================
 template <typename S>

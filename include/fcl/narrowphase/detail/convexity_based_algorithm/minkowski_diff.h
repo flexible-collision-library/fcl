@@ -53,9 +53,9 @@ Vector3<S> getSupport(
     const ShapeBase<S>* shape,
     const Eigen::MatrixBase<Derived>& dir);
 
-/// @brief Minkowski difference class FCL_VISIBLE of two shapes
+/// @brief Minkowski difference class FCL_EXPORT of two shapes
 template <typename S>
-struct FCL_VISIBLE MinkowskiDiff
+struct FCL_EXPORT MinkowskiDiff
 {
   /// @brief points to two shapes
   const ShapeBase<S>* shapes[2];

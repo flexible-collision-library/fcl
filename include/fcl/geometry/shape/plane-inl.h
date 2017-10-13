@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE Plane<double>;
+class FCL_EXPORT Plane<double>;
 
 //==============================================================================
 extern template

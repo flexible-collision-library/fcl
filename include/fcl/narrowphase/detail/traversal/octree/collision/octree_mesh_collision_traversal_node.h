@@ -56,7 +56,7 @@ namespace detail
 
 /// @brief Traversal node for octree-mesh collision
 template <typename BV, typename NarrowPhaseSolver>
-class FCL_VISIBLE OcTreeMeshCollisionTraversalNode
+class FCL_EXPORT OcTreeMeshCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename BV::S>
 {
 public:

@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE TMatrix3<double>;
+class FCL_EXPORT TMatrix3<double>;
 
 //==============================================================================
 extern template

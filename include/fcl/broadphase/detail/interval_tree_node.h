@@ -39,7 +39,7 @@
 #define FCL_BROADPHASE_DETAIL_INTERVALTREENODE_H
 
 #include "fcl/broadphase/detail/simple_interval.h"
-#include "fcl/common/visibility.h"
+#include "fcl_export.h"
 
 namespace fcl
 {
@@ -48,11 +48,11 @@ namespace detail
 {
 
 template <typename S>
-class FCL_VISIBLE IntervalTree;
+class FCL_EXPORT IntervalTree;
 
 /// @brief The node for interval tree
 template <typename S>
-class FCL_VISIBLE IntervalTreeNode
+class FCL_EXPORT IntervalTreeNode
 {
 public:
 

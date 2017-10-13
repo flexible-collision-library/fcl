@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Traversal node for collision between mesh and shape
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
-class FCL_VISIBLE MeshShapeCollisionTraversalNode
+class FCL_EXPORT MeshShapeCollisionTraversalNode
     : public BVHShapeCollisionTraversalNode<BV, Shape>
 {
 public:
@@ -75,7 +75,7 @@ public:
 /// @brief Initialize traversal node for collision between one mesh and one
 /// shape, given current object transform
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
-FCL_VISIBLE
+FCL_EXPORT
 bool initialize(
     MeshShapeCollisionTraversalNode<BV, Shape, NarrowPhaseSolver>& node,
     BVHModel<BV>& model1,
@@ -88,7 +88,7 @@ bool initialize(
     bool use_refit = false, bool refit_bottomup = false);
 
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
-FCL_VISIBLE
+FCL_EXPORT
 void meshShapeCollisionOrientedNodeLeafTesting(
     int b1,
     int b2,
@@ -107,7 +107,7 @@ void meshShapeCollisionOrientedNodeLeafTesting(
 
 /// @brief Traversal node for mesh and shape, when mesh BVH is one of the oriented node (OBB, RSS, OBBRSS, kIOS)
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_VISIBLE MeshShapeCollisionTraversalNodeOBB
+class FCL_EXPORT MeshShapeCollisionTraversalNodeOBB
     : public MeshShapeCollisionTraversalNode<
           OBB<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
@@ -123,7 +123,7 @@ public:
 /// @brief Initialize the traversal node for collision between one mesh and one
 /// shape, specialized for OBB type
 template <typename Shape, typename NarrowPhaseSolver>
-FCL_VISIBLE
+FCL_EXPORT
 bool initialize(
     MeshShapeCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>& node,
     const BVHModel<OBB<typename Shape::S>>& model1,
@@ -135,7 +135,7 @@ bool initialize(
     CollisionResult<typename Shape::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_VISIBLE MeshShapeCollisionTraversalNodeRSS
+class FCL_EXPORT MeshShapeCollisionTraversalNodeRSS
     : public MeshShapeCollisionTraversalNode<
           RSS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
@@ -151,7 +151,7 @@ public:
 /// @brief Initialize the traversal node for collision between one mesh and one
 /// shape, specialized for RSS type
 template <typename Shape, typename NarrowPhaseSolver>
-FCL_VISIBLE
+FCL_EXPORT
 bool initialize(
     MeshShapeCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
     const BVHModel<RSS<typename Shape::S>>& model1,
@@ -163,7 +163,7 @@ bool initialize(
     CollisionResult<typename Shape::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_VISIBLE MeshShapeCollisionTraversalNodekIOS
+class FCL_EXPORT MeshShapeCollisionTraversalNodekIOS
     : public MeshShapeCollisionTraversalNode<
           kIOS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
@@ -179,7 +179,7 @@ public:
 /// @brief Initialize the traversal node for collision between one mesh and one
 ///  shape, specialized for kIOS type
 template <typename Shape, typename NarrowPhaseSolver>
-FCL_VISIBLE
+FCL_EXPORT
 bool initialize(
     MeshShapeCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>& node,
     const BVHModel<kIOS<typename Shape::S>>& model1,
@@ -191,7 +191,7 @@ bool initialize(
     CollisionResult<typename Shape::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class FCL_VISIBLE MeshShapeCollisionTraversalNodeOBBRSS
+class FCL_EXPORT MeshShapeCollisionTraversalNodeOBBRSS
     : public MeshShapeCollisionTraversalNode<
           OBBRSS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
@@ -207,7 +207,7 @@ public:
 /// @brief Initialize the traversal node for collision between one mesh and one
 /// shape, specialized for OBBRSS type
 template <typename Shape, typename NarrowPhaseSolver>
-FCL_VISIBLE
+FCL_EXPORT
 bool initialize(
     MeshShapeCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
     const BVHModel<OBBRSS<typename Shape::S>>& model1,

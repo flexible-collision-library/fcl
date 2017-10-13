@@ -47,7 +47,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE OBB<double>;
+class FCL_EXPORT OBB<double>;
 
 //==============================================================================
 extern template

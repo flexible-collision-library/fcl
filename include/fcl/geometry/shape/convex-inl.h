@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE Convex<double>;
+class FCL_EXPORT Convex<double>;
 
 //==============================================================================
 template <typename S>

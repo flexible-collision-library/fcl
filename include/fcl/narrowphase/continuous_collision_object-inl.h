@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE ContinuousCollisionObject<double>;
+class FCL_EXPORT ContinuousCollisionObject<double>;
 
 //==============================================================================
 template <typename S>

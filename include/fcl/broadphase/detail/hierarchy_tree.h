@@ -55,7 +55,7 @@ namespace detail
 
 /// @brief Class for hierarchy tree structure
 template<typename BV>
-class FCL_VISIBLE HierarchyTree
+class FCL_EXPORT HierarchyTree
 {
 public:
 

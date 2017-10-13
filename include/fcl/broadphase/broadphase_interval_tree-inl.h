@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE IntervalTreeCollisionManager<double>;
+class FCL_EXPORT IntervalTreeCollisionManager<double>;
 
 //==============================================================================
 template <typename S>

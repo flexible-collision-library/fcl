@@ -38,7 +38,6 @@
 #ifndef FCL_NARROWPHASE_GJKSOLVERINDEP_H
 #define FCL_NARROWPHASE_GJKSOLVERINDEP_H
 
-#include "fcl/common/deprecated.h"
 #include "fcl/common/types.h"
 #include "fcl/narrowphase/contact_point.h"
 
@@ -50,7 +49,7 @@ namespace detail
 
 /// @brief collision and distance solver based on GJK algorithm implemented in fcl (rewritten the code from the GJK in bullet)
 template <typename S_>
-struct FCL_VISIBLE GJKSolver_indep
+struct FCL_EXPORT GJKSolver_indep
 {
   using S = S_;
 

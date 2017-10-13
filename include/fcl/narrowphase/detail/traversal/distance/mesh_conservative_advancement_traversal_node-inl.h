@@ -51,7 +51,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_VISIBLE MeshConservativeAdvancementTraversalNodeRSS<double>;
+class FCL_EXPORT MeshConservativeAdvancementTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
@@ -65,7 +65,7 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_VISIBLE MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
+class FCL_EXPORT MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template

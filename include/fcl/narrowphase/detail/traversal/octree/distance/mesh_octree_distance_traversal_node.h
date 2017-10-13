@@ -56,7 +56,7 @@ namespace detail
 
 /// @brief Traversal node for mesh-octree distance
 template <typename BV, typename NarrowPhaseSolver>
-class FCL_VISIBLE MeshOcTreeDistanceTraversalNode
+class FCL_EXPORT MeshOcTreeDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:

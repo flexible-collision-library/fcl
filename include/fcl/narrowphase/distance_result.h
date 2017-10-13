@@ -48,7 +48,7 @@ class CollisionGeometry;
 
 /// @brief distance result
 template <typename S>
-struct FCL_VISIBLE DistanceResult
+struct FCL_EXPORT DistanceResult
 {
 public:
 

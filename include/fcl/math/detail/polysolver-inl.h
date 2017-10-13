@@ -50,7 +50,7 @@ namespace detail {
 
 //==============================================================================
 extern template
-class FCL_VISIBLE PolySolver<double>;
+class FCL_EXPORT PolySolver<double>;
 
 //==============================================================================
 template <typename S>

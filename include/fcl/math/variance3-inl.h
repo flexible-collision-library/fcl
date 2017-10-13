@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE Variance3<double>;
+class FCL_EXPORT Variance3<double>;
 
 //==============================================================================
 template <typename S>

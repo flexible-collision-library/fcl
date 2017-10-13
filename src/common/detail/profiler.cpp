@@ -238,14 +238,14 @@ bool Profiler::Running()
 }
 
 //==============================================================================
-struct FCL_VISIBLE dataIntVal
+struct FCL_EXPORT dataIntVal
 {
   std::string       name;
   unsigned long int value;
 };
 
 //==============================================================================
-struct FCL_VISIBLE SortIntByValue
+struct FCL_EXPORT SortIntByValue
 {
   bool operator()(const dataIntVal &a, const dataIntVal &b) const
   {
@@ -254,14 +254,14 @@ struct FCL_VISIBLE SortIntByValue
 };
 
 //==============================================================================
-struct FCL_VISIBLE dataDoubleVal
+struct FCL_EXPORT dataDoubleVal
 {
   std::string  name;
   double       value;
 };
 
 //==============================================================================
-struct FCL_VISIBLE SortDoubleByValue
+struct FCL_EXPORT SortDoubleByValue
 {
   bool operator()(const dataDoubleVal &a, const dataDoubleVal &b) const
   {

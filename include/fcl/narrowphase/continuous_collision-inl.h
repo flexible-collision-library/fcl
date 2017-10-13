@@ -105,7 +105,7 @@ getConservativeAdvancementFunctionLookTable()
 
 //==============================================================================
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 MotionBasePtr<S> getMotionBase(
     const Transform3<S>& tf_beg,
     const Transform3<S>& tf_end,
@@ -132,7 +132,7 @@ MotionBasePtr<S> getMotionBase(
 
 //==============================================================================
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollideNaive(
     const CollisionGeometry<S>* o1,
     const MotionBase<S>* motion1,
@@ -175,7 +175,7 @@ namespace detail
 
 //==============================================================================
 template<typename BV>
-FCL_VISIBLE
+FCL_EXPORT
 typename BV::S continuousCollideBVHPolynomial(
     const CollisionGeometry<typename BV::S>* o1_,
     const TranslationMotion<typename BV::S>* motion1,
@@ -244,7 +244,7 @@ typename BV::S continuousCollideBVHPolynomial(
 
 //==============================================================================
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollideBVHPolynomial(
     const CollisionGeometry<S>* o1,
     const TranslationMotion<S>* motion1,
@@ -301,7 +301,7 @@ namespace detail
 
 //==============================================================================
 template<typename NarrowPhaseSolver>
-FCL_VISIBLE
+FCL_EXPORT
 typename NarrowPhaseSolver::S continuousCollideConservativeAdvancement(
     const CollisionGeometry<typename NarrowPhaseSolver::S>* o1,
     const MotionBase<typename NarrowPhaseSolver::S>* motion1,
@@ -355,7 +355,7 @@ typename NarrowPhaseSolver::S continuousCollideConservativeAdvancement(
 } // namespace detail
 
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollideConservativeAdvancement(
     const CollisionGeometry<S>* o1,
     const MotionBase<S>* motion1,
@@ -383,7 +383,7 @@ S continuousCollideConservativeAdvancement(
 
 //==============================================================================
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollide(
     const CollisionGeometry<S>* o1,
     const MotionBase<S>* motion1,
@@ -433,7 +433,7 @@ S continuousCollide(
 
 //==============================================================================
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollide(
     const CollisionGeometry<S>* o1,
     const Transform3<S>& tf1_beg,
@@ -452,7 +452,7 @@ S continuousCollide(
 
 //==============================================================================
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollide(
     const CollisionObject<S>* o1,
     const Transform3<S>& tf1_end,
@@ -468,7 +468,7 @@ S continuousCollide(
 
 //==============================================================================
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S collide(
     const ContinuousCollisionObject<S>* o1,
     const ContinuousCollisionObject<S>* o2,

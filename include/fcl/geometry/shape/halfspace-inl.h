@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE Halfspace<double>;
+class FCL_EXPORT Halfspace<double>;
 
 //==============================================================================
 extern template

@@ -46,7 +46,7 @@
 namespace fcl
 {
 
-/// @brief KDOP class FCL_VISIBLE describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
+/// @brief KDOP class FCL_EXPORT describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
 ///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
 /// For K = 16, the planes are 6 AABB planes and 10 diagonal planes that cut off some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 8
@@ -81,7 +81,7 @@ namespace fcl
 /// (-1, 1, -1) and (1, -1, 1) --> indices 10 and 22
 /// (1, -1, -1) and (-1, 1, 1) --> indices 11 and 23
 template <typename S_, std::size_t N>
-class FCL_VISIBLE KDOP
+class FCL_EXPORT KDOP
 {
 public:
 
@@ -152,23 +152,23 @@ using KDOPd = KDOP<double, N>;
 
 /// @brief Find the smaller and larger one of two values
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 void minmax(S a, S b, S& minv, S& maxv);
 
 /// @brief Merge the interval [minv, maxv] and value p/
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 void minmax(S p, S& minv, S& maxv);
 
 /// @brief Compute the distances to planes with normals from KDOP vectors except
 /// those of AABB face planes
 template <typename S, std::size_t N>
-FCL_VISIBLE
+FCL_EXPORT
 void getDistances(const Vector3<S>& p, S* d);
 
 /// @brief translate the KDOP BV
 template <typename S, std::size_t N, typename Derived>
-FCL_VISIBLE
+FCL_EXPORT
 KDOP<S, N> translate(
     const KDOP<S, N>& bv, const Eigen::MatrixBase<Derived>& t);
 

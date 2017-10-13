@@ -46,7 +46,7 @@ namespace fcl {
 
 //==============================================================================
 extern template
-class FCL_VISIBLE NaiveCollisionManager<double>;
+class FCL_EXPORT NaiveCollisionManager<double>;
 
 //==============================================================================
 template <typename S>

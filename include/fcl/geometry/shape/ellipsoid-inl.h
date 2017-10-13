@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE Ellipsoid<double>;
+class FCL_EXPORT Ellipsoid<double>;
 
 //==============================================================================
 template <typename S>

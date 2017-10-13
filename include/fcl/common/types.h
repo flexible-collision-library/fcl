@@ -45,8 +45,7 @@
 #include <memory>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
-#include "fcl/common/deprecated.h"
-#include "fcl/common/visibility.h"
+#include "fcl_export.h"
 
 namespace fcl
 {
@@ -135,7 +134,7 @@ using aligned_map = std::map<_Key, _Tp, _Compare,
 // TODO: Remove this and use Eigen::aligned_allocator once new version of Eigen
 // is released with above commit.
 template <class T>
-class FCL_VISIBLE aligned_allocator_cpp11 : public std::allocator<T>
+class FCL_EXPORT aligned_allocator_cpp11 : public std::allocator<T>
 {
 public:
   typedef std::size_t     size_type;

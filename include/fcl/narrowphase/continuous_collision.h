@@ -51,7 +51,7 @@ namespace fcl
 
 /// @brief continous collision checking between two objects
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollide(
     const CollisionGeometry<S>* o1,
     const MotionBase<S>* motion1,
@@ -61,7 +61,7 @@ S continuousCollide(
     ContinuousCollisionResult<S>& result);
 
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollide(
     const CollisionGeometry<S>* o1,
     const Transform3<S>& tf1_beg,
@@ -73,7 +73,7 @@ S continuousCollide(
     ContinuousCollisionResult<S>& result);
 
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S continuousCollide(
     const CollisionObject<S>* o1,
     const Transform3<S>& tf1_end,
@@ -83,7 +83,7 @@ S continuousCollide(
     ContinuousCollisionResult<S>& result);
 
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 S collide(
     const ContinuousCollisionObject<S>* o1,
     const ContinuousCollisionObject<S>* o2,

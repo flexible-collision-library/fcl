@@ -39,7 +39,7 @@
 #define FCL_COMMON_TIME_H
 
 #include <chrono>
-#include "fcl/common/visibility.h"
+#include "fcl_export.h"
 
 namespace fcl
 {
@@ -55,15 +55,15 @@ using point = std::chrono::system_clock::time_point;
 using duration = std::chrono::system_clock::duration;
 
 /// @brief Get the current time point
-FCL_VISIBLE
+FCL_EXPORT
 point now(void);
 
 /// @brief Return the time duration representing a given number of seconds
-FCL_VISIBLE
+FCL_EXPORT
 duration seconds(double sec);
 
 /// @brief Return the number of seconds that a time duration represents
-FCL_VISIBLE
+FCL_EXPORT
 double seconds(const duration &d);
 
 } // namespace time

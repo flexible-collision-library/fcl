@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE Cone<double>;
+class FCL_EXPORT Cone<double>;
 
 //==============================================================================
 template <typename S>

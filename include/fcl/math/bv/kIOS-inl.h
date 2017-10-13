@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE kIOS<double>;
+class FCL_EXPORT kIOS<double>;
 
 //==============================================================================
 template <typename S>

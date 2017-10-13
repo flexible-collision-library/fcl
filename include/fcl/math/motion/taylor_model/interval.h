@@ -47,7 +47,7 @@ namespace fcl
 
 /// @brief Interval class for [a, b]
 template <typename S>
-struct FCL_VISIBLE Interval
+struct FCL_EXPORT Interval
 {
   S i_[2];
 
@@ -125,11 +125,11 @@ struct FCL_VISIBLE Interval
 };
 
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 Interval<S> bound(const Interval<S>& i, S v);
 
 template <typename S>
-FCL_VISIBLE
+FCL_EXPORT
 Interval<S> bound(const Interval<S>& i, const Interval<S>& other);
 
 } // namespace fcl

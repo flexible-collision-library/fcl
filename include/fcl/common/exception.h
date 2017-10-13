@@ -41,12 +41,12 @@
 #include <stdexcept>
 #include <string>
 
-#include "fcl/common/visibility.h"
+#include "fcl_export.h"
 
 namespace fcl
 {
 
-class FCL_VISIBLE Exception : public std::runtime_error
+class FCL_EXPORT Exception : public std::runtime_error
 {
 public:
 

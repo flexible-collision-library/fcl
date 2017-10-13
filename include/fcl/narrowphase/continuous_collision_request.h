@@ -40,7 +40,7 @@
 
 #include <cstddef>
 #include "fcl/narrowphase/gjk_solver_type.h"
-#include "fcl/common/visibility.h"
+#include "fcl_export.h"
 
 namespace fcl
 {
@@ -49,7 +49,7 @@ enum CCDMotionType {CCDM_TRANS, CCDM_LINEAR, CCDM_SCREW, CCDM_SPLINE};
 enum CCDSolverType {CCDC_NAIVE, CCDC_CONSERVATIVE_ADVANCEMENT, CCDC_RAY_SHOOTING, CCDC_POLYNOMIAL_SOLVER};
 
 template <typename S>
-struct FCL_VISIBLE ContinuousCollisionRequest
+struct FCL_EXPORT ContinuousCollisionRequest
 {
   /// @brief maximum num of iterations
   std::size_t num_max_iterations;

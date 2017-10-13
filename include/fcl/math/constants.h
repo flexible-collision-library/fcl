@@ -43,7 +43,7 @@ namespace fcl
 {
 
 template <typename S>
-struct FCL_VISIBLE constants
+struct FCL_EXPORT constants
 {
 /// The mathematical constant pi
 static constexpr S pi() { return S(3.141592653589793238462643383279502884197169399375105820974944592L); }

@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class FCL_VISIBLE ShapeBase<double>;
+class FCL_EXPORT ShapeBase<double>;
 
 //==============================================================================
 template <typename S>

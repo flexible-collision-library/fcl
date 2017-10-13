@@ -45,6 +45,7 @@ include(FCLMacros)
 include(CompilerSettings)
 include(FCLVersion)
 include(GNUInstallDirs)
+include(GenerateExportHeader) 
 
 if(MSVC OR IS_ICPC)
   option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" ON)
@@ -232,6 +233,11 @@ else()
   message(STATUS "FCL does not use OctoMap (as requested)")
 endif()
 
+# Need to include directory to find export file
+include_directories(${PROJECT_BINARY_DIR}) 
+
+install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
@@ -268,6 +274,8 @@ if(FCL_BUILD_TESTS AND NOT FCL_HIDE_ALL_SYMBOLS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+generate_export_header(${PROJECT_NAME})
 
 #===============================================================================
 # API documentation using Doxygen

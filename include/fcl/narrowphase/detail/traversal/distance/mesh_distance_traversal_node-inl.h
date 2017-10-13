@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class FCL_VISIBLE MeshDistanceTraversalNodeRSS<double>;
+class FCL_EXPORT MeshDistanceTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
@@ -63,7 +63,7 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_VISIBLE MeshDistanceTraversalNodekIOS<double>;
+class FCL_EXPORT MeshDistanceTraversalNodekIOS<double>;
 
 //==============================================================================
 extern template
@@ -78,7 +78,7 @@ bool initialize(
 
 //==============================================================================
 extern template
-class FCL_VISIBLE MeshDistanceTraversalNodeOBBRSS<double>;
+class FCL_EXPORT MeshDistanceTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template
