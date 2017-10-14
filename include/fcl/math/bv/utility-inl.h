@@ -547,7 +547,7 @@ void fitn(Vector3<double>* ps, int n, OBBRSS<double>& bv);
 
 //==============================================================================
 template <typename S, typename BV>
-struct Fitter
+struct FCL_EXPORT Fitter
 {
   static void fit(Vector3<S>* ps, int n, BV& bv)
   {
@@ -558,7 +558,7 @@ struct Fitter
 
 //==============================================================================
 template <typename S>
-struct Fitter<S, OBB<S>>
+struct FCL_EXPORT Fitter<S, OBB<S>>
 {
   static void fit(Vector3<S>* ps, int n, OBB<S>& bv)
   {
@@ -584,7 +584,7 @@ struct Fitter<S, OBB<S>>
 
 //==============================================================================
 template <typename S>
-struct Fitter<S, RSS<S>>
+struct FCL_EXPORT Fitter<S, RSS<S>>
 {
   static void fit(Vector3<S>* ps, int n, RSS<S>& bv)
   {
@@ -607,7 +607,7 @@ struct Fitter<S, RSS<S>>
 
 //==============================================================================
 template <typename S>
-struct Fitter<S, kIOS<S>>
+struct FCL_EXPORT Fitter<S, kIOS<S>>
 {
   static void fit(Vector3<S>* ps, int n, kIOS<S>& bv)
   {
@@ -630,7 +630,7 @@ struct Fitter<S, kIOS<S>>
 
 //==============================================================================
 template <typename S>
-struct Fitter<S, OBBRSS<S>>
+struct FCL_EXPORT Fitter<S, OBBRSS<S>>
 {
   static void fit(Vector3<S>* ps, int n, OBBRSS<S>& bv)
   {
@@ -673,6 +673,7 @@ struct Fitter<double, OBBRSS<double>>;
 
 //==============================================================================
 template <typename BV>
+FCL_EXPORT
 void fit(Vector3<typename BV::S>* ps, int n, BV& bv)
 {
   detail::Fitter<typename BV::S, BV>::fit(ps, n, bv);
@@ -964,6 +965,7 @@ class FCL_EXPORT ConvertBVImpl<double, AABB<double>, RSS<double>>;
 
 //==============================================================================
 template <typename BV1, typename BV2>
+FCL_EXPORT
 void convertBV(
     const BV1& bv1, const Transform3<typename BV1::S>& tf1, BV2& bv2)
 {
