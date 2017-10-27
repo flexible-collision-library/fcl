@@ -1094,8 +1094,7 @@ struct SelectImpl<S, AABB<S>>
     else bv.min_[0] += vel[0];
     if(vel[1] > 0) bv.max_[1] += vel[1];
     else bv.min_[1] += vel[1];
-    if(vel[2] > 0) bv.max_[2] += vel[2];
-    else bv.max_[2] += vel[2];
+    bv.max_[2] += vel[2];
     tree.update(leaf, bv);
     return true;
   }
@@ -1112,8 +1111,7 @@ struct SelectImpl<S, AABB<S>>
     else bv.min_[0] += vel[0];
     if(vel[1] > 0) bv.max_[1] += vel[1];
     else bv.min_[1] += vel[1];
-    if(vel[2] > 0) bv.max_[2] += vel[2];
-    else bv.max_[2] += vel[2];
+    bv.max_[2] += vel[2];
     tree.update(leaf, bv);
     return true;
   }
