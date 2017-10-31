@@ -151,6 +151,7 @@ private:
   static bool isZero(S v);
 
   /// @brief Compute the intersection of two line segments p0-p1 and q0-q1
+  /// @return Number of intersections: 0, 1, or 2
   static int lineSegmentIntersect(const Vector2<S>& p0, const Vector2<S>& p1,
                                   const Vector2<S>& q0, const Vector2<S>& q1,
                                   Vector2<S>& r0, Vector2<S>& r1);

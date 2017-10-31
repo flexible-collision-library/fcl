@@ -98,7 +98,7 @@ bool isInSegment(const Vector2<S>& p0, const Vector2<S>& p1, const Vector2<S>& q
   }
   else
   {
-    // Only compare vertical components
+    // Only compare horizontal components
     return ((p0.x() <= q.x() && q.x() <= p1.x())
             || (p1.x() <= q.x() && q.x() <= p0.x()));
   }
