@@ -150,6 +150,11 @@ private:
   /// @brief Check whether one value is zero 
   static bool isZero(S v);
 
+  /// @brief Compute the intersection of two line segments p0-p1 and q0-q1
+  static int lineSegmentIntersect(const Vector2<S>& p0, const Vector2<S>& p1,
+                                  const Vector2<S>& q0, const Vector2<S>& q1,
+                                  Vector2<S>& r0, Vector2<S>& r1);
+
   /// @brief Solve the cubic function using Newton method, also satisfies the interval restriction 
   static bool solveCubicWithIntervalNewton(const Vector3<S>& a0, const Vector3<S>& b0, const Vector3<S>& c0, const Vector3<S>& d0,
                                            const Vector3<S>& va, const Vector3<S>& vb, const Vector3<S>& vc, const Vector3<S>& vd,

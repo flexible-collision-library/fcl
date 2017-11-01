@@ -40,6 +40,8 @@
 
 #include "fcl/geometry/bvh/BVH_model.h"
 
+#include "fcl/math/bv/utility.h"
+
 namespace fcl
 {
 

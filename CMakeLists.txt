@@ -29,6 +29,7 @@ option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 if (NOT MSVC AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined")
 
 # This shouldn't be necessary, but there has been trouble
 # with MSVC being set off, but MSVCXX ON.

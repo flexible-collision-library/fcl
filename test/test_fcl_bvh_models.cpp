@@ -61,7 +61,7 @@ void testBVHModelPointCloud()
     return;
   }
 
-  Box<S> box;
+  Box<S> box(1, 1, 1);
   auto a = box.side[0];
   auto b = box.side[1];
   auto c = box.side[2];
@@ -78,22 +78,22 @@ void testBVHModelPointCloud()
   int result;
 
   result = model->beginModel();
-  EXPECT_EQ(result, BVH_OK);
+  EXPECT_EQ(BVH_OK, result);
 
   for (std::size_t i = 0; i < points.size(); ++i)
   {
     result = model->addVertex(points[i]);
-    EXPECT_EQ(result, BVH_OK);
+    EXPECT_EQ(BVH_OK, result);
   }
 
   result = model->endModel();
-  EXPECT_EQ(result, BVH_OK);
+  EXPECT_EQ(BVH_OK, result);
 
   model->computeLocalAABB();
 
-  EXPECT_EQ(model->num_vertices, 8);
-  EXPECT_EQ(model->num_tris, 0);
-  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+  EXPECT_EQ(8, model->num_vertices);
+  EXPECT_EQ(0, model->num_tris);
+  EXPECT_EQ(BVH_BUILD_STATE_PROCESSED, model->build_state);
 }
 
 template<typename BV>
@@ -102,7 +102,7 @@ void testBVHModelTriangles()
   using S = typename BV::S;
 
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box<S> box;
+  Box<S> box(2, 1, 1);
 
   auto a = box.side[0];
   auto b = box.side[1];
@@ -134,22 +134,47 @@ void testBVHModelTriangles()
   int result;
 
   result = model->beginModel();
-  EXPECT_EQ(result, BVH_OK);
+  EXPECT_EQ(BVH_OK, result);
 
   for (std::size_t i = 0; i < tri_indices.size(); ++i)
   {
     result = model->addTriangle(points[tri_indices[i][0]], points[tri_indices[i][1]], points[tri_indices[i][2]]);
-    EXPECT_EQ(result, BVH_OK);
+    EXPECT_EQ(BVH_OK, result);
   }
 
   result = model->endModel();
-  EXPECT_EQ(result, BVH_OK);
+  EXPECT_EQ(BVH_OK, result);
 
   model->computeLocalAABB();
 
-  EXPECT_EQ(model->num_vertices, 12 * 3);
-  EXPECT_EQ(model->num_tris, 12);
-  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+  EXPECT_EQ(12 * 3, model->num_vertices);
+  EXPECT_EQ(12, model->num_tris);
+  EXPECT_EQ(BVH_BUILD_STATE_PROCESSED, model->build_state);
+
+  result = model->beginUpdateModel();
+  EXPECT_EQ(BVH_OK, result);
+
+  for (std::size_t i = 0; i < tri_indices.size(); ++i)
+  {
+    // Don't actually change anything
+    result = model->updateTriangle(points[tri_indices[i][0]], points[tri_indices[i][1]], points[tri_indices[i][2]]);
+  }
+  EXPECT_EQ(BVH_OK, result);
+
+  result = model->endUpdateModel(true, true);
+  EXPECT_EQ(BVH_OK, result);
+
+  S vol = model->computeVolume();
+  EXPECT_LT(fabs(vol-(a*b*c)), 1e-6);
+  Vector3<S> com = model->computeCOM();
+  EXPECT_LT(com.norm(), 1e-6);
+  Matrix3<S> inert = model->computeMomentofInertia();
+  Matrix3<S> expected_inert;
+  expected_inert << (b*b+c*c)/12.0, 0.0, 0.0,
+                    0.0, (a*a+c*c)/12.0, 0.0,
+                    0.0, 0.0, (a*a+b*b)/12.0;
+  expected_inert *= vol;
+  EXPECT_LT((expected_inert-inert).norm(), 1e-6);
 }
 
 template<typename BV>
@@ -158,7 +183,7 @@ void testBVHModelSubModel()
   using S = typename BV::S;
 
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
-  Box<S> box;
+  Box<S> box(1, 1, 1);
 
   auto a = box.side[0];
   auto b = box.side[1];
@@ -190,19 +215,19 @@ void testBVHModelSubModel()
   int result;
 
   result = model->beginModel();
-  EXPECT_EQ(result, BVH_OK);
+  EXPECT_EQ(BVH_OK, result);
 
   result = model->addSubModel(points, tri_indices);
-  EXPECT_EQ(result, BVH_OK);
+  EXPECT_EQ(BVH_OK, result);
 
   result = model->endModel();
-  EXPECT_EQ(result, BVH_OK);
+  EXPECT_EQ(BVH_OK, result);
 
   model->computeLocalAABB();
 
-  EXPECT_EQ(model->num_vertices, 8);
-  EXPECT_EQ(model->num_tris, 12);
-  EXPECT_EQ(model->build_state, BVH_BUILD_STATE_PROCESSED);
+  EXPECT_EQ(8, model->num_vertices);
+  EXPECT_EQ(12, model->num_tris);
+  EXPECT_EQ(BVH_BUILD_STATE_PROCESSED, model->build_state);
 }
 
 template<typename BV>

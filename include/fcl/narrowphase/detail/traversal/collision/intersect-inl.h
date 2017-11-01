@@ -39,6 +39,7 @@
 #define FCL_NARROWPHASE_DETAIL_INTERSECT_INL_H
 
 #include "fcl/narrowphase/detail/traversal/collision/intersect.h"
+#include "fcl/narrowphase/detail/primitive_shape_algorithm/triangle_triangle.h"
 
 namespace fcl
 {
@@ -733,115 +734,10 @@ bool Intersect<S>::intersect_Triangle(
     S* penetration_depth,
     Vector3<S>* normal)
 {
-  Vector3<S> p1 = P1 - P1;
-  Vector3<S> p2 = P2 - P1;
-  Vector3<S> p3 = P3 - P1;
-  Vector3<S> q1 = Q1 - P1;
-  Vector3<S> q2 = Q2 - P1;
-  Vector3<S> q3 = Q3 - P1;
-
-  Vector3<S> e1 = p2 - p1;
-  Vector3<S> e2 = p3 - p2;
-  Vector3<S> n1 = e1.cross(e2);
-  if (!project6(n1, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> f1 = q2 - q1;
-  Vector3<S> f2 = q3 - q2;
-  Vector3<S> m1 = f1.cross(f2);
-  if (!project6(m1, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> ef11 = e1.cross(f1);
-  if (!project6(ef11, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> ef12 = e1.cross(f2);
-  if (!project6(ef12, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> f3 = q1 - q3;
-  Vector3<S> ef13 = e1.cross(f3);
-  if (!project6(ef13, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> ef21 = e2.cross(f1);
-  if (!project6(ef21, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> ef22 = e2.cross(f2);
-  if (!project6(ef22, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> ef23 = e2.cross(f3);
-  if (!project6(ef23, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> e3 = p1 - p3;
-  Vector3<S> ef31 = e3.cross(f1);
-  if (!project6(ef31, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> ef32 = e3.cross(f2);
-  if (!project6(ef32, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> ef33 = e3.cross(f3);
-  if (!project6(ef33, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> g1 = e1.cross(n1);
-  if (!project6(g1, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> g2 = e2.cross(n1);
-  if (!project6(g2, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> g3 = e3.cross(n1);
-  if (!project6(g3, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> h1 = f1.cross(m1);
-  if (!project6(h1, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> h2 = f2.cross(m1);
-  if (!project6(h2, p1, p2, p3, q1, q2, q3)) return false;
-
-  Vector3<S> h3 = f3.cross(m1);
-  if (!project6(h3, p1, p2, p3, q1, q2, q3)) return false;
-
-  if(contact_points && num_contact_points && penetration_depth && normal)
-  {
-    Vector3<S> n1, n2;
-    S t1, t2;
-    buildTrianglePlane(P1, P2, P3, &n1, &t1);
-    buildTrianglePlane(Q1, Q2, Q3, &n2, &t2);
-
-    Vector3<S> deepest_points1[3];
-    unsigned int num_deepest_points1 = 0;
-    Vector3<S> deepest_points2[3];
-    unsigned int num_deepest_points2 = 0;
-    S penetration_depth1, penetration_depth2;
-
-    Vector3<S> P[3] = {P1, P2, P3};
-    Vector3<S> Q[3] = {Q1, Q2, Q3};
-
-    computeDeepestPoints(Q, 3, n1, t1, &penetration_depth2, deepest_points2, &num_deepest_points2);
-    computeDeepestPoints(P, 3, n2, t2, &penetration_depth1, deepest_points1, &num_deepest_points1);
-
-
-    if(penetration_depth1 > penetration_depth2)
-    {
-      *num_contact_points = std::min(num_deepest_points2, (unsigned int)2);
-      for(unsigned int i = 0; i < *num_contact_points; ++i)
-      {
-        contact_points[i] = deepest_points2[i];
-      }
-
-      *normal = n1;
-      *penetration_depth = penetration_depth2;
-    }
-    else
-    {
-      *num_contact_points = std::min(num_deepest_points1, (unsigned int)2);
-      for(unsigned int i = 0; i < *num_contact_points; ++i)
-      {
-        contact_points[i] = deepest_points1[i];
-      }
-
-      *normal = -n2;
-      *penetration_depth = penetration_depth1;
-    }
-  }
-
-  return true;
+  return intersectTriangles<S, true>(
+              P1, P2, P3, Q1, Q2, Q3,
+              contact_points, num_contact_points,
+              penetration_depth, normal);
 }
 
 //==============================================================================
