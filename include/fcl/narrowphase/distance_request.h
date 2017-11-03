@@ -95,6 +95,9 @@ struct DistanceRequest
   S rel_err; // relative error, between 0 and 1
   S abs_err; // absoluate error
 
+  /// @brief the threshold used in GJK algorithm to stop distance iteration
+  S distance_tolerance;
+
   /// @brief narrow phase solver type
   GJKSolverType gjk_solver_type;
 
@@ -103,6 +106,7 @@ struct DistanceRequest
       bool enable_signed_distance = false,
       S rel_err_ = 0.0,
       S abs_err_ = 0.0,
+      S distance_tolerance = 1e-6,
       GJKSolverType gjk_solver_type_ = GST_LIBCCD);
 
   bool isSatisfied(const DistanceResult<S>& result) const;

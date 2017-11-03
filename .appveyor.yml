@@ -16,7 +16,7 @@ environment:
   CTEST_OUTPUT_ON_FAILURE: 1
 
 cache:
-  - C:\Program Files\libccd
+  - C:\Program Files\libccd -> .appveyor.yml
 
 configuration:
   - Debug
@@ -31,9 +31,11 @@ before_build:
             curl -L -o libccd-2.0.tar.gz https://github.com/danfis/libccd/archive/v2.0.tar.gz &&
             cmake -E tar zxf libccd-2.0.tar.gz &&
             cd libccd-2.0 &&
-            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% . &&
+            mkdir build &&
+            cd build &&
+            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_DOUBLE=True .. &&
             cmake --build . --target install --config %Configuration% &&
-            cd ..
+            cd ..\..
          ) else (echo Using cached libccd)
   - cmd: if not exist C:\"Program Files"\Eigen\include\eigen3\Eigen\Core (
             curl -L -o eigen-eigen-dc6cfdf9bcec.tar.gz https://bitbucket.org/eigen/eigen/get/3.2.9.tar.gz &&
