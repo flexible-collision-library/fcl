@@ -30,7 +30,7 @@ if (UNIX)
 endif()
 
 if (FCL_HIDE_ALL_SYMBOLS)
- add_definitions("-DFCL_HIDE_ALL_SYMBOLS")
+ add_definitions("-DFCL_STATIC_DEFINE")
 endif()
 
 # Use the IMPORTED target from newer versions of ccd-config.cmake if available,
