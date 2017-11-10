@@ -116,10 +116,6 @@ using Transform3d = Transform3<double>;
 using Translation3d = Translation3<double>;
 using AngleAxisd = AngleAxis<double>;
 
-} // namespace fcl
-
-namespace Eigen {
-
 template <typename _Tp>
 using aligned_vector = std::vector<_Tp, Eigen::aligned_allocator<_Tp>>;
 
@@ -127,12 +123,22 @@ template <typename _Key, typename _Tp, typename _Compare = std::less<_Key>>
 using aligned_map = std::map<_Key, _Tp, _Compare,
     Eigen::aligned_allocator<std::pair<const _Key, _Tp>>>;
 
-#if EIGEN_VERSION_AT_LEAST(3,2,1)
+#if EIGEN_VERSION_AT_LEAST(3,2,9)
+
+template <typename _Tp, typename... _Args>
+inline std::shared_ptr<_Tp> make_aligned_shared(_Args&&... __args)
+{
+  typedef typename std::remove_const<_Tp>::type _Tp_nc;
+  return std::allocate_shared<_Tp>(Eigen::aligned_allocator<_Tp_nc>(),
+                                   std::forward<_Args>(__args)...);
+}
+
+#else
 
 /// Aligned allocator that is compatible with c++11
 // Ref: https://bitbucket.org/eigen/eigen/commits/f5b7700
-// TODO: Remove this and use Eigen::aligned_allocator once new version of Eigen
-// is released with above commit.
+// C++11 compatible version is available since Eigen 3.2.9 so we use this copy
+// for Eigen (< 3.2.9).
 template <class T>
 class aligned_allocator_cpp11 : public std::allocator<T>
 {
@@ -165,13 +171,13 @@ public:
 
   pointer allocate(size_type num, const void* /*hint*/ = 0)
   {
-    internal::check_size_for_overflow<T>(num);
-    return static_cast<pointer>( internal::aligned_malloc(num * sizeof(T)) );
+    Eigen::internal::check_size_for_overflow<T>(num);
+    return static_cast<pointer>( Eigen::internal::aligned_malloc(num * sizeof(T)) );
   }
 
   void deallocate(pointer p, size_type /*num*/)
   {
-    internal::aligned_free(p);
+    Eigen::internal::aligned_free(p);
   }
 };
 
@@ -179,22 +185,12 @@ template <typename _Tp, typename... _Args>
 inline std::shared_ptr<_Tp> make_aligned_shared(_Args&&... __args)
 {
   typedef typename std::remove_const<_Tp>::type _Tp_nc;
-  return std::allocate_shared<_Tp>(Eigen::aligned_allocator_cpp11<_Tp_nc>(),
-                                   std::forward<_Args>(__args)...);
-}
-
-#else
-
-template <typename _Tp, typename... _Args>
-inline std::shared_ptr<_Tp> make_aligned_shared(_Args&&... __args)
-{
-  typedef typename std::remove_const<_Tp>::type _Tp_nc;
-  return std::allocate_shared<_Tp>(Eigen::aligned_allocator<_Tp_nc>(),
+  return std::allocate_shared<_Tp>(aligned_allocator_cpp11<_Tp_nc>(),
                                    std::forward<_Args>(__args)...);
 }
 
 #endif
 
-} // namespace Eigen
+} // namespace fcl
 
 #endif
