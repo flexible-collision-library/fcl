@@ -91,7 +91,7 @@ template <typename S>
 void test_OBB_Box_test()
 {
   S r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  Eigen::aligned_vector<Transform3<S>> rotate_transform;
+  aligned_vector<Transform3<S>> rotate_transform;
   test::generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB<S> aabb1;
@@ -107,7 +107,7 @@ void test_OBB_Box_test()
   S extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  Eigen::aligned_vector<Transform3<S>> transforms;
+  aligned_vector<Transform3<S>> transforms;
   test::generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
@@ -136,7 +136,7 @@ template <typename S>
 void test_OBB_shape_test()
 {
   S r_extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
-  Eigen::aligned_vector<Transform3<S>> rotate_transform;
+  aligned_vector<Transform3<S>> rotate_transform;
   test::generateRandomTransforms(r_extents, rotate_transform, 1);
 
   AABB<S> aabb1;
@@ -152,7 +152,7 @@ void test_OBB_shape_test()
   S extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  Eigen::aligned_vector<Transform3<S>> transforms;
+  aligned_vector<Transform3<S>> transforms;
   test::generateRandomTransforms(extents, transforms, n);
 
   for(std::size_t i = 0; i < transforms.size(); ++i)
@@ -214,7 +214,7 @@ void test_OBB_AABB_test()
   S extents[] = {-1000, -1000, -1000, 1000, 1000, 1000};
   std::size_t n = 1000;
 
-  Eigen::aligned_vector<Transform3<S>> transforms;
+  aligned_vector<Transform3<S>> transforms;
   test::generateRandomTransforms(extents, transforms, n);
 
   AABB<S> aabb1;
@@ -259,7 +259,7 @@ void test_mesh_mesh()
   test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
   test::loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
-  Eigen::aligned_vector<Transform3<S>> transforms;
+  aligned_vector<Transform3<S>> transforms;
   S extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifdef NDEBUG
   std::size_t n = 10;

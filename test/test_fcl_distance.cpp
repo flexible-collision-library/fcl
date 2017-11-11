@@ -87,7 +87,7 @@ void test_mesh_distance()
   test::loadOBJFile(TEST_RESOURCES_DIR"/env.obj", p1, t1);
   test::loadOBJFile(TEST_RESOURCES_DIR"/rob.obj", p2, t2);
 
-  Eigen::aligned_vector<Transform3<S>> transforms; // t0
+  aligned_vector<Transform3<S>> transforms; // t0
   S extents[] = {-3000, -3000, 0, 3000, 3000, 3000};
 #ifdef NDEBUG
   std::size_t n = 10;

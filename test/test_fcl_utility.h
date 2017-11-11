@@ -135,15 +135,15 @@ void generateRandomTransform(S extents[6], Transform3<S>& transform);
 
 /// @brief Generate n random transforms whose translations are constrained by extents.
 template <typename S>
-void generateRandomTransforms(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, std::size_t n);
+void generateRandomTransforms(S extents[6], aligned_vector<Transform3<S>>& transforms, std::size_t n);
 
 /// @brief Generate n random transforms whose translations are constrained by extents. Also generate another transforms2 which have additional random translation & rotation to the transforms generated.
 template <typename S>
-void generateRandomTransforms(S extents[6], S delta_trans[3], S delta_rot, Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, std::size_t n);
+void generateRandomTransforms(S extents[6], S delta_trans[3], S delta_rot, aligned_vector<Transform3<S>>& transforms, aligned_vector<Transform3<S>>& transforms2, std::size_t n);
 
 /// @brief Generate n random tranforms and transform2 with addtional random translation/rotation. The transforms and transform2 are used as initial and goal configurations for the first mesh. The second mesh is in I. This is used for continuous collision detection checking.
 template <typename S>
-void generateRandomTransforms_ccd(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, S delta_trans[3], S delta_rot, std::size_t n,
+void generateRandomTransforms_ccd(S extents[6], aligned_vector<Transform3<S>>& transforms, aligned_vector<Transform3<S>>& transforms2, S delta_trans[3], S delta_rot, std::size_t n,
                                  const std::vector<Vector3<S>>& vertices1, const std::vector<Triangle>& triangles1,
                                  const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2);
 
@@ -419,7 +419,7 @@ void generateRandomTransform(const std::array<S, 6>& extents, Transform3<S>& tra
 
 //==============================================================================
 template <typename S>
-void generateRandomTransforms(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, std::size_t n)
+void generateRandomTransforms(S extents[6], aligned_vector<Transform3<S>>& transforms, std::size_t n)
 {
   transforms.resize(n);
   for(std::size_t i = 0; i < n; ++i)
@@ -446,7 +446,7 @@ void generateRandomTransforms(S extents[6], Eigen::aligned_vector<Transform3<S>>
 
 //==============================================================================
 template <typename S>
-void generateRandomTransforms(S extents[6], S delta_trans[3], S delta_rot, Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, std::size_t n)
+void generateRandomTransforms(S extents[6], S delta_trans[3], S delta_rot, aligned_vector<Transform3<S>>& transforms, aligned_vector<Transform3<S>>& transforms2, std::size_t n)
 {
   transforms.resize(n);
   transforms2.resize(n);
@@ -491,7 +491,7 @@ void generateRandomTransforms(S extents[6], S delta_trans[3], S delta_rot, Eigen
 
 //==============================================================================
 template <typename S>
-void generateRandomTransforms_ccd(S extents[6], Eigen::aligned_vector<Transform3<S>>& transforms, Eigen::aligned_vector<Transform3<S>>& transforms2, S delta_trans[3], S delta_rot, std::size_t n,
+void generateRandomTransforms_ccd(S extents[6], aligned_vector<Transform3<S>>& transforms, aligned_vector<Transform3<S>>& transforms2, S delta_trans[3], S delta_rot, std::size_t n,
                                  const std::vector<Vector3<S>>& vertices1, const std::vector<Triangle>& triangles1,
                                  const std::vector<Vector3<S>>& vertices2, const std::vector<Triangle>& triangles2)
 {
@@ -549,7 +549,7 @@ template <typename S>
 void generateEnvironments(std::vector<CollisionObject<S>*>& env, S env_scale, std::size_t n)
 {
   S extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  Eigen::aligned_vector<Transform3<S>> transforms;
+  aligned_vector<Transform3<S>> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   for(std::size_t i = 0; i < n; ++i)
@@ -578,7 +578,7 @@ template <typename S>
 void generateEnvironmentsMesh(std::vector<CollisionObject<S>*>& env, S env_scale, std::size_t n)
 {
   S extents[] = {-env_scale, env_scale, -env_scale, env_scale, -env_scale, env_scale};
-  Eigen::aligned_vector<Transform3<S>> transforms;
+  aligned_vector<Transform3<S>> transforms;
 
   generateRandomTransforms(extents, transforms, n);
   Box<S> box(5, 10, 20);
