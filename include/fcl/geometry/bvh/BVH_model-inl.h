@@ -476,7 +476,7 @@ int BVHModel<BV>::endModel()
 
   if(num_vertices_allocated > num_vertices)
   {
-    Vector3<S>* new_vertices = new(std::nothrow) Vector3<S>[num_vertices];
+    Vector3<S>* new_vertices = new Vector3<S>[num_vertices];
     if(!new_vertices)
     {
       std::cerr << "BVH Error! Out of memory for vertices array in endModel() call!" << std::endl;
