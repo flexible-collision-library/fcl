@@ -40,7 +40,6 @@
 
 #include <vector>
 #include <memory>
-#include <new>
 
 #include "fcl/math/bv/OBB.h"
 #include "fcl/math/bv/kDOP.h"
