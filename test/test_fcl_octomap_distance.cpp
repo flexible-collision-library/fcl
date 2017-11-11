@@ -184,7 +184,7 @@ void octomap_distance_test_BVH(std::size_t n, double resolution)
   OcTree<S>* tree = new OcTree<S>(std::shared_ptr<octomap::OcTree>(test::generateOcTree(resolution)));
   std::shared_ptr<CollisionGeometry<S>> tree_ptr(tree);
 
-  Eigen::aligned_vector<Transform3<S>> transforms;
+  aligned_vector<Transform3<S>> transforms;
   S extents[] = {-10, -10, 10, 10, 10, 10};
 
   test::generateRandomTransforms(extents, transforms, n);
