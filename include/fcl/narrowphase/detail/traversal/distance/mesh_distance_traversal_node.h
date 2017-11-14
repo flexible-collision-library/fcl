@@ -216,7 +216,7 @@ bool initialize(
     DistanceResult<S>& result);
 
 template <typename BV>
-FCL_EXPORT
+FCL_DEPRECATED_EXPORT
 void meshDistanceOrientedNodeLeafTesting(
     int b1,
     int b2,

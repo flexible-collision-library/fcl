@@ -38,7 +38,7 @@
 #ifndef FCL_GEOMETRY_SHAPE_UTILITY_H
 #define FCL_GEOMETRY_SHAPE_UTILITY_H
 
-// This header shouldn't be included by any bounding volumen class FCL_EXPORTes (e.g.,
+// This header shouldn't be included by any bounding volumen class (e.g.,
 // AABB and OBB) nor geometric shapes (e.g., Box and Sphere).
 
 #include "fcl/common/types.h"

@@ -43,7 +43,7 @@
 namespace fcl
 {
 
-/// @brief A class FCL_EXPORT describing the AABB collision structure, which is a box in 3D
+/// @brief A class describing the AABB collision structure, which is a box in 3D
 /// space determined by two diagonal points
 template <typename S_>
 class FCL_EXPORT AABB

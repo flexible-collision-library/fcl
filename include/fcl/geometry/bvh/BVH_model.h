@@ -52,7 +52,7 @@
 namespace fcl
 {
 
-/// @brief A class FCL_EXPORT describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
+/// @brief A class describing the bounding hierarchy of a mesh model or a point cloud model (which is viewed as a degraded version of mesh)
 template <typename BV>
 class FCL_EXPORT BVHModel : public CollisionGeometry<typename BV::S>
 {

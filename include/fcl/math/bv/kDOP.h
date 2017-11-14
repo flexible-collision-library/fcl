@@ -46,7 +46,7 @@
 namespace fcl
 {
 
-/// @brief KDOP class FCL_EXPORT describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
+/// @brief KDOP class describes the KDOP collision structures. K is set as the template parameter, which should be 16, 18, or 24
 ///  The KDOP structure is defined by some pairs of parallel planes defined by some axes. 
 /// For K = 16, the planes are 6 AABB planes and 10 diagonal planes that cut off some space of the edges:
 /// (-1,0,0) and (1,0,0)  -> indices 0 and 8

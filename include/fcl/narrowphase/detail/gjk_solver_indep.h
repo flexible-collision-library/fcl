@@ -56,6 +56,7 @@ struct FCL_EXPORT GJKSolver_indep
   /// @brief intersection checking between two shapes
   /// @deprecated use shapeIntersect(const Shape1&, const Transform3<S>&, const Shape2&, const Transform3<S>&, std::vector<ContactPoint<S>>*) const
   template<typename Shape1, typename Shape2>
+  FCL_DEPRECATED
   bool shapeIntersect(
       const Shape1& s1,
       const Transform3<S>& tf1,

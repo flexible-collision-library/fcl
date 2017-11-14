@@ -76,11 +76,11 @@ public:
   /// destructor take no action
   class FCL_EXPORT ScopedStart;
 
-  /// @brief Return an instance of the class FCL_EXPORT
+  /// @brief Return an instance of the class
   static Profiler& Instance(void);
 
   /// @brief Constructor. It is allowed to separately instantiate this
-  /// class FCL_EXPORT (not only as a singleton)
+  /// class (not only as a singleton)
   Profiler(bool printOnDestroy = false, bool autoStart = false);
 
   /// @brief Destructor

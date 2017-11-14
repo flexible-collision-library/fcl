@@ -48,7 +48,7 @@
 namespace fcl
 {
 
-/// @brief Random number generation. An instance of this class FCL_EXPORT
+/// @brief Random number generation. An instance of this class
 /// cannot be used by multiple threads at once (member functions
 /// are not const). However, the constructor is thread safe and
 /// different instances can be used safely in any number of

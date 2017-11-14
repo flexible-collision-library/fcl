@@ -46,7 +46,7 @@
 namespace fcl
 {
 
-/// @brief Oriented bounding box class FCL_EXPORT
+/// @brief Oriented bounding box class
 template <typename S_>
 class FCL_EXPORT OBB
 {

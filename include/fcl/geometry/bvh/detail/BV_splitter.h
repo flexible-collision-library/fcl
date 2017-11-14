@@ -60,7 +60,7 @@ enum SplitMethodType
   SPLIT_METHOD_BV_CENTER
 };
 
-/// @brief A class FCL_EXPORT describing the split rule that splits each BV node
+/// @brief A class describing the split rule that splits each BV node
 template <typename BV>
 class FCL_EXPORT BVSplitter : public BVSplitterBase<BV>
 {

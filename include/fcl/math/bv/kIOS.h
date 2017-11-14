@@ -43,7 +43,7 @@
 namespace fcl
 {
  
-/// @brief A class FCL_EXPORT describing the kIOS collision structure, which is a set of spheres.
+/// @brief A class describing the kIOS collision structure, which is a set of spheres.
 template <typename S_>
 class FCL_EXPORT kIOS
 {

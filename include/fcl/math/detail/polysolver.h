@@ -45,7 +45,7 @@ namespace fcl
 
 namespace detail {
 
-/// @brief A class FCL_EXPORT solves polynomial degree (1,2,3) equations 
+/// @brief A class solves polynomial degree (1,2,3) equations 
 template <typename S>
 class FCL_EXPORT PolySolver
 {
