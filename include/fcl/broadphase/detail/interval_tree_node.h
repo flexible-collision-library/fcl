@@ -39,7 +39,7 @@
 #define FCL_BROADPHASE_DETAIL_INTERVALTREENODE_H
 
 #include "fcl/broadphase/detail/simple_interval.h"
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

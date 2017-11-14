@@ -38,7 +38,7 @@
 #ifndef FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
 #define FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
 
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

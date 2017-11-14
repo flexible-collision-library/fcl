@@ -41,7 +41,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

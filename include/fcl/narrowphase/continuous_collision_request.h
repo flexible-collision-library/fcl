@@ -40,7 +40,7 @@
 
 #include <cstddef>
 #include "fcl/narrowphase/gjk_solver_type.h"
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

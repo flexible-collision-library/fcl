@@ -49,7 +49,7 @@
 #include <thread>
 #include <vector>
 #include "fcl/common/time.h"
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl {
 namespace detail {

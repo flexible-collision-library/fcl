@@ -39,7 +39,7 @@
 #define FCL_MATH_DETAIL_SEED_H
 
 #include <cstdint>
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

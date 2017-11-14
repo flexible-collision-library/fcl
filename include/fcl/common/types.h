@@ -45,7 +45,7 @@
 #include <memory>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

@@ -38,7 +38,7 @@
 #ifndef FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 #define FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

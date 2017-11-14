@@ -2,6 +2,16 @@ file(GLOB_RECURSE HEADERS            ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE CONFIGURED_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/*.h)
 set(FCL_HEADERS ${HEADERS} ${CONFIGURED_HEADERS} PARENT_SCOPE)
 
+# Generate export header. There is no way of generating a file name
+# called just export.h. Workaround using configure and remove
+generate_export_header(${PROJECT_NAME})
+configure_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_export.h
+  ${CMAKE_CURRENT_BINARY_DIR}/export.h
+  COPYONLY)
+file(REMOVE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_export.h)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/export.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fcl)
 

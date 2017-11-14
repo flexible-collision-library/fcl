@@ -233,18 +233,12 @@ else()
   message(STATUS "FCL does not use OctoMap (as requested)")
 endif()
 
-# Need to include directory to find export file
-include_directories(${PROJECT_BINARY_DIR}) 
-
-install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.h
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
 include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-add_subdirectory(include/fcl)
 add_subdirectory(src)
+add_subdirectory(include/fcl)
 
 set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
 set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
@@ -274,8 +268,6 @@ if(FCL_BUILD_TESTS AND NOT FCL_HIDE_ALL_SYMBOLS)
     enable_testing()
     add_subdirectory(test)
 endif()
-
-generate_export_header(${PROJECT_NAME})
 
 #===============================================================================
 # API documentation using Doxygen

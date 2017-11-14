@@ -39,7 +39,7 @@
 #define FCL_COMMON_TIME_H
 
 #include <chrono>
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

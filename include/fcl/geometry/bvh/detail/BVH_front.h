@@ -39,7 +39,7 @@
 #define FCL_BVH_FRONT_H
 
 #include <list>
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {

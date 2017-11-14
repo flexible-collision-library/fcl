@@ -39,7 +39,7 @@
 #define FCL_MATH_TRIANGLE_H
 
 #include <cstddef>
-#include "fcl_export.h"
+#include "fcl/export.h"
 
 namespace fcl
 {
