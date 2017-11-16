@@ -39,6 +39,7 @@
 #define FCL_BVH_MODEL_INL_H
 
 #include "fcl/geometry/bvh/BVH_model.h"
+#include <new>
 
 namespace fcl
 {
@@ -215,20 +216,23 @@ int BVHModel<BV>::beginModel(int num_tris_, int num_vertices_)
     num_vertices_allocated = num_vertices = num_tris_allocated = num_tris = num_bvs_allocated = num_bvs = 0;
   }
 
-  if(num_tris_ <= 0) num_tris_ = 8;
+  if(num_tris_ < 0) num_tris_ = 8;
   if(num_vertices_ <= 0) num_vertices_ = 8;
 
   num_vertices_allocated = num_vertices_;
   num_tris_allocated = num_tris_;
 
-  tri_indices = new Triangle[num_tris_allocated];
-  vertices = new Vector3<S>[num_vertices_allocated];
-
-  if(!tri_indices)
+  if(num_tris_ > 0)
   {
-    std::cerr << "BVH Error! Out of memory for tri_indices array on BeginModel() call!" << std::endl;
-    return BVH_ERR_MODEL_OUT_OF_MEMORY;
+    tri_indices = new(std::nothrow) Triangle[num_tris_allocated];
+    if(!tri_indices)
+    {
+      std::cerr << "BVH Error! Out of memory for tri_indices array on BeginModel() call!" << std::endl;
+      return BVH_ERR_MODEL_OUT_OF_MEMORY;
+    }
   }
+
+  vertices = new Vector3<S>[num_vertices_allocated];
   if(!vertices)
   {
     std::cerr << "BVH Error! Out of memory for vertices array on BeginModel() call!" << std::endl;
@@ -314,6 +318,10 @@ int BVHModel<BV>::addTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const 
 
   if(num_tris >= num_tris_allocated)
   {
+    if(num_tris_allocated == 0)
+    {
+      num_tris_allocated = 1;
+    }
     Triangle* temp = new Triangle[num_tris_allocated * 2];
     if(!temp)
     {
@@ -409,7 +417,11 @@ int BVHModel<BV>::addSubModel(const std::vector<Vector3<S>>& ps, const std::vect
 
   if(num_tris + num_tris_to_add - 1 >= num_tris_allocated)
   {
-    Triangle* temp = new Triangle[num_tris_allocated * 2 + num_tris_to_add - 1];
+    if(num_tris_allocated == 0)
+    {
+      num_tris_allocated = 1;
+    }
+    Triangle* temp = new(std::nothrow) Triangle[num_tris_allocated * 2 + num_tris_to_add - 1];
     if(!temp)
     {
       std::cerr << "BVH Error! Out of memory for tri_indices array on addSubModel() call!" << std::endl;
@@ -450,7 +462,7 @@ int BVHModel<BV>::endModel()
 
   if(num_tris_allocated > num_tris)
   {
-    Triangle* new_tris = new Triangle[num_tris];
+    Triangle* new_tris = new(std::nothrow) Triangle[num_tris];
     if(!new_tris)
     {
       std::cerr << "BVH Error! Out of memory for tri_indices array in endModel() call!" << std::endl;
@@ -485,8 +497,8 @@ int BVHModel<BV>::endModel()
     num_bvs_to_be_allocated = 2 * num_tris - 1;
 
 
-  bvs = new BVNode<BV> [num_bvs_to_be_allocated];
-  primitive_indices = new unsigned int [num_bvs_to_be_allocated];
+  bvs = new(std::nothrow) BVNode<BV> [num_bvs_to_be_allocated];
+  primitive_indices = new(std::nothrow) unsigned int [num_bvs_to_be_allocated];
   if(!bvs || !primitive_indices)
   {
     std::cerr << "BVH Error! Out of memory for BV array in endModel()!" << std::endl;

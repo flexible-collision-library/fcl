@@ -50,17 +50,6 @@ void testBVHModelPointCloud()
 
   std::shared_ptr<BVHModel<BV> > model(new BVHModel<BV>);
 
-  if (model->getNodeType() != BV_AABB
-      && model->getNodeType() != BV_KDOP16
-      && model->getNodeType() != BV_KDOP18
-      && model->getNodeType() != BV_KDOP24)
-  {
-    std::cout << "Abort test since '" << test::getNodeTypeName(model->getNodeType())
-              << "' does not support point cloud model. "
-              << "Please see issue #67." << std::endl;
-    return;
-  }
-
   Box<S> box;
   auto a = box.side[0];
   auto b = box.side[1];
