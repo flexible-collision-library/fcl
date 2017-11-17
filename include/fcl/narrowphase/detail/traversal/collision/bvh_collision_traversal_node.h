@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Traversal node for collision between BVH models
 template <typename BV>
-class BVHCollisionTraversalNode
+class FCL_EXPORT BVHCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename BV::S>
 {
 public:

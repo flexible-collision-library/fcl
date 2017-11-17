@@ -49,7 +49,7 @@ namespace detail
 {
 
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNode
+class FCL_EXPORT ShapeMeshConservativeAdvancementTraversalNode
     : public ShapeMeshDistanceTraversalNode<Shape, BV, NarrowPhaseSolver>
 {
 public:
@@ -103,7 +103,7 @@ bool initialize(
     bool refit_bottomup = false);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNodeRSS
+class FCL_EXPORT ShapeMeshConservativeAdvancementTraversalNodeRSS
     : public ShapeMeshConservativeAdvancementTraversalNode<
     Shape, RSS<typename Shape::S>, NarrowPhaseSolver>
 {
@@ -130,7 +130,7 @@ bool initialize(
     typename Shape::S w = 1);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class ShapeMeshConservativeAdvancementTraversalNodeOBBRSS
+class FCL_EXPORT ShapeMeshConservativeAdvancementTraversalNodeOBBRSS
     : public ShapeMeshConservativeAdvancementTraversalNode<
     Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>
 {

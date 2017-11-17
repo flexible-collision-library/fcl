@@ -62,7 +62,7 @@ enum SplitMethodType
 
 /// @brief A class describing the split rule that splits each BV node
 template <typename BV>
-class BVSplitter : public BVSplitterBase<BV>
+class FCL_EXPORT BVSplitter : public BVSplitterBase<BV>
 {
 public:
 

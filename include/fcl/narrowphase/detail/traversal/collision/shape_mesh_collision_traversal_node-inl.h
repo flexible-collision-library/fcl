@@ -50,6 +50,7 @@ namespace detail
 
 //==============================================================================
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
+FCL_EXPORT
 ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNode()
   : ShapeBVHCollisionTraversalNode<Shape, BV>()
 {
@@ -61,6 +62,7 @@ ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::ShapeMeshCollisio
 
 //==============================================================================
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
+FCL_EXPORT
 void ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   FCL_UNUSED(b1);
@@ -129,6 +131,7 @@ void ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::leafTesting(
 
 //==============================================================================
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::canStop() const
 {
   return this->request.isSatisfied(*(this->result));
@@ -136,6 +139,7 @@ bool ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>::canStop() co
 
 //==============================================================================
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool initialize(
     ShapeMeshCollisionTraversalNode<Shape, BV, NarrowPhaseSolver>& node,
     const Shape& model1,
@@ -191,12 +195,14 @@ bool initialize(
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeOBB() : ShapeMeshCollisionTraversalNode<Shape, OBB<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   FCL_UNUSED(b1);
@@ -207,6 +213,7 @@ bool ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::BVTesting(int
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 void ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   detail::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
@@ -217,12 +224,14 @@ void ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>::leafTesting(i
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeRSS() : ShapeMeshCollisionTraversalNode<Shape, RSS<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   FCL_UNUSED(b1);
@@ -233,6 +242,7 @@ bool ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::BVTesting(int
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 void ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   detail::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
@@ -243,12 +253,14 @@ void ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>::leafTesting(i
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodekIOS() : ShapeMeshCollisionTraversalNode<Shape, kIOS<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   FCL_UNUSED(b1);
@@ -259,6 +271,7 @@ bool ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::BVTesting(in
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 void ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   detail::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
@@ -269,12 +282,14 @@ void ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>::leafTesting(
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::ShapeMeshCollisionTraversalNodeOBBRSS() : ShapeMeshCollisionTraversalNode<Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>()
 {
 }
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::BVTesting(int b1, int b2) const
 {
   FCL_UNUSED(b1);
@@ -285,6 +300,7 @@ bool ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::BVTesting(
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 void ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>::leafTesting(int b1, int b2) const
 {
   detail::meshShapeCollisionOrientedNodeLeafTesting(b2, b1, *(this->model2), this->model1, this->vertices, this->tri_indices,
@@ -325,6 +341,7 @@ static bool setupShapeMeshCollisionOrientedNode(OrientedNode<Shape, NarrowPhaseS
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool initialize(
     ShapeMeshCollisionTraversalNodeOBB<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
@@ -341,6 +358,7 @@ bool initialize(
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool initialize(
     ShapeMeshCollisionTraversalNodeRSS<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
@@ -357,6 +375,7 @@ bool initialize(
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool initialize(
     ShapeMeshCollisionTraversalNodekIOS<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,
@@ -373,6 +392,7 @@ bool initialize(
 
 //==============================================================================
 template <typename Shape, typename NarrowPhaseSolver>
+FCL_EXPORT
 bool initialize(
     ShapeMeshCollisionTraversalNodeOBBRSS<Shape, NarrowPhaseSolver>& node,
     const Shape& model1,

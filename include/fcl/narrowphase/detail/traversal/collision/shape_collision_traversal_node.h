@@ -50,7 +50,7 @@ namespace detail
 
 /// @brief Traversal node for collision between two shapes
 template <typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-class ShapeCollisionTraversalNode
+class FCL_EXPORT ShapeCollisionTraversalNode
     : public CollisionTraversalNodeBase<typename Shape1::S>
 {
 public:

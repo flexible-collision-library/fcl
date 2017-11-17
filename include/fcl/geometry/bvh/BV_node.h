@@ -49,7 +49,7 @@ namespace fcl
 
 /// @brief A class describing a bounding volume node. It includes the tree structure providing in BVNodeBase and also the geometry data provided in BV template parameter.
 template <typename BV>
-struct BVNode : public BVNodeBase
+struct FCL_EXPORT BVNode : public BVNodeBase
 {
   using S = typename BV::S;
 

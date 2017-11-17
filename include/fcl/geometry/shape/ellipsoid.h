@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Center at zero point ellipsoid
 template <typename S_>
-class Ellipsoid : public ShapeBase<S_>
+class FCL_EXPORT Ellipsoid : public ShapeBase<S_>
 {
 public:
 

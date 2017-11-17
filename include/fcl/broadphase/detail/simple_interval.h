@@ -38,6 +38,8 @@
 #ifndef FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 #define FCL_BROADPHASE_DETAIL_SIMPLEINTERVAL_H
 
+#include "fcl/export.h"
+
 namespace fcl
 {
 
@@ -47,7 +49,7 @@ namespace detail
 /// @brief Interval trees implemented using red-black-trees as described in
 /// the book Introduction_To_Algorithms_ by Cormen, Leisserson, and Rivest.
 template <typename S>
-struct SimpleInterval
+struct FCL_EXPORT SimpleInterval
 {
 public:
   virtual ~SimpleInterval();

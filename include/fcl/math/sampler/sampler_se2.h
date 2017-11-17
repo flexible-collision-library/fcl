@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-class SamplerSE2 : public SamplerBase<S>
+class FCL_EXPORT SamplerSE2 : public SamplerBase<S>
 {
 public:
   SamplerSE2();

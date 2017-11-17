@@ -52,12 +52,15 @@ namespace detail
 {
 
 template <typename S>
+FCL_EXPORT
 uint32 quantize(S x, uint32 n);
 
 /// @brief compute 30 bit morton code
+FCL_EXPORT
 uint32 morton_code(uint32 x, uint32 y, uint32 z);
 
 /// @brief compute 60 bit morton code
+FCL_EXPORT
 uint64 morton_code60(uint32 x, uint32 y, uint32 z);
 
 /// @brief Functor to compute the morton code for a given AABB
@@ -65,11 +68,11 @@ uint64 morton_code60(uint32 x, uint32 y, uint32 z);
 /// a 30- or 60-bit code, respectively, and for `std::bitset<N>` where
 /// N is the length of the code and must be a multiple of 3.
 template<typename S, typename T>
-struct morton_functor {};
+struct FCL_EXPORT morton_functor {};
 
 /// @brief Functor to compute 30 bit morton code for a given AABB<S>
 template<typename S>
-struct morton_functor<S, uint32>
+struct FCL_EXPORT morton_functor<S, uint32>
 {
   morton_functor(const AABB<S>& bbox);
 
@@ -86,7 +89,7 @@ using morton_functoru32d = morton_functor<double, uint32>;
 
 /// @brief Functor to compute 60 bit morton code for a given AABB<S>
 template<typename S>
-struct morton_functor<S, uint64>
+struct FCL_EXPORT morton_functor<S, uint64>
 {
   morton_functor(const AABB<S>& bbox);
 
@@ -104,7 +107,7 @@ using morton_functoru64d = morton_functor<double, uint64>;
 /// @brief Functor to compute N bit morton code for a given AABB<S>
 /// N must be a multiple of 3.
 template<typename S, size_t N>
-struct morton_functor<S, std::bitset<N>>
+struct FCL_EXPORT morton_functor<S, std::bitset<N>>
 {
   static_assert(N%3==0, "Number of bits must be a multiple of 3");
 

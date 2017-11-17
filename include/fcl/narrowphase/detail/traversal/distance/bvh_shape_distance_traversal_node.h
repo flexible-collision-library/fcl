@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Traversal node for distance computation between BVH and shape
 template<typename BV, typename Shape>
-class BVHShapeDistanceTraversalNode
+class FCL_EXPORT BVHShapeDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename BV::S>
 {
 public:

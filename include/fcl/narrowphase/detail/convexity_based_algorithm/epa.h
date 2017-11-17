@@ -54,7 +54,7 @@ namespace detail
 
 /// @brief class for EPA algorithm
 template <typename S>
-struct EPA
+struct FCL_EXPORT EPA
 {
 private:
   using SimplexV = typename GJK<S>::SimplexV;

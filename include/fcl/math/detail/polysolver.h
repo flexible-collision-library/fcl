@@ -38,6 +38,8 @@
 #ifndef FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
 #define FCL_NARROWPHASE_DETAIL_POLYSOLVER_H
 
+#include "fcl/export.h"
+
 namespace fcl
 {
 
@@ -45,7 +47,7 @@ namespace detail {
 
 /// @brief A class solves polynomial degree (1,2,3) equations 
 template <typename S>
-class PolySolver
+class FCL_EXPORT PolySolver
 {
 public:
   /// @brief Solve a linear equation with coefficients c, return roots s and number of roots 

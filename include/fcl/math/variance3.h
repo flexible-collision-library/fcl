@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Class for variance matrix in 3d
 template <typename S>
-class Variance3
+class FCL_EXPORT Variance3
 {
 public:
   /// @brief Variation matrix

@@ -49,12 +49,14 @@ namespace detail
 
 // Clamp n to lie within the range [min, max]
 template <typename S>
+FCL_EXPORT
 S clamp(S n, S min, S max);
 
 // Computes closest points C1 and C2 of S1(s)=P1+s*(Q1-P1) and
 // S2(t)=P2+t*(Q2-P2), returning s and t. Function result is squared
 // distance between between S1(s) and S2(t)
 template <typename S>
+FCL_EXPORT
 S closestPtSegmentSegment(
     Vector3<S> p1, Vector3<S> q1, Vector3<S> p2, Vector3<S> q2,
     S &s, S &t, Vector3<S> &c1, Vector3<S> &c2);
@@ -63,6 +65,7 @@ S closestPtSegmentSegment(
 // S2(t)=P2+t*(Q2-P2), returning s and t. Function result is squared
 // distance between between S1(s) and S2(t)
 template <typename S>
+FCL_EXPORT
 bool capsuleCapsuleDistance(const Capsule<S>& s1, const Transform3<S>& tf1,
           const Capsule<S>& s2, const Transform3<S>& tf2,
           S* dist, Vector3<S>* p1_res, Vector3<S>* p2_res);

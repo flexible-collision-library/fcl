@@ -48,7 +48,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class TriangleDistance<double>;
+class FCL_EXPORT TriangleDistance<double>;
 
 //==============================================================================
 template <typename S>

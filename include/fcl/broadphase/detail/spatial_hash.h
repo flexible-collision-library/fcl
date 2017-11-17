@@ -48,7 +48,7 @@ namespace detail
 
 /// @brief Spatial hash function: hash an AABB to a set of integer values
 template <typename S_>
-struct SpatialHash
+struct FCL_EXPORT SpatialHash
 {
   using S = S_;
 

@@ -53,22 +53,27 @@ namespace detail
 
 /// @brief collision on collision traversal node; can use front list to accelerate
 template <typename S>
+FCL_EXPORT
 void collide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief self collision on collision traversal node; can use front list to accelerate
 template <typename S>
+FCL_EXPORT
 void selfCollide(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief distance computation on distance traversal node; can use front list to accelerate
 template <typename S>
+FCL_EXPORT
 void distance(DistanceTraversalNodeBase<S>* node, BVHFrontList* front_list = nullptr, int qsize = 2);
 
 /// @brief special collision on OBB traversal node
 template <typename S>
+FCL_EXPORT
 void collide2(MeshCollisionTraversalNodeOBB<S>* node, BVHFrontList* front_list = nullptr);
 
 /// @brief special collision on RSS traversal node
 template <typename S>
+FCL_EXPORT
 void collide2(MeshCollisionTraversalNodeRSS<S>* node, BVHFrontList* front_list = nullptr);
 
 } // namespace detail

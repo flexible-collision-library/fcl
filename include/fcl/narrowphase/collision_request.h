@@ -49,7 +49,7 @@ struct CollisionResult;
 
 /// @brief request to the collision algorithm
 template <typename S>
-struct CollisionRequest
+struct FCL_EXPORT CollisionRequest
 {  
   /// @brief The maximum number of contacts will return
   size_t num_max_contacts;

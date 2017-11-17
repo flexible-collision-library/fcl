@@ -59,7 +59,7 @@ class TranslationMotion;
 /// @brief Compute the motion bound for a bounding volume, given the closest
 /// direction n between two query objects
 template <typename S>
-class BVMotionBoundVisitor
+class FCL_EXPORT BVMotionBoundVisitor
 {
 public:
   virtual S visit(const MotionBase<S>& motion) const = 0;

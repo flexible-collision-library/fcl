@@ -49,7 +49,7 @@ namespace fcl
 {
 
 template <typename S>
-class ScrewMotion : public MotionBase<S>
+class FCL_EXPORT ScrewMotion : public MotionBase<S>
 {
 public:
   /// @brief Default transformations are all identities

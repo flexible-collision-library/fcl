@@ -51,7 +51,7 @@ namespace detail
 
 /// @brief CCD intersect kernel among primitives 
 template <typename S>
-class Intersect
+class FCL_EXPORT Intersect
 {
 
 public:

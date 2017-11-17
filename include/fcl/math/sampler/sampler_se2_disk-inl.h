@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class SamplerSE2_disk<double>;
+class FCL_EXPORT SamplerSE2_disk<double>;
 
 //==============================================================================
 template <typename S>

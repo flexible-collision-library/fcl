@@ -53,11 +53,13 @@ namespace fcl
 /// performs the collision between them. Return value is the number of contacts
 /// generated between the two objects.
 template <typename S>
+FCL_EXPORT
 std::size_t collide(const CollisionObject<S>* o1, const CollisionObject<S>* o2,
                     const CollisionRequest<S>& request,
                     CollisionResult<S>& result);
 
 template <typename S>
+FCL_EXPORT
 std::size_t collide(const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
                     const CollisionGeometry<S>* o2, const Transform3<S>& tf2,
                     const CollisionRequest<S>& request,

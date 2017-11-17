@@ -39,13 +39,14 @@
 #define FCL_MATH_DETAIL_SEED_H
 
 #include <cstdint>
+#include "fcl/export.h"
 
 namespace fcl
 {
 namespace detail
 {
 
-class Seed
+class FCL_EXPORT Seed
 {
 public:
 

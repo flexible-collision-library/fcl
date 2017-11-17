@@ -53,7 +53,7 @@ namespace fcl
 template<typename S,
          typename HashTable
              = detail::SimpleHashTable<AABB<S>, CollisionObject<S>*, detail::SpatialHash<S>> >
-class SpatialHashingCollisionManager : public BroadPhaseCollisionManager<S>
+class FCL_EXPORT SpatialHashingCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   SpatialHashingCollisionManager(

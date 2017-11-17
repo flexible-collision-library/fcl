@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class SSaPCollisionManager<double>;
+class FCL_EXPORT SSaPCollisionManager<double>;
 
 /** @brief Functor sorting objects according to the AABB<S> lower x bound */
 template <typename S>
@@ -85,7 +85,7 @@ struct SortByZLow
 
 /** @brief Dummy collision object with a point AABB<S> */
 template <typename S>
-class DummyCollisionObject : public CollisionObject<S>
+class FCL_EXPORT DummyCollisionObject : public CollisionObject<S>
 {
 public:
   DummyCollisionObject(const AABB<S>& aabb_) : CollisionObject<S>(std::shared_ptr<CollisionGeometry<S>>())

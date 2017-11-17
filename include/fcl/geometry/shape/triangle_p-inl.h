@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class TriangleP<double>;
+class FCL_EXPORT TriangleP<double>;
 
 //==============================================================================
 template <typename S>

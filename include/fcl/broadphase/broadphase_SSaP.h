@@ -46,7 +46,7 @@ namespace fcl
 
 /// @brief Simple SAP collision manager 
 template <typename S>
-class SSaPCollisionManager : public BroadPhaseCollisionManager<S>
+class FCL_EXPORT SSaPCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   SSaPCollisionManager();

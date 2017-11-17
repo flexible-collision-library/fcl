@@ -49,7 +49,7 @@ struct DistanceResult;
 
 /// @brief request to the distance computation
 template <typename S>
-struct DistanceRequest
+struct FCL_EXPORT DistanceRequest
 {
   /// @brief whether to return the nearest points
   bool enable_nearest_points;

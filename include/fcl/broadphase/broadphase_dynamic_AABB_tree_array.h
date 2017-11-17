@@ -52,7 +52,7 @@ namespace fcl
 {
 
 template <typename S>
-class DynamicAABBTreeCollisionManager_Array : public BroadPhaseCollisionManager<S>
+class FCL_EXPORT DynamicAABBTreeCollisionManager_Array : public BroadPhaseCollisionManager<S>
 {
 public:
 

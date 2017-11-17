@@ -47,17 +47,20 @@ namespace fcl
 /// @brief Expand the BVH bounding boxes according to the variance matrix
 /// corresponding to the data stored within each BV node
 template <typename S, typename BV>
+FCL_EXPORT
 void BVHExpand(BVHModel<BV>& model, const Variance3<S>* ucs, S r);
 
 /// @brief Expand the BVH bounding boxes according to the corresponding variance
 /// information, for OBB
 template <typename S>
+FCL_EXPORT
 void BVHExpand(
     BVHModel<OBB<S>>& model, const Variance3<S>* ucs, S r = 1.0);
 
 /// @brief Expand the BVH bounding boxes according to the corresponding variance
 /// information, for RSS
 template <typename S>
+FCL_EXPORT
 void BVHExpand(
     BVHModel<RSS<S>>& model, const Variance3<S>* ucs, S r = 1.0);
 

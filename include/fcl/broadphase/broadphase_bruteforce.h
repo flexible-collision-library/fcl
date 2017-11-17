@@ -46,7 +46,7 @@ namespace fcl
 
 /// @brief Brute force N-body collision manager
 template <typename S>
-class NaiveCollisionManager : public BroadPhaseCollisionManager<S>
+class FCL_EXPORT NaiveCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   NaiveCollisionManager();

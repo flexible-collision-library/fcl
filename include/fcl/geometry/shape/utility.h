@@ -38,7 +38,7 @@
 #ifndef FCL_GEOMETRY_SHAPE_UTILITY_H
 #define FCL_GEOMETRY_SHAPE_UTILITY_H
 
-// This header shouldn't be included by any bounding volumen classes (e.g.,
+// This header shouldn't be included by any bounding volumen class (e.g.,
 // AABB and OBB) nor geometric shapes (e.g., Box and Sphere).
 
 #include "fcl/common/types.h"
@@ -57,55 +57,72 @@ namespace fcl
 
 /// @brief calculate a bounding volume for a shape in a specific configuration
 template <typename BV, typename Shape>
+FCL_EXPORT
 void computeBV(const Shape& s, const Transform3<typename BV::S>& tf, BV& bv);
 
 /// @brief construct a box shape (with a configuration) from a given bounding volume
 template <typename S>
+FCL_EXPORT
 void constructBox(const AABB<S>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const OBB<S>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const OBBRSS<S>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const kIOS<S>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const RSS<S>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const KDOP<S, 16>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const KDOP<S, 18>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const KDOP<S, 24>& bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const AABB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const OBB<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const OBBRSS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const kIOS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const RSS<S>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const KDOP<S, 16>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const KDOP<S, 18>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 template <typename S>
+FCL_EXPORT
 void constructBox(const KDOP<S, 24>& bv, const Transform3<S>& tf_bv, Box<S>& box, Transform3<S>& tf);
 
 } // namespace fcl

@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-class SamplerSE3Quat_ball : public SamplerBase<S>
+class FCL_EXPORT SamplerSE3Quat_ball : public SamplerBase<S>
 {
 public:
   SamplerSE3Quat_ball();

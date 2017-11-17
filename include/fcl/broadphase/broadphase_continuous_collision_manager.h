@@ -63,7 +63,7 @@ using ContinuousDistanceCallBack = bool (*)(
 /// accelerate the continuous collision/distance between N objects. Also support
 /// self collision, self distance and collision/distance with another M objects.
 template <typename S>
-class BroadPhaseContinuousCollisionManager
+class FCL_EXPORT BroadPhaseContinuousCollisionManager
 {
 public:
   BroadPhaseContinuousCollisionManager();

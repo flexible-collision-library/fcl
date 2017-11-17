@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Traversal node for distance between shape and mesh
 template <typename Shape, typename BV, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNode
+class FCL_EXPORT ShapeMeshDistanceTraversalNode
     : public ShapeBVHDistanceTraversalNode<Shape, BV>
 { 
 public:
@@ -89,7 +89,7 @@ bool initialize(
     bool refit_bottomup = false);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodeRSS
+class FCL_EXPORT ShapeMeshDistanceTraversalNodeRSS
     : public ShapeMeshDistanceTraversalNode<
     Shape, RSS<typename Shape::S>, NarrowPhaseSolver>
 {
@@ -123,7 +123,7 @@ bool initialize(
     DistanceResult<typename Shape::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodekIOS
+class FCL_EXPORT ShapeMeshDistanceTraversalNodekIOS
     : public ShapeMeshDistanceTraversalNode<
     Shape, kIOS<typename Shape::S>, NarrowPhaseSolver>
 {
@@ -157,7 +157,7 @@ bool initialize(
     DistanceResult<typename Shape::S>& result);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class ShapeMeshDistanceTraversalNodeOBBRSS
+class FCL_EXPORT ShapeMeshDistanceTraversalNodeOBBRSS
     : public ShapeMeshDistanceTraversalNode<
     Shape, OBBRSS<typename Shape::S>, NarrowPhaseSolver>
 {

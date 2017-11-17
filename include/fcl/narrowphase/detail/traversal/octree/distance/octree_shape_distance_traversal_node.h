@@ -56,7 +56,7 @@ namespace detail
 
 /// @brief Traversal node for octree-shape distance
 template <typename Shape, typename NarrowPhaseSolver>
-class OcTreeShapeDistanceTraversalNode
+class FCL_EXPORT OcTreeShapeDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename Shape::S>
 {
 public:

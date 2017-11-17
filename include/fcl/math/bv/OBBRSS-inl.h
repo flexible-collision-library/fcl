@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class OBBRSS<double>;
+class FCL_EXPORT OBBRSS<double>;
 
 //==============================================================================
 extern template

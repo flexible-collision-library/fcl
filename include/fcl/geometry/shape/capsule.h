@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Center at zero point capsule 
 template <typename S_>
-class Capsule : public ShapeBase<S_>
+class FCL_EXPORT Capsule : public ShapeBase<S_>
 {
 public:
 

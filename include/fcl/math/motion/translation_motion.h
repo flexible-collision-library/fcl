@@ -46,7 +46,7 @@ namespace fcl
 {
 
 template <typename S>
-class TranslationMotion : public MotionBase<S>
+class FCL_EXPORT TranslationMotion : public MotionBase<S>
 {
 public:
   /// @brief Construct motion from intial and goal transform

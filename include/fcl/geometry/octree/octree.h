@@ -55,7 +55,7 @@ namespace fcl
 /// @brief Octree is one type of collision geometry which can encode uncertainty
 /// information in the sensor data.
 template <typename S>
-class OcTree : public CollisionGeometry<S>
+class FCL_EXPORT OcTree : public CollisionGeometry<S>
 {
 private:
   std::shared_ptr<const octomap::OcTree> tree;
@@ -138,6 +138,7 @@ using OcTreed = OcTree<double>;
 
 /// @brief compute the bounding volume of an octree node's i-th child
 template <typename S>
+FCL_EXPORT
 void computeChildBV(const AABB<S>& root_bv, unsigned int i, AABB<S>& child_bv);
 
 } // namespace fcl

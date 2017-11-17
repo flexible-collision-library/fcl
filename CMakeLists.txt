@@ -24,6 +24,9 @@ project(fcl CXX C)
 
 option(FCL_ENABLE_PROFILING "Enable profiling" OFF)
 option(FCL_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
+# Option for some bundle-like build system in order not to expose
+# any FCL binary symbols in their public ABI
+option(FCL_HIDE_ALL_SYMBOLS "Hide all binary symbols" OFF)
 
 # set the default build type
 if (NOT MSVC AND NOT CMAKE_BUILD_TYPE)
@@ -42,6 +45,7 @@ include(FCLMacros)
 include(CompilerSettings)
 include(FCLVersion)
 include(GNUInstallDirs)
+include(GenerateExportHeader) 
 
 if(MSVC OR IS_ICPC)
   option(FCL_STATIC_LIBRARY "Whether the FCL library should be static rather than shared" ON)
@@ -229,13 +233,12 @@ else()
   message(STATUS "FCL does not use OctoMap (as requested)")
 endif()
 
-
 # FCL's own include dir should be at the front of the include path
 include_directories(BEFORE "include")
 include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-add_subdirectory(include/fcl)
 add_subdirectory(src)
+add_subdirectory(include/fcl)
 
 set(pkg_conf_file_in "${CMAKE_CURRENT_SOURCE_DIR}/fcl.pc.in")
 set(pkg_conf_file_out "${CMAKE_CURRENT_BINARY_DIR}/fcl.pc")
@@ -261,7 +264,7 @@ add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/CMakeModules/cmake_uninstall.cmake")
 
 option(FCL_BUILD_TESTS "Build FCL tests" ON)
-if(FCL_BUILD_TESTS)
+if(FCL_BUILD_TESTS AND NOT FCL_HIDE_ALL_SYMBOLS)
     enable_testing()
     add_subdirectory(test)
 endif()

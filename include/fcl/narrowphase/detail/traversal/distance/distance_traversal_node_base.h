@@ -50,7 +50,7 @@ namespace detail
 
 /// @brief Node structure encoding the information required for distance traversal.
 template <typename S>
-class DistanceTraversalNodeBase : public TraversalNodeBase<S>
+class FCL_EXPORT DistanceTraversalNodeBase : public TraversalNodeBase<S>
 {
 public:
   DistanceTraversalNodeBase();

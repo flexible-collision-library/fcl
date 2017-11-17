@@ -48,7 +48,7 @@ namespace fcl
 /// @brief the object for collision or distance computation, contains the
 /// geometry and the transform information
 template <typename S>
-class CollisionObject
+class FCL_EXPORT CollisionObject
 {
 public:
   CollisionObject(const std::shared_ptr<CollisionGeometry<S>>& cgeom);

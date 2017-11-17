@@ -47,7 +47,7 @@ namespace fcl
 {
 
 /// @brief BVNodeBase encodes the tree structure for BVH
-struct BVNodeBase
+struct FCL_EXPORT BVNodeBase
 {
   /// @brief An index for first child node or primitive
   /// If the value is positive, it is the index of the first child bv node

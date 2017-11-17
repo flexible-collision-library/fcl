@@ -47,15 +47,15 @@ namespace fcl
 
 //==============================================================================
 extern template
-class KDOP<double, 16>;
+class FCL_EXPORT KDOP<double, 16>;
 
 //==============================================================================
 extern template
-class KDOP<double, 18>;
+class FCL_EXPORT KDOP<double, 18>;
 
 //==============================================================================
 extern template
-class KDOP<double, 24>;
+class FCL_EXPORT KDOP<double, 24>;
 
 //==============================================================================
 extern template
@@ -79,6 +79,7 @@ void getDistances<double, 9>(const Vector3<double>& p, double* d);
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 KDOP<S, N>::KDOP()
 {
   static_assert(N == 16 || N == 18 || N == 24, "N should be 16, 18, or 24");
@@ -93,6 +94,7 @@ KDOP<S, N>::KDOP()
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 KDOP<S, N>::KDOP(const Vector3<S>& v)
 {
   for(std::size_t i = 0; i < 3; ++i)
@@ -110,6 +112,7 @@ KDOP<S, N>::KDOP(const Vector3<S>& v)
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 KDOP<S, N>::KDOP(const Vector3<S>& a, const Vector3<S>& b)
 {
   for(std::size_t i = 0; i < 3; ++i)
@@ -128,6 +131,7 @@ KDOP<S, N>::KDOP(const Vector3<S>& a, const Vector3<S>& b)
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 bool KDOP<S, N>::overlap(const KDOP<S, N>& other) const
 {
   for(std::size_t i = 0; i < N / 2; ++i)
@@ -141,6 +145,7 @@ bool KDOP<S, N>::overlap(const KDOP<S, N>& other) const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 bool KDOP<S, N>::inside(const Vector3<S>& p) const
 {
   for(std::size_t i = 0; i < 3; ++i)
@@ -162,6 +167,7 @@ bool KDOP<S, N>::inside(const Vector3<S>& p) const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 KDOP<S, N>& KDOP<S, N>::operator += (const Vector3<S>& p)
 {
   for(std::size_t i = 0; i < 3; ++i)
@@ -181,6 +187,7 @@ KDOP<S, N>& KDOP<S, N>::operator += (const Vector3<S>& p)
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 KDOP<S, N>& KDOP<S, N>::operator += (const KDOP<S, N>& other)
 {
   for(std::size_t i = 0; i < N / 2; ++i)
@@ -193,6 +200,7 @@ KDOP<S, N>& KDOP<S, N>::operator += (const KDOP<S, N>& other)
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 KDOP<S, N> KDOP<S, N>::operator + (const KDOP<S, N>& other) const
 {
   KDOP<S, N> res(*this);
@@ -201,6 +209,7 @@ KDOP<S, N> KDOP<S, N>::operator + (const KDOP<S, N>& other) const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S KDOP<S, N>::width() const
 {
   return dist_[N / 2] - dist_[0];
@@ -208,6 +217,7 @@ S KDOP<S, N>::width() const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S KDOP<S, N>::height() const
 {
   return dist_[N / 2 + 1] - dist_[1];
@@ -215,6 +225,7 @@ S KDOP<S, N>::height() const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S KDOP<S, N>::depth() const
 {
   return dist_[N / 2 + 2] - dist_[2];
@@ -222,6 +233,7 @@ S KDOP<S, N>::depth() const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S KDOP<S, N>::volume() const
 {
   return width() * height() * depth();
@@ -229,6 +241,7 @@ S KDOP<S, N>::volume() const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S KDOP<S, N>::size() const
 {
   return width() * width() + height() * height() + depth() * depth();
@@ -236,6 +249,7 @@ S KDOP<S, N>::size() const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 Vector3<S> KDOP<S, N>::center() const
 {
   return Vector3<S>(dist_[0] + dist_[N / 2], dist_[1] + dist_[N / 2 + 1], dist_[2] + dist_[N / 2 + 2]) * 0.5;
@@ -243,6 +257,7 @@ Vector3<S> KDOP<S, N>::center() const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S KDOP<S, N>::distance(const KDOP<S, N>& other, Vector3<S>* P, Vector3<S>* Q) const
 {
   FCL_UNUSED(other);
@@ -255,6 +270,7 @@ S KDOP<S, N>::distance(const KDOP<S, N>& other, Vector3<S>* P, Vector3<S>* Q) co
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S KDOP<S, N>::dist(std::size_t i) const
 {
   return dist_[i];
@@ -262,6 +278,7 @@ S KDOP<S, N>::dist(std::size_t i) const
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 S& KDOP<S, N>::dist(std::size_t i)
 {
   return dist_[i];
@@ -269,6 +286,7 @@ S& KDOP<S, N>::dist(std::size_t i)
 
 //==============================================================================
 template <typename S, std::size_t N, typename Derived>
+FCL_EXPORT
 KDOP<S, N> translate(
     const KDOP<S, N>& bv, const Eigen::MatrixBase<Derived>& t)
 {
@@ -292,6 +310,7 @@ KDOP<S, N> translate(
 
 //==============================================================================
 template <typename S>
+FCL_EXPORT
 void minmax(S a, S b, S& minv, S& maxv)
 {
   if(a > b)
@@ -308,6 +327,7 @@ void minmax(S a, S b, S& minv, S& maxv)
 
 //==============================================================================
 template <typename S>
+FCL_EXPORT
 void minmax(S p, S& minv, S& maxv)
 {
   if(p > maxv) maxv = p;
@@ -326,6 +346,7 @@ struct GetDistancesImpl
 
 //==============================================================================
 template <typename S, std::size_t N>
+FCL_EXPORT
 void getDistances(const Vector3<S>& p, S* d)
 {
   GetDistancesImpl<S, N>::run(p, d);
@@ -333,7 +354,7 @@ void getDistances(const Vector3<S>& p, S* d)
 
 //==============================================================================
 template <typename S>
-struct GetDistancesImpl<S, 5>
+struct FCL_EXPORT GetDistancesImpl<S, 5>
 {
   static void run(const Vector3<S>& p, S* d)
   {
@@ -347,7 +368,7 @@ struct GetDistancesImpl<S, 5>
 
 //==============================================================================
 template <typename S>
-struct GetDistancesImpl<S, 6>
+struct FCL_EXPORT GetDistancesImpl<S, 6>
 {
   static void run(const Vector3<S>& p, S* d)
   {
@@ -362,7 +383,7 @@ struct GetDistancesImpl<S, 6>
 
 //==============================================================================
 template <typename S>
-struct GetDistancesImpl<S, 9>
+struct FCL_EXPORT GetDistancesImpl<S, 9>
 {
   static void run(const Vector3<S>& p, S* d)
   {

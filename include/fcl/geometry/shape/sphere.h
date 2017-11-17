@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Center at zero point sphere
 template <typename S_>
-class Sphere : public ShapeBase<S_>
+class FCL_EXPORT Sphere : public ShapeBase<S_>
 {
 public:
 

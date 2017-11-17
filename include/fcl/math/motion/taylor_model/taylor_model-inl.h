@@ -48,7 +48,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class TaylorModel<double>;
+class FCL_EXPORT TaylorModel<double>;
 
 //==============================================================================
 extern template

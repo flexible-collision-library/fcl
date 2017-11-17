@@ -49,27 +49,33 @@ namespace detail
 
 /** @brief the minimum distance from a point to a line */
 template <typename S>
+FCL_EXPORT
 S segmentSqrDistance(const Vector3<S>& from, const Vector3<S>& to,const Vector3<S>& p, Vector3<S>& nearest);
 
 /// @brief Whether a point's projection is in a triangle
 template <typename S>
+FCL_EXPORT
 bool projectInTriangle(const Vector3<S>& p1, const Vector3<S>& p2, const Vector3<S>& p3, const Vector3<S>& normal, const Vector3<S>& p);
 
 template <typename S>
+FCL_EXPORT
 bool sphereTriangleIntersect(const Sphere<S>& s, const Transform3<S>& tf,
                              const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal_);
 
 template <typename S>
+FCL_EXPORT
 bool sphereTriangleDistance(const Sphere<S>& sp, const Transform3<S>& tf,
                             const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3,
                             S* dist);
 
 template <typename S>
+FCL_EXPORT
 bool sphereTriangleDistance(const Sphere<S>& sp, const Transform3<S>& tf,
                             const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3,
                             S* dist, Vector3<S>* p1, Vector3<S>* p2);
 
 template <typename S>
+FCL_EXPORT
 bool sphereTriangleDistance(const Sphere<S>& sp, const Transform3<S>& tf1,
                             const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf2,
                             S* dist, Vector3<S>* p1, Vector3<S>* p2);

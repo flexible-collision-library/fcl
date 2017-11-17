@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class TVector3<double>;
+class FCL_EXPORT TVector3<double>;
 
 //==============================================================================
 extern template

@@ -49,6 +49,7 @@ namespace detail
 {
 
 template <typename S>
+FCL_EXPORT
 void lineClosestApproach(const Vector3<S>& pa, const Vector3<S>& ua,
                          const Vector3<S>& pb, const Vector3<S>& ub,
                          S* alpha, S* beta);
@@ -61,6 +62,7 @@ void lineClosestApproach(const Vector3<S>& pa, const Vector3<S>& ua,
 // the number of intersection points is returned by the function (this will
 // be in the range 0 to 8).
 template <typename S>
+FCL_EXPORT
 int intersectRectQuad2(S h[2], S p[8], S ret[16]);
 
 // given n points in the plane (array p, of size 2*n), generate m points that
@@ -71,9 +73,11 @@ int intersectRectQuad2(S h[2], S p[8], S ret[16]);
 // n must be in the range [1..8]. m must be in the range [1..n]. i0 must be
 // in the range [0..n-1].
 template <typename S>
+FCL_EXPORT
 void cullPoints2(int n, S p[], int m, int i0, int iret[]);
 
 template <typename S, typename DerivedA, typename DerivedB>
+FCL_EXPORT
 int boxBox2(
     const Vector3<S>& side1,
     const Eigen::MatrixBase<DerivedA>& R1,
@@ -88,6 +92,7 @@ int boxBox2(
     std::vector<ContactPoint<S>>& contacts);
 
 template <typename S>
+FCL_EXPORT
 int boxBox2(
     const Vector3<S>& side1,
     const Transform3<S>& tf1,
@@ -100,6 +105,7 @@ int boxBox2(
     std::vector<ContactPoint<S>>& contacts);
 
 template <typename S>
+FCL_EXPORT
 bool boxBoxIntersect(const Box<S>& s1, const Transform3<S>& tf1,
                      const Box<S>& s2, const Transform3<S>& tf2,
                      std::vector<ContactPoint<S>>* contacts_);

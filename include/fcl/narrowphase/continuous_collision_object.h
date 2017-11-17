@@ -48,7 +48,7 @@ namespace fcl
 /// @brief the object for continuous collision or distance computation, contains
 /// the geometry and the motion information
 template <typename S>
-class ContinuousCollisionObject
+class FCL_EXPORT ContinuousCollisionObject
 {
 public:
   ContinuousCollisionObject(

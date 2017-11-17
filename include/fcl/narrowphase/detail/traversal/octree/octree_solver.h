@@ -56,7 +56,7 @@ namespace detail
 
 /// @brief Algorithms for collision related with octree
 template <typename NarrowPhaseSolver>
-class OcTreeSolver
+class FCL_EXPORT OcTreeSolver
 {
 private:
 

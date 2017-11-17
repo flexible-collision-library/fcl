@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Traversal node for distance between two shapes
 template<typename Shape1, typename Shape2, typename NarrowPhaseSolver>
-class ShapeDistanceTraversalNode
+class FCL_EXPORT ShapeDistanceTraversalNode
     : public DistanceTraversalNodeBase<typename Shape1::S>
 {
 public:

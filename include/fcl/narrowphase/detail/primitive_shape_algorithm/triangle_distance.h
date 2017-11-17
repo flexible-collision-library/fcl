@@ -48,7 +48,7 @@ namespace detail
 
 /// @brief Triangle distance functions
 template <typename S>
-class TriangleDistance
+class FCL_EXPORT TriangleDistance
 {
 public:
 

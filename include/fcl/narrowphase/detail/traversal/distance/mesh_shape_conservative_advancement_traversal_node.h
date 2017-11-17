@@ -49,7 +49,7 @@ namespace detail
 
 /// @brief Traversal node for conservative advancement computation between BVH and shape
 template <typename BV, typename Shape, typename NarrowPhaseSolver>
-class MeshShapeConservativeAdvancementTraversalNode
+class FCL_EXPORT MeshShapeConservativeAdvancementTraversalNode
     : public MeshShapeDistanceTraversalNode<BV, Shape, NarrowPhaseSolver>
 {
 public:
@@ -140,7 +140,7 @@ bool meshShapeConservativeAdvancementOrientedNodeCanStop(
     typename BV::S& delta_t);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class MeshShapeConservativeAdvancementTraversalNodeRSS
+class FCL_EXPORT MeshShapeConservativeAdvancementTraversalNodeRSS
     : public MeshShapeConservativeAdvancementTraversalNode<
     RSS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {
@@ -168,7 +168,7 @@ bool initialize(
     typename Shape::S w = 1);
 
 template <typename Shape, typename NarrowPhaseSolver>
-class MeshShapeConservativeAdvancementTraversalNodeOBBRSS :
+class FCL_EXPORT MeshShapeConservativeAdvancementTraversalNodeOBBRSS :
     public MeshShapeConservativeAdvancementTraversalNode<
     OBBRSS<typename Shape::S>, Shape, NarrowPhaseSolver>
 {

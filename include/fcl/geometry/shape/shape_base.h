@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief Base class for all basic geometric shapes
 template <typename S_>
-class ShapeBase : public CollisionGeometry<S_>
+class FCL_EXPORT ShapeBase : public CollisionGeometry<S_>
 {
 public:
 

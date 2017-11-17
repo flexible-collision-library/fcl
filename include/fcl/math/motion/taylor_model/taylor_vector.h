@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-class TVector3
+class FCL_EXPORT TVector3
 {
   TaylorModel<S> i_[3];
 
@@ -104,15 +104,19 @@ public:
 };
 
 template <typename S>
+FCL_EXPORT
 void generateTVector3ForLinearFunc(TVector3<S>& v, const Vector3<S>& position, const Vector3<S>& velocity);
 
 template <typename S>
+FCL_EXPORT
 TVector3<S> operator * (const Vector3<S>& v, const TaylorModel<S>& a);
 
 template <typename S>
+FCL_EXPORT
 TVector3<S> operator + (const Vector3<S>& v1, const TVector3<S>& v2);
 
 template <typename S>
+FCL_EXPORT
 TVector3<S> operator - (const Vector3<S>& v1, const TVector3<S>& v2);
 
 } // namespace fcl

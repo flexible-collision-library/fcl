@@ -44,7 +44,7 @@ namespace fcl
 {
 
 template <typename S>
-struct IVector3
+struct FCL_EXPORT IVector3
 {
   Interval<S> i_[3];
 
@@ -106,9 +106,11 @@ struct IVector3
 };
 
 template <typename S>
+FCL_EXPORT
 IVector3<S> bound(const IVector3<S>& i, const Vector3<S>& v);
 
 template <typename S>
+FCL_EXPORT
 IVector3<S> bound(const IVector3<S>& i, const IVector3<S>& v);
 
 } // namespace fcl

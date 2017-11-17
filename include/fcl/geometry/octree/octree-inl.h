@@ -49,7 +49,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class OcTree<double>;
+class FCL_EXPORT OcTree<double>;
 
 //==============================================================================
 extern template

@@ -38,7 +38,6 @@
 #ifndef FCL_NARROWPHASE_GJKSOLVERLIBCCD_H
 #define FCL_NARROWPHASE_GJKSOLVERLIBCCD_H
 
-#include "fcl/common/deprecated.h"
 #include "fcl/common/types.h"
 #include "fcl/narrowphase/contact_point.h"
 
@@ -50,7 +49,7 @@ namespace detail
 
 /// @brief collision and distance solver based on libccd library.
 template <typename S_>
-struct GJKSolver_libccd
+struct FCL_EXPORT GJKSolver_libccd
 {
   using S = S_;
 

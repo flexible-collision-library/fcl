@@ -71,7 +71,7 @@ template <typename, typename>
 struct TriangleMotionBoundVisitorVisitImpl;
 
 template <typename S>
-class TriangleMotionBoundVisitor
+class FCL_EXPORT TriangleMotionBoundVisitor
 {
 public:
   TriangleMotionBoundVisitor(

@@ -55,7 +55,7 @@ namespace fcl
 /// remainder. All the operations on two Taylor models assume their time
 /// intervals are the same.
 template <typename S>
-class TaylorModel
+class FCL_EXPORT TaylorModel
 {
   /// @brief time interval
   std::shared_ptr<TimeInterval<S>> time_interval_;
@@ -118,24 +118,30 @@ public:
 };
 
 template <typename S>
+FCL_EXPORT
 TaylorModel<S> operator * (S d, const TaylorModel<S>& a);
 
 template <typename S>
+FCL_EXPORT
 TaylorModel<S> operator + (S d, const TaylorModel<S>& a);
 
 template <typename S>
+FCL_EXPORT
 TaylorModel<S> operator - (S d, const TaylorModel<S>& a);
 
 /// @brief Generate Taylor model for cos(w t + q0)
 template <typename S>
+FCL_EXPORT
 void generateTaylorModelForCosFunc(TaylorModel<S>& tm, S w, S q0);
 
 /// @brief Generate Taylor model for sin(w t + q0)
 template <typename S>
+FCL_EXPORT
 void generateTaylorModelForSinFunc(TaylorModel<S>& tm, S w, S q0);
 
 /// @brief Generate Taylor model for p + v t
 template <typename S>
+FCL_EXPORT
 void generateTaylorModelForLinearFunc(TaylorModel<S>& tm, S p, S v);
 
 } // namespace fcl

@@ -52,7 +52,7 @@ namespace detail
 
 //==============================================================================
 extern template
-class MeshCollisionTraversalNodeOBB<double>;
+class FCL_EXPORT MeshCollisionTraversalNodeOBB<double>;
 
 //==============================================================================
 extern template
@@ -67,7 +67,7 @@ bool initialize(
 
 //==============================================================================
 extern template
-class MeshCollisionTraversalNodeRSS<double>;
+class FCL_EXPORT MeshCollisionTraversalNodeRSS<double>;
 
 //==============================================================================
 extern template
@@ -82,7 +82,7 @@ bool initialize(
 
 //==============================================================================
 extern template
-class MeshCollisionTraversalNodekIOS<double>;
+class FCL_EXPORT MeshCollisionTraversalNodekIOS<double>;
 
 //==============================================================================
 extern template
@@ -97,7 +97,7 @@ bool initialize(
 
 //==============================================================================
 extern template
-class MeshCollisionTraversalNodeOBBRSS<double>;
+class FCL_EXPORT MeshCollisionTraversalNodeOBBRSS<double>;
 
 //==============================================================================
 extern template

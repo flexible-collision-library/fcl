@@ -45,7 +45,7 @@ namespace fcl
 
 /// @brief continuous collision result
 template <typename S>
-struct ContinuousCollisionResult
+struct FCL_EXPORT ContinuousCollisionResult
 {
   /// @brief collision or not
   bool is_collide;

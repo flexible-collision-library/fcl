@@ -45,7 +45,7 @@ namespace fcl
 {
 
 template <typename S>
-struct IMatrix3
+struct FCL_EXPORT IMatrix3
 {
   IVector3<S> v_[3];
 
@@ -95,6 +95,7 @@ struct IMatrix3
 };
 
 template <typename S>
+FCL_EXPORT
 IMatrix3<S> rotationConstrain(const IMatrix3<S>& m);
 
 } // namespace fcl

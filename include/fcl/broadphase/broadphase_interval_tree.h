@@ -48,7 +48,7 @@ namespace fcl
 
 /// @brief Collision manager based on interval tree
 template <typename S>
-class IntervalTreeCollisionManager : public BroadPhaseCollisionManager<S>
+class FCL_EXPORT IntervalTreeCollisionManager : public BroadPhaseCollisionManager<S>
 {
 public:
   IntervalTreeCollisionManager();
@@ -147,7 +147,7 @@ using IntervalTreeCollisionManagerd = IntervalTreeCollisionManager<double>;
 
 /// @brief SAP end point
 template <typename S>
-struct IntervalTreeCollisionManager<S>::EndPoint
+struct FCL_EXPORT IntervalTreeCollisionManager<S>::EndPoint
 {
   /// @brief object related with the end point
   CollisionObject<S>* obj;
@@ -163,7 +163,7 @@ struct IntervalTreeCollisionManager<S>::EndPoint
 
 /// @brief Extention interval tree's interval to SAP interval, adding more information
 template <typename S>
-struct IntervalTreeCollisionManager<S>::SAPInterval : public detail::SimpleInterval<S>
+struct FCL_EXPORT IntervalTreeCollisionManager<S>::SAPInterval : public detail::SimpleInterval<S>
 {
   CollisionObject<S>* obj;
 

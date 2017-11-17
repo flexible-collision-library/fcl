@@ -52,30 +52,37 @@ namespace detail
 
 /// @brief Recurse function for collision
 template <typename S>
+FCL_EXPORT
 void collisionRecurse(CollisionTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list);
 
 /// @brief Recurse function for collision, specialized for OBB type
 template <typename S>
+FCL_EXPORT
 void collisionRecurse(MeshCollisionTraversalNodeOBB<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list);
 
 /// @brief Recurse function for collision, specialized for RSS type
 template <typename S>
+FCL_EXPORT
 void collisionRecurse(MeshCollisionTraversalNodeRSS<S>* node, int b1, int b2, const Matrix3<S>& R, const Vector3<S>& T, BVHFrontList* front_list);
 
 /// @brief Recurse function for self collision. Make sure node is set correctly so that the first and second tree are the same
 template <typename S>
+FCL_EXPORT
 void selfCollisionRecurse(CollisionTraversalNodeBase<S>* node, int b, BVHFrontList* front_list);
 
 /// @brief Recurse function for distance
 template <typename S>
+FCL_EXPORT
 void distanceRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list);
 
 /// @brief Recurse function for distance, using queue acceleration
 template <typename S>
+FCL_EXPORT
 void distanceQueueRecurse(DistanceTraversalNodeBase<S>* node, int b1, int b2, BVHFrontList* front_list, int qsize);
 
 /// @brief Recurse function for front list propagation
 template <typename S>
+FCL_EXPORT
 void propagateBVHFrontListCollisionRecurse(CollisionTraversalNodeBase<S>* node, BVHFrontList* front_list);
 
 } // namespace detail

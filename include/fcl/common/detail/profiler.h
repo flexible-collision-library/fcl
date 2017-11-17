@@ -49,6 +49,7 @@
 #include <thread>
 #include <vector>
 #include "fcl/common/time.h"
+#include "fcl/export.h"
 
 namespace fcl {
 namespace detail {
@@ -58,7 +59,7 @@ namespace detail {
 /// external profiling tools in that it allows the user to count
 /// time spent in various bits of code (sub-function granularity)
 /// or count how many times certain pieces of code are executed.
-class Profiler
+class FCL_EXPORT Profiler
 {
 public:
   // non-copyable
@@ -67,13 +68,13 @@ public:
 
   /// @brief This instance will call Profiler::begin() when constructed and
   /// Profiler::end() when it goes out of scope.
-  class ScopedBlock;
+  class FCL_EXPORT ScopedBlock;
 
   /// @brief This instance will call Profiler::start() when constructed and
   /// Profiler::stop() when it goes out of scope.
   /// If the profiler was already started, this block's constructor and
   /// destructor take no action
-  class ScopedStart;
+  class FCL_EXPORT ScopedStart;
 
   /// @brief Return an instance of the class
   static Profiler& Instance(void);
@@ -210,7 +211,7 @@ private:
 
 /// @brief This instance will call Profiler::begin() when constructed and
 /// Profiler::end() when it goes out of scope.
-class Profiler::ScopedBlock
+class FCL_EXPORT Profiler::ScopedBlock
 {
 public:
   /// @brief Start counting time for the block named \e name of the profiler
@@ -229,7 +230,7 @@ private:
 /// Profiler::stop() when it goes out of scope.
 /// If the profiler was already started, this block's constructor and
 /// destructor take no action
-class Profiler::ScopedStart
+class FCL_EXPORT Profiler::ScopedStart
 {
 public:
 

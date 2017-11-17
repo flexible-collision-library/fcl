@@ -53,7 +53,7 @@ namespace detail
 
 /// @brief Base interface for BV splitting algorithm
 template <typename BV>
-class BVSplitterBase
+class FCL_EXPORT BVSplitterBase
 {
 public:
 

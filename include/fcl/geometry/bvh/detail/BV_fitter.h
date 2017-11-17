@@ -53,7 +53,7 @@ namespace detail
 
 /// @brief The class for the default algorithm fitting a bounding volume to a set of points
 template <typename BV>
-class BVFitter : public BVFitterBase<BV>
+class FCL_EXPORT BVFitter : public BVFitterBase<BV>
 {
 public:
 

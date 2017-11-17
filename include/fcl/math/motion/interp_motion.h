@@ -55,7 +55,7 @@ namespace fcl
 ///            T(0) = T0 + R0 p_ref - p_ref
 ///            T(1) = T1 + R1 p_ref - p_ref
 template <typename S>
-class InterpMotion : public MotionBase<S>
+class FCL_EXPORT InterpMotion : public MotionBase<S>
 {
 public:
   /// @brief Default transformations are all identities

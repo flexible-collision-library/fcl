@@ -45,7 +45,7 @@ namespace fcl
 
 //==============================================================================
 extern template
-class RNG<double>;
+class FCL_EXPORT RNG<double>;
 
 //==============================================================================
 template <typename S>

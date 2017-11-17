@@ -51,12 +51,12 @@ namespace detail
 {
 
 template<typename U, typename V>
-class unordered_map_hash_table : public std::unordered_map<U, V> {};
+class FCL_EXPORT unordered_map_hash_table : public std::unordered_map<U, V> {};
 
 /// @brief A hash table implemented using unordered_map
 template <typename Key, typename Data, typename HashFnc,
           template<typename, typename> class TableT = unordered_map_hash_table>
-class SparseHashTable
+class FCL_EXPORT SparseHashTable
 {
 protected:
   HashFnc h_;

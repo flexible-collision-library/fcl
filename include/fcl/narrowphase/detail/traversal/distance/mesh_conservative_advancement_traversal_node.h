@@ -50,7 +50,7 @@ namespace detail
 
 /// @brief continuous collision node using conservative advancement. when using this default version, must refit the BVH in current configuration (R_t, T_t) into default configuration
 template <typename BV>
-class MeshConservativeAdvancementTraversalNode
+class FCL_EXPORT MeshConservativeAdvancementTraversalNode
     : public MeshDistanceTraversalNode<BV>
 {
 public:
@@ -97,6 +97,7 @@ public:
 /// @brief Initialize traversal node for conservative advancement computation
 /// between two meshes, given the current transforms
 template <typename BV>
+FCL_EXPORT
 bool initialize(
     MeshConservativeAdvancementTraversalNode<BV>& node,
     BVHModel<BV>& model1,
@@ -108,7 +109,7 @@ bool initialize(
     bool refit_bottomup = false);
 
 template <typename S>
-class MeshConservativeAdvancementTraversalNodeRSS
+class FCL_EXPORT MeshConservativeAdvancementTraversalNodeRSS
     : public MeshConservativeAdvancementTraversalNode<RSS<S>>
 {
 public:
@@ -149,6 +150,7 @@ using MeshConservativeAdvancementTraversalNodeRSSd = MeshConservativeAdvancement
 /// @brief Initialize traversal node for conservative advancement computation
 /// between two meshes, given the current transforms, specialized for RSS
 template <typename S>
+FCL_EXPORT
 bool initialize(
     MeshConservativeAdvancementTraversalNodeRSS<S>& node,
     const BVHModel<RSS<S>>& model1,
@@ -158,7 +160,7 @@ bool initialize(
     S w = 1);
 
 template <typename S>
-class MeshConservativeAdvancementTraversalNodeOBBRSS
+class FCL_EXPORT MeshConservativeAdvancementTraversalNodeOBBRSS
     : public MeshConservativeAdvancementTraversalNode<OBBRSS<S>>
 {
 public:
@@ -197,6 +199,7 @@ using MeshConservativeAdvancementTraversalNodeOBBRSSf = MeshConservativeAdvancem
 using MeshConservativeAdvancementTraversalNodeOBBRSSd = MeshConservativeAdvancementTraversalNodeOBBRSS<double>;
 
 template <typename S>
+FCL_EXPORT
 bool initialize(
     MeshConservativeAdvancementTraversalNodeOBBRSS<S>& node,
     const BVHModel<OBBRSS<S>>& model1,
@@ -206,9 +209,11 @@ bool initialize(
     S w = 1);
 
 template <typename S, typename BV>
+FCL_EXPORT
 const Vector3<S> getBVAxis(const BV& bv, int i);
 
 template <typename BV>
+FCL_EXPORT
 bool meshConservativeAdvancementTraversalNodeCanStop(
     typename BV::S c,
     typename BV::S min_distance,
@@ -223,6 +228,7 @@ bool meshConservativeAdvancementTraversalNodeCanStop(
     typename BV::S& delta_t);
 
 template <typename BV>
+FCL_EXPORT
 bool meshConservativeAdvancementOrientedNodeCanStop(
     typename BV::S c,
     typename BV::S min_distance,
@@ -237,6 +243,7 @@ bool meshConservativeAdvancementOrientedNodeCanStop(
     typename BV::S& delta_t);
 
 template <typename BV>
+FCL_EXPORT
 void meshConservativeAdvancementOrientedNodeLeafTesting(
     int b1,
     int b2,

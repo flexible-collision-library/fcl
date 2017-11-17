@@ -62,7 +62,7 @@ template <typename S>
 class TranslationMotion;
 
 template<typename BV>
-class TBVMotionBoundVisitor : public BVMotionBoundVisitor<typename BV::S>
+class FCL_EXPORT TBVMotionBoundVisitor : public BVMotionBoundVisitor<typename BV::S>
 {
 public:
   using S = typename BV::S;

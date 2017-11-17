@@ -49,11 +49,13 @@ namespace fcl
 /// @brief Main distance interface: given two collision objects, and the requirements for contacts, including whether return the nearest points, this function performs the distance between them. 
 /// Return value is the minimum distance generated between the two objects.
 template <typename S>
+FCL_EXPORT
 S distance(
     const CollisionObject<S>* o1, const CollisionObject<S>* o2,
     const DistanceRequest<S>& request, DistanceResult<S>& result);
 
 template <typename S>
+FCL_EXPORT
 S distance(
     const CollisionGeometry<S>* o1, const Transform3<S>& tf1,
     const CollisionGeometry<S>* o2, const Transform3<S>& tf2,

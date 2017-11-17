@@ -50,7 +50,7 @@ namespace fcl
 {
 
 template <typename S>
-class SplineMotion : public MotionBase<S>
+class FCL_EXPORT SplineMotion : public MotionBase<S>
 {
 public:
   /// @brief Construct motion from 4 deBoor points

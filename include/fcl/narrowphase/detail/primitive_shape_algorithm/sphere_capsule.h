@@ -53,6 +53,7 @@ namespace detail
 // given by Dan Sunday's page:
 //   http://geomalgorithms.com/a02-_lines.html
 template <typename S>
+FCL_EXPORT
 void lineSegmentPointClosestToPoint(
     const Vector3<S> &p,
     const Vector3<S> &s1,
@@ -60,11 +61,13 @@ void lineSegmentPointClosestToPoint(
     Vector3<S> &sp);
 
 template <typename S>
+FCL_EXPORT
 bool sphereCapsuleIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
                             const Capsule<S>& s2, const Transform3<S>& tf2,
                             std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
+FCL_EXPORT
 bool sphereCapsuleDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
                            const Capsule<S>& s2, const Transform3<S>& tf2,
                            S* dist, Vector3<S>* p1, Vector3<S>* p2);

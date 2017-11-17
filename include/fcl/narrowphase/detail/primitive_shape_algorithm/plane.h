@@ -55,20 +55,25 @@ namespace detail
 {
 
 template <typename S>
+FCL_EXPORT
 S planeIntersectTolerance();
 
 template <>
+FCL_EXPORT
 double planeIntersectTolerance();
 
 template <>
+FCL_EXPORT
 float planeIntersectTolerance();
 
 template <typename S>
+FCL_EXPORT
 bool spherePlaneIntersect(const Sphere<S>& s1, const Transform3<S>& tf1,
                           const Plane<S>& s2, const Transform3<S>& tf2,
                           std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
+FCL_EXPORT
 bool ellipsoidPlaneIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf1,
                              const Plane<S>& s2, const Transform3<S>& tf2,
                              std::vector<ContactPoint<S>>* contacts);
@@ -81,15 +86,18 @@ bool ellipsoidPlaneIntersect(const Ellipsoid<S>& s1, const Transform3<S>& tf1,
 /// (R^T n) (a v1 + b v2 + c v3) can get |(R^T n) (a v1 + b v2 + c v3)| for one a, b, c.
 /// if |d - n * T| <= |(R^T n)(a v1 + b v2 + c v3)| then can get both positive and negative value on the right side.
 template <typename S>
+FCL_EXPORT
 bool boxPlaneIntersect(const Box<S>& s1, const Transform3<S>& tf1,
                        const Plane<S>& s2, const Transform3<S>& tf2,
                        std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
+FCL_EXPORT
 bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
                            const Plane<S>& s2, const Transform3<S>& tf2);
 
 template <typename S>
+FCL_EXPORT
 bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
                            const Plane<S>& s2, const Transform3<S>& tf2,
                            std::vector<ContactPoint<S>>* contacts);
@@ -100,30 +108,36 @@ bool capsulePlaneIntersect(const Capsule<S>& s1, const Transform3<S>& tf1,
 /// (n^T * v3) * h + n * T -d + r * (cosa * (n^T * R * v1) + sina * (n^T * R * v2)) ~ 0
 /// (n^T * v3) * h + r * (cosa * (n^T * R * v1) + sina * (n^T * R * v2)) + n * T - d ~ 0
 template <typename S>
+FCL_EXPORT
 bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
                             const Plane<S>& s2, const Transform3<S>& tf2);
 
 template <typename S>
+FCL_EXPORT
 bool cylinderPlaneIntersect(const Cylinder<S>& s1, const Transform3<S>& tf1,
                             const Plane<S>& s2, const Transform3<S>& tf2,
                             std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
+FCL_EXPORT
 bool conePlaneIntersect(const Cone<S>& s1, const Transform3<S>& tf1,
                         const Plane<S>& s2, const Transform3<S>& tf2,
                         std::vector<ContactPoint<S>>* contacts);
 
 template <typename S>
+FCL_EXPORT
 bool convexPlaneIntersect(const Convex<S>& s1, const Transform3<S>& tf1,
                           const Plane<S>& s2, const Transform3<S>& tf2,
                           Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
 
 template <typename S>
+FCL_EXPORT
 bool planeTriangleIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
                             const Vector3<S>& P1, const Vector3<S>& P2, const Vector3<S>& P3, const Transform3<S>& tf2,
                             Vector3<S>* contact_points, S* penetration_depth, Vector3<S>* normal);
 
 template <typename S>
+FCL_EXPORT
 bool planeIntersect(const Plane<S>& s1, const Transform3<S>& tf1,
                     const Plane<S>& s2, const Transform3<S>& tf2,
                     std::vector<ContactPoint<S>>* contacts);

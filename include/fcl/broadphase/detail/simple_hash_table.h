@@ -52,7 +52,7 @@ namespace detail
 /// @brief A simple hash table implemented as multiple buckets. HashFnc is any
 /// extended hash function: HashFnc(key) = {index1, index2, ..., }
 template<typename Key, typename Data, typename HashFnc>
-class SimpleHashTable
+class FCL_EXPORT SimpleHashTable
 {
 protected:
   typedef std::list<Data> Bin;

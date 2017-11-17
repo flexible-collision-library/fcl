@@ -46,7 +46,7 @@ namespace fcl
 
 /// @brief Cost source describes an area with a cost. The area is described by an AABB<S> region.
 template <typename S>
-struct CostSource
+struct FCL_EXPORT CostSource
 {
   /// @brief aabb lower bound
   Vector3<S> aabb_min;
