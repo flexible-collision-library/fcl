@@ -2,59 +2,49 @@
 # http://www.appveyor.com/docs/appveyor-yml
 
 version: "{build}"
-os: Visual Studio 2015
 
 clone_folder: C:\projects\fcl
 shallow_clone: true
 
-# build platform, i.e. Win32 (instead of x86), x64, Any CPU. This setting is optional.
-platform:
-  - Win32
-  - x64
-
 environment:
   CTEST_OUTPUT_ON_FAILURE: 1
+  CMAKE_TOOLCHAIN_FILE: -DCMAKE_TOOLCHAIN_FILE="C:\tools\vcpkg\scripts\buildsystems\vcpkg.cmake"
+  matrix:  
+    - image: Visual Studio 2017
+      platform: x64
+      CMAKE_GENERATOR: -G"Visual Studio 15 2017 Win64"
+    - image: Visual Studio 2017
+      platform: Win32
+      CMAKE_GENERATOR: -G"Visual Studio 15 2017"
+    - image: Visual Studio 2015
+      platform: x64
+      CMAKE_GENERATOR: -G"Visual Studio 14 2015 Win64"
+    - image: Visual Studio 2015
+      platform: Win32
+      CMAKE_GENERATOR: -G"Visual Studio 14 2015"
 
 cache:
-  - C:\Program Files\libccd -> .appveyor.yml
+  - C:\tools\vcpkg\installed -> .appveyor.yml
+  - C:\tools\vcpkg\packages -> .appveyor.yml
 
 configuration:
   - Debug
   - Release
 
 before_build:
-  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015
-  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
-  - cmd: if "%platform%"=="Win32" set PROGRAM_FILES_PATH=Program Files (x86)
-  - cmd: if "%platform%"=="x64"   set PROGRAM_FILES_PATH=Program Files
-  - cmd: if not exist C:\"Program Files"\libccd\lib\ccd.lib (
-            curl -L -o libccd-2.0.tar.gz https://github.com/danfis/libccd/archive/v2.0.tar.gz &&
-            cmake -E tar zxf libccd-2.0.tar.gz &&
-            cd libccd-2.0 &&
-            mkdir build &&
-            cd build &&
-            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_DOUBLE=True .. &&
-            cmake --build . --target install --config %Configuration% &&
-            cd ..\..
-         ) else (echo Using cached libccd)
-  - cmd: if not exist C:\"Program Files"\Eigen\include\eigen3\Eigen\Core (
-            curl -L -o eigen-eigen-dc6cfdf9bcec.tar.gz https://bitbucket.org/eigen/eigen/get/3.2.9.tar.gz &&
-            cmake -E tar zxf eigen-eigen-dc6cfdf9bcec.tar.gz &&
-            cd eigen-eigen-dc6cfdf9bcec &&
-            mkdir build &&
-            cd build &&
-            cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% .. &&
-            cmake --build . --target install --config %Configuration% &&
-            cd ..\..
-         ) else (echo Using cached Eigen3)
+  - cmd: if "%platform%"=="Win32" set VCPKG_ARCH=x86-windows
+  - cmd: if "%platform%"=="x64"   set VCPKG_ARCH=x64-windows
+  - cmd: vcpkg install eigen3:%VCPKG_ARCH%
+  - cmd: vcpkg install ccd:%VCPKG_ARCH%
+  - cmd: vcpkg install octomap:%VCPKG_ARCH%
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DCMAKE_BUILD_TYPE=%Configuration% -DCCD_INCLUDE_DIR="C:\%PROGRAM_FILES_PATH%\libccd\include" -DCCD_LIBRARY="C:\%PROGRAM_FILES_PATH%\libccd\lib\ccd.lib" -DEIGEN3_INCLUDE_DIR="C:\%PROGRAM_FILES_PATH%\Eigen\include\eigen3" ..
+  - cmd: cmake %CMAKE_GENERATOR% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
   parallel: true
 
 test_script:
-  - cmd: ctest -C %Configuration%
+  - cmd: ctest -C %configuration%
