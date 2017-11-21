@@ -40,7 +40,7 @@ before_build:
   - cmd: if "%platform%"=="x64"   set VCPKG_ARCH=x64-windows
   - cmd: vcpkg install eigen3:%VCPKG_ARCH%
   - cmd: vcpkg install ccd:%VCPKG_ARCH%
-  - cmd: vcpkg install octomap:%VCPKG_ARCH%
+  #- cmd: vcpkg install octomap:%VCPKG_ARCH%
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
