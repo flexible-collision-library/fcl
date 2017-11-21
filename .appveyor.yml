@@ -13,15 +13,19 @@ environment:
     - image: Visual Studio 2017
       platform: x64
       CMAKE_GENERATOR: -G"Visual Studio 15 2017 Win64"
+      CMAKE_TOOLCHAIN: -T"v140"
     - image: Visual Studio 2017
       platform: Win32
       CMAKE_GENERATOR: -G"Visual Studio 15 2017"
+      CMAKE_TOOLCHAIN: -T"v140"
     - image: Visual Studio 2015
       platform: x64
       CMAKE_GENERATOR: -G"Visual Studio 14 2015 Win64"
+      CMAKE_TOOLCHAIN: -T"v140"
     - image: Visual Studio 2015
       platform: Win32
       CMAKE_GENERATOR: -G"Visual Studio 14 2015"
+      CMAKE_TOOLCHAIN: -T"v140"
 
 cache:
   - C:\tools\vcpkg\installed -> .appveyor.yml
@@ -40,7 +44,7 @@ before_build:
   - cmd: set
   - cmd: mkdir build
   - cmd: cd build
-  - cmd: cmake %CMAKE_GENERATOR% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% ..
+  - cmd: cmake %CMAKE_GENERATOR% -DCMAKE_BUILD_TYPE=%configuration% %CMAKE_TOOLCHAIN_FILE% %CMAKE_TOOLCHAIN% ..
 
 build:
   project: C:\projects\fcl\build\fcl.sln
