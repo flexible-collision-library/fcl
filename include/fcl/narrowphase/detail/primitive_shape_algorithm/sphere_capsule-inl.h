@@ -146,10 +146,14 @@ bool sphereCapsuleDistance(const Sphere<S>& s1, const Transform3<S>& tf1,
   if(p1)
   {
     *p1 = s_c - diff * s1.radius;
-    *p1 = tf1.inverse(Eigen::Isometry) * tf2 * (*p1);
+    *p1 = tf2 * (*p1);
   }
 
-  if(p2) *p2 = segment_point + diff * s1.radius;
+  if(p2)
+  {
+    *p2 = segment_point + diff * s2.radius;
+    *p2 = tf2 * (*p2);
+  }
 
   return true;
 }
