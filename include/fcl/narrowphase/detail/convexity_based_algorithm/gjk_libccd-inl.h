@@ -1211,6 +1211,9 @@ static inline ccd_real_t _ccdDist(const void *obj1, const void *obj2,
     // find out support point
     __ccdSupport(obj1, obj2, &dir, ccd, &last);
 
+    // Reset dir back
+    ccdVec3Scale(&dir, -dist);
+
     // record last distance
     last_dist = dist;
 
@@ -1382,6 +1385,9 @@ static inline ccd_real_t ccdGJKDist2(const void *obj1, const void *obj2, const c
 
     // find out support point
     __ccdSupport(obj1, obj2, &dir, ccd, &last);
+
+    // Reset dir back
+    ccdVec3Scale(&dir, -dist);
 
     // record last distance
     last_dist = dist;
